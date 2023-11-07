@@ -328,98 +328,98 @@ OCTO>
 # Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable
 # Queries where ORDER BY optimization took effect will only show up as lines containing [select]
 # Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]
-_ydboctoP*.m:;  select * from (values (1, 'abcd', 'efgh')) as n1(id,firstname,lastname) order by id desc
+_ydboctoP*.m:;  select * from TOB20f where lastname = 'efgh' order by id asc limit 2
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc limit 2
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc limit 2
+_ydboctoP*.m:;  select * from TOB20h order by id asc limit 2
+_ydboctoP*.m:;  select * from names where id = 3 OR id = 1 OR id = 2 order by id asc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20h order by id desc limit 2
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc limit 2
 _ydboctoP*.m:;  select * from TOB20a order by id desc
 _ydboctoP*.m:;  select * from TOB20f order by id desc
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc limit 2
 _ydboctoP*.m:;  select * from TOB20d order by id
 _ydboctoP*.m:;  select * from TOB20i order by id desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20h order by id
-_ydboctoP*.m:;  select * from TOB20d order by id asc limit 2
-_ydboctoP*.m:;  select * from TOB20c order by zipcode
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from composite order by id0 desc, id1 desc limit 2
+_ydboctoP*.m:;  select * from names n1, names n2, names n3 where n1.lastname is NULL and n2.firstname = 'Zero' order by n1.id desc, n2.id desc, n3.id asc
+_ydboctoP*.m:;  select * from names where firstname = 'Zero' order by id desc
+_ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id desc limit 2
 _ydboctoP*.m:;  select * from names order by id + 2
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20f where lastname = 'efgh' order by id desc limit 2
+_ydboctoP*.m:;  select * from TOB20c order by zipcode
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from (values (1, 'abcd', 'efgh')) as n1(id,firstname,lastname) order by id desc
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc limit 2
+_ydboctoP*.m:;  select * from TOB20c order by zipcode desc limit 2
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20c order by zipcode asc limit 2
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20e where firstname = 'abcd' order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20a order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20e order by id desc limit 2
 _ydboctoP*.m:;  select * from names n1 order by n1.firstname
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names order by id limit 1
+_ydboctoP*.m:;  select * from TOB20f where lastname = 'efgh' order by id desc limit 2
 _ydboctoP*.m:;  select * from names n1, names n2 order by n2.id, n1.id
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20c order by zipcode desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20f where lastname = 'efgh' order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20i order by id
-_ydboctoP*.m:;  select * from names where id = 3 OR id = 1 OR id = 2 order by id desc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20i order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id desc limit 2
 _ydboctoP*.m:;  select * from names order by id
 _ydboctoP*.m:;  select * from TOB20a order by id asc
-_ydboctoP*.m:;  select * from composite order by id1 desc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20e order by id desc
-_ydboctoP*.m:;  select * from TOB20f order by id asc limit 2
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc limit 2
-_ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id asc limit 2
-_ydboctoP*.m:;  select * from names n1, names n2, names n3 where n1.lastname is NULL and n2.firstname = 'Zero' order by n1.id desc, n2.id desc, n3.id asc
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc limit 2
-_ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20c order by zipcode desc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from names n1 order by n1.*
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20e order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20b order by id desc limit 2
-_ydboctoP*.m:;  select * from (select * from names) n1 order by id desc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20g where firstname = 'abcd' order by id asc limit 2
-_ydboctoP*.m:;  select * from composite order by id0 desc limit 1
-_ydboctoP*.m:;  select * from names where firstname = 'Zero' order by id desc
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc
-_ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20e order by id
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc
-_ydboctoP*.m:;  select * from TOB20h order by id asc limit 2
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc
-_ydboctoP*.m:;  select * from TOB20g order by id
-_ydboctoP*.m:;  select * from names order by id desc
-_ydboctoP*.m:;  select * from TOB20b order by id asc
-_ydboctoP*.m:;  select * from TOB20c order by zipcode asc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from names order by id limit 1
-_ydboctoP*.m:;  select * from TOB20f order by id desc limit 2
-_ydboctoP*.m:;  select * from names where id = 3 OR id = 1 OR id = 2 order by id asc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from TOB20e order by id asc limit 2
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id asc limit 2
-_ydboctoP*.m:;  select * from names order by id desc limit 1
-_ydboctoP*.m:;  select * from TOB20g order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20i where lastname = 'efgh' order by id desc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id asc
-_ydboctoP*.m:;  select * from TOB20a order by id asc limit 2
-_ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id asc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc
-_ydboctoP*.m:;  select * from TOB20d order by id desc
-_ydboctoP*.m:;  select * from TOB20f order by id
-_ydboctoP*.m:;  select * from TOB20g where firstname = 'abcd' order by id desc limit 2
-_ydboctoP*.m:;  select * from TOB20h order by id desc
-_ydboctoP*.m:;  select * from TOB20i where lastname = 'efgh' order by id asc limit 2
-_ydboctoP*.m:;  select * from TOB20g order by id asc limit 2
-_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc limit 2
-_ydboctoP*.m:;  select * from TOB20g order by id desc
-_ydboctoP*.m:;  select * from TOB20e where firstname = 'abcd' order by id asc limit 2
-_ydboctoP*.m:;  select * from TOB20d order by id desc limit 2
 _ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20e order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20f order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20i order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20e order by id desc
+_ydboctoP*.m:;  select * from TOB20g where firstname = 'abcd' order by id desc limit 2
+_ydboctoP*.m:;  select * from names order by id desc limit 1
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc limit 2
+_ydboctoP*.m:;  select * from names n1 order by n1.*
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20i order by id desc limit 2
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20g order by id asc limit 2
+_ydboctoP*.m:;  select * from (select * from names) n1 order by id desc
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
+_ydboctoP*.m:;  select * from composite order by id1 desc limit 2
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20b order by id desc limit 2
+_ydboctoP*.m:;  select * from TOB20f order by id desc limit 2
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc
+_ydboctoP*.m:;  select * from TOB20e order by id
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc
+_ydboctoP*.m:;  select * from TOB20d order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20g order by id
+_ydboctoP*.m:;  select * from names order by id desc
+_ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20b order by id asc
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id asc limit 2
+_ydboctoP*.m:;  select * from TOB20i where lastname = 'efgh' order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20a order by id desc limit 2
+_ydboctoP*.m:;  select * from TOB20d order by id desc limit 2
+_ydboctoP*.m:;  select * from names where id = 3 OR id = 1 OR id = 2 order by id desc
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from TOB20h order by id desc limit 2
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id asc
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc
+_ydboctoP*.m:;  select * from TOB20d order by id desc
+_ydboctoP*.m:;  select * from TOB20i where lastname = 'efgh' order by id desc limit 2
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from composite order by id0 desc, id1 desc limit 2
+_ydboctoP*.m:;  select * from TOB20g order by id desc limit 2
+_ydboctoP*.m:;  select * from TOB20f order by id
+_ydboctoP*.m:;  select * from TOB20h order by id desc
+_ydboctoP*.m:;  select * from composite order by id0 desc limit 1
+_ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id asc
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+_ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc limit 2
+_ydboctoP*.m:;  select * from TOB20a order by id asc limit 2
+_ydboctoP*.m:;  select * from TOB20g order by id desc
+_ydboctoP*.m:;  select * from TOB20e where firstname = 'abcd' order by id asc limit 2

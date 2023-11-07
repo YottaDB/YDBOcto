@@ -1071,11 +1071,9 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 
 sort_LC_ALL_C() {
 	# We have noticed that setting LC_ALL to en_US.UTF8 (done by the test framework at start of each subtest in "init_test()")
-	# results in different sort output (in rare cases in TQG04 subtest, and in all cases in the TRTE07 subtest). This is
-	# suspected to be a bug in older versions of sort (sort 8.22 and older which is the version of sort in Ubuntu 18.04
-	# and RHEL 7). sort 8.30 (version of sort in Ubuntu 20.04, CentOS 8 etc.) works fine in this case.
-	# Therefore, we work around this issue by setting the locale to C just for the duration of the sort.
-	# just for the "sort" command.
+	# results in different sort output. This is because in UTF-8 mode, 'a' or 'A' sorts BEFORE 'b' and 'B' whereas in
+	# C/ASCII mode, 'a' and 'b' sorts AFTER 'A' and 'B'. Therefore, we work around this issue by setting the locale to C just
+	# for the duration of the sort. This lets us have deterministic reference files.
 	export LC_ALL=C
 	sort
 	export LC_ALL=en_US.UTF8

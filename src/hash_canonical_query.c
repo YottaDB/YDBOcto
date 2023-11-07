@@ -340,6 +340,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		break;
 	case value_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlValue *value;
+#ifndef NDEBUG
+		boolean_t fallthrough = FALSE;
+#endif
 
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		ADD_INT_HASH(state, value_STATEMENT);
@@ -354,6 +357,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, value->type);
 		switch (value->type) {
 		case CALCULATED_VALUE:
+			assert(0 == value->parameter_index); /* so no need to HASH this */
 			ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(state, value->group_by_fields.group_by_column_num);
 			hash_canonical_query(state, value->v.calculated, status);
 			break;
@@ -365,6 +369,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case STRING_LITERAL:
 		case DELIM_VALUE:
 		case NUL_VALUE:
+			DEBUG_ONLY(fallthrough = TRUE);
+			if (0 != value->parameter_index) {
+				ADD_INT_HASH(state, value->parameter_index);
+			}
 			if (HASH_LITERAL_VALUES != *status) {
 				// Ignore literals to prevent redundant plans
 				break;
@@ -376,6 +384,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case FUNCTION_NAME:
 		case TABLE_ASTERISK:
 		case COLUMN_REFERENCE:
+			assert(fallthrough || (0 == value->parameter_index)); /* so no need to HASH this */
 			ydb_mmrhash_128_ingest(state, (void *)value->v.reference, strlen(value->v.reference));
 			break;
 		case COERCE_TYPE:;
@@ -385,6 +394,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * The ADD_DATA_TYPE_HASH macro hashes the size/precision and/or scale values too which we do not
 			 * want in this case. Hence the simple hash of just the data type ("NUMERIC" in the example case).
 			 */
+			assert(0 == value->parameter_index); /* so no need to HASH this */
 			SqlDataTypeStruct *coerced_type;
 			coerced_type = &value->u.coerce_type.coerced_type;
 			ADD_INT_HASH(state, coerced_type->data_type);

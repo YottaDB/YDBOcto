@@ -1,0 +1,4 @@
+# Run crosscheck on TOB21.sql
+Crosscheck PASSED
+# Verify there are 6 plans (i.e. none of the 6 queries in TOB21.sql reuses another M plan)
+Number of plans =  6

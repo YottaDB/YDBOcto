@@ -249,3 +249,12 @@ OCTO
 	verify_output TOB20 output.txt noinfo nodebug
 }
 
+@test "TOB21 : OCTO1021 : Test that ORDER BY COLUMN NUM when used with LIMIT returns correct results" {
+	echo "# Run crosscheck on TOB21.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB21.sql
+	echo "Crosscheck PASSED" >> output.txt
+	echo "# Verify there are 6 plans (i.e. none of the 6 queries in TOB21.sql reuses another M plan)" >> output.txt
+	echo "Number of plans = " $(ls -l _ydboctoP*.m | wc -l) >> output.txt
+	verify_output TOB21 output.txt noinfo nodebug
+}
+

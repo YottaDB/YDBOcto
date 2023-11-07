@@ -122,6 +122,6 @@ teardown() {
 	psql names -c 'drop table if exists TDFT08;' >& postgres.drop_table_TDFT08.out
 	echo '# Verify key fixing optimization happened for = operator in WHERE clause' >> output.txt
 	echo '# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)' >> output.txt
-	grep -E -B 1 "insert into|delete from|select|ydboctoxref" _ydboctoP*.m >> output.txt
+	grep -E -B 1 "insert into|delete from|select|ydboctoxref" _ydboctoP*.m | sort_LC_ALL_C >> output.txt
 	verify_output TDFT08 output.txt
 }

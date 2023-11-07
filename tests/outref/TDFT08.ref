@@ -1,14 +1,14 @@
 # Run cross check first
 # Verify key fixing optimization happened for = operator in WHERE clause
 # Key fixed query will have a plan that does $ORDER(^%ydboctoxref)
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  insert into TDFT08 values (1234, 'First'), (1234, 'First');
 --
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  delete from TDFT08 where id = 1234;
 --
-_ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:;  select * from TDFT08;
 --
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  delete from TDFT08 where firstname = 'First';
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  select * from TDFT08;
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  delete from TDFT08 where id = 1234;
+_ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:;  insert into TDFT08 values (1234, 'First'), (1234, 'First');

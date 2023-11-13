@@ -218,6 +218,17 @@ test-vista:
     - .make
   script:
     - ./tools/ci/vistatest.sh
+  rules:
+    # 1) We want to run the test-vista job only in pre-merge pipelines (not post-merge pipelines).
+    #    Hence the $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH check below.
+    # 2) Additionally, we want to allow for failures in the pre-merge pipeline in rare cases
+    #    (like was seen in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1484#note_1643676118)
+    #    Hence the check for the special branch name that starts with "test_vista_fail_expected" in which
+    #    case we skip running this job even in the pre-merge pipeline.
+    # 3) Additionally, we want to run this job only for push pipelines, not for scheduled or merge_request_event
+    #    pipelines (the act of using "rules:" causes this job to be enabled for "Merge request pipelines" which
+    #    we don't want to run this job) hence the $CI_PIPELINE_SOURCE == "push" check below.
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_BRANCH !~ /^test_vista_fail_expected/ && $CI_PIPELINE_SOURCE == "push"
 
 ############################################################
 

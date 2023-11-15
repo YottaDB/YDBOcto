@@ -32,6 +32,11 @@ teardown() {
 	if  [ "$ydb_version" \< "r1.37" ] ; then
 		skip "^%YDBJNLF cannot be tested for YottaDB versions less than r1.37"
 	fi
+	if  [ "$ydb_version" == "r1.38" ] ; then
+		# r1.38 does not have the YottaDB/DB/YDB!1407 fixes and so can fail the TYIO01 subtest occasionally.
+		# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/915#note_1401714173 for more details on the failure.
+		skip "Skip TYIO01 subtest for r1.38 as it can fail occasionally without YottaDB/DB/YDB!1407 fixes"
+	fi
 	echo '# Load %YDBJNLF DDL Into Octo' | tee -a output.txt
 	$ydb_dist/yottadb -r OCTODDL^%YDBJNLF | octo
 	echo '# Extract journals' | tee -a output.txt

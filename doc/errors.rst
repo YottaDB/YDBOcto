@@ -144,7 +144,7 @@ ERR_AUTO_UPGRADE_DB_HIGHER_FMT
 
   Text: Cannot auto upgrade as DB has data in higher format. Please delete data or manually upgrade.
 
-  Description/Action: Whenever a build of Octo is installed in an environment, any internal Octo artifacts that are incompatible with the build are automatically regenerated. This includes the binary representation of table definitions (CREATE TABLE queries) and function definitions (CREATE FUNCTION queries). If the previous Octo build was of higher version than the current and if artifacts of higher build was stored in the DB then auto upgrade with an older build is not possible. In such a case this error is issued. The manual workaround is to delete Octo artifacts created by previous build and re-starting Octo. PSQL Error Code: F0000
+  Description/Action: Whenever a build of Octo is installed in an environment, any internal Octo artifacts that are incompatible with the build are automatically regenerated. This includes the binary representation of table definitions (CREATE TABLE queries) and function definitions (CREATE FUNCTION queries). If the previous Octo build was of higher version than the current and if artifacts of higher build was stored in the DB then auto upgrade with an older build is not possible. In such a case this error is issued. Please contact your Octo support channel for how to recover from this situation. PSQL Error Code: F0000
 
 +++++++++++++++++++++
 ERR_BAD_CONFIG

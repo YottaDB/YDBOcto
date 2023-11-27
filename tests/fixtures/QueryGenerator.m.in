@@ -36,7 +36,7 @@
 	; #FUTURE_TODO: Views testing should include explicit view column names specification
 	;               Example: (CREATE VIEW view_name (col1,col2) AS SELECT ..)
 
-	set $etrap="zshow ""*""  halt"
+	set $etrap="zshow ""*""  zhalt 1"
 	;
 	set initDone("setQuantifier")=0
 	set initDone("arithmeticOperator")=0
@@ -820,6 +820,7 @@ genDeleteQuery()
 	write deleteQuery,!
 	close file
 	write deleteQuery,!
+	quit
 
 ; The following routine generates CREATE VIEW statements for all the tables considered by QueryGenerator.m for generating queries.
 ; This function is only invoked when `enableTableToConversion` is set. When this lvn is set information regarding the tables

@@ -1825,16 +1825,18 @@ groupbyClause(queryDepth)
 	. . . ; Both are valid usages
 	. . . ;quit:(1=$random(2))
 	. . else  if (("binary_expression"=selectListLVN(j,holder))!("unary_expression"=selectListLVN(j,holder))!("conditional_expression"=selectListLVN(j,holder))) do
-	. . . ; Expression or columns used to form it can be used in GroupBy.
-	. . . ; If column is to be added select all columns involved in expression.
+	. . . ; Expression or columns of the expression can be used in GroupBy.
+	. . . ; If column of the expression is to be added select all columns involved in the expression.
 	. . . new innerHolder,columnSubExpr,subExpr,count,done
 	. . . set count=0
 	. . . set (columnSubExpr,subExpr,anotherholderType)=""
 	. . . write "groupbyClause(): expression in GroupBy, listing expression and columns to be selected from",!
 	. . . if ($DATA(groupByColumnLVN)) zwrite groupByColumnLVN
 	. . . zwrite groupByListLVN
-	. . . ; Choose either the expression or just the columns
-	. . . if (1=$random(2)) do
+	. . . ; If the queryDepth and j doesn't match then we are processing outer query column and the outer query GROUP BY clause is most
+	. . . ; likely not yet constructed if the inner query GROUP BY is being constructed in the SELECT column list of the outer query.
+	. . . ; Choose the expression in this case as it is safer.
+	. . . if ((1=$random(2))&(j=queryDepth)) do
 	. . . . ; Form the holder using just the columns
 	. . . . ; #FUTURE_TODO: In this case find the columns in select list and form a string having its corresponding
 	. . . . ;   node number list seperated by ',' to be used later when chooseSelectNumber is 1
@@ -3464,6 +3466,7 @@ returnBinaryExpression(queryDepth,table,constExpr)
 	set groupByComparisonExpressionExists(queryDepth,ret)=lclgroupByComparisonExpressionExists
 	new innerHolder
 	set innerHolder="" for  set innerHolder=$order(lclGroupByColumnLVN(queryDepth,innerHolder))  quit:innerHolder=""  do
+	. ; Add the list of columns used in the expression so that later code can choose to include expression or just the columns in it
 	. if ($increment(groupByColumnLVN(queryDepth,ret,innerHolder)))
 	kill lclGroupByColumnLVN
 	quit ret

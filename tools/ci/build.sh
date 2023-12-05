@@ -173,7 +173,7 @@ lscpu > dbg_lscpu.out		# system CPUs
 # But previous commits don't have that, so need to get it for previous commits
 if [[ "test-auto-upgrade" == $jobname ]]; then
 	echo "# Download PostgreSQL JDBC driver for testing"
-	export JDBC_VERSION=42.6.0	# this is the latest driver as of May 2023
+	export JDBC_VERSION=42.7.0	# this is the latest driver as of December 2023
 	wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 fi
 

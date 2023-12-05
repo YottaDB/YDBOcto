@@ -92,9 +92,9 @@ if("${FULL_TEST_SUITE}")
 		add_jar(jocto ${JAVA_SOURCE_FILES})
 
 		# Get the Postgres JDBC file to use against Octo
-		set(JDBC_VERSION "42.6.0") # this is the latest driver as of May 2023
+		set(JDBC_VERSION "42.7.0") # this is the latest driver as of December 2023
 		file(DOWNLOAD "https://jdbc.postgresql.org/download/postgresql-${JDBC_VERSION}.jar" ${PROJECT_BINARY_DIR}/postgresql.jar
-		EXPECTED_HASH SHA1=7614cfce466145b84972781ab0079b8dea49e363)
+		EXPECTED_HASH SHA1=387e9e68e6db1d6945fe4aa9e6c20dfd84568d47)
 	endif()
 
 	# These tests do things that influence the behavior of other tests, and thus

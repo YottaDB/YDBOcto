@@ -4,4 +4,4 @@
 # Test of ICUSYMNOTFOUND error
 [ERROR]: ERR_YOTTADB: YottaDB error: 150381514,(Call-In),%YDB-E-ICUSYMNOTFOUND, Symbol u_getVersion not found in the ICU libraries. ICU needs to be built with symbol-renaming disabled or ydb_icu_version/gtm_icu_version environment variable needs to be properly specified,%YDB-I-TEXT, LIBPATH/libicuio.so: undefined symbol: u_getVersion
 # Test of DLLCHSETM error
-[ERROR]: ERR_YOTTADB: YottaDB error: 150381114,(Call-In),%YDB-E-DLLCHSETM, Routine %ydboctoInit in library LIBPATH/_ydbocto.so was compiled with CHSET=M which is different from $ZCHSET. Recompile with CHSET=UTF-8 and re-link.
+[ERROR]: ERR_YOTTADB: YottaDB error: 150381114,(Call-In),%YDB-E-DLLCHSETM, Routine %ydboctoInit in library LIBPATH/_ydbocto.so was compiled with CHSET=M which is different from $ZCHSET

@@ -190,6 +190,14 @@ OCTO
 }
 
 @test "TERR018 : OCTO488 : Confirm correct errors are issued for various character set configuration scenarios" {
+	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
+	if  [ "$ydb_version" \< "r1.39" ] ; then
+		# r1.38 and older releases do not have YottaDB/DB/YDB@290a656f changes and so the test output for the
+		# DLLCHSETM message text will be different from what the reference file expects (changed in YDBOcto@9cde085e
+		# to reflect r2.00 output). Therefore skip this subtest for r1.38 (possible for example in the "release-ubuntu"
+		# pipeline job) and older releases.
+		skip "Skip TERR018 subtest for r1.38 and older releases as it does not have YottaDB/DB/YDB@290a656f"
+	fi
 	# Enforce M mode in ydb_dist to prevent %YDB-E-DLLCHSETUTF8 when loading $ydb_dist/libyottadbutil.so when ydb_chset=M
 	export ydb_dist="$(echo $ydb_dist | sed 's/\/utf8//')"
 	export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so $ydb_dist/libyottadbutil.so $ydb_dist"

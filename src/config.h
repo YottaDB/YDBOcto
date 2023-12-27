@@ -101,10 +101,6 @@ typedef struct OctoConfig {
 							    */
 	const char *octo_history;			   /* User supplied and also final parsed location of history */
 	int	    octo_history_max_length;		   /* User supplied */
-	int	    octo_history_initial_length;	   /* Initial length of history immediately after load.
-							    * This helps us to know how many entries we need to append
-							    * when we quit.
-							    */
 #ifndef NDEBUG
 	boolean_t seedreload; /* Only used for testing autoload */
 #endif

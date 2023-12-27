@@ -1,0 +1,4 @@
+select * from names;
+select 1;
+select * from names;
+\s

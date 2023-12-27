@@ -24,6 +24,8 @@
 #include <readline.h>
 #include <readline/history.h>
 
+static int history_lines_added;
+
 #include "octo.h"
 
 /* Global config variables used throughout:
@@ -35,8 +37,6 @@
  *
  * config->octo_history_max_length: History entries limit.
  *
- * config->octo_history_initial_length: Inital length of history immediately
- * after loading the history file. We use this in trimming the file at the end.
  */
 
 /* Ensure that file exists prior to reading/writing history, otherwise history
@@ -120,8 +120,7 @@ void load_readline_history(void) {
 
 /* Save history into history file in config->octo_history, trimming as needed */
 void save_readline_history(void) {
-	int items_to_append, result;
-	int history_initial_length;
+	int result;
 
 	// We couldn't resolve the file, so quit
 	if (NULL == config->octo_history)
@@ -131,60 +130,45 @@ void save_readline_history(void) {
 	if (0 == config->octo_history_max_length)
 		return;
 
-	// Get initial length we saved in readline_setup()
-	history_initial_length = config->octo_history_initial_length;
-
 	INFO(INFO_READLINE_NOTIFY_SAVE, "");
 
 	/* There used to be a call here to create the file if it doesn't exist,
 	 * but the call to load history will create it, so won't repeat here.
 	 */
 
-	/* Get how many items we will append to history
-	 * If greater than the max length, clamp to it
+	// Clamp the number of lines we will add to history to the history max length
+	if (history_lines_added > config->octo_history_max_length)
+		history_lines_added = config->octo_history_max_length;
+
+	/* If we are stifled from `history-size` in the INPUTRC, clamp to history_max_entries;
+	 * We won't have the added lines in history if we are stilfed, so we can only save history_max_entries
 	 */
-	items_to_append = history_length - history_initial_length;
-	assert(items_to_append >= 0);
-	if (items_to_append > config->octo_history_max_length)
-		items_to_append = config->octo_history_max_length;
+	if ((0 != history_max_entries) && (history_lines_added > history_max_entries))
+		history_lines_added = history_max_entries;
 
-	/* May need to truncate history file so that
-	 * history_initial_length + items_to_append = config->octo_history_max_length
-	 *
-	 * We need to do this even if items_to_append is zero, as the amount of
-	 * history needed to be stored in config->octo_history_max_length could have
-	 * changed, and we need to truncate the file.
+	/* Truncate history file so that history_initial_length + history_lines_added = config->octo_history_max_length.
+	 * Previously, we notified the user of the results of the truncation operation (how many will be discarded),
+	 * but I found out that this is not something that Readline supports instrinsically; and if `history-size` is set
+	 * in INPUTRC, there is no way to perform the calculation of how many previous entries there were and how many
+	 * will be discarded. Therefore, the previous message is now not shown.
 	 */
-	if (history_initial_length + items_to_append > config->octo_history_max_length) {
-		int max, excess, keep;
-
-		max = config->octo_history_max_length;
-		excess = history_initial_length + items_to_append - max;
-		keep = history_initial_length - excess;
-
-		if (keep < 0)
-			keep = 0;
-
-		INFO(INFO_READLINE_NOTIFY_TRUNCATE, excess, max);
-		history_truncate_file(config->octo_history, keep);
-	}
-
-	INFO(INFO_READLINE_NOTIFY_SAVE_COUNT, items_to_append);
+	history_truncate_file(config->octo_history, config->octo_history_max_length - history_lines_added);
+	INFO(INFO_READLINE_NOTIFY_SAVE_COUNT, history_lines_added);
 
 	// If nothing to append, return
-	if (0 == items_to_append)
+	if (0 == history_lines_added)
 		return;
 
 	/* Shrink down the history buffer to the entries we are gonna save before
 	 * we encode/decode them so we don't encode entries we aren't gonna save.
 	 */
-	stifle_history(items_to_append);
+	stifle_history(history_lines_added);
 
 	// encode new lines into history
 	encode_decode_history(ENCODE);
 
 	// Now append the current session's history
-	result = append_history(items_to_append, config->octo_history);
+	result = append_history(history_lines_added, config->octo_history);
 	if (0 != result) {
 		WARNING(WARN_READLINE_SAVE_FAIL, config->octo_history);
 		return;
@@ -283,10 +267,11 @@ void set_readline_file(void) {
 void set_octo_history_max_length(void) {
 	/* NB:  psql does not stifle_history at runtime, so I won't do it here.
 	 * I.e., it stores as many entries in the history regardless of size while
-	 * it's running.
+	 * it's running. The only exception is if history-size is set in INPUTRC,
+	 * and in that case, the stifling is already done when readline is initialized.
 	 */
 
-	// Check if user actually set this or it is blank. If blank, set to default of 500.
+	/* Check if user actually set this or it is blank.  If blank, set to default of 500. */
 	if (config->octo_history_max_length == OCTO_HISTORY_MAX_LENGTH_UNSET)
 		config->octo_history_max_length = OCTO_HISTORY_MAX_LENGTH_DEFAULT;
 
@@ -295,6 +280,12 @@ void set_octo_history_max_length(void) {
 		config->octo_history_max_length = 0;
 
 	INFO(INFO_READLINE_NOTIFY_HIST_COUNT, config->octo_history_max_length);
+
+	/* If history-size is set in INPUTRC, then tell the user, as otherwise it looks rather weird
+	 * that we have a 500 long line history but only show/save a small number of entries
+	 */
+	if (0 != history_max_entries)
+		INFO(INFO_READLINE_NOTIFY_HIST_STIFLED, history_max_entries);
 }
 
 /* Implementation of \s to print history */
@@ -308,8 +299,14 @@ void print_history(void) {
 
 /* Readline setup call */
 void readline_setup(void) {
+	/* Allow conditional parsing of the ~/.inputrc file. */
+	rl_readline_name = "Octo";
+	// Initialize readline (reads INPUTRC file, stifle history in advance if history-size is set, set history_max_entries var)
+	rl_initialize();
 	// Turn on history
 	using_history();
+	// Set to zero (but static var, so already zero)
+	history_lines_added = 0;
 	// display the tab_completion of '\t' and just insert it as a character
 	rl_bind_key('\t', rl_insert);
 	// disable bracketed paste so that cursor doesn't jump to beginning of prompt
@@ -317,8 +314,6 @@ void readline_setup(void) {
 	set_readline_file();
 	set_octo_history_max_length();
 	load_readline_history();
-	// keep this as we need it later when saving; can't get it back
-	config->octo_history_initial_length = history_length;
 }
 
 /* Add single history item to readline history but don't duplicate */
@@ -327,12 +322,16 @@ void add_single_history_item(char *input_buffer_combined, int old_input_index) {
 
 	/* get the last item added to the history
 	 * if it is the same as the current query don't add it to the history again
+	 * Count lines added to history for use later in save_readline_history *
 	 */
-	cur_hist = history_get(history_length);
+	cur_hist = history_get(history_base + history_length - 1);
 	if (NULL != cur_hist) {
-		if (0 != strcmp(cur_hist->line, input_buffer_combined + old_input_index))
+		if (0 != strcmp(cur_hist->line, input_buffer_combined + old_input_index)) {
 			add_history(input_buffer_combined + old_input_index);
+			history_lines_added++;
+		}
 	} else {
 		add_history(input_buffer_combined + old_input_index);
+		history_lines_added++;
 	}
 }

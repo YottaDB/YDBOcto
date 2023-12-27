@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -21,7 +21,7 @@ History
 Introduction
 ------------
 
-  Octo uses the `readline library <https://tiswww.case.edu/php/chet/readline/rltop.html>`_ to provide editing history and searching. This document provides a few pointers on how to use readline with Octo, but the user is best served by reading the readline documentation for finer points.
+  Octo uses the `readline library <https://tiswww.case.edu/php/chet/readline/rltop.html>`_ to provide editing, history and searching. This document provides a few pointers on how to use readline with Octo, but the user is best served by reading the readline documentation for finer points.
 
 ------------
 History File
@@ -35,11 +35,23 @@ History Length
 
   History length by default is 500. It can be overridden using the :code:`octo_history_max_length` setting in the Octo :doc:`config` file. The reference config file in :code:`$ydb_dist/plugin/octo/octo.conf` sets this to 500, which is the same as the default if a config file does not exist.
 
-  This history length applies only when octo saves the history back to the file at process exit time; irrespective of this length, Octo will still read as much history as available in the history file pointed to by the :code:`octo_history` config setting. And also irrespective of this length, while Octo is running, there is no history trimming being performed, so you can have more history while running Octo than the limit specified here.
+  This history length applies only when octo saves the history back to the file at process exit time; irrespective of this length, Octo will still read as much history as available in the history file pointed to by the :code:`octo_history` config setting. And also irrespective of this length, while Octo is running, there is no history trimming being performed, so you can have more history while running Octo than the limit specified here. This can be changed by setting :code:`history-size` in the INPUTRC file. :code:`history-size` has two effects: 1. Stifles runtime history so that you only see however many entries it specifies; and 2. only that number of entries is saved to the history file when exiting Octo. We think using :code:`history-size` is confusing for end users and is best avoided.
 
   When saving is done at exit time, history will be trimmed to :code:`octo_history_max_length`.
 
   If you set :code:`octo_history_max_length` to zero, it disables saving history. If you set :code:`octo_history_max_length` to less than zero, it will be clamped down to zero.
+
+----------------
+The INPUTRC file
+----------------
+
+  Octo can use a `Readline Init file <https://tiswww.case.edu/php/chet/readline/readline.html#Readline-Init-File>`_. Octo's Readline application name for use in :code:`$if` blocks is "Octo". For example:
+
+  .. code-block:: none
+
+       $if Octo
+       set editing-mode vi
+       $endif
 
 ------------------------
 Usual History Operations

@@ -1092,6 +1092,14 @@ INFO_READLINE_NOTIFY_HIST_COUNT
 
   Description/Action: This is an informational message to tell you how many entries in history will be saved when you exit Octo.
 
++++++++++++++++++++++++++++++++++
+INFO_READLINE_NOTIFY_HIST_STIFLED
++++++++++++++++++++++++++++++++++
+
+  Text: History stifled to xxx entries
+
+  Description/Action: This is an informational message to tell you that due to an INPUTRC setting of ``history-size``, the runtime storage list for Octo is limited to the number of entries set by ``history-size``. We do not recommend using this setting with Octo. If you need it with other applications, make sure to guard the setting in the INPUTRC so that it does not apply to application "Octo". See `Readline Documentation <https://tiswww.case.edu/php/chet/readline/readline.html#Readline-Init-File-Syntax>`_ for more information.
+
 ++++++++++++++++++++++++++++++++++
 INFO_READLINE_NOTIFY_HIST_LOCATION
 ++++++++++++++++++++++++++++++++++
@@ -1131,14 +1139,6 @@ INFO_READLINE_NOTIFY_SAVE_COUNT
   Text: Saving xxx additional history entries
 
   Description/Action: Purely informational message to say how many entries we will save to history.
-
-++++++++++++++++++++++++++++++++
-INFO_READLINE_NOTIFY_TRUNCATE
-++++++++++++++++++++++++++++++++
-
-  Text: Truncating history xxx entries to max entries xxx
-
-  Description/Action: This message says that the the history size configured in octo.conf (or 500 by default if not configured) has been reached; as a result, the oldest xxx entries will be discarded. The history size is printed as "max entries xxx".
 
 ++++++++++++++++++++++++
 ERR_READONLY_DISALLOWED

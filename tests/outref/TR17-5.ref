@@ -1,0 +1,5 @@
+OCTO> \s
+select lastname from names where lastname is null;
+\s
+QUIT;
+OCTO> 

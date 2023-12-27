@@ -170,7 +170,6 @@ teardown() {
   echo 'octo_history_max_length = 2' >> octo.conf
 
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect2.out) &> expect2.dbg
-  grep 'INFO_READLINE_NOTIFY_TRUNCATE: Truncating history 5 entries to max entries 2' octo.log
   [ $(wc -l < octo_history) -eq 2 ]
   verify_output TR14 octo_history
 }
@@ -191,12 +190,59 @@ teardown() {
   verify_output TR17-2 expect3.out noinfo nodebug noexpect stripreturns
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect4.out) &> expect4.dbg
   verify_output TR17-3 expect4.out noinfo nodebug noexpect stripreturns
+
+  # Test INPUTRC history-size interaction with octo_history_max_length
+  # If we set history-size of 2, with a default octo_history_max_length of 500, the Octo runtime history will be 2 lines in length.
+  # Also, debug builds won't crash with an assert (#1022)
+  sed -i '/octo_history_max_length = 2/d' octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect5.out) &> expect5.dbg
+  echo "set history-size 2" > inputrc
+  export INPUTRC=./inputrc
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect6.out) &> expect6.dbg
+  verify_output TR17-4 expect6.out noinfo nodebug noexpect stripreturns
+  unset INPUTRC
+
+  # If we set history-size of 3, and octo_history_max_length of 2, Octo runtime history will be 3 lines in length,
+  # ...owing to the history file containing more than 3 lines to start with.
+  # At exist, the history file will be stifled to 2 lines.
+  # Also, debug builds won't crash with an assert (#1022)
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect7.out) &> expect7.dbg
+  echo 'octo_history_max_length = 2' >> octo.conf
+  echo "set history-size 3" > inputrc
+  export INPUTRC=./inputrc
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect8.out) &> expect8.dbg
+  verify_output TR17-5 expect8.out noinfo nodebug noexpect stripreturns
+  verify_output TR17-6 octo_history
+  unset INPUTRC
 }
 
 # This is Octo pre-existing behavior that didn't have a test. Adding it here.
 @test "TR18 : duplicate sequential queries don't get stored twice" {
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_duplicate_seq_queries.exp > expect.out) &> expect.dbg
-  [ $(wc -l < octo_history) -eq 2 ]
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_duplicate_seq_queries.exp > expect1.out) &> expect1.dbg
+  mv octo_history octo_history1
+  verify_output TR18-1 octo_history1
+
+  # Test for part of #1022
+  # Setting history-size changes the history_base variable, causing the old algorithm that gets the
+  # current entry for de-duplication to fail. So test this scenario separately.
+  # First create a new history file with 6 entries:
+  echo "select 1;" > octo_history
+  echo "select 2;" >> octo_history
+  echo "select 3;" >> octo_history
+  echo "select 4;" >> octo_history
+  echo "select 5;" >> octo_history
+  echo "select 6;" >> octo_history
+  echo "set history-size 2" > inputrc
+  export INPUTRC=./inputrc
+  # The file contains a \s which lists the runtime history.
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_duplicate_seq_queries.exp > expect2.out) &> expect2.dbg
+  # Prior to #1022, this showed a duplicate entry; after #1022, the de-duplication is done properly.
+  # At the end, we will have 8 lines, even though there are actually 5 unique queries being executed
+  # ...because our runtime history size is 2 queries.
+  mv octo_history octo_history2
+  verify_output TR18-2 octo_history2
+  verify_output TR18-3 expect2.out noinfo nodebug noexpect stripreturns
+  unset INPUTRC
 }
 
 @test "TR19 : Test default history location (pipeline only)" {

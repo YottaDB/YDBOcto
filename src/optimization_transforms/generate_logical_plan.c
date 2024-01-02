@@ -109,7 +109,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LP_GENERATE_WHERE(delete->where_clause, NULL, lp_where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
-		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
+		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_keyword_of_type(NO_KEYWORD), keyword);
 
 		LogicalPlan **lp_constraint_ptr;
 		lp_constraint_ptr = &lp_delete_from->v.lp_default.operand[1];
@@ -149,7 +149,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LP_GENERATE_WHERE(update->where_clause, NULL, lp_where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 		MALLOC_LP(keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
-		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_no_keyword(), keyword);
+		UNPACK_SQL_STATEMENT(keywords->v.lp_keywords.keywords, alloc_keyword_of_type(NO_KEYWORD), keyword);
 		MALLOC_LP(lp_update_options, lp_update->v.lp_default.operand[1], LP_UPDATE_OPTIONS);
 		/* Store the SET clause contents (list of column names and corresponding values to assign to) inside
 		 * a LP_WHERE plan under a sequence of LP_COLUMN_LIST/LP_UPD_COL_VALUE plans.

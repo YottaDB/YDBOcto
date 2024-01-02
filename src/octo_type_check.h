@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,6 +22,10 @@
 	{                                                                                                                         \
 		if ((PARAMETER_VALUE == TYPE_2) && (PARAMETER_VALUE == TYPE_1)) {                                                 \
 			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "comparison between literal parameters, e.g. $1 = $2");                \
+			RESULT = 1;                                                                                               \
+		} else if (((IS_DATE_TIME_TYPE(TYPE_1)) && (PARAMETER_VALUE == TYPE_2))                                           \
+			   || ((PARAMETER_VALUE == TYPE_1) && (IS_DATE_TIME_TYPE(TYPE_2)))) {                                     \
+			ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(TYPE_1), get_user_visible_type_string(TYPE_2));     \
 			RESULT = 1;                                                                                               \
 		} else {                                                                                                          \
 			TYPE_1 = TYPE_2;                                                                                          \

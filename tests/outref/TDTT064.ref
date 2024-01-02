@@ -1,0 +1,434 @@
+
+show datestyle;
+set datestyle ='';
+show datestyle;
+set datestyle='asdf';
+show datestyle;
+set datestyle='ISO';
+show datestyle;
+set datestyle='MDY,ISO';
+show datestyle;
+set datestyle='MDY, ISO';
+show datestyle;
+set datestyle='ISO , MDY';
+show datestyle;
+set datestyle='ISO,YMD';
+show datestyle;
+set datestyle='German';
+show datestyle;
+set datestyle='Euro';
+show datestyle;
+set datestyle='yisomd';
+show datestyle;
+set datestyle='y md';
+show datestyle;
+set datestyle='ymd';
+show datestyle;
+set datestyle='ISO,	YMD';
+show datestyle;
+set datestyle='yyy';
+show datestyle;
+set datestyle='mmm';
+show datestyle;
+set datestyle='ddd';
+show datestyle;
+set datestyle='ymm';
+show datestyle;
+set datestyle='mdd';
+show datestyle;
+set datestyle='myy';
+show datestyle;
+set datestyle='dmm';
+show datestyle;
+set datestyle='dyy';
+show datestyle;
+set datestyle=',mdy';
+show datestyle;
+set datestyle=',,';
+show datestyle;
+set datestyle='mdy,';
+show datestyle;
+set datestyle='ymd,';
+show datestyle;
+set datestyle='ym,,d';
+show datestyle;
+set datestyle="ymdiso";
+show datestyle;
+set datestyle="mydiso";
+show datestyle;
+set datestyle="isomyd";
+show datestyle;
+set datestyle="isomyy";
+show datestyle;
+set datestyle=",isomdy";
+show datestyle;
+set datestyle="isomdy,";
+show datestyle;
+set datestyle="ind";
+show datestyle;
+set datestyle="ynd";
+show datestyle;
+set datestyle="mnd";
+show datestyle;
+set datestyle="dnd";
+show datestyle;
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle ='';
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle='asdf';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "asdf" is invalid
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle='ISO';
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle='MDY,ISO';
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle='MDY, ISO';
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle='ISO , MDY';
+OCTO> show datestyle;
+ISO, MDY
+OCTO> set datestyle='ISO,YMD';
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='German';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "german" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='Euro';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "euro" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='yisomd';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "yisomd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='y md';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "y md" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='ymd';
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='ISO,	YMD';
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='yyy';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "yyy" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='mmm';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mmm" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='ddd';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ddd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='ymm';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ymm" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='mdd';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mdd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='myy';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "myy" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='dmm';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "dmm" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='dyy';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "dyy" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle=',mdy';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value ",mdy" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle=',,';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value ",," is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='mdy,';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mdy," is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='ymd,';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ymd," is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle='ym,,d';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ym,,d" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="ymdiso";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ymdiso" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="mydiso";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mydiso" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="isomyd";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "isomyd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="isomyy";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "isomyy" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle=",isomdy";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value ",isomdy" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="isomdy,";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "isomdy," is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="ind";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ind" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="ynd";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ynd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="mnd";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mnd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> set datestyle="dnd";
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "dnd" is invalid
+OCTO> show datestyle;
+ISO, YMD
+OCTO> 
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, MDY
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+
+SET
+ datestyle 
+-----------
+ ISO, YMD
+(1 row)
+

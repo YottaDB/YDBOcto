@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -55,7 +55,7 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	%{}  DO`n{{ PLAN_LINE_START }}{}%
 	dot_count = 1;
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW {{ PP_COL }}{}%
+	%{}NEW {{ PP_COL }},{{ PP_COL_META_DATA }}{}%
 
 	boolean_t	is_insert_into_values;	/* used for optimization in case of INSERT INTO .. VALUES (YDBOcto#910) */
 
@@ -91,6 +91,22 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 
 		if (NULL != cur_column->columnName) {
 			/* Is NOT a table-level constraint */
+			if (IS_DATE_TIME_DATA_TYPE(cur_column->data_type_struct.data_type)) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}`n{{ PLAN_LINE_START }}{}%
+				SqlValueType date_time_value_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_COL_META_DATA }}({{ cur_column->column_number|%d }},1)={{ date_time_value_type|%d }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_COL_META_DATA }}({{ cur_column->column_number|%d }},2)={{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				const char *format_specifier;
+				GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_value_type, format_specifier);
+				%{}SET {{ PP_COL_META_DATA }}({{ cur_column->column_number|%d }},3)="{{ format_specifier }}"{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
 			if (cur_column->is_hidden_keycol) {
@@ -204,6 +220,11 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 							}
 						}
 						break;
+					case DATE_TYPE:
+					case TIME_TYPE:
+					case TIME_WITH_TIME_ZONE_TYPE:
+					case TIMESTAMP_TYPE:
+					case TIMESTAMP_WITH_TIME_ZONE_TYPE:
 					case INTEGER_TYPE:
 						switch(src_cur_cla_type) {
 						case NUMERIC_LITERAL:
@@ -221,6 +242,46 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 								%{},0){}%
 							}
 							break;
+						case STRING_LITERAL:
+							if (IS_DATE_TIME_DATA_TYPE(cur_column->data_type_struct.data_type)) {
+								%{}`n{{ PLAN_LINE_START }}{}%
+								TMPL(tmpl_print_dots, dot_count);
+								%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+								%{}+{}%
+								// Get format of cur_column->data_type_struct
+								OptionalKeyword date_time_format = cur_column->data_type_struct.format;
+								// place conversion routine
+								boolean_t text_format = FALSE;
+								switch(date_time_format) {
+								case OPTIONAL_DATE_TIME_HOROLOG:
+									%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
+									break;
+								case OPTIONAL_DATE_TIME_ZHOROLOG:
+									%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
+									break;
+								case OPTIONAL_DATE_TIME_FILEMAN:
+									%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
+									break;
+								case OPTIONAL_DATE_TIME_ZUT:
+									%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
+									break;
+								default:
+									%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
+									text_format = TRUE;
+									break;
+								}
+								// place parameters along with PP_COL(col_num)
+								%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+								SqlValueType date_time_value_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
+								%{},{{ date_time_value_type|%d }}{}%
+								if (text_format) {
+									const char *format_specifier;
+									GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_value_type, format_specifier);
+									%{},"{{ format_specifier }}"{}%
+								}
+								// close conversion routine
+								%{}){}%
+							}
 						default:
 							break;
 						}

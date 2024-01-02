@@ -41,6 +41,21 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
 	case PSQL_TypeOid_bool:
 		return PSQL_TypeSize_bool;
 		break;
+	case PSQL_TypeOid_date:
+		return PSQL_TypeSize_date;
+		break;
+	case PSQL_TypeOid_time:
+		return PSQL_TypeSize_time;
+		break;
+	case PSQL_TypeOid_timetz:
+		return PSQL_TypeSize_timetz;
+		break;
+	case PSQL_TypeOid_timestamp:
+		return PSQL_TypeSize_timestamp;
+		break;
+	case PSQL_TypeOid_timestamptz:
+		return PSQL_TypeSize_timestamptz;
+		break;
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

@@ -7,9 +7,9 @@ select all n1.id,n2.id from names n1 right join names n2 on (n1.firstname = n2.l
 
 OCTO> SELECT ALL orders.customer_id, orders.order_id, orders.order_date, orders.order_amount FROM orders LEFT JOIN customers ON (orders.order_id = customers.customer_id) WHERE orders.order_amount IN ('$25.50', '$124.00', '$78.50');
 customer_id|order_id|order_date|order_amount
-2|3|05/23/1784|$124.00
-10|5|07/21/1795|$25.50
-3|2|03/14/1760|$78.50
+2|3|1784-05-23|$124.00
+10|5|1795-07-21|$25.50
+3|2|1760-03-14|$78.50
 (3 rows)
 OCTO> select all n1.id,n2.id from names n1 right join names n2 on (n1.firstname = n2.lastname) where n1.id IN (1,2);
 id|id
@@ -84,7 +84,8 @@ octoLeftJoin2;
     . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . SET %ydboctoexpr(0)=%ydboctoexpr
-    . SET %ydboctoexpr=$PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders","order_id")):$ZYSQLNULL,1:$GET(^orders(%ydboctocursor(cursorId,"keys",1,"orders","order_id")))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders","order_id")):$ZYSQLNULL,1:$GET(^orders(%ydboctocursor(cursorId,"keys",1,"orders","order_id")))),"|",1),17,"%m-%d-%Y") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . SET %ydboctoexpr(0)=%ydboctoexpr

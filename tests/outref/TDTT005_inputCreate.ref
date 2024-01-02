@@ -1,0 +1,26 @@
+OCTO> -- type:date format:
+create table TDTT005date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT005date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT005time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT005time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT005timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT005timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT005timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT005timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT005timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT005timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+OCTO> 

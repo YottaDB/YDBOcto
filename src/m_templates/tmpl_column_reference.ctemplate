@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -80,6 +80,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	 * half of a RIGHT JOIN ("key->column" would be set to NULL in that case in "tmpl_tablejoin" thereby ensuring we fail
 	 * the "if (key->column == column)" check below and never invoke "tmpl_key" but instead fall through to "tmpl_emit_source").
 	 */
+	boolean_t is_date_time_column = IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type);
+	boolean_t text_format = FALSE;
 	matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
 	cur_plan = pplan;
 	do {
@@ -99,7 +101,54 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 						TMPL(tmpl_key_dollardata_check, matching_plan, key, FALSE);
 								/* FALSE to indicate this is not a derived column. */
 					}
+					// Handle date and time column
+					boolean_t close_paren = FALSE;
+					if (is_date_time_column) {
+						if (table->readwrite) {
+							// The value will be in internal format no need to do anything
+						} else {
+							// The value will be in a format different from the internal format expected
+							// Convert it
+							assert(NULL != column->keywords);
+							close_paren = TRUE;
+							enum OptionalKeyword keyword_type = column->data_type_struct.format;
+							switch(keyword_type) {
+							case OPTIONAL_DATE_TIME_HOROLOG:
+								%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
+								break;
+							case OPTIONAL_DATE_TIME_ZHOROLOG:
+								%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
+								break;
+							case OPTIONAL_DATE_TIME_FILEMAN:
+								%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
+								break;
+							case OPTIONAL_DATE_TIME_ZUT:
+								%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
+								break;
+							case OPTIONAL_DATE_TIME_TEXT:
+								%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
+								text_format = TRUE;
+								break;
+							default:
+								assert(FALSE);
+								break;
+							}
+						}
+						// else {} doesn't need to be handled as if it is any other type its value will already be in internal
+						// format.
+						// Also no need to worry about derived column because of the same reason
+					}
 					TMPL(tmpl_key, key);
+					if (close_paren) {
+						SqlValueType type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type,FALSE);
+						%{},{{ type|%d }}{}%
+						if (text_format) {
+							const char *format_specifier;
+							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(type, format_specifier);
+							%{},"{{ format_specifier }}"{}%
+						}
+						%{}){}%
+					}
 					if (matching_plan != pplan) {
 						%{}){}%	/* closing paren for "tmpl_key_dollardata_check" call above */
 					}
@@ -134,17 +183,55 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 
 	boolean_t	is_xref_plan;
 
+	boolean_t close_paren = FALSE;
 	/* Note: pplan->outputKey can be NULL in case of LP_UPDATE plan so account for that below with a "NULL != " check */
 	is_xref_plan = ((NULL != pplan->outputKey) && pplan->outputKey->is_cross_reference_key);
-	if (!is_trigger) {
-		if (matching_plan != pplan) {
-			/* Key belongs to a parent query table. Depending on whether OUTER JOINs were
-			 * in use there or not, it is possible for this key column to be undefined
-			 * at this point. So check that before using it. See #800 comment above for similar code.
-			 */
-			TMPL(tmpl_key_dollardata_check, matching_plan, matching_key, FALSE);
-				/* FALSE to indicate this is not a derived column */
+	// Handle date and time column
+	if ((!is_trigger) && (matching_plan != pplan)) {
+		/* Key belongs to a parent query table. Depending on whether OUTER JOINs were
+		 * in use there or not, it is possible for this key column to be undefined
+		 * at this point. So check that before using it. See #800 comment above for similar code.
+		 */
+		TMPL(tmpl_key_dollardata_check, matching_plan, matching_key, FALSE);
+			/* FALSE to indicate this is not a derived column */
+	}
+	if (is_date_time_column) {
+		if (table->readwrite) {
+			// The value will be in internal format no need to do anything
+		} else {
+			// GLOBAL or EXTRACT was specified
+			// The value will be in a format different from the internal format expected
+			// Convert it
+			assert(NULL != column->keywords);
+			close_paren = TRUE;
+			enum OptionalKeyword keyword_type = column->data_type_struct.format;
+			switch(keyword_type) {
+			case OPTIONAL_DATE_TIME_HOROLOG:
+				%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_ZHOROLOG:
+				%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_FILEMAN:
+				%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_ZUT:
+				%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_TEXT:
+				%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
+				text_format = TRUE;
+				break;
+			default:
+				assert(FALSE);
+				break;
+			}
+			// else {} doesn't need to be handled as if it is any other type its value will already be in internal
+			// format.
+			// Also no need to worry about derived column because of the same reason
 		}
+	}
+	if (!is_trigger) {
 		if (!dot_count) {
 			if (!is_xref_plan) {
 				%{}$$piecevalue2colvalue^%%ydboctoplanhelpers({}%
@@ -216,6 +303,16 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			if (!is_xref_plan) {
 				%{}){}%
 			}
+		}
+		if (close_paren) {
+			SqlValueType type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type,FALSE);
+			%{},{{ type|%d }}{}%
+			if (text_format) {
+				const char *format_specifier;
+				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(type, format_specifier);
+				%{},"{{ format_specifier }}"{}%
+			}
+			%{}){}% // Date time closing paren
 		}
 		if (matching_plan != pplan) {
 			%{}){}%	/* closing paren for "tmpl_key_dollardata_check" call above */

@@ -1,28 +1,36 @@
 
 -- TJC013 : OCTO435 : Identifiers accepted in SET statements
 
-SET DateStyle TO PostgreSQL;
+SET DateStyle TO MDY;
 SHOW DateStyle;
 
 SET DateStyle=ISO;
 SHOW DateStyle;
 
-SET DateStyle TO 'PostgreSQL';
+SET DateStyle TO 'PostgreSQL'; -- value not supported by Octo
+SHOW DateStyle;
+
+SET DateStyle TO MDY;
 SHOW DateStyle;
 
 SET DateStyle='ISO';
 SHOW DateStyle;
 
-OCTO> SET DateStyle TO PostgreSQL;
+OCTO> SET DateStyle TO MDY;
 OCTO> SHOW DateStyle;
-postgresql
+ISO, MDY
 OCTO> SET DateStyle=ISO;
 OCTO> SHOW DateStyle;
-iso
+ISO, MDY
 OCTO> SET DateStyle TO 'PostgreSQL';
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "postgresql" is invalid
+OCTO> -- value not supported by Octo
+SHOW DateStyle;
+ISO, MDY
+OCTO> SET DateStyle TO MDY;
 OCTO> SHOW DateStyle;
-PostgreSQL
+ISO, MDY
 OCTO> SET DateStyle='ISO';
 OCTO> SHOW DateStyle;
-ISO
+ISO, MDY
 OCTO> 

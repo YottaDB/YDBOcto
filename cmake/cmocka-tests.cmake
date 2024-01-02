@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -24,6 +24,7 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
   set_property(TARGET ${TEST_NAME} PROPERTY C_STANDARD 11)
   target_link_libraries(${TEST_NAME}
     ${test_link_flags}
+    $<TARGET_OBJECTS:cocto>
     ${CMOCKA_LIBRARIES}
     ${Readline_LIBRARY}
     ${YOTTADB_LIBRARIES}

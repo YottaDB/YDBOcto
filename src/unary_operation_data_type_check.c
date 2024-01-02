@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -41,9 +41,18 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 			FIX_TYPE_TO_STRING_LITERAL(child_type[0]);
 			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
 			/* fall through */
+		case DATE_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 		case STRING_LITERAL:
 		case BOOLEAN_VALUE:
-			/* Unary + and - operators cannot be used on non-numeric or non-integer types */
+			/* Unary + and - operators cannot be used on non-numeric or non-integer types apart from time without
+			 * timezone */
+			ISSUE_ERROR(&unary->operand, ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(child_type[0]), result);
+			break;
+		case TIME_LITERAL:
+			// TODO: Enable this if possible. Postgres allows it.
 			ISSUE_ERROR(&unary->operand, ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(child_type[0]), result);
 			break;
 		case NUL_VALUE:
@@ -85,6 +94,11 @@ int unary_operation_data_type_check(SqlUnaryOperation *unary, SqlValueType child
 					    get_user_visible_type_string(child_type[0]), result);
 			}
 			break;
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 		case TABLE_ASTERISK:
 		case COLUMN_REFERENCE:
 		case CALCULATED_VALUE:

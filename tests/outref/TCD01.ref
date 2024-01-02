@@ -1,6 +1,6 @@
 first_name|last_name|order_date|order_amount
-George|Washington|07/04/1776|$234.56
-John|Adams|05/23/1784|$124.00
-Thomas|Jefferson|03/14/1760|$78.50
-Thomas|Jefferson|09/03/1790|$65.50
+George|Washington|1776-07-04|$234.56
+John|Adams|1784-05-23|$124.00
+Thomas|Jefferson|1760-03-14|$78.50
+Thomas|Jefferson|1790-09-03|$65.50
 (4 rows)

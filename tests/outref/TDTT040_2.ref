@@ -1,0 +1,307 @@
+
+--(horolog)
+-- type:date
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(horolog)) global "^datehorolog" readonly;
+select * from test;
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(horolog)) global "^timehorolog" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(horolog)with time zone) global "^timewithtimezonehorolog" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(horolog)with time zone) global "^timestampwithtimezonehorolog" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(horolog)) global "^timestamphorolog" readonly;
+select * from test;
+
+--zhorolog
+-- type:date
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(zhorolog)) global "^datezhorolog" readonly;
+select * from test;
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(zhorolog)) global "^timezhorolog" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(zhorolog)with time zone) global "^timewithtimezonezhorolog" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zhorolog) with time zone) global "^timestampwithtimezonezhorolog" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zhorolog)) global "^timestampzhorolog" readonly;
+select * from test;
+
+-- fileman
+-- type:date
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(fileman)) global "^datefileman" readonly;
+select * from test;
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(fileman)) global "^timefileman" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(fileman)with time zone) global "^timewithtimezonefileman" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(fileman) with time zone) global "^timestampwithtimezonefileman" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(fileman)) global "^timestampfileman" readonly;
+select * from test;
+
+--zut
+-- type:date
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(zut)) global "^datezut" readonly;
+select * from test;
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(zut)) global "^timezut" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(zut)with time zone) global "^timewithtimezonezut" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zut)with time zone) global "^timestampwithtimezonezut" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zut)) global "^timestampzut" readonly;
+select * from test;
+
+--text
+-- type:date
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date) global "^datetext" readonly;
+select * from test;
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time) global "^timetext" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetext" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetext" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp) global "^timestamptext" readonly;
+select * from test;
+
+-- Edge cases they are not suppose to generate an error
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;
+select * from test;
+OCTO> --(horolog)
+drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(horolog)) global "^datehorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366" is invalid for type DATE and format HOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time(horolog)) global "^timehorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1" is invalid for type TIME and format HOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time(horolog)with time zone) global "^timewithtimezonehorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+0|
+(1 row)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(horolog)with time zone) global "^timestampwithtimezonehorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+0|1840-01-01 00:00:00-04:56:02
+1|9999-12-31 23:59:59-05
+2|
+(3 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(horolog)) global "^timestamphorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,-1" is invalid for type TIMESTAMP and format HOROLOG
+OCTO> --zhorolog
+drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(zhorolog)) global "^datezhorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366,,," is invalid for type DATE and format ZHOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time(zhorolog)) global "^timezhorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",-1,," is invalid for type TIME and format ZHOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time(zhorolog)with time zone) global "^timewithtimezonezhorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,,43201" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(zhorolog) with time zone) global "^timestampwithtimezonezhorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,0,,43201" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(zhorolog)) global "^timestampzhorolog" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366,0,," is invalid for type TIMESTAMP and format ZHOROLOG
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(fileman)) global "^datefileman" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10001231" is invalid for type DATE and format FILEMAN
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 40:1: ...integer primary key, dob time(fileman)) global "^timefileman" r...
+                                       ^^^^^^^^^^^^^
+OCTO> create table test (id integer primary key, dob time(fileman)) global "^timefileman" readonly;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 41:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 43:1: ... primary key, dob time(fileman)with time zone) global "^timewit...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table test (id integer primary key, dob time(fileman)with time zone) global "^timewithtimezonefileman" readonly;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 44:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(fileman) with time zone) global "^timestampwithtimezonefileman" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0.0" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(fileman)) global "^timestampfileman" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "9991231.240000" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> --zut
+drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(zut)) global "^datezut" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-62167219300000000" is invalid for type DATE and format ZUT
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 57:1: ...d integer primary key, dob time(zut)) global "^timezut" readonl...
+                                         ^^^^^^^^^
+OCTO> create table test (id integer primary key, dob time(zut)) global "^timezut" readonly;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 58:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 60:1: ...er primary key, dob time(zut)with time zone) global "^timewitht...
+                                  ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table test (id integer primary key, dob time(zut)with time zone) global "^timewithtimezonezut" readonly;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 61:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 63:1: ... primary key, dob timestamp(zut)with time zone) global "^timesta...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table test (id integer primary key, dob timestamp(zut)with time zone) global "^timestampwithtimezonezut" readonly;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 64:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(zut)) global "^timestampzut" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-62167219300000000" is invalid for type TIMESTAMP and format ZUT
+OCTO> --text
+drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date) global "^datetext" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00-01-0000" is invalid for type DATE and format TEXT
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time) global "^timetext" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.1000000" is invalid for type TIME and format TEXT
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetext" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00:00:00.000000-16:00" is invalid for type TIME WITH TIME ZONE and format TEXT
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetext" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-0000 00:00:00.000000-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp) global "^timestamptext" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-10000 00:00:00" is invalid for type TIMESTAMP and format TEXT
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+0|2024-01-01 01:01:01.7323-05
+1|2024-01-01 01:01:01.7323-05
+2|2024-01-01 01:01:01.7323-05
+3|2024-01-01 01:01:01.7323-05
+(4 rows)
+OCTO> 

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -59,12 +59,13 @@ genrandomqueries	;
 	set columns("orders","order_id",4)=""
 	set columns("orders","order_id",5)=""
 	set columns("orders","order_id",6)=""
-	set columns("orders","order_date","07/04/1776")=""
-	set columns("orders","order_date","03/14/1760")=""
-	set columns("orders","order_date","05/23/1784")=""
-	set columns("orders","order_date","09/03/1790")=""
-	set columns("orders","order_date","07/21/1795")=""
-	set columns("orders","order_date","11/27/1787")=""
+	set numtype("orders","order_date")=""	; indicates date; non-existence implies VARCHAR/CHAR
+	set columns("orders","order_date","date'07-04-1776'")=""
+	set columns("orders","order_date","date'03-14-1760'")=""
+	set columns("orders","order_date","date'05-23-1784'")=""
+	set columns("orders","order_date","date'09-03-1790'")=""
+	set columns("orders","order_date","date'07-21-1795'")=""
+	set columns("orders","order_date","date'11-27-1787'")=""
 	set columns("orders","order_amount","$234.56")=""
 	set columns("orders","order_amount","$78.50")=""
 	set columns("orders","order_amount","$124.00")=""

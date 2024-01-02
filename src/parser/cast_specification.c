@@ -46,6 +46,13 @@ SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement 
 			break;
 		default:
 			assert(data_type_struct_STATEMENT == cast_specification->type);
+			if (IS_DATE_TIME_DATA_TYPE(cast_specification->v.data_type_struct.data_type)
+			    && (OPTIONAL_DATE_TIME_TEXT != cast_specification->v.data_type_struct.format)) {
+				// ERROR
+				ERROR(ERR_FORMAT_NOT_ALLOWED_WITH_CAST, "");
+				yyerror(NULL, NULL, &cast_specification, NULL, NULL, NULL);
+				return NULL;
+			}
 			SQL_STATEMENT(ret, value_STATEMENT);
 
 			MALLOC_STATEMENT(ret, value, SqlValue);

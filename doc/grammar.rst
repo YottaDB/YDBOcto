@@ -148,6 +148,542 @@ Boolean Data Type
      SELECT * FROM TEST WHERE FOO IS FALSE;
      SELECT * FROM TEST WHERE FOO IS UNKNOWN;
 
+++++++++++++++++++++++++++
+Date and Time Data Types
+++++++++++++++++++++++++++
+
+  Octo implements date and time types conforming to Gregorian calendar.
+
+  Date and Time types can be specified in the following formats:
+
+  * TEXT     (refers to values like '01-01-2023' and '01:01:01')
+  * HOROLOG  (refers to values equivalent to output of `$HOROLOG <https://docs.yottadb.com/ProgrammersGuide/isv.html#horolog>`_)
+  * ZHOROLOG (refers to values equivalent to output of `$ZHOROLOG <https://docs.yottadb.com/ProgrammersGuide/isv.html#zhorolog>`_)
+  * ZUT      (refers to values equivalent to output of `$ZUT <https://docs.yottadb.com/ProgrammersGuide/isv.html#zut>`_)
+  * FILEMAN  (refers to values of the format YYYMMDD.HHMMSS)
+
+    * Where YYY is year since 1700 with 000 not being allowed
+    * MM is month
+    * DD is date
+    * HH is hour
+    * MM is minute
+    * SS is second
+    * Month and Date have to be in 2 digits
+
+  Different types that are available are:
+
+  * DATE
+  * TIME [WITHOUT TIME ZONE]
+  * TIMESTAMP [WITHOUT TIME ZONE]
+  * TIME WITH TIME ZONE
+  * TIMESTAMP WITH TIME ZONE
+
+  TIMESTAMP will have both date and time information. TIME can have seconds specified with subseconds up till microsecond precision.
+
+  TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE values are stored in UTC and displayed in the active time zone.
+
+  WITHOUT TIME ZONE usage is optional for TIME AND TIMESTAMP types.
+
+  TIME WITH TIME ZONE is not well supported at this time. As date information is not accepted the time given will be treated as the current date's time.
+
+  Note some formats are not allowed for some types. Such inputs are disallowed, an error is issued upon its usage. Following lists all such cases:
+
+  * FILEMAN and TIME
+  * FILEMAN and TIME WITH TIME ZONE
+  * ZUT and TIME
+  * ZUT and TIME WITH TIME ZONE
+  * ZUT and TIMESTAMP WITH TIME ZONE
+
+  Input of such type results in an error. In case of output, an empty value will be seen in the result table where the column value type and output format ends up matching any of the
+  above combinations.
+
+~~~~~~~~~
+Literals
+~~~~~~~~~
+
+  Date and time literals can be specified in the following format:
+
+  * ``type[(format)]'literal'``
+  * ``format`` when not specified is considered to be ``text``. ``text`` cannot be explicitly specified.
+
+    Examples:
+
+    .. code-block:: SQL
+
+       date '01-01-2023'
+       date(horolog)'66475'
+       date(zhorolog)'66475,,,'
+       date(fileman)'2320101'
+       date(zut)'1701123704344883'
+       timestamp '01-01-2023 01:01:01'
+       timestamp(horolog)'66475,3661'
+       timestamp(fileman)'3230101.010101'
+       timestamp with time zone '01-01-2023 01:01:01.567555-05:00'
+       timestamp with time zone '01-01-2023 01:01:01.567555-08:30'
+       timestamp with time zone '01-01-2023 01:01:01-08:30'
+       timestamp(zhorolog) with time zone '66885,44246,905676,18000'
+       time '01:01:01.567555'
+
+  * Subsecond information is specified after the second with a period as shown in examples above. 1-6 digits can be used to specify the value.
+  * Time zone information is specified after seconds without space and can be a value in the range ``-15:59:59`` to ``+15:59:59``. ``:`` is required between hours, minutes and seconds.
+    Time zone fields have to be specified with 2 digits. Minutes and seconds are optional. ``+00:00`` or ``+00`` should be used for UTC.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Columns and Function definition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Date and time column specification in CREATE TABLE is in the following format:
+
+  * ``column_name type[(format)]``
+  * ``format`` when not specified is considered to be ``text``. ``text`` cannot be explicitly specified.
+
+    Examples:
+
+    .. code-block:: SQL
+
+       create table test (id integer, dob date);
+       create table test (id integer, tob time(horolog));
+       create table test (id integer, tos timestamp(fileman));
+       create table test (id integer, tos timestamp(zhorolog) with time zone);
+
+  Date and time type specification in CREATE FUNCTION is similar.
+
+    Examples:
+
+    .. code-block:: none
+
+       create function testf(integer, date) returns date as $$date^%test;
+       create function testf(integer, time(horolog)) returns time(horolog) as $$time^%test;
+       create function testf(integer, timestamp(fileman)) returns timestamp(fileman) as $$timestamp^%test;
+
+~~~~~~~~~~~~~~
+Output format
+~~~~~~~~~~~~~~
+
+  Output format for date and time values can be specified through :code:`octo.conf` by adding the following key value pair.
+
+  .. code-block::
+
+    datetimeoutputformat = "value"
+
+  ``"value"`` can be ``"horolog"``, ``"zhorolog"``, ``"zut"``, ``"fileman"``, ``"text"``. By default output format will be ``"text"``.
+
+  If output format and columns of result table have date/time type and format combination that is disallowed then result table for such columns will display NULL values.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Input and Output text format value
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  ``datestyle`` configuration controls the pattern in which date and time values in ``TEXT`` format are accepted as input and seen in output.
+
+  By default the value of ``datestyle`` is the following
+
+  .. code-block::
+
+    ISO, MDY
+
+  Where the output form of date and time value is ``ISO`` and the input form is ``MDY``.
+
+  The output form corresponds to date/time values following the ISO 8601 (SQL) standard:``YYYY-MM-DD HH:MM:SS``.
+  Since this is the only form of output supported by Octo it is not mandatory to include ``ISO`` while setting ``datestyle``.
+
+  The input form determines how a date value needs to be formed .i.e. in which order day, month and year can be specified in a literal
+  or global value. In ``MDY``, ``M`` represents month, ``D`` the date and ``Y`` the year. They can be specified in any order and in upper or lower case.
+
+  Following are some examples of datestyle values:
+
+  .. code-block::
+
+     ISO, MDY
+     MDY
+     YMD
+     DMY
+     MDY, ISO
+
+  When setting ``datestyle`` a comma separator is needed if both input and output form is being set. Space is optional and the order of input and output
+  form doesn't matter.
+
+  ``datestyle`` configuration can be set using ``SET`` command or in :code:`octo.conf`.
+
+  Following shows an example key value pair to include in :code:`octo.conf` to set ``datestyle``. Note, double quotes must be used for the value.
+
+  .. code-block::
+
+     datestyle = "ISO, YMD"
+
+  Following shows an example of how ``SET`` command can be used to set ``datestyle``. Note, single quotes must be used for the value.
+
+  .. code-block::
+
+      SET datestyle='ISO, YMD'
+
+  Note: ``-`` must be used as delimiter for date and ``:`` for time.
+
+  Following are some examples of date/time literals:
+
+  .. code-block::
+
+     -- when datestyle is 'ymd'
+     date'2023-01-01'
+
+     -- when datestyle is 'mdy'
+     date'01-01-2023'
+
+  When ``MYSQL`` emulation is being done ``datestyle`` default value is ``ISO, YMD`` instead of ``ISO, MDY``.
+
+~~~~~~~~~~~~~~~~
+Readonly Table
+~~~~~~~~~~~~~~~~
+
+  For globals to be mapped with date and time type columns, the values should be in the following format:
+
+  DATE
+
+  .. code-block::
+
+     TEXT     - value has to be in the format MM-DD-YYYY where MM is month, DD is date, YYYY is year. Ordering has to match ``datestyle``.
+     FILEMAN  - YYYMMDD
+     HOROLOG  - 1st part of $HOROLOG, example: 66475
+     ZHOROLOG - value has to be in $ZHOROLOG format. Empty values are accepted. Example: "66787,43301,," or  "66787,,,"
+     ZUT      - value equivalent to $ZUT output
+
+  TIME
+
+  .. code-block::
+
+     TEXT     - value has to be in HH:MM:SS.UUUUUU format where HH is hours, MM is minutes, SS is seconds and UUUUUU is subsecond
+     FILEMAN  - not allowed
+     HOROLOG  - 2nd part of $HOROLOG, example: 3661
+     ZHOROLOG - value has to be in $ZHOROLOG format. Empty values are accepted. Example: "66787,3661,," or  ",3661,,"
+     ZUT      - not allowed
+
+  TIMESTAMP
+
+  .. code-block::
+
+     TEXT     - value has to follow the syntax:``"DATE TIME"``. Date and Time itself are specified as shown in ``DATE`` and ``TIME`` sections above
+     FILEMAN  - YYYMMDD.HHMMSS
+     HOROLOG  - value equivalent to $HOROLOG, example: "66475,3661"
+     ZHOROLOG - value equivalent to $ZHOROLOG, example: "66795,53635,237558,"
+     ZUT      - value equivalent to $ZUT output, example: "1700250859368731"
+
+  TIME WITH TIME ZONE
+
+  .. code-block::
+
+     TEXT     - value has to follow the syntax:``"TIME+/-TIMEZONE"`` where TIMEZONE can be -15:59:59 to +15:59:59 and TIME as specified in the ``TIME`` section above
+     FILEMAN  - not allowed
+     HOROLOG  - 2nd part of $HOROLOG, example: 3661
+     ZHOROLOG - value has to be in $ZHOROLOG format. Empty values are accepted. Example: ",3661,,18000" or  ",3661,,"
+     ZUT      - not allowed
+
+  TIMESTAMP WITH TIME ZONE
+
+  .. code-block::
+
+     TEXT     - value has to follow the syntax:``"DATE TIME+/-TIMEZONE"``. Refer to previous ``DATE``,``TIME`` and ``TIME WITH TIME ZONE`` sections for the syntax of each field
+     FILEMAN  - YYYMMDD.HHMMSS
+     HOROLOG  - value equivalent to $HOROLOG, example: "66475,3661"
+     ZHOROLOG - value equivalent to $ZHOROLOG, example: "66795,53635,237558,18000"
+     ZUT      - not allowed
+
+  Literals also have to follow the above rules to specify a date/time type value of a particular format.
+
+  An important note about date/time columns in table definition
+
+       * When a table is ``readwrite``, date/time value inserted into the table will be stored in a global in Octo's internal date/time format
+       * If a table is mapped to a pre-existing global and there are no keywords in the table definition which makes the table read-only, the table is considered read-write.
+         This will lead to date/time column values in the global node being incorrectly treated as Octo's internal format values when they clearly are not.
+         To avoid such a problem, ensure that when mapping to a pre-existing global ``readonly`` is used in the table definition.
+       * ``datestyle`` needs to be properly set when accessing date or timestamp type column values from readonly tables. The current ``datestyle`` setting needs to match the
+         format of the date/timestamp stored in the global node. Or else the column value will show up incorrectly.
+
+~~~~~~
+Range
+~~~~~~
+
+  [] - is used to indicate optional values.
+
+  Range for text format input:
+
+  .. code-block::
+
+     Date                     : 01-01-0000 to 12-31-9999
+     Time                     : 00:00:00.000000 to 23:59:59.999999
+     Time with time zone      : 00:00:00.000000-15:59:59 to 23:59:59.999999+15:59:59
+     Timestamp                : 01-01-0000 00:00:00.000000 to 12-31-9999 23:59:59.999999
+     Timestamp with time zone : 01-01-0000 00:00:00.000000-15:59:59 to 12-31-9999 23:59:59.999999+15:59:59 (01-JAN-0000 00:00:00.000000-15:59:59 to 31-DEC-9999 23:59:59.999999+15:59:59)
+
+  Range for Horolog format input:
+
+  .. code-block::
+
+     Date     : -365 (01-JAN-1840) to 2980013 (31-DEC-9999)
+     Time     : 0 (00:00:00) to 86399 (23:59:59)
+     Timestamp: -365,0 (01-JAN-1840 00:00:00) to 2980013,86399 (31-DEC-9999 23:59:59)
+
+  Range for Fileman format input:
+
+  .. code-block::
+
+     Date     : 0010101 (01-JAN-1701) to 9991231 (31-DEC-2699)
+     Timestamp: 0010101.000000 (01-JAN-1701 00:00:00) to 9991231.235959 (31-DEC-2699 23:59:59)
+
+  Range for ZHorolog format input:
+
+  .. code-block::
+
+     Date     : -365,,, to 2980013,,, (01-JAN-1840 to 31-DEC-9999)
+     Time     : ,0,[0], to ,86399,[999999], (00:00:00.00000) to 23:59:59.999999)
+     Time with time zone: ,0,[0],43200 to ,86399,[999999],-50400 (00:00:00.00000-12:00) to 23:59:59.999999+14:00)
+     Timestamp: -365,0,[0], to 2980013,86399,[999999], (01-JAN-1840 00:00:00.000000 to 31-DEC-9999 23:59:59.999999)
+     Timestamp with time zone: -365,0,[0],43200 to 2980013,86399,[999999],-50400 (01-JAN-1840 00:00:00.000000-12:00 to 31-DEC-9999 23:59:59.999999+14:00)
+
+  Range for ZUT format input:
+
+  .. code-block::
+
+     Date: -62167219200000000 (01-01-0000) to 253402214400000000 (12-31-9999)
+     Timestamp: -62167219200000000 (01-01-0000 00:00:00.000000) to 253402300799999999(12-31-9999 23:59:59.999999)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Operations and allowed operand types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  ``+``
+
+  .. code-block::
+
+     DATE + TIME
+     TIME + DATE
+     DATE + TIMEWITHTIMEZONE
+     TIMEWITHTIMEZONE + DATE
+     DATE + INTEGER
+     INTEGER + DATE
+     TIMEWITHTIMEZONE + TIME
+     TIME + TIMEWITHTIMEZONE
+     TIME + TIMESTAMP
+     TIMESTAMP + TIME
+     TIME + TIMESTAMPWITHTIMEZONE
+     TIMESTAMPWITHTIMEZONE + TIME
+     NULL + TIME
+     TIME + NULL
+     NULL + TIMESTAMP
+     TIMESTAMP + NULL
+
+  ``-``
+
+  .. code-block::
+
+     DATE - DATE
+     DATE - TIME
+     DATE - INTEGER
+     DATE - NULL
+     TIMEWITHTIMEZONE - TIME
+     TIMESTAMP - TIME
+     TIMESTAMPWITHTIMEZONE - TIME
+     TIMEWITHTIMEZONE - NULL
+     TIMESTAMP - NULL
+
+  ``||``
+
+     * Only valid when one of the operand is of type VARCHAR or has the value NULL
+
+  ``>``, ``>=``, ``<``, ``<=``, ``=``, ``!=``, ``ANY()``, ``ALL()``, ``BETWEEN``, ``NOT BETWEEN``, ``IN``, ``NOT IN``, ``IS NULL``, ``IS NOT NULL``
+
+    * `TIME` and `TIME WITH TIME ZONE` can only be compared amongst themselves
+    * Rest all types can be compared with each other
+    * NULL can be included in the comparison
+
+  ``EXISTS`` and ``NOT EXISTS`` unary operation
+
+    * Its working is similar to other types
+
+  ``CAST`` operation
+
+    * ``::`` and ``CAST``
+    * Valid conversions are
+
+      .. code-block::
+
+         DATE or TIMESTAMP or TIMESTAMPWITHTIMEZONE			  to DATE
+         TIME or TIMEWITHTIMEZONE or TIMESTAMP or TIMESTAMPWITHTIMEZONE	  to TIME
+         DATE or TIMESTAMP or TIMESTAMPWITHTIMEZONE			  to TIMESTAMP
+         TIME or TIMEWITHTIMEZONE					  to TIMEWITHTIMEZONE
+         DATE or TIMESTAMP or TIMESTAMPWITHTIMEZONE			  to TIMESTAMPWITHTIMEZONE
+         STRING 							  to any date/time type (if the value can be converted)
+
+      * Input needs to be in ``text`` format for ``STRING`` to date/time conversion. Other conversions can have any of the internal formats as input.
+      * Output will be in the date/time output format specified in :code:`octo.conf`
+    * ``::`` can also be used to print a date/time value in zut, zhorolog, horolog or fileman. The returned value will be a varchar.
+
+      .. code-block::
+
+	 Example:
+	 OCTO> select date'01-01-2023'::date(fileman);
+	 DATE
+	 3230101
+	 (1 row)
+
+  ``CASE`` statements
+
+    * Its working is similar to other types
+
+  ``ARRAY`` statement
+
+    * Its working is similar to other types
+
+  Aggregate functions
+
+    * ``COUNT``, ``MAX`` and ``MIN`` are supported
+    * ``DISTINCT`` usage is also valid
+    * ``table.*`` and ``*`` usage in the above aggregate functions are also valid
+
+  ``NULL_IF``, ``COALESCE``, ``GREATEST``, ``LEAST``
+
+    * DATE and TIMESTAMP types can exists together as input to this function.
+
+~~~~~~~~~~~~~~~~~~~~
+Date/time Functions
+~~~~~~~~~~~~~~~~~~~~
+
+    * NOW() -> returns :code:`TIMESTAMP WITH TIME ZONE`
+    * LOCALTIME -> returns :code:`TIME`
+    * LOCALTIMESTAMP -> returns :code:`TIMESTAMP`
+    * CURRENT_TIME -> returns :code:`TIME WITH TIME ZONE`
+    * CURRENT_TIMESTAMP -> returns :code:`TIMESTAMP WITH TIME ZONE`
+    * DAY(DATE) -> returns :code:`VARCHAR`
+    * DAYOFMONTH(DATE) -> returns :code:`VARCHAR`
+    * DATE_FORMAT(DATE,VARCHAR) -> returns :code:`VARCHAR`
+    * date_to_fileman(DATE) -> returns :code:`NUMERIC`
+    * timestamp_to_fileman(TIMESTAMP) -> returns :code:`NUMERIC`
+    * timestamptz_to_fileman(TIMESTAMP WITH TIME ZONE) -> returns :code:`NUMERIC`
+    * date_to_horolog(DATE) -> returns :code:`VARCHAR`
+    * time_to_horolog(TIME) -> returns :code:`VARCHAR`
+    * timestamp_to_horolog(TIMESTAMP) -> returns :code:`VARCHAR`
+    * timetz_to_horolog(TIME WITH TIME ZONE) -> returns :code:`VARCHAR`
+    * timestamptz_to_horolog(TIMESTAMP WITH TIME ZONE) -> returns :code:`VARCHAR`
+    * date_to_zhorolog(DATE) -> returns :code:`VARCHAR`
+    * time_to_zhorolog(TIME) -> returns :code:`VARCHAR`
+    * timestamp_to_zhorolog(TIMESTAMP) -> returns :code:`VARCHAR`
+    * timetz_to_zhorolog(TIME WITH TIME ZONE) -> returns :code:`VARCHAR`
+    * timestamptz_to_zhorolog(TIMESTAMP WITH TIME ZONE) -> returns :code:`VARCHAR`
+    * date_to_zut(DATE) -> returns :code:`INTEGER`
+    * timestamp_to_zut(TIMESTAMP) -> returns :code:`INTEGER`
+
+~~~~~~~
+Note
+~~~~~~~
+
+    ``TIME WITH TIME ZONE`` will consider time to be for the current date and is converted to UTC and back to local time zone
+
+    :code:`INSERT` statement can add values which don't exactly match the column type. Following are the usecases which are valid.
+
+    .. code-block::
+
+      For a date column following types can be inserted
+      * DATE/TIMESTAMP/TIMESTAMP WITH TIME ZONE
+
+      For a time column following types can be inserted
+      * TIME/TIME WITH TIME ZONE/TIMESTAMP/TIMESTAMP WITH TIME ZONE
+
+      For a time with time zone column following types can be inserted
+      * TIME WITH TIME ZONE/ TIME
+
+      For a timestamp column following types can be inserted
+      * TIMESTAMP/ TIMESTAMP WITH TIME ZONE/ DATE
+
+      For a timestamp with time zone column following types can be inserted
+      * TIMESTAMP/ TIMESTAMP WITH TIME ZONE/ DATE
+
+    In other cases a type mismatch error is seen. Following lists all the mismatch cases.
+
+    .. code-block::
+
+      For a DATE column following types cannot be inserted
+      * TIME/TIME WITH TIME ZONE
+
+      For a TIME column following types cannot be inserted
+      * DATE
+
+      For a TIMESTAMP column following types cannot be inserted
+      * TIME/TIME WITH TIME ZONE
+
+      For a TIME WITH TIME ZONE column following types cannot be inserted
+      * DATE/TIMESTAMP/TIMESTAMP WITH TIME ZONE
+
+      For a TIMESTAMP WITH TIME ZONE column following types cannot be inserted
+      * TIME/TIME WITH TIME ZONE
+
+    Following examples show the error seen in this case.
+
+    .. code-block::
+
+      OCTO> create table test (id int, dt date);
+      CREATE TABLE
+      OCTO> insert into test values(1, time'01:01:01');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dt" is of type DATE but expression is of type TIME
+      OCTO> insert into test values(1, time with time zone'01:01:01-05');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dt" is of type DATE but expression is of type TIME WITH TIME ZONE
+
+      OCTO> create table test (id int, t time);
+      CREATE TABLE
+      OCTO> insert into test values(1, date'01-01-2023');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME but expression is of type DATE
+
+      OCTO> create table test (id int, t timestamp);
+      CREATE TABLE
+      OCTO> insert into test values(1, time'01:01:01');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIMESTAMP but expression is of type TIME
+      OCTO> insert into test values(1, time with time zone'01:01:01');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIMESTAMP but expression is of type TIME WITH TIME ZONE
+
+      OCTO> create table test (id int, t time with time zone);
+      CREATE TABLE
+      OCTO> insert into test values(1, date'01-01-2023');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME WITH TIME ZONE but expression is of type DATE
+      OCTO> insert into test values(1, timestamp'01-01-2023 01:01:01');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME WITH TIME ZONE but expression is of type TIMESTAMP
+      OCTO> insert into test values(1, timestamp with time zone'01-01-2023 01:01:01-05');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME WITH TIME ZONE but expression is of type TIMESTAMP WITH TIME ZONE
+
+      OCTO> create table test (id int, t timestamp with time zone);
+      CREATE TABLE
+      OCTO> insert into test values(1, time'01:01:01');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIMESTAMP WITH TIME ZONE but expression is of type TIME
+      OCTO> insert into test values(1, time with time zone'01:01:01');
+      [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIMESTAMP WITH TIME ZONE but expression is of type TIME WITH TIME ZONE
+
+
+    In case of a readonly table, date/time column values having empty strings are treated as NULL values.
+
+    In-exact dates and timestamps of FILEMAN format are accepted but are converted to the nearest date or timestamp values.
+    For example: :code:`date(fileman)'3230000'` and :code:`date(fileman)'3230100'` are considered to be equivalent to :code:`date(fileman)'3230101'`. :code:`date(fileman)'3230001'` is a similar value but is invalid.
+
+    FILEMAN midnight value is accepted but is converted to the nearest date.
+    For example: :code:`timestamp(fileman)'2960714.24'` is treated as :code:`timestamp(fileman)'2960715.000000'`.
+
+    FILEMAN values where the time field (HHMMSS in YYYMMDD.HHMMSS) is only 1 digit is considered as HH with a trailing 0 when value is 1 or 2. A single digit value greater than 2 is invalid.
+    Also, a 2 digit HH without MM and SS having ``10`` or ``20`` is invalid.
+    If time field is 3 digits then the value is treated as HHMM where MM is 1 digit and its value cannot exceed 5. If time field is 5 digits then it is considered as HHMMSS where SS is
+    single digit and its value cannot exceed 5. A valid single digit MM (in 3 digit HHMM value) and SS (in 5 digit HHMMSS value) is appended with a trailing 0.
+    All of the invalid cases generate an ERROR or return NULL based on whether the value is a literal of a column value.
+    For example:
+
+    .. code-block::
+
+      timestamp(fileman)'2960124.1' -> timestamp(fileman)'2960124.100000'
+      timestamp(fileman)'2960124.16263' -> timestamp(fileman)'2960124.162630'
+      timestamp(fileman)'2960124.162'   -> timestamp(fileman)'2960124.162000'
+
+    FILEMAN values with only year without any other fields are not allowed as literals and are treated as NULL values when
+    present in globals.
+    For example: :code:`date(fileman)'323'` generates an error. If similar value is in a global and :code:`date(fileman)` column is mapped to it then a select on the column will give a NULL value.
+
+    ZUT formatted DATE or TIMESTAMP refers to UTC time and not the present timezone time.
+
+    User defined functions with date/time parameters will receive date/time values in the format specified. Also, when text format input is expected, date/time value passed to
+    the function implementation will be in the input form seen in datestyle. The output of the function is expected to be in the output form seen in datestyle.
 
 +++++++++++++++++++++++++
 Casting between SQL types
@@ -1587,6 +2123,20 @@ CONCAT
      SELECT CONCAT('string1', 'string2')
      SELECT CONCAT('string1', 'string2', 'string3')
 
+  Date and Time type arguments are also accepted by this function as long as one of the arguments is a VARCHAR. The result will always have date/time value in text format.
+
+  .. code-block:: SQL
+
+    OCTO> SELECT CONCAT(DATE'01-01-2023', 'sample text');
+    concat
+    2023-01-01sample text
+    (1 row)
+
+    OCTO> SELECT CONCAT(DATE(FILEMAN)'3230101', 'sample text');
+    concat
+    2023-01-01sample text
+    (1 row)
+
 +++++++++++++++
 CURRENT_CATALOG
 +++++++++++++++
@@ -1678,8 +2228,9 @@ DAY
   .. code-block:: SQL
 
      DAY(VARCHAR)
+     DAY(DATE)
 
-  The built-in DAY function is a synonym for DAYOFMONTH, and accepts a date in the format :code:`YYYY-MM-DD` and returns the numeric day of the month in the range 0-31 for dates that have a value of zero for the day field, e.g. `0000-00-00`.
+  The built-in DAY function is a synonym for DAYOFMONTH, and accepts a date in the format :code:`YYYY-MM-DD` as a string (:code:`DAY('2023-01-01')`) and returns the numeric day of the month in the range 0-31 where 0 is returned for dates that have a value of zero for the day field, e.g. `0000-00-00`. Also, ``DATE`` type values are also accepted with datestyle set to :code:`YMD` (:code:`DAY(date'2023-01-01')`,:code:`DAY(date(fileman)'3230101')`). When ``DATE`` type value is passed the function returns the numeric day of the month in the range 1-31.
 
 ++++++++++
 DAYOFMONTH
@@ -1688,8 +2239,9 @@ DAYOFMONTH
   .. code-block:: SQL
 
      DAYOFMONTH(VARCHAR)
+     DAYOFMONTH(DATE)
 
-  The built-in DAYOFMONTH function accepts a date in the format :code:`YYYY-MM-DD` and returns the numeric day of the month in the range 0-31 for dates that have a value of zero for the day field, e.g. `1999-06-00`.
+  The built-in DAYOFMONTH function accepts a date in the format :code:`YYYY-MM-DD` as a string (:code:`DAYOFMONTH('2023-01-01')`) and returns the numeric day of the month in the range 0-31 where 0 is returned for dates that have a value of zero for the day field, e.g. `1999-06-00`. Also, ``DATE`` type values are also accepted with datestyle set to :code:`YMD` (:code:`DAYOFMONTH(date'2023-01-01')`,:code:`DAYOFMONTH(date(fileman)'3230101')`). When ``DATE`` type value is passed the function returns the numeric day of the month in the range 1-31.
 
 +++++++++++
 DATE_FORMAT
@@ -1697,7 +2249,8 @@ DATE_FORMAT
 
   .. code-block:: SQL
 
-     DATE_FORMAT(VARCHAR)
+     DATE_FORMAT(VARCHAR,VARCHAR)
+     DATE_FORMAT(TIMESTAMP,VARCHAR)
 
   The built-in DATE_FORMAT function accepts a date in the format :code:`YYYY-MM-DD hh:mm:ss.uuuuuu` and a format string, and returns a new string wherein the given date is formatted according to the format specified. Note that the number of microseconds :code:`uuuuuu` may be omitted such that the date may be in the format :code:`YYYY-MM-DD hh:mm:ss`.
 

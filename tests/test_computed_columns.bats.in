@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -24,10 +24,11 @@ teardown() {
 }
 
 @test "TCC01 : Ensure cross-references are not computed for computed columns" {
-  curtime=`$ydb_dist/yottadb -run %XCMD 'write $HOROLOG'`
+  echo "datestyle = \"Ymd\"" >> octo.conf
+  curtime=`$ydb_dist/yottadb -run %XCMD 'write $ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")'`
   sleep 1	# sleep so we are guaranteed the "time = $curtime" check below will not match any records
   		# (since "time" below will reflect the current time then and hence will be at least one second after $curtime
-  echo "select datetime from namesWithAges where datetime = '$curtime'" > query.sql
+  echo "select datetime from namesWithAges where datetime = timestamp'$curtime';" > query.sql
   octo -f query.sql 2>&1 | tee output.txt
   verify_output TCC01 output.txt noinfo nodebug
 }

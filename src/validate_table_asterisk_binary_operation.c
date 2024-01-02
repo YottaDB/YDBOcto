@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -193,6 +193,8 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 	case CONCAT:
 	case BOOLEAN_OR:
 	case BOOLEAN_AND:
+	case DATE_TIME_ADDITION:
+	case DATE_TIME_SUBTRACTION:
 		assert(FALSE);
 		result = 1;
 		break;

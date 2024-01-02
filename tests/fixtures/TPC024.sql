@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,7 +13,7 @@
 -- TPC024 : OCTO597 : Test that SET/SHOW commands works for all supported variables
 
 SET client_encoding = 'TEST';
-SET datestyle = 'TEST';
+SET datestyle = 'YMD';
 SET integer_datetimes = 'TEST';
 SET intervalstyle = 'TEST';
 SET server_encoding = 'TEST';
@@ -38,7 +38,7 @@ SHOW session_authorization;
 
 -- Test mixed case variable names
 SET Client_encoding = 'TEST2';
-SET DateStyle = 'TEST2';
+SET DateStyle = 'YMD';
 SET Integer_datetimes = 'TEST2';
 SET Intervalstyle = 'TEST2';
 SET Server_encoding = 'TEST2';

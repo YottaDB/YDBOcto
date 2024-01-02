@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -158,6 +158,11 @@ pgFormatType(typeoid,typemod)
 	.				; Postgres 14 accepts values in the range 0-4 but I suspect that is not intentional.
 	.	SET typemod=typemod-4
 	.	SET typename=typename_"("_(typemod\(2**16))_","_(typemod#(2**16))_")"
+	QUIT:typeoid=1082 "date" ; Refers PSQL_TypeOid_date
+	QUIT:typeoid=1083 "time without time zone" ; Refers PSQL_TypeOid_time
+	QUIT:typeoid=1266 "time with time zone" ; Refers PSQL_TypeOid_timetz
+	QUIT:typeoid=1114 "timestamp without time zone" ; Refers PSQL_TypeOid_timestamp
+	QUIT:typeoid=1184 "timestamp with time zone" ; Refers PSQL_TypeOid_timestamptz
 	QUIT "unknown"
 
 pgGetPartKeyDef(tableoid)	;

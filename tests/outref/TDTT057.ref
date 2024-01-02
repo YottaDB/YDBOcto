@@ -1,0 +1,42 @@
+
+create table TDTT057 (dob varchar zut);
+create table TDTT057 (dob date(zut) zhorolog);
+create table TDTT057 (dob date(zut zut) zut);
+select 'text' zut;
+create function TDTT057_func(varchar(zut)) RETURNS VARCHAR as $$^extrinsic;
+create function TDTT057_func(varchar zut zut) RETURNS VARCHAR as $$^extrinsic;
+create function TDTT057_func(DATE) RETURNS VARCHAR(zut) as $$^extrinsic;
+create function TDTT057_func(DATE) RETURNS VARCHAR zut zut as $$^extrinsic;
+LINE 2:1: create table TDTT057 (dob varchar zut);
+                                            ^^^
+syntax error, unexpected DATE_TIME_ZUT
+OCTO> create table TDTT057 (dob varchar zut);
+LINE 3:1: create table TDTT057 (dob date(zut) zhorolog);
+                                              ^^^^^^^^
+syntax error, unexpected DATE_TIME_ZHOROLOG
+OCTO> create table TDTT057 (dob date(zut) zhorolog);
+LINE 4:1: create table TDTT057 (dob date(zut zut) zut);
+                                             ^^^
+syntax error, unexpected DATE_TIME_ZUT, expecting RIGHT_PAREN
+OCTO> create table TDTT057 (dob date(zut zut) zut);
+LINE 5:1: select 'text' zut;
+                        ^^^
+syntax error, unexpected DATE_TIME_ZUT, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+OCTO> select 'text' zut;
+LINE 6:1: ...function TDTT057_func(varchar(zut)) RETURNS VARCHAR as $$^extri...
+                                           ^^^
+syntax error, unexpected DATE_TIME_ZUT, expecting DATE or TIME or TIMESTAMP or LITERAL
+OCTO> create function TDTT057_func(varchar(zut)) RETURNS VARCHAR as $$^extrinsic;
+LINE 7:1: ...function TDTT057_func(varchar zut zut) RETURNS VARCHAR as $$^ex...
+                                           ^^^
+syntax error, unexpected DATE_TIME_ZUT, expecting RIGHT_PAREN
+OCTO> create function TDTT057_func(varchar zut zut) RETURNS VARCHAR as $$^extrinsic;
+LINE 8:1: ...nction TDTT057_func(DATE) RETURNS VARCHAR(zut) as $$^extrinsic;
+                                                       ^^^
+syntax error, unexpected DATE_TIME_ZUT, expecting DATE or TIME or TIMESTAMP or LITERAL
+OCTO> create function TDTT057_func(DATE) RETURNS VARCHAR(zut) as $$^extrinsic;
+LINE 9:1: ...ion TDTT057_func(DATE) RETURNS VARCHAR zut zut as $$^extrinsic;
+                                                    ^^^
+syntax error, unexpected DATE_TIME_ZUT, expecting AS
+OCTO> create function TDTT057_func(DATE) RETURNS VARCHAR zut zut as $$^extrinsic;
+OCTO> 

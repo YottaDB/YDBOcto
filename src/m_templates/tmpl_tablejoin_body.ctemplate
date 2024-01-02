@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,13 +39,13 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 		col1 = pplan->projection;
 		GET_LP(col2_onwards, col1, 1, LP_COLUMN_LIST);
 		col1->v.lp_default.operand[1] = NULL;
-		TMPL(tmpl_column_list_combine, col1, pplan, ",", FALSE, 0, FALSE);
+		TMPL(tmpl_column_list_combine, col1, pplan, ",", FALSE, 0, FALSE, FALSE);
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
 		%{} {{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}{}%
 		%{}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
-		TMPL(tmpl_column_list_combine, col2_onwards, pplan, ",", FALSE, 0, FALSE);
+		TMPL(tmpl_column_list_combine, col2_onwards, pplan, ",", FALSE, 0, FALSE, FALSE);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}{}%
@@ -85,7 +85,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 			%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }},{}%
-			TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
+			TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE, FALSE);
 			%{}))){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}

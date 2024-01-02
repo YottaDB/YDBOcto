@@ -440,6 +440,11 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, 
 		case FUNCTION_HASH:
 		case COLUMN_REFERENCE:
 		case TABLE_ASTERISK:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			len = strlen(value->v.string_literal);
 			if (NULL != out) {
 				memcpy(&out[*out_length], value->v.string_literal, len);

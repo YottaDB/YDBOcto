@@ -3,10 +3,15 @@ select oid,typname,typlen from pg_catalog.pg_type;
 OCTO> select oid,typname,typlen from pg_catalog.pg_type;
 oid|typname|typlen
 16|bool|1
+1082|date|4
 23|int4|4
 19|name|64
 1700|numeric|-1
+1083|time|8
+1114|timestamp|8
+1184|timestamptz|8
+1266|timetz|12
 705|unknown|-2
 1043|varchar|-1
-(6 rows)
+(11 rows)
 OCTO> 

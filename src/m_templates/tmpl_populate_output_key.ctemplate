@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,6 +14,7 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
+// Date/Time internal format to output format conversion will happen here
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count) {
 	boolean_t	stash_columns_in_keys;
 
@@ -41,7 +42,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count) {
 		 */
 		column_list = pplan->projection;
 		assert(NULL == column_list->v.lp_default.operand[1]);
-		TMPL(tmpl_column_list_combine, column_list, pplan, ",", FALSE, dot_count, FALSE);
+		TMPL(tmpl_column_list_combine, column_list, pplan, ",", FALSE, dot_count, FALSE, FALSE);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT({}%
 		TMPL(tmpl_key, pplan->outputKey);
@@ -117,14 +118,14 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count) {
 		 *	`str2mval` transformation.
 		 * Hence `!pplan->stash_columns_in_keys` passed below as the 4th parameter (`str2mval`).
 		 */
-		TMPL(tmpl_column_list_combine, pplan->projection, pplan, "_", !pplan->stash_columns_in_keys, dot_count, FALSE);
+		TMPL(tmpl_column_list_combine, pplan->projection, pplan, "_", !pplan->stash_columns_in_keys, dot_count, FALSE, TRUE);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
 		TMPL(tmpl_key, pplan->outputKey);
 		(*buffer_index)--;
 		if (NULL != pplan->order_by) {
 			%{},{{ PP_ORDER_BY }},{}%
-			TMPL(tmpl_column_list_combine, pplan->order_by, pplan, ",", FALSE, 0, FALSE);
+			TMPL(tmpl_column_list_combine, pplan->order_by, pplan, ",", FALSE, 0, FALSE, FALSE);
 			%{},{}%
 			TMPL(tmpl_key, pplan->outputKey);
 			%{}){}%
@@ -150,7 +151,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
 		%{} {{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
+		TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE, FALSE);
 		%{})=""{}%
 	}
 	return;

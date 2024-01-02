@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -147,6 +147,7 @@ add_dependencies(libhelpers check_git)
 
 add_library(libocto OBJECT
   add_optional_piece_keyword_to_sql_column.c
+  alloc_keyword_of_type.c
   auto_load_octo_seed.c
   auto_load_octo_seed_if_needed.c
   auto_upgrade_binary_definition_if_needed.c
@@ -221,6 +222,7 @@ add_library(libocto OBJECT
   get_user_visible_type_string.c
   get_user_visible_unary_operator_string.c
   get_display_relation_query_stmt.c
+  get_date_time_format_string.c
   history.c
   hash_canonical_query.c
   is_auto_upgrade_valid.c
@@ -260,6 +262,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_num_cols_in_select_column_list.c
   optimization_transforms/lp_get_output.c
   optimization_transforms/lp_get_output_key.c
+  optimization_transforms/lp_get_plan_value_type.c
   optimization_transforms/lp_get_project.c
   optimization_transforms/lp_get_projection_columns.c
   optimization_transforms/lp_get_select.c
@@ -285,7 +288,6 @@ add_library(libocto OBJECT
   parse_startup_flags.c
   parse_tree_optimize.c
   parser/aggregate_function.c
-  parser/alloc_no_keyword.c
   parser/between_predicate.c
   parser/cast_specification.c
   parser/copy_correlation_specification_aliases.c
@@ -341,6 +343,7 @@ add_library(libocto OBJECT
   regex_has_no_special_characters.c
   run_query.c
   run_query_file.c
+  set_date_time_format_from_datestyle.c
   set_parameter_in_pg_settings.c
   get_parameter_from_pg_settings.c
   store_function_definition.c
@@ -373,6 +376,7 @@ add_executable(octo
   gbldefs.c
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
+  $<TARGET_OBJECTS:cocto>
   ${POST_CONFIGURE_FILE}
 )
 add_dependencies(octo check_git)
@@ -469,6 +473,7 @@ add_executable(rocto
   $<TARGET_OBJECTS:librocto>
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
+  $<TARGET_OBJECTS:cocto>
   ${POST_CONFIGURE_FILE}
 )
 add_dependencies(rocto check_git)
@@ -486,6 +491,7 @@ add_dependencies(pparser check_git)
 # Installed as libcocto
 add_library(cocto SHARED
 	aux/ydboctodateformat.c
+	aux/ydboctodateoperations.c
 )
 
 # Generate C files from templates
@@ -519,6 +525,8 @@ set(template_files
   ${template_dir}/tmpl_physical_plan.ctemplate
   ${template_dir}/tmpl_populate_output_key.ctemplate
   ${template_dir}/tmpl_print_dots.ctemplate
+  ${template_dir}/tmpl_print_date_time_addition.ctemplate
+  ${template_dir}/tmpl_print_date_time_subtraction.ctemplate
   ${template_dir}/tmpl_print_expression.ctemplate
   ${template_dir}/tmpl_print_expression_assignment.ctemplate
   ${template_dir}/tmpl_print_expression_group_by_computation.ctemplate
@@ -547,7 +555,6 @@ endforeach()
 
 # manually place Call-In/Call-Out/Config files in build directory for use in the DISABLE_INSTALL=ON case
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/src/ydbocto.ci COPYONLY)
-configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc" ${PROJECT_BINARY_DIR}/src/ydbocto.xc COPYONLY)
 configure_file("${PROJECT_SOURCE_DIR}/src/aux/octo.conf.default" ${PROJECT_BINARY_DIR}/src/octo.conf COPYONLY)
 
 # Set C compiler flags for all Octo targets
@@ -663,8 +670,8 @@ if (NOT ${DISABLE_INSTALL})
 	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
 			DESTINATION octo)
 
-	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc
-			DESTINATION octo)
+	install(FILES ${PROJECT_BINARY_DIR}/src/ydbocto.xc
+		DESTINATION octo)
 
 	install(TARGETS cocto
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/)
@@ -675,10 +682,15 @@ if (NOT ${DISABLE_INSTALL})
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
 
 	add_compile_definitions(DISABLE_INSTALL=0)
+	set(install_dir ${CMAKE_INSTALL_PREFIX})
 else()
 	install(CODE "MESSAGE(STATUS \"Installation disabled. No files were installed.\")")
 	add_compile_definitions(DISABLE_INSTALL=1)
+	set(install_dir ${PROJECT_BINARY_DIR}/src)
 endif()
+
+# Following invocation replaces @install_dir@ in ydbocto.xc.in to its value set in the above if block, needed by octo_init.c to set `ydb_xc_octo`.
+configure_file(${PROJECT_SOURCE_DIR}/src/aux/ydbocto.xc.in ${PROJECT_BINARY_DIR}/src/ydbocto.xc)
 
 # Seed Data
 # Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes

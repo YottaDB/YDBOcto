@@ -1,0 +1,559 @@
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 1:1: select date'01-01-2023' + date'01-01-2023';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 1:1: select date'01-01-2023' + date'01-01-2023';
+                                    ^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' + date'01-01-2023';
+OCTO> select date'01-01-2023' + time'01:01:00';
+???
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 3:1: select date'01-01-2023' + timestamp'01-01-2023 01:01:00';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 3:1: select date'01-01-2023' + timestamp'01-01-2023 01:01:00';
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' + timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 4:1: select date'01-01-2023' + timestamp with time zone'01-01-2023 01...
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 4:1: ...01-2023' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 5:1: select date'01-01-2023' + n1.dob from TDTT005date n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 5:1: select date'01-01-2023' + n1.dob from TDTT005date n1;
+                                    ^^^^^^
+OCTO> select date'01-01-2023' + n1.dob from TDTT005date n1;
+OCTO> select date'01-01-2023' + n1.dob from TDTT005time n1;
+???
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 7:1: select date'01-01-2023' + n1.dob from TDTT005timestamp n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 7:1: select date'01-01-2023' + n1.dob from TDTT005timestamp n1;
+                                    ^^^^^^
+OCTO> select date'01-01-2023' + n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 8:1: select date'01-01-2023' + n1.dob from TDTT005timestamptz n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 8:1: select date'01-01-2023' + n1.dob from TDTT005timestamptz n1;
+                                    ^^^^^^
+OCTO> select date'01-01-2023' + n1.dob from TDTT005timestamptz n1;
+OCTO> select date'01-01-2023' + 3;
+???
+2023-01-04
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 10:1: select date'01-01-2023' + 'sample string';
+                                     ^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' + 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 11:1: select date'01-01-2023' + 3.3;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 11:1: select date'01-01-2023' + 3.3;
+                                     ^^^
+OCTO> select date'01-01-2023' + 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 12:1: select date'01-01-2023' + NULL;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for addition operation
+LINE 12:1: select date'01-01-2023' + NULL;
+                                     ^^^^
+OCTO> select date'01-01-2023' + NULL;
+OCTO> select time'01:01:00' + date'01-01-2023';
+???
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 14:1: select time'01:01:00' + time'01:01:00';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 14:1: select time'01:01:00' + time'01:01:00';
+                                   ^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' + time'01:01:00';
+OCTO> select time'01:01:00' + timestamp'01-01-2023 01:01:00';
+???
+2023-01-01 02:02:00
+(1 row)
+OCTO> select time'01:01:00' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+???
+2023-01-01 02:02:00-05
+(1 row)
+OCTO> select time'01:01:00' + n1.dob from TDTT005date n1;
+???
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 18:1: select time'01:01:00' + n1.dob from TDTT005time n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 18:1: select time'01:01:00' + n1.dob from TDTT005time n1;
+                                   ^^^^^^
+OCTO> select time'01:01:00' + n1.dob from TDTT005time n1;
+OCTO> select time'01:01:00' + n1.dob from TDTT005timestamp n1;
+???
+2023-01-01 02:02:01
+(1 row)
+OCTO> select time'01:01:00' + n1.dob from TDTT005timestamptz n1;
+???
+2022-12-31 16:02:01-05
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 21:1: select time'01:01:00' + 3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for addition operation
+LINE 21:1: select time'01:01:00' + 3;
+                                   ^
+OCTO> select time'01:01:00' + 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 22:1: select time'01:01:00' + 'sample string';
+                                   ^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' + 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 23:1: select time'01:01:00' + 3.3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 23:1: select time'01:01:00' + 3.3;
+                                   ^^^
+OCTO> select time'01:01:00' + 3.3;
+OCTO> select time'01:01:00' + NULL;
+???
+
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 25:1: select timestamp'01-01-2023 01:01:00' + date'01-01-2023';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 25:1: select timestamp'01-01-2023 01:01:00' + date'01-01-2023';
+                                                   ^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + date'01-01-2023';
+OCTO> select timestamp'01-01-2023 01:01:00' + time'01:01:00';
+???
+2023-01-01 02:02:00
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 27:1: select timestamp'01-01-2023 01:01:00' + timestamp'01-01-2023 01:...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 27:1: ...timestamp'01-01-2023 01:01:00' + timestamp'01-01-2023 01:01:00';
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 28:1: select timestamp'01-01-2023 01:01:00' + timestamp with time zone...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 28:1: ...1:01:00' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 29:1: select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005date ...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 29:1: ...ect timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005date n1;
+                                                   ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005date n1;
+OCTO> select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005time n1;
+???
+2023-01-01 02:02:01
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 31:1: select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005times...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 31:1: ...imestamp'01-01-2023 01:01:00' + n1.dob from TDTT005timestamp n1;
+                                              ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 32:1: select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005times...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 32:1: ...estamp'01-01-2023 01:01:00' + n1.dob from TDTT005timestamptz n1;
+                                            ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 33:1: select timestamp'01-01-2023 01:01:00' + 3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for addition operation
+LINE 33:1: select timestamp'01-01-2023 01:01:00' + 3;
+                                                   ^
+OCTO> select timestamp'01-01-2023 01:01:00' + 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 34:1: select timestamp'01-01-2023 01:01:00' + 'sample string';
+                                                   ^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 35:1: select timestamp'01-01-2023 01:01:00' + 3.3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 35:1: select timestamp'01-01-2023 01:01:00' + 3.3;
+                                                   ^^^
+OCTO> select timestamp'01-01-2023 01:01:00' + 3.3;
+OCTO> select timestamp'01-01-2023 01:01:00' + NULL;
+???
+
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 37:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + dat...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 37:1: ...mp with time zone'01-01-2023 01:01:00-05:00' + date'01-01-2023';
+                                                             ^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + date'01-01-2023';
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + time'01:01:00';
+???
+2023-01-01 02:02:00-05
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 39:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + tim...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 39:1: ...one'01-01-2023 01:01:00-05:00' + timestamp'01-01-2023 01:01:00';
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 40:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + tim...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 40:1: ...0-05:00' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 41:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + n1....
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 41:1: ...me zone'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005date n1;
+                                                   ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005date n1;
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005time n1;
+???
+2023-01-01 02:02:01-05
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 43:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + n1....
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 43:1: ...ne'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005timestamp n1;
+                                              ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 44:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + n1....
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 44:1: ...'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005timestamptz n1;
+                                            ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 45:1: select timestamp with time zone'01-01-2023 01:01:00-05:00' + 3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for addition operation
+LINE 45:1: select timestamp with time zone'01-01-2023 01:01:00-05:00' + 3;
+                                                                        ^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 46:1: ...mp with time zone'01-01-2023 01:01:00-05:00' + 'sample string';
+                                                             ^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 47:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + 3.3...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 47:1: ...lect timestamp with time zone'01-01-2023 01:01:00-05:00' + 3.3;
+                                                                         ^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 48:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' + NUL...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for addition operation
+LINE 48:1: ...lect timestamp with time zone'01-01-2023 01:01:00-05:00' + NULL;
+                                                                         ^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' + NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 49:1: select n1.dob + date'01-01-2023' from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 49:1: select n1.dob + date'01-01-2023' from TDTT005date n1;
+                           ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + date'01-01-2023' from TDTT005date n1;
+OCTO> select n1.dob + time'01:01:00' from TDTT005date n1;
+???
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 51:1: select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005date ...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 51:1: select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005date ...
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 52:1: select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 52:1: ...dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 53:1: select n1.dob + n2.dob from TDTT005date n1, TDTT005date n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 53:1: select n1.dob + n2.dob from TDTT005date n1, TDTT005date n2;
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005date n1, TDTT005date n2;
+OCTO> select n1.dob + n2.dob from TDTT005date n1, TDTT005time n2;
+???
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 55:1: select n1.dob + n2.dob from TDTT005date n1, TDTT005timestamp n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 55:1: select n1.dob + n2.dob from TDTT005date n1, TDTT005timestamp n2;
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005date n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 56:1: select n1.dob + n2.dob from TDTT005date n1, TDTT005timestamptz n...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 56:1: select n1.dob + n2.dob from TDTT005date n1, TDTT005timestamptz n...
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005date n1, TDTT005timestamptz n2;
+OCTO> select n1.dob + 3 from TDTT005date n1;
+???
+2023-01-04
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 58:1: select n1.dob + 'sample string' from TDTT005date n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob + 'sample string' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 59:1: select n1.dob + 3.3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 59:1: select n1.dob + 3.3 from TDTT005date n1;
+                           ^^^
+OCTO> select n1.dob + 3.3 from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 60:1: select n1.dob + NULL from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for addition operation
+LINE 60:1: select n1.dob + NULL from TDTT005date n1;
+                           ^^^^
+OCTO> select n1.dob + NULL from TDTT005date n1;
+OCTO> select n1.dob + date'01-01-2023' from TDTT005time n1;
+???
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 62:1: select n1.dob + time'01:01:00' from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 62:1: select n1.dob + time'01:01:00' from TDTT005time n1;
+                           ^^^^^^^^^^^^^^
+OCTO> select n1.dob + time'01:01:00' from TDTT005time n1;
+OCTO> select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005time n1;
+???
+2023-01-01 02:02:01
+(1 row)
+OCTO> select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
+???
+2023-01-01 02:02:01-05
+(1 row)
+OCTO> select n1.dob + n2.dob from TDTT005time n1, TDTT005date n2;
+???
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 66:1: select n1.dob + n2.dob from TDTT005time n1, TDTT005time n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 66:1: select n1.dob + n2.dob from TDTT005time n1, TDTT005time n2;
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005time n1, TDTT005time n2;
+OCTO> select n1.dob + n2.dob from TDTT005time n1, TDTT005timestamp n2;
+???
+2023-01-01 02:02:02
+(1 row)
+OCTO> select n1.dob + n2.dob from TDTT005time n1, TDTT005timestamptz n2;
+???
+2022-12-31 16:02:02-05
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 69:1: select n1.dob + 3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for addition operation
+LINE 69:1: select n1.dob + 3 from TDTT005time n1;
+                           ^
+OCTO> select n1.dob + 3 from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 70:1: select n1.dob + 'sample string' from TDTT005time n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob + 'sample string' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for addition operation
+LINE 71:1: select n1.dob + 3.3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 71:1: select n1.dob + 3.3 from TDTT005time n1;
+                           ^^^
+OCTO> select n1.dob + 3.3 from TDTT005time n1;
+OCTO> select n1.dob + NULL from TDTT005time n1;
+???
+
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 73:1: select n1.dob + date'01-01-2023' from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 73:1: select n1.dob + date'01-01-2023' from TDTT005timestamp n1;
+                           ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + date'01-01-2023' from TDTT005timestamp n1;
+OCTO> select n1.dob + time'01:01:00' from TDTT005timestamp n1;
+???
+2023-01-01 02:02:01
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 75:1: select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005times...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 75:1: select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005times...
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 76:1: select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 76:1: ...dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 77:1: select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005date n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 77:1: select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005date n2;
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005date n2;
+OCTO> select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005time n2;
+???
+2023-01-01 02:02:02
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 79:1: select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005timestam...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 79:1: select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005timestam...
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 80:1: select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005timestam...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 80:1: select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005timestam...
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 81:1: select n1.dob + 3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for addition operation
+LINE 81:1: select n1.dob + 3 from TDTT005timestamp n1;
+                           ^
+OCTO> select n1.dob + 3 from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 82:1: select n1.dob + 'sample string' from TDTT005timestamp n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob + 'sample string' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 83:1: select n1.dob + 3.3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 83:1: select n1.dob + 3.3 from TDTT005timestamp n1;
+                           ^^^
+OCTO> select n1.dob + 3.3 from TDTT005timestamp n1;
+OCTO> select n1.dob + NULL from TDTT005timestamp n1;
+???
+
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 85:1: select n1.dob + date'01-01-2023' from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 85:1: select n1.dob + date'01-01-2023' from TDTT005timestamptz n1;
+                           ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + date'01-01-2023' from TDTT005timestamptz n1;
+OCTO> select n1.dob + time'01:01:00' from TDTT005timestamptz n1;
+???
+2022-12-31 16:02:01-05
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 87:1: select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005times...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 87:1: select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005times...
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 88:1: select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 88:1: ...dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob + timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 89:1: select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005date n...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 89:1: select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005date n...
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005date n2;
+OCTO> select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005time n2;
+???
+2022-12-31 16:02:02-05
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 91:1: select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005timest...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for addition operation
+LINE 91:1: select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005timest...
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 92:1: select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005timest...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 92:1: select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005timest...
+                           ^^^^^^
+OCTO> select n1.dob + n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 93:1: select n1.dob + 3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for addition operation
+LINE 93:1: select n1.dob + 3 from TDTT005timestamptz n1;
+                           ^
+OCTO> select n1.dob + 3 from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 94:1: select n1.dob + 'sample string' from TDTT005timestamptz n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob + 'sample string' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 95:1: select n1.dob + 3.3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for addition operation
+LINE 95:1: select n1.dob + 3.3 from TDTT005timestamptz n1;
+                           ^^^
+OCTO> select n1.dob + 3.3 from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for addition operation
+LINE 96:1: select n1.dob + NULL from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NULL not compatible for addition operation
+LINE 96:1: select n1.dob + NULL from TDTT005timestamptz n1;
+                           ^^^^
+OCTO> select n1.dob + NULL from TDTT005timestamptz n1;
+OCTO> 

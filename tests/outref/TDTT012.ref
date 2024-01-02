@@ -1,0 +1,63 @@
+
+-- All of the following are expected to issue error
+select 1.0::date;
+select 1::date;
+select 1::time;
+select (1::time)::boolean;
+select date(zut) '-27809392000000000'::date(fileman);
+select date(zut) '-27809392000000000'::timestamp(fileman);
+select date(zut) '-27809392000000000'::timestamp(zhorolog) with time zone;
+select date(zut) '-27809392000000000'::time(zhorolog);
+select date(zut) '-27809392000000000'::time(zhorolog) with time zone;
+(select 'tex.+ EN-;t') union (select date'01-01-2023');
+(select 'tex.3 EN-filem;t') union (select date'01-01-2023');
+(select 'tex.3 EN-sele;t') union (select date'01-01-2023');
+(select 'tex.testtsc3 EN-;t') union (select date'01-01-2023');
+select (timestamp(horolog)'66475,3661'::date) ='01.01-2-2\277'::date;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
+LINE 2:1: select 1.0::date;
+                 ^^^^^^^^^
+OCTO> select 1.0::date;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type DATE
+LINE 3:1: select 1::date;
+                 ^^^^^^^
+OCTO> select 1::date;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIME
+LINE 4:1: select 1::time;
+                 ^^^^^^^
+OCTO> select 1::time;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIME
+LINE 5:1: select (1::time)::boolean;
+                  ^^^^^^^
+OCTO> select (1::time)::boolean;
+[ERROR]: ERR_FORMAT_NOT_ALLOWED_WITH_CAST: Date/time format cannot be specified for cast operation
+LINE 6:1: select date(zut) '-27809392000000000'::date(fileman);
+                                                 ^^^^^^^^^^^^^
+OCTO> select date(zut) '-27809392000000000'::date(fileman);
+[ERROR]: ERR_FORMAT_NOT_ALLOWED_WITH_CAST: Date/time format cannot be specified for cast operation
+LINE 7:1: select date(zut) '-27809392000000000'::timestamp(fileman);
+                                                 ^^^^^^^^^^^^^^^^^^
+OCTO> select date(zut) '-27809392000000000'::timestamp(fileman);
+[ERROR]: ERR_FORMAT_NOT_ALLOWED_WITH_CAST: Date/time format cannot be specified for cast operation
+LINE 8:1: ...e(zut) '-27809392000000000'::timestamp(zhorolog) with time zone;
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date(zut) '-27809392000000000'::timestamp(zhorolog) with time zone;
+[ERROR]: ERR_FORMAT_NOT_ALLOWED_WITH_CAST: Date/time format cannot be specified for cast operation
+LINE 9:1: select date(zut) '-27809392000000000'::time(zhorolog);
+                                                 ^^^^^^^^^^^^^^
+OCTO> select date(zut) '-27809392000000000'::time(zhorolog);
+[ERROR]: ERR_FORMAT_NOT_ALLOWED_WITH_CAST: Date/time format cannot be specified for cast operation
+LINE 10:1: ... date(zut) '-27809392000000000'::time(zhorolog) with time zone;
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date(zut) '-27809392000000000'::time(zhorolog) with time zone;
+OCTO> (select 'tex.+ EN-;t') union (select date'01-01-2023');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.+ EN-;t" is invalid for type DATE and format TEXT
+OCTO> (select 'tex.3 EN-filem;t') union (select date'01-01-2023');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-filem;t" is invalid for type DATE and format TEXT
+OCTO> (select 'tex.3 EN-sele;t') union (select date'01-01-2023');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-sele;t" is invalid for type DATE and format TEXT
+OCTO> (select 'tex.testtsc3 EN-;t') union (select date'01-01-2023');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.testtsc3 EN-;t" is invalid for type DATE and format TEXT
+OCTO> select (timestamp(horolog)'66475,3661'::date) ='01.01-2-2\277'::date;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01-2-2\277" is invalid for type DATE and format TEXT
+OCTO> 

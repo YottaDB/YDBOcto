@@ -1,0 +1,48 @@
+
+select time with time zone'16:12:00'; -- result should be same but with time zone of -5
+
+select time'16:12:00'; -- result should be same but no time zone information displayed
+
+-- Following query's result difference is because of direct use of time.h. The time
+--   is considered to be present day's time and hence is being considered to local time for the day.
+-- Note: Mysql doesn't allow timezone information in time type hence doesn't have this problem
+select time with time zone'22:30:00+0530'; -- Postgres result is '22:30:00+05:30' but Octo result is 12:00:00-0500
+select time with time zone'10:30:00+0530'; -- Postgres result is '10:30:00+05:30' but Octo result is 00:00:00-0500
+
+select time'22:30:00+0530'; -- result '22:30:00', time zone information is not considered
+
+select time with time zone'10:30:00     +0530'; -- This works in postgres but octo will say invalid format
+OCTO> select time with time zone'16:12:00';
+???
+16:12:00-05
+(1 row)
+OCTO> -- result should be same but with time zone of -5
+
+select time'16:12:00';
+???
+16:12:00
+(1 row)
+OCTO> -- result should be same but no time zone information displayed
+
+select time with time zone'22:30:00+0530';
+???
+12:00:00-05
+(1 row)
+OCTO> -- Postgres result is '22:30:00+05:30' but Octo result is 12:00:00-0500
+select time with time zone'10:30:00+0530';
+???
+00:00:00-05
+(1 row)
+OCTO> -- Postgres result is '10:30:00+05:30' but Octo result is 00:00:00-0500
+
+select time'22:30:00+0530';
+???
+22:30:00
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_FORMAT: Invalid date or time format 10:30:00     +0530
+LINE 11:3: select time with time zone'10:30:00     +0530'; -- This works i...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- result '22:30:00', time zone information is not considered
+
+select time with time zone'10:30:00     +0530';
+OCTO> -- This works in postgres but octo will say invalid format

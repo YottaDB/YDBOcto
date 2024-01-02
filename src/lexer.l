@@ -1,7 +1,7 @@
 %{
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -149,12 +149,14 @@ int copied_so_far;
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }
 (?i:FUNCTION) { return FUNCTION; }
+(?i:FILEMAN) { return DATE_TIME_FILEMAN; }
 (?i:GENERATED[ \t\n]+ALWAYS[ \t\n]+AS[ \t\n]+IDENTITY) { return GENERATED_ALWAYS_AS_IDENTITY; }
 (?i:GENERATED[ \t\n]+BY[ \t\n]+DEFAULT[ \t\n]+AS[ \t\n]+IDENTITY) { return GENERATED_BY_DEFAULT_AS_IDENTITY; }
 (?i:GLOBAL) { return GLOBAL; }
 (?i:GREATEST) { return GREATEST; }
 (?i:GROUP) { return GROUP; }
 (?i:HAVING) { return HAVING; }
+(?i:HOROLOG) { return DATE_TIME_HOROLOG; }
 (?i:IF) { return IF; }
 (?i:ILIKE) { return ILIKE; }
 (?i:IN) { return IN; }
@@ -221,6 +223,7 @@ int copied_so_far;
 (?i:TEXT) { return VARCHAR; }			/* TEXT is the same as VARCHAR */
 (?i:THEN) { return THEN; }
 (?i:TIME) { return TIME; }
+(?i:TIMESTAMP) { return TIMESTAMP; }
 (?i:TO) { return TO; }
 (?i:TRUNCATE) { return TRUNCATE; }
 (?i:UNION) { return UNION; }
@@ -235,8 +238,12 @@ int copied_so_far;
 (?i:VIEW) { return VIEW; }
 (?i:WHEN) { return WHEN; }
 (?i:WHERE) { return WHERE; }
+(?i:WITH[ \t\n]+TIME[ \t\n]+ZONE) { return WITH_TIME_ZONE; }
+(?i:WITHOUT[ \t\n]+TIME[ \t\n]+ZONE) { return WITHOUT_TIME_ZONE; }
 (?i:EXIT) { return EXIT; }
 (?i:QUIT) { return QUIT; }
+(?i:ZHOROLOG) { return DATE_TIME_ZHOROLOG; }
+(?i:ZUT) { return DATE_TIME_ZUT; }
 
 (?i:NULL) { return NULL_TOKEN; }
 (?i:FALSE) { return FALSE_TOKEN; }

@@ -1,0 +1,33 @@
+# -----------------------------------------------------------------
+# This test takes a randomly generated date/time/timestamp literal.
+# Finds its equivalent in different formats (fileman/horolog etc.).
+# Sets these literals as node values in different globals.
+# Does this 10 times so each global has 10 nodes.
+# Maps these globals to different READONLY tables.
+# Each table defines the column as date, date(fileman), date(horolog) etc. type.
+# It then generates queries to do JOIN on those tables with an ON condition that checks for the timestamp column values to be equal across the tables.
+# Since it is possible the randomly generated date/time/timestamp values can in rare cases match, the test expects at least as many (cannot be equal to) rows of values returned as the rows in the tables (i.e. >= 10).
+# And because the select column list of the query is the condition count(joined rows) >= 10, we expect a value of 1 to show up in each of the 4 randomly generated JOIN queries.
+# And that is part of the reference file.
+# -----------------------------------------------------------------
+# Load M data for READONLY tables that will be created in next step
+# Use randomly generated date/time/timestamp literals for this purpose
+# Generate CREATE TABLE commands for READONLY tables and SELECT queries that do JOINs on those READONLY tables
+# Run CREATE TABLE commands for READONLY tables
+# Run SELECT commands for READONLY tables involving JOINs
+# Verify output of 4 SELECT commands involving JOINs
+# Expect output of all 4 SELECT commands to be 1
+1
+(1 row)
+--
+1
+(1 row)
+--
+1
+(1 row)
+--
+1
+(1 row)
+--
+1
+(1 row)

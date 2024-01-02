@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,6 +45,21 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 		break;
 	case NUL_VALUE:
 		return PSQL_TypeOid_unknown;
+		break;
+	case DATE_LITERAL:
+		return PSQL_TypeOid_date;
+		break;
+	case TIME_LITERAL:
+		return PSQL_TypeOid_time;
+		break;
+	case TIME_WITH_TIME_ZONE_LITERAL:
+		return PSQL_TypeOid_timetz;
+		break;
+	case TIMESTAMP_LITERAL:
+		return PSQL_TypeOid_timestamp;
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+		return PSQL_TypeOid_timestamptz;
 		break;
 	default:
 		assert(FALSE);

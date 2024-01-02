@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -156,6 +156,11 @@ int qualify_view_dependency(SqlStatement *stmt, SqlView *view) {
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case NUL_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 		case BOOLEAN_OR_STRING_LITERAL:
 			/* It is possible for BOOLEAN_OR_STRING_LITERAL to be unresolved at this point.
 			 * An example query which might lead us to this case is `create view view_name as `select 't';`.

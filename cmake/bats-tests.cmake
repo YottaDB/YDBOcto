@@ -75,6 +75,8 @@ if("${FULL_TEST_SUITE}")
 	if(Java_Development_FOUND)
 		include(UseJava)
 		set(JAVA_SOURCE_FILES
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TDTT098.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TDTT062.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC002.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC008.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC010.java
@@ -221,6 +223,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_pg_functions)
 	ADD_BATS_TEST_DML(test_dbeaver_connect_queries)
 	ADD_BATS_TEST_DML(test_type_cast)
+	ADD_BATS_TEST_DML(test_date_time_type)
 
 	# The following test requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)

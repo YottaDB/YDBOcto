@@ -1,0 +1,19 @@
+
+select timestamp with time zone'1-1-8805 15:14:11+13:56'; -- null result
+select timestamp with time zone'1-1-5989 2:39:22-09:02'; -- null result
+select timestamp(zhorolog) with time zone'1515026,83842,,44640'; -- error result
+OCTO> select timestamp with time zone'1-1-8805 15:14:11+13:56';
+???
+
+(1 row)
+OCTO> -- null result
+select timestamp with time zone'1-1-5989 2:39:22-09:02';
+???
+
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1515026,83842,,44640" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+LINE 4:2: ...ect timestamp(zhorolog) with time zone'1515026,83842,,44640'; --...
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- null result
+select timestamp(zhorolog) with time zone'1515026,83842,,44640';
+OCTO> -- error result

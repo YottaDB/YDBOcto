@@ -1,0 +1,102 @@
+OCTO> -- type:date format:
+create table TDTT009date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT009date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT009time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT009time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT009timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT009timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT009timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT009timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT009timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT009timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+OCTO> select ARRAY(select date'01-01-2023');
+ARRAY
+{2023-01-01}
+(1 row)
+OCTO> select ARRAY(values (date'01-01-2023'));
+ARRAY
+{2023-01-01}
+(1 row)
+OCTO> select ARRAY(select time'01:01:00');
+ARRAY
+{01:01:00}
+(1 row)
+OCTO> select ARRAY(values (time'01:01:00'));
+ARRAY
+{01:01:00}
+(1 row)
+OCTO> select ARRAY(select timestamp'01-01-2023 01:01:00');
+ARRAY
+{2023-01-01 01:01:00}
+(1 row)
+OCTO> select ARRAY(values (timestamp'01-01-2023 01:01:00'));
+ARRAY
+{2023-01-01 01:01:00}
+(1 row)
+OCTO> select ARRAY(select timestamp with time zone'01-01-2023 01:01:00-05:00');
+ARRAY
+{2023-01-01 01:01:00-05}
+(1 row)
+OCTO> select ARRAY(values (timestamp with time zone'01-01-2023 01:01:00-05:00'));
+ARRAY
+{2023-01-01 01:01:00-05}
+(1 row)
+OCTO> select ARRAY(select dob) from TDTT009date n1;
+ARRAY
+{2023-01-01}
+(1 row)
+OCTO> select ARRAY(values (dob)) from TDTT009date n1;
+ARRAY
+{2023-01-01}
+(1 row)
+OCTO> select ARRAY(select dob) from TDTT009time n1;
+ARRAY
+{01:01:01}
+(1 row)
+OCTO> select ARRAY(values (dob)) from TDTT009time n1;
+ARRAY
+{01:01:01}
+(1 row)
+OCTO> select ARRAY(select dob) from TDTT009timestamp n1;
+ARRAY
+{2023-01-01 01:01:01}
+(1 row)
+OCTO> select ARRAY(values (dob)) from TDTT009timestamp n1;
+ARRAY
+{2023-01-01 01:01:01}
+(1 row)
+OCTO> select ARRAY(select dob) from TDTT009timestamptz n1;
+ARRAY
+{2022-12-31 15:01:01-05}
+(1 row)
+OCTO> select ARRAY(values (dob)) from TDTT009timestamptz n1;
+ARRAY
+{2022-12-31 15:01:01-05}
+(1 row)
+OCTO> -- type:date format:
+drop table TDTT009date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT009time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT009timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT009timestamptz;
+DROP TABLE
+OCTO> 

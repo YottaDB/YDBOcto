@@ -26,6 +26,39 @@
 
 #define DATA_ROW_PARMS_ARRAY_INIT_ALLOC 16
 
+int set_parameter(char *var, char *val) {
+	int status;
+	if (0 != strcmp(var, "datestyle")) {
+		status = set_parameter_in_pg_settings(var, val);
+		if (YDB_OK != status) {
+			return 1;
+		}
+	} else {
+		const char *old_date_style = config->datestyle;
+		status = set_date_time_format_from_datestyle(val);
+		if (!status) {
+			// Set the new datestyle value
+			char *non_const_datestyle = malloc(sizeof(char) * strlen(config->datestyle) + 1);
+			strcpy(non_const_datestyle, config->datestyle);
+			status = set_parameter_in_pg_settings(var, non_const_datestyle);
+			free(non_const_datestyle);
+			if (YDB_OK != status) {
+				// new datestyle couldn't be set to PG_SETINGS table, retain the old value
+				// in Octo config
+				char *non_const_datestyle = malloc(sizeof(char) * strlen(old_date_style) + 1);
+				strcpy(non_const_datestyle, old_date_style);
+				int lcl_status = set_date_time_format_from_datestyle(non_const_datestyle);
+				assert(!lcl_status);
+				UNUSED(lcl_status);
+				return 1;
+			}
+		} else {
+			// retain old datestyle value
+		}
+	}
+	return 0;
+}
+
 int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms, char *plan_name, PSQL_MessageTypeT msg_type) {
 	ydb_buffer_t value_buffer, plan_name_buffer;
 	int	     status, result = 0;
@@ -47,9 +80,10 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				UNPACK_SQL_STATEMENT(runtime_value_stmt, set_stmt->value, value);
 				UNPACK_SQL_STATEMENT(runtime_variable_stmt, set_stmt->variable, value);
 
-				/* Caller is "handle_query()" (simple query protocol). Do SET of runtime variable right away */
-				status = set_parameter_in_pg_settings(runtime_variable_stmt->v.string_literal,
-								      runtime_value_stmt->v.string_literal);
+				/* Caller is "handle_query()" (simple query protocol). Do SET of runtime variable right away
+				 */
+				status
+				    = set_parameter(runtime_variable_stmt->v.string_literal, runtime_value_stmt->v.string_literal);
 				if (YDB_OK != status) {
 					return 1;
 				}
@@ -125,8 +159,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 
 				name_buffer.buf_addr[name_buffer.len_used] = '\0';
 				value_buffer.buf_addr[value_buffer.len_used] = '\0';
-				status = set_parameter_in_pg_settings(name_buffer.buf_addr, value_buffer.buf_addr);
-
+				status = set_parameter(name_buffer.buf_addr, value_buffer.buf_addr);
 				YDB_FREE_BUFFER(&name_buffer);
 				YDB_FREE_BUFFER(&value_buffer);
 				if (YDB_OK != status) {

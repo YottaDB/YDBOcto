@@ -1,0 +1,91 @@
+
+select date_to_fileman(date'12-31-2699');
+select date_to_fileman(date'12-07-2023');
+select timestamp_to_fileman(date'12-07-2023'::timestamp);
+select date_to_fileman(date(fileman)'9991231');
+select date_to_fileman(date(fileman)'3231207');
+select timestamp_to_fileman(date(fileman)'3231207'::timestamp);
+select timestamp_to_horolog(date(fileman)'9991231'::timestamp);
+select timestamp_to_horolog(date(fileman)'3231207'::timestamp);
+select timestamp_to_horolog(date(fileman)'9991231'::timestamp)||'hello';
+select timestamp_to_horolog(date(fileman)'3231207'::timestamp)||'hello';
+
+select timestamptz_to_zut(timestamp with time zone'01-01-1970 00:00:00+00:00');
+select timestamp_to_zut(timestamp '01-01-1970 00:00:00'); -- expect 0
+select date_to_zut(date '01-01-1970'); -- expect 0
+
+select date_to_fileman(date'01-01-1701') = 0010101;
+select timestamp_to_fileman(date'01-01-1701'::timestamp);
+select date_to_fileman(date'01-01-1701');
+
+select timestamp_to_fileman(timestamp(zut) '-27809392000000000');
+OCTO> select date_to_fileman(date'12-31-2699');
+date_to_fileman
+9991231
+(1 row)
+OCTO> select date_to_fileman(date'12-07-2023');
+date_to_fileman
+3231207
+(1 row)
+OCTO> select timestamp_to_fileman(date'12-07-2023'::timestamp);
+timestamp_to_fileman
+3231207.000000
+(1 row)
+OCTO> select date_to_fileman(date(fileman)'9991231');
+date_to_fileman
+9991231
+(1 row)
+OCTO> select date_to_fileman(date(fileman)'3231207');
+date_to_fileman
+3231207
+(1 row)
+OCTO> select timestamp_to_fileman(date(fileman)'3231207'::timestamp);
+timestamp_to_fileman
+3231207.000000
+(1 row)
+OCTO> select timestamp_to_horolog(date(fileman)'9991231'::timestamp);
+timestamp_to_horolog
+313743,0
+(1 row)
+OCTO> select timestamp_to_horolog(date(fileman)'3231207'::timestamp);
+timestamp_to_horolog
+66815,0
+(1 row)
+OCTO> select timestamp_to_horolog(date(fileman)'9991231'::timestamp)||'hello';
+???
+313743,0hello
+(1 row)
+OCTO> select timestamp_to_horolog(date(fileman)'3231207'::timestamp)||'hello';
+???
+66815,0hello
+(1 row)
+[ERROR]: ERR_UNKNOWN_FUNCTION: No function timestamptz_to_zut defined with given parameter types (TIMESTAMP WITH TIME ZONE)
+LINE 13:1: select timestamptz_to_zut(timestamp with time zone'01-01-1970 00...
+                  ^^^^^^^^^^^^^^^^^^
+OCTO> select timestamptz_to_zut(timestamp with time zone'01-01-1970 00:00:00+00:00');
+OCTO> select timestamp_to_zut(timestamp '01-01-1970 00:00:00');
+timestamp_to_zut
+0
+(1 row)
+OCTO> -- expect 0
+select date_to_zut(date '01-01-1970');
+date_to_zut
+0
+(1 row)
+OCTO> -- expect 0
+
+select date_to_fileman(date'01-01-1701') = 0010101;
+???
+1
+(1 row)
+OCTO> select timestamp_to_fileman(date'01-01-1701'::timestamp);
+timestamp_to_fileman
+0010101.000000
+(1 row)
+OCTO> select date_to_fileman(date'01-01-1701');
+date_to_fileman
+0010101
+(1 row)
+OCTO> select timestamp_to_fileman(timestamp(zut) '-27809392000000000');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003.005320" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> 

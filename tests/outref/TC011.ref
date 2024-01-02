@@ -161,24 +161,14 @@ id
 4
 5
 (6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type DATE
+LINE 9:1: SELECT id::date FROM names;
+                 ^^^^^^^^
 OCTO> SELECT id::date FROM names;
-id
-0
-1
-2
-3
-4
-5
-(6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIME
+LINE 10:1: SELECT id::time FROM names;
+                  ^^^^^^^^
 OCTO> SELECT id::time FROM names;
-id
-0
-1
-2
-3
-4
-5
-(6 rows)
 OCTO> DROP TABLE names;
 DROP TABLE
 OCTO> CREATE TABLE names (id NUMERIC(10) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
@@ -228,24 +218,14 @@ id
 4
 5
 (6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
+LINE 19:1: SELECT id::date FROM names;
+                  ^^^^^^^^
 OCTO> SELECT id::date FROM names;
-id
-0
-1
-2
-3
-4
-5
-(6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIME
+LINE 20:1: SELECT id::time FROM names;
+                  ^^^^^^^^
 OCTO> SELECT id::time FROM names;
-id
-0
-1
-2
-3
-4
-5
-(6 rows)
 OCTO> DROP TABLE names;
 DROP TABLE
 OCTO> CREATE TABLE names (id NUMERIC(10,4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
@@ -295,24 +275,14 @@ id
 4
 5
 (6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
+LINE 29:1: SELECT id::date FROM names;
+                  ^^^^^^^^
 OCTO> SELECT id::date FROM names;
-id
-0
-1
-2
-3
-4
-5
-(6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIME
+LINE 30:1: SELECT id::time FROM names;
+                  ^^^^^^^^
 OCTO> SELECT id::time FROM names;
-id
-0
-1
-2
-3
-4
-5
-(6 rows)
 OCTO> DROP TABLE names;
 DROP TABLE
 OCTO> CREATE TABLE names (id INTEGER(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
@@ -345,13 +315,13 @@ OCTO> DROP TABLE names;
 DROP TABLE
 LINE 47:1: CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCH...
                                           ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id INTEGER(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 49:1: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VAR...
                                           ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
@@ -369,7 +339,7 @@ OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 55:1: ...REATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCH...
                                             ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
@@ -403,13 +373,13 @@ OCTO> DROP TABLE names;
 DROP TABLE
 LINE 72:1: CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCH...
                                           ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(-1) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 74:1: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VAR...
                                           ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
@@ -427,7 +397,7 @@ OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 80:1: ...REATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCH...
                                             ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
@@ -469,13 +439,13 @@ OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 97:1: CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VA...
                                           ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 99:1: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstNam...
                                           ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
@@ -499,13 +469,13 @@ OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 107:1: ...REATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstNam...
                                              ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist
 LINE 109:1: ...REATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName ...
                                              ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))" READONLY;
 OCTO> DROP TABLE names;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "names" as it does not exist

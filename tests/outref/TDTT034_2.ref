@@ -1,0 +1,985 @@
+
+select date(horolog)'66475'::DATE;
+select date(horolog)'66475'::TIMESTAMP;
+select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+select date(horolog)'66475'::VARCHAR;
+
+select time(horolog)'3661'::TIME;
+-- select time(horolog)'3661'::TIME WITH TIME ZONE;
+select time(horolog)'3661'::VARCHAR;
+
+select timestamp(horolog)'66475,3661'::DATE;
+select timestamp(horolog)'66475,3661'::TIME;
+select timestamp(horolog)'66475,3661'::TIMESTAMP;
+select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+select timestamp(horolog)'66475,3661'::VARCHAR;
+
+select CAST(date(horolog)'66475'AS DATE);
+select CAST(date(horolog)'66475'AS TIMESTAMP);
+select CAST(date(horolog)'66475'AS TIMESTAMP WITH TIME ZONE);
+select CAST(date(horolog)'66475'AS VARCHAR);
+
+select CAST(time(horolog)'3661'AS TIME);
+-- select CAST(time(horolog)'3661'AS TIME WITH TIME ZONE);
+select CAST(time(horolog)'3661'AS VARCHAR);
+
+select CAST(timestamp(horolog)'66475,3661'AS DATE);
+select CAST(timestamp(horolog)'66475,3661'AS TIME);
+select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP);
+select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
+
+-- More detailed tests
+select timestamp(horolog)'66475,3661'::time < time'01:02:01'; -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'01-02-2023'; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01'; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date; -- Should return `true`
+
+select date(horolog)'66475'::VARCHAR(2);
+select date(horolog)'66475'::VARCHAR(3);
+select time(horolog)'3661'::VARCHAR(3);
+select timestamp(horolog)'66475,3661'::VARCHAR(3);
+
+OCTO> select date(horolog)'66475'::DATE;
+DATE
+2023-01-01
+(1 row)
+OCTO> select date(horolog)'66475'::TIMESTAMP;
+TIMESTAMP
+2023-01-01 00:00:00
+(1 row)
+OCTO> select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select date(horolog)'66475'::VARCHAR;
+VARCHAR
+2023-01-01
+(1 row)
+OCTO> select time(horolog)'3661'::TIME;
+TIME
+01:01:01
+(1 row)
+OCTO> select time(horolog)'3661'::VARCHAR;
+VARCHAR
+01:01:01
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::DATE;
+DATE
+2023-01-01
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIME;
+TIME
+01:01:01
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIMESTAMP;
+TIMESTAMP
+2023-01-01 01:01:01
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::VARCHAR;
+VARCHAR
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS DATE);
+DATE
+2023-01-01
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS TIMESTAMP);
+TIMESTAMP
+2023-01-01 00:00:00
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS VARCHAR);
+VARCHAR
+2023-01-01
+(1 row)
+OCTO> select CAST(time(horolog)'3661'AS TIME);
+TIME
+01:01:01
+(1 row)
+OCTO> select CAST(time(horolog)'3661'AS VARCHAR);
+VARCHAR
+01:01:01
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS DATE);
+DATE
+2023-01-01
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIME);
+TIME
+01:01:01
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP);
+TIMESTAMP
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
+VARCHAR
+2023-01-01 01:01:01
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::time < time'01:02:01';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'01-02-2023';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date;
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+
+select date(horolog)'66475'::VARCHAR(2);
+VARCHAR
+20
+(1 row)
+OCTO> select date(horolog)'66475'::VARCHAR(3);
+VARCHAR
+202
+(1 row)
+OCTO> select time(horolog)'3661'::VARCHAR(3);
+VARCHAR
+01:
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::VARCHAR(3);
+VARCHAR
+202
+(1 row)
+OCTO> 
+# ----------------------------------------------------------------------------
+# Include generated M code in reference file to verify all optimizations there
+# ----------------------------------------------------------------------------
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::VARCHAR;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,10)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::DATE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date(horolog)'66475'::DATE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,6)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date(horolog)'66475'::TIMESTAMP;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date(horolog)'66475'::VARCHAR;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::TIME;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select time(horolog)'3661'::TIME;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),18,7)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::VARCHAR(3);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
+    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select time(horolog)'3661'::VARCHAR(3);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18)
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),18,%ydboctodatetimeoutputformat,"%H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  
+;  select date(horolog)'66475'::VARCHAR(2);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,10)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::TIMESTAMP;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
+    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%m-%d-%Y",6)
+    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select time(horolog)'3661'::VARCHAR;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),18,%ydboctodatetimeoutputformat,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(horolog)'66475,3661'::time < time'01:02:01';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,"%H:%M:%S")
+    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  select timestamp(horolog)'66475,3661'::date < date'01-02-2023';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%m-%d-%Y")
+    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+
+select date(horolog)'66475'::DATE;
+select date(horolog)'66475'::TIMESTAMP;
+select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+select date(horolog)'66475'::VARCHAR;
+
+select time(horolog)'3661'::TIME;
+-- select time(horolog)'3661'::TIME WITH TIME ZONE;
+select time(horolog)'3661'::VARCHAR;
+
+select timestamp(horolog)'66475,3661'::DATE;
+select timestamp(horolog)'66475,3661'::TIME;
+select timestamp(horolog)'66475,3661'::TIMESTAMP;
+select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+select timestamp(horolog)'66475,3661'::VARCHAR;
+
+select CAST(date(horolog)'66475'AS DATE);
+select CAST(date(horolog)'66475'AS TIMESTAMP);
+select CAST(date(horolog)'66475'AS TIMESTAMP WITH TIME ZONE);
+select CAST(date(horolog)'66475'AS VARCHAR);
+
+select CAST(time(horolog)'3661'AS TIME);
+-- select CAST(time(horolog)'3661'AS TIME WITH TIME ZONE);
+select CAST(time(horolog)'3661'AS VARCHAR);
+
+select CAST(timestamp(horolog)'66475,3661'AS DATE);
+select CAST(timestamp(horolog)'66475,3661'AS TIME);
+select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP);
+select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
+
+-- More detailed tests
+select timestamp(horolog)'66475,3661'::time < time'01:02:01'; -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'01-02-2023'; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01'; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date; -- Should return `true`
+
+select date(horolog)'66475'::VARCHAR(2);
+select date(horolog)'66475'::VARCHAR(3);
+select time(horolog)'3661'::VARCHAR(3);
+select timestamp(horolog)'66475,3661'::VARCHAR(3);
+
+OCTO> select date(horolog)'66475'::DATE;
+DATE
+66475
+(1 row)
+OCTO> select date(horolog)'66475'::TIMESTAMP;
+TIMESTAMP
+66475,0
+(1 row)
+OCTO> select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+66475,0
+(1 row)
+OCTO> select date(horolog)'66475'::VARCHAR;
+VARCHAR
+66475
+(1 row)
+OCTO> select time(horolog)'3661'::TIME;
+TIME
+3661
+(1 row)
+OCTO> select time(horolog)'3661'::VARCHAR;
+VARCHAR
+3661
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::DATE;
+DATE
+66475
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIME;
+TIME
+3661
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIMESTAMP;
+TIMESTAMP
+66475,3661
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+66475,3661
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::VARCHAR;
+VARCHAR
+66475,3661
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS DATE);
+DATE
+66475
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS TIMESTAMP);
+TIMESTAMP
+66475,0
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+66475,0
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS VARCHAR);
+VARCHAR
+66475
+(1 row)
+OCTO> select CAST(time(horolog)'3661'AS TIME);
+TIME
+3661
+(1 row)
+OCTO> select CAST(time(horolog)'3661'AS VARCHAR);
+VARCHAR
+3661
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS DATE);
+DATE
+66475
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIME);
+TIME
+3661
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP);
+TIMESTAMP
+66475,3661
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+66475,3661
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
+VARCHAR
+66475,3661
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::time < time'01:02:01';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'01-02-2023';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01';
+???
+0
+(1 row)
+OCTO> -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date;
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+
+select date(horolog)'66475'::VARCHAR(2);
+VARCHAR
+66
+(1 row)
+OCTO> select date(horolog)'66475'::VARCHAR(3);
+VARCHAR
+664
+(1 row)
+OCTO> select time(horolog)'3661'::VARCHAR(3);
+VARCHAR
+366
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::VARCHAR(3);
+VARCHAR
+664
+(1 row)
+OCTO> 
+
+select date(horolog)'66475'::DATE;
+select date(horolog)'66475'::TIMESTAMP;
+select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+select date(horolog)'66475'::VARCHAR;
+
+select time(horolog)'3661'::TIME;
+-- select time(horolog)'3661'::TIME WITH TIME ZONE;
+select time(horolog)'3661'::VARCHAR;
+
+select timestamp(horolog)'66475,3661'::DATE;
+select timestamp(horolog)'66475,3661'::TIME;
+select timestamp(horolog)'66475,3661'::TIMESTAMP;
+select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+select timestamp(horolog)'66475,3661'::VARCHAR;
+
+select CAST(date(horolog)'66475'AS DATE);
+select CAST(date(horolog)'66475'AS TIMESTAMP);
+select CAST(date(horolog)'66475'AS TIMESTAMP WITH TIME ZONE);
+select CAST(date(horolog)'66475'AS VARCHAR);
+
+select CAST(time(horolog)'3661'AS TIME);
+-- select CAST(time(horolog)'3661'AS TIME WITH TIME ZONE);
+select CAST(time(horolog)'3661'AS VARCHAR);
+
+select CAST(timestamp(horolog)'66475,3661'AS DATE);
+select CAST(timestamp(horolog)'66475,3661'AS TIME);
+select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP);
+select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
+
+-- More detailed tests
+select timestamp(horolog)'66475,3661'::time < time'01:02:01'; -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'01-02-2023'; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01'; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date; -- Should return `true`
+
+select date(horolog)'66475'::VARCHAR(2);
+select date(horolog)'66475'::VARCHAR(3);
+select time(horolog)'3661'::VARCHAR(3);
+select timestamp(horolog)'66475,3661'::VARCHAR(3);
+
+OCTO> select date(horolog)'66475'::DATE;
+DATE
+3230101
+(1 row)
+OCTO> select date(horolog)'66475'::TIMESTAMP;
+TIMESTAMP
+3230101.000000
+(1 row)
+OCTO> select date(horolog)'66475'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+3230101.000000
+(1 row)
+OCTO> select date(horolog)'66475'::VARCHAR;
+VARCHAR
+3230101
+(1 row)
+OCTO> select time(horolog)'3661'::TIME;
+TIME
+
+(1 row)
+OCTO> select time(horolog)'3661'::VARCHAR;
+VARCHAR
+
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::DATE;
+DATE
+3230101
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIME;
+TIME
+
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIMESTAMP;
+TIMESTAMP
+3230101.010101
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+3230101.010101
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::VARCHAR;
+VARCHAR
+3230101.010101
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS DATE);
+DATE
+3230101
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS TIMESTAMP);
+TIMESTAMP
+3230101.000000
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+3230101.000000
+(1 row)
+OCTO> select CAST(date(horolog)'66475'AS VARCHAR);
+VARCHAR
+3230101
+(1 row)
+OCTO> select CAST(time(horolog)'3661'AS TIME);
+TIME
+
+(1 row)
+OCTO> select CAST(time(horolog)'3661'AS VARCHAR);
+VARCHAR
+
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS DATE);
+DATE
+3230101
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIME);
+TIME
+
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP);
+TIMESTAMP
+3230101.010101
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+3230101.010101
+(1 row)
+OCTO> select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
+VARCHAR
+3230101.010101
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::time < time'01:02:01';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'01-02-2023';
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01';
+???
+0
+(1 row)
+OCTO> -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date;
+???
+1
+(1 row)
+OCTO> -- Should return `true`
+
+select date(horolog)'66475'::VARCHAR(2);
+VARCHAR
+32
+(1 row)
+OCTO> select date(horolog)'66475'::VARCHAR(3);
+VARCHAR
+323
+(1 row)
+OCTO> select time(horolog)'3661'::VARCHAR(3);
+VARCHAR
+
+(1 row)
+OCTO> select timestamp(horolog)'66475,3661'::VARCHAR(3);
+VARCHAR
+323
+(1 row)
+OCTO> 

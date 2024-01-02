@@ -1,0 +1,9 @@
+-------------------------------------------------------------------------
+ --> Running query : select '2023-12-08 13:30:00'::timestamp,'2016-06-30'::date <--
+-------------------------------------------------------------------------
+2023-12-08|2016-06-30
+Conversion routines should be used for both values
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d",6)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%Y-%m-%d")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")

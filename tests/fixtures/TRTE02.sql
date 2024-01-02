@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,5 +12,5 @@
 
 -- TRTE02 : OCTO398 : LIKE with Wildcard Characters returns incorrect results in some cases
 
-SELECT ALL orders.order_date FROM orders WHERE order_date LIKE '4%1%%';
+SELECT ALL orders.order_date FROM orders WHERE order_date::varchar LIKE '4%1%%';
 

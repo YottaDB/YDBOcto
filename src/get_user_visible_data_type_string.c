@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,6 +14,21 @@
 
 #include "octo.h"
 #include "octo_types.h"
+
+// Following macro only prints non TEXT date/time format
+#define PRINT_DATE_TIME_FORMAT(format, ptr, avail, len)                                          \
+	{                                                                                        \
+		if (OPTIONAL_DATE_TIME_TEXT != format) {                                         \
+			assert(NO_KEYWORD != format);                                            \
+			ptr += len;                                                              \
+			avail -= len;                                                            \
+			len = snprintf(ptr, avail, "(%s)", get_date_time_format_string(format)); \
+			if ((0 > len) || (len >= avail)) {                                       \
+				assert(FALSE);                                                   \
+				return -1;                                                       \
+			}                                                                        \
+		}                                                                                \
+	}
 
 /* Returns the string representation for the data type passed in as "data_type_ptr" in the output buffer "ret_buff"
  * which has an allocation size of "ret_buff_size". An example string representation would be "VARCHAR(20)".
@@ -106,7 +121,77 @@ int get_user_visible_data_type_string(SqlDataTypeStruct *data_type_ptr, char *re
 			}
 		}
 		break;
-	default:
+	case DATE_TYPE:
+		/* For DATE, only SIZE may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == data_type_ptr->scale);
+		assert(SIZE_OR_PRECISION_UNSPECIFIED == data_type_ptr->size_or_precision);
+		len = snprintf(ptr, avail, "%s", "DATE");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		PRINT_DATE_TIME_FORMAT(data_type_ptr->format, ptr, avail, len);
+		break;
+	case TIME_TYPE:
+		/* For TIME, only SIZE may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == data_type_ptr->scale);
+		assert(SIZE_OR_PRECISION_UNSPECIFIED == data_type_ptr->size_or_precision);
+		len = snprintf(ptr, avail, "%s", "TIME");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		PRINT_DATE_TIME_FORMAT(data_type_ptr->format, ptr, avail, len);
+		break;
+	case TIME_WITH_TIME_ZONE_TYPE:
+		/* For TIME, only SIZE may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == data_type_ptr->scale);
+		assert(SIZE_OR_PRECISION_UNSPECIFIED == data_type_ptr->size_or_precision);
+		len = snprintf(ptr, avail, "%s", "TIME");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		PRINT_DATE_TIME_FORMAT(data_type_ptr->format, ptr, avail, len);
+		ptr += len;
+		avail -= len;
+		len = snprintf(ptr, avail, "%s", "WITH TIME ZONE");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		break;
+	case TIMESTAMP_TYPE:
+		/* For TIMESTAMP, only SIZE may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == data_type_ptr->scale);
+		assert(SIZE_OR_PRECISION_UNSPECIFIED == data_type_ptr->size_or_precision);
+		len = snprintf(ptr, avail, "%s", "TIMESTAMP");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		PRINT_DATE_TIME_FORMAT(data_type_ptr->format, ptr, avail, len);
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+		/* For TIMESTAMP, only SIZE may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == data_type_ptr->scale);
+		assert(SIZE_OR_PRECISION_UNSPECIFIED == data_type_ptr->size_or_precision);
+		len = snprintf(ptr, avail, "%s", "TIMESTAMP");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		PRINT_DATE_TIME_FORMAT(data_type_ptr->format, ptr, avail, len);
+		ptr += len;
+		avail -= len;
+		len = snprintf(ptr, avail, "%s", " WITH TIME ZONE");
+		if ((0 > len) || (len >= avail)) {
+			assert(FALSE);
+			return -1;
+		}
+		break;
+	case UNKNOWN_SqlDataType:
+	case NUL_TYPE:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		assert(FALSE);
 		return -1;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -39,7 +39,7 @@ SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT
 SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM orders GROUP BY order_id having c.first_name='James');
 
 -- WHERE clause usage
-SELECT ALL first_name FROM customers  LEFT JOIN (SELECT alias4.order_date,alias4.customer_id FROM orders alias4 GROUP BY alias4.order_date,alias4.customer_id HAVING alias4.order_date LIKE '05/23/1784') AS alias4 ON (customers.customer_id = alias4.customer_id) WHERE EXISTS (SELECT 1 FROM customers alias6 ORDER BY alias4.order_date);
+SELECT ALL first_name FROM customers  LEFT JOIN (SELECT alias4.order_date,alias4.customer_id FROM orders alias4 GROUP BY alias4.order_date,alias4.customer_id HAVING alias4.order_date::varchar LIKE '1784-05-23') AS alias4 ON (customers.customer_id = alias4.customer_id) WHERE EXISTS (SELECT 1 FROM customers alias6 ORDER BY alias4.order_date);
 
 -- VALUES usage
 SELECT ALL c.column2 FROM (VALUES (1,'George'),(2,'John'),(3,'Thomas'),(4,'James'),(5,'James')) c GROUP BY c.column2 HAVING EXISTS (SELECT 1 FROM (VALUES (1),(2),(3),(4),(5),(6)) o GROUP BY o.column1 having count(c.column1) > 1);

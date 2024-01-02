@@ -27,6 +27,16 @@ char *get_type_string_from_sql_data_type(SqlDataType type) {
 		return "INTEGER";
 	case STRING_TYPE:
 		return "VARCHAR";
+	case DATE_TYPE:
+		return "DATE";
+	case TIME_TYPE:
+		return "TIME";
+	case TIME_WITH_TIME_ZONE_TYPE:
+		return "TIME WITH TIME ZONE";
+	case TIMESTAMP_TYPE:
+		return "TIMESTAMP";
+	case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+		return "TIMESTAMP WITH TIME ZONE";
 	case UNKNOWN_SqlDataType:
 	default:
 		assert(FALSE);
@@ -67,7 +77,31 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 			 * per https://www.postgresql.org/docs/current/sql-createfunction.html
 			 */
 			data_type = cur_parameter_type->data_type_struct->v.data_type_struct.data_type;
-			defn_len += fprintf(output, " %s", get_type_string_from_sql_data_type(data_type));
+			enum OptionalKeyword keyword = cur_parameter_type->data_type_struct->v.data_type_struct.format;
+			if (IS_DATE_TIME_DATA_TYPE(data_type) && (OPTIONAL_DATE_TIME_TEXT != keyword)) {
+				assert(NO_KEYWORD != keyword);
+				switch (data_type) {
+				case DATE_TYPE:
+				case TIME_TYPE:
+				case TIMESTAMP_TYPE:
+					defn_len += fprintf(output, " %s(%s)", get_type_string_from_sql_data_type(data_type),
+							    get_date_time_format_string(keyword));
+					break;
+				case TIME_WITH_TIME_ZONE_TYPE:
+					defn_len
+					    += fprintf(output, " TIME(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
+					break;
+				case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+					defn_len += fprintf(output, " TIMESTAMP(%s) WITH TIME ZONE",
+							    get_date_time_format_string(keyword));
+					break;
+				default:
+					assert(FALSE);
+					break;
+				}
+			} else {
+				defn_len += fprintf(output, " %s", get_type_string_from_sql_data_type(data_type));
+			}
 			cur_parameter_type = cur_parameter_type->next;
 			if (start_parameter_type != cur_parameter_type)
 				defn_len += fprintf(output, ", ");
@@ -75,7 +109,29 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	}
 	defn_len += fprintf(output, ") RETURNS ");
 	data_type = function->return_type->v.data_type_struct.data_type;
-	defn_len += fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
+	enum OptionalKeyword keyword = function->return_type->v.data_type_struct.format;
+	if (IS_DATE_TIME_DATA_TYPE(data_type) && (OPTIONAL_DATE_TIME_TEXT != keyword)) {
+		assert(NO_KEYWORD != keyword);
+		switch (data_type) {
+		case DATE_TYPE:
+		case TIME_TYPE:
+		case TIMESTAMP_TYPE:
+			defn_len += fprintf(output, "%s(%s)", get_type_string_from_sql_data_type(data_type),
+					    get_date_time_format_string(keyword));
+			break;
+		case TIME_WITH_TIME_ZONE_TYPE:
+			defn_len += fprintf(output, "TIME(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
+			break;
+		case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+			defn_len += fprintf(output, "TIMESTAMP(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
+	} else {
+		defn_len += fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
+	}
 	defn_len += fprintf(output, " AS %s", function->extrinsic_function->v.value->v.string_literal);
 
 	defn_len += fprintf(output, ";");

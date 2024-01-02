@@ -125,6 +125,11 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			case FUNCTION_NAME:
 			case COLUMN_REFERENCE:
 			case PARAMETER_VALUE:
+			case DATE_LITERAL:
+			case TIME_LITERAL:
+			case TIME_WITH_TIME_ZONE_LITERAL:
+			case TIMESTAMP_LITERAL:
+			case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 				break;
 			default:
 				assert(FALSE);
@@ -154,6 +159,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 			LP_GENERATE_WHERE(binary->operands[1], root_stmt, ret->v.lp_default.operand[1], error_encountered);
 		}
 		ret->v.lp_default.group_by_column_num = binary->group_by_fields.group_by_column_num;
+		ret->extra_detail.lp_date_time_operation.return_type = binary->date_time_return_type;
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
@@ -219,6 +225,12 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;
 		MALLOC_LP_2ARGS(ret, type);
+		/* Add the parameter type list so that later stages can make use of information about date/time format type. */
+		if (NULL != function_call->function_schema->v.create_function->parameter_type_list) {
+			UNPACK_SQL_STATEMENT(ret->extra_detail.lp_function_call.schema_parameter_type_list,
+					     function_call->function_schema->v.create_function->parameter_type_list,
+					     parameter_type_list);
+		}
 		/* Place the SQL function name first for readability in DEBUG plan output. Note that this means we must skip over it
 		 * in tmpl_print_expression.ctemplate to get to the relevant node containing the extrinsic function call.
 		 */
@@ -255,6 +267,10 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 		data_type = function_call->function_schema->v.create_function->return_type->v.data_type_struct.data_type;
 		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
 		ret_type->v.value->v.string_literal = get_user_visible_type_string(ret_type->v.value->type);
+		if (IS_DATE_TIME_DATA_TYPE(data_type)) {
+			ret_type->v.value->date_time_format_type
+			    = function_call->function_schema->v.create_function->return_type->v.data_type_struct.format;
+		}
 		LP_GENERATE_WHERE(ret_type, root_stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);

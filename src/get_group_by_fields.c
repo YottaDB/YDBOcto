@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,29 +54,47 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 		case COERCE_TYPE:
 			SET_RET_WITH_GROUP_BY_FIELD(value, stmt, ret);
 			break;
-		case COLUMN_REFERENCE:
-		case TABLE_ASTERISK:
-			/* We do not expect get_group_by_fields() call for these types
-			 * as the expectation is that they would have been converted to
-			 * SqlColumnAlias during the invocation of this function.
-			 */
-		case SELECT_ASTERISK:
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 		case BOOLEAN_OR_STRING_LITERAL:
 		case NUL_VALUE:
 		case PARAMETER_VALUE:
+			/* Following type of queries can reach this block
+			 * 	SELECT 'test' FROM names GROUP BY 1 HAVING 'test'!='hello';
+			 */
+			ret = NULL;
+			break;
+		case COLUMN_REFERENCE:
+		case TABLE_ASTERISK:
+		case SELECT_ASTERISK:
+			/* We do not expect get_group_by_fields() call for the above types
+			 * as the expectation is that they would have been converted to
+			 * SqlColumnAlias during the invocation of this function.
+			 */
 		case FUNCTION_NAME:
 		case FUNCTION_HASH:
 		case DELIM_VALUE:
 		case IS_NULL_LITERAL:
 		case INVALID_SqlValueType:
 		case UNKNOWN_SqlValueType:
+			assert(FALSE);
 			ret = NULL;
 			break;
 		}
+		break;
+	case column_alias_STATEMENT:
+		/* Following type of queries can reach this block
+		 *	select count(n1.firstname) from names n1 order by exists(select count(n1.firstname)
+		 * 							from names n2 group by n1.firstname);
+		 */
+		ret = NULL;
 		break;
 	case function_call_STATEMENT:;
 	case coalesce_STATEMENT:;
@@ -84,13 +102,13 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 	case greatest_STATEMENT:;
 	case least_STATEMENT:;
 		// The above cases are handled by CALCULATED_VALUE in value_STATEMENT
+	case column_STATEMENT:
+	case column_list_STATEMENT:
+	case column_list_alias_STATEMENT:
 	case table_alias_STATEMENT:;
 	case set_operation_STATEMENT:;
 	case array_STATEMENT:;
-	case column_alias_STATEMENT:
 	case cas_branch_STATEMENT:
-	case column_list_STATEMENT:
-	case column_list_alias_STATEMENT:
 	case aggregate_function_STATEMENT:
 	case create_table_STATEMENT:
 	case create_view_STATEMENT:
@@ -105,7 +123,6 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 	case drop_view_STATEMENT:
 	case drop_function_STATEMENT:
 	case truncate_table_STATEMENT:
-	case column_STATEMENT:
 	case parameter_type_list_STATEMENT:
 	case constraint_STATEMENT:
 	case keyword_STATEMENT:
@@ -124,6 +141,7 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 	case history_STATEMENT:
 	case display_relation_STATEMENT:
 	case invalid_STATEMENT:
+		assert(FALSE);
 		ret = NULL;
 		break;
 	}

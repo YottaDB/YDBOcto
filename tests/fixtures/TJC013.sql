@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,13 +12,16 @@
 
 -- TJC013 : OCTO435 : Identifiers accepted in SET statements
 
-SET DateStyle TO PostgreSQL;
+SET DateStyle TO MDY;
 SHOW DateStyle;
 
 SET DateStyle=ISO;
 SHOW DateStyle;
 
-SET DateStyle TO 'PostgreSQL';
+SET DateStyle TO 'PostgreSQL'; -- value not supported by Octo
+SHOW DateStyle;
+
+SET DateStyle TO MDY;
 SHOW DateStyle;
 
 SET DateStyle='ISO';

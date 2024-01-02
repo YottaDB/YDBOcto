@@ -1,0 +1,305 @@
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select date'01-01-2023' || n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for || operator
+LINE 9:1: select date'01-01-2023' || 3;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 9:1: select date'01-01-2023' || 3;
+                                     ^
+OCTO> select date'01-01-2023' || 3;
+OCTO> select date'01-01-2023' || 'sample string';
+???
+2023-01-01sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for || operator
+LINE 11:1: select date'01-01-2023' || 3.3;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 11:1: select date'01-01-2023' || 3.3;
+                                      ^^^
+OCTO> select date'01-01-2023' || 3.3;
+OCTO> select date'01-01-2023' || NULL;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select time'01:01:00' || n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for || operator
+LINE 21:1: select time'01:01:00' || 3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 21:1: select time'01:01:00' || 3;
+                                    ^
+OCTO> select time'01:01:00' || 3;
+OCTO> select time'01:01:00' || 'sample string';
+???
+01:01:00sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for || operator
+LINE 23:1: select time'01:01:00' || 3.3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 23:1: select time'01:01:00' || 3.3;
+                                    ^^^
+OCTO> select time'01:01:00' || 3.3;
+OCTO> select time'01:01:00' || NULL;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp'01-01-2023 01:01:00' || n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for || operator
+LINE 33:1: select timestamp'01-01-2023 01:01:00' || 3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 33:1: select timestamp'01-01-2023 01:01:00' || 3;
+                                                    ^
+OCTO> select timestamp'01-01-2023 01:01:00' || 3;
+OCTO> select timestamp'01-01-2023 01:01:00' || 'sample string';
+???
+2023-01-01 01:01:00sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for || operator
+LINE 35:1: select timestamp'01-01-2023 01:01:00' || 3.3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 35:1: select timestamp'01-01-2023 01:01:00' || 3.3;
+                                                    ^^^
+OCTO> select timestamp'01-01-2023 01:01:00' || 3.3;
+OCTO> select timestamp'01-01-2023 01:01:00' || NULL;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for || operator
+LINE 45:1: select timestamp with time zone'01-01-2023 01:01:00-05:00' || 3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 45:1: select timestamp with time zone'01-01-2023 01:01:00-05:00' || 3;
+                                                                         ^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || 3;
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || 'sample string';
+???
+2023-01-01 01:01:00-05sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for || operator
+LINE 47:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' || 3....
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 47:1: ...ect timestamp with time zone'01-01-2023 01:01:00-05:00' || 3.3;
+                                                                         ^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || 3.3;
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' || NULL;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || date'01-01-2023' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || time'01:01:00' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005date n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005date n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005date n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005date n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for || operator
+LINE 57:1: select n1.dob || 3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 57:1: select n1.dob || 3 from TDTT005date n1;
+                            ^
+OCTO> select n1.dob || 3 from TDTT005date n1;
+OCTO> select n1.dob || 'sample string' from TDTT005date n1;
+???
+2023-01-01sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for || operator
+LINE 59:1: select n1.dob || 3.3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 59:1: select n1.dob || 3.3 from TDTT005date n1;
+                            ^^^
+OCTO> select n1.dob || 3.3 from TDTT005date n1;
+OCTO> select n1.dob || NULL from TDTT005date n1;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || date'01-01-2023' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || time'01:01:00' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp'01-01-2023 01:01:00' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005time n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005time n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005time n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005time n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for || operator
+LINE 69:1: select n1.dob || 3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 69:1: select n1.dob || 3 from TDTT005time n1;
+                            ^
+OCTO> select n1.dob || 3 from TDTT005time n1;
+OCTO> select n1.dob || 'sample string' from TDTT005time n1;
+???
+01:01:01sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for || operator
+LINE 71:1: select n1.dob || 3.3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 71:1: select n1.dob || 3.3 from TDTT005time n1;
+                            ^^^
+OCTO> select n1.dob || 3.3 from TDTT005time n1;
+OCTO> select n1.dob || NULL from TDTT005time n1;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || date'01-01-2023' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || time'01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamp n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamp n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for || operator
+LINE 81:1: select n1.dob || 3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 81:1: select n1.dob || 3 from TDTT005timestamp n1;
+                            ^
+OCTO> select n1.dob || 3 from TDTT005timestamp n1;
+OCTO> select n1.dob || 'sample string' from TDTT005timestamp n1;
+???
+2023-01-01 01:01:01sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for || operator
+LINE 83:1: select n1.dob || 3.3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 83:1: select n1.dob || 3.3 from TDTT005timestamp n1;
+                            ^^^
+OCTO> select n1.dob || 3.3 from TDTT005timestamp n1;
+OCTO> select n1.dob || NULL from TDTT005timestamp n1;
+???
+
+(1 row)
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || date'01-01-2023' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || time'01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamptz n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamptz n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time concat operation
+OCTO> select n1.dob || n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for || operator
+LINE 93:1: select n1.dob || 3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for || operator
+LINE 93:1: select n1.dob || 3 from TDTT005timestamptz n1;
+                            ^
+OCTO> select n1.dob || 3 from TDTT005timestamptz n1;
+OCTO> select n1.dob || 'sample string' from TDTT005timestamptz n1;
+???
+2022-12-31 15:01:01-05sample string
+(1 row)
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for || operator
+LINE 95:1: select n1.dob || 3.3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for || operator
+LINE 95:1: select n1.dob || 3.3 from TDTT005timestamptz n1;
+                            ^^^
+OCTO> select n1.dob || 3.3 from TDTT005timestamptz n1;
+OCTO> select n1.dob || NULL from TDTT005timestamptz n1;
+???
+
+(1 row)
+OCTO> 

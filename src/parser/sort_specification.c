@@ -35,6 +35,11 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 		case BOOLEAN_VALUE:
 		case COERCE_TYPE:
 		case CALCULATED_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			// No error
 			break;
 		case STRING_LITERAL:

@@ -100,7 +100,6 @@ select * from v40;
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380391980
 select * from v41;
 
--- GAN_TODO: Copy all of the queries below to TAU002_2.sql
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380390157
 select * from v42;
 
@@ -316,12 +315,17 @@ OCTO> drop table pg_type;
 OCTO> select * from v7_1;
 typname|typnamespace|typowner|typlen|typbyval|typtype|typcategory|typispreferred|typisdefined|typdelim|typrelid|typelem|typarray|typinput|typoutput|typreceive|typsend|typmodin|typmodout|typanalyze|typalign|typstorage|typnotnull|typbasetype|typtypmod|typndims|typcollation|typdefaultbin|typdefault|typacl|oid
 bool|11|10|1|1|b|B|1|1|,|0|0|1000|boolin|boolout|boolrecv|boolsend|-|-|-|c|p|0|0|-1|0|0||||16
+date|11|10|4|1|b|D|0|1|,|0|0|1182|date_in|date_out|date_recv|date_send|-|-|-|i|p|0|0|-1|0|0||||1082
 int4|11|10|4|1|b|N|0|1|,|0|0|1007|int4in|int4out|int4recv|int4send|-|-|-|i|p|0|0|-1|0|0||||23
 name|11|10|64|0|b|S|0|1|,|0|18|1003|namein|nameout|namerecv|namesend|-|-|-|c|p|0|0|-1|0|0||||19
 numeric|11|10|-1|0|b|N|0|1|,|0|0|1231|numeric_in|numeric_out|numeric_recv|numeric_send|numerictypmodin|numerictypmodout|-|i|m|0|0|-1|0|0||||1700
+time|11|10|8|1|b|D|0|1|,|0|0|1183|time_in|time_out|time_recv|time_send|timetypmodin|timetypmodout|-|d|p|0|0|-1|0|0||||1083
+timestamp|11|10|8|1|b|D|0|1|,|0|0|1115|timestamp_in|timestamp_out|timestamp_recv|timestamp_send|timestamptypmodin|timestamptypmodout|-|d|p|0|0|-1|0|0||||1114
+timestamptz|11|10|8|1|b|D|1|1|,|0|0|1185|timestamptz_in|timestamptz_out|timestamptz_recv|timestamptz_send|timestamptztypmodin|timestamptztypmodout|-|d|p|0|0|-1|0|0||||1184
+timetz|11|10|12|0|b|D|0|1|,|0|0|1270|timetz_in|timetz_out|timetz_recv|timetz_send|timetztypmodin|timetztypmodout|-|d|p|0|0|-1|0|0||||1266
 unknown|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|-|-|-|c|p|f|0|-1|0|0||||705
 varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043
-(6 rows)
+(11 rows)
 OCTO> drop function abs(integer);
 [ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v47" depends on it
 OCTO> select * from v8_1;

@@ -1,0 +1,91 @@
+-- ERR_TYPE_NOT_COMPATIBLE
+select (date '11-29-2023' + date '11-28-2023' - date '11-28-2023');
+
+-- ERR_INVALID_DATE_TIME_VALUE
+select date(zut) '-27809392000000000';
+select date_to_fileman(date(zut) '-27809392000000000');
+select date_to_horolog(date(zut) '-27809392000000000');
+select date_to_zhorolog(date(zut) '-27809392000000000');
+select timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - time'5:8:0';
+select time(zhorolog) with time zone ',25210,078868,23372299286180000000001';
+select date'01-01-2023 .-01-2023';
+select '01-01-2023 .-01-2023'::date;
+select '01-01-2023 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
+
+-- ERR_DATE_TIME_RESULT_OUT_OF_RANGE
+select date'01-01-2023' + 660000001-2-23;
+select date'01-01-2023' - 660000001;
+select date'01-01-2024'-date'01-02-2024'; -- This should not error. This ensure a -1 return doesn't flag an error
+select date'01-01-2023' + 3230101784-2023;
+
+-- Size cannot be specified for date/time type
+create table tmpd (id integer primary key, o_date date(1));
+create table tmpd (id integer primary key, o_date time(1));
+create table tmpd (id integer primary key, o_date timestamp(1));
+create table tmpd (id integer primary key, o_date timestamp with time zone(1));
+create table tmpd (id integer primary key, o_date time with time zone(1));
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 1:1: select (date '11-29-2023' + date '11-28-2023' - date '11-28-202...
+                  ^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
+LINE 1:1: ...ct (date '11-29-2023' + date '11-28-2023' - date '11-28-2023');
+                                     ^^^^^^^^^^^^^^^^^
+OCTO> select (date '11-29-2023' + date '11-28-2023' - date '11-28-2023');
+OCTO> select date(zut) '-27809392000000000';
+???
+1088-10-03
+(1 row)
+OCTO> select date_to_fileman(date(zut) '-27809392000000000');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+OCTO> select date_to_horolog(date(zut) '-27809392000000000');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-274751" is invalid for type DATE and format HOROLOG
+OCTO> select date_to_zhorolog(date(zut) '-27809392000000000');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-274751,,," is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "6-12-5950 13:12:66.59647+00:39" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 7:1: ...ect timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - t...
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - time'5:8:0';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",25210,078868,23372299286180000000001" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+LINE 8:1: ...time(zhorolog) with time zone ',25210,078868,2337229928618000000...
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time(zhorolog) with time zone ',25210,078868,23372299286180000000001';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 .-01-2023" is invalid for type DATE and format TEXT
+LINE 9:1: select date'01-01-2023 .-01-2023';
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023 .-01-2023';
+OCTO> select '01-01-2023 .-01-2023'::date;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 .-01-2023" is invalid for type DATE and format TEXT
+OCTO> select '01-01-2023 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01" is invalid for type DATE and format TEXT
+OCTO> select date'01-01-2023' + 660000001-2-23;
+[ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
+OCTO> select date'01-01-2023' - 660000001;
+[ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
+OCTO> select date'01-01-2024'-date'01-02-2024';
+???
+-1
+(1 row)
+OCTO> -- This should not error. This ensure a -1 return doesn't flag an error
+select date'01-01-2023' + 3230101784-2023;
+[ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
+LINE 18:1: create table tmpd (id integer primary key, o_date date(1));
+                                                                  ^
+syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
+OCTO> create table tmpd (id integer primary key, o_date date(1));
+LINE 19:1: create table tmpd (id integer primary key, o_date time(1));
+                                                                  ^
+syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
+OCTO> create table tmpd (id integer primary key, o_date time(1));
+LINE 20:1: create table tmpd (id integer primary key, o_date timestamp(1));
+                                                                       ^
+syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
+OCTO> create table tmpd (id integer primary key, o_date timestamp(1));
+LINE 21:1: ...d (id integer primary key, o_date timestamp with time zone(1));
+                                                                        ^
+syntax error, unexpected LEFT_PAREN
+OCTO> create table tmpd (id integer primary key, o_date timestamp with time zone(1));
+LINE 22:1: ...e tmpd (id integer primary key, o_date time with time zone(1));
+                                                                        ^
+syntax error, unexpected LEFT_PAREN
+OCTO> create table tmpd (id integer primary key, o_date time with time zone(1));
+OCTO> 

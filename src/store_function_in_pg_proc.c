@@ -53,6 +53,21 @@ PSQL_TypeOid get_psql_type_from_sqldatatype(SqlDataType type) {
 	case STRING_TYPE:
 		return PSQL_TypeOid_varchar;
 		break;
+	case DATE_TYPE:
+		return PSQL_TypeOid_date;
+		break;
+	case TIME_TYPE:
+		return PSQL_TypeOid_time;
+		break;
+	case TIME_WITH_TIME_ZONE_TYPE:
+		return PSQL_TypeOid_timetz;
+		break;
+	case TIMESTAMP_TYPE:
+		return PSQL_TypeOid_timestamp;
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+		return PSQL_TypeOid_timestamptz;
+		break;
 	case NUL_TYPE:
 	case UNKNOWN_SqlDataType:
 		assert(FALSE);

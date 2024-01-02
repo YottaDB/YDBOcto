@@ -1,0 +1,58 @@
+datestyle = "mdY"
+datestyle = "mdY"
+datestyle = "Ymd"
+datestyle = "Ymd"
+datestyle = "dmY"
+datestyle = "dmY"
+datestyle = "asdf"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "asdf" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "mmm"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mmm" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "yyy"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "yyy" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "ddd"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ddd" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "ymm"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ymm" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "dmm"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "dmm" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "dyy"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "dyy" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = ",mdy"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value ",mdy" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = ",,"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value ",," is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "ymdiso"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ymdiso" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "mdyiso"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "mdyiso" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = ",isomdy"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value ",isomdy" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "isomdy,"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "isomdy," is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "ind"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ind" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datestyle = "ynd"
+[ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "ynd" is invalid
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: datestyle value is incorrect in config
+datetimeoutputformat = "horolog"
+datetimeoutputformat = "zhorolog"
+datetimeoutputformat = "zut"
+datetimeoutputformat = "fileman"
+datetimeoutputformat = "text"
+datetimeoutputformat = "asdf"
+[ERROR]: ERR_BAD_CONFIG: Bad config setting in $PWD/octo.conf: output format is incorrect, it can be horolog,zhorolog,zut,fileman or text

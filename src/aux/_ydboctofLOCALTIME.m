@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -16,9 +16,12 @@ LOCALTIME()
 	quit
 
 PostgreSQL()
-	; Returns the current time in `HH:MM:SS.US-TT` format
-	quit $$PostgreSQL^%ydboctofCURRENTTIME()
+	; Returns the current time in `HH:MM:SS.US` format
+	new val set val=$$PostgreSQL^%ydboctofCURRENTTIME()
+	if (val["+") set val=$piece(val,"+") ; Remove +timezone
+	else  set val=$piece(val,"-") ; Remove -timezone
+	quit val
 
 MySQL()
-	; Returns the current time in `YYYY-MM-DD HH:MM:SS` format
-	quit $$MySQL^%ydboctofCURRENTTIMESTAMP()
+	; Returns the current time in `HH:MM:SS` format
+	quit $$MySQL^%ydboctofCURRENTTIME()

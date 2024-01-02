@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -78,7 +78,6 @@ LOAD_PG_VARIABLE("cursor_tuple_fraction", DEFAULT_EMPTY_ROW)
 LOAD_PG_VARIABLE("data_checksums", DEFAULT_EMPTY_ROW)
 LOAD_PG_VARIABLE("data_directory_mode", DEFAULT_EMPTY_ROW)
 LOAD_PG_VARIABLE("data_sync_retry", DEFAULT_EMPTY_ROW)
-LOAD_PG_VARIABLE("datestyle", DEFAULT_DATESTYLE DEFAULT_DATESTYLE_ROW)
 LOAD_PG_VARIABLE("db_user_namespace", DEFAULT_EMPTY_ROW)
 LOAD_PG_VARIABLE("deadlock_timeout", DEFAULT_EMPTY_ROW)
 LOAD_PG_VARIABLE("debug_assertions", DEFAULT_EMPTY_ROW)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -202,6 +202,7 @@ teardown() {
 }
 
 @test "TVD0009 : YDBOctoVistA#28 Externally Formatted Dates" {
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
 	# Generate External Dates DDL for INSTALL file (File 9.7) and PROBLEM file (File 9000011)
 	# INSTALL file contains dates with times
 	# SDEC APPOINTMENT file contains dates with .24 (midnight)
@@ -216,12 +217,25 @@ teardown() {
 	octo -f vista409.84.sql
 	octo -f vista9000011.sql
 
-	# Run query
+	# Run query with date/time type columns
 	load_fixture TVD0009.sql subtest novv
+	mv output.txt output_datetime.txt
+
+	# Run query with date/time columns treated as Numeric to validate that the behavior of date/time type output is as expected
+	sed 's/TIMESTAMP(FILEMAN)/NUMERIC/;s/DATE(FILEMAN)/NUMERIC/' vista409.84.sql >> vista409.84.2.sql
+	sed 's/TIMESTAMP(FILEMAN)/NUMERIC/;s/DATE(FILEMAN)/NUMERIC/' vista9.7.sql >> vista9.7.2.sql
+	sed 's/TIMESTAMP(FILEMAN)/NUMERIC/;s/DATE(FILEMAN)/NUMERIC/' vista9000011.sql >> vista9000011.2.sql
+	octo -f vista9.7.2.sql
+	octo -f vista409.84.2.sql
+	octo -f vista9000011.2.sql
+	load_fixture TVD0009.sql subtest novv
+	mv output.txt output_numeric.txt
 
 	# Don't use verify output, as that strips out the dates, which is the EXACT point of this test
-	copy_test_files outref/TVD0009.ref
-	diff outref/TVD0009.ref output.txt
+	copy_test_files outref/TVD0009_datetime.ref
+	copy_test_files outref/TVD0009_numeric.ref
+	diff outref/TVD0009_numeric.ref output_numeric.txt
+	diff outref/TVD0009_datetime.ref output_datetime.txt
 }
 
 @test "TVD0010 : YDBOctoVistA#3 Break out Variable Pointer field into separate columns" {
@@ -236,5 +250,5 @@ teardown() {
 
 @test "TVD0012 : YDBOctoVistA#34 Test VistA Functions" {
 	load_fixture TVD0012.sql subtest novv
-	verify_output TVD0012 output.txt
+	verify_output TVD0012 output.txt nodatetimefilter
 }

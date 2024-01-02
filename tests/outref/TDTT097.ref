@@ -1,0 +1,20 @@
+datetimeoutputformat = "horolog"
+???
+66475
+(1 row)
+datetimeoutputformat = "zhorolog"
+???
+66475,,,
+(1 row)
+datetimeoutputformat = "zut"
+???
+1672531200000000
+(1 row)
+datetimeoutputformat = "fileman"
+???
+3230101
+(1 row)
+datetimeoutputformat = "text"
+???
+2023-01-01
+(1 row)

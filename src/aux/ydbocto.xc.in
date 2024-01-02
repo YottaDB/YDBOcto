@@ -1,0 +1,23 @@
+//////////////////////////////////////////////////////////////////
+//								//
+// Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	//
+// All rights reserved.						//
+//								//
+//	This source code contains the intellectual property	//
+//	of its copyright holder(s), and is made available	//
+//	under a license.  If you do not know the terms of	//
+//	the license, please stop and do not read further.	//
+//								//
+//////////////////////////////////////////////////////////////////
+@install_dir@/libcocto.so
+ydboctoDateFormatM: ydb_string_t* ydboctoDateFormatC(I:ydb_string_t*, I:ydb_string_t*):SIGSAFE
+ydboctoZutM: ydb_long_t ydboctoZutC(I:ydb_long_t, I:ydb_int_t, I:ydb_string_t*):SIGSAFE
+ydboctoDateTimeStringCastM: ydb_string_t *ydboctoDateTimeStringCastC(I:ydb_string_t*, I:ydb_string_t*, I:ydb_int_t):SIGSAFE
+ydboctoDateTimeCastM: ydb_long_t ydboctoDateTimeCastC(I:ydb_long_t, I:ydb_int_t, I:ydb_int_t):SIGSAFE
+ydboctoDateTimeInternalFormat2TextM: ydb_string_t *ydboctoDateTimeInternalFormat2TextC(I:ydb_long_t, I:ydb_int_t, I:ydb_string_t*):SIGSAFE
+ydboctoText2InternalFormatM: ydb_string_t *ydboctoText2InternalFormatC(I:ydb_string_t*,I:ydb_string_t*):SIGSAFE
+ydboctoSubDateM: ydb_long_t ydboctoSubDateC(I:ydb_long_t, I:ydb_long_t, I:ydb_int_t):SIGSAFE
+ydboctoSubDateTimeM: ydb_long_t ydboctoSubDateTimeC(I:ydb_long_t, I:ydb_int_t, I:ydb_long_t, I:ydb_int_t):SIGSAFE
+ydboctoAddDateTimeM: ydb_long_t ydboctoAddDateTimeC(I:ydb_long_t, I:ydb_int_t, I:ydb_long_t, I:ydb_int_t):SIGSAFE
+ydboctoValidateDateTimeValueM: ydb_long_t ydboctoValidateDateTimeValueC(I:ydb_string_t*, I:ydb_int_t, I:ydb_int_t, I:ydb_string_t*):SIGSAFE
+ydboctoConvertToLocalTimezoneM: ydb_long_t ydboctoConvertToLocalTimezoneC(I:ydb_int_t, I:ydb_long_t):SIGSAFE

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -62,8 +62,9 @@
 #define PP_LOCAL_PREFIX	 ""
 
 /* Note: The below PP_* macros do not contain double-quotes within the string literal */
-#define PP_COL	      "col"
-#define PP_KEY_COLUMN "keyCol"
+#define PP_COL		 "col"
+#define PP_COL_META_DATA "colMetaData"
+#define PP_KEY_COLUMN	 "keyCol"
 #define PP_VAL                                                                                \
 	"val" /* Note: This variable is easy to read in generated M code but should be used   \
 	       * only when we are guaranteed that we won't be invoking user M code. In that   \
@@ -207,12 +208,16 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 TEMPLATE(tmpl_key_source_aim, char *tableName, char *columnName);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth, SqlKey *key);
+TEMPLATE(tmpl_print_date_time_addition, LogicalPlan *firstOperand, LogicalPlan *secondOperand, PhysicalPlan *pplan, int dot_count,
+	 int depth, boolean_t *done);
+TEMPLATE(tmpl_print_date_time_subtraction, LogicalPlan *firstOperand, LogicalPlan *secondOperand, PhysicalPlan *pplan,
+	 int dot_count, int depth, boolean_t *done);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
 	 int depth, int unique_id, boolean_t *done);
 TEMPLATE(tmpl_print_expression_group_by_computation, int group_by_column_num, int dot_count);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
-	 boolean_t is_asterisk);
+	 boolean_t is_asterisk, boolean_t needs_date_time_formatting);
 TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int parm2, int keys_to_match,

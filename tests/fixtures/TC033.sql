@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,7 +15,9 @@
 CREATE TABLE names1 (id INTEGER(32) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(57));
 CREATE TABLE names2 (id NUMERIC(16) PRIMARY KEY, firstName VARCHAR(17), lastName TEXT(31));
 CREATE TABLE names3 (id NUMERIC(13,7) PRIMARY KEY, firstName VARCHAR(37), lastName TEXT(26));
-CREATE TABLE datetime1 (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(19));
+CREATE TABLE datetime1 (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME);
+-- Uncomment the following after precision is implemented for time types
+-- CREATE TABLE datetime1 (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(6));
 
 -- This is a fancy query that tests DELIM/START/END/KEY NUM etc.
 CREATE TABLE fancy (

@@ -1,0 +1,201 @@
+
+select time(zut)'1699472687014554'; -- -2208986112985446
+select date(zut)'1699472687014554'; -- skips date info 1699401600000000
+select timestamp(zut)'1699472687014554'; -- 1699490687014554 -- 11-08-2023 19:44:47.014554
+select date(zut)'1699419600014554'; -- skips date info 1699401600000000 -- 11-08-2023
+select timestamp(zut)'1699478986721215'; -- 1699478986721215 -- 11-08-2023 21:29:46.721215
+select time(zut)'1699479303057600'; -- 16:35:03.057600 -- -2208997496942400
+select timestamp(zut)'1699479303057600'; -- 11-08-2023 21:35:03.057600 -- 1699479303057600
+select timestamp(zut)'1699478986721215'; -- 11-08-2023 21:29:46.721215 -- 1699478986721215
+select timestamp(zut)'-1'; -- 12-31-1969 23:59:59.999999 -- -1
+select timestamp(zut)'-2554279907000810'; -- 01-21-1889 13:48:12.99919
+
+create table test (id int, dot time);
+create table test1 (id int, dot time with time zone);
+create table test2(id int, dot timestamp with time zone);
+
+insert into test(values(1,time'01:01:01'));
+insert into test1(values(1,time with time zone'01:01:01'));
+insert into test2(values(1,timestamp with time zone'01-01-2023 01:01:01'));
+
+select * from test;
+select * from test1;
+select * from test2;
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 2:1: select time(zut)'1699472687014554'; -- -2208986112985446
+                 ^^^^^^^^^
+OCTO> select time(zut)'1699472687014554';
+OCTO> -- -2208986112985446
+select date(zut)'1699472687014554';
+???
+2023-11-08
+(1 row)
+OCTO> -- skips date info 1699401600000000
+select timestamp(zut)'1699472687014554';
+???
+2023-11-08 19:44:47.014554
+(1 row)
+OCTO> -- 1699490687014554 -- 11-08-2023 19:44:47.014554
+select date(zut)'1699419600014554';
+???
+2023-11-08
+(1 row)
+OCTO> -- skips date info 1699401600000000 -- 11-08-2023
+select timestamp(zut)'1699478986721215';
+???
+2023-11-08 21:29:46.721215
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 7:2: select time(zut)'1699479303057600'; -- 16:35:03.057600 -- -2208...
+                 ^^^^^^^^^
+OCTO> -- 1699478986721215 -- 11-08-2023 21:29:46.721215
+select time(zut)'1699479303057600';
+OCTO> -- 16:35:03.057600 -- -2208997496942400
+select timestamp(zut)'1699479303057600';
+???
+2023-11-08 21:35:03.0576
+(1 row)
+OCTO> -- 11-08-2023 21:35:03.057600 -- 1699479303057600
+select timestamp(zut)'1699478986721215';
+???
+2023-11-08 21:29:46.721215
+(1 row)
+OCTO> -- 11-08-2023 21:29:46.721215 -- 1699478986721215
+select timestamp(zut)'-1';
+???
+1969-12-31 23:59:59.999999
+(1 row)
+OCTO> -- 12-31-1969 23:59:59.999999 -- -1
+select timestamp(zut)'-2554279907000810';
+???
+1889-01-21 13:48:12.99919
+(1 row)
+OCTO> -- 01-21-1889 13:48:12.99919
+
+create table test (id int, dot time);
+CREATE TABLE
+OCTO> create table test1 (id int, dot time with time zone);
+CREATE TABLE
+OCTO> create table test2(id int, dot timestamp with time zone);
+CREATE TABLE
+OCTO> insert into test(values(1,time'01:01:01'));
+INSERT 0 1
+OCTO> insert into test1(values(1,time with time zone'01:01:01'));
+INSERT 0 1
+OCTO> insert into test2(values(1,timestamp with time zone'01-01-2023 01:01:01'));
+INSERT 0 1
+OCTO> select * from test;
+id|dot
+1|01:01:01
+(1 row)
+OCTO> select * from test1;
+id|dot
+1|01:01:01-04
+(1 row)
+OCTO> select * from test2;
+id|dot
+1|2023-01-01 01:01:01-05
+(1 row)
+OCTO> 
+
+select time(zut)'1699472687014554'; -- -2208986112985446
+select date(zut)'1699472687014554'; -- skips date info 1699401600000000
+select timestamp(zut)'1699472687014554'; -- 1699490687014554 -- 11-08-2023 19:44:47.014554
+select date(zut)'1699419600014554'; -- skips date info 1699401600000000 -- 11-08-2023
+select timestamp(zut)'1699478986721215'; -- 1699478986721215 -- 11-08-2023 21:29:46.721215
+select time(zut)'1699479303057600'; -- 16:35:03.057600 -- -2208997496942400
+select timestamp(zut)'1699479303057600'; -- 11-08-2023 21:35:03.057600 -- 1699479303057600
+select timestamp(zut)'1699478986721215'; -- 11-08-2023 21:29:46.721215 -- 1699478986721215
+select timestamp(zut)'-1'; -- 12-31-1969 23:59:59.999999 -- -1
+select timestamp(zut)'-2554279907000810'; -- 01-21-1889 13:48:12.99919
+
+create table test (id int, dot time);
+create table test1 (id int, dot time with time zone);
+create table test2(id int, dot timestamp with time zone);
+
+insert into test(values(1,time'01:01:01'));
+insert into test1(values(1,time with time zone'01:01:01'));
+insert into test2(values(1,timestamp with time zone'01-01-2023 01:01:01'));
+
+select * from test;
+select * from test1;
+select * from test2;
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 2:1: select time(zut)'1699472687014554'; -- -2208986112985446
+                 ^^^^^^^^^
+OCTO> select time(zut)'1699472687014554';
+OCTO> -- -2208986112985446
+select date(zut)'1699472687014554';
+???
+1699401600000000
+(1 row)
+OCTO> -- skips date info 1699401600000000
+select timestamp(zut)'1699472687014554';
+???
+1699472687014554
+(1 row)
+OCTO> -- 1699490687014554 -- 11-08-2023 19:44:47.014554
+select date(zut)'1699419600014554';
+???
+1699401600000000
+(1 row)
+OCTO> -- skips date info 1699401600000000 -- 11-08-2023
+select timestamp(zut)'1699478986721215';
+???
+1699478986721215
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 7:2: select time(zut)'1699479303057600'; -- 16:35:03.057600 -- -2208...
+                 ^^^^^^^^^
+OCTO> -- 1699478986721215 -- 11-08-2023 21:29:46.721215
+select time(zut)'1699479303057600';
+OCTO> -- 16:35:03.057600 -- -2208997496942400
+select timestamp(zut)'1699479303057600';
+???
+1699479303057600
+(1 row)
+OCTO> -- 11-08-2023 21:35:03.057600 -- 1699479303057600
+select timestamp(zut)'1699478986721215';
+???
+1699478986721215
+(1 row)
+OCTO> -- 11-08-2023 21:29:46.721215 -- 1699478986721215
+select timestamp(zut)'-1';
+???
+-1
+(1 row)
+OCTO> -- 12-31-1969 23:59:59.999999 -- -1
+select timestamp(zut)'-2554279907000810';
+???
+-2554279907000810
+(1 row)
+OCTO> -- 01-21-1889 13:48:12.99919
+
+create table test (id int, dot time);
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "test" already exists
+OCTO> create table test1 (id int, dot time with time zone);
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "test1" already exists
+OCTO> create table test2(id int, dot timestamp with time zone);
+[ERROR]: ERR_CANNOT_CREATE_TABLE: Table or View "test2" already exists
+OCTO> insert into test(values(1,time'01:01:01'));
+INSERT 0 1
+OCTO> insert into test1(values(1,time with time zone'01:01:01'));
+INSERT 0 1
+OCTO> insert into test2(values(1,timestamp with time zone'01-01-2023 01:01:01'));
+INSERT 0 1
+OCTO> select * from test;
+id|dot
+1|
+1|
+(2 rows)
+OCTO> select * from test1;
+id|dot
+1|
+1|
+(2 rows)
+OCTO> select * from test2;
+id|dot
+1|
+1|
+(2 rows)
+OCTO> 

@@ -1,0 +1,162 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						* *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include <assert.h>
+
+#include "logical_plan.h"
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Add the c function which is going to add the date/time type values.
+ * Note on input parameters:
+ * a) If the input parameter `dot_count` is non-zero, it implies the caller wants the M code generation to split each
+ *    leaf level expression into a separate M line (to avoid generating all of them in one M line and exceeding the
+ *    M max source line length limit (currently 32KiB). In that case, the caller function relies on "PP_YDB_OCTO_EXPR"
+ *    as the M variable that holds the result.
+ *    Note: Even if `dot_count` is zero, it is possible the generated M code could go greater than 32KiB. Those are
+ *    currently tracked as an open issue (YDBOcto#634) and are considered unlikely in practice.
+ * b) firstOperand and secondOperand are binary_operation's left and right operand values
+ */
+TEMPLATE(tmpl_print_date_time_subtraction, LogicalPlan *firstOperand, LogicalPlan *secondOperand, PhysicalPlan *pplan, int dot_count, int depth, boolean_t *done) {
+	SqlValueType first_operand_type, second_operand_type;
+	first_operand_type = lp_get_plan_value_type(firstOperand);
+	second_operand_type = lp_get_plan_value_type(secondOperand);
+	if (!IS_DATE_TIME_TYPE(first_operand_type) && !IS_DATE_TIME_TYPE(second_operand_type)) {
+		*done = FALSE;
+		return;
+	}
+
+	if (IS_NUL_VALUE(first_operand_type) || IS_NUL_VALUE(second_operand_type)) {
+		// Subtraction with a NULL value will have NULL as its result
+		// passing dot_count here will result in tmpl_print_expression printing the lhs of the expression
+		TMPL(tmpl_print_expression, IS_NUL_VALUE(second_operand_type)?secondOperand:firstOperand, pplan, dot_count,
+		     depth);
+	} else if (IS_DATE(first_operand_type) || IS_DATE(second_operand_type)) {
+		/* Following operations are handled by the call after this comment
+		 * date - date -> +/- # days
+		 * date - time -> timestamp
+		 * date - timestamp -> interval
+		 * date - timestamp with timezone -> interval
+		 * timestamp - date -> interval
+		 * date - integer -> date
+		 * date - NULL -> integer
+		 */
+		LogicalPlan *date_op;
+		LogicalPlan *other_op;
+		SqlValueType other_op_type;
+		if (IS_DATE(first_operand_type)) {
+			date_op = firstOperand;
+			other_op = secondOperand;
+			other_op_type = second_operand_type;
+		} else {
+			assert(IS_DATE(second_operand_type));
+			date_op = secondOperand;
+			other_op = firstOperand;
+			other_op_type = first_operand_type;
+		}
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
+		boolean_t check_if_second_op_is_int = FALSE;
+		if (IS_DATE(other_op_type) || (INTEGER_LITERAL == other_op_type)) {
+			%{}$$SubDate^%%ydboctoplanhelpers({}%
+			check_if_second_op_is_int = TRUE;
+		} else if (IS_TIME(other_op_type)) {
+			%{}$$SubDateTime^%%ydboctoplanhelpers({}%
+		} else {
+			assert(FALSE);
+		}
+		TMPL(tmpl_print_expression, date_op, pplan, 0, depth);
+		if (IS_TIME(other_op_type)) {
+			// pass the first op type
+			%{},{{ DATE_LITERAL|%d }}{}%
+		}
+		%{},{}%
+		TMPL(tmpl_print_expression, other_op, pplan, 0, depth);
+		if (IS_TIME(other_op_type)) {
+			// pass the second op type
+			%{},{{ other_op_type|%d }}{}%
+		} else if (check_if_second_op_is_int) {
+			if (INTEGER_LITERAL == second_operand_type) {
+				%{},1{}%
+			} else {
+				%{},0{}%
+			}
+		}
+		%{}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
+	} else if (IS_TIME(first_operand_type) || IS_TIME(second_operand_type)) {
+		/* Following operations are handled by the call after this comment
+		 * time - time -> interval
+		 * time with time zone - time
+		 * timestamp - time ->timestamp
+		 * timestamp with timezone - time -> timestamp with timezone
+		 * time with timezone - NULL -> time with timezone
+		 * time - NULL -> interval
+		 */
+		LogicalPlan *time_op;
+		LogicalPlan *other_op;
+		SqlValueType other_op_type;
+		SqlValueType time_op_type;
+		if (IS_TIME(first_operand_type)) {
+			other_op = secondOperand;
+			other_op_type = second_operand_type;
+			time_op = firstOperand;
+			time_op_type = first_operand_type;
+		} else {
+			assert(IS_TIME(second_operand_type));
+			other_op = firstOperand;
+			other_op_type = first_operand_type;
+			time_op = secondOperand;
+			time_op_type = second_operand_type;
+
+		}
+		if (IS_TIME(other_op_type)) {
+			// Time with time zone - time
+			if (TIME_WITH_TIME_ZONE_LITERAL != other_op_type) {
+				LogicalPlan *tmp;
+				SqlValueType tmp_op_type;
+				tmp = other_op;
+				tmp_op_type = other_op_type;
+				other_op = time_op;
+				other_op_type = time_op_type;
+				time_op = tmp;
+				time_op_type = tmp_op_type;
+			}
+		}
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
+		%{}$$SubDateTime^%%ydboctoplanhelpers({}%
+		TMPL(tmpl_print_expression, other_op, pplan, 0, depth);
+		%{},{{ other_op_type|%d }}{}%
+		%{},{}%
+		TMPL(tmpl_print_expression, time_op, pplan, 0, depth);
+		%{},{{ time_op_type|%d }}{}%
+		%{}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
+	} else {
+		// Operation doesn't involve date/time types. Caller needs to do more processing
+		assert(FALSE);
+		*done = FALSE;
+		return;
+
+	}
+	*done = TRUE;
+}
+%{}

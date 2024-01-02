@@ -12,13 +12,22 @@ truncate names;
 select * from names;
 
 -- Multiple table case
--- All rows present in `customers` and `orders` tables
-select * from customers;
-select * from orders;
-truncate customers, orders;
--- No rows present in `customers` or `orders` tables, but tables still exist
-select * from customers;
-select * from orders;
+-- orders is readonly so re-create as readwrite
+drop table if exists customers_cpy;
+drop table if exists orders_cpy;
+CREATE TABLE customers_cpy(customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5));
+CREATE TABLE orders_cpy (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER);
+insert into customers_cpy (select * from customers);
+insert into orders_cpy (select * from orders);
+
+-- All rows present in `customers_cpy` and `orders_cpy` tables
+select * from customers_cpy;
+select * from orders_cpy;
+
+truncate customers_cpy, orders_cpy;
+-- No rows present in `customers_cpy` or `orders_cpy` tables, but tables still exist
+select * from customers_cpy;
+select * from orders_cpy;
 
 -- Non-existent tables case
 truncate badtable, notgoodtable, missingtable;
@@ -36,7 +45,19 @@ TRUNCATE TABLE
 OCTO> select * from names;
 id|firstname|lastname
 (0 rows)
-OCTO> select * from customers;
+OCTO> drop table if exists customers_cpy;
+DROP TABLE
+OCTO> drop table if exists orders_cpy;
+DROP TABLE
+OCTO> CREATE TABLE customers_cpy(customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5));
+CREATE TABLE
+OCTO> CREATE TABLE orders_cpy (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER);
+CREATE TABLE
+OCTO> insert into customers_cpy (select * from customers);
+INSERT 0 5
+OCTO> insert into orders_cpy (select * from orders);
+INSERT 0 6
+OCTO> select * from customers_cpy;
 customer_id|first_name|last_name|email|address|city|state|zipcode
 1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
 2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
@@ -44,21 +65,21 @@ customer_id|first_name|last_name|email|address|city|state|zipcode
 4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
 5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
 (5 rows)
-OCTO> select * from orders;
+OCTO> select * from orders_cpy;
 order_id|order_date|order_amount|customer_id
-1|07/04/1776|$234.56|1
-2|03/14/1760|$78.50|3
-3|05/23/1784|$124.00|2
-4|09/03/1790|$65.50|3
-5|07/21/1795|$25.50|10
-6|11/27/1787|$14.40|9
+1|1776-07-04|$234.56|1
+2|1760-03-14|$78.50|3
+3|1784-05-23|$124.00|2
+4|1790-09-03|$65.50|3
+5|1795-07-21|$25.50|10
+6|1787-11-27|$14.40|9
 (6 rows)
-OCTO> truncate customers, orders;
+OCTO> truncate customers_cpy, orders_cpy;
 TRUNCATE TABLE
-OCTO> select * from customers;
+OCTO> select * from customers_cpy;
 customer_id|first_name|last_name|email|address|city|state|zipcode
 (0 rows)
-OCTO> select * from orders;
+OCTO> select * from orders_cpy;
 order_id|order_date|order_amount|customer_id
 (0 rows)
 OCTO> truncate badtable, notgoodtable, missingtable;
@@ -77,13 +98,30 @@ TRUNCATE TABLE
 ----+-----------+----------
 (0 rows)
 
- customer_id | first_name | last_name | email | address | city | state | zipcode 
--------------+------------+-----------+-------+---------+------+-------+---------
-(0 rows)
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 5
+INSERT 0 6
+ customer_id | first_name | last_name  |        email        |          address          |      city       | state | zipcode 
+-------------+------------+------------+---------------------+---------------------------+-----------------+-------+---------
+           1 | George     | Washington | gwashington@usa.gov | 3200 Mt Vernon Hwy        | Mount Vernon    | VA    | 22121
+           2 | John       | Adams      | jadams@usa.gov      | 1250 Hancock St           | Quincy          | MA    | 02169
+           3 | Thomas     | Jefferson  | tjefferson@usa.gov  | 931 Thomas Jefferson Pkwy | Charlottesville | VA    | 22902
+           4 | James      | Madison    | jmadison@usa.gov    | 11350 Constitution Hwy    | Orange          | VA    | 22960
+           5 | James      | Monroe     | jmonroe@usa.gov     | 2050 James Monroe Parkway | Charlottesville | VA    | 22902
+(5 rows)
 
  order_id | order_date | order_amount | customer_id 
 ----------+------------+--------------+-------------
-(0 rows)
+        1 | 1776-07-04 | $234.56      |           1
+        2 | 1760-03-14 | $78.50       |           3
+        3 | 1784-05-23 | $124.00      |           2
+        4 | 1790-09-03 | $65.50       |           3
+        5 | 1795-07-21 | $25.50       |          10
+        6 | 1787-11-27 | $14.40       |           9
+(6 rows)
 
 TRUNCATE TABLE
  customer_id | first_name | last_name | email | address | city | state | zipcode 

@@ -1,0 +1,64 @@
+
+
+drop table if exists testd;
+create table testd (id integer, dob date);
+insert into testd values(1,date'2023-10-17');
+insert into testd values(2,date'2023-10-16');
+select * from testd;
+
+drop table if exists testts;
+create table testts(id integer, dob timestamp);
+insert into testts values(1, timestamp'2023-10-17 01:01:01');
+insert into testts values(2, timestamp'2023-10-16 02:01:01');
+select * from testts;
+OCTO> drop table if exists testd;
+DROP TABLE
+OCTO> create table testd (id integer, dob date);
+CREATE TABLE
+OCTO> insert into testd values(1,date'2023-10-17');
+INSERT 0 1
+OCTO> insert into testd values(2,date'2023-10-16');
+INSERT 0 1
+OCTO> select * from testd;
+id|dob
+1|2023-10-17
+2|2023-10-16
+(2 rows)
+OCTO> drop table if exists testts;
+DROP TABLE
+OCTO> create table testts(id integer, dob timestamp);
+CREATE TABLE
+OCTO> insert into testts values(1, timestamp'2023-10-17 01:01:01');
+INSERT 0 1
+OCTO> insert into testts values(2, timestamp'2023-10-16 02:01:01');
+INSERT 0 1
+OCTO> select * from testts;
+id|dob
+1|2023-10-17 01:01:01
+2|2023-10-16 02:01:01
+(2 rows)
+OCTO> 
+
+insert into testd values(3,date'10-17-2025');
+select * from testd;
+
+insert into testts values(3, timestamp'10-17-2025 12:00:00');
+select * from testts;
+
+OCTO> insert into testd values(3,date'10-17-2025');
+INSERT 0 1
+OCTO> select * from testd;
+id|dob
+1|2023-10-17
+2|2023-10-16
+3|2025-10-17
+(3 rows)
+OCTO> insert into testts values(3, timestamp'10-17-2025 12:00:00');
+INSERT 0 1
+OCTO> select * from testts;
+id|dob
+1|2023-10-17 01:01:01
+2|2023-10-16 02:01:01
+3|2025-10-17 12:00:00
+(3 rows)
+OCTO> 

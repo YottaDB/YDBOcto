@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -45,6 +45,9 @@
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("UNKNOWNTABLE")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("NEGATIVESUBSTRINGLENGTH")=$incr(%ydboctoerrcode)
+	; signaled by all of the `*2UnixTime` routines in `_ydboctoplanhelpers.m`
+	SET %ydboctoerror("INVALIDDATETIMEVALUE")=$incr(%ydboctoerrcode)
+	SET %ydboctoerror("DATETIMERESULTOUTOFRANGE")=$incr(%ydboctoerrcode)
 	; Any additions of error codes needs to happen before the following line (%ydboctoerrcodemax)
 	; Changes need to also happen in `ydb_error_check.c` and likely in `_ydboctoplanhelpers.m`
 	SET %ydboctoerrcodemax=$incr(%ydboctoerrcode)

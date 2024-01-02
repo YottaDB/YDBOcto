@@ -1,0 +1,83 @@
+
+drop table if exists orders keepdata;
+create table orders (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders" READONLY;
+set datestyle="mdy";
+SELECT o1.order_id, o2.order_id, o1.order_date FROM orders o1 INNER JOIN orders o2 ON (o1.order_id < o2.order_id) order by o1.order_id, o2.order_id;
+SELECT o1.order_id, o2.order_id, o1.order_date FROM orders o1 INNER JOIN orders o2 ON (o1.order_id < o2.order_id) WHERE o1.order_date <= DATE '07-04-1776' order by o1.order_id, o2.order_id;
+SELECT o1.order_id, o2.order_id, o1.order_date FROM orders o1 INNER JOIN orders o2 ON (o1.order_id < o2.order_id) WHERE o1.order_date >= DATE '07-21-1795' order by o1.order_id, o2.order_id;
+
+SELECT alias1.order_date AS alias2, customers.city AS alias3 FROM customers  RIGHT JOIN orders AS alias1 ON (((customers.customer_id IS NULL)) AND NOT ((customers.first_name <= alias1.order_amount) AND (customers.first_name > '$124.00'))) WHERE (('Charlottesville' != customers.city) OR ((customers.address IS NULL))) ORDER BY alias1.order_date, customers.city;
+create view tmpview AS SELECT alias1.order_date AS alias2, customers.city AS alias3 FROM customers  RIGHT JOIN orders AS alias1 ON (((customers.customer_id IS NULL)) AND NOT ((customers.first_name <= alias1.order_amount) AND (customers.first_name > '$124.00'))) WHERE (('Charlottesville' != customers.city) OR ((customers.address IS NULL))) ORDER BY alias1.order_date, customers.city;
+select * from tmpview;
+
+-- Following failed because of wrongly placed closing parenthesis
+select o1.order_id from orders o1 where (o1.order_date <= date'05-23-1784') AND (o1.order_id > 1) AND (o1.customer_id < 9) OR NOT EXISTS (SELECT o1.order_date) OR (o1.customer_id IS NOT NULL) OR (o1.order_amount IS NULL) OR (o1.customer_id IS NOT NULL) OR (o1.order_id = 1) order by o1.order_id;
+OCTO> drop table if exists orders keepdata;
+DROP TABLE
+OCTO> create table orders (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders" READONLY;
+CREATE TABLE
+OCTO> set datestyle="mdy";
+OCTO> SELECT o1.order_id, o2.order_id, o1.order_date FROM orders o1 INNER JOIN orders o2 ON (o1.order_id < o2.order_id) order by o1.order_id, o2.order_id;
+order_id|order_id|order_date
+1|2|1776-07-04
+1|3|1776-07-04
+1|4|1776-07-04
+1|5|1776-07-04
+1|6|1776-07-04
+2|3|1760-03-14
+2|4|1760-03-14
+2|5|1760-03-14
+2|6|1760-03-14
+3|4|1784-05-23
+3|5|1784-05-23
+3|6|1784-05-23
+4|5|1790-09-03
+4|6|1790-09-03
+5|6|1795-07-21
+(15 rows)
+OCTO> SELECT o1.order_id, o2.order_id, o1.order_date FROM orders o1 INNER JOIN orders o2 ON (o1.order_id < o2.order_id) WHERE o1.order_date <= DATE '07-04-1776' order by o1.order_id, o2.order_id;
+order_id|order_id|order_date
+1|2|1776-07-04
+1|3|1776-07-04
+1|4|1776-07-04
+1|5|1776-07-04
+1|6|1776-07-04
+2|3|1760-03-14
+2|4|1760-03-14
+2|5|1760-03-14
+2|6|1760-03-14
+(9 rows)
+OCTO> SELECT o1.order_id, o2.order_id, o1.order_date FROM orders o1 INNER JOIN orders o2 ON (o1.order_id < o2.order_id) WHERE o1.order_date >= DATE '07-21-1795' order by o1.order_id, o2.order_id;
+order_id|order_id|order_date
+5|6|1795-07-21
+(1 row)
+OCTO> SELECT alias1.order_date AS alias2, customers.city AS alias3 FROM customers  RIGHT JOIN orders AS alias1 ON (((customers.customer_id IS NULL)) AND NOT ((customers.first_name <= alias1.order_amount) AND (customers.first_name > '$124.00'))) WHERE (('Charlottesville' != customers.city) OR ((customers.address IS NULL))) ORDER BY alias1.order_date, customers.city;
+alias2|alias3
+1760-03-14|
+1776-07-04|
+1784-05-23|
+1787-11-27|
+1790-09-03|
+1795-07-21|
+(6 rows)
+OCTO> create view tmpview AS SELECT alias1.order_date AS alias2, customers.city AS alias3 FROM customers  RIGHT JOIN orders AS alias1 ON (((customers.customer_id IS NULL)) AND NOT ((customers.first_name <= alias1.order_amount) AND (customers.first_name > '$124.00'))) WHERE (('Charlottesville' != customers.city) OR ((customers.address IS NULL))) ORDER BY alias1.order_date, customers.city;
+CREATE VIEW
+OCTO> select * from tmpview;
+alias2|alias3
+1760-03-14|
+1776-07-04|
+1784-05-23|
+1787-11-27|
+1790-09-03|
+1795-07-21|
+(6 rows)
+OCTO> select o1.order_id from orders o1 where (o1.order_date <= date'05-23-1784') AND (o1.order_id > 1) AND (o1.customer_id < 9) OR NOT EXISTS (SELECT o1.order_date) OR (o1.customer_id IS NOT NULL) OR (o1.order_amount IS NULL) OR (o1.customer_id IS NOT NULL) OR (o1.order_id = 1) order by o1.order_id;
+order_id
+1
+2
+3
+4
+5
+6
+(6 rows)
+OCTO> 

@@ -1,0 +1,38 @@
+
+select date(zut) '12265494700000000';
+select timestamp(zut) '12265494700000000';
+select date(zhorolog) '189078,,,';
+select date(zhorolog) '189078,,,' = date(zut) '12265494700000000'; -- TRUE
+select date_to_zhorolog(date(zut) '12265494700000000');
+select date_to_zut(date(zhorolog) '189078,,,');
+select date_to_zut(date(zut)'12265494700000000');
+OCTO> select date(zut) '12265494700000000';
+???
+2358-09-05
+(1 row)
+OCTO> select timestamp(zut) '12265494700000000';
+???
+2358-09-05 17:51:40
+(1 row)
+OCTO> select date(zhorolog) '189078,,,';
+???
+2358-09-05
+(1 row)
+OCTO> select date(zhorolog) '189078,,,' = date(zut) '12265494700000000';
+???
+1
+(1 row)
+OCTO> -- TRUE
+select date_to_zhorolog(date(zut) '12265494700000000');
+date_to_zhorolog
+189078,,,
+(1 row)
+OCTO> select date_to_zut(date(zhorolog) '189078,,,');
+date_to_zut
+12265430400000000
+(1 row)
+OCTO> select date_to_zut(date(zut)'12265494700000000');
+date_to_zut
+12265430400000000
+(1 row)
+OCTO> 

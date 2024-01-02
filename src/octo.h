@@ -29,6 +29,7 @@
 #include "config.h"
 #include "constants.h"
 #include "memory_chunk.h"
+#include "pg_defaults.h" /* Only used for DEFAULT_DATESTYLE */
 
 #include "mmrhash.h"
 
@@ -135,6 +136,30 @@
 
 #define ZERO_OUTPUT_KEY_ID 0
 
+// Sql Standard format
+#define DEFAULT_DATE_FORMAT		    "%m-%d-%Y"
+#define DEFAULT_TIME_FORMAT		    "%H:%M:%S"
+#define DEFAULT_TIMETZ_FORMAT		    "%H:%M:%S%z"
+#define DEFAULT_TIMESTAMP_FORMAT	    "%m-%d-%Y %H:%M:%S"
+#define POSTGRES_DATE_FORMAT		    "%Y-%m-%d"
+#define POSTGRES_TIME_FORMAT		    DEFAULT_TIME_FORMAT
+#define POSTGRES_TIMETZ_FORMAT		    DEFAULT_TIMETZ_FORMAT
+#define POSTGRES_TIMESTAMP_FORMAT	    "%Y-%m-%d %H:%M:%S"
+#define POSTGRES_TIMESTAMPTZ_FORMAT	    "%Y-%m-%d %H:%M:%S%z"
+#define MYSQL_DATE_FORMAT		    "%Y-%m-%d"
+#define MYSQL_TIME_FORMAT		    DEFAULT_TIME_FORMAT
+#define MYSQL_TIMESTAMP_FORMAT		    "%Y-%m-%d %H:%M:%S"
+#define DEFAULT_OUTPUT_DATE_FORMAT	    "%Y-%m-%d"
+#define DEFAULT_OUTPUT_TIME_FORMAT	    DEFAULT_TIME_FORMAT
+#define DEFAULT_OUTPUT_TIMETZ_FORMAT	    DEFAULT_TIMETZ_FORMAT
+#define DEFAULT_OUTPUT_TIMESTAMP_FORMAT	    "%Y-%m-%d %H:%M:%S"
+#define DEFAULT_OUTPUT_TIMESTAMPTZ_FORMAT   "%Y-%m-%d %H:%M:%S%z"
+#define OCTO_DEFAULT_MYSQL_DATESTYLE	    "ISO, YMD"
+#define OCTO_DEFAULT_POSTGRES_DATESTYLE	    DEFAULT_DATESTYLE
+#define MAX_DATE_TIME_INTERNAL_FORMAT_VALUE 253402300799999999
+#define MIN_DATE_TIME_INTERNAL_FORMAT_VALUE -62167219200999999
+#define DATE_TIME_ERROR_RETURN		    MAX_DATE_TIME_INTERNAL_FORMAT_VALUE + 1
+
 /* Define various string literals used as gvn/lvn subscripts and/or in physical plans (generated M code).
  * Each macro is prefixed with a OCTOLIT_.
  * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
@@ -145,84 +170,90 @@
 #define OCTOLIT_XREF_STATUS "xref_status"  /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
 #define OCTO_LEFT_JOIN_LIT  "octoLeftJoin" /* keep this in sync with PP_OCTO_LEFT_JOIN in "template_helpers.h" */
 
-#define OCTOLIT_0		       "0"
-#define OCTOLIT_ALL		       "all"
-#define OCTOLIT_BINARY		       "binary"
-#define OCTOLIT_BINFMT		       "binfmt"
-#define OCTOLIT_BOUND		       "bound"
-#define OCTOLIT_CHECK		       "check"
-#define OCTOLIT_CHUNK		       "chunk"
-#define OCTOLIT_COLUMN		       "column"
-#define OCTOLIT_COLUMNS		       "columns"
-#define OCTOLIT_COLUMN_ID	       "column_id"
-#define OCTOLIT_CONSTRAINT	       "constraint"
-#define OCTOLIT_CHECK_CONSTRAINT       "check_constraint"
-#define OCTOLIT_EXTRACTFUNCTION	       "extractfunction"
-#define OCTOLIT_DATA_TYPE	       "data_type"
-#define OCTOLIT_DATA_TYPE_SIZE	       "data_type_size"
-#define OCTOLIT_DDL		       "ddl"
-#define OCTOLIT_FILES		       "files"
-#define OCTOLIT_FROMVIEW	       "fromview"
-#define OCTOLIT_FUNCTIONVIEWDEPENDENCY "functionviewdependency"
-#define OCTOLIT_FUNCTIONS	       "functions"
-#define OCTOLIT_FUNCTIONS_MAP	       "functions_map"
-#define OCTOLIT_FORMAT_CODE	       "format_code"
-#define OCTOLIT_IDENTITY	       "identity"
-#define OCTOLIT_KEY		       "key"
-#define OCTOLIT_PKEY		       "pkey"
-#define OCTOLIT_LENGTH		       "length"
-#define OCTOLIT_TEXT_LENGTH	       "text_length"
-#define OCTOLIT_MYSQL		       "MySQL"
-#define OCTOLIT_NAME		       "name"
-#define OCTOLIT_NONE		       "none"
-#define OCTOLIT_OID		       "oid"
-#define OCTOLIT_OCTOONEROWTABLE	       "octoonerowtable"
-#define OCTOLIT_OUTPUT_COLUMNS	       "output_columns"
-#define OCTOLIT_OUTPUT_KEY	       "output_key"
-#define OCTOLIT_PERMISSIONS	       "permissions"
-#define OCTOLIT_PG_ATTRIBUTE	       "pg_attribute"
-#define OCTOLIT_PG_CATALOG	       "pg_catalog"
-#define OCTOLIT_PG_CLASS	       "pg_class"
-#define OCTOLIT_PG_SETTINGS	       "pg_settings"
-#define OCTOLIT_PLANDIRS	       "plandirs"
-#define OCTOLIT_PLANFMT		       "planfmt"
-#define OCTOLIT_PLAN_METADATA	       "plan_metadata"
-#define OCTOLIT_POSTGRESQL	       "PostgreSQL"
-#define OCTOLIT_PREPARED	       "prepared"
-#define OCTOLIT_PRIMARY_KEY_NAME       "primary_key_name"
-#define OCTOLIT_READ_ONLY	       "read-only"
-#define OCTOLIT_ROUTINE		       "routine"
-#define OCTOLIT_SEEDDFNFMT	       "seeddfnfmt"
-#define OCTOLIT_SETTINGS	       "settings"
-#define OCTOLIT_T		       "t"
-#define OCTOLIT_TABLEPLANS	       "tableplans"
-#define OCTOLIT_TABLEVIEWDEPENDENCY    "tableviewdependency"
-#define OCTOLIT_TABLES		       "tables"
-#define OCTOLIT_TABLE		       "TABLE"
-#define OCTOLIT_TABLE_ID	       "table_id"
-#define OCTOLIT_TABLECONSTRAINT	       "tableconstraint"
-#define OCTOLIT_TAG		       "tag"
-#define OCTOLIT_TEXT		       "text"
-#define OCTOLIT_TIMESTAMP	       "timestamp"
-#define OCTOLIT_TYPE_MODIFIER	       "type_modifier"
-#define OCTOLIT_USER		       "user"
-#define OCTOLIT_USERS		       "users"
-#define OCTOLIT_VALUE		       "value"
-#define OCTOLIT_VALUES		       "values"
-#define OCTOLIT_VARIABLE	       "variable"
-#define OCTOLIT_VIEWS		       "views"
-#define OCTOLIT_VIEW		       "VIEW"
-#define OCTOLIT_VIEWPLANS	       "viewplans"
-#define OCTOLIT_VIEWDEPENDENCY	       "viewdependency"
-#define OCTOLIT_YDBOCTO		       "^%ydbocto"
-#define OCTOLIT_YDBOCTOCANCEL	       "%ydboctoCancel"
-#define OCTOLIT_YDBOCTOCANCELLOCALXF   "localTableXref"
-#define OCTOLIT_YDBOCTOSECRETKEYLIST   "%ydboctoSecretKeyList"
-#define OCTOLIT_YDBOCTOTBLCONSTRAINT   "%ydboctoTblConstraint"
-#define OCTOLIT_YDBOCTOSCHEMA	       "^%ydboctoschema"
-#define OCTOLIT_YDBOCTOTBLEXTRACT      "%ydboctoTblExtract"
-#define OCTOLIT_YDBOCTOVIEWSORTEDNAMES "%viewssortednames"
-#define OCTOLIT_YDBOCTOVIEWCREATED     "%ydboctoviewcreated"
+#define OCTOLIT_0			    "0"
+#define OCTOLIT_ALL			    "all"
+#define OCTOLIT_BINARY			    "binary"
+#define OCTOLIT_BINFMT			    "binfmt"
+#define OCTOLIT_BOUND			    "bound"
+#define OCTOLIT_CHECK			    "check"
+#define OCTOLIT_CHUNK			    "chunk"
+#define OCTOLIT_COLUMN			    "column"
+#define OCTOLIT_COLUMNS			    "columns"
+#define OCTOLIT_COLUMN_ID		    "column_id"
+#define OCTOLIT_CONSTRAINT		    "constraint"
+#define OCTOLIT_CHECK_CONSTRAINT	    "check_constraint"
+#define OCTOLIT_EXTRACTFUNCTION		    "extractfunction"
+#define OCTOLIT_DATA_TYPE		    "data_type"
+#define OCTOLIT_DATA_TYPE_SIZE		    "data_type_size"
+#define OCTOLIT_DDL			    "ddl"
+#define OCTOLIT_FILES			    "files"
+#define OCTOLIT_FROMVIEW		    "fromview"
+#define OCTOLIT_FUNCTIONVIEWDEPENDENCY	    "functionviewdependency"
+#define OCTOLIT_FUNCTIONS		    "functions"
+#define OCTOLIT_FUNCTIONS_MAP		    "functions_map"
+#define OCTOLIT_FORMAT_CODE		    "format_code"
+#define OCTOLIT_IDENTITY		    "identity"
+#define OCTOLIT_KEY			    "key"
+#define OCTOLIT_PKEY			    "pkey"
+#define OCTOLIT_LENGTH			    "length"
+#define OCTOLIT_TEXT_LENGTH		    "text_length"
+#define OCTOLIT_MYSQL			    "MySQL"
+#define OCTOLIT_NAME			    "name"
+#define OCTOLIT_NONE			    "none"
+#define OCTOLIT_OID			    "oid"
+#define OCTOLIT_OCTOONEROWTABLE		    "octoonerowtable"
+#define OCTOLIT_OUTPUT_COLUMNS		    "output_columns"
+#define OCTOLIT_OUTPUT_KEY		    "output_key"
+#define OCTOLIT_PERMISSIONS		    "permissions"
+#define OCTOLIT_PG_ATTRIBUTE		    "pg_attribute"
+#define OCTOLIT_PG_CATALOG		    "pg_catalog"
+#define OCTOLIT_PG_CLASS		    "pg_class"
+#define OCTOLIT_PG_SETTINGS		    "pg_settings"
+#define OCTOLIT_PLANDIRS		    "plandirs"
+#define OCTOLIT_PLANFMT			    "planfmt"
+#define OCTOLIT_PLAN_METADATA		    "plan_metadata"
+#define OCTOLIT_POSTGRESQL		    "PostgreSQL"
+#define OCTOLIT_PREPARED		    "prepared"
+#define OCTOLIT_PRIMARY_KEY_NAME	    "primary_key_name"
+#define OCTOLIT_READ_ONLY		    "read-only"
+#define OCTOLIT_ROUTINE			    "routine"
+#define OCTOLIT_SEEDDFNFMT		    "seeddfnfmt"
+#define OCTOLIT_SETTINGS		    "settings"
+#define OCTOLIT_T			    "t"
+#define OCTOLIT_TABLEPLANS		    "tableplans"
+#define OCTOLIT_TABLEVIEWDEPENDENCY	    "tableviewdependency"
+#define OCTOLIT_TABLES			    "tables"
+#define OCTOLIT_TABLE			    "TABLE"
+#define OCTOLIT_TABLE_ID		    "table_id"
+#define OCTOLIT_TABLECONSTRAINT		    "tableconstraint"
+#define OCTOLIT_TAG			    "tag"
+#define OCTOLIT_TEXT			    "text"
+#define OCTOLIT_TIMESTAMP		    "timestamp"
+#define OCTOLIT_TYPE_MODIFIER		    "type_modifier"
+#define OCTOLIT_USER			    "user"
+#define OCTOLIT_USERS			    "users"
+#define OCTOLIT_VALUE			    "value"
+#define OCTOLIT_VALUES			    "values"
+#define OCTOLIT_VARIABLE		    "variable"
+#define OCTOLIT_VIEWS			    "views"
+#define OCTOLIT_VIEW			    "VIEW"
+#define OCTOLIT_VIEWPLANS		    "viewplans"
+#define OCTOLIT_VIEWDEPENDENCY		    "viewdependency"
+#define OCTOLIT_YDBOCTO			    "^%ydbocto"
+#define OCTOLIT_YDBOCTOCANCEL		    "%ydboctoCancel"
+#define OCTOLIT_YDBOCTOCANCELLOCALXF	    "localTableXref"
+#define OCTOLIT_YDBOCTOSECRETKEYLIST	    "%ydboctoSecretKeyList"
+#define OCTOLIT_YDBOCTOTBLCONSTRAINT	    "%ydboctoTblConstraint"
+#define OCTOLIT_YDBOCTOSCHEMA		    "^%ydboctoschema"
+#define OCTOLIT_YDBOCTOTBLEXTRACT	    "%ydboctoTblExtract"
+#define OCTOLIT_YDBOCTOVIEWSORTEDNAMES	    "%viewssortednames"
+#define OCTOLIT_YDBOCTOVIEWCREATED	    "%ydboctoviewcreated"
+#define OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT "%ydboctodatetimeoutputformat"
+#define OCTOLIT_DATE_TIME_HOROLOG	    "horolog"
+#define OCTOLIT_DATE_TIME_ZHOROLOG	    "zhorolog"
+#define OCTOLIT_DATE_TIME_ZUT		    "zut"
+#define OCTOLIT_DATE_TIME_FILEMAN	    "fileman"
+#define OCTOLIT_DATE_TIME_TEXT		    "text"
 
 #define OCTOLIT_YDBOCTOVIEWDEPENDENCY "%ydboctoViewDependency"
 #define OCTOLIT_AIM_OCTO_CACHE	      "^%ydbAIMOctoCache"
@@ -353,7 +384,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 19
+#define FMT_BINARY_DEFINITION 20
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -366,7 +397,7 @@
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
  */
-#define FMT_SEED_DEFINITION 7
+#define FMT_SEED_DEFINITION 8
 
 #define FMT_SEED_DEFINITION_OCTO929                                                 \
 	7 /* The value of FMT_SEED_DEFINITION when YDBOcto#929 changes were merged. \
@@ -632,7 +663,7 @@ typedef enum DDLDependencyType {
 /* Below macro assumes VALUE_STMT->type is value_STATEMENT */
 #define IS_LITERAL_PARAMETER(VALUE_TYPE)                                                                     \
 	((NUMERIC_LITERAL == VALUE_TYPE) || (INTEGER_LITERAL == VALUE_TYPE) || (BOOLEAN_VALUE == VALUE_TYPE) \
-	 || (STRING_LITERAL == VALUE_TYPE))
+	 || (STRING_LITERAL == VALUE_TYPE) || (IS_DATE_TIME_TYPE(VALUE_TYPE)))
 
 #define IS_NULL_FIXED_VALUE(FIX_VALUE) \
 	((NULL != FIX_VALUE) && (LP_VALUE == FIX_VALUE->type) && (IS_NULL_LITERAL == FIX_VALUE->v.lp_value.value->type))
@@ -645,6 +676,15 @@ typedef enum DDLDependencyType {
  */
 #define IS_BOOLEAN_TYPE(TYPE) ((BOOLEAN_VALUE == TYPE) || (BOOLEAN_OR_STRING_LITERAL == TYPE) || IS_NUL_VALUE(TYPE))
 #define IS_STRING_TYPE(TYPE)  ((STRING_LITERAL == TYPE) || (BOOLEAN_OR_STRING_LITERAL == TYPE) || IS_NUL_VALUE(TYPE))
+#define IS_DATE_TIME_TYPE(TYPE)                                                                                                   \
+	((DATE_LITERAL == TYPE) || (TIME_LITERAL == TYPE) || (TIME_WITH_TIME_ZONE_LITERAL == TYPE) || (TIMESTAMP_LITERAL == TYPE) \
+	 || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE))
+#define IS_DATE_TIME_DATA_TYPE(TYPE)                                                                                  \
+	((DATE_TYPE == TYPE) || (TIME_TYPE == TYPE) || (TIME_WITH_TIME_ZONE_TYPE == TYPE) || (TIMESTAMP_TYPE == TYPE) \
+	 || (TIMESTAMP_WITH_TIME_ZONE_TYPE == TYPE))
+#define IS_DATE(TYPE)	   (DATE_LITERAL == TYPE)
+#define IS_TIME(TYPE)	   ((TIME_LITERAL == TYPE) || (TIME_WITH_TIME_ZONE_LITERAL == TYPE))
+#define IS_TIMESTAMP(TYPE) ((TIMESTAMP_LITERAL == TYPE) || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE))
 
 // Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char [])
 #define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \
@@ -944,7 +984,7 @@ typedef enum DDLDependencyType {
 #define DEBUG_ONLY(X)
 #endif
 
-#define MAX_TYPE_NAME_LEN 16 /* maximum length of a type name displayed to the user */
+#define MAX_TYPE_NAME_LEN 25 /* Maximum length of a type name displayed to the user. Currently its TIMESTAMP WITH TIME ZONE. */
 
 #define INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(BUFFER, BUFFER_SIZE, BUFF_PTR, ...)                            \
 	{                                                                                                          \
@@ -1161,6 +1201,154 @@ typedef enum DDLDependencyType {
 
 #define STRTOL_VALUE_OUT_OF_RANGE(VALUE) (((LONG_MIN == VALUE) || (LONG_MAX == VALUE)) && (ERANGE == errno))
 
+#define DATE_TIME_FORMAT_STRING(FORMAT, RET)      \
+	{                                         \
+		switch (FORMAT) {                 \
+		case OPTIONAL_DATE_TIME_TEXT:     \
+			RET = "TEXT";             \
+			break;                    \
+		case OPTIONAL_DATE_TIME_ZUT:      \
+			RET = "ZUT";              \
+			break;                    \
+		case OPTIONAL_DATE_TIME_ZHOROLOG: \
+			RET = "ZHOROLOG";         \
+			break;                    \
+		case OPTIONAL_DATE_TIME_HOROLOG:  \
+			RET = "HOROLOG";          \
+			break;                    \
+		case OPTIONAL_DATE_TIME_FILEMAN:  \
+			RET = "FILEMAN";          \
+			break;                    \
+		default:                          \
+			assert(FALSE);            \
+			RET = "";                 \
+			break;                    \
+		}                                 \
+	}
+
+#define GET_DATE_TIME_FORMAT_STRING_FROM_KEYWORD_TYPE(type, ret)                            \
+	{                                                                                   \
+		if (OPTIONAL_DATE_TIME_HOROLOG == type) {                                   \
+			ret = OCTOLIT_DATE_TIME_HOROLOG;                                    \
+		} else if (OPTIONAL_DATE_TIME_ZHOROLOG == type) {                           \
+			ret = OCTOLIT_DATE_TIME_ZHOROLOG;                                   \
+		} else if (OPTIONAL_DATE_TIME_FILEMAN == type) {                            \
+			ret = OCTOLIT_DATE_TIME_FILEMAN;                                    \
+		} else if (OPTIONAL_DATE_TIME_ZUT == type) {                                \
+			ret = OCTOLIT_DATE_TIME_ZUT;                                        \
+		} else if (OPTIONAL_DATE_TIME_TEXT == type) {                               \
+			ret = OCTOLIT_DATE_TIME_TEXT;                                       \
+		} else {                                                                    \
+			assert(FALSE);                                                      \
+			ret = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
+		}                                                                           \
+	}
+
+#define GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(TYPE, RET)                            \
+	{                                                                                   \
+		if (DATE_LITERAL == TYPE) {                                                 \
+			RET = config->date_format;                                          \
+		} else if (TIME_LITERAL == TYPE) {                                          \
+			RET = DEFAULT_TIME_FORMAT;                                          \
+		} else if (TIMESTAMP_LITERAL == TYPE) {                                     \
+			RET = config->timestamp_format;                                     \
+		} else if (TIME_WITH_TIME_ZONE_LITERAL == TYPE) {                           \
+			RET = DEFAULT_TIMETZ_FORMAT;                                        \
+		} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE) {                      \
+			RET = config->timestamptz_format;                                   \
+		} else {                                                                    \
+			assert(FALSE);                                                      \
+			RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
+		}                                                                           \
+	}
+#define GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(TYPE, RET)                           \
+	{                                                                                   \
+		if (DATE_LITERAL == TYPE) {                                                 \
+			RET = DEFAULT_OUTPUT_DATE_FORMAT;                                   \
+		} else if (TIME_LITERAL == TYPE) {                                          \
+			RET = DEFAULT_OUTPUT_TIME_FORMAT;                                   \
+		} else if (TIMESTAMP_LITERAL == TYPE) {                                     \
+			RET = DEFAULT_OUTPUT_TIMESTAMP_FORMAT;                              \
+		} else if (TIME_WITH_TIME_ZONE_LITERAL == TYPE) {                           \
+			RET = DEFAULT_OUTPUT_TIMETZ_FORMAT;                                 \
+		} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE) {                      \
+			RET = DEFAULT_OUTPUT_TIMESTAMPTZ_FORMAT;                            \
+		} else {                                                                    \
+			assert(FALSE);                                                      \
+			RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
+		}                                                                           \
+	}
+#define GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(TYPE, RET)                          \
+	{                                                                                           \
+		if (POSTGRES == config->database_emulation) {                                       \
+			if (DATE_LITERAL == TYPE) {                                                 \
+				RET = POSTGRES_DATE_FORMAT;                                         \
+			} else if (TIME_LITERAL == TYPE) {                                          \
+				RET = POSTGRES_TIME_FORMAT;                                         \
+			} else if (TIMESTAMP_LITERAL == TYPE) {                                     \
+				RET = POSTGRES_TIMESTAMP_FORMAT;                                    \
+			} else if (TIME_WITH_TIME_ZONE_LITERAL == TYPE) {                           \
+				RET = POSTGRES_TIMETZ_FORMAT;                                       \
+			} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE) {                      \
+				RET = POSTGRES_TIMESTAMPTZ_FORMAT;                                  \
+			} else {                                                                    \
+				assert(FALSE);                                                      \
+				RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
+			}                                                                           \
+		} else {                                                                            \
+			assert(MYSQL == config->database_emulation);                                \
+			if (DATE_LITERAL == TYPE) {                                                 \
+				RET = MYSQL_DATE_FORMAT;                                            \
+			} else if (TIME_LITERAL == TYPE) {                                          \
+				RET = MYSQL_TIME_FORMAT;                                            \
+			} else if (TIMESTAMP_LITERAL == TYPE) {                                     \
+				RET = MYSQL_TIMESTAMP_FORMAT;                                       \
+			} else if (TIME_WITH_TIME_ZONE_LITERAL == TYPE) {                           \
+				RET = MYSQL_TIME_FORMAT;                                            \
+			} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE) {                      \
+				RET = MYSQL_TIMESTAMP_FORMAT;                                       \
+			} else {                                                                    \
+				assert(FALSE);                                                      \
+				RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
+			}                                                                           \
+		}                                                                                   \
+	}
+
+#define SET_INTERNAL_FORMAT_FOR_DATA_TYPE(DATA_TYPE, INTERNAL_FORMAT) \
+	{ (DATA_TYPE)->v.data_type_struct.format = (INTERNAL_FORMAT)->v.keyword->keyword; }
+
+/* Following macro updates STMT to be a COERCE_TYPE statement and the
+ * original contents are placed as the coerce_target. coerced_type is set to DATE_TIME_TYPE.
+ * This macro is used by check_column_lists_for_type_match and ensure_same_type to cast
+ * literals and columns to DATE_TIME_TYPE from OTHER_TYPE.
+ */
+#define ADD_DATE_TIME_TIMESTAMP_CAST_STMT(STMT, DATE_TIME_TYPE, OTHER_TYPE)                      \
+	{                                                                                        \
+		SqlStatement *stmt = (STMT);                                                     \
+		SqlValueType  type = (DATE_TIME_TYPE);                                           \
+                                                                                                 \
+		SqlStatement *ret2;                                                              \
+		SQL_STATEMENT(ret2, stmt->type);                                                 \
+		*ret2 = *stmt;                                                                   \
+                                                                                                 \
+		SqlValue *value;                                                                 \
+                                                                                                 \
+		MALLOC_STATEMENT(stmt, value, SqlValue);                                         \
+		stmt->type = value_STATEMENT;                                                    \
+		UNPACK_SQL_STATEMENT(value, stmt, value);                                        \
+		value->type = COERCE_TYPE;                                                       \
+		SqlStatement *dt_type;                                                           \
+		SQL_STATEMENT(dt_type, data_type_struct_STATEMENT);                              \
+		dt_type->v.data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type); \
+		dt_type->v.data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;   \
+		dt_type->v.data_type_struct.size_or_precision_parameter_index = 0;               \
+		dt_type->v.data_type_struct.scale = SCALE_UNSPECIFIED;                           \
+		dt_type->v.data_type_struct.scale_parameter_index = 0;                           \
+		value->u.coerce_type.coerced_type = dt_type->v.data_type_struct;                 \
+		value->u.coerce_type.pre_coerced_type = (OTHER_TYPE);                            \
+		value->v.coerce_target = ret2;                                                   \
+	}
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 
@@ -1282,25 +1470,26 @@ boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 void	      compress_statement(SqlStatement *stmt, char **out, int *out_length, boolean_t is_view_processing);
 SqlStatement *decompress_statement(char *buffer, int out_length);
 
-int  store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
-int  store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
-			       boolean_t is_text);
-int  store_function_dependencies(char *table_name, DDLDependencyType dtype);
-int  store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer_t *name_buffer);
-int  store_view_dependencies(char *view_name, ydb_buffer_t *view_name_buffer);
-int  store_table_dependencies(SqlTable *table, char *table_name, ydb_buffer_t *table_name_buffer);
-int  delete_table_or_view_from_pg_class(ydb_buffer_t *table_name_buffer);
-void cleanup_tables(void);
-int  store_function_in_pg_proc(SqlFunction *function, char *function_hash);
-int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
-int  regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
-int  store_plandirs_gvn(char *plan_filename);
+int   store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
+int   store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
+				boolean_t is_text);
+int   store_function_dependencies(char *table_name, DDLDependencyType dtype);
+int   store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer_t *name_buffer);
+int   store_view_dependencies(char *view_name, ydb_buffer_t *view_name_buffer);
+int   store_table_dependencies(SqlTable *table, char *table_name, ydb_buffer_t *table_name_buffer);
+int   delete_table_or_view_from_pg_class(ydb_buffer_t *table_name_buffer);
+void  cleanup_tables(void);
+int   store_function_in_pg_proc(SqlFunction *function, char *function_hash);
+int   delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
+int   regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
+int   store_plandirs_gvn(char *plan_filename);
+char *get_date_time_format_string(enum OptionalKeyword keyword);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression,
 				 YYLTYPE *loc);
-SqlStatement *alloc_no_keyword(void);
+SqlStatement *alloc_keyword_of_type(OptionalKeyword keyword_type);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
 SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp);
@@ -1346,6 +1535,9 @@ int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlVal
 					      ParseContext *parse_context);
 int  validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key);
 int  validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table);
+int  validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, OptionalKeyword internal_format, char *text_format,
+			      boolean_t is_parser_call);
+int  set_date_time_format_from_datestyle(char *date_style_value);
 
 boolean_t table_has_hidden_column(SqlTable *table);
 

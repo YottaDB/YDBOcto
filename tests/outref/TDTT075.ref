@@ -1,0 +1,31 @@
+
+create table test (id integer primary key, dob date(zut)) global "^test(keys(""id""))";
+select * from test; -- 1|1088-10-03
+select date_to_fileman(dob) from test; -- ERR_INVALID_DATE_TIME_VALUE
+OCTO> create table test (id integer primary key, dob date(zut)) global "^test(keys(""id""))";
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+1|1088-10-03
+(1 row)
+OCTO> -- 1|1088-10-03
+select date_to_fileman(dob) from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+OCTO> -- ERR_INVALID_DATE_TIME_VALUE
+OCTO> #################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+OCTO> select date_to_fileman(dob) from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+OCTO> 

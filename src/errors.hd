@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -160,6 +160,10 @@ ERROR_DEF(ERR_VIEW_MORE_COLUMN_NAMES, "View specifies more column names than the
 ERROR_DEF(ERR_WRONG_TYPE, "\"%s\" is not a %s", PSQL_Code_Wrong_Object_Type)
 ERROR_DEF(ERR_INVALID_RUNTIME_PARAMETER, "Unrecognized runtime configuration parameter \"%s\"", PSQL_Code_Cant_Change_Runtime_Param)
 ERROR_DEF(ERR_PARM_CANNOT_BE_CHANGED, "Runtime parameter \"%s\" cannot be changed", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_DATE_TIME_VALUE, "\"%s\" is invalid for type %s and format %s", PSQL_Invalid_Datetime_Format)
+ERROR_DEF(ERR_INVALID_DATESTYLE_VALUE, "DATESTYLE value \"%s\" is invalid", PSQL_Code_Invalid_Parameter_Value)
+ERROR_DEF(ERR_FORMAT_NOT_ALLOWED_WITH_CAST, "Date/time format cannot be specified for cast operation", PSQL_Code_Cannot_Coerce)
+ERROR_DEF(ERR_DATE_TIME_RESULT_OUT_OF_RANGE, "Result of operation exceeds date/time allowed range of values", PSQL_Datetime_field_overflow)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)
@@ -307,6 +311,7 @@ ERROR_DEF(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "Bind to unknown query attempted", PS
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS, "%s: invalid number of parameters: expected %d got %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "%s: invalid number of column format codes specified for portal %s: expected %d got %d)", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
+ERROR_DEF(ERR_INVALID_DATE_TIME_TYPE_FORMAT, "The given type and format is invalid", PSQL_Invalid_Datetime_Format)
 
 // End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

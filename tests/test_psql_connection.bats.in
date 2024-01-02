@@ -521,7 +521,6 @@ OCTO
 
 @test "TPC029 : OCTO941 : Rocto accepts --emulate option" {
 	stop_rocto
-	set_ydb_xc_octo
 	for setting in MYSQL POSTGRES; do
 		for optstyle in "--emulate " "-e " "--emulate="; do
 			echo "# Testing [$optstyle$setting]" >> output.txt

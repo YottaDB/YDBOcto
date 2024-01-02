@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,7 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
-	 boolean_t is_asterisk) {
+	 boolean_t is_asterisk, boolean_t needs_date_time_formatting) {
 	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
 	boolean_t	is_insert_into_values;	/* used for optimization in case of INSERT INTO .. VALUES (YDBOcto#910) */
 	int		col_num;
@@ -96,6 +96,11 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			case BOOLEAN_VALUE:
 			case NUMERIC_LITERAL:
 			case INTEGER_LITERAL:
+			case DATE_LITERAL:
+			case TIME_LITERAL:
+			case TIMESTAMP_LITERAL:
+			case TIME_WITH_TIME_ZONE_LITERAL:
+			case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 				/* In case of an integer, force it to be a numeric. Fixes issues like YDBOcto#643. */
 				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 				need_closing_paren = TRUE;
@@ -245,6 +250,29 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		}
 		if (need_closing_paren) {
 			%{}){}%
+		}
+		/* "needs_date_time_formatting" is TRUE if caller is in a context where it wants date/time formatting.
+		 * But we should do this only if "pplan" is the outermost plan (i.e. not a sub-query etc.).
+		 * An easy way to identify this is if "pplan->parent_plan" is NULL.
+		 */
+		if (needs_date_time_formatting && (NULL == pplan->parent_plan)) {
+			LogicalPlan	*tmpPlan;
+			SqlValueType     column_type;
+			if (is_lp_table_value && !is_insert_into_values) {
+				column_type = lp_get_plan_value_type(plan);
+			} else {
+				tmpPlan = plan;
+				GET_LP(tmpPlan, tmpPlan, 0, LP_WHERE);
+				GET_LP(tmpPlan, tmpPlan, 1, LP_COLUMN_LIST_ALIAS);
+				column_type = tmpPlan->v.lp_column_list_alias.column_list_alias->type;
+			}
+			if (IS_DATE_TIME_TYPE(column_type)) {
+				TMPL(tmpl_print_dots, dot_count);
+				const char *datetime_text_format_specifier;
+				GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(column_type, datetime_text_format_specifier);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ column_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 		}
 		if (is_insert_into_values) {
 			/* This is a VALUES clause that directly feeds into an INSERT INTO. In that case, avoid "str2mval"

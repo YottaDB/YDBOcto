@@ -338,6 +338,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		case BOOLEAN_OR_STRING_LITERAL:
 		case NUL_VALUE:
 		case PARAMETER_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			assert(0 == value->group_by_fields.group_by_column_num);
 			break;
 		case FUNCTION_HASH:

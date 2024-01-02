@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,7 +49,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW {{ PP_COL }}{}%
+	%{}NEW {{ PP_COL }},{{ PP_COL_META_DATA }}{}%
 
 	int	num_key_cols_in_set_clause, node_value_fetched;
 	num_key_cols_in_set_clause = 0;
@@ -63,8 +63,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		/* ------------------------------------------------------------------------------------
 		 * First generate M code to store the post-update column value in lvn PP_COL(column_number)
 		 */
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
 		GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
 		GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);
 		cur_column = lp_column->v.lp_column.column;
@@ -73,6 +71,8 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		SqlValue	*colname_value;
 		UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
 		columnName = colname_value->v.reference;
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
 
 		/* Check if the column has size/precision/scale specified. If so, do checks/conversions as appropriate.
@@ -94,6 +94,11 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		case INTEGER_TYPE:
 		case NUL_TYPE:
 		case BOOLEAN_TYPE:
+		case DATE_TYPE:
+		case TIME_TYPE:
+		case TIMESTAMP_TYPE:
+		case TIME_WITH_TIME_ZONE_TYPE:
+		case TIMESTAMP_WITH_TIME_ZONE_TYPE:
 			/* No checks are currently done/deemed-necessary for these types. Will add them as the need arises. */
 			break;
 		default:

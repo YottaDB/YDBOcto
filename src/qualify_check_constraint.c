@@ -151,6 +151,11 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case NUL_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			*type = value->type;
 			/* This is a literal inside a CHECK constraint. All literals inside the constraint
 			 * need to have their parameter index reset to 0 so "tmpl_print_expression.ctemplate"

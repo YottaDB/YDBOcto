@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -32,6 +32,7 @@ teardown() {
 }
 
 @test "TCTC003 : OCTO772 : Test various errors in CONSTRAINTS" {
+	echo "datestyle = \"ymd\"" > octo.conf
 	load_fixture TCTC003.sql subtest novv
 	verify_output TCTC003 output.txt
 }

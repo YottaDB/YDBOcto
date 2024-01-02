@@ -1,0 +1,433 @@
+
+-- type:date format:
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date ) global "^datetimedate" readonly;
+\d test;
+select * from test;
+
+-- type:date format:fileman
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(fileman)) global "^datetimedatefileman" readonly;
+\d test;
+select * from test;
+
+-- type:date format:horolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(horolog)) global "^datetimedatehorolog" readonly;
+\d test;
+select * from test;
+
+-- type:date format:zhorolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(zhorolog)) global "^datetimedatezhorolog" readonly;
+\d test;
+select * from test;
+
+-- type:date format:zut
+drop table if exists test keepdata;
+create table test (id integer primary key, dob date(zut)) global "^datetimedatezut" readonly;
+\d test;
+select * from test;
+
+
+-- type:time format:
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time ) global "^datetimetime" readonly;
+\d test;
+select * from test;
+
+-- type:time format:fileman
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(fileman)) global "^datetimetimefileman" readonly;
+\d test;
+select * from test;
+
+-- type:time format:horolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(horolog)) global "^datetimetimehorolog" readonly;
+\d test;
+select * from test;
+
+-- type:time format:zhorolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(zhorolog)) global "^datetimetimezhorolog" readonly;
+\d test;
+select * from test;
+
+-- type:time format:zut
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time(zut)) global "^datetimetimezut" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp format:
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp ) global "^datetimetimestamp" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp format:fileman
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(fileman)) global "^datetimetimestampfileman" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp format:horolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(horolog)) global "^datetimetimestamphorolog" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp format:zhorolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zhorolog)) global "^datetimetimestampzhorolog" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp format:zut
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zut)) global "^datetimetimestampzut" readonly;
+\d test;
+select * from test;
+
+
+-- type:timestamp with time zone format:
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone ) global "^datetimetimestamptz" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp with time zone format:fileman
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(fileman) with time zone) global "^datetimetimestamptzfileman" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp with time zone format:horolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(horolog) with time zone) global "^datetimetimestamptzhorolog" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp with time zone format:zhorolog
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zhorolog) with time zone) global "^datetimetimestamptzzhorolog" readonly;
+\d test;
+select * from test;
+
+-- type:timestamp with time zone format:zut
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp(zut) with time zone) global "^datetimetimestamptzzut" readonly;
+\d test;
+select * from test;
+
+
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date ) global "^datetimedate" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimedate(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|DATE|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimedate(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(fileman)) global "^datetimedatefileman" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimedatefileman(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|DATE(FILEMAN)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimedatefileman(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(horolog)) global "^datetimedatehorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimedatehorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|DATE(HOROLOG)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimedatehorolog(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(zhorolog)) global "^datetimedatezhorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimedatezhorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|DATE(ZHOROLOG)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimedatezhorolog(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob date(zut)) global "^datetimedatezut" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimedatezut(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|DATE(ZUT)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimedatezut(id)
+OCTO> select * from test;
+id|dob
+0|2023-11-17
+1|2023-11-17
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time ) global "^datetimetime" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetime(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIME|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetime(id)
+OCTO> select * from test;
+id|dob
+0|01:01:01
+1|01:02:01
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 34:1: ...integer primary key, dob time(fileman)) global "^datetimetimefi...
+                                       ^^^^^^^^^^^^^
+OCTO> create table test (id integer primary key, dob time(fileman)) global "^datetimetimefileman" readonly;
+OCTO> \d test;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 36:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time(horolog)) global "^datetimetimehorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimehorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIME(HOROLOG)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimehorolog(id)
+OCTO> select * from test;
+id|dob
+0|01:01:01
+1|01:02:01
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time(zhorolog)) global "^datetimetimezhorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimezhorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIME(ZHOROLOG)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimezhorolog(id)
+OCTO> select * from test;
+id|dob
+0|01:01:01.1
+1|01:02:01.1
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 49:1: ...d integer primary key, dob time(zut)) global "^datetimetimezut"...
+                                         ^^^^^^^^^
+OCTO> create table test (id integer primary key, dob time(zut)) global "^datetimetimezut" readonly;
+OCTO> \d test;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 51:1: select * from test;
+                         ^^^^
+OCTO> select * from test;
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp ) global "^datetimetimestamp" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestamp(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamp(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01
+1|2023-01-02 01:02:01
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(fileman)) global "^datetimetimestampfileman" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestampfileman(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(FILEMAN)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestampfileman(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01
+1|2023-01-02 01:02:01
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(horolog)) global "^datetimetimestamphorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestamphorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(HOROLOG)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamphorolog(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01
+1|2023-01-02 01:02:01
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(zhorolog)) global "^datetimetimestampzhorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestampzhorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(ZHOROLOG)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestampzhorolog(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01.1
+1|2023-01-02 01:02:01.1
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(zut)) global "^datetimetimestampzut" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestampzut(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(ZUT)|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestampzut(id)
+OCTO> select * from test;
+id|dob
+0|2023-11-17 19:54:19.368731
+1|2023-11-17 19:54:19.368731
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp with time zone ) global "^datetimetimestamptz" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestamptz(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP WITH TIME ZONE|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamptz(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01-05
+1|2023-01-01 02:01:01-05
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(fileman) with time zone) global "^datetimetimestamptzfileman" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestamptzfileman(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(FILEMAN) WITH TIME ZONE|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamptzfileman(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01-05
+1|2023-01-02 01:02:01-05
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(horolog) with time zone) global "^datetimetimestamptzhorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestamptzhorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(HOROLOG) WITH TIME ZONE|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamptzhorolog(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01-05
+1|2023-01-02 01:02:01-05
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp(zhorolog) with time zone) global "^datetimetimestamptzzhorolog" readonly;
+CREATE TABLE
+OCTO> \d test;
+Table "test" stored in Global: ^datetimetimestamptzzhorolog(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+dob|TIMESTAMP(ZHOROLOG) WITH TIME ZONE|||
+Indexes:
+    "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamptzzhorolog(id)
+OCTO> select * from test;
+id|dob
+0|2023-01-01 01:01:01.1-05
+1|2023-01-02 01:02:01.1-05
+(2 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
+LINE 100:1: ...primary key, dob timestamp(zut) with time zone) global "^dateti...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> create table test (id integer primary key, dob timestamp(zut) with time zone) global "^datetimetimestamptzzut" readonly;
+OCTO> \d test;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 102:1: select * from test;
+                          ^^^^
+OCTO> select * from test;
+OCTO> 

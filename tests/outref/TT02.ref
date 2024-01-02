@@ -37,12 +37,17 @@ Zero|Cool
 OCTO> select typname from pg_type;
 typname
 bool
+date
 int4
 name
 numeric
+time
+timestamp
+timestamptz
+timetz
 unknown
 varchar
-(6 rows)
+(11 rows)
 OCTO> select first_name, last_name from customers;
 first_name|last_name
 George|Washington
@@ -57,12 +62,17 @@ OCTO> -- ERR_TABLE_READONLY
 select typname from pg_type;
 typname
 bool
+date
 int4
 name
 numeric
+time
+timestamp
+timestamptz
+timetz
 unknown
 varchar
-(6 rows)
+(11 rows)
 OCTO> truncate names, pg_type, customers;
 [ERROR]: ERR_TABLE_READONLY: TRUNCATE not allowed on READONLY table "pg_type". Only allowed on READWRITE tables.
 OCTO> -- ERR_TABLE_READONLY for `pg_type`
@@ -78,12 +88,17 @@ Zero|Cool
 OCTO> select typname from pg_type;
 typname
 bool
+date
 int4
 name
 numeric
+time
+timestamp
+timestamptz
+timetz
 unknown
 varchar
-(6 rows)
+(11 rows)
 OCTO> select first_name, last_name from customers;
 first_name|last_name
 George|Washington

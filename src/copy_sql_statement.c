@@ -113,6 +113,13 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			ret->v.value->v.reference = octo_cmalloc(memory_chunks, len);
 			ret->v.value->v.reference[0] = '\0';
 			break;
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+			ret->v.value->date_time_format_type = value->date_time_format_type; // copy the format information
+											    /* fall through */
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:

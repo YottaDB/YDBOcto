@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -259,6 +259,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_SET_EXCEPT_ALL:
 		break;
 	case LP_ADDITION:
+	case LP_DATE_TIME_ADDITION:
+	case LP_DATE_TIME_SUBTRACTION:
 	case LP_SUBTRACTION:
 	case LP_DIVISION:
 	case LP_MULTIPLICATION:
@@ -398,6 +400,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_ALL_GREATER_THAN)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DATE_TIME_ADDITION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DATE_TIME_SUBTRACTION)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_EXISTS)
@@ -608,6 +612,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 
 boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	return lp_verify_structure_helper(plan, options, LP_WHERE) | lp_verify_structure_helper(plan, options, LP_ADDITION)
+	       | lp_verify_structure_helper(plan, options, LP_DATE_TIME_ADDITION)
+	       | lp_verify_structure_helper(plan, options, LP_DATE_TIME_SUBTRACTION)
 	       | lp_verify_structure_helper(plan, options, LP_SUBTRACTION)
 	       | lp_verify_structure_helper(plan, options, LP_MULTIPLICATION)
 	       | lp_verify_structure_helper(plan, options, LP_DIVISION) | lp_verify_structure_helper(plan, options, LP_MODULO)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -133,7 +133,6 @@ select * from v40;
 create view v41 as select id from names n1 where (select n1.id from names n2 where n2.id > 5) is not null;
 select * from v41;
 
--- GAN_TODO: Copy all of the queries below to TAU002_1.sql
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380390157
 create view v42 as SELECT NULL FROM names GROUP BY firstname HAVING NULL!='hello' ORDER BY 1;
 select * from v42;

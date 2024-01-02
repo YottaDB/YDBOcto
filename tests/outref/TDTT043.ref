@@ -1,0 +1,95 @@
+
+create function samevalue(date(fileman)) returns date as $$samevalue^datetime;
+select samevalue(date(fileman)'3230101'); -- Function is expected to return text format according to the function definition
+
+-- the date/time format will not be part of the hash so the following will error
+create function samevalue(date(horolog)) returns date as $$samevalue^datetime;
+
+OCTO> create function samevalue(date(fileman)) returns date as $$samevalue^datetime;
+CREATE FUNCTION
+OCTO> select samevalue(date(fileman)'3230101');
+samevalue
+2023-01-01
+(1 row)
+OCTO> -- Function is expected to return text format according to the function definition
+
+create function samevalue(date(horolog)) returns date as $$samevalue^datetime;
+[ERROR]: ERR_CANNOT_CREATE_FUNCTION: Function "samevalue(DATE)" already exists with same argument types
+OCTO> 
+# ----------------------------------------------------------------------------
+# Include generated M code in reference file to verify all optimizations there
+# ----------------------------------------------------------------------------
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select samevalue(date(fileman)'3230101');
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr(1,0)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($$samevalue^datetime($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr(1,0),17,34,"%m-%d-%Y")),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+
+drop function samevalue(date); -- Will remove the fileman specific function
+
+
+-- the date/time format will not be part of the hash so the following will error
+create function samevalue(date(horolog)) returns date(fileman) as $$samevalue^datetime;
+select samevalue(date(horolog)'-365'); -- result will be garbage as we did not redefine samevalue
+OCTO> drop function samevalue(date);
+DROP FUNCTION
+OCTO> -- Will remove the fileman specific function
+
+
+create function samevalue(date(horolog)) returns date(fileman) as $$samevalue^datetime;
+CREATE FUNCTION
+OCTO> select samevalue(date(horolog)'-365');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1664-5-" is invalid for type DATE and format FILEMAN
+OCTO> -- result will be garbage as we did not redefine samevalue
+# ----------------------------------------------------------------------------
+# Include generated M code in reference file to verify all optimizations there
+# ----------------------------------------------------------------------------
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select samevalue(date(horolog)'-365');
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr(1,0)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($$samevalue^datetime($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr(1,0),17,32,"%m-%d-%Y")),17)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT

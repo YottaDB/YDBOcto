@@ -296,6 +296,21 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			 */
 			data_type_ptr = "TABLE_ASTERISK";
 			break;
+		case DATE_LITERAL:
+			data_type_ptr = "DATE_LITERAL";
+			break;
+		case TIME_LITERAL:
+			data_type_ptr = "TIME_LITERAL";
+			break;
+		case TIME_WITH_TIME_ZONE_LITERAL:
+			data_type_ptr = "TIME_WITH_TIME_ZONE_LITERAL";
+			break;
+		case TIMESTAMP_LITERAL:
+			data_type_ptr = "TIMESTAMP_LITERAL";
+			break;
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+			data_type_ptr = "TIMESTAMP_WITH_TIME_ZONE_LITERAL";
+			break;
 		default:
 			assert(FALSE);
 			data_type_ptr = "<INVALID>";

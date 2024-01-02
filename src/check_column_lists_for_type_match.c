@@ -16,6 +16,8 @@
 #include "octo_types.h"
 #include "octo_type_check.h"
 
+#define HAS_DATE(VAL) (IS_TIMESTAMP(VAL) || (DATE_LITERAL == (VAL)))
+
 /* Checks 2 column lists for type match and does a few other things depending on input type.
  * Issues error as appropriate if column list's type or number of columns does not match.
  * Currently accepts input "stmt" of type "set_operation_STATEMENT" or "insert_STATEMENT".
@@ -124,13 +126,20 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 		 * "default:" switch/case branch below.
 		 */
 		assert((INTEGER_LITERAL == right_type) || (NUMERIC_LITERAL == right_type) || (STRING_LITERAL == right_type)
-		       || (BOOLEAN_VALUE == right_type) || (BOOLEAN_OR_STRING_LITERAL == right_type) || IS_NUL_VALUE(right_type));
+		       || (BOOLEAN_VALUE == right_type) || (BOOLEAN_OR_STRING_LITERAL == right_type) || IS_NUL_VALUE(right_type)
+		       || (DATE_LITERAL == right_type) || (TIME_LITERAL == right_type)
+		       || (TIME_WITH_TIME_ZONE_LITERAL == right_type) || (TIMESTAMP_LITERAL == right_type)
+		       || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == right_type));
 		/* If not yet found any type mismatch, check for one. If already found one, keep just that.
 		 * In general, all types are compatible with only themselves.
 		 * Exception is that
 		 *	a) NUMERIC and INTEGER are compatible with each other and no other type.
 		 *	b) NULL is compatible with any type.
 		 *	c) BOOLEAN_OR_STRING_LITERAL is compatible with BOOLEAN_VALUE and STRING_LITERAL.
+		 * 	d) STRING_LITERAL is compatible with date/time types if the value is valid so allow it here and validate it
+		 *	   in M code.
+		 * 	e) Different date/time types are compatible based on whether its a set operation or an insert operation.
+		 * 	   Refer to the individual cases below for more info on which ones are valid.
 		 * This code is similar to that in "CAST_AMBIGUOUS_TYPES" macro (in "src/populate_data_type.c").
 		 */
 		if (NULL == type_mismatch_cla[0]) {
@@ -159,6 +168,18 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 					assert(is_set_operation);
 					FIX_TYPE_TO_STRING_LITERAL(cur_cla[1]->type);
 					fixed_type = TRUE;
+				} else if (IS_DATE_TIME_TYPE(right_type)) {
+					is_type_mismatch = FALSE;
+					if (is_set_operation) {
+						// Add a cast operation at cur_cla[0]->column_list->v.column_list->value
+						// ensure_same_type.c has similar checks any change here should also reflect there
+						cur_cla[0]->type = right_type;
+						SqlColumnList *column_list;
+						UNPACK_SQL_STATEMENT(column_list, cur_cla[0]->column_list, column_list);
+						ADD_DATE_TIME_TIMESTAMP_CAST_STMT(column_list->value, right_type, left_type);
+					} /* else this is an insert operation allow it here to prevent the use of date/time prefix
+					   * to literals. The value itself is validated in M code later on.
+					   */
 				}
 				break;
 			case BOOLEAN_OR_STRING_LITERAL:
@@ -187,6 +208,36 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 				break;
 			case NUL_VALUE:
 				is_type_mismatch = FALSE;
+				break;
+			case DATE_LITERAL:
+				// ensure_same_type.c has similar checks any change here should also reflect there
+				is_type_mismatch = HAS_DATE(right_type) ? FALSE : TRUE;
+				break;
+			case TIME_LITERAL:
+				// ensure_same_type.c has similar checks any change here should also reflect there
+				is_type_mismatch
+				    = ((TIME_LITERAL == right_type) || (TIME_WITH_TIME_ZONE_LITERAL == right_type)) ? FALSE : TRUE;
+				break;
+			case TIME_WITH_TIME_ZONE_LITERAL:
+				// ensure_same_type.c has similar checks any change here should also reflect there
+				is_type_mismatch
+				    = ((TIME_LITERAL == right_type) || (TIME_WITH_TIME_ZONE_LITERAL == right_type)) ? FALSE : TRUE;
+				break;
+			case TIMESTAMP_LITERAL:
+				if (is_set_operation) {
+					// ensure_same_type.c has similar checks any change here should also reflect there
+					is_type_mismatch = HAS_DATE(right_type) ? FALSE : TRUE;
+				} else {
+					is_type_mismatch = (HAS_DATE(right_type) || (TIME_LITERAL == right_type)) ? FALSE : TRUE;
+				}
+				break;
+			case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+				if (is_set_operation) {
+					// ensure_same_type.c has similar checks any change here should also reflect there
+					is_type_mismatch = HAS_DATE(right_type) ? FALSE : TRUE;
+				} else {
+					is_type_mismatch = (HAS_DATE(right_type) || (TIME_LITERAL == right_type)) ? FALSE : TRUE;
+				}
 				break;
 			default:
 				assert(FALSE);

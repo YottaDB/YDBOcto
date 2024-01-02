@@ -1,0 +1,93 @@
+
+create table test (id integer primary key, dob date) global "^datetimedate" readonly;
+select * from test;
+
+create table test1 (id integer primary key, dob date) global "^datetimedate(keys(""id""))" readonly;
+select * from test1;
+
+-- create table test2 (id integer, dob date) global "^datetimedate(keys(""id""))" readonly; -- keys need to be added to `id` field when `keys(""id"")` is used
+-- select * from test2;
+
+create table test3 (id integer primary key, dob date global "^datetimedate(keys(""id""))") readonly;
+select * from test3;
+
+-- create table test4 (id integer, dob date global "^datetimedate(keys(""id""))") readonly;-- keys need to be added to `id` field when `keys(""id"")` is used
+--select * from test4;
+
+create table test5 (dob date primary key) global "^datetimedatekey" readonly;
+select * from test5;
+
+create table test6 (dob date primary key) global "^datetimedatekey(keys(""dob""))" readonly;
+select * from test6;
+
+create table test7 (dob date primary key START "01-01-2023" ENDPOINT "01-02-2023",id int) global "^datetimedatekey(keys(""dob""))"; -- This should be considered read-only because of START and ENDPOINT
+select * from test7;
+
+create table test8 (dob date primary key, id integer) global "^datetimedatekey" readonly;
+select * from test8;
+
+create table test9 (id integer primary key, dob date EXTRACT "$GET(^datetimedate(keys(""id"")))") global "^datetimedate"; -- This should be considered read-only because of EXTRACT usage
+select * from test9;
+OCTO> create table test (id integer primary key, dob date) global "^datetimedate" readonly;
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> create table test1 (id integer primary key, dob date) global "^datetimedate(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from test1;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> create table test3 (id integer primary key, dob date global "^datetimedate(keys(""id""))") readonly;
+CREATE TABLE
+OCTO> select * from test3;
+id|dob
+(0 rows)
+OCTO> --select * from test4;
+
+create table test5 (dob date primary key) global "^datetimedatekey" readonly;
+CREATE TABLE
+OCTO> select * from test5;
+dob
+2023-01-01
+2023-01-02
+2023-01-03
+2022-12-31
+(4 rows)
+OCTO> create table test6 (dob date primary key) global "^datetimedatekey(keys(""dob""))" readonly;
+CREATE TABLE
+OCTO> select * from test6;
+dob
+2023-01-01
+2023-01-02
+2023-01-03
+2022-12-31
+(4 rows)
+OCTO> create table test7 (dob date primary key START "01-01-2023" ENDPOINT "01-02-2023",id int) global "^datetimedatekey(keys(""dob""))";
+CREATE TABLE
+OCTO> -- This should be considered read-only because of START and ENDPOINT
+select * from test7;
+dob|id
+(0 rows)
+OCTO> create table test8 (dob date primary key, id integer) global "^datetimedatekey" readonly;
+CREATE TABLE
+OCTO> select * from test8;
+dob|id
+2023-01-01|0
+2023-01-02|1
+2023-01-03|2
+2022-12-31|-1
+(4 rows)
+OCTO> create table test9 (id integer primary key, dob date EXTRACT "$GET(^datetimedate(keys(""id"")))") global "^datetimedate";
+CREATE TABLE
+OCTO> -- This should be considered read-only because of EXTRACT usage
+select * from test9;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> 

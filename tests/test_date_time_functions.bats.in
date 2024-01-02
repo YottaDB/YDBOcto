@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -28,8 +28,6 @@ teardown_file() {
 setup() {
 	init_test
 	createdb
-	# Specify call-out table to allow M to access C date format function
-	set_ydb_xc_octo
 }
 
 teardown() {

@@ -1,0 +1,534 @@
+OCTO> -- type:date format:
+create table TDTT010date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT010date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT010time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT010time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT010timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT010timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT010timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT010timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT010timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT010timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+OCTO> select COUNT(date'01-01-2023');
+count
+1
+(1 row)
+OCTO> select COUNT(DISTINCT date'01-01-2023');
+count
+1
+(1 row)
+OCTO> select COUNT(ALL date'01-01-2023');
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
+LINE 29:1: select SUM(date'01-01-2023');
+                  ^^^
+OCTO> select SUM(date'01-01-2023');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
+LINE 30:1: select SUM(DISTINCT date'01-01-2023');
+                  ^^^
+OCTO> select SUM(DISTINCT date'01-01-2023');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
+LINE 31:1: select SUM(ALL date'01-01-2023');
+                  ^^^
+OCTO> select SUM(ALL date'01-01-2023');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
+LINE 32:1: select AVG(date'01-01-2023');
+                  ^^^
+OCTO> select AVG(date'01-01-2023');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
+LINE 33:1: select AVG(DISTINCT date'01-01-2023');
+                  ^^^
+OCTO> select AVG(DISTINCT date'01-01-2023');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
+LINE 34:1: select AVG(ALL date'01-01-2023');
+                  ^^^
+OCTO> select AVG(ALL date'01-01-2023');
+OCTO> select MIN(date'01-01-2023');
+min
+2023-01-01
+(1 row)
+OCTO> select MIN(DISTINCT date'01-01-2023');
+min
+2023-01-01
+(1 row)
+OCTO> select MIN(ALL date'01-01-2023');
+min
+2023-01-01
+(1 row)
+OCTO> select MAX(date'01-01-2023');
+max
+2023-01-01
+(1 row)
+OCTO> select MAX(DISTINCT date'01-01-2023');
+max
+2023-01-01
+(1 row)
+OCTO> select MAX(ALL date'01-01-2023');
+max
+2023-01-01
+(1 row)
+OCTO> select COUNT(time'01:01:00');
+count
+1
+(1 row)
+OCTO> select COUNT(DISTINCT time'01:01:00');
+count
+1
+(1 row)
+OCTO> select COUNT(ALL time'01:01:00');
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIME
+LINE 44:1: select SUM(time'01:01:00');
+                  ^^^
+OCTO> select SUM(time'01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIME
+LINE 45:1: select SUM(DISTINCT time'01:01:00');
+                  ^^^
+OCTO> select SUM(DISTINCT time'01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIME
+LINE 46:1: select SUM(ALL time'01:01:00');
+                  ^^^
+OCTO> select SUM(ALL time'01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIME
+LINE 47:1: select AVG(time'01:01:00');
+                  ^^^
+OCTO> select AVG(time'01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIME
+LINE 48:1: select AVG(DISTINCT time'01:01:00');
+                  ^^^
+OCTO> select AVG(DISTINCT time'01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIME
+LINE 49:1: select AVG(ALL time'01:01:00');
+                  ^^^
+OCTO> select AVG(ALL time'01:01:00');
+OCTO> select MIN(time'01:01:00');
+min
+01:01:00
+(1 row)
+OCTO> select MIN(DISTINCT time'01:01:00');
+min
+01:01:00
+(1 row)
+OCTO> select MIN(ALL time'01:01:00');
+min
+01:01:00
+(1 row)
+OCTO> select MAX(time'01:01:00');
+max
+01:01:00
+(1 row)
+OCTO> select MAX(DISTINCT time'01:01:00');
+max
+01:01:00
+(1 row)
+OCTO> select MAX(ALL time'01:01:00');
+max
+01:01:00
+(1 row)
+OCTO> select COUNT(timestamp'01-01-2023 01:01:00');
+count
+1
+(1 row)
+OCTO> select COUNT(DISTINCT timestamp'01-01-2023 01:01:00');
+count
+1
+(1 row)
+OCTO> select COUNT(ALL timestamp'01-01-2023 01:01:00');
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
+LINE 59:1: select SUM(timestamp'01-01-2023 01:01:00');
+                  ^^^
+OCTO> select SUM(timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
+LINE 60:1: select SUM(DISTINCT timestamp'01-01-2023 01:01:00');
+                  ^^^
+OCTO> select SUM(DISTINCT timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
+LINE 61:1: select SUM(ALL timestamp'01-01-2023 01:01:00');
+                  ^^^
+OCTO> select SUM(ALL timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
+LINE 62:1: select AVG(timestamp'01-01-2023 01:01:00');
+                  ^^^
+OCTO> select AVG(timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
+LINE 63:1: select AVG(DISTINCT timestamp'01-01-2023 01:01:00');
+                  ^^^
+OCTO> select AVG(DISTINCT timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
+LINE 64:1: select AVG(ALL timestamp'01-01-2023 01:01:00');
+                  ^^^
+OCTO> select AVG(ALL timestamp'01-01-2023 01:01:00');
+OCTO> select MIN(timestamp'01-01-2023 01:01:00');
+min
+2023-01-01 01:01:00
+(1 row)
+OCTO> select MIN(DISTINCT timestamp'01-01-2023 01:01:00');
+min
+2023-01-01 01:01:00
+(1 row)
+OCTO> select MIN(ALL timestamp'01-01-2023 01:01:00');
+min
+2023-01-01 01:01:00
+(1 row)
+OCTO> select MAX(timestamp'01-01-2023 01:01:00');
+max
+2023-01-01 01:01:00
+(1 row)
+OCTO> select MAX(DISTINCT timestamp'01-01-2023 01:01:00');
+max
+2023-01-01 01:01:00
+(1 row)
+OCTO> select MAX(ALL timestamp'01-01-2023 01:01:00');
+max
+2023-01-01 01:01:00
+(1 row)
+OCTO> select COUNT(timestamp with time zone'01-01-2023 01:01:00-05:00');
+count
+1
+(1 row)
+OCTO> select COUNT(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+count
+1
+(1 row)
+OCTO> select COUNT(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 74:1: select SUM(timestamp with time zone'01-01-2023 01:01:00-05:00');
+                  ^^^
+OCTO> select SUM(timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 75:1: select SUM(DISTINCT timestamp with time zone'01-01-2023 01:01:0...
+                  ^^^
+OCTO> select SUM(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 76:1: select SUM(ALL timestamp with time zone'01-01-2023 01:01:00-05:...
+                  ^^^
+OCTO> select SUM(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 77:1: select AVG(timestamp with time zone'01-01-2023 01:01:00-05:00');
+                  ^^^
+OCTO> select AVG(timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 78:1: select AVG(DISTINCT timestamp with time zone'01-01-2023 01:01:0...
+                  ^^^
+OCTO> select AVG(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 79:1: select AVG(ALL timestamp with time zone'01-01-2023 01:01:00-05:...
+                  ^^^
+OCTO> select AVG(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select MIN(timestamp with time zone'01-01-2023 01:01:00-05:00');
+min
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select MIN(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+min
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select MIN(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+min
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select MAX(timestamp with time zone'01-01-2023 01:01:00-05:00');
+max
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select MAX(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+max
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select MAX(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+max
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select COUNT(dob) from TDTT010date n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(*) from TDTT010date n1;
+count(*)
+1
+(1 row)
+OCTO> select COUNT(DISTINCT dob) from TDTT010date n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(ALL dob) from TDTT010date n1 group by n1.id;
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
+LINE 90:1: select SUM(dob) from TDTT010date n1 group by n1.id;
+                  ^^^
+OCTO> select SUM(dob) from TDTT010date n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
+LINE 91:1: select SUM(DISTINCT dob) from TDTT010date n1 group by n1.id;
+                  ^^^
+OCTO> select SUM(DISTINCT dob) from TDTT010date n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
+LINE 92:1: select SUM(ALL dob) from TDTT010date n1 group by n1.id;
+                  ^^^
+OCTO> select SUM(ALL dob) from TDTT010date n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
+LINE 93:1: select AVG(dob) from TDTT010date n1 group by n1.id;
+                  ^^^
+OCTO> select AVG(dob) from TDTT010date n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
+LINE 94:1: select AVG(DISTINCT dob) from TDTT010date n1 group by n1.id;
+                  ^^^
+OCTO> select AVG(DISTINCT dob) from TDTT010date n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
+LINE 95:1: select AVG(ALL dob) from TDTT010date n1 group by n1.id;
+                  ^^^
+OCTO> select AVG(ALL dob) from TDTT010date n1 group by n1.id;
+OCTO> select MIN(dob) from TDTT010date n1 group by n1.id;
+min
+2023-01-01
+(1 row)
+OCTO> select MIN(DISTINCT dob) from TDTT010date n1 group by n1.id;
+min
+2023-01-01
+(1 row)
+OCTO> select MIN(ALL dob) from TDTT010date n1 group by n1.id;
+min
+2023-01-01
+(1 row)
+OCTO> select MAX(dob) from TDTT010date n1 group by n1.id;
+max
+2023-01-01
+(1 row)
+OCTO> select MAX(DISTINCT dob) from TDTT010date n1 group by n1.id;
+max
+2023-01-01
+(1 row)
+OCTO> select MAX(ALL dob) from TDTT010date n1 group by n1.id;
+max
+2023-01-01
+(1 row)
+OCTO> select COUNT(dob) from TDTT010time n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(*) from TDTT010time n1;
+count(*)
+1
+(1 row)
+OCTO> select COUNT(DISTINCT dob) from TDTT010time n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(ALL dob) from TDTT010time n1 group by n1.id;
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIME
+LINE 106:1: select SUM(dob) from TDTT010time n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(dob) from TDTT010time n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIME
+LINE 107:1: select SUM(DISTINCT dob) from TDTT010time n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(DISTINCT dob) from TDTT010time n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIME
+LINE 108:1: select SUM(ALL dob) from TDTT010time n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(ALL dob) from TDTT010time n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIME
+LINE 109:1: select AVG(dob) from TDTT010time n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(dob) from TDTT010time n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIME
+LINE 110:1: select AVG(DISTINCT dob) from TDTT010time n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(DISTINCT dob) from TDTT010time n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIME
+LINE 111:1: select AVG(ALL dob) from TDTT010time n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(ALL dob) from TDTT010time n1 group by n1.id;
+OCTO> select MIN(dob) from TDTT010time n1 group by n1.id;
+min
+01:01:01
+(1 row)
+OCTO> select MIN(DISTINCT dob) from TDTT010time n1 group by n1.id;
+min
+01:01:01
+(1 row)
+OCTO> select MIN(ALL dob) from TDTT010time n1 group by n1.id;
+min
+01:01:01
+(1 row)
+OCTO> select MAX(dob) from TDTT010time n1 group by n1.id;
+max
+01:01:01
+(1 row)
+OCTO> select MAX(DISTINCT dob) from TDTT010time n1 group by n1.id;
+max
+01:01:01
+(1 row)
+OCTO> select MAX(ALL dob) from TDTT010time n1 group by n1.id;
+max
+01:01:01
+(1 row)
+OCTO> select COUNT(dob) from TDTT010timestamp n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(*) from TDTT010timestamp n1;
+count(*)
+1
+(1 row)
+OCTO> select COUNT(DISTINCT dob) from TDTT010timestamp n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(ALL dob) from TDTT010timestamp n1 group by n1.id;
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
+LINE 122:1: select SUM(dob) from TDTT010timestamp n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(dob) from TDTT010timestamp n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
+LINE 123:1: select SUM(DISTINCT dob) from TDTT010timestamp n1 group by n1.i...
+                   ^^^
+OCTO> select SUM(DISTINCT dob) from TDTT010timestamp n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
+LINE 124:1: select SUM(ALL dob) from TDTT010timestamp n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(ALL dob) from TDTT010timestamp n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
+LINE 125:1: select AVG(dob) from TDTT010timestamp n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(dob) from TDTT010timestamp n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
+LINE 126:1: select AVG(DISTINCT dob) from TDTT010timestamp n1 group by n1.i...
+                   ^^^
+OCTO> select AVG(DISTINCT dob) from TDTT010timestamp n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
+LINE 127:1: select AVG(ALL dob) from TDTT010timestamp n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(ALL dob) from TDTT010timestamp n1 group by n1.id;
+OCTO> select MIN(dob) from TDTT010timestamp n1 group by n1.id;
+min
+2023-01-01 01:01:01
+(1 row)
+OCTO> select MIN(DISTINCT dob) from TDTT010timestamp n1 group by n1.id;
+min
+2023-01-01 01:01:01
+(1 row)
+OCTO> select MIN(ALL dob) from TDTT010timestamp n1 group by n1.id;
+min
+2023-01-01 01:01:01
+(1 row)
+OCTO> select MAX(dob) from TDTT010timestamp n1 group by n1.id;
+max
+2023-01-01 01:01:01
+(1 row)
+OCTO> select MAX(DISTINCT dob) from TDTT010timestamp n1 group by n1.id;
+max
+2023-01-01 01:01:01
+(1 row)
+OCTO> select MAX(ALL dob) from TDTT010timestamp n1 group by n1.id;
+max
+2023-01-01 01:01:01
+(1 row)
+OCTO> select COUNT(dob) from TDTT010timestamptz n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(*) from TDTT010timestamptz n1;
+count(*)
+1
+(1 row)
+OCTO> select COUNT(DISTINCT dob) from TDTT010timestamptz n1 group by n1.id;
+count
+1
+(1 row)
+OCTO> select COUNT(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+count
+1
+(1 row)
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 138:1: select SUM(dob) from TDTT010timestamptz n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(dob) from TDTT010timestamptz n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 139:1: select SUM(DISTINCT dob) from TDTT010timestamptz n1 group by n1...
+                   ^^^
+OCTO> select SUM(DISTINCT dob) from TDTT010timestamptz n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 140:1: select SUM(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+                   ^^^
+OCTO> select SUM(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 141:1: select AVG(dob) from TDTT010timestamptz n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(dob) from TDTT010timestamptz n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 142:1: select AVG(DISTINCT dob) from TDTT010timestamptz n1 group by n1...
+                   ^^^
+OCTO> select AVG(DISTINCT dob) from TDTT010timestamptz n1 group by n1.id;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
+LINE 143:1: select AVG(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+                   ^^^
+OCTO> select AVG(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+OCTO> select MIN(dob) from TDTT010timestamptz n1 group by n1.id;
+min
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select MIN(DISTINCT dob) from TDTT010timestamptz n1 group by n1.id;
+min
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select MIN(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+min
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select MAX(dob) from TDTT010timestamptz n1 group by n1.id;
+max
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select MAX(DISTINCT dob) from TDTT010timestamptz n1 group by n1.id;
+max
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select MAX(ALL dob) from TDTT010timestamptz n1 group by n1.id;
+max
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> -- type:date format:
+drop table TDTT010date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT010time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT010timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT010timestamptz;
+DROP TABLE
+OCTO> 

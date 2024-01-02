@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 
 		/* GROUP BY was specified. Emit the specified columns as the GROUP BY subscript */
 		GET_LP(group_by, pplan->aggregate_options, 0, LP_GROUP_BY);
-		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], pplan, "_", TRUE, dot_count, FALSE);
+		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], pplan, "_", TRUE, dot_count, FALSE, FALSE);
 	} else {
 		/* GROUP BY was NOT specified. Emit "" as the GROUP BY subscript */
 		TMPL(tmpl_print_dots, dot_count);
@@ -117,7 +117,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 						%{}`n{{ PLAN_LINE_START }}{}%
 					} else {
 						// COUNT(DISTINCT TABLE.*) usage
-						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
+						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE, FALSE);
 					}
 					dot_count--;
 				} else {
@@ -132,7 +132,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count) {
 						%{}`n{{ PLAN_LINE_START }}{}%
 					} else {
 						// COUNT(DISTINCT TABLE.*) usage
-						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE);
+						TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", TRUE, dot_count, TRUE, FALSE);
 					}
 				}
 			} else {

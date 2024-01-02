@@ -8,16 +8,26 @@ WHERE  n.nspname != 'pg_toast'
 
 ----- ROCTO/JDBC -----
 bool
+date
 int4
 numeric
+time
+timestamp
+timestamptz
+timetz
 unknown
 varchar
 
 ----- OCTO -----
 typname
 bool
+date
 int4
 numeric
+time
+timestamp
+timestamptz
+timetz
 unknown
 varchar
-(5 rows)
+(10 rows)

@@ -28,15 +28,26 @@
 /* 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 #define ABNORMAL_STATUS 1
 
-#define ADD_DATA_TYPE_HASH(STATE, DATA_TYPE_STRUCT)                                        \
-	{                                                                                  \
-		ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.data_type);                           \
-		if (SIZE_OR_PRECISION_UNSPECIFIED != DATA_TYPE_STRUCT.size_or_precision) { \
-			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.size_or_precision);           \
-		}                                                                          \
-		if (SCALE_UNSPECIFIED != DATA_TYPE_STRUCT.scale) {                         \
-			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.scale);                       \
-		}                                                                          \
+/* This macro is invoked from create_table_STATEMENT case and value_STATEMENT case. In the latter case we do not want to hash
+ * date/time as it would have been taken care while parsing the lower levels of the value_STATEMENT parse tree.
+ */
+#define ADD_DATA_TYPE_HASH(STATE, DATA_TYPE_STRUCT, IS_CREATE_TABLE_CALL)                                            \
+	{                                                                                                            \
+		ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.data_type);                                                     \
+		if (SIZE_OR_PRECISION_UNSPECIFIED != DATA_TYPE_STRUCT.size_or_precision) {                           \
+			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.size_or_precision);                                     \
+		}                                                                                                    \
+		if (SCALE_UNSPECIFIED != DATA_TYPE_STRUCT.scale) {                                                   \
+			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.scale);                                                 \
+		}                                                                                                    \
+		if (IS_CREATE_TABLE_CALL && IS_DATE_TIME_DATA_TYPE(DATA_TYPE_STRUCT.data_type)) {                    \
+			ADD_INT_HASH(STATE, DATA_TYPE_STRUCT.format);                                                \
+			if ((OPTIONAL_DATE_TIME_TEXT == DATA_TYPE_STRUCT.format)                                     \
+			    || (OPTIONAL_DATE_TIME_TEXT == config->date_time_output_format)) {                       \
+				/* Need to hash datestyle so that a change in it creates a new plan*/                \
+				ydb_mmrhash_128_ingest(state, (void *)config->datestyle, strlen(config->datestyle)); \
+			}                                                                                            \
+		}                                                                                                    \
 	}
 
 #define ADD_NON_ZERO_GROUP_BY_NUM_TO_HASH(STATE, GROUP_BY_COLUMN_NUM)                                                            \
@@ -110,6 +121,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 	if ((NULL == stmt) || (0 < *status))
 		return;
+	SqlTableAlias	*table_alias;
+	SqlSetOperation *set_operation;
 	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle) {
 		switch (stmt->type) {
 		case create_view_STATEMENT:;
@@ -152,8 +165,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			return;
 			break;
 		case table_alias_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
-			SqlTableAlias *table_alias;
-
 			ADD_INT_HASH(state, table_alias_STATEMENT);
 			// On a revisit, just hash the table alias unique_id # and return without retraversing
 			// Since unique_id is an int, we can treat it as if it were a type enum
@@ -170,10 +181,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 									* outermost call of "hash_canonical_query".
 									*/
 	assert(stmt->type < invalid_STATEMENT);
-
 	// Below are variables used in multiple "case" blocks below so are declared before the "switch" statement.
-	SqlColumn     *start_column, *cur_column;
-	SqlTableAlias *table_alias;
+	SqlColumn *start_column, *cur_column;
 
 	/* Note: The below switch statement and the flow mirrors that in populate_data_type.c.
 	 *       Any change here or there needs to also be done in the other module.
@@ -369,9 +378,23 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case STRING_LITERAL:
 		case DELIM_VALUE:
 		case NUL_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			DEBUG_ONLY(fallthrough = TRUE);
 			if (0 != value->parameter_index) {
 				ADD_INT_HASH(state, value->parameter_index);
+			}
+			if (IS_DATE_TIME_TYPE(value->type)) {
+				/* Need to hash the internal type so that we do not refer to the same plan when
+				 * the internal format is different.
+				 */
+				assert(NO_KEYWORD != value->date_time_format_type);
+				ADD_INT_HASH(state, value->date_time_format_type);
+				// Need to hash datestyle so that a change in it creates a new plan
+				ydb_mmrhash_128_ingest(state, (void *)config->datestyle, strlen(config->datestyle));
 			}
 			if (HASH_LITERAL_VALUES != *status) {
 				// Ignore literals to prevent redundant plans
@@ -420,10 +443,21 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 					ADD_INT_HASH(state, SCALE_UNSPECIFIED);
 				}
 			}
+			/* Date/time value can be passed as PARAMETER_VALUE when rocto doesn't recieve type information for the
+			 * value. Allow it here as long as coerced_type is determined to be date/time type. Later code in
+			 * src/m_template/tmpl_print_expression.ctemplate handles this case.
+			 */
 			assert(IS_LITERAL_PARAMETER(value->u.coerce_type.pre_coerced_type)
-			       || IS_NUL_VALUE(value->u.coerce_type.pre_coerced_type));
+			       || IS_NUL_VALUE(value->u.coerce_type.pre_coerced_type)
+			       || ((IS_DATE_TIME_DATA_TYPE(coerced_type->data_type))
+				   && (PARAMETER_VALUE == value->u.coerce_type.pre_coerced_type)));
+
 			ADD_INT_HASH(state, value->u.coerce_type.pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);
+			if (IS_DATE_TIME_DATA_TYPE(coerced_type->data_type)) {
+				// Need to hash datestyle so that a change in it creates a new plan
+				ydb_mmrhash_128_ingest(state, (void *)config->datestyle, strlen(config->datestyle));
+			}
 			break;
 		default:
 			assert(FALSE);
@@ -481,7 +515,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * different plans. Hence we invoke ADD_DATA_TYPE_HASH macro which takes not just the type but
 			 * also any optional size/precision and/or scale if specified.
 			 */
-			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct);
+			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct, TRUE);
 			assert(stmt->v.value == cur_column->table->v.value);
 			hash_canonical_query(state, cur_column->delim, status);
 			hash_canonical_query(state, cur_column->keywords, status);
@@ -508,7 +542,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * different plans. Hence we invoke ADD_DATA_TYPE_HASH macro which takes not just the type but
 			 * also any optional size/precision and/or scale if specified.
 			 */
-			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct);
+			ADD_DATA_TYPE_HASH(state, cur_column->data_type_struct, FALSE);
 			assert(NULL == cur_column->delim);
 			assert(NULL == cur_column->keywords);
 			cur_column = cur_column->next;
@@ -591,8 +625,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		       || (table_value_STATEMENT == table_alias->table->type)
 		       || (create_view_STATEMENT == table_alias->table->type));
 		assert((select_STATEMENT != table_alias->table->type)
-		       || (table_alias->table->v.select->select_list->v.column_list_alias
-			   == table_alias->column_list->v.column_list_alias));
+		       || ((NULL != table_alias->table->v.select->select_list) && (NULL != table_alias->column_list)
+			   && (table_alias->table->v.select->select_list->v.column_list_alias
+			       == table_alias->column_list->v.column_list_alias)));
 		// hash_canonical_query(state, table_alias->column_list, status);
 		break;
 	case binary_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
@@ -610,8 +645,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, binary->operands[1], status);
 		break;
 	case set_operation_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
-		SqlSetOperation *set_operation;
-
 		UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
 		ADD_INT_HASH(state, set_operation_STATEMENT);
 		// SqlSetOperationType

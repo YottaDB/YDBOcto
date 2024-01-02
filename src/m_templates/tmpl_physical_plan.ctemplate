@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -341,7 +341,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
 			stash_columns_in_keys = pplan->stash_columns_in_keys;
-			TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", !stash_columns_in_keys, dot_count, FALSE);
+			TMPL(tmpl_column_list_combine, lp_column_list, pplan, "_", !stash_columns_in_keys, dot_count, FALSE, TRUE);
 			if (!stash_columns_in_keys) {
 				if (!is_insert_into_values) {
 					%{}SET {}%

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -85,7 +85,7 @@ teardown() {
   load_fixture TWI09.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
-  verify_output TWI09 output.txt
+  verify_output TWI09 output.txt nodatetimefilter
 }
 
 @test "TWI10 : OCTO424 : Floating point numeric literals greater than 10 get incorrectly treated as Table References" {

@@ -1,0 +1,34 @@
+
+select CASE date'01-01-2023' WHEN date'01-01-2023' THEN date'01-02-2023' ELSE date'01-03-2023' END;
+select CASE WHEN date'01-01-2023' = date'01-01-2023' THEN date'01-02-2023' ELSE date'01-03-2023' END;
+
+select CASE time'01:01:20' WHEN time'01:01:20' THEN time'01:02:20' ELSE time'01:03:20' END;
+select CASE WHEN time'01:01:20' = time'01:01:20' THEN time'01:02:20' ELSE time'01:03:20' END;
+
+select CASE timestamp'01-01-2023 00:00:00' WHEN timestamp'01-01-2023 00:00:00' THEN timestamp'01-02-2023 00:00:00' ELSE timestamp'01-03-2023 00:00:00' END;
+select CASE WHEN timestamp'01-01-2023 00:00:00' = timestamp'01-01-2023 00:00:00' THEN timestamp'01-02-2023 00:00:00' ELSE timestamp'01-03-2023 00:00:00' END;
+OCTO> select CASE date'01-01-2023' WHEN date'01-01-2023' THEN date'01-02-2023' ELSE date'01-03-2023' END;
+CASE
+2023-01-02
+(1 row)
+OCTO> select CASE WHEN date'01-01-2023' = date'01-01-2023' THEN date'01-02-2023' ELSE date'01-03-2023' END;
+CASE
+2023-01-02
+(1 row)
+OCTO> select CASE time'01:01:20' WHEN time'01:01:20' THEN time'01:02:20' ELSE time'01:03:20' END;
+CASE
+01:02:20
+(1 row)
+OCTO> select CASE WHEN time'01:01:20' = time'01:01:20' THEN time'01:02:20' ELSE time'01:03:20' END;
+CASE
+01:02:20
+(1 row)
+OCTO> select CASE timestamp'01-01-2023 00:00:00' WHEN timestamp'01-01-2023 00:00:00' THEN timestamp'01-02-2023 00:00:00' ELSE timestamp'01-03-2023 00:00:00' END;
+CASE
+2023-01-02 00:00:00
+(1 row)
+OCTO> select CASE WHEN timestamp'01-01-2023 00:00:00' = timestamp'01-01-2023 00:00:00' THEN timestamp'01-02-2023 00:00:00' ELSE timestamp'01-03-2023 00:00:00' END;
+CASE
+2023-01-02 00:00:00
+(1 row)
+OCTO> 

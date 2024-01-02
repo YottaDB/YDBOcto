@@ -1,0 +1,13 @@
+OCTO> -- type:date format:
+drop table TDTT005date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT005time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT005timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT005timestamptz;
+DROP TABLE
+OCTO> 

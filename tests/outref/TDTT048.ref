@@ -1,0 +1,96 @@
+
+-- ZHOROLOG "66787,43301,962541,18000"
+-- TEXT "11-09-2023 12:01:41.962541+0530"
+
+select date(zhorolog)'66787,43301,962541,18000';
+select time(zhorolog)'66787,43301,962541,18000';
+-- select time(zhorolog) with time zone'66787,43301,962541,18000';
+select timestamp(zhorolog)'66787,43301,962541,18000';
+select timestamp(zhorolog) with time zone'66787,43301,962541,18000';
+
+select date(zhorolog)'66787,43301,,';
+select time(zhorolog)'66787,43301,,';
+-- select time(zhorolog) with time zone'66787,43301,,';
+select timestamp(zhorolog)'66787,43301,,';
+select timestamp(zhorolog) with time zone'66787,43301,,';
+OCTO> select date(zhorolog)'66787,43301,962541,18000';
+???
+2023-11-09
+(1 row)
+OCTO> select time(zhorolog)'66787,43301,962541,18000';
+???
+12:01:41.962541
+(1 row)
+OCTO> select timestamp(zhorolog)'66787,43301,962541,18000';
+???
+2023-11-09 12:01:41.962541
+(1 row)
+OCTO> select timestamp(zhorolog) with time zone'66787,43301,962541,18000';
+???
+2023-11-09 12:01:41.962541-05
+(1 row)
+OCTO> select date(zhorolog)'66787,43301,,';
+???
+2023-11-09
+(1 row)
+OCTO> select time(zhorolog)'66787,43301,,';
+???
+12:01:41
+(1 row)
+OCTO> select timestamp(zhorolog)'66787,43301,,';
+???
+2023-11-09 12:01:41
+(1 row)
+OCTO> select timestamp(zhorolog) with time zone'66787,43301,,';
+???
+2023-11-09 12:01:41-05
+(1 row)
+OCTO> 
+
+-- ZHOROLOG "66787,43301,962541,18000"
+-- TEXT "11-09-2023 12:01:41.962541+0530"
+
+select date(zhorolog)'66787,43301,962541,18000';
+select time(zhorolog)'66787,43301,962541,18000';
+-- select time(zhorolog) with time zone'66787,43301,962541,18000';
+select timestamp(zhorolog)'66787,43301,962541,18000';
+select timestamp(zhorolog) with time zone'66787,43301,962541,18000';
+
+select date(zhorolog)'66787,43301,,';
+select time(zhorolog)'66787,43301,,';
+-- select time(zhorolog) with time zone'66787,43301,,';
+select timestamp(zhorolog)'66787,43301,,';
+select timestamp(zhorolog) with time zone'66787,43301,,';
+OCTO> select date(zhorolog)'66787,43301,962541,18000';
+???
+66787,,,
+(1 row)
+OCTO> select time(zhorolog)'66787,43301,962541,18000';
+???
+,43301,962541,
+(1 row)
+OCTO> select timestamp(zhorolog)'66787,43301,962541,18000';
+???
+66787,43301,962541,
+(1 row)
+OCTO> select timestamp(zhorolog) with time zone'66787,43301,962541,18000';
+???
+66787,43301,962541,18000
+(1 row)
+OCTO> select date(zhorolog)'66787,43301,,';
+???
+66787,,,
+(1 row)
+OCTO> select time(zhorolog)'66787,43301,,';
+???
+,43301,,
+(1 row)
+OCTO> select timestamp(zhorolog)'66787,43301,,';
+???
+66787,43301,,
+(1 row)
+OCTO> select timestamp(zhorolog) with time zone'66787,43301,,';
+???
+66787,43301,,18000
+(1 row)
+OCTO> 

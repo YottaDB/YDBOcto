@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -385,6 +385,65 @@ void ydb_error_check(int status, char *file, int line) {
 		ydboctoerrcode++;
 		if (positive_status == ydboctoerrcode) {
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_NEGATIVE_SUBSTRING_LENGTH, NULL);
+		}
+		/* Check if %ydboctoerror("INVALIDDATETIMEVALUE")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			ydb_buffer_t subs[2], ret_buff, ret_buff2;
+
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&ret_buff, YDB_MAX_ERRORMSG);
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&ret_buff2, YDB_MAX_ERRORMSG);
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("INVALIDDATETIMEVALUE", &subs[0]);
+			/* Get value */
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+			/* Get type */
+			YDB_LITERAL_TO_BUFFER("2", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_buff);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_buff);
+				status = ydb_get_s(&varname, 2, subs, &ret_buff);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
+			SqlValueType type = atoi(ret_buff.buf_addr);
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+			/* Get format */
+			YDB_LITERAL_TO_BUFFER("3", &subs[1]);
+			status = ydb_get_s(&varname, 2, subs, &ret_buff2);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_buff2);
+				status = ydb_get_s(&varname, 2, subs, &ret_buff2);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
+			ret_buff2.buf_addr[ret_buff2.len_used] = '\0';
+			OptionalKeyword output_format = atoi(ret_buff2.buf_addr);
+			char	       *output_format_str;
+			DATE_TIME_FORMAT_STRING(output_format, output_format_str);
+			assert(YDB_OK == status);
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_DATE_TIME_VALUE, ret_value.buf_addr,
+				 get_user_visible_type_string(type), output_format_str);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
+			YDB_FREE_BUFFER(&ret_buff);
+			YDB_FREE_BUFFER(&ret_buff2);
+		}
+		/* Check if %ydboctoerror("DATETIMERESULTOUTOFRANGE")	*/
+		ydboctoerrcode++;
+		if (positive_status == ydboctoerrcode) {
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_DATE_TIME_RESULT_OUT_OF_RANGE, NULL);
 		}
 		/* Not an Octo internal error */
 		ydboctoerrcode++;

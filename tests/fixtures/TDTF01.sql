@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -36,7 +36,8 @@ SELECT truncate(155, 44);
  -- Truncate the following to the nearest 10 seconds since Octo and Psql may be run a few milliseconds apart,
  -- leading to failures if one is run in second x and then other in second x+1.
 SELECT concat('TOEPOCH', current_time);
-SELECT concat('TOEPOCH', localtime);
+-- localtime() in MYSQL returns timestamp whereas Octo returns time hence the cast usage below
+SELECT concat('TOEPOCH', cast(localtime as time));
 SELECT concat('TOEPOCH', now());
 SELECT concat('TOEPOCH', current_timestamp);
 SELECT concat('TOEPOCH', localtimestamp);

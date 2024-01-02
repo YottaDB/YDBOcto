@@ -1,0 +1,673 @@
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 1:1: select date'01-01-2023' AND date'01-01-2023';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 1:1: select date'01-01-2023' AND date'01-01-2023';
+                                      ^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' AND date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 2:1: select date'01-01-2023' AND time'01:01:00';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 2:1: select date'01-01-2023' AND time'01:01:00';
+                                      ^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' AND time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 3:1: select date'01-01-2023' AND timestamp'01-01-2023 01:01:00';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 3:1: select date'01-01-2023' AND timestamp'01-01-2023 01:01:00';
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' AND timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 4:1: select date'01-01-2023' AND timestamp with time zone'01-01-2023 ...
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 4:1: ...-2023' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 5:1: select date'01-01-2023' AND n1.dob from TDTT005date n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 5:1: select date'01-01-2023' AND n1.dob from TDTT005date n1;
+                                      ^^^^^^
+OCTO> select date'01-01-2023' AND n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 6:1: select date'01-01-2023' AND n1.dob from TDTT005time n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 6:1: select date'01-01-2023' AND n1.dob from TDTT005time n1;
+                                      ^^^^^^
+OCTO> select date'01-01-2023' AND n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 7:1: select date'01-01-2023' AND n1.dob from TDTT005timestamp n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 7:1: select date'01-01-2023' AND n1.dob from TDTT005timestamp n1;
+                                      ^^^^^^
+OCTO> select date'01-01-2023' AND n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 8:1: select date'01-01-2023' AND n1.dob from TDTT005timestamptz n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 8:1: select date'01-01-2023' AND n1.dob from TDTT005timestamptz n1;
+                                      ^^^^^^
+OCTO> select date'01-01-2023' AND n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 9:1: select date'01-01-2023' AND 3;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 9:1: select date'01-01-2023' AND 3;
+                                      ^
+OCTO> select date'01-01-2023' AND 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 10:1: select date'01-01-2023' AND 'sample string';
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 10:1: select date'01-01-2023' AND 'sample string';
+                                       ^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' AND 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 11:1: select date'01-01-2023' AND 3.3;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 11:1: select date'01-01-2023' AND 3.3;
+                                       ^^^
+OCTO> select date'01-01-2023' AND 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 12:1: select date'01-01-2023' AND NULL;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 12:1: select date'01-01-2023' AND NULL;
+                                       ^^^^
+OCTO> select date'01-01-2023' AND NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 13:1: select time'01:01:00' AND date'01-01-2023';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 13:1: select time'01:01:00' AND date'01-01-2023';
+                                     ^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' AND date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 14:1: select time'01:01:00' AND time'01:01:00';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 14:1: select time'01:01:00' AND time'01:01:00';
+                                     ^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' AND time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 15:1: select time'01:01:00' AND timestamp'01-01-2023 01:01:00';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 15:1: select time'01:01:00' AND timestamp'01-01-2023 01:01:00';
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' AND timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 16:1: select time'01:01:00' AND timestamp with time zone'01-01-2023 01...
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 16:1: ...01:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 17:1: select time'01:01:00' AND n1.dob from TDTT005date n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 17:1: select time'01:01:00' AND n1.dob from TDTT005date n1;
+                                     ^^^^^^
+OCTO> select time'01:01:00' AND n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 18:1: select time'01:01:00' AND n1.dob from TDTT005time n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 18:1: select time'01:01:00' AND n1.dob from TDTT005time n1;
+                                     ^^^^^^
+OCTO> select time'01:01:00' AND n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 19:1: select time'01:01:00' AND n1.dob from TDTT005timestamp n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 19:1: select time'01:01:00' AND n1.dob from TDTT005timestamp n1;
+                                     ^^^^^^
+OCTO> select time'01:01:00' AND n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 20:1: select time'01:01:00' AND n1.dob from TDTT005timestamptz n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 20:1: select time'01:01:00' AND n1.dob from TDTT005timestamptz n1;
+                                     ^^^^^^
+OCTO> select time'01:01:00' AND n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 21:1: select time'01:01:00' AND 3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 21:1: select time'01:01:00' AND 3;
+                                     ^
+OCTO> select time'01:01:00' AND 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 22:1: select time'01:01:00' AND 'sample string';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 22:1: select time'01:01:00' AND 'sample string';
+                                     ^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' AND 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 23:1: select time'01:01:00' AND 3.3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 23:1: select time'01:01:00' AND 3.3;
+                                     ^^^
+OCTO> select time'01:01:00' AND 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 24:1: select time'01:01:00' AND NULL;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 24:1: select time'01:01:00' AND NULL;
+                                     ^^^^
+OCTO> select time'01:01:00' AND NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 25:1: select timestamp'01-01-2023 01:01:00' AND date'01-01-2023';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 25:1: select timestamp'01-01-2023 01:01:00' AND date'01-01-2023';
+                                                     ^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 26:1: select timestamp'01-01-2023 01:01:00' AND time'01:01:00';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 26:1: select timestamp'01-01-2023 01:01:00' AND time'01:01:00';
+                                                     ^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 27:1: select timestamp'01-01-2023 01:01:00' AND timestamp'01-01-2023 0...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 27:1: ...mestamp'01-01-2023 01:01:00' AND timestamp'01-01-2023 01:01:00';
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 28:1: select timestamp'01-01-2023 01:01:00' AND timestamp with time zo...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 28:1: ...01:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 29:1: select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005dat...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 29:1: ...t timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005date n1;
+                                                   ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 30:1: select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005tim...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 30:1: ...t timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005time n1;
+                                                   ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 31:1: select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005tim...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 31:1: ...estamp'01-01-2023 01:01:00' AND n1.dob from TDTT005timestamp n1;
+                                              ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 32:1: select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005tim...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 32:1: ...tamp'01-01-2023 01:01:00' AND n1.dob from TDTT005timestamptz n1;
+                                            ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 33:1: select timestamp'01-01-2023 01:01:00' AND 3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 33:1: select timestamp'01-01-2023 01:01:00' AND 3;
+                                                     ^
+OCTO> select timestamp'01-01-2023 01:01:00' AND 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 34:1: select timestamp'01-01-2023 01:01:00' AND 'sample string';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 34:1: select timestamp'01-01-2023 01:01:00' AND 'sample string';
+                                                     ^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 35:1: select timestamp'01-01-2023 01:01:00' AND 3.3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 35:1: select timestamp'01-01-2023 01:01:00' AND 3.3;
+                                                     ^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 36:1: select timestamp'01-01-2023 01:01:00' AND NULL;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 36:1: select timestamp'01-01-2023 01:01:00' AND NULL;
+                                                     ^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' AND NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 37:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND d...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 37:1: ... with time zone'01-01-2023 01:01:00-05:00' AND date'01-01-2023';
+                                                             ^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 38:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND t...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 38:1: ...mp with time zone'01-01-2023 01:01:00-05:00' AND time'01:01:00';
+                                                               ^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 39:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND t...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 39:1: ...e'01-01-2023 01:01:00-05:00' AND timestamp'01-01-2023 01:01:00';
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 40:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND t...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 40:1: ...05:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 41:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND n...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 41:1: ... zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005date n1;
+                                                   ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 42:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND n...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 42:1: ... zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005time n1;
+                                                   ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 43:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND n...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 43:1: ...'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005timestamp n1;
+                                              ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 44:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND n...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 44:1: ...1-01-2023 01:01:00-05:00' AND n1.dob from TDTT005timestamptz n1;
+                                            ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 45:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND 3...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 45:1: ...lect timestamp with time zone'01-01-2023 01:01:00-05:00' AND 3;
+                                                                           ^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 46:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND '...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 46:1: ... with time zone'01-01-2023 01:01:00-05:00' AND 'sample string';
+                                                             ^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 47:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND 3...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 47:1: ...ct timestamp with time zone'01-01-2023 01:01:00-05:00' AND 3.3;
+                                                                         ^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 48:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' AND N...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 48:1: ...ct timestamp with time zone'01-01-2023 01:01:00-05:00' AND NULL;
+                                                                         ^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' AND NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 49:1: select n1.dob AND date'01-01-2023' from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 49:1: select n1.dob AND date'01-01-2023' from TDTT005date n1;
+                             ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND date'01-01-2023' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 50:1: select n1.dob AND time'01:01:00' from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 50:1: select n1.dob AND time'01:01:00' from TDTT005date n1;
+                             ^^^^^^^^^^^^^^
+OCTO> select n1.dob AND time'01:01:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 51:1: select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005dat...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 51:1: ...elect n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005date...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 52:1: select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-0...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 52:1: ...b AND timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 53:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005date n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 53:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005date n2;
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005date n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 54:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005time n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 54:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005time n2;
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005date n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 55:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005timestamp n...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 55:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005timestamp n...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005date n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 56:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005timestamptz...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 56:1: select n1.dob AND n2.dob from TDTT005date n1, TDTT005timestamptz...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005date n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 57:1: select n1.dob AND 3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 57:1: select n1.dob AND 3 from TDTT005date n1;
+                             ^
+OCTO> select n1.dob AND 3 from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 58:1: select n1.dob AND 'sample string' from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 58:1: select n1.dob AND 'sample string' from TDTT005date n1;
+                             ^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND 'sample string' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 59:1: select n1.dob AND 3.3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 59:1: select n1.dob AND 3.3 from TDTT005date n1;
+                             ^^^
+OCTO> select n1.dob AND 3.3 from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 60:1: select n1.dob AND NULL from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 60:1: select n1.dob AND NULL from TDTT005date n1;
+                             ^^^^
+OCTO> select n1.dob AND NULL from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 61:1: select n1.dob AND date'01-01-2023' from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 61:1: select n1.dob AND date'01-01-2023' from TDTT005time n1;
+                             ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND date'01-01-2023' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 62:1: select n1.dob AND time'01:01:00' from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 62:1: select n1.dob AND time'01:01:00' from TDTT005time n1;
+                             ^^^^^^^^^^^^^^
+OCTO> select n1.dob AND time'01:01:00' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 63:1: select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005tim...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 63:1: ...elect n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005time...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 64:1: select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-0...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 64:1: ...b AND timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 65:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005date n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 65:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005date n2;
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005time n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 66:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005time n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 66:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005time n2;
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005time n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 67:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005timestamp n...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 67:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005timestamp n...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005time n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 68:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005timestamptz...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 68:1: select n1.dob AND n2.dob from TDTT005time n1, TDTT005timestamptz...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005time n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 69:1: select n1.dob AND 3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 69:1: select n1.dob AND 3 from TDTT005time n1;
+                             ^
+OCTO> select n1.dob AND 3 from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 70:1: select n1.dob AND 'sample string' from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 70:1: select n1.dob AND 'sample string' from TDTT005time n1;
+                             ^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND 'sample string' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 71:1: select n1.dob AND 3.3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 71:1: select n1.dob AND 3.3 from TDTT005time n1;
+                             ^^^
+OCTO> select n1.dob AND 3.3 from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 72:1: select n1.dob AND NULL from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 72:1: select n1.dob AND NULL from TDTT005time n1;
+                             ^^^^
+OCTO> select n1.dob AND NULL from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 73:1: select n1.dob AND date'01-01-2023' from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 73:1: select n1.dob AND date'01-01-2023' from TDTT005timestamp n1;
+                             ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND date'01-01-2023' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 74:1: select n1.dob AND time'01:01:00' from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 74:1: select n1.dob AND time'01:01:00' from TDTT005timestamp n1;
+                             ^^^^^^^^^^^^^^
+OCTO> select n1.dob AND time'01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 75:1: select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005tim...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 75:1: ...elect n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005time...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 76:1: select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-0...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 76:1: ...b AND timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 77:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005date n...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 77:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005date n...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 78:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005time n...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 78:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005time n...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 79:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005timest...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 79:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005timest...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 80:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005timest...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 80:1: select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005timest...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 81:1: select n1.dob AND 3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 81:1: select n1.dob AND 3 from TDTT005timestamp n1;
+                             ^
+OCTO> select n1.dob AND 3 from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 82:1: select n1.dob AND 'sample string' from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 82:1: select n1.dob AND 'sample string' from TDTT005timestamp n1;
+                             ^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND 'sample string' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 83:1: select n1.dob AND 3.3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 83:1: select n1.dob AND 3.3 from TDTT005timestamp n1;
+                             ^^^
+OCTO> select n1.dob AND 3.3 from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 84:1: select n1.dob AND NULL from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 84:1: select n1.dob AND NULL from TDTT005timestamp n1;
+                             ^^^^
+OCTO> select n1.dob AND NULL from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 85:1: select n1.dob AND date'01-01-2023' from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 85:1: select n1.dob AND date'01-01-2023' from TDTT005timestamptz n1;
+                             ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND date'01-01-2023' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 86:1: select n1.dob AND time'01:01:00' from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 86:1: select n1.dob AND time'01:01:00' from TDTT005timestamptz n1;
+                             ^^^^^^^^^^^^^^
+OCTO> select n1.dob AND time'01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 87:1: select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005tim...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 87:1: ...elect n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005time...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 88:1: select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-0...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 88:1: ...b AND timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 89:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005date...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for boolean operations
+LINE 89:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005date...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 90:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for boolean operations
+LINE 90:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 91:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for boolean operations
+LINE 91:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 92:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 92:1: select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005time...
+                             ^^^^^^
+OCTO> select n1.dob AND n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 93:1: select n1.dob AND 3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for boolean operations
+LINE 93:1: select n1.dob AND 3 from TDTT005timestamptz n1;
+                             ^
+OCTO> select n1.dob AND 3 from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 94:1: select n1.dob AND 'sample string' from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
+LINE 94:1: select n1.dob AND 'sample string' from TDTT005timestamptz n1;
+                             ^^^^^^^^^^^^^^^
+OCTO> select n1.dob AND 'sample string' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 95:1: select n1.dob AND 3.3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for boolean operations
+LINE 95:1: select n1.dob AND 3.3 from TDTT005timestamptz n1;
+                             ^^^
+OCTO> select n1.dob AND 3.3 from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 96:1: select n1.dob AND NULL from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for boolean operations
+LINE 96:1: select n1.dob AND NULL from TDTT005timestamptz n1;
+                             ^^^^
+OCTO> select n1.dob AND NULL from TDTT005timestamptz n1;
+OCTO> 

@@ -1,0 +1,22 @@
+# This subtest is like TDTT087 but for READWRITE tables (instead of READONLY tables)
+# See that subtest for test flow details
+
+# Run CREATE TABLE commands for READWRITE tables
+# Load table with data for READWRITE tables
+# Run SELECT commands for READWRITE tables involving JOINs
+# Verify output of 4 SELECT commands involving JOINs
+# Expect output of all 4 SELECT commands to be 1
+1
+(1 row)
+--
+1
+(1 row)
+--
+1
+(1 row)
+--
+1
+(1 row)
+--
+1
+(1 row)

@@ -1,0 +1,16 @@
+
+set datestyle="mdy";
+select '2391-11-03 06:52:07-05'::timestamp with time zone;
+-- ERROR
+set datestyle="ymd";
+select '2391-11-03 06:52:07-05'::timestamp with time zone;
+-- Works
+OCTO> set datestyle="mdy";
+OCTO> select '2391-11-03 06:52:07-05'::timestamp with time zone;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2391-11-03 06:52:07-05" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> set datestyle="ymd";
+OCTO> select '2391-11-03 06:52:07-05'::timestamp with time zone;
+TIMESTAMPTZ
+2391-11-03 06:52:07-05
+(1 row)
+OCTO> 

@@ -634,6 +634,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		if (result) {
 			break;
 		}
+
 		if (BOOLEAN_OR_STRING_LITERAL == *type) {
 			SqlValueType fix_type2;
 
@@ -665,7 +666,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 			assert(fix_type2 == tmp);
 		}
-		result |= ensure_same_type(type, &tmp, null_if->left, null_if->right, parse_context);
+		if ((IS_DATE(*type) || IS_DATE(tmp)) && (IS_TIMESTAMP(*type) || IS_TIMESTAMP(tmp))) {
+			/* These are compatible don't call ensure_same_type() in this case as the function casts the DATE
+			 * to TIMESTAMP and that is not expected for NULLIF as the result is either NULL or the unchanged
+			 * first argument.
+			 */
+		} else {
+			result |= ensure_same_type(type, &tmp, null_if->left, null_if->right, parse_context);
+		}
 		if ((!result) && (TABLE_ASTERISK == *type)) {
 			ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "nullif operation", &null_if->left, result);
 		}
@@ -704,7 +712,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		case AGGREGATE_SUM:
 		case AGGREGATE_SUM_DISTINCT:
 			if ((TABLE_ASTERISK == *type) || (STRING_LITERAL == *type) || (BOOLEAN_VALUE == *type)
-			    || (BOOLEAN_OR_STRING_LITERAL == *type)) {
+			    || (BOOLEAN_OR_STRING_LITERAL == *type) || IS_DATE_TIME_TYPE(*type)) {
 				/* TABLE_ASTERISK or STRING or BOOLEAN type cannot be input for the AVG or SUM function so signal
 				 * an error in that case.
 				 */
@@ -834,6 +842,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case NUL_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			*type = value->type;
 			if ((BOOLEAN_VALUE == value->type) && (0 == strlen(value->v.reference))) {
 				/* This is an UNKNOWN boolean value (i.e. IS UNKNOWN usage in SQL), which should be treated
@@ -876,6 +889,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 					if ((0 < param_num) && (param_num <= parse_context->num_bind_parm_types)
 					    && (0 != parse_context->types[param_num - 1])) {
 						*type = get_sqlvaluetype_from_psql_type(parse_context->types[param_num - 1]);
+						if (IS_DATE_TIME_TYPE(*type)) {
+							/* Change value->type here as there is no need for PARAMETER_VALUE knowledge
+							 * after this point, this is needed for date/time types to determine whether
+							 * to include date/time conversion routines or not.
+							 */
+							value->type = *type;
+							// Parameter value can only be in text format
+							value->date_time_format_type = OPTIONAL_DATE_TIME_TEXT;
+						}
 					}
 				} else {
 					ERROR(ERR_LIBCALL, "strtol");
@@ -929,6 +951,61 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 			}
 			if (BOOLEAN_OR_STRING_LITERAL == source_type) {
 				source_type = STRING_LITERAL;
+			}
+			if (IS_DATE_TIME_TYPE(source_type) || IS_DATE_TIME_TYPE(target_type)) {
+				boolean_t valid_cast = FALSE;
+				switch (target_type) {
+				case DATE_LITERAL:
+					if ((DATE_LITERAL == source_type) || (TIMESTAMP_LITERAL == source_type)
+					    || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == source_type) || (STRING_LITERAL == source_type)
+					    || (PARAMETER_VALUE == source_type)) {
+						valid_cast = TRUE;
+					}
+					break;
+				case TIME_LITERAL:
+					if ((TIME_LITERAL == source_type) || (TIME_WITH_TIME_ZONE_LITERAL == source_type)
+					    || (TIMESTAMP_LITERAL == source_type)
+					    || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == source_type) || (STRING_LITERAL == source_type)
+					    || (PARAMETER_VALUE == source_type)) {
+						valid_cast = TRUE;
+					}
+					break;
+				case TIMESTAMP_LITERAL:
+					if ((DATE_LITERAL == source_type) || (TIMESTAMP_LITERAL == source_type)
+					    || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == source_type) || (STRING_LITERAL == source_type)
+					    || (PARAMETER_VALUE == source_type)) {
+						valid_cast = TRUE;
+					}
+					break;
+				case TIME_WITH_TIME_ZONE_LITERAL:
+					if ((TIME_LITERAL == source_type) || (TIME_WITH_TIME_ZONE_LITERAL == source_type)
+					    || (STRING_LITERAL == source_type) || (PARAMETER_VALUE == source_type)) {
+						valid_cast = TRUE;
+					}
+					break;
+				case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+					if ((DATE_LITERAL == source_type) || (TIMESTAMP_LITERAL == source_type)
+					    || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == source_type) || (STRING_LITERAL == source_type)
+					    || (PARAMETER_VALUE == source_type)) {
+						valid_cast = TRUE;
+					}
+					break;
+				case STRING_LITERAL:
+					if (IS_DATE_TIME_TYPE(source_type)) {
+						valid_cast = TRUE;
+					}
+					break;
+				default:
+					valid_cast = FALSE;
+					break;
+				}
+				if (!valid_cast) {
+					ERROR(ERR_TYPE_CAST, get_user_visible_type_string(source_type),
+					      get_user_visible_type_string(target_type));
+					yyerror(NULL, NULL, &v, NULL, NULL, NULL);
+					result = 1;
+					break;
+				}
 			}
 			/* Note down type of target before coerce */
 			value->u.coerce_type.pre_coerced_type = source_type;
@@ -1244,6 +1321,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				case MULTIPLICATION:
 				case MODULO:;
 				case CONCAT:
+				case DATE_TIME_ADDITION:
+				case DATE_TIME_SUBTRACTION:
 					fix_type2 = STRING_LITERAL;
 					break;
 				}

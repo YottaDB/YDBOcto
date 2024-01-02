@@ -13,3 +13,8 @@ YottaDB MUPIP EXTRACT
 ^%ydboctoocto("tables","pg_catalog","pg_type","numeric")="11|10|-1|0|b|N|0|1|,|0|0|1231|numeric_in|numeric_out|numeric_recv|numeric_send|numerictypmodin|numerictypmodout|-|i|m|0|0|-1|0|0||||1700"
 ^%ydboctoocto("tables","pg_catalog","pg_type","varchar")="11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043"
 ^%ydboctoocto("tables","pg_catalog","pg_type","unknown")="11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|-|-|-|c|p|f|0|-1|0|0||||705"
+^%ydboctoocto("tables","pg_catalog","pg_type","date")="11|10|4|1|b|D|0|1|,|0|0|1182|date_in|date_out|date_recv|date_send|-|-|-|i|p|0|0|-1|0|0||||1082"
+^%ydboctoocto("tables","pg_catalog","pg_type","time")="11|10|8|1|b|D|0|1|,|0|0|1183|time_in|time_out|time_recv|time_send|timetypmodin|timetypmodout|-|d|p|0|0|-1|0|0||||1083"
+^%ydboctoocto("tables","pg_catalog","pg_type","timetz")="11|10|12|0|b|D|0|1|,|0|0|1270|timetz_in|timetz_out|timetz_recv|timetz_send|timetztypmodin|timetztypmodout|-|d|p|0|0|-1|0|0||||1266"
+^%ydboctoocto("tables","pg_catalog","pg_type","timestamp")="11|10|8|1|b|D|0|1|,|0|0|1115|timestamp_in|timestamp_out|timestamp_recv|timestamp_send|timestamptypmodin|timestamptypmodout|-|d|p|0|0|-1|0|0||||1114"
+^%ydboctoocto("tables","pg_catalog","pg_type","timestamptz")="11|10|8|1|b|D|1|1|,|0|0|1185|timestamptz_in|timestamptz_out|timestamptz_recv|timestamptz_send|timestamptztypmodin|timestamptztypmodout|-|d|p|0|0|-1|0|0||||1184"

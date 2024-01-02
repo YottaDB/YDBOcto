@@ -42,7 +42,7 @@ LINE 6:1: SELECT -1.50::numeric(2,3);
 OCTO> SELECT -1.50::numeric(2,3);
 LINE 8:1: CREATE TABLE abcd(id NUMERIC(3,-1));	-- negative scale is not a...
                                          ^
-syntax error, unexpected MINUS, expecting LITERAL
+syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> CREATE TABLE abcd(id NUMERIC(3,-1));
 LINE 9:2: SELECT 1.50::INTEGER(2,3);		-- scale parameter is not allowed f...
                                 ^

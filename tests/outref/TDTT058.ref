@@ -1,0 +1,35 @@
+
+select 1 group by date'01-01-2023'; -- Allowed in postgres
+select 1 order by date'01-01-2023';
+select date'01-01-2023' + time'01:01:01' as col1 group by col1;
+select date'01-01-2023' + time'01:01:01' group by 1;
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1404#note_1871948365
+select order_date + time '10:03:54' as col1 from orders group by col1;
+[ERROR] PATH:LINENUM DATE TIME: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
+LINE 2:1: select 1 group by date'01-01-2023'; -- Allowed in postgres
+                            ^^^^^^^^^^^^^^^^
+OCTO> select 1 group by date'01-01-2023';
+select 1 order by date'01-01-2023';]
+OCTO> -- Allowed in postgres
+select 1 order by date'01-01-2023';
+???
+1
+(1 row)
+OCTO> select date'01-01-2023' + time'01:01:01' as col1 group by col1;
+col1
+2023-01-01 01:01:01
+(1 row)
+OCTO> select date'01-01-2023' + time'01:01:01' group by 1;
+???
+2023-01-01 01:01:01
+(1 row)
+OCTO> select order_date + time '10:03:54' as col1 from orders group by col1;
+col1
+1795-07-21 10:03:54
+1790-09-03 10:03:54
+1787-11-27 10:03:54
+1784-05-23 10:03:54
+1776-07-04 10:03:54
+1760-03-14 10:03:54
+(6 rows)
+OCTO> 

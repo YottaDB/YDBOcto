@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -50,6 +50,21 @@ char *get_user_visible_type_string(SqlValueType type) {
 		break;
 	case NUL_VALUE:
 		ret = "NULL";
+		break;
+	case DATE_LITERAL:
+		ret = "DATE";
+		break;
+	case TIME_LITERAL:
+		ret = "TIME";
+		break;
+	case TIME_WITH_TIME_ZONE_LITERAL:
+		ret = "TIME WITH TIME ZONE";
+		break;
+	case TIMESTAMP_LITERAL:
+		ret = "TIMESTAMP";
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+		ret = "TIMESTAMP WITH TIME ZONE";
 		break;
 	case COLUMN_REFERENCE:
 	case CALCULATED_VALUE:

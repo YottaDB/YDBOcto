@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -30,7 +30,7 @@ FROM customers c
 INNER JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD01 output.txt noinfo nodebug
+  verify_output TCD01 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TCD02 : customers database : INNER JOIN order by ASC" {
@@ -41,7 +41,7 @@ INNER JOIN orders o
 ON c.customer_id = o.customer_id
 ORDER BY last_name ASC;
 OCTO
-  verify_output TCD02 output.txt noinfo nodebug
+  verify_output TCD02 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TCD03 : customers database : INNER JOIN order by DESC" {
@@ -52,7 +52,7 @@ INNER JOIN orders o
 ON c.customer_id = o.customer_id
 ORDER BY last_name DESC;
 OCTO
-  verify_output TCD03 output.txt noinfo nodebug
+  verify_output TCD03 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TCD04 : customers database : LEFT JOIN" {
@@ -62,7 +62,7 @@ FROM customers c
 LEFT JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD04 output.txt noinfo nodebug
+  verify_output TCD04 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TCD05 : customers database : LEFT JOIN with WHERE" {
@@ -83,7 +83,7 @@ FROM customers c
 RIGHT JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD06 output.txt noinfo nodebug
+  verify_output TCD06 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TCD07 : customers database : RIGHT JOIN with WHERE" {
@@ -104,7 +104,7 @@ FROM customers c
 FULL JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD08 output.txt noinfo nodebug
+  verify_output TCD08 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TCD09 : #324 : WHERE clause with LESS THAN or GREATER THAN usage does not work correctly for CHAR/VARCHAR types which contain numbers" {

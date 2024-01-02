@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -594,13 +594,13 @@ CREATE TABLE Course_Enrollment_Session (
 );
 INSERT INTO Course_Enrollment_Session
 VALUES
-(1,2020,'2020-02-11','2020-02-12'),
-(2,2021,'2021-02-11','2021-02-12')
+(1,2020,date'2020-02-11',date'2020-02-12'),
+(2,2021,date'2021-02-11',date'2021-02-12')
 ;
 SELECT * FROM Course_Enrollment_Session;
-UPDATE Course_Enrollment_Session SET End_Registration_Date = '2019-02-12' WHERE ID = 1;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = date'2019-02-12' WHERE ID = 1;
 SELECT * FROM Course_Enrollment_Session;
-UPDATE Course_Enrollment_Session SET End_Registration_Date = '2022-02-12' WHERE ID = 2;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = date'2022-02-12' WHERE ID = 2;
 SELECT * FROM Course_Enrollment_Session;
 UPDATE Course_Enrollment_Session SET End_Registration_Date = NULL WHERE ID = 2;
 SELECT * FROM Course_Enrollment_Session;

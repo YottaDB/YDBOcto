@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -247,7 +247,7 @@ writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
 	. . . ; If it is then reset the value such that next line is processed from the beginning.
 	. . . ; Mainly used for processing composite table definition.
 	. . . set:(($length(line(i))=tableNameEnd)!($length(line(i))=(tableNameEnd-1))) tableNameEnd=0
-	. . if (($find(line(i),"INTEGER")'=0)!($find(line(i),"VARCHAR")'=0)!($find(line(i),"BOOLEAN")'=0)!($find(line(i),"NUMERIC")'=0)) do
+	. . if (($find(line(i),"INTEGER")'=0)!($find(line(i),"VARCHAR")'=0)!($find(line(i),"BOOLEAN")'=0)!($find(line(i),"NUMERIC")'=0)!($find(line(i),"DATE")'=0)) do
 	. . . for  do  quit:((columnNameAndTypeEnd=0)!(($length(line(i))+1)=columnNameAndTypeEnd))
 	. . . . set columnNameAndTypeStart=$find(line(i),"",tableNameEnd)
 	. . . . set columnNameAndTypeEnd=$find(line(i),",",tableNameEnd)
@@ -417,6 +417,8 @@ getCheckConstraint(tableName,columnName,columnType,constraintColumns)
 	. . ; Following set value was originally "''". But "''" and "NULL" is treated the same by Octo
 	. . ; and not by Postgres. This difference in handling causes failures when "''" is used hence
 	. . ; the value is replaced by "NULL".
+	. . set entry="NULL"
+	. else  if ("DATE"=columnType) do
 	. . set entry="NULL"
 	. else  set entry="FALSE" write columnType	; boolean
 	. set leftSide=columnName,rightSide=entry
@@ -759,6 +761,12 @@ getColumnUpdateString(tableName,columnName,columnType)
 	. . set leftSide=$select(1=$random(2):columnName,1:"NULL")
 	. . set rightSide=$select(leftSide=columnName:"NULL",1:columnName)
 	. . set oper="||"
+	. else  if ("DATE"=columnType) do
+	. . ; A basic expression is date + or - number
+	. . if (1=$random(2)) set leftSide=$$chooseEntry(tableName,columnName) ; Choose a literal + int
+	. . else  set leftSide=columnName ; Choose column + int
+	. . set oper=$select($random(2)=1:"+",1:"-")
+	. . set rightSide=$$getRandInt()
 	. else  do
 	. . ; BOOLEAN
 	. . set leftSide=$select(1=$random(2):columnName,1:$$getRandBoolean)
@@ -767,7 +775,7 @@ getColumnUpdateString(tableName,columnName,columnType)
 	. . set needsParen=1
 	. ; Cannot have both Sides NULL as Postgres generates error for NULL - NULL operation
 	. ; set:(1=$random(8)) leftSide="NULL"
-	. set:(1=$random(8)) rightSide="NULL"
+	. set:(("DATE"'=columnType)&(1=$random(8))) rightSide="NULL"
 	. set:("%"=oper) rightSide="("_rightSide_"+1)"	; Avoid divide by zero error
 	. set expr=leftSide_" "_oper_" "_rightSide
 	. set:1=$random(4) expr="(SELECT "_expr_")" ;
@@ -1555,7 +1563,7 @@ whereExpressionHelper(queryDepth,table,innerTable,randInt,result,whereType)
 	. if $random(2)  set leftSide=$$chooseEntry(innerTable,chosenColumn1)
 	. else  set leftSide=$$getRandFuncStr(leftSide)
 	.
-	. set chosenColumn2=$$chooseColumn(innerTable)
+	. set chosenColumn2=$$getColumnOfType(innerTable,$select($random(2):"VARCHAR",1:"INTEGER"))
 	. set entry2=$$chooseEntry(innerTable,chosenColumn2)
 	. set entry2=$extract(entry2,2,$length(entry2)-1)
 	. set rightSide=table_"."_chosenColumn2
@@ -2560,6 +2568,7 @@ chooseEntry(tableName,columnName)
 	; In the case of BOOLEAN, append typecast for compatibility between Octo's 0/1 booleans and Postgres' true/false
 	set:(""=entry) entry="0"
 	set:("BOOLEAN"=type) entry=entry_"::boolean"
+	set:("DATE"=type) entry="DATE "_entry
 
 	quit entry
 
@@ -2723,18 +2732,18 @@ anyAllSome()
 returnAggregateFunction(queryDepth,table,column)
 	new result,function,type
 	set type=$$returnColumnType(table,column)
-	if (type="VARCHAR") do
-	. ; This is a VARCHAR type. If inner query do not use COUNT aggregate function as it will pose problems if this
+	if ((type="VARCHAR")!(type="DATE")) do
+	. ; This is a VARCHAR/DATE type. If inner query do not use COUNT aggregate function as it will pose problems if this
 	. ; gets inherited from a subquery select column list into an outer query (because COUNT(col) will be an integer
-	. ; whereas col would be of VARCHAR type and those two cannot be compared in higher level query generation clauses).
+	. ; whereas col would be of VARCHAR/DATE type and those two cannot be compared in higher level query generation clauses).
 	. for  set function=aggFunction($random(aggFunction))  quit:('queryDepth)!("COUNT"'=function)
-	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is VARCHAR : function = ",function,!
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is VARCHAR or DATE : function = ",function,!
 	else  if (type'="BOOLEAN") do
 	. set function=aggFunctionInt($random(aggFunctionInt))
-	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is NOT VARCHAR : function = ",function,!
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is INTEGER or NUMERIC : function = ",function,!
 	else  do
 	. set function=aggFunctionBool($random(aggFunctionBool))
-	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is NOT VARCHAR : function = ",function,!
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is BOOLEAN : function = ",function,!
 	set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
 	; Coerce result of COUNT to BOOLEAN when the specified column is of BOOLEAN type
 	set:"BOOLEAN"=type result=result_" > 0"

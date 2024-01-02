@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -16,6 +16,685 @@
 
 %ydboctoplanhelpers	;
 	QUIT
+
+initDateTimeTypes
+	SET date=17			; Refers SqlValueType.DATE_LITERAL
+	SET time=18			; Refers SqlValueType.TIME_LITERAL
+	SET timeWithTimeZone=19		; Refers SqlValueType.TIME_WITH_TIME_ZONE_LITERAL
+	SET timestamp=20		; Refers SqlValueType.TIMESTAMP_LITERAL
+	SET timestampWithTimeZone=21	; Refers SqlValueType.TIMESTAMP_WITH_TIME_ZONE_LITERAL
+	SET dateType=6			; Refers to SqlDataType.DATE_TYPE
+	SET timeType=7			; Refers to SqlDataType.TIME_TYPE
+	SET timeWithTimeZoneType=8	; Refers to SqlDataType.TIME_WITH_TIME_ZONE_TYPE
+	SET timestampType=9		; Refers to SqlDataType.TIMESTAMP_TYPE
+	SET timestampWithTimeZoneType=10; Refers to SqlDataType.TIMESTAMP_WITH_TIME_ZONE_TYPE
+	SET horologFormat=32			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_HOROLOG
+	SET zhorologFormat=33			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_ZHOROLOG
+	SET filemanFormat=34			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_FILEMAN
+	SET zutFormat=35			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_ZUT
+	SET textFormat=36			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_TEXT
+	QUIT
+
+; Convert the given unix time value to local time zone value
+ConvertToLocalTimezone(type,op1)
+	QUIT:($ZYISSQLNULL(op1)) $ZYSQLNULL
+	QUIT $&octo.ydboctoConvertToLocalTimezoneM(type,op1)
+
+; For input and output details refer to called external function.
+; This function is responsible for only checking and return ZYSQLNULL if any operand is ZYSQLNULL
+SubDate(op1,op2,isInt)
+	NEW result
+	QUIT:($ZYISSQLNULL(op1)!$ZYISSQLNULL(op2)) $ZYSQLNULL
+	SET result=$&octo.ydboctoSubDateM(op1,op2,isInt)
+	IF (253402300799999999+1)=result DO ; DATE_TIME_ERROR_RETURN
+	. ; ERROR, result exceeding date/time range
+	. ZMESSAGE %ydboctoerror("DATETIMERESULTOUTOFRANGE")
+	QUIT result
+
+; For input and output details refer to called external function.
+; This function is responsible for only checking and return ZYSQLNULL if any operand is ZYSQLNULL
+SubDateTime(op1,op1type,op2,op2type)
+	new result
+	QUIT:($ZYISSQLNULL(op1)!$ZYISSQLNULL(op2)) $ZYSQLNULL
+	set result=$&octo.ydboctoSubDateTimeM(op1,op1type,op2,op2type)
+	IF (253402300799999999+1)=result DO ; DATE_TIME_ERROR_RETURN
+	. ; ERROR, result exceeding date/time range
+	. ZMESSAGE %ydboctoerror("DATETIMERESULTOUTOFRANGE")
+	QUIT result
+
+
+; For input and output details refer to ydboctoAddDateTimeM documentation.
+; This function is responsible for only checking and return ZYSQLNULL if any operand is ZYSQLNULL
+AddDateTime(op1,op1type,op2,op2type)
+	new result
+	QUIT:($ZYISSQLNULL(op1)!$ZYISSQLNULL(op2)) $ZYSQLNULL
+	set result=$&octo.ydboctoAddDateTimeM(op1,op1type,op2,op2type)
+	IF (253402300799999999+1)=result DO ; DATE_TIME_ERROR_RETURN
+	. ; ERROR, result exceeding date/time range
+	. ZMESSAGE %ydboctoerror("DATETIMERESULTOUTOFRANGE")
+	QUIT result
+
+; Input
+;	value - string to be casted
+; 	valueFormat - format in which the input is expected to be
+;	coerceType - result type expected
+; Output
+;	Success: returns casted value in internal format or ZYSQLNULL if input is ZYSQLNULL and ""
+; 	Error:	 INVALIDDATETIMECONVERSION error is issued
+String2DateTimeCast(value,valueFormat,coerceType)
+	QUIT:$ZYISSQLNULL(value) $ZYSQLNULL
+	QUIT:""=value $ZYSQLNULL
+	NEW result,type
+	DO initDateTimeTypes
+	if (dateType=coerceType) set type=date
+	else  if (timeType=coerceType) set type=time
+	else  if (timeWithTimeZoneType=coerceType) set type=timeWithTimeZone
+	else  if (timestampType=coerceType) set type=timestamp
+	else  if (timestampWithTimeZoneType=coerceType) set type=timestampWithTimeZone
+	; value, type, format_str, text_format_specifier
+	SET result=$&octo.ydboctoValidateDateTimeValueM(value,type,textFormat,valueFormat)
+	IF (result) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=value  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. ; At present we only support text formatted input
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=textFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	SET result=$&octo.ydboctoDateTimeStringCastM(value,valueFormat,coerceType)
+	QUIT result
+
+; Following routine converts the `value` given from `preCoerceType` to `coerceType`
+; Input
+;	value - date/time value in internal format to be converted
+; 	preCoerceType - type of the operand
+;	coerceType - type to be casted to
+; Output
+;	returns casted value in internal format	or ZYSQLNULL if input is ZYSQLNULL and ""
+DateTimeCast(value,preCoerceType,coerceType)
+	QUIT:$ZYISSQLNULL(value) $ZYSQLNULL
+	QUIT:""=value $ZYSQLNULL
+	QUIT $&octo.ydboctoDateTimeCastM(value,preCoerceType,coerceType)
+
+; Input
+; 	value - date/time value in internal format
+;	columnType - date/time column type
+;	outputFormat - expected output format of the result (horolog,text,zhorolog,..)
+;	textFormatSpecifier - format in which the result has to be if the outputFormat is `text`
+; Output
+;	date/time value in output format specified
+;	ZYSQLNULL if input is ZYSQLNULL or ""
+; Note: This routine also handled array value input by removing and placing back `{}`
+PrintDateTimeResultColumnValue(value,columnType,outputFormat,textFormatSpecifier)
+	QUIT:$ZYISSQLNULL(value) $ZYSQLNULL
+	QUIT:""=value $ZYSQLNULL
+	NEW result,format
+	DO initDateTimeTypes
+	; Check if the value is in the form of an array
+	NEW isArray
+	IF (value["{") SET isArray=1
+	ELSE  SET isArray=0
+	IF isArray do
+	. SET value=$EXTRACT(value,2,$ZLENGTH(value)-1)
+
+	IF (textFormat=outputFormat) DO
+	. ; Converts the following type of column to Text based on format specifier given
+	. ; 	date
+	. ;	time
+	. ;	timestamp
+	. ;	time with time zone
+	. ;	timestamp with time zone
+	. NEW hasTimeZone SET hasTimeZone=0
+	. ; Based on type add or remove format specifier for time zone
+	. SET:(timestampWithTimeZone=columnType)!(timeWithTimeZone=columnType) hasTimeZone=1
+	. ; Ensure 0 padding flag is added to Year
+	. NEW tmpTextFormatStr
+	. IF (date=columnType)!(timestamp=columnType)!(timestampWithTimeZone=columnType) DO
+	. . SET tmpTextFormatStr=$PIECE(textFormatSpecifier,"Y",1)
+	. . SET tmpTextFormatStr=tmpTextFormatStr_"4"
+	. . SET tmpTextFormatStr=tmpTextFormatStr_"Y"_$PIECE(textFormatSpecifier,"Y",2)
+	. ELSE  SET tmpTextFormatStr=textFormatSpecifier
+	. SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,tmpTextFormatStr)
+	ELSE  IF (horologFormat=outputFormat) DO
+	. ; Note that the date and time format specifier passed in this block is driven by what is expected by the
+	. ; date and time utility routines used to get the HOROLOG result
+	. IF (date=columnType) DO
+	. . ; Internal format to format expected by $$CDN^%H
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,"%m/%d/%Y")
+	. . ; Text date to HOROLOG date
+	. . SET result=$$CDN^%H(result)
+	. ELSE  IF (time=columnType)!(timeWithTimeZone=columnType) DO
+	. . ; Internal format to format expected by $$CTN^%H
+	. . SET format="%H:%M:%S"
+	. . SET:(timeWithTimeZone=columnType) format=format_"%z"
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,format)
+	. . SET result=$PIECE(result,".",1) ; Remove microseconds if it exists, this also removes timezone
+	. . ; Text time to HOROLOG time
+	. . SET result=$$CTN^%H(result)
+	. ELSE  IF (timestamp=columnType)!(timestampWithTimeZone=columnType) DO
+	. . ; Internal format to format required by $$CDN^%H and $$CTN^%H
+	. . SET format="%m/%d/%Y %H:%M:%S"
+	. . SET:(timestampWithTimeZone=columnType) format=format_"%z"
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,format)
+	. . ; Get date part
+	. . NEW dateResult SET dateResult=$PIECE(result," ",1)
+	. . ; Text date to HOROLOG date
+	. . SET dateResult=$$CDN^%H(dateResult)
+	. . ; Get time part
+	. . NEW timeResult SET timeResult=$PIECE(result," ",2)
+	. . SET timeResult=$PIECE(timeResult,".",1) ; Remove microseconds if it exists, this also removes timezone
+	. . ; Text time to HOROLOG time
+	. . SET timeResult=$$CTN^%H(timeResult)
+	. . ; Form the timestamp which consists of both date and time
+	. . SET result=dateResult_","_timeResult
+	ELSE  IF (zhorologFormat=outputFormat) DO
+	. ; zhorolog
+	. ; 	date
+	. ;	time
+	. ;	timestamp
+	. ;	time with time zone
+	. ;	timestamp with time zone
+	. ; Note that the date and time format specifier passed in this block is driven by what is expected by the
+	. ; date and time utility routines used to get the HOROLOG result.
+	. NEW timeZone SET timeZone=""
+	. IF (date=columnType) DO
+	. . ; Internal format to format expected by $$CDN^%H
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,"%m/%d/%Y")
+	. . ; Text date to HOROLOG date
+	. . SET result=$$CDN^%H(result)
+	. . SET result=result_",,,"
+	. ELSE  IF (time=columnType)!(timeWithTimeZone=columnType) DO
+	. . ; Internal format to format expected by $$CTN^%H
+	. . NEW format SET format="%H:%M:%S"
+	. . SET:(timeWithTimeZone=columnType) format=format_"%z"
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,format)
+	. . ; Text time to HOROLOG time
+	. . NEW sign
+	. . SET sign=$select((result["+"):"+",(result["-"):"-",1:"")
+	. . SET:sign'="" timeZone=$PIECE(result,sign,2)
+	. . SET:sign'="" result=$PIECE(result,sign,1)
+	. . NEW timeH,timeM,timeS SET (timeH,timeM,timeS)=0
+	. . NEW len SET len=$length(timeZone)
+	. . IF (len=2) SET timeH=+timeZone
+	. . ELSE  IF (len=5) DO
+	. . . SET timeH=$EXTRACT(timeZone,1,len-3)
+	. . . ; skip 3 as it is a :
+	. . . SET timeM=$EXTRACT(timeZone,4,$length(timeZone))
+	. . ELSE  DO
+	. . . SET timeH=$EXTRACT(timeZone,1,len-6)
+	. . . ; skip 3 as it is a :
+	. . . SET timeM=$EXTRACT(timeZone,4,len-3)
+	. . . ; skip 6 as it is a :
+	. . . SET timeS=$EXTRACT(timeZone,7,len)
+	. . SET timeH=timeH*60*60
+	. . SET timeM=timeM*60
+	. . SET timeZone=timeH+timeM+timeS
+	. . SET:(timestampWithTimeZone=columnType) timeZone=$select(("+"=sign):"-",1:"")_timeZone
+	. . NEW microsec
+	. . SET microsec=$PIECE(result,".",2)
+	. . SET result=$PIECE(result,".",1)
+	. . SET result=$$CTN^%H(result)
+	. . SET result=","_result_","_microsec_","
+	. . SET:(timeWithTimeZone=columnType) result=result_timeZone
+	. ELSE  IF (timestamp=columnType)!(timestampWithTimeZone=columnType) DO
+	. . ; Internal format to format required by $$CDN^%H and $$CTN^%H
+	. . NEW format SET format="%m/%d/%Y %H:%M:%S"
+	. . SET:(timestampWithTimeZone=columnType) format=format_"%z"
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,format)
+	. . ; Get date part
+	. . NEW dateResult SET dateResult=$PIECE(result," ",1)
+	. . ; Text date to HOROLOG date
+	. . SET dateResult=$$CDN^%H(dateResult)
+	. . ; Get time part
+	. . NEW timeResult SET timeResult=$PIECE(result," ",2)
+	. . NEW sign
+	. . SET sign=$select((timeResult["+"):"+",(timeResult["-"):"-",1:"")
+	. . SET:sign'="" timeZone=$PIECE(timeResult,sign,2)
+	. . SET:sign'="" timeResult=$PIECE(timeResult,sign,1)
+	. . NEW timeH,timeM,timeS SET (timeH,timeM,timeS)=0
+	. . NEW len SET len=$length(timeZone)
+	. . IF (len=2) SET timeH=+timeZone
+	. . ELSE  IF (len=5) DO
+	. . . SET timeH=$EXTRACT(timeZone,1,len-3)
+	. . . ; skip 3 as it is a :
+	. . . SET timeM=$EXTRACT(timeZone,4,$length(timeZone))
+	. . ELSE  DO
+	. . . SET timeH=$EXTRACT(timeZone,1,len-6)
+	. . . ; skip 3 as it is a :
+	. . . SET timeM=$EXTRACT(timeZone,4,len-3)
+	. . . ; skip 6 as it is a :
+	. . . SET timeS=$EXTRACT(timeZone,7,len)
+	. . SET timeH=timeH*60*60
+	. . SET timeM=timeM*60
+	. . SET timeZone=timeH+timeM+timeS
+	. . SET:(timestampWithTimeZone=columnType) timeZone=$select(("+"=sign):"-",1:"")_timeZone
+	. . NEW microsec
+	. . SET microsec=$PIECE(timeResult,".",2)
+	. . SET timeResult=$PIECE(timeResult,".",1)
+	. . ; Text time to HOROLOG time
+	. . SET timeResult=$$CTN^%H(timeResult)
+	. . ; Form the timestamp which consists of both date and time
+	. . SET result=dateResult_","_timeResult_","_microsec_","
+	. . SET:(timestampWithTimeZone=columnType) result=result_timeZone
+	. ; Following SET ensures that values where time zone exceeds zhorolog format range is seen as empty string
+	. SET:((timeWithTimeZone=columnType)!(timestampWithTimeZone=columnType))&((43200<timeZone)!(-50400>timeZone)) result=""
+	ELSE  IF (zutFormat=outputFormat) DO
+	. ; zut
+	. ; 	date
+	. ;	timestamp
+	. ;	timestamp with time zone
+	. ;
+	. IF (time=columnType)!(timeWithTimeZone=columnType)!(timestampWithTimeZone=columnType) DO
+	. . ; Text time to zut time
+	. . SET result=""
+	. ELSE  DO
+	. . ; Extract last 6 digits which represent microseconds
+	. . NEW microsec
+	. . SET microsec=$EXTRACT(value,$length(value)-5,$length(value))
+	. . NEW sec SET sec=$EXTRACT(value,1,$length(value)-6)
+	. . ; Multiply seconds part by 1000000 to get microseconds and add the extracted part to this value
+	. . SET sec=sec*1000000
+	. . SET sec=sec+microsec
+	. . SET result=sec
+	ELSE  IF (filemanFormat=outputFormat) DO
+	. IF (date=columnType) DO
+	. . ; Internal format to format that horolog uses (just to make things uniform)
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,"%m/%d/%Y")
+	. . ; Text date to Fileman date
+	. . SET result=$$Text2FilemanDate(result)
+	. ELSE  IF (time=columnType)!(timeWithTimeZone=columnType) DO
+	. . SET result=""
+	. ELSE  IF (timestamp=columnType)!(timestampWithTimeZone=columnType) DO
+	. . ; Internal format to format that horolog uses (just to make things uniform)
+	. . SET format="%m/%d/%Y %H:%M:%S"
+	. . SET:(timestampWithTimeZone=columnType) format=format_"%z"
+	. . SET result=$&octo.ydboctoDateTimeInternalFormat2TextM(value,columnType,format)
+	. . ; Get date part
+	. . NEW dateResult SET dateResult=$PIECE(result," ",1)
+	. . ; Text date to Fileman date
+	. . SET dateResult=$$Text2FilemanDate(dateResult)
+	. . ; Get time part
+	. . NEW timeResult SET timeResult=$PIECE(result," ",2)
+	. . SET timeResult=$PIECE(timeResult,".",1) ; Remove microseconds and time zone if it exists
+	. . SET timeResult=$PIECE(timeResult,"+",1) ; Remove time zone if it exists
+	. . SET timeResult=$PIECE(timeResult,"-",1) ; Remove time zone if it exists
+	. . ; Text time to Fileman time
+	. . SET timeResult=$$Text2FilemanTime(timeResult)
+	. . ; Form the timestamp which consists of both date and time
+	. . SET result=dateResult_"."_timeResult
+	;
+	IF (""'=result) DO
+	. SET res=$&octo.ydboctoValidateDateTimeValueM(result,columnType,outputFormat,textFormatSpecifier)
+	. IF (res) DO
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=result  ; pass parameter to `src/ydb_error_check.c`
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=columnType
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=outputFormat
+	. . ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	IF isArray SET result="{"_result_"}"
+	QUIT result
+
+Text2FilemanDate(inputStr)
+	; $ZYSQLNULL is not expected here as `PrintDateTimeResultColumnValue` handles it before this call
+	; format "%m/%d/%Y"
+	NEW month,date,year,result
+	SET month=$PIECE(inputStr,"/",1)
+	SET date=$PIECE(inputStr,"/",2)
+	SET year=$PIECE(inputStr,"/",3)
+	; Convert year to fileman year
+	SET year=+year-1700
+	IF (3>$length(year)) DO
+	. NEW i,length
+	. SET length=$length(year)
+	. SET length=3-length
+	. FOR i=1:1:length DO
+	. . SET year="0"_year
+	SET result=year_month_date
+	QUIT result
+
+Text2FilemanTime(inputStr)
+	; $ZYSQLNULL is not expected here as `PrintDateTimeResultColumnValue` handles it before this call
+	; format "%H:%M:%S"
+	NEW hour,minute,second,result
+	SET hour=$PIECE(inputStr,":",1)
+	SET minute=$PIECE(inputStr,":",2)
+	SET second=$PIECE(inputStr,":",3)
+	; Convert to fileman time
+	SET result=hour_minute_second
+	QUIT result
+
+Text2UnixTime(inputStr,type,format)
+	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
+	QUIT:""=inputStr $ZYSQLNULL
+	NEW result
+	DO initDateTimeTypes
+	IF (date=type)  ; no modifications here
+	ELSE  IF (time=type) DO
+	. SET:(format["%z") format=$PIECE(format,"%z")
+	ELSE  IF (timeWithTimeZone=type) DO
+	. SET:(format'["%z") format=format_"%z"
+	. ; Add additional 00 to match %z
+	. NEW timezone SET timezone=""
+	. IF (inputStr["+") SET timezone=$piece(inputStr,"+",2)
+	. ELSE  IF (inputStr["-") SET timezone=$piece(inputStr,"-",2)
+	. IF (2=$length(timezone)) DO
+	. . SET inputStr=inputStr_":00"
+	ELSE  IF (timestamp=type) DO
+	. SET:(format["%z") format=$PIECE(format,"%z")
+	ELSE  IF (timestampWithTimeZone=type) DO
+	. SET:(format'["%z") format=format_"%z"
+	. ; Add additional 00 to match %z
+	. NEW timezone SET timezone=""
+	. IF (inputStr["+") SET timezone=$piece(inputStr,"+",2)
+	. ELSE  IF (inputStr["-") DO
+	. . SET timezone=$piece(inputStr," ",2)
+	. . SET timezone=$piece(timezone,"-",2)
+	. IF (2=$length(timezone)) DO
+	. . SET inputStr=inputStr_":00"
+	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,textFormat,format)
+	IF (result) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=textFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	IF (date=type)!(time=type)!(timeWithTimeZone=type)!(timestamp=type)!(timestampWithTimeZone=type) DO
+	. SET result=$&octo.ydboctoText2InternalFormatM(inputStr,format)
+	QUIT result
+
+Horolog2UnixTime(inputStr,type)
+	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
+	QUIT:""=inputStr $ZYSQLNULL
+	NEW result
+	DO initDateTimeTypes
+	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,horologFormat)
+	IF (result) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=horologFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	SET inputStr=$$Horolog2Text(inputStr,type)
+	IF (date=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y")
+	ELSE  IF (time=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%H:%M:%S")
+	ELSE  IF (timeWithTimeZone=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%H:%M:%S%z")
+	ELSE  IF (timestamp=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y %H:%M:%S")
+	ELSE  IF (timestampWithTimeZone=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y %H:%M:%S%z")
+	QUIT result
+
+Fileman2UnixTime(inputStr,type)
+	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
+	QUIT:""=inputStr $ZYSQLNULL
+	NEW result
+	DO initDateTimeTypes
+	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,filemanFormat)
+	IF (1=result) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	ELSE  IF (2=result) QUIT $ZYSQLNULL ; This is the case where a column value is being processed,
+				            ; just return ZYSQLNULL.
+	SET inputStr=$$Fileman2Text(inputStr,type)
+	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
+	IF (date=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y")
+	ELSE  IF (timestamp=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y %H:%M:%S")
+	ELSE  IF (timestampWithTimeZone=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y %H:%M:%S%z")
+	QUIT result
+
+ZHorolog2UnixTime(inputStr,type)
+	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
+	QUIT:""=inputStr $ZYSQLNULL
+	NEW result
+	DO initDateTimeTypes
+	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,zhorologFormat)
+	IF (result) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=zhorologFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	SET inputStr=$$ZHorolog2Text(inputStr,type)
+	IF (date=type) DO
+	. SET format="%m/%d/%Y"
+	ELSE  IF (time=type) DO
+	. SET format="%H:%M:%S"
+	ELSE  IF (timeWithTimeZone=type) DO
+	. SET format="%H:%M:%S%z"
+	ELSE  IF (timestamp=type) DO
+	. SET format="%m/%d/%Y %H:%M:%S"
+	ELSE  IF (timestampWithTimeZone=type) DO
+	. SET format="%m/%d/%Y %H:%M:%S%z"
+	SET result=$&octo.ydboctoText2InternalFormatM(inputStr,format)
+	QUIT result
+
+ZUT2UnixTime(inputStr,type)
+	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
+	QUIT:""=inputStr $ZYSQLNULL
+	; validate input
+	NEW result
+	DO initDateTimeTypes
+	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,zutFormat)
+	IF (result) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=zutFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	; Extract seconds and microseconds. Following code determines whether input is +ve or -ve then based on the number of
+	; digits present seconds and micro seconds are extracted.
+	NEW input SET input=inputStr
+	NEW seconds
+	NEW microseconds
+	NEW isNeg
+	IF (0>input) DO
+	. ; -ve
+	. SET isNeg=1
+	ELSE  DO
+	. ; +ve
+	. SET isNeg=0
+	IF (7<$length(input)) DO
+	. ; both seconds and microseconds exist
+	. SET seconds=$EXTRACT(input,1,$length(input)-6)
+	. SET seconds=+seconds
+	. SET microseconds=$EXTRACT(input,$length(input)-5,$length(input))
+	ELSE  DO
+	. ; only microseconds exist
+	. SET seconds=0
+	. SET microseconds=input
+	. SET microseconds=+microseconds
+	. SET:(1=isNeg) microseconds=-microseconds
+	; adjust microsecond value
+	NEW len SET len=$length(microseconds)
+	NEW mult SET mult=6-len
+	FOR i=1:1:mult SET microseconds="0"_microseconds
+	IF (isNeg) SET microseconds="-"_microseconds
+	SET microseconds=+microseconds
+	; decrement second if microsecond value is negative
+	IF (0>microseconds) DO
+	. SET seconds=seconds-1
+	. SET microseconds=1000000+microseconds
+	; Convert to internal format, we do not expect time types here
+	IF (date=type) SET result=$&octo.ydboctoZutM(seconds,microseconds,"%m/%d/%Y")
+	ELSE  IF (timestamp=type) SET result=$&octo.ydboctoZutM(seconds,microseconds,"%m/%d/%Y %H:%M:%S")
+	QUIT result
+
+; type can be "date","time","timestamp"
+; "date" means inputStr has 1 value whose value represents date
+; "time","timeWithTimeZone" means inputstr has 1 value whose value represents time
+; "timestamp","timestampWithTimeZone" means inputStr has 2 values `date,time` with a comma as delimiter, they represent timestamp
+Horolog2Text(inputStr,type)
+	; Convert $HOROLOG format date/time/date&time to the same in text format
+	NEW result
+	IF (date=type) DO
+	. ; Convert "date" type HOROLOG value to text format
+	. SET result=$ZDATE(inputStr,"MM/DD/YEAR")
+	ELSE  IF (time=type)!(timeWithTimeZone=type) DO
+	. ; Convert "time" type HOROLOG value to text format
+	. ; Note $ZDATE expects ",3661" syntax if only time value is given
+	. SET result=$ZDATE(","_inputStr,"24:60:SS")
+	ELSE  IF (timestamp=type)!(timestampWithTimeZone=type) DO
+	. ; Convert "timestamp" type HOROLOG value to text format
+	. SET result=$ZDATE(inputStr,"MM/DD/YEAR 24:60:SS")
+	ELSE  SET result=""
+	QUIT result
+
+ZHorolog2Text(inputStr,type)
+	; Convert $ZHOROLOG format date/time/date&time with/without timezone to the same in text format
+	; Convert "date" type ZHOROLOG value to text format
+	; Handle "time" type ZHOROLOG value to text format
+	; Handle "timestamp" type ZHOROLOG value to text format
+	NEW result
+	; IF ("date"=type) format="%m/%d/%Y"
+	; IF ("time"=type) format="%H:%M:%S"
+	; IF ("timeWithTimeZone"=type) format="%H:%M:%S%z"
+	; IF ("timestamp"=type) format="%m/%d/%Y %H:%M:%S"
+	; IF ("timestampWithTimeZone"=type) format="%m/%d/%Y %H:%M:%S%z"
+	; Split the values
+	NEW microsec,timezone,timezoneH,timezoneM,timezoneS,sign
+	SET microsec=$PIECE(inputStr,",",3)
+	SET timezone=$PIECE(inputStr,",",4)
+	SET microsec=+microsec ; It is possible that + sign is present in this value get rid of it
+	IF (""=timezone) DO
+	. ; There is no timezone information present
+	ELSE  DO
+	. SET sign=$select(0>timezone:-1,1:1)
+	. SET timezone=sign*timezone ; negative number to positive number
+	. SET timezoneS=(timezone#3600)#60
+	. SET timezone=timezone/60/60 ; -> hours as a floating point number
+	. SET timezoneH=timezone\1 ; -> hours as an integer
+	. SET timezoneM=(timezone#1)*60 ;-> minute part as an integer
+	. SET timezoneM=timezoneM\1 ; -> minute as an integer
+	. ; Its possible to get 60 with the above rounding in such cases increment hour and SET minute to 0.
+	. ; We will not exceed -12 and 14 in such case as the value recieved is ensured by parser to not exceed
+	. ; this range.
+	. ; Following query can result in such a case
+	. ; 	select timestamp(zhorolog) with time zone '2980013,86399,9,-50399';
+	. SET:(timezoneM=60) timezoneM=0,timezoneH=timezoneH+1
+	. SET:(10>timezoneH) timezoneH="0"_timezoneH
+	. SET:(10>timezoneM) timezoneM="0"_timezoneM
+	. SET:(10>timezoneS) timezoneS="0"_timezoneS
+	. SET timezone=$select(sign=1:"-",1:"+")_timezoneH_":"_timezoneM_$select("00"=timezoneS:"",1:":"_timezoneS) ; The sign is reversed here because timezone value of zhorolog is reverse of utc offSET
+	IF (date=type) DO
+	. ; Convert "date" type HOROLOG value to text format
+	. SET result=$ZDATE(inputStr,"MM/DD/YEAR")
+	ELSE  IF (time=type)!(timeWithTimeZone=type) DO
+	. ; Convert "time" type HOROLOG value to text format
+	. ; Note $ZDATE expects ",3661" syntax if only time value is given
+	. SET result=$ZDATE(inputStr,"24:60:SS")
+	. SET:(""'=microsec) result=result_"."_microsec
+	. IF (timeWithTimeZone=type) DO
+	. . SET result=result_timezone
+	ELSE  IF (timestamp=type)!(timestampWithTimeZone=type) DO
+	. ; Convert "timestamp" type HOROLOG value to text format
+	. SET result=$ZDATE(inputStr,"MM/DD/YEAR 24:60:SS")
+	. SET:(""'=microsec) result=result_"."_microsec
+	. IF (timestampWithTimeZone=type) DO
+	. . SET result=result_timezone
+	QUIT result
+
+Fileman2Text(inputStr,type)
+	; Convert Fileman date and time to the same in text format
+	; Manually convert Fileman date/time to date/time text value
+	; `inputStr` format is expected to be `YYYMMDD.HHMMSS`
+	; Based on `type` ("date"/"time"/"timeWithTimeZone"/"timestamp"/"timestampWithTimeZone") input will be processed
+	; Output format is also determined by the type
+	NEW result,length,i,isTime,timeCounter,dateCounter,endLoop
+	SET (year,result,month,day,hour,minute,second)=""
+	SET length=$length(inputStr)
+	QUIT:7>length $ZYSQLNULL
+	SET (isTime,timeCounter,dateCounter,endLoop)=0
+	FOR i=1:1:length DO  QUIT:endLoop
+	. SET x=$EXTRACT(inputStr,i)
+	. IF ("."=x) SET isTime=1
+	. ELSE  IF (isTime) DO
+	. . ; first 2 is HH
+	. . ; second 2 is MM
+	. . ; third 2 is SS
+	. . IF (timeCounter<2) SET hour=hour_x
+	. . ELSE  IF (timeCounter<4) SET minute=minute_x
+	. . ELSE  IF (timeCounter<6) SET second=second_x
+	. . ELSE  SET endLoop=1
+	. . SET timeCounter=timeCounter+1
+	. ELSE  DO
+	. . ; first 3 is YYY
+	. . ; next 2 is MM
+	. . ; next 2 is DD
+	. . IF (dateCounter<3) SET year=year_x
+	. . ELSE  IF (dateCounter<5) SET month=month_x
+	. . ELSE  IF (dateCounter<7) SET day=day_x
+	. . SET dateCounter=dateCounter+1
+	; Handle in-exact dates here
+	IF (year="000") DO
+	. ; error
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	ELSE  IF (year="999")&(month="12")&(day="31")&("24"=hour) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	ELSE  IF (month="00")&(day'="00") DO
+	. ; error
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	IF (""=minute)&(""=second)&(2=$length(hour)) DO
+	. IF (20=hour)!(10=hour) DO
+	. . ; 10 and 20 are invalid for hour when minute and second is absent
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. . ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	SET:(month="00") month="01"
+	SET:(day="00") day="01"
+	SET:(hour="") hour="00"
+	SET:(minute="") minute="00"
+	SET:(second="") second="00"
+	IF ("24"=hour) DO
+	. SET day=day+1
+	. ; Jan 31 Feb 28 (29) March 31 April 30 May 31 June 30 July 31 August 31 Sept 30 Oct 31 Nov 30 Dec 31
+	. SET month=+month
+	. SET addday=$select(1=month:day>31,2=month:day>29,3=month:day>31,4=month:day>30,5=month:day>31,6=month:day>30,7=month:day>31,8=month:day>31,9=month:day>30,10=month:day>31,11=month:day>30,12=month:day>31)
+	. IF (0'=addday) DO
+	. . SET month=month+1
+	. . SET day=1
+	. IF (13=month) DO
+	. . SET year=year+1
+	. . SET month=1
+	. SET hour="00"
+	IF (2'=$length(hour)) DO
+	. IF (3>hour) SET hour=hour_"0" ; Hour can be single digit (2960124.1), add trailing 0 in this case
+	. ELSE  DO
+	. . ; A single digit hour value >=3 is invalid
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. . ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	IF (2'=$length(minute)) DO
+	. IF (6>minute) SET minute=minute_"0" ; Minute can be single digit (2960124.162), add trailing 0 in this case
+	. ELSE  DO
+	. . ; A single digit minute value >=6 is invalid
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. . ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	IF (2'=$length(second)) DO
+	. IF (6>second) SET second=second_"0" ; Seconds can be single digit (2960124.16263), add trailing 0 in this case
+	. ELSE  DO
+	. . ; A single digit seconds value >=6 is invalid
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. . SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
+	. . ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	IF (date=type) DO
+	. ; Convert "date" type Fileman value to text format
+	. SET year=year+1700
+	. SET result=month_"/"_day_"/"_year
+	. SET endLoop=1
+	ELSE  IF (timestamp=type)!(timestampWithTimeZone=type) DO
+	. ; Convert "timestamp" type Fileman value to text format
+	. SET year=year+1700
+	. SET result=month_"/"_day_"/"_year_" "_hour_":"_minute_":"_second
+	. SET endLoop=1
+	ELSE  SET result="",endLoop=1
+	QUIT result
 
 max(isString,a,b)
 	; return the greatest of a and b
@@ -344,7 +1023,7 @@ EXISTS(keyId,planName)
 	IF $$InvokeOctoPlan(planName)
 	QUIT (1<$DATA(%ydboctocursor(cursorId,"keys",keyId,"","")))
 
-ANY(inputValue,keyId,compOp,isString,planName)
+ANY(inputValue,keyId,compOp,isString,planName,convertDateTime,type)
 	; Helper M function that implements the ANY/SOME operator in SQL.
 	; Given an output key # (keyId) checks if the output key has at least one row with a value that satisfies the
 	;   compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
@@ -355,13 +1034,17 @@ ANY(inputValue,keyId,compOp,isString,planName)
 	; See comment about "planName" variable in "GetScalarOrArray" entryref section.
 	;
 	IF $$InvokeOctoPlan(planName)
-	NEW ret,sub
+	NEW ret,sub,lclSub,doConvertDT,dtType
 	SET sub="",ret=0
+	SET doConvertDT=$GET(convertDateTime,0)
+	SET dtType=$GET(type,"")
 	FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",sub))  SET sub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",sub)) QUIT:ret!(""=sub)
-	. SET ret=$$Compare(inputValue,compOp,sub,isString)
+	. SET lclSub=sub
+	. SET:doConvertDT lclSub=$$ConvertToLocalTimezone(type,sub)
+	. SET ret=$$Compare(inputValue,compOp,lclSub,isString)
 	QUIT ret
 
-ALL(inputValue,keyId,compOp,isString,planName)
+ALL(inputValue,keyId,compOp,isString,planName,convertDateTime,type)
 	; Helper M function that implements the ALL operator in SQL.
 	; Given an output key # (keyId) checks if the output key has ALL rows with a value that satisfies the
 	;   compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
@@ -372,10 +1055,14 @@ ALL(inputValue,keyId,compOp,isString,planName)
 	; See comment about "planName" variable in "GetScalarOrArray" entryref section.
 	;
 	IF $$InvokeOctoPlan(planName)
-	NEW ret,sub
+	NEW ret,sub,lclSub,doConvertDT,dtType
 	SET sub="",ret=1
+	SET doConvertDT=$GET(convertDateTime,0)
+	SET dtType=$GET(type,"")
 	FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",sub))  SET sub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",sub)) QUIT:'ret!(""=sub)
-	. SET ret=$$Compare(inputValue,compOp,sub,isString)
+	. SET lclSub=sub
+	. SET:doConvertDT lclSub=$$ConvertToLocalTimezone(type,sub)
+	. SET ret=$$Compare(inputValue,compOp,lclSub,isString)
 	QUIT ret
 
 Compare(value1,compOp,value2,isString)
@@ -406,14 +1093,14 @@ ForceNumeric(value)
 IssueInvalidInputSyntaxError(value,type)
 	NEW errorStr
 	IF ("integer"=type) set errorStr="INVALIDINTEGERSYNTAX"
-	else  set errorStr="INVALIDNUMERICSYNTAX" ; ("numeric"=type)
+	ELSE  SET errorStr="INVALIDNUMERICSYNTAX" ; ("numeric"=type)
 	SET %ydboctoerror(errorStr,1)=value       ; pass parameter to `src/ydb_error_check.c`
 	ZMESSAGE %ydboctoerror(errorStr)
 	QUIT
 
 ; Following routine validates the passed `value` and returns the casted value
 String2Integer(value)
-	set value=$$ValidateInputAndGetTrimdVal(value,"integer")
+	SET value=$$ValidateInputAndGetTrimdVal(value,"integer")
 	QUIT value\1
 
 ; Input:
@@ -845,7 +1532,7 @@ pattransform(patt,type)
 	. . SET res=$GET(%ydboctoregex(0,type,ch),0)
 	. . SET:0=res res=ch
 	. SET resstr=resstr_res
-	quit resstr
+	QUIT resstr
 
 regexmatch(str,regexstr,regextype,regexflags)
 	; By default, regex engine ($$regmatch^ydbposix) treats some metacharacters as off.
@@ -948,14 +1635,14 @@ Cast2VARCHAR(string,size)
 	QUIT $EXTRACT(string,1,size)
 
 String2NUMERIC(number,precision,scale)
-	new result
-	set number=$$ValidateInputAndGetTrimdVal(number,"numeric")
-	if ($DATA(precision)) do
-	. if ($DATA(scale)) do
-	. . set result=$$Cast2NUMERICWithPrecision(number,precision,scale)
-	. else  set result=$$Cast2NUMERICWithPrecision(number,precision)
-	else  do
-	. set result=$$Cast2NUMERICWithoutPrecision(number)
+	NEW result
+	SET number=$$ValidateInputAndGetTrimdVal(number,"numeric")
+	IF ($DATA(precision)) do
+	. IF ($DATA(scale)) do
+	. . SET result=$$Cast2NUMERICWithPrecision(number,precision,scale)
+	. ELSE  SET result=$$Cast2NUMERICWithPrecision(number,precision)
+	ELSE  DO
+	. SET result=$$Cast2NUMERICWithoutPrecision(number)
 	QUIT result
 
 Cast2NUMERICWithPrecision(number,precision,scale)
@@ -1031,7 +1718,12 @@ CheckConstraintViolation(tablename,constraintname,numcols)
 	NEW i,parm2
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION",1)=tablename ; pass parameter to `src/ydb_error_check.c`
 	SET parm2=constraintname_" : Failing row contains ("
-	FOR i=1:1:numcols SET parm2=parm2_$SELECT($ZYISSQLNULL(col(i)):"NULL",1:col(i))_$SELECT(i=numcols:")",1:", ")
+	FOR i=1:1:numcols  DO
+	. NEW value
+	. IF $data(colMetaData(i)) DO
+	. . SET value=$$PrintDateTimeResultColumnValue(col(i),colMetaData(i,1),colMetaData(i,2),colMetaData(i,3))
+	. ELSE  SET value=col(i)
+	. SET parm2=parm2_$SELECT($ZYISSQLNULL(value):"NULL",1:value)_$SELECT(i=numcols:")",1:", ")
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION",2)=parm2
 	ZMESSAGE %ydboctoerror("CHECKCONSTRAINTVIOLATION")
 	QUIT
@@ -1168,7 +1860,7 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 	. ; get i'th colTypeList value
 	. SET type=$PIECE(colTypeList,",",i)
 	. ; Apply ForceNumeric if the operands are non-string
-	. if ("f"=type)  do
+	. IF ("f"=type)  DO
 	. . ; Get the numeric value of the columns
 	. . SET firstColVal=$$ForceNumeric(firstColVal)
 	. . SET secondColVal=$$ForceNumeric(secondColVal)
@@ -1232,18 +1924,18 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 	. . . ELSE  IF ("<"=operator) SET curResult=(firstColVal<secondColVal)
 	. . . ELSE  SET curResult=(firstColVal=secondColVal) ; "="=operator
 	. IF (("="=operator)&(0=curResult)) DO
-	. . set limitingCompareReached=1
+	. . SET limitingCompareReached=1
 	. . QUIT
 	. ELSE  IF (("'="=operator)&(1=curResult)) DO
-	. . set limitingCompareReached=1
+	. . SET limitingCompareReached=1
 	. . QUIT
 	. ELSE  IF (("<"=operator)!(">"=operator)!("<="=operator)!(">="=operator)) DO
 	. . QUIT:(1=isEquals)  ; Both values are equal, QUIT right here so that next column values get compared
 	. . ; We only reach the following code if the operands are not equal
 	. . ;  so exit the loop as we found our comparison result.
-	. . set limitingCompareReached=1
+	. . SET limitingCompareReached=1
 	. . QUIT
-	set result=curResult
+	SET result=curResult
 	QUIT result
 
 ; -------------------------------------------------------------------------------------------------------------------

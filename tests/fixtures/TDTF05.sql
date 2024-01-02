@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -28,3 +28,12 @@ SELECT day('2021-11-31');
 SELECT dayofmonth('2021-11-31');
 SELECT day(NULL);
 SELECT dayofmonth(NULL);
+-- Date type usage
+--  Dates >= 10
+SELECT day(date'2017-06-15');
+SELECT dayofmonth(date'2017-06-15');
+--  Dates < 10
+SELECT day(date'2021-12-01');
+SELECT dayofmonth(date'2021-12-01');
+SELECT day(cast(now() as date));
+SELECT dayofmonth(cast(now() as date));

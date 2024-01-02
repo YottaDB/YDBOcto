@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -43,6 +43,17 @@ TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *ppla
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_EXPR }}=+{{ PP_YDB_OCTO_EXPR }}{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_TYPE:;
+	case TIME_WITH_TIME_ZONE_TYPE:;
+		SqlValueType fixed_key_value_type = lp_get_plan_value_type(plan);
+		if ((DATE_LITERAL == fixed_key_value_type) || (TIME_LITERAL == fixed_key_value_type) || (TIMESTAMP_LITERAL == fixed_key_value_type)) {
+			// We expect only compatible types to reach this code so no additional check done here for validity
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+			%{}$$DateTimeCast^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ fixed_key_value_type|%d }},{{ key->column->data_type_struct.data_type|%d }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	default:
 		break;

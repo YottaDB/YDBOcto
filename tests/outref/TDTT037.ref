@@ -1,0 +1,100 @@
+
+create table test (tob time(6));
+insert into test values(time'01:01:01.999999');
+select * from test;
+
+create table test1 (tsob timestamp(6));
+insert into test1 values(timestamp'01-01-2023 01:01:01.999999');
+select * from test1;
+
+create table testa (tob time(6) without time zone);
+insert into testa values(time'01:01:01.999999');
+select * from testa;
+
+create table test1a (tsob timestamp(6) without time zone);
+insert into test1a values(timestamp'01-01-2023 01:01:01.999999');
+select * from test1a;
+
+create table test2 (tob time(6) with time zone);
+insert into test2 values(time with time zone'01:01:01.999999');
+select * from test2;
+
+create table test3 (tsob timestamp(6) with time zone);
+insert into test3 values(timestamp with time zone'01-01-2023 01:01:01.999999');
+select * from test3;
+
+create table test4 (tob time(10));
+create table test5 (tsob timestamp(10));
+
+select timestamp'01-01-2023 01:01:01.0001';
+select timestamp'01-01-2023 01:01:01.01';
+select time'01:01:01.001';
+OCTO> create table test (tob time(6));
+CREATE TABLE
+OCTO> insert into test values(time'01:01:01.999999');
+INSERT 0 1
+OCTO> select * from test;
+tob
+01:01:01.999999
+(1 row)
+OCTO> create table test1 (tsob timestamp(6));
+CREATE TABLE
+OCTO> insert into test1 values(timestamp'01-01-2023 01:01:01.999999');
+INSERT 0 1
+OCTO> select * from test1;
+tsob
+2023-01-01 01:01:01.999999
+(1 row)
+OCTO> create table testa (tob time(6) without time zone);
+CREATE TABLE
+OCTO> insert into testa values(time'01:01:01.999999');
+INSERT 0 1
+OCTO> select * from testa;
+tob
+01:01:01.999999
+(1 row)
+OCTO> create table test1a (tsob timestamp(6) without time zone);
+CREATE TABLE
+OCTO> insert into test1a values(timestamp'01-01-2023 01:01:01.999999');
+INSERT 0 1
+OCTO> select * from test1a;
+tsob
+2023-01-01 01:01:01.999999
+(1 row)
+OCTO> create table test2 (tob time(6) with time zone);
+CREATE TABLE
+OCTO> insert into test2 values(time with time zone'01:01:01.999999');
+INSERT 0 1
+OCTO> select * from test2;
+tob
+01:01:01.999999-05
+(1 row)
+OCTO> create table test3 (tsob timestamp(6) with time zone);
+CREATE TABLE
+OCTO> insert into test3 values(timestamp with time zone'01-01-2023 01:01:01.999999');
+INSERT 0 1
+OCTO> select * from test3;
+tsob
+2023-01-01 01:01:01.999999-05
+(1 row)
+[ERROR]: ERR_INVALID_TIME_PRECISION: Precision specified 10 not in range 0-6
+LINE 26:1: create table test4 (tob time(10));
+                                       ^^^^
+OCTO> create table test4 (tob time(10));
+[ERROR]: ERR_INVALID_TIME_PRECISION: Precision specified 10 not in range 0-6
+LINE 27:1: create table test5 (tsob timestamp(10));
+                                             ^^^^
+OCTO> create table test5 (tsob timestamp(10));
+OCTO> select timestamp'01-01-2023 01:01:01.0001';
+???
+2023-01-01 01:01:01.000100
+(1 row)
+OCTO> select timestamp'01-01-2023 01:01:01.01';
+???
+2023-01-01 01:01:01.010000
+(1 row)
+OCTO> select time'01:01:01.001';
+???
+01:01:01.001000
+(1 row)
+OCTO> 

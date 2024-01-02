@@ -2,6 +2,101 @@ abs|1|1700|1700|null|null|null
 abs|1|23|23|null|null|null
 concat|2|1043|1043 1043|null|null|null
 concat|3|1043|1043 1043 1043|null|null|null
+concat|2|1043|1082 1043|null|null|null
+concat|2|1043|1043 1082|null|null|null
+concat|2|1043|1083 1043|null|null|null
+concat|2|1043|1043 1083|null|null|null
+concat|2|1043|1114 1043|null|null|null
+concat|2|1043|1043 1114|null|null|null
+concat|2|1043|1266 1043|null|null|null
+concat|2|1043|1043 1266|null|null|null
+concat|2|1043|1184 1043|null|null|null
+concat|2|1043|1043 1184|null|null|null
+concat|3|1043|1043 1082 1082|null|null|null
+concat|3|1043|1082 1043 1082|null|null|null
+concat|3|1043|1082 1082 1043|null|null|null
+concat|3|1043|1043 1082 1083|null|null|null
+concat|3|1043|1082 1043 1083|null|null|null
+concat|3|1043|1082 1083 1043|null|null|null
+concat|3|1043|1043 1082 1114|null|null|null
+concat|3|1043|1082 1043 1114|null|null|null
+concat|3|1043|1082 1114 1043|null|null|null
+concat|3|1043|1043 1082 1266|null|null|null
+concat|3|1043|1082 1043 1266|null|null|null
+concat|3|1043|1082 1266 1043|null|null|null
+concat|3|1043|1043 1082 1184|null|null|null
+concat|3|1043|1082 1043 1184|null|null|null
+concat|3|1043|1082 1184 1043|null|null|null
+concat|3|1043|1043 1082 1043|null|null|null
+concat|3|1043|1082 1043 1043|null|null|null
+concat|3|1043|1043 1083 1082|null|null|null
+concat|3|1043|1083 1043 1082|null|null|null
+concat|3|1043|1083 1082 1043|null|null|null
+concat|3|1043|1043 1083 1083|null|null|null
+concat|3|1043|1083 1043 1083|null|null|null
+concat|3|1043|1083 1083 1043|null|null|null
+concat|3|1043|1043 1083 1114|null|null|null
+concat|3|1043|1083 1043 1114|null|null|null
+concat|3|1043|1083 1114 1043|null|null|null
+concat|3|1043|1043 1083 1266|null|null|null
+concat|3|1043|1083 1043 1266|null|null|null
+concat|3|1043|1083 1266 1043|null|null|null
+concat|3|1043|1043 1083 1184|null|null|null
+concat|3|1043|1083 1043 1184|null|null|null
+concat|3|1043|1083 1184 1043|null|null|null
+concat|3|1043|1043 1083 1043|null|null|null
+concat|3|1043|1083 1043 1043|null|null|null
+concat|3|1043|1043 1114 1082|null|null|null
+concat|3|1043|1114 1043 1082|null|null|null
+concat|3|1043|1114 1082 1043|null|null|null
+concat|3|1043|1043 1114 1083|null|null|null
+concat|3|1043|1114 1043 1083|null|null|null
+concat|3|1043|1114 1083 1043|null|null|null
+concat|3|1043|1043 1114 1114|null|null|null
+concat|3|1043|1114 1043 1114|null|null|null
+concat|3|1043|1114 1114 1043|null|null|null
+concat|3|1043|1043 1114 1266|null|null|null
+concat|3|1043|1114 1043 1266|null|null|null
+concat|3|1043|1114 1266 1043|null|null|null
+concat|3|1043|1043 1114 1184|null|null|null
+concat|3|1043|1114 1043 1184|null|null|null
+concat|3|1043|1114 1184 1043|null|null|null
+concat|3|1043|1043 1114 1043|null|null|null
+concat|3|1043|1114 1043 1043|null|null|null
+concat|3|1043|1043 1266 1082|null|null|null
+concat|3|1043|1266 1043 1082|null|null|null
+concat|3|1043|1266 1082 1043|null|null|null
+concat|3|1043|1043 1266 1083|null|null|null
+concat|3|1043|1266 1043 1083|null|null|null
+concat|3|1043|1266 1083 1043|null|null|null
+concat|3|1043|1043 1266 1114|null|null|null
+concat|3|1043|1266 1043 1114|null|null|null
+concat|3|1043|1266 1114 1043|null|null|null
+concat|3|1043|1043 1266 1266|null|null|null
+concat|3|1043|1266 1043 1266|null|null|null
+concat|3|1043|1266 1266 1043|null|null|null
+concat|3|1043|1043 1266 1184|null|null|null
+concat|3|1043|1266 1043 1184|null|null|null
+concat|3|1043|1266 1184 1043|null|null|null
+concat|3|1043|1043 1266 1043|null|null|null
+concat|3|1043|1266 1043 1043|null|null|null
+concat|3|1043|1043 1184 1082|null|null|null
+concat|3|1043|1184 1043 1082|null|null|null
+concat|3|1043|1184 1082 1043|null|null|null
+concat|3|1043|1043 1184 1083|null|null|null
+concat|3|1043|1184 1043 1083|null|null|null
+concat|3|1043|1184 1083 1043|null|null|null
+concat|3|1043|1043 1184 1114|null|null|null
+concat|3|1043|1184 1043 1114|null|null|null
+concat|3|1043|1184 1114 1043|null|null|null
+concat|3|1043|1043 1184 1266|null|null|null
+concat|3|1043|1184 1043 1266|null|null|null
+concat|3|1043|1184 1266 1043|null|null|null
+concat|3|1043|1043 1184 1184|null|null|null
+concat|3|1043|1184 1043 1184|null|null|null
+concat|3|1043|1184 1184 1043|null|null|null
+concat|3|1043|1043 1184 1043|null|null|null
+concat|3|1043|1184 1043 1043|null|null|null
 round|2|1700|1700 23|null|null|null
 round|2|1700|23 23|null|null|null
 trunc|2|1700|1700 23|null|null|null
@@ -12,13 +107,31 @@ truncate|2|1700|1700 23|null|null|null
 truncate|2|1700|23 1700|null|null|null
 truncate|2|1700|1700 1700|null|null|null
 truncate|2|1700|23 23|null|null|null
-now|0|1043|null|null|null|null
+now|0|1184|null|null|null|null
+day|1|1043|1082|null|null|null
 day|1|1043|1043|null|null|null
-localtime|0|1043|null|null|null|null
-localtimestamp|0|1043|null|null|null|null
-current_timestamp|0|1043|null|null|null|null
-current_time|0|1043|null|null|null|null
+localtime|0|1083|null|null|null|null
+localtimestamp|0|1114|null|null|null|null
+current_timestamp|0|1184|null|null|null|null
+current_time|0|1266|null|null|null|null
+date_format|2|1043|1184 1043|null|null|null
 date_format|2|1043|1043 1043|null|null|null
+date_to_fileman|1|1700|1082|null|null|null
+timestamp_to_fileman|1|1700|1114|null|null|null
+timestamptz_to_fileman|1|1700|1184|null|null|null
+date_to_horolog|1|1043|1082|null|null|null
+time_to_horolog|1|1043|1083|null|null|null
+timetz_to_horolog|1|1043|1266|null|null|null
+timestamp_to_horolog|1|1043|1114|null|null|null
+timestamptz_to_horolog|1|1043|1184|null|null|null
+date_to_zhorolog|1|1043|1082|null|null|null
+time_to_zhorolog|1|1043|1083|null|null|null
+timetz_to_zhorolog|1|1043|1266|null|null|null
+timestamp_to_zhorolog|1|1043|1114|null|null|null
+timestamptz_to_zhorolog|1|1043|1184|null|null|null
+date_to_zut|1|23|1082|null|null|null
+timestamp_to_zut|1|23|1114|null|null|null
+dayofmonth|1|1043|1082|null|null|null
 dayofmonth|1|1043|1043|null|null|null
 lpad|2|1043|1043 23|null|null|null
 lpad|3|1043|1043 23 1043|null|null|null

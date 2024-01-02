@@ -1,0 +1,649 @@
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 1:1: select date'01-01-2023' LIKE date'01-01-2023';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 1:1: select date'01-01-2023' LIKE date'01-01-2023';
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' LIKE date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 2:1: select date'01-01-2023' LIKE time'01:01:00';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 2:1: select date'01-01-2023' LIKE time'01:01:00';
+                                       ^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' LIKE time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 3:1: select date'01-01-2023' LIKE timestamp'01-01-2023 01:01:00';
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 3:1: select date'01-01-2023' LIKE timestamp'01-01-2023 01:01:00';
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' LIKE timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 4:1: select date'01-01-2023' LIKE timestamp with time zone'01-01-2023...
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 4:1: ...2023' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 5:1: select date'01-01-2023' LIKE n1.dob from TDTT005date n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 5:1: select date'01-01-2023' LIKE n1.dob from TDTT005date n1;
+                                       ^^^^^^
+OCTO> select date'01-01-2023' LIKE n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 6:1: select date'01-01-2023' LIKE n1.dob from TDTT005time n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 6:1: select date'01-01-2023' LIKE n1.dob from TDTT005time n1;
+                                       ^^^^^^
+OCTO> select date'01-01-2023' LIKE n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 7:1: select date'01-01-2023' LIKE n1.dob from TDTT005timestamp n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 7:1: select date'01-01-2023' LIKE n1.dob from TDTT005timestamp n1;
+                                       ^^^^^^
+OCTO> select date'01-01-2023' LIKE n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 8:1: select date'01-01-2023' LIKE n1.dob from TDTT005timestamptz n1;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 8:1: select date'01-01-2023' LIKE n1.dob from TDTT005timestamptz n1;
+                                       ^^^^^^
+OCTO> select date'01-01-2023' LIKE n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 9:1: select date'01-01-2023' LIKE 3;
+                 ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 9:1: select date'01-01-2023' LIKE 3;
+                                       ^
+OCTO> select date'01-01-2023' LIKE 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 10:1: select date'01-01-2023' LIKE 'sample string';
+                  ^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' LIKE 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 11:1: select date'01-01-2023' LIKE 3.3;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 11:1: select date'01-01-2023' LIKE 3.3;
+                                        ^^^
+OCTO> select date'01-01-2023' LIKE 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 12:1: select date'01-01-2023' LIKE NULL;
+                  ^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 12:1: select date'01-01-2023' LIKE NULL;
+                                        ^^^^
+OCTO> select date'01-01-2023' LIKE NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 13:1: select time'01:01:00' LIKE date'01-01-2023';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 13:1: select time'01:01:00' LIKE date'01-01-2023';
+                                      ^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' LIKE date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 14:1: select time'01:01:00' LIKE time'01:01:00';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 14:1: select time'01:01:00' LIKE time'01:01:00';
+                                      ^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' LIKE time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 15:1: select time'01:01:00' LIKE timestamp'01-01-2023 01:01:00';
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 15:1: select time'01:01:00' LIKE timestamp'01-01-2023 01:01:00';
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' LIKE timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 16:1: select time'01:01:00' LIKE timestamp with time zone'01-01-2023 0...
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 16:1: ...1:00' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 17:1: select time'01:01:00' LIKE n1.dob from TDTT005date n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 17:1: select time'01:01:00' LIKE n1.dob from TDTT005date n1;
+                                      ^^^^^^
+OCTO> select time'01:01:00' LIKE n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 18:1: select time'01:01:00' LIKE n1.dob from TDTT005time n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 18:1: select time'01:01:00' LIKE n1.dob from TDTT005time n1;
+                                      ^^^^^^
+OCTO> select time'01:01:00' LIKE n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 19:1: select time'01:01:00' LIKE n1.dob from TDTT005timestamp n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 19:1: select time'01:01:00' LIKE n1.dob from TDTT005timestamp n1;
+                                      ^^^^^^
+OCTO> select time'01:01:00' LIKE n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 20:1: select time'01:01:00' LIKE n1.dob from TDTT005timestamptz n1;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 20:1: select time'01:01:00' LIKE n1.dob from TDTT005timestamptz n1;
+                                      ^^^^^^
+OCTO> select time'01:01:00' LIKE n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 21:1: select time'01:01:00' LIKE 3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 21:1: select time'01:01:00' LIKE 3;
+                                      ^
+OCTO> select time'01:01:00' LIKE 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 22:1: select time'01:01:00' LIKE 'sample string';
+                  ^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' LIKE 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 23:1: select time'01:01:00' LIKE 3.3;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 23:1: select time'01:01:00' LIKE 3.3;
+                                      ^^^
+OCTO> select time'01:01:00' LIKE 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 24:1: select time'01:01:00' LIKE NULL;
+                  ^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 24:1: select time'01:01:00' LIKE NULL;
+                                      ^^^^
+OCTO> select time'01:01:00' LIKE NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 25:1: select timestamp'01-01-2023 01:01:00' LIKE date'01-01-2023';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 25:1: select timestamp'01-01-2023 01:01:00' LIKE date'01-01-2023';
+                                                      ^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 26:1: select timestamp'01-01-2023 01:01:00' LIKE time'01:01:00';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 26:1: select timestamp'01-01-2023 01:01:00' LIKE time'01:01:00';
+                                                      ^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 27:1: select timestamp'01-01-2023 01:01:00' LIKE timestamp'01-01-2023 ...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 27:1: ...estamp'01-01-2023 01:01:00' LIKE timestamp'01-01-2023 01:01:00';
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 28:1: select timestamp'01-01-2023 01:01:00' LIKE timestamp with time z...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 28:1: ...1:00' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 29:1: select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005da...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 29:1: ... timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005date n1;
+                                                   ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 30:1: select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005ti...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 30:1: ... timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005time n1;
+                                                   ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 31:1: select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005ti...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 31:1: ...stamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005timestamp n1;
+                                              ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 32:1: select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005ti...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 32:1: ...amp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005timestamptz n1;
+                                            ^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 33:1: select timestamp'01-01-2023 01:01:00' LIKE 3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 33:1: select timestamp'01-01-2023 01:01:00' LIKE 3;
+                                                      ^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 34:1: select timestamp'01-01-2023 01:01:00' LIKE 'sample string';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 35:1: select timestamp'01-01-2023 01:01:00' LIKE 3.3;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 35:1: select timestamp'01-01-2023 01:01:00' LIKE 3.3;
+                                                      ^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 36:1: select timestamp'01-01-2023 01:01:00' LIKE NULL;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 36:1: select timestamp'01-01-2023 01:01:00' LIKE NULL;
+                                                      ^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' LIKE NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 37:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 37:1: ...with time zone'01-01-2023 01:01:00-05:00' LIKE date'01-01-2023';
+                                                             ^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE date'01-01-2023';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 38:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 38:1: ...p with time zone'01-01-2023 01:01:00-05:00' LIKE time'01:01:00';
+                                                               ^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE time'01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 39:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 39:1: ...'01-01-2023 01:01:00-05:00' LIKE timestamp'01-01-2023 01:01:00';
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 40:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 40:1: ...5:00' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 41:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 41:1: ...zone'01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005date n1;
+                                                   ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 42:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 42:1: ...zone'01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005time n1;
+                                                   ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 43:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 43:1: ...01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005timestamp n1;
+                                              ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 44:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 44:1: ...-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005timestamptz n1;
+                                            ^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 45:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 45:1: ...ect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE 3;
+                                                                           ^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE 3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 46:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE 'sample string';
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 47:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 47:1: ...t timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE 3.3;
+                                                                         ^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE 3.3;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 48:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 48:1: ...t timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE NULL;
+                                                                         ^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' LIKE NULL;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 49:1: select n1.dob LIKE date'01-01-2023' from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 49:1: select n1.dob LIKE date'01-01-2023' from TDTT005date n1;
+                              ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE date'01-01-2023' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 50:1: select n1.dob LIKE time'01:01:00' from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 50:1: select n1.dob LIKE time'01:01:00' from TDTT005date n1;
+                              ^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE time'01:01:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 51:1: select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005da...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 51:1: ...lect n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005date...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 52:1: select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 52:1: ... LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 53:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005date n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 53:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005date n2;
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 54:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005time n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 54:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005time n2;
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 55:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005timestamp ...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 55:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005timestamp ...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 56:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005timestampt...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 56:1: select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005timestampt...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005date n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 57:1: select n1.dob LIKE 3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 57:1: select n1.dob LIKE 3 from TDTT005date n1;
+                              ^
+OCTO> select n1.dob LIKE 3 from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 58:1: select n1.dob LIKE 'sample string' from TDTT005date n1;
+                  ^^^^^^
+OCTO> select n1.dob LIKE 'sample string' from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 59:1: select n1.dob LIKE 3.3 from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 59:1: select n1.dob LIKE 3.3 from TDTT005date n1;
+                              ^^^
+OCTO> select n1.dob LIKE 3.3 from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 60:1: select n1.dob LIKE NULL from TDTT005date n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 60:1: select n1.dob LIKE NULL from TDTT005date n1;
+                              ^^^^
+OCTO> select n1.dob LIKE NULL from TDTT005date n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 61:1: select n1.dob LIKE date'01-01-2023' from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 61:1: select n1.dob LIKE date'01-01-2023' from TDTT005time n1;
+                              ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE date'01-01-2023' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 62:1: select n1.dob LIKE time'01:01:00' from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 62:1: select n1.dob LIKE time'01:01:00' from TDTT005time n1;
+                              ^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE time'01:01:00' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 63:1: select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005ti...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 63:1: ...lect n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005time...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 64:1: select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 64:1: ... LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 65:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005date n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 65:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005date n2;
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 66:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005time n2;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 66:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005time n2;
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 67:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005timestamp ...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 67:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005timestamp ...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 68:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005timestampt...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 68:1: select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005timestampt...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005time n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 69:1: select n1.dob LIKE 3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 69:1: select n1.dob LIKE 3 from TDTT005time n1;
+                              ^
+OCTO> select n1.dob LIKE 3 from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 70:1: select n1.dob LIKE 'sample string' from TDTT005time n1;
+                  ^^^^^^
+OCTO> select n1.dob LIKE 'sample string' from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 71:1: select n1.dob LIKE 3.3 from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 71:1: select n1.dob LIKE 3.3 from TDTT005time n1;
+                              ^^^
+OCTO> select n1.dob LIKE 3.3 from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 72:1: select n1.dob LIKE NULL from TDTT005time n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 72:1: select n1.dob LIKE NULL from TDTT005time n1;
+                              ^^^^
+OCTO> select n1.dob LIKE NULL from TDTT005time n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 73:1: select n1.dob LIKE date'01-01-2023' from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 73:1: select n1.dob LIKE date'01-01-2023' from TDTT005timestamp n1;
+                              ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE date'01-01-2023' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 74:1: select n1.dob LIKE time'01:01:00' from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 74:1: select n1.dob LIKE time'01:01:00' from TDTT005timestamp n1;
+                              ^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE time'01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 75:1: select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005ti...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 75:1: ...lect n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005time...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 76:1: select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 76:1: ... LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 77:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005date ...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 77:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005date ...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 78:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005time ...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 78:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005time ...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 79:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005times...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 79:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005times...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 80:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005times...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 80:1: select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005times...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 81:1: select n1.dob LIKE 3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 81:1: select n1.dob LIKE 3 from TDTT005timestamp n1;
+                              ^
+OCTO> select n1.dob LIKE 3 from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 82:1: select n1.dob LIKE 'sample string' from TDTT005timestamp n1;
+                  ^^^^^^
+OCTO> select n1.dob LIKE 'sample string' from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 83:1: select n1.dob LIKE 3.3 from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 83:1: select n1.dob LIKE 3.3 from TDTT005timestamp n1;
+                              ^^^
+OCTO> select n1.dob LIKE 3.3 from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 84:1: select n1.dob LIKE NULL from TDTT005timestamp n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 84:1: select n1.dob LIKE NULL from TDTT005timestamp n1;
+                              ^^^^
+OCTO> select n1.dob LIKE NULL from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 85:1: select n1.dob LIKE date'01-01-2023' from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 85:1: select n1.dob LIKE date'01-01-2023' from TDTT005timestamptz n1;
+                              ^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE date'01-01-2023' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 86:1: select n1.dob LIKE time'01:01:00' from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 86:1: select n1.dob LIKE time'01:01:00' from TDTT005timestamptz n1;
+                              ^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE time'01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 87:1: select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005ti...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 87:1: ...lect n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005time...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 88:1: select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 88:1: ... LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select n1.dob LIKE timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 89:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005dat...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for regex operations
+LINE 89:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005dat...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005date n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 90:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005tim...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for regex operations
+LINE 90:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005tim...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005time n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 91:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005tim...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for regex operations
+LINE 91:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005tim...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 92:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005tim...
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 92:1: select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005tim...
+                              ^^^^^^
+OCTO> select n1.dob LIKE n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 93:1: select n1.dob LIKE 3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for regex operations
+LINE 93:1: select n1.dob LIKE 3 from TDTT005timestamptz n1;
+                              ^
+OCTO> select n1.dob LIKE 3 from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 94:1: select n1.dob LIKE 'sample string' from TDTT005timestamptz n1;
+                  ^^^^^^
+OCTO> select n1.dob LIKE 'sample string' from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 95:1: select n1.dob LIKE 3.3 from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for regex operations
+LINE 95:1: select n1.dob LIKE 3.3 from TDTT005timestamptz n1;
+                              ^^^
+OCTO> select n1.dob LIKE 3.3 from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 96:1: select n1.dob LIKE NULL from TDTT005timestamptz n1;
+                  ^^^^^^
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for regex operations
+LINE 96:1: select n1.dob LIKE NULL from TDTT005timestamptz n1;
+                              ^^^^
+OCTO> select n1.dob LIKE NULL from TDTT005timestamptz n1;
+OCTO> 

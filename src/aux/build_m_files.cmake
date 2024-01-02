@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,6 +34,7 @@ set(aux_files
   aux/_ydboctosqlfunctions.m
   aux/_ydboctoxrefupdate.m
   aux/_ydboctoViewsUpgrade.m
+  aux/_ydboctofTODTFORMAT.m
 )
 
 add_ydb_library(_ydbocto SOURCES ${aux_files})

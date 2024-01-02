@@ -20,6 +20,22 @@
 #include "logical_plan.h"
 #include "template_helpers.h"
 
+#define IS_READONLY_TABLE_COLUMN(COLUMN_ALIAS, RET)                                       \
+	{                                                                                 \
+		SqlColumnAlias *column_alias = COLUMN_ALIAS;                              \
+		if (column_STATEMENT == column_alias->column->type) {                     \
+			SqlColumn *column;                                                \
+			UNPACK_SQL_STATEMENT(column, column_alias->column, column);       \
+			if (create_table_STATEMENT == column->table->type) {              \
+				SqlTable *table;                                          \
+				UNPACK_SQL_STATEMENT(table, column->table, create_table); \
+				if (!table->readwrite) {                                  \
+					RET = TRUE;                                       \
+				}                                                         \
+			}                                                                 \
+		}                                                                         \
+	}
+
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
 					 boolean_t num_outer_joins) {
 	int	    *key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
@@ -121,12 +137,30 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			// We cannot optimize `IS NOT TRUE` or `IS NOT FALSE`, so skip optimization and return here
 			return where;
 		}
+		/* Fall through */
 	case LP_BOOLEAN_IS:
 	case LP_BOOLEAN_EQUALS:
+		break;
 	case LP_BOOLEAN_LESS_THAN:
 	case LP_BOOLEAN_GREATER_THAN:
 	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+		if ((IS_DATE_TIME_TYPE(lp_get_plan_value_type(left))) || (IS_DATE_TIME_TYPE(lp_get_plan_value_type(right)))) {
+			/* Readonly table optimization leads to wrong results as cross reference of date/time values will have
+			 * ordering based on string format.
+			 */
+			boolean_t do_not_optimize = FALSE;
+			if (LP_COLUMN_ALIAS == left->type) {
+				IS_READONLY_TABLE_COLUMN(left->v.lp_column_alias.column_alias, do_not_optimize);
+			}
+			if (!do_not_optimize && (LP_COLUMN_ALIAS == right->type)) {
+				IS_READONLY_TABLE_COLUMN(right->v.lp_column_alias.column_alias, do_not_optimize);
+			}
+			if (do_not_optimize) {
+				return where;
+				break;
+			}
+		}
 		break;
 	case LP_BOOLEAN_IN:
 		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */

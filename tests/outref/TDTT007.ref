@@ -1,0 +1,694 @@
+OCTO> -- type:date format:
+create table TDTT005date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT005date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT005time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT005time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT005timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT005timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT005timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT005timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT005timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT005timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+OCTO> select date'01-01-2023'::DATE;
+DATE
+2023-01-01
+(1 row)
+OCTO> select CAST(date'01-01-2023' AS DATE);
+DATE
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type TIME
+LINE 28:1: select date'01-01-2023'::TIME;
+                  ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023'::TIME;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type TIME
+LINE 29:1: select CAST(date'01-01-2023' AS TIME);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(date'01-01-2023' AS TIME);
+OCTO> select date'01-01-2023'::TIMESTAMP;
+TIMESTAMP
+2023-01-01 00:00:00
+(1 row)
+OCTO> select CAST(date'01-01-2023' AS TIMESTAMP);
+TIMESTAMP
+2023-01-01 00:00:00
+(1 row)
+OCTO> select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+2023-01-01 00:00:00-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type INTEGER
+LINE 34:1: select date'01-01-2023'::INTEGER;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023'::INTEGER;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type INTEGER
+LINE 35:1: select CAST(date'01-01-2023' AS INTEGER);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(date'01-01-2023' AS INTEGER);
+OCTO> select date'01-01-2023'::VARCHAR;
+VARCHAR
+2023-01-01
+(1 row)
+OCTO> select CAST(date'01-01-2023' AS VARCHAR);
+VARCHAR
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type NUMERIC
+LINE 38:1: select date'01-01-2023'::NUMERIC;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023'::NUMERIC;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type NUMERIC
+LINE 39:1: select CAST(date'01-01-2023' AS NUMERIC);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(date'01-01-2023' AS NUMERIC);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type BOOLEAN
+LINE 40:1: select date'01-01-2023'::BOOLEAN;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023'::BOOLEAN;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type BOOLEAN
+LINE 41:1: select CAST(date'01-01-2023' AS BOOLEAN);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(date'01-01-2023' AS BOOLEAN);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type DATE
+LINE 42:1: select time'01:01:00'::DATE;
+                  ^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00'::DATE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type DATE
+LINE 43:1: select CAST(time'01:01:00' AS DATE);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(time'01:01:00' AS DATE);
+OCTO> select time'01:01:00'::TIME;
+TIME
+01:01:00
+(1 row)
+OCTO> select CAST(time'01:01:00' AS TIME);
+TIME
+01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP
+LINE 46:1: select time'01:01:00'::TIMESTAMP;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00'::TIMESTAMP;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP
+LINE 47:1: select CAST(time'01:01:00' AS TIMESTAMP);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(time'01:01:00' AS TIMESTAMP);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP WITH TIME ZONE
+LINE 48:1: select time'01:01:00'::TIMESTAMP WITH TIME ZONE;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00'::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP WITH TIME ZONE
+LINE 49:1: select CAST(time'01:01:00' AS TIMESTAMP WITH TIME ZONE);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(time'01:01:00' AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type INTEGER
+LINE 50:1: select time'01:01:00'::INTEGER;
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00'::INTEGER;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type INTEGER
+LINE 51:1: select CAST(time'01:01:00' AS INTEGER);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(time'01:01:00' AS INTEGER);
+OCTO> select time'01:01:00'::VARCHAR;
+VARCHAR
+01:01:00
+(1 row)
+OCTO> select CAST(time'01:01:00' AS VARCHAR);
+VARCHAR
+01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type NUMERIC
+LINE 54:1: select time'01:01:00'::NUMERIC;
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00'::NUMERIC;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type NUMERIC
+LINE 55:1: select CAST(time'01:01:00' AS NUMERIC);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(time'01:01:00' AS NUMERIC);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type BOOLEAN
+LINE 56:1: select time'01:01:00'::BOOLEAN;
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00'::BOOLEAN;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type BOOLEAN
+LINE 57:1: select CAST(time'01:01:00' AS BOOLEAN);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(time'01:01:00' AS BOOLEAN);
+OCTO> select timestamp'01-01-2023 01:01:00'::DATE;
+DATE
+2023-01-01
+(1 row)
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS DATE);
+DATE
+2023-01-01
+(1 row)
+OCTO> select timestamp'01-01-2023 01:01:00'::TIME;
+TIME
+01:01:00
+(1 row)
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS TIME);
+TIME
+01:01:00
+(1 row)
+OCTO> select timestamp'01-01-2023 01:01:00'::TIMESTAMP;
+TIMESTAMP
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS TIMESTAMP);
+TIMESTAMP
+2023-01-01 01:01:00
+(1 row)
+OCTO> select timestamp'01-01-2023 01:01:00'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type INTEGER
+LINE 66:1: select timestamp'01-01-2023 01:01:00'::INTEGER;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00'::INTEGER;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type INTEGER
+LINE 67:1: select CAST(timestamp'01-01-2023 01:01:00' AS INTEGER);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS INTEGER);
+OCTO> select timestamp'01-01-2023 01:01:00'::VARCHAR;
+VARCHAR
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS VARCHAR);
+VARCHAR
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type NUMERIC
+LINE 70:1: select timestamp'01-01-2023 01:01:00'::NUMERIC;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00'::NUMERIC;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type NUMERIC
+LINE 71:1: select CAST(timestamp'01-01-2023 01:01:00' AS NUMERIC);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS NUMERIC);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type BOOLEAN
+LINE 72:1: select timestamp'01-01-2023 01:01:00'::BOOLEAN;
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00'::BOOLEAN;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type BOOLEAN
+LINE 73:1: select CAST(timestamp'01-01-2023 01:01:00' AS BOOLEAN);
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(timestamp'01-01-2023 01:01:00' AS BOOLEAN);
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::DATE;
+DATE
+2023-01-01
+(1 row)
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS DATE);
+DATE
+2023-01-01
+(1 row)
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::TIME;
+TIME
+01:01:00
+(1 row)
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS TIME);
+TIME
+01:01:00
+(1 row)
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::TIMESTAMP;
+TIMESTAMP
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS TIMESTAMP);
+TIMESTAMP
+2023-01-01 01:01:00
+(1 row)
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::TIMESTAMP WITH TIME ZONE;
+TIMESTAMPTZ
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS TIMESTAMP WITH TIME ZONE);
+TIMESTAMPTZ
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type INTEGER
+LINE 82:1: ...ct timestamp with time zone'01-01-2023 01:01:00-05:00'::INTEGER;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::INTEGER;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type INTEGER
+LINE 83:1: ...CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS INTE...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS INTEGER);
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::VARCHAR;
+VARCHAR
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS VARCHAR);
+VARCHAR
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type NUMERIC
+LINE 86:1: ...ct timestamp with time zone'01-01-2023 01:01:00-05:00'::NUMERIC;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::NUMERIC;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type NUMERIC
+LINE 87:1: ...CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS NUME...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS NUMERIC);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type BOOLEAN
+LINE 88:1: ...ct timestamp with time zone'01-01-2023 01:01:00-05:00'::BOOLEAN;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00'::BOOLEAN;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type BOOLEAN
+LINE 89:1: ...CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS BOOL...
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:00-05:00' AS BOOLEAN);
+OCTO> select dob::DATE from TDTT005date n1;
+dob
+2023-01-01
+(1 row)
+OCTO> select CAST(dob AS DATE) from TDTT005date n1;
+dob
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type TIME
+LINE 92:1: select dob::TIME from TDTT005date n1;
+                  ^^^^^^^^^
+OCTO> select dob::TIME from TDTT005date n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type TIME
+LINE 93:1: select CAST(dob AS TIME) from TDTT005date n1;
+                  ^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS TIME) from TDTT005date n1;
+OCTO> select dob::TIMESTAMP from TDTT005date n1;
+dob
+2023-01-01 00:00:00
+(1 row)
+OCTO> select CAST(dob AS TIMESTAMP) from TDTT005date n1;
+dob
+2023-01-01 00:00:00
+(1 row)
+OCTO> select dob::TIMESTAMP WITH TIME ZONE from TDTT005date n1;
+dob
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select CAST(dob AS TIMESTAMP WITH TIME ZONE) from TDTT005date n1;
+dob
+2023-01-01 00:00:00-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type INTEGER
+LINE 98:1: select dob::INTEGER from TDTT005date n1;
+                  ^^^^^^^^^^^^
+OCTO> select dob::INTEGER from TDTT005date n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type INTEGER
+LINE 99:1: select CAST(dob AS INTEGER) from TDTT005date n1;
+                  ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS INTEGER) from TDTT005date n1;
+OCTO> select dob::VARCHAR from TDTT005date n1;
+dob
+2023-01-01
+(1 row)
+OCTO> select CAST(dob AS VARCHAR) from TDTT005date n1;
+dob
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type NUMERIC
+LINE 102:1: select dob::NUMERIC from TDTT005date n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::NUMERIC from TDTT005date n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type NUMERIC
+LINE 103:1: select CAST(dob AS NUMERIC) from TDTT005date n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS NUMERIC) from TDTT005date n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type BOOLEAN
+LINE 104:1: select dob::BOOLEAN from TDTT005date n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::BOOLEAN from TDTT005date n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type DATE to type BOOLEAN
+LINE 105:1: select CAST(dob AS BOOLEAN) from TDTT005date n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS BOOLEAN) from TDTT005date n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type DATE
+LINE 106:1: select dob::DATE from TDTT005time n1;
+                   ^^^^^^^^^
+OCTO> select dob::DATE from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type DATE
+LINE 107:1: select CAST(dob AS DATE) from TDTT005time n1;
+                   ^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS DATE) from TDTT005time n1;
+OCTO> select dob::TIME from TDTT005time n1;
+dob
+01:01:01
+(1 row)
+OCTO> select CAST(dob AS TIME) from TDTT005time n1;
+dob
+01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP
+LINE 110:1: select dob::TIMESTAMP from TDTT005time n1;
+                   ^^^^^^^^^^^^^^
+OCTO> select dob::TIMESTAMP from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP
+LINE 111:1: select CAST(dob AS TIMESTAMP) from TDTT005time n1;
+                   ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS TIMESTAMP) from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP WITH TIME ZONE
+LINE 112:1: select dob::TIMESTAMP WITH TIME ZONE from TDTT005time n1;
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select dob::TIMESTAMP WITH TIME ZONE from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type TIMESTAMP WITH TIME ZONE
+LINE 113:1: select CAST(dob AS TIMESTAMP WITH TIME ZONE) from TDTT005time n...
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS TIMESTAMP WITH TIME ZONE) from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type INTEGER
+LINE 114:1: select dob::INTEGER from TDTT005time n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::INTEGER from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type INTEGER
+LINE 115:1: select CAST(dob AS INTEGER) from TDTT005time n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS INTEGER) from TDTT005time n1;
+OCTO> select dob::VARCHAR from TDTT005time n1;
+dob
+01:01:01
+(1 row)
+OCTO> select CAST(dob AS VARCHAR) from TDTT005time n1;
+dob
+01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type NUMERIC
+LINE 118:1: select dob::NUMERIC from TDTT005time n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::NUMERIC from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type NUMERIC
+LINE 119:1: select CAST(dob AS NUMERIC) from TDTT005time n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS NUMERIC) from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type BOOLEAN
+LINE 120:1: select dob::BOOLEAN from TDTT005time n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::BOOLEAN from TDTT005time n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIME to type BOOLEAN
+LINE 121:1: select CAST(dob AS BOOLEAN) from TDTT005time n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS BOOLEAN) from TDTT005time n1;
+OCTO> select dob::DATE from TDTT005timestamp n1;
+dob
+2023-01-01
+(1 row)
+OCTO> select CAST(dob AS DATE) from TDTT005timestamp n1;
+dob
+2023-01-01
+(1 row)
+OCTO> select dob::TIME from TDTT005timestamp n1;
+dob
+01:01:01
+(1 row)
+OCTO> select CAST(dob AS TIME) from TDTT005timestamp n1;
+dob
+01:01:01
+(1 row)
+OCTO> select dob::TIMESTAMP from TDTT005timestamp n1;
+dob
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CAST(dob AS TIMESTAMP) from TDTT005timestamp n1;
+dob
+2023-01-01 01:01:01
+(1 row)
+OCTO> select dob::TIMESTAMP WITH TIME ZONE from TDTT005timestamp n1;
+dob
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select CAST(dob AS TIMESTAMP WITH TIME ZONE) from TDTT005timestamp n1;
+dob
+2023-01-01 01:01:01-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type INTEGER
+LINE 130:1: select dob::INTEGER from TDTT005timestamp n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::INTEGER from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type INTEGER
+LINE 131:1: select CAST(dob AS INTEGER) from TDTT005timestamp n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS INTEGER) from TDTT005timestamp n1;
+OCTO> select dob::VARCHAR from TDTT005timestamp n1;
+dob
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CAST(dob AS VARCHAR) from TDTT005timestamp n1;
+dob
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type NUMERIC
+LINE 134:1: select dob::NUMERIC from TDTT005timestamp n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::NUMERIC from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type NUMERIC
+LINE 135:1: select CAST(dob AS NUMERIC) from TDTT005timestamp n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS NUMERIC) from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type BOOLEAN
+LINE 136:1: select dob::BOOLEAN from TDTT005timestamp n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::BOOLEAN from TDTT005timestamp n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP to type BOOLEAN
+LINE 137:1: select CAST(dob AS BOOLEAN) from TDTT005timestamp n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS BOOLEAN) from TDTT005timestamp n1;
+OCTO> select dob::DATE from TDTT005timestamptz n1;
+dob
+2022-12-31
+(1 row)
+OCTO> select CAST(dob AS DATE) from TDTT005timestamptz n1;
+dob
+2022-12-31
+(1 row)
+OCTO> select dob::TIME from TDTT005timestamptz n1;
+dob
+15:01:01
+(1 row)
+OCTO> select CAST(dob AS TIME) from TDTT005timestamptz n1;
+dob
+15:01:01
+(1 row)
+OCTO> select dob::TIMESTAMP from TDTT005timestamptz n1;
+dob
+2022-12-31 15:01:01
+(1 row)
+OCTO> select CAST(dob AS TIMESTAMP) from TDTT005timestamptz n1;
+dob
+2022-12-31 15:01:01
+(1 row)
+OCTO> select dob::TIMESTAMP WITH TIME ZONE from TDTT005timestamptz n1;
+dob
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select CAST(dob AS TIMESTAMP WITH TIME ZONE) from TDTT005timestamptz n1;
+dob
+2022-12-31 15:01:01-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type INTEGER
+LINE 146:1: select dob::INTEGER from TDTT005timestamptz n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::INTEGER from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type INTEGER
+LINE 147:1: select CAST(dob AS INTEGER) from TDTT005timestamptz n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS INTEGER) from TDTT005timestamptz n1;
+OCTO> select dob::VARCHAR from TDTT005timestamptz n1;
+dob
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select CAST(dob AS VARCHAR) from TDTT005timestamptz n1;
+dob
+2022-12-31 15:01:01-05
+(1 row)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type NUMERIC
+LINE 150:1: select dob::NUMERIC from TDTT005timestamptz n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::NUMERIC from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type NUMERIC
+LINE 151:1: select CAST(dob AS NUMERIC) from TDTT005timestamptz n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS NUMERIC) from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type BOOLEAN
+LINE 152:1: select dob::BOOLEAN from TDTT005timestamptz n1;
+                   ^^^^^^^^^^^^
+OCTO> select dob::BOOLEAN from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type TIMESTAMP WITH TIME ZONE to type BOOLEAN
+LINE 153:1: select CAST(dob AS BOOLEAN) from TDTT005timestamptz n1;
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(dob AS BOOLEAN) from TDTT005timestamptz n1;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type DATE
+LINE 154:1: select 3::DATE;
+                   ^^^^^^^
+OCTO> select 3::DATE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type DATE
+LINE 155:1: select CAST(3 AS DATE);
+                   ^^^^^^^^^^^^^^^
+OCTO> select CAST(3 AS DATE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIME
+LINE 156:1: select 3::TIME;
+                   ^^^^^^^
+OCTO> select 3::TIME;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIME
+LINE 157:1: select CAST(3 AS TIME);
+                   ^^^^^^^^^^^^^^^
+OCTO> select CAST(3 AS TIME);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIMESTAMP
+LINE 158:1: select 3::TIMESTAMP;
+                   ^^^^^^^^^^^^
+OCTO> select 3::TIMESTAMP;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIMESTAMP
+LINE 159:1: select CAST(3 AS TIMESTAMP);
+                   ^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(3 AS TIMESTAMP);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIMESTAMP WITH TIME ZONE
+LINE 160:1: select 3::TIMESTAMP WITH TIME ZONE;
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select 3::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type INTEGER to type TIMESTAMP WITH TIME ZONE
+LINE 161:1: select CAST(3 AS TIMESTAMP WITH TIME ZONE);
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(3 AS TIMESTAMP WITH TIME ZONE);
+OCTO> select 'sample string'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select CAST('sample string' AS DATE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select 'sample string'::TIME;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select CAST('sample string' AS TIME);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select 'sample string'::TIMESTAMP;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select CAST('sample string' AS TIMESTAMP);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select 'sample string'::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select CAST('sample string' AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
+LINE 170:1: select 3.3::DATE;
+                   ^^^^^^^^^
+OCTO> select 3.3::DATE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
+LINE 171:1: select CAST(3.3 AS DATE);
+                   ^^^^^^^^^^^^^^^^^
+OCTO> select CAST(3.3 AS DATE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIME
+LINE 172:1: select 3.3::TIME;
+                   ^^^^^^^^^
+OCTO> select 3.3::TIME;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIME
+LINE 173:1: select CAST(3.3 AS TIME);
+                   ^^^^^^^^^^^^^^^^^
+OCTO> select CAST(3.3 AS TIME);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIMESTAMP
+LINE 174:1: select 3.3::TIMESTAMP;
+                   ^^^^^^^^^^^^^^
+OCTO> select 3.3::TIMESTAMP;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIMESTAMP
+LINE 175:1: select CAST(3.3 AS TIMESTAMP);
+                   ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(3.3 AS TIMESTAMP);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIMESTAMP WITH TIME ZONE
+LINE 176:1: select 3.3::TIMESTAMP WITH TIME ZONE;
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select 3.3::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIMESTAMP WITH TIME ZONE
+LINE 177:1: select CAST(3.3 AS TIMESTAMP WITH TIME ZONE);
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(3.3 AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type DATE
+LINE 178:1: select NULL::DATE;
+                   ^^^^^^^^^^
+OCTO> select NULL::DATE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type DATE
+LINE 179:1: select CAST(NULL AS DATE);
+                   ^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(NULL AS DATE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type TIME
+LINE 180:1: select NULL::TIME;
+                   ^^^^^^^^^^
+OCTO> select NULL::TIME;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type TIME
+LINE 181:1: select CAST(NULL AS TIME);
+                   ^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(NULL AS TIME);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type TIMESTAMP
+LINE 182:1: select NULL::TIMESTAMP;
+                   ^^^^^^^^^^^^^^^
+OCTO> select NULL::TIMESTAMP;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type TIMESTAMP
+LINE 183:1: select CAST(NULL AS TIMESTAMP);
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(NULL AS TIMESTAMP);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type TIMESTAMP WITH TIME ZONE
+LINE 184:1: select NULL::TIMESTAMP WITH TIME ZONE;
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NULL::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type NULL to type TIMESTAMP WITH TIME ZONE
+LINE 185:1: select CAST(NULL AS TIMESTAMP WITH TIME ZONE);
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(NULL AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type DATE
+LINE 186:1: select true::DATE;
+                   ^^^^^^^^^^
+OCTO> select true::DATE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type DATE
+LINE 187:1: select CAST(true AS DATE);
+                   ^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(true AS DATE);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIME
+LINE 188:1: select true::TIME;
+                   ^^^^^^^^^^
+OCTO> select true::TIME;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIME
+LINE 189:1: select CAST(true AS TIME);
+                   ^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(true AS TIME);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIMESTAMP
+LINE 190:1: select true::TIMESTAMP;
+                   ^^^^^^^^^^^^^^^
+OCTO> select true::TIMESTAMP;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIMESTAMP
+LINE 191:1: select CAST(true AS TIMESTAMP);
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(true AS TIMESTAMP);
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIMESTAMP WITH TIME ZONE
+LINE 192:1: select true::TIMESTAMP WITH TIME ZONE;
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select true::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIMESTAMP WITH TIME ZONE
+LINE 193:1: select CAST(true AS TIMESTAMP WITH TIME ZONE);
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CAST(true AS TIMESTAMP WITH TIME ZONE);
+OCTO> -- type:date format:
+drop table TDTT005date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT005time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT005timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT005timestamptz;
+DROP TABLE
+OCTO> 

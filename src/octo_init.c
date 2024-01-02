@@ -406,6 +406,66 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		config->seedreload = FALSE;
 	}
 #endif
+	/* Read in "datestyle" setting */
+	const char *datestyle;
+	status = config_lookup_string(config_file, "datestyle", &datestyle);
+	if (CONFIG_TRUE == status) {
+		char *datestyle_value = malloc(sizeof(char) * strlen(datestyle) + 1);
+		strcpy(datestyle_value, datestyle);
+		status = set_date_time_format_from_datestyle(datestyle_value);
+		free(datestyle_value);
+		if (0 != status) {
+			ERROR(ERR_BAD_CONFIG, config_file_name, "datestyle value is incorrect in config");
+			return 1;
+		}
+	} else {
+		// Default is set here instead of after load_pg_defaults as auto-upgrade procedure needs these defaults
+		char *datestyle_value = malloc(sizeof(char) * strlen(DEFAULT_DATESTYLE) + 1);
+		if (POSTGRES == config->database_emulation) {
+			strcpy(datestyle_value, OCTO_DEFAULT_POSTGRES_DATESTYLE);
+		} else {
+			strcpy(datestyle_value, OCTO_DEFAULT_MYSQL_DATESTYLE);
+		}
+		status = set_date_time_format_from_datestyle(datestyle_value);
+		free(datestyle_value);
+		assert(!status);
+		UNUSED(status); // Prevent clang-analyzer-deadcode.DeadStores warning
+	}
+	/* Read in "outputformat" setting */
+	const char *outputformat;
+	status = config_lookup_string(config_file, "datetimeoutputformat", &outputformat);
+	if (CONFIG_TRUE == status) {
+		/* Check if a valid value is specified. If not issue error. */
+		if (0 == strcmp(outputformat, OCTOLIT_DATE_TIME_HOROLOG)) {
+			config->date_time_output_format = OPTIONAL_DATE_TIME_HOROLOG;
+		} else if (0 == strcmp(outputformat, OCTOLIT_DATE_TIME_ZHOROLOG)) {
+			config->date_time_output_format = OPTIONAL_DATE_TIME_ZHOROLOG;
+		} else if (0 == strcmp(outputformat, OCTOLIT_DATE_TIME_ZUT)) {
+			config->date_time_output_format = OPTIONAL_DATE_TIME_ZUT;
+		} else if (0 == strcmp(outputformat, OCTOLIT_DATE_TIME_FILEMAN)) {
+			config->date_time_output_format = OPTIONAL_DATE_TIME_FILEMAN;
+		} else if (0 == strcmp(outputformat, OCTOLIT_DATE_TIME_TEXT)) {
+			config->date_time_output_format = OPTIONAL_DATE_TIME_TEXT;
+		} else {
+			ERROR(ERR_BAD_CONFIG, config_file_name,
+			      "output format is incorrect, it can be horolog,zhorolog,zut,fileman or text");
+			return 1;
+		}
+	} else {
+		config->date_time_output_format = OPTIONAL_DATE_TIME_TEXT;
+	}
+	// Set LVN such that plans can make use of this instead of hashing this value
+	ydb_buffer_t ydboctodatetimeoutputformat;
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT, &ydboctodatetimeoutputformat);
+	ydb_buffer_t val;
+	char	     numbuf[INT32_TO_STRING_MAX + 1];
+	val.buf_addr = numbuf;
+	val.len_alloc = sizeof(numbuf);
+	val.len_used = snprintf(val.buf_addr, val.len_alloc, "%d", config->date_time_output_format);
+	status = ydb_set_s(&ydboctodatetimeoutputformat, 0, NULL, &val);
+	assert(YDB_OK == status);
+	UNUSED(status); /* needed to avoid [-Wunused-but-set-variable] warning from compiler */
+
 	/* Load octo_history and octo_history_max_length
 	 * For octo_history if not set, it will just be NULL, which we can easily
 	 * check.
@@ -696,7 +756,7 @@ int octo_init(int argc, char **argv) {
 	boolean_t      verbosity_set;
 	config_t      *config_file;
 	ssize_t	       exe_path_len;
-	char	       ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
+	char	       ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX], xc_path[OCTO_PATH_MAX];
 	char	       cwd_file_name[OCTO_PATH_MAX], homedir_file_name[OCTO_PATH_MAX], plugin_file_name[OCTO_PATH_MAX];
 	char	       zstatus_message[YDB_MAX_ERRORMSG];
 	char	      *homedir, *ydb_dist, *most_recent_filename, *config_file_name = NULL;
@@ -828,6 +888,16 @@ int octo_init(int argc, char **argv) {
 		}
 		if (EMULATION_UNSET != temp_config.database_emulation) { // Only overwrite if initialized
 			config->database_emulation = temp_config.database_emulation;
+			char *datestyle_value = malloc(sizeof(char) * strlen(DEFAULT_DATESTYLE) + 1);
+			if (POSTGRES == config->database_emulation) {
+				strcpy(datestyle_value, OCTO_DEFAULT_POSTGRES_DATESTYLE);
+			} else {
+				strcpy(datestyle_value, OCTO_DEFAULT_MYSQL_DATESTYLE);
+			}
+			status = set_date_time_format_from_datestyle(datestyle_value);
+			free(datestyle_value);
+			assert(!status);
+			UNUSED(status); // Prevent clang-analyzer-deadcode.DeadStores warning
 		}
 		// Issue INFO messages for loaded configuration files now that verbosity level is finalized
 		for (i = 0; i < config_file_list.num_files; i++) {
@@ -872,6 +942,51 @@ int octo_init(int argc, char **argv) {
 				INFO(INFO_ENV_VAR, envvar_array[i], ptr);
 			}
 		}
+		/* Determine full path of "ydbocto.xc" to set as the external table path for date/time c functions */
+		if (!DISABLE_INSTALL) {
+			/* Octo was installed under $ydb_dist (using "cmake -D DISABLE_INSTALL=OFF"). So pick that path.
+			 * NOTE: this uses a hard-coded path under $ydb_dist.
+			 */
+			if (NULL != ydb_dist) {
+				status = snprintf(xc_path, sizeof(xc_path), "%s/plugin/octo/ydbocto.xc", ydb_dist);
+				if ((int)sizeof(xc_path) <= status) {
+					ERROR(ERR_BUFFER_TOO_SMALL,
+					      "Octo external call table path : $ydb_dist/plugin/octo/ydbocto.xc");
+					status = 1;
+					break;
+				}
+			} else {
+				ERROR(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "ydb_dist");
+				status = 1;
+				break;
+			}
+		} else {
+			/* Octo was built but not installed. So derive the path of ydbocto.xc from the path of the
+			 * octo/rocto binary that is currently running.
+			 */
+			exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
+			if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
+				exe_path[exe_path_len] = '\0'; // readlink() doesn't add a null terminator per man page
+				src_path = dirname(exe_path);
+				if (NULL != src_path) {
+					status = snprintf(xc_path, sizeof(xc_path), "%s/ydbocto.xc", src_path);
+					if ((int)sizeof(xc_path) <= status) {
+						ERROR(ERR_BUFFER_TOO_SMALL, "ydbocto.xc external call table file path");
+						status = 1;
+						break;
+					}
+				} else {
+					ERROR(ERR_LIBCALL_WITH_ARG, "dirname()", exe_path);
+					status = 1;
+					break;
+				}
+			} else {
+				ERROR(ERR_LIBCALL_WITH_ARG, "readlink()", "/proc/self/exe");
+				status = 1;
+				break;
+			}
+		}
+		setenv("ydb_xc_octo", xc_path, TRUE); // Overwrite
 		/* Determine full path of "ydbocto.ci" to set as the call-in table path */
 		if (!DISABLE_INSTALL) {
 			/* Octo was installed under $ydb_dist (using "cmake -D DISABLE_INSTALL=OFF"). So pick that path.

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,6 +17,6 @@ CREATE TABLE namesWithAges (
  firstName VARCHAR(30),
  lastName VARCHAR(30),
  age INTEGER,
- datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+ datetime TIMESTAMP EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";

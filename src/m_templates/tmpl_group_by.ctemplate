@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -152,7 +152,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 		%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ pplan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE);
+		TMPL(tmpl_column_list_combine, pplan->projection, pplan, ",", FALSE, 0, FALSE, FALSE);
 		%{}))){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 	}

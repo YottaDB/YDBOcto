@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -127,6 +127,12 @@ char *get_user_visible_binary_operator_string(enum BinaryOperations operation) {
 		break;
 	case BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
 		ret = ">= ALL";
+		break;
+	case DATE_TIME_ADDITION:
+		ret = "+";
+		break;
+	case DATE_TIME_SUBTRACTION:
+		ret = "-";
 		break;
 	default:
 		/* All valid code paths are already enumerated above. So this should be an impossible code path.

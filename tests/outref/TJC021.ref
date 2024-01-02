@@ -97,7 +97,7 @@ OCTO> select '"public"."NAMES"'::regclass;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: "public"."NAMES"
 OCTO> select 'pg_class'::regclass;
 regclass
-488
+606
 (1 row)
 OCTO> select 'pg_catalog."pg_class"'::regclass;
 regclass
@@ -105,7 +105,7 @@ regclass
 (1 row)
 OCTO> select '"PG_CATALOG"."pg_class"'::regclass;
 regclass
-488
+606
 (1 row)
 OCTO> select '"pg_catalog"."pg_class"'::regclass;
 regclass

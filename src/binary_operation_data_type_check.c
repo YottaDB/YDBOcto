@@ -32,6 +32,12 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	int result;
 	result = 0;
 	CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
+	if (result) {
+		for (int i = 0; i < 2; i++) {
+			yyerror(&binary->operands[i]->loc, NULL, NULL, NULL, NULL, NULL);
+		}
+		return result;
+	}
 	/* Note: The below "switch" is mirrored in a switch in "populate_data_type.c" under "case binary_STATEMENT:".
 	 * Any additions to binary operations will involve a new "case" block below since there is
 	 * no "default:" case block (intentionally not there so compiler warns about new missing cases
@@ -43,8 +49,8 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	case DIVISION:
 	case MULTIPLICATION:
 	case MODULO:;
-		int i;
-
+		int	  i;
+		boolean_t is_date_time_operation = FALSE;
 		for (i = 0; i < 2; i++) {
 			switch (child_type[i]) {
 			case INTEGER_LITERAL:
@@ -52,12 +58,194 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 			case NUL_VALUE:
 				/* These types are acceptable for arithmetic operations */
 				break;
+			case DATE_LITERAL:
+			case TIME_LITERAL:
+			case TIME_WITH_TIME_ZONE_LITERAL:
+			case TIMESTAMP_LITERAL:
+			case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+				is_date_time_operation = TRUE;
+				if ((ADDITION != binary->operation) && (SUBTRACTION != binary->operation)) {
+					// ERROR feature not implemented
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Date/time arithmetic operations");
+					result = 1;
+				}
+				break;
 			default:
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[i], "arithmetic operations", &binary->operands[i],
 							       result);
 			}
 		}
-		*type = child_type[0];
+		if (result) {
+			break;
+		}
+		if (is_date_time_operation) {
+			if (SUBTRACTION == binary->operation) {
+				binary->operation = DATE_TIME_SUBTRACTION;
+				if (IS_DATE(orig_child_type[0]) && (IS_DATE(orig_child_type[1]))) {
+					// DATE DATE
+					*type = INTEGER_LITERAL;
+					child_type[0] = child_type[1] = DATE_LITERAL;
+				} else if (IS_DATE(orig_child_type[0]) && (TIME_LITERAL == orig_child_type[1])) {
+					// DATE TIME
+					*type = TIMESTAMP_LITERAL;
+					child_type[0] = child_type[1] = TIMESTAMP_LITERAL;
+				} else if (IS_DATE(orig_child_type[0]) && (TIMESTAMP_LITERAL == orig_child_type[1])) {
+					// DATE TIMESTAMP
+					// Result is interval. Enable when interval is implemented.
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Operation result is INTERVAL");
+					result = 1;
+
+				} else if (IS_DATE(orig_child_type[0])
+					   && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == orig_child_type[1])) {
+					// DATE TIMESTAMP WITH TIMEZONE
+					// Result is interval. Enable when interval is implemented.
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Operation result is INTERVAL");
+					result = 1;
+				} else if ((TIMESTAMP_LITERAL == orig_child_type[0]) && IS_DATE(orig_child_type[1])) {
+					// TIMESTAMP DATE
+					// Result is interval. Enable when interval is implemented.
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Operation result is INTERVAL");
+					result = 1;
+				} else if (IS_DATE(orig_child_type[0]) && (INTEGER_LITERAL == orig_child_type[1])) {
+					// DATE INTEGER
+					*type = DATE_LITERAL;
+					child_type[0] = child_type[1] = DATE_LITERAL;
+				} else if (IS_DATE(orig_child_type[0]) && (NUL_VALUE == orig_child_type[1])) {
+					// DATE NULL
+					*type = INTEGER_LITERAL;
+				} else if ((TIME_LITERAL == orig_child_type[0]) && (TIME_LITERAL == orig_child_type[1])) {
+					// TIME TIME
+					// Result is interval. Enable when interval is implemented.
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Operation result is INTERVAL");
+					result = 1;
+
+				} else if ((TIME_WITH_TIME_ZONE_LITERAL == orig_child_type[0])
+					   && (TIME_LITERAL == orig_child_type[1])) {
+					// TIMEWITHTIMEZONE TIME
+					*type = TIME_WITH_TIME_ZONE_LITERAL;
+					child_type[0] = child_type[1] = TIME_WITH_TIME_ZONE_LITERAL;
+				} else if ((TIMESTAMP_LITERAL == orig_child_type[0]) && (TIME_LITERAL == orig_child_type[1])) {
+					// TIMESTAMP TIME
+					*type = TIMESTAMP_LITERAL;
+					child_type[0] = child_type[1] = TIMESTAMP_LITERAL;
+				} else if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == orig_child_type[0])
+					   && (TIME_LITERAL == orig_child_type[1])) {
+					// TIMESTAMPWITHTIMEZONE TIME
+					*type = TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+					child_type[0] = child_type[1] = TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+				} else if ((TIME_WITH_TIME_ZONE_LITERAL == orig_child_type[0])
+					   && (NUL_VALUE == orig_child_type[1])) {
+					// TIMEWITHTIMEZONE NULL
+					*type = TIME_WITH_TIME_ZONE_LITERAL;
+				} else if ((TIME_LITERAL == orig_child_type[0]) && (NUL_VALUE == orig_child_type[1])) {
+					// TIME NULL
+					// Result is interval. Enable when interval is implemented.
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Operation result is INTERVAL");
+					result = 1;
+				} else if (IS_TIMESTAMP(orig_child_type[0]) && IS_TIMESTAMP(orig_child_type[1])) {
+					// TIMESTAMP TIMESTAMP
+					// TIMESTAMP TIMESTAMP WITH TIMEZONE
+					// TIMESTAMPWITHTIMEZONE TIMESTAMP
+					// TIMESTAMPWITHTIMEZONE TIMESTAMPWITHTIMEZONE
+					// Result is interval. Enable when interval is implemented.
+					ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Operation result is INTERVAL");
+					result = 1;
+				} else if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == orig_child_type[0])
+					   && (NUL_VALUE == orig_child_type[1])) {
+					// TIMESTAMPWITHTIMEZONE NULL
+					*type = TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+				} else if ((TIMESTAMP_LITERAL == orig_child_type[0]) && (NUL_VALUE == orig_child_type[1])) {
+					// TIMESTAMP NULL
+					*type = TIMESTAMP_LITERAL;
+				} else {
+					ISSUE_TYPE_COMPATIBILITY_ERROR(orig_child_type[0], "subtraction operation",
+								       &binary->operands[0], result);
+					ISSUE_TYPE_COMPATIBILITY_ERROR(orig_child_type[1], "subtraction operation",
+								       &binary->operands[1], result);
+				}
+			} else {
+				assert(ADDITION == binary->operation);
+				binary->operation = DATE_TIME_ADDITION;
+				if ((IS_DATE(orig_child_type[0]) && (IS_TIME(orig_child_type[1])))
+				    || (IS_DATE(orig_child_type[1]) && (IS_TIME(orig_child_type[0])))) {
+					// DATE TIME
+					// TIME DATE
+					// DATE TIMEWITHTIMEZONE
+					// TIMEWITHTIMEZONE DATE
+					if ((TIME_WITH_TIME_ZONE_LITERAL == orig_child_type[0])
+					    || (TIME_WITH_TIME_ZONE_LITERAL == orig_child_type[1])) {
+						*type = TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+					} else {
+						*type = TIMESTAMP_LITERAL;
+					}
+					child_type[0] = child_type[1] = DATE_LITERAL;
+				} else if ((IS_DATE(orig_child_type[0]) && (INTEGER_LITERAL == orig_child_type[1]))
+					   || (IS_DATE(orig_child_type[1]) && (INTEGER_LITERAL == orig_child_type[0]))) {
+					// DATE INTEGER
+					// INTEGER DATE
+					*type = DATE_LITERAL;
+					child_type[0] = child_type[1] = DATE_LITERAL;
+				} else if (((TIME_WITH_TIME_ZONE_LITERAL == orig_child_type[0])
+					    && (TIME_LITERAL == orig_child_type[1]))
+					   || ((TIME_WITH_TIME_ZONE_LITERAL == orig_child_type[1])
+					       && (TIME_LITERAL == orig_child_type[0]))) {
+					// TIMEWITHTIMEZONE TIME
+					// TIME TIMEWITHTIMEZONE
+					*type = TIME_WITH_TIME_ZONE_LITERAL;
+					child_type[0] = child_type[1] = TIME_WITH_TIME_ZONE_LITERAL;
+				} else if (((TIME_LITERAL == orig_child_type[0]) && (TIMESTAMP_LITERAL == orig_child_type[1]))
+					   || ((TIME_LITERAL == orig_child_type[1]) && (TIMESTAMP_LITERAL == orig_child_type[0]))) {
+					// TIME TIMESTAMP
+					// TIMESTAMP TIME
+					*type = TIMESTAMP_LITERAL;
+					child_type[0] = child_type[1] = TIMESTAMP_LITERAL;
+				} else if (((TIME_LITERAL == orig_child_type[0])
+					    && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == orig_child_type[1]))
+					   || ((TIME_LITERAL == orig_child_type[1])
+					       && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == orig_child_type[0]))) {
+					// TIME TIMESTAMPWITHTIMEZONE
+					// TIMESTAMPWITHTIMEZONE TIME
+					*type = TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+					child_type[0] = child_type[1] = TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+				} else if (((NUL_VALUE == orig_child_type[0]) && (TIME_LITERAL == orig_child_type[1]))
+					   || ((NUL_VALUE == orig_child_type[1]) && (TIME_LITERAL == orig_child_type[0]))) {
+					// NULL TIME
+					// TIME NULL
+					*type = TIME_LITERAL;
+					// No reason to worry about child_type setting as it would have been cast to non-NULL type
+				} else if (((NUL_VALUE == orig_child_type[0]) && (TIMESTAMP_LITERAL == orig_child_type[1]))
+					   || ((NUL_VALUE == orig_child_type[1]) && (TIMESTAMP_LITERAL == orig_child_type[0]))) {
+					// NULL TIMESTAMP
+					// TIMESTAMP NULL
+					*type = TIMESTAMP_LITERAL;
+					// No reason to worry about child_type setting as it would have been cast to non-NULL type
+				} else {
+					/* Following are invalid types:
+					 * DATE DATE
+					 * DATE TIMESTAMP
+					 * TIME TIME
+					 * TIMEWITHTIMEZONE TIMEWITHTIMEZONE
+					 * TIMEWITHTIMEZONE TIMESTAMP
+					 * TIMEWITHTIMEZONE TIMESTAMPWITHTIMEZONE
+					 * TIMESTAMP TIMESTAMP
+					 * TIMESTAMP DATE
+					 * INTEGER TIME
+					 * INTEGER TIMESTAMP
+					 * NUMERIC DATE
+					 * NUMERIC TIME
+					 * NUMERIC TIMESTAMP
+					 * NULL DATE
+					 */
+					ISSUE_TYPE_COMPATIBILITY_ERROR(orig_child_type[0], "addition operation",
+								       &binary->operands[0], result);
+					ISSUE_TYPE_COMPATIBILITY_ERROR(orig_child_type[1], "addition operation",
+								       &binary->operands[1], result);
+				}
+			}
+			binary->date_time_return_type = *type; // Assign so that logical plan can carry this value forward to M plan
+		} else {
+			*type = child_type[0];
+		}
 		break;
 	case CONCAT:
 		/* Postgres allows || operator as long as at least one operand is STRING type or both operands are NULLs.
@@ -67,6 +255,12 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 			if (((TABLE_ASTERISK == child_type[0]) && (TABLE_ASTERISK == child_type[1]))
 			    && (IS_NUL_VALUE(orig_child_type[0]) || IS_NUL_VALUE(orig_child_type[1]))) {
 				// Concatenation between NUL_VALUE and TABLE_ASTERISK is valid, allow this usage
+			} else if ((IS_DATE_TIME_TYPE(child_type[0]) && IS_DATE_TIME_TYPE(child_type[1]))
+				   && (IS_NUL_VALUE(orig_child_type[0]) || IS_NUL_VALUE(orig_child_type[1]))) {
+				// Valid
+			} else if (IS_DATE_TIME_TYPE(child_type[0]) && (IS_DATE_TIME_TYPE(child_type[1]))) {
+				ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "Date/time concat operation");
+				result = 1;
 			} else if (!result) {
 				int i;
 
@@ -109,6 +303,8 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 				assert(BOOLEAN_OR_STRING_LITERAL != value->u.coerce_type.pre_coerced_type);
 				value->v.coerce_target = *target;
 				*target = sql_stmt;
+			} else if (IS_DATE_TIME_TYPE(child_type[0]) || IS_DATE_TIME_TYPE(child_type[1])) {
+				// valid
 			}
 		}
 		child_type[0] = child_type[1] = *type = STRING_LITERAL;
@@ -289,7 +485,47 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 				CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
 			}
 		}
+		if (IS_DATE_TIME_TYPE(child_type[0]) && (IS_DATE_TIME_TYPE(child_type[1]))) {
+			if ((IS_TIME(child_type[0]) && !IS_TIME(child_type[1]))
+			    || (IS_TIME(child_type[1] && !IS_TIME(child_type[0])))) {
+				// This comparison operation is invalid
+				// fall through to issue ERR_TYPE_MISMATCH error
+			} else {
+				if ((BOOLEAN_EQUALS == binary->operation) || (BOOLEAN_NOT_EQUALS == binary->operation)
+				    || (BOOLEAN_LESS_THAN == binary->operation)
+				    || (BOOLEAN_LESS_THAN_OR_EQUALS == binary->operation)
+				    || (BOOLEAN_GREATER_THAN_OR_EQUALS == binary->operation)
+				    || (BOOLEAN_GREATER_THAN == binary->operation)) {
+					if (IS_DATE_TIME_TYPE(child_type[0]) && IS_DATE_TIME_TYPE(child_type[1])) {
+						// Valid operation
+						child_type[0] = child_type[1];
+					}
+				} else if ((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation)) {
+					if (IS_DATE_TIME_TYPE(child_type[0]) && IS_DATE_TIME_TYPE(child_type[1])) {
+						// Valid operation
+						child_type[0] = child_type[1];
+					}
+				} else if ((BOOLEAN_IS == binary->operation) || (BOOLEAN_IS_NOT == binary->operation)) {
+					if (IS_DATE_TIME_TYPE(child_type[0]) && IS_NUL_VALUE(orig_child_type[1])) {
+						// valid
+						child_type[0] = child_type[1];
+					} else {
+						// fall through to issue ERR_TYPE_MISMATCH error
+					}
+				} else {
+					child_type[0] = child_type[1];
+				}
+			}
+		}
 		*type = BOOLEAN_VALUE;
+		break;
+	case DATE_TIME_ADDITION:
+	case DATE_TIME_SUBTRACTION:
+		/* Following types of queries reach here
+		 * 	select order_date + time '10:03:54' as col1 from orders group by col1;
+		 */
+		*type = binary->date_time_return_type;
+		child_type[0] = child_type[1] = binary->date_time_return_type;
 		break;
 	}
 	if (!result && (child_type[0] != child_type[1])) {

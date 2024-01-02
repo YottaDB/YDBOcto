@@ -35,24 +35,14 @@ OCTO> select true || false;
 LINE 4:1: select id,(id = 2)::numeric from names;
                     ^^^^^^^^^^^^^^^^^
 OCTO> select id,(id = 2)::numeric from names;
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type DATE
+LINE 5:1: select id,(id = 2)::date from names;
+                    ^^^^^^^^^^^^^^
 OCTO> select id,(id = 2)::date from names;
-id|VARCHAR
-0|false
-1|false
-2|true
-3|false
-4|false
-5|false
-(6 rows)
+[ERROR]: ERR_TYPE_CAST: Cannot cast type BOOLEAN to type TIME
+LINE 6:1: select id,(id = 2)::time from names;
+                    ^^^^^^^^^^^^^^
 OCTO> select id,(id = 2)::time from names;
-id|VARCHAR
-0|false
-1|false
-2|true
-3|false
-4|false
-5|false
-(6 rows)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type BOOLEAN not compatible for arithmetic operations
 LINE 8:1: select id+(id=2) from names;
                      ^^^^

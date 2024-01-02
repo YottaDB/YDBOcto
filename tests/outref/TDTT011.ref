@@ -1,0 +1,1918 @@
+OCTO> -- type:date format:
+create table TDTT011date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT011date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT011time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT011time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT011timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT011timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT011timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT011timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT011timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT011timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+OCTO> select COALESCE(date'01-01-2023',date'01-01-2023');
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',date'01-01-2023');
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(date'01-01-2023',date'01-01-2023');
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',date'01-01-2023');
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 30:1: select COALESCE(date'01-01-2023',time'01:01:00');
+                           ^^^^^^^^^^^^^^^^
+LINE 30:1: select COALESCE(date'01-01-2023',time'01:01:00');
+                                            ^^^^^^^^^^^^^^
+OCTO> select COALESCE(date'01-01-2023',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 31:1: select GREATEST(date'01-01-2023',time'01:01:00');
+                           ^^^^^^^^^^^^^^^^
+LINE 31:1: select GREATEST(date'01-01-2023',time'01:01:00');
+                                            ^^^^^^^^^^^^^^
+OCTO> select GREATEST(date'01-01-2023',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 32:1: select LEAST(date'01-01-2023',time'01:01:00');
+                        ^^^^^^^^^^^^^^^^
+LINE 32:1: select LEAST(date'01-01-2023',time'01:01:00');
+                                         ^^^^^^^^^^^^^^
+OCTO> select LEAST(date'01-01-2023',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 33:1: select NULLIF(date'01-01-2023',time'01:01:00');
+                         ^^^^^^^^^^^^^^^^
+LINE 33:1: select NULLIF(date'01-01-2023',time'01:01:00');
+                                          ^^^^^^^^^^^^^^
+OCTO> select NULLIF(date'01-01-2023',time'01:01:00');
+OCTO> select COALESCE(date'01-01-2023',timestamp'01-01-2023 01:01:00');
+COALESCE
+2023-01-01 00:00:00
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',timestamp'01-01-2023 01:01:00');
+GREATEST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select LEAST(date'01-01-2023',timestamp'01-01-2023 01:01:00');
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',timestamp'01-01-2023 01:01:00');
+NULLIF
+2023-01-01
+(1 row)
+OCTO> select COALESCE(date'01-01-2023',timestamp with time zone'01-01-2023 01:01:00-05:00');
+COALESCE
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',timestamp with time zone'01-01-2023 01:01:00-05:00');
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(date'01-01-2023',timestamp with time zone'01-01-2023 01:01:00-05:00');
+LEAST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',timestamp with time zone'01-01-2023 01:01:00-05:00');
+NULLIF
+2023-01-01
+(1 row)
+OCTO> select COALESCE(date'01-01-2023',n1.dob) from TDTT011date n1;
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',n1.dob) from TDTT011date n1;
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(date'01-01-2023',n1.dob) from TDTT011date n1;
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',n1.dob) from TDTT011date n1;
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 46:1: select COALESCE(date'01-01-2023',n1.dob) from TDTT011time n1;
+                           ^^^^^^^^^^^^^^^^
+LINE 46:1: select COALESCE(date'01-01-2023',n1.dob) from TDTT011time n1;
+                                            ^^^^^^
+OCTO> select COALESCE(date'01-01-2023',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 47:1: select GREATEST(date'01-01-2023',n1.dob) from TDTT011time n1;
+                           ^^^^^^^^^^^^^^^^
+LINE 47:1: select GREATEST(date'01-01-2023',n1.dob) from TDTT011time n1;
+                                            ^^^^^^
+OCTO> select GREATEST(date'01-01-2023',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 48:1: select LEAST(date'01-01-2023',n1.dob) from TDTT011time n1;
+                        ^^^^^^^^^^^^^^^^
+LINE 48:1: select LEAST(date'01-01-2023',n1.dob) from TDTT011time n1;
+                                         ^^^^^^
+OCTO> select LEAST(date'01-01-2023',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 49:1: select NULLIF(date'01-01-2023',n1.dob) from TDTT011time n1;
+                         ^^^^^^^^^^^^^^^^
+LINE 49:1: select NULLIF(date'01-01-2023',n1.dob) from TDTT011time n1;
+                                          ^^^^^^
+OCTO> select NULLIF(date'01-01-2023',n1.dob) from TDTT011time n1;
+OCTO> select COALESCE(date'01-01-2023',n1.dob) from TDTT011timestamp n1;
+COALESCE
+2023-01-01 00:00:00
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',n1.dob) from TDTT011timestamp n1;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(date'01-01-2023',n1.dob) from TDTT011timestamp n1;
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',n1.dob) from TDTT011timestamp n1;
+NULLIF
+2023-01-01
+(1 row)
+OCTO> select COALESCE(date'01-01-2023',n1.dob) from TDTT011timestamptz n1;
+COALESCE
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',n1.dob) from TDTT011timestamptz n1;
+GREATEST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select LEAST(date'01-01-2023',n1.dob) from TDTT011timestamptz n1;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',n1.dob) from TDTT011timestamptz n1;
+NULLIF
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 58:1: select COALESCE(date'01-01-2023',3);
+                           ^^^^^^^^^^^^^^^^
+LINE 58:1: select COALESCE(date'01-01-2023',3);
+                                            ^
+OCTO> select COALESCE(date'01-01-2023',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 59:1: select GREATEST(date'01-01-2023',3);
+                           ^^^^^^^^^^^^^^^^
+LINE 59:1: select GREATEST(date'01-01-2023',3);
+                                            ^
+OCTO> select GREATEST(date'01-01-2023',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 60:1: select LEAST(date'01-01-2023',3);
+                        ^^^^^^^^^^^^^^^^
+LINE 60:1: select LEAST(date'01-01-2023',3);
+                                         ^
+OCTO> select LEAST(date'01-01-2023',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 61:1: select NULLIF(date'01-01-2023',3);
+                         ^^^^^^^^^^^^^^^^
+LINE 61:1: select NULLIF(date'01-01-2023',3);
+                                          ^
+OCTO> select NULLIF(date'01-01-2023',3);
+OCTO> select COALESCE(date'01-01-2023','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select GREATEST(date'01-01-2023','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select LEAST(date'01-01-2023','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select NULLIF(date'01-01-2023','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 66:1: select COALESCE(date'01-01-2023',3.3);
+                           ^^^^^^^^^^^^^^^^
+LINE 66:1: select COALESCE(date'01-01-2023',3.3);
+                                            ^^^
+OCTO> select COALESCE(date'01-01-2023',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 67:1: select GREATEST(date'01-01-2023',3.3);
+                           ^^^^^^^^^^^^^^^^
+LINE 67:1: select GREATEST(date'01-01-2023',3.3);
+                                            ^^^
+OCTO> select GREATEST(date'01-01-2023',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 68:1: select LEAST(date'01-01-2023',3.3);
+                        ^^^^^^^^^^^^^^^^
+LINE 68:1: select LEAST(date'01-01-2023',3.3);
+                                         ^^^
+OCTO> select LEAST(date'01-01-2023',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 69:1: select NULLIF(date'01-01-2023',3.3);
+                         ^^^^^^^^^^^^^^^^
+LINE 69:1: select NULLIF(date'01-01-2023',3.3);
+                                          ^^^
+OCTO> select NULLIF(date'01-01-2023',3.3);
+OCTO> select COALESCE(date'01-01-2023',NULL);
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(date'01-01-2023',NULL);
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(date'01-01-2023',NULL);
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(date'01-01-2023',NULL);
+NULLIF
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 74:1: select COALESCE(time'01:01:00',date'01-01-2023');
+                           ^^^^^^^^^^^^^^
+LINE 74:1: select COALESCE(time'01:01:00',date'01-01-2023');
+                                          ^^^^^^^^^^^^^^^^
+OCTO> select COALESCE(time'01:01:00',date'01-01-2023');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 75:1: select GREATEST(time'01:01:00',date'01-01-2023');
+                           ^^^^^^^^^^^^^^
+LINE 75:1: select GREATEST(time'01:01:00',date'01-01-2023');
+                                          ^^^^^^^^^^^^^^^^
+OCTO> select GREATEST(time'01:01:00',date'01-01-2023');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 76:1: select LEAST(time'01:01:00',date'01-01-2023');
+                        ^^^^^^^^^^^^^^
+LINE 76:1: select LEAST(time'01:01:00',date'01-01-2023');
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select LEAST(time'01:01:00',date'01-01-2023');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 77:1: select NULLIF(time'01:01:00',date'01-01-2023');
+                         ^^^^^^^^^^^^^^
+LINE 77:1: select NULLIF(time'01:01:00',date'01-01-2023');
+                                        ^^^^^^^^^^^^^^^^
+OCTO> select NULLIF(time'01:01:00',date'01-01-2023');
+OCTO> select COALESCE(time'01:01:00',time'01:01:00');
+COALESCE
+01:01:00
+(1 row)
+OCTO> select GREATEST(time'01:01:00',time'01:01:00');
+GREATEST
+01:01:00
+(1 row)
+OCTO> select LEAST(time'01:01:00',time'01:01:00');
+LEAST
+01:01:00
+(1 row)
+OCTO> select NULLIF(time'01:01:00',time'01:01:00');
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 82:1: select COALESCE(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                           ^^^^^^^^^^^^^^
+LINE 82:1: select COALESCE(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select COALESCE(time'01:01:00',timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 83:1: select GREATEST(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                           ^^^^^^^^^^^^^^
+LINE 83:1: select GREATEST(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select GREATEST(time'01:01:00',timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 84:1: select LEAST(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                        ^^^^^^^^^^^^^^
+LINE 84:1: select LEAST(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select LEAST(time'01:01:00',timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 85:1: select NULLIF(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                         ^^^^^^^^^^^^^^
+LINE 85:1: select NULLIF(time'01:01:00',timestamp'01-01-2023 01:01:00');
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NULLIF(time'01:01:00',timestamp'01-01-2023 01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 86:1: select COALESCE(time'01:01:00',timestamp with time zone'01-01-20...
+                           ^^^^^^^^^^^^^^
+LINE 86:1: ...01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select COALESCE(time'01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 87:1: select GREATEST(time'01:01:00',timestamp with time zone'01-01-20...
+                           ^^^^^^^^^^^^^^
+LINE 87:1: ...01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select GREATEST(time'01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 88:1: select LEAST(time'01:01:00',timestamp with time zone'01-01-2023 ...
+                        ^^^^^^^^^^^^^^
+LINE 88:1: ...01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select LEAST(time'01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 89:1: select NULLIF(time'01:01:00',timestamp with time zone'01-01-2023...
+                         ^^^^^^^^^^^^^^
+LINE 89:1: ...01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NULLIF(time'01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 90:1: select COALESCE(time'01:01:00',n1.dob) from TDTT011date n1;
+                           ^^^^^^^^^^^^^^
+LINE 90:1: select COALESCE(time'01:01:00',n1.dob) from TDTT011date n1;
+                                          ^^^^^^
+OCTO> select COALESCE(time'01:01:00',n1.dob) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 91:1: select GREATEST(time'01:01:00',n1.dob) from TDTT011date n1;
+                           ^^^^^^^^^^^^^^
+LINE 91:1: select GREATEST(time'01:01:00',n1.dob) from TDTT011date n1;
+                                          ^^^^^^
+OCTO> select GREATEST(time'01:01:00',n1.dob) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 92:1: select LEAST(time'01:01:00',n1.dob) from TDTT011date n1;
+                        ^^^^^^^^^^^^^^
+LINE 92:1: select LEAST(time'01:01:00',n1.dob) from TDTT011date n1;
+                                       ^^^^^^
+OCTO> select LEAST(time'01:01:00',n1.dob) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 93:1: select NULLIF(time'01:01:00',n1.dob) from TDTT011date n1;
+                         ^^^^^^^^^^^^^^
+LINE 93:1: select NULLIF(time'01:01:00',n1.dob) from TDTT011date n1;
+                                        ^^^^^^
+OCTO> select NULLIF(time'01:01:00',n1.dob) from TDTT011date n1;
+OCTO> select COALESCE(time'01:01:00',n1.dob) from TDTT011time n1;
+COALESCE
+01:01:00
+(1 row)
+OCTO> select GREATEST(time'01:01:00',n1.dob) from TDTT011time n1;
+GREATEST
+01:01:01
+(1 row)
+OCTO> select LEAST(time'01:01:00',n1.dob) from TDTT011time n1;
+LEAST
+01:01:00
+(1 row)
+OCTO> select NULLIF(time'01:01:00',n1.dob) from TDTT011time n1;
+NULLIF
+01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 98:1: select COALESCE(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                           ^^^^^^^^^^^^^^
+LINE 98:1: select COALESCE(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                                          ^^^^^^
+OCTO> select COALESCE(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 99:1: select GREATEST(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                           ^^^^^^^^^^^^^^
+LINE 99:1: select GREATEST(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                                          ^^^^^^
+OCTO> select GREATEST(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 100:1: select LEAST(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                         ^^^^^^^^^^^^^^
+LINE 100:1: select LEAST(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                                        ^^^^^^
+OCTO> select LEAST(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 101:1: select NULLIF(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                          ^^^^^^^^^^^^^^
+LINE 101:1: select NULLIF(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+                                         ^^^^^^
+OCTO> select NULLIF(time'01:01:00',n1.dob) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 102:1: select COALESCE(time'01:01:00',n1.dob) from TDTT011timestamptz n...
+                            ^^^^^^^^^^^^^^
+LINE 102:1: ...lect COALESCE(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+                                            ^^^^^^
+OCTO> select COALESCE(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 103:1: select GREATEST(time'01:01:00',n1.dob) from TDTT011timestamptz n...
+                            ^^^^^^^^^^^^^^
+LINE 103:1: ...lect GREATEST(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+                                            ^^^^^^
+OCTO> select GREATEST(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 104:1: select LEAST(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+                         ^^^^^^^^^^^^^^
+LINE 104:1: select LEAST(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+                                        ^^^^^^
+OCTO> select LEAST(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 105:1: select NULLIF(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+                          ^^^^^^^^^^^^^^
+LINE 105:1: select NULLIF(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+                                         ^^^^^^
+OCTO> select NULLIF(time'01:01:00',n1.dob) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 106:1: select COALESCE(time'01:01:00',3);
+                            ^^^^^^^^^^^^^^
+LINE 106:1: select COALESCE(time'01:01:00',3);
+                                           ^
+OCTO> select COALESCE(time'01:01:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 107:1: select GREATEST(time'01:01:00',3);
+                            ^^^^^^^^^^^^^^
+LINE 107:1: select GREATEST(time'01:01:00',3);
+                                           ^
+OCTO> select GREATEST(time'01:01:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 108:1: select LEAST(time'01:01:00',3);
+                         ^^^^^^^^^^^^^^
+LINE 108:1: select LEAST(time'01:01:00',3);
+                                        ^
+OCTO> select LEAST(time'01:01:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 109:1: select NULLIF(time'01:01:00',3);
+                          ^^^^^^^^^^^^^^
+LINE 109:1: select NULLIF(time'01:01:00',3);
+                                         ^
+OCTO> select NULLIF(time'01:01:00',3);
+OCTO> select COALESCE(time'01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select GREATEST(time'01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select LEAST(time'01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select NULLIF(time'01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 114:1: select COALESCE(time'01:01:00',3.3);
+                            ^^^^^^^^^^^^^^
+LINE 114:1: select COALESCE(time'01:01:00',3.3);
+                                           ^^^
+OCTO> select COALESCE(time'01:01:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 115:1: select GREATEST(time'01:01:00',3.3);
+                            ^^^^^^^^^^^^^^
+LINE 115:1: select GREATEST(time'01:01:00',3.3);
+                                           ^^^
+OCTO> select GREATEST(time'01:01:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 116:1: select LEAST(time'01:01:00',3.3);
+                         ^^^^^^^^^^^^^^
+LINE 116:1: select LEAST(time'01:01:00',3.3);
+                                        ^^^
+OCTO> select LEAST(time'01:01:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 117:1: select NULLIF(time'01:01:00',3.3);
+                          ^^^^^^^^^^^^^^
+LINE 117:1: select NULLIF(time'01:01:00',3.3);
+                                         ^^^
+OCTO> select NULLIF(time'01:01:00',3.3);
+OCTO> select COALESCE(time'01:01:00',NULL);
+COALESCE
+01:01:00
+(1 row)
+OCTO> select GREATEST(time'01:01:00',NULL);
+GREATEST
+01:01:00
+(1 row)
+OCTO> select LEAST(time'01:01:00',NULL);
+LEAST
+01:01:00
+(1 row)
+OCTO> select NULLIF(time'01:01:00',NULL);
+NULLIF
+01:01:00
+(1 row)
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',date'01-01-2023');
+COALESCE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',date'01-01-2023');
+GREATEST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',date'01-01-2023');
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',date'01-01-2023');
+NULLIF
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 126:1: select COALESCE(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 126:1: select COALESCE(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                                                           ^^^^^^^^^^^^^^
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 127:1: select GREATEST(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 127:1: select GREATEST(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                                                           ^^^^^^^^^^^^^^
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 128:1: select LEAST(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 128:1: select LEAST(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                                                        ^^^^^^^^^^^^^^
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 129:1: select NULLIF(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 129:1: select NULLIF(timestamp'01-01-2023 01:01:00',time'01:01:00');
+                                                         ^^^^^^^^^^^^^^
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',time'01:01:00');
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',timestamp'01-01-2023 01:01:00');
+COALESCE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',timestamp'01-01-2023 01:01:00');
+GREATEST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',timestamp'01-01-2023 01:01:00');
+LEAST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',timestamp'01-01-2023 01:01:00');
+NULLIF
+
+(1 row)
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+LEAST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+NULLIF
+
+(1 row)
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011date n1;
+COALESCE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011date n1;
+GREATEST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011date n1;
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011date n1;
+NULLIF
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 142:1: select COALESCE(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 142:1: ...ESCE(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 143:1: select GREATEST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 143:1: ...TEST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 144:1: select LEAST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011...
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 144:1: ...EAST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 145:1: select NULLIF(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT01...
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 145:1: ...LLIF(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011time n1;
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamp n1;
+COALESCE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamp n1;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamp n1;
+LEAST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamp n1;
+NULLIF
+2023-01-01 01:01:00
+(1 row)
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamptz n1;
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamptz n1;
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamptz n1;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',n1.dob) from TDTT011timestamptz n1;
+NULLIF
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 154:1: select COALESCE(timestamp'01-01-2023 01:01:00',3);
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 154:1: select COALESCE(timestamp'01-01-2023 01:01:00',3);
+                                                           ^
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 155:1: select GREATEST(timestamp'01-01-2023 01:01:00',3);
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 155:1: select GREATEST(timestamp'01-01-2023 01:01:00',3);
+                                                           ^
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 156:1: select LEAST(timestamp'01-01-2023 01:01:00',3);
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 156:1: select LEAST(timestamp'01-01-2023 01:01:00',3);
+                                                        ^
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 157:1: select NULLIF(timestamp'01-01-2023 01:01:00',3);
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 157:1: select NULLIF(timestamp'01-01-2023 01:01:00',3);
+                                                         ^
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',3);
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 162:1: select COALESCE(timestamp'01-01-2023 01:01:00',3.3);
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 162:1: select COALESCE(timestamp'01-01-2023 01:01:00',3.3);
+                                                           ^^^
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 163:1: select GREATEST(timestamp'01-01-2023 01:01:00',3.3);
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 163:1: select GREATEST(timestamp'01-01-2023 01:01:00',3.3);
+                                                           ^^^
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 164:1: select LEAST(timestamp'01-01-2023 01:01:00',3.3);
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 164:1: select LEAST(timestamp'01-01-2023 01:01:00',3.3);
+                                                        ^^^
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 165:1: select NULLIF(timestamp'01-01-2023 01:01:00',3.3);
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 165:1: select NULLIF(timestamp'01-01-2023 01:01:00',3.3);
+                                                         ^^^
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',3.3);
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00',NULL);
+COALESCE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00',NULL);
+GREATEST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00',NULL);
+LEAST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00',NULL);
+NULLIF
+2023-01-01 01:01:00
+(1 row)
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',date'01-01-2023');
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',date'01-01-2023');
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',date'01-01-2023');
+LEAST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',date'01-01-2023');
+NULLIF
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 174:1: ...LESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',time'...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 174:1: ...stamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+                                                               ^^^^^^^^^^^^^^
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 175:1: ...ATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',time'...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 175:1: ...stamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+                                                               ^^^^^^^^^^^^^^
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 176:1: ...LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',time'...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 176:1: ...stamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+                                                               ^^^^^^^^^^^^^^
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 177:1: ...ULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',time'...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 177:1: ...stamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+                                                               ^^^^^^^^^^^^^^
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp'01-01-2023 01:01:00');
+COALESCE
+2023-01-01 06:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp'01-01-2023 01:01:00');
+GREATEST
+2023-01-01 06:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp'01-01-2023 01:01:00');
+LEAST
+2022-12-31 20:01:00-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp'01-01-2023 01:01:00');
+NULLIF
+2023-01-01 06:01:00-05
+(1 row)
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+LEAST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+NULLIF
+
+(1 row)
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011date n1;
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011date n1;
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011date n1;
+LEAST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011date n1;
+NULLIF
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 190:1: ...LESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.do...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 190:1: ...ime zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 191:1: ...ATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.do...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 191:1: ...ime zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 192:1: ...LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.do...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 192:1: ...ime zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 193:1: ...ULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.do...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 193:1: ...ime zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+                                                   ^^^^^^
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011time n1;
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
+COALESCE
+2023-01-01 06:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
+GREATEST
+2023-01-01 06:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
+LEAST
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
+NULLIF
+2023-01-01 06:01:00-05
+(1 row)
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
+NULLIF
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 202:1: ...OALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 202:1: ...OALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                                                                           ^
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 203:1: ...REATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 203:1: ...REATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                                                                           ^
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 204:1: ...t LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 204:1: ...t LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                                                                           ^
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 205:1: ... NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 205:1: ... NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+                                                                           ^
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',3);
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00','sample string');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 210:1: ...LESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 210:1: ...LESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                                                                         ^^^
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 211:1: ...ATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 211:1: ...ATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                                                                         ^^^
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 212:1: ...LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 212:1: ...LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                                                                         ^^^
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 213:1: ...ULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 213:1: ...ULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+                                                                         ^^^
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',3.3);
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00',NULL);
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00',NULL);
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00',NULL);
+LEAST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00',NULL);
+NULLIF
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select COALESCE(n1.dob,date'01-01-2023') from TDTT011date n1;
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(n1.dob,date'01-01-2023') from TDTT011date n1;
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(n1.dob,date'01-01-2023') from TDTT011date n1;
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(n1.dob,date'01-01-2023') from TDTT011date n1;
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 222:1: select COALESCE(n1.dob,time'01:01:00') from TDTT011date n1;
+                            ^^^^^^
+LINE 222:1: select COALESCE(n1.dob,time'01:01:00') from TDTT011date n1;
+                                   ^^^^^^^^^^^^^^
+OCTO> select COALESCE(n1.dob,time'01:01:00') from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 223:1: select GREATEST(n1.dob,time'01:01:00') from TDTT011date n1;
+                            ^^^^^^
+LINE 223:1: select GREATEST(n1.dob,time'01:01:00') from TDTT011date n1;
+                                   ^^^^^^^^^^^^^^
+OCTO> select GREATEST(n1.dob,time'01:01:00') from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 224:1: select LEAST(n1.dob,time'01:01:00') from TDTT011date n1;
+                         ^^^^^^
+LINE 224:1: select LEAST(n1.dob,time'01:01:00') from TDTT011date n1;
+                                ^^^^^^^^^^^^^^
+OCTO> select LEAST(n1.dob,time'01:01:00') from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 225:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011date n1;
+                          ^^^^^^
+LINE 225:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011date n1;
+                                 ^^^^^^^^^^^^^^
+OCTO> select NULLIF(n1.dob,time'01:01:00') from TDTT011date n1;
+OCTO> select COALESCE(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011date n1;
+COALESCE
+2023-01-01 00:00:00
+(1 row)
+OCTO> select GREATEST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011date n1;
+GREATEST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select LEAST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011date n1;
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011date n1;
+NULLIF
+2023-01-01
+(1 row)
+OCTO> select COALESCE(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011date n1;
+COALESCE
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select GREATEST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011date n1;
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011date n1;
+LEAST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select NULLIF(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011date n1;
+NULLIF
+2023-01-01
+(1 row)
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011date n1, TDTT011date n2;
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011date n1, TDTT011date n2;
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011date n1, TDTT011date n2;
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011date n1, TDTT011date n2;
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 238:1: select COALESCE(n1.dob,n2.dob) from TDTT011date n1, TDTT011time ...
+                            ^^^^^^
+LINE 238:1: select COALESCE(n1.dob,n2.dob) from TDTT011date n1, TDTT011time ...
+                                   ^^^^^^
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 239:1: select GREATEST(n1.dob,n2.dob) from TDTT011date n1, TDTT011time ...
+                            ^^^^^^
+LINE 239:1: select GREATEST(n1.dob,n2.dob) from TDTT011date n1, TDTT011time ...
+                                   ^^^^^^
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 240:1: select LEAST(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2;
+                         ^^^^^^
+LINE 240:1: select LEAST(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2;
+                                ^^^^^^
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 241:1: select NULLIF(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2...
+                          ^^^^^^
+LINE 241:1: select NULLIF(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2...
+                                 ^^^^^^
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011date n1, TDTT011time n2;
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamp n2;
+COALESCE
+2023-01-01 00:00:00
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamp n2;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamp n2;
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamp n2;
+NULLIF
+2023-01-01
+(1 row)
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamptz n2;
+COALESCE
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamptz n2;
+GREATEST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamptz n2;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011date n1, TDTT011timestamptz n2;
+NULLIF
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 250:1: select COALESCE(n1.dob,3) from TDTT011date n1;
+                            ^^^^^^
+LINE 250:1: select COALESCE(n1.dob,3) from TDTT011date n1;
+                                   ^
+OCTO> select COALESCE(n1.dob,3) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 251:1: select GREATEST(n1.dob,3) from TDTT011date n1;
+                            ^^^^^^
+LINE 251:1: select GREATEST(n1.dob,3) from TDTT011date n1;
+                                   ^
+OCTO> select GREATEST(n1.dob,3) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 252:1: select LEAST(n1.dob,3) from TDTT011date n1;
+                         ^^^^^^
+LINE 252:1: select LEAST(n1.dob,3) from TDTT011date n1;
+                                ^
+OCTO> select LEAST(n1.dob,3) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 253:1: select NULLIF(n1.dob,3) from TDTT011date n1;
+                          ^^^^^^
+LINE 253:1: select NULLIF(n1.dob,3) from TDTT011date n1;
+                                 ^
+OCTO> select NULLIF(n1.dob,3) from TDTT011date n1;
+OCTO> select COALESCE(n1.dob,'sample string') from TDTT011date n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select GREATEST(n1.dob,'sample string') from TDTT011date n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select LEAST(n1.dob,'sample string') from TDTT011date n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+OCTO> select NULLIF(n1.dob,'sample string') from TDTT011date n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 258:1: select COALESCE(n1.dob,3.3) from TDTT011date n1;
+                            ^^^^^^
+LINE 258:1: select COALESCE(n1.dob,3.3) from TDTT011date n1;
+                                   ^^^
+OCTO> select COALESCE(n1.dob,3.3) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 259:1: select GREATEST(n1.dob,3.3) from TDTT011date n1;
+                            ^^^^^^
+LINE 259:1: select GREATEST(n1.dob,3.3) from TDTT011date n1;
+                                   ^^^
+OCTO> select GREATEST(n1.dob,3.3) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 260:1: select LEAST(n1.dob,3.3) from TDTT011date n1;
+                         ^^^^^^
+LINE 260:1: select LEAST(n1.dob,3.3) from TDTT011date n1;
+                                ^^^
+OCTO> select LEAST(n1.dob,3.3) from TDTT011date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 261:1: select NULLIF(n1.dob,3.3) from TDTT011date n1;
+                          ^^^^^^
+LINE 261:1: select NULLIF(n1.dob,3.3) from TDTT011date n1;
+                                 ^^^
+OCTO> select NULLIF(n1.dob,3.3) from TDTT011date n1;
+OCTO> select COALESCE(n1.dob,NULL) from TDTT011date n1;
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(n1.dob,NULL) from TDTT011date n1;
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(n1.dob,NULL) from TDTT011date n1;
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(n1.dob,NULL) from TDTT011date n1;
+NULLIF
+2023-01-01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 266:1: select COALESCE(n1.dob,date'01-01-2023') from TDTT011time n1;
+                            ^^^^^^
+LINE 266:1: select COALESCE(n1.dob,date'01-01-2023') from TDTT011time n1;
+                                   ^^^^^^^^^^^^^^^^
+OCTO> select COALESCE(n1.dob,date'01-01-2023') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 267:1: select GREATEST(n1.dob,date'01-01-2023') from TDTT011time n1;
+                            ^^^^^^
+LINE 267:1: select GREATEST(n1.dob,date'01-01-2023') from TDTT011time n1;
+                                   ^^^^^^^^^^^^^^^^
+OCTO> select GREATEST(n1.dob,date'01-01-2023') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 268:1: select LEAST(n1.dob,date'01-01-2023') from TDTT011time n1;
+                         ^^^^^^
+LINE 268:1: select LEAST(n1.dob,date'01-01-2023') from TDTT011time n1;
+                                ^^^^^^^^^^^^^^^^
+OCTO> select LEAST(n1.dob,date'01-01-2023') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 269:1: select NULLIF(n1.dob,date'01-01-2023') from TDTT011time n1;
+                          ^^^^^^
+LINE 269:1: select NULLIF(n1.dob,date'01-01-2023') from TDTT011time n1;
+                                 ^^^^^^^^^^^^^^^^
+OCTO> select NULLIF(n1.dob,date'01-01-2023') from TDTT011time n1;
+OCTO> select COALESCE(n1.dob,time'01:01:00') from TDTT011time n1;
+COALESCE
+01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,time'01:01:00') from TDTT011time n1;
+GREATEST
+01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,time'01:01:00') from TDTT011time n1;
+LEAST
+01:01:00
+(1 row)
+OCTO> select NULLIF(n1.dob,time'01:01:00') from TDTT011time n1;
+NULLIF
+01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 274:1: select COALESCE(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT...
+                            ^^^^^^
+LINE 274:1: ... COALESCE(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011tim...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select COALESCE(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 275:1: select GREATEST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT...
+                            ^^^^^^
+LINE 275:1: ... GREATEST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011tim...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select GREATEST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 276:1: select LEAST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011...
+                         ^^^^^^
+LINE 276:1: ...ect LEAST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011tim...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select LEAST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 277:1: select NULLIF(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT01...
+                          ^^^^^^
+LINE 277:1: ...ct NULLIF(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011tim...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NULLIF(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 278:1: select COALESCE(n1.dob,timestamp with time zone'01-01-2023 01:01...
+                            ^^^^^^
+LINE 278:1: ...1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select COALESCE(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 279:1: select GREATEST(n1.dob,timestamp with time zone'01-01-2023 01:01...
+                            ^^^^^^
+LINE 279:1: ...1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select GREATEST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 280:1: select LEAST(n1.dob,timestamp with time zone'01-01-2023 01:01:00...
+                         ^^^^^^
+LINE 280:1: ...1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select LEAST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 281:1: select NULLIF(n1.dob,timestamp with time zone'01-01-2023 01:01:0...
+                          ^^^^^^
+LINE 281:1: ...1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NULLIF(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 282:1: select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011date ...
+                            ^^^^^^
+LINE 282:1: select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011date ...
+                                   ^^^^^^
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 283:1: select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011date ...
+                            ^^^^^^
+LINE 283:1: select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011date ...
+                                   ^^^^^^
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 284:1: select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2;
+                         ^^^^^^
+LINE 284:1: select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2;
+                                ^^^^^^
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 285:1: select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2...
+                          ^^^^^^
+LINE 285:1: select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2...
+                                 ^^^^^^
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011date n2;
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011time n2;
+COALESCE
+01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011time n2;
+GREATEST
+01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011time n2;
+LEAST
+01:01:01
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011time n2;
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 290:1: select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                            ^^^^^^
+LINE 290:1: select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                                   ^^^^^^
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamp n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 291:1: select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                            ^^^^^^
+LINE 291:1: select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                                   ^^^^^^
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamp n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 292:1: select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestam...
+                         ^^^^^^
+LINE 292:1: select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestam...
+                                ^^^^^^
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamp n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 293:1: select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011timesta...
+                          ^^^^^^
+LINE 293:1: select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011timesta...
+                                 ^^^^^^
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamp n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 294:1: select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                            ^^^^^^
+LINE 294:1: select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                                   ^^^^^^
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamptz n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 295:1: select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                            ^^^^^^
+LINE 295:1: select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011times...
+                                   ^^^^^^
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamptz n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 296:1: select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestam...
+                         ^^^^^^
+LINE 296:1: select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestam...
+                                ^^^^^^
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamptz n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 297:1: select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011timesta...
+                          ^^^^^^
+LINE 297:1: select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011timesta...
+                                 ^^^^^^
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011time n1, TDTT011timestamptz n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 298:1: select COALESCE(n1.dob,3) from TDTT011time n1;
+                            ^^^^^^
+LINE 298:1: select COALESCE(n1.dob,3) from TDTT011time n1;
+                                   ^
+OCTO> select COALESCE(n1.dob,3) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 299:1: select GREATEST(n1.dob,3) from TDTT011time n1;
+                            ^^^^^^
+LINE 299:1: select GREATEST(n1.dob,3) from TDTT011time n1;
+                                   ^
+OCTO> select GREATEST(n1.dob,3) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 300:1: select LEAST(n1.dob,3) from TDTT011time n1;
+                         ^^^^^^
+LINE 300:1: select LEAST(n1.dob,3) from TDTT011time n1;
+                                ^
+OCTO> select LEAST(n1.dob,3) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 301:1: select NULLIF(n1.dob,3) from TDTT011time n1;
+                          ^^^^^^
+LINE 301:1: select NULLIF(n1.dob,3) from TDTT011time n1;
+                                 ^
+OCTO> select NULLIF(n1.dob,3) from TDTT011time n1;
+OCTO> select COALESCE(n1.dob,'sample string') from TDTT011time n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select GREATEST(n1.dob,'sample string') from TDTT011time n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select LEAST(n1.dob,'sample string') from TDTT011time n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+OCTO> select NULLIF(n1.dob,'sample string') from TDTT011time n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 306:1: select COALESCE(n1.dob,3.3) from TDTT011time n1;
+                            ^^^^^^
+LINE 306:1: select COALESCE(n1.dob,3.3) from TDTT011time n1;
+                                   ^^^
+OCTO> select COALESCE(n1.dob,3.3) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 307:1: select GREATEST(n1.dob,3.3) from TDTT011time n1;
+                            ^^^^^^
+LINE 307:1: select GREATEST(n1.dob,3.3) from TDTT011time n1;
+                                   ^^^
+OCTO> select GREATEST(n1.dob,3.3) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 308:1: select LEAST(n1.dob,3.3) from TDTT011time n1;
+                         ^^^^^^
+LINE 308:1: select LEAST(n1.dob,3.3) from TDTT011time n1;
+                                ^^^
+OCTO> select LEAST(n1.dob,3.3) from TDTT011time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 309:1: select NULLIF(n1.dob,3.3) from TDTT011time n1;
+                          ^^^^^^
+LINE 309:1: select NULLIF(n1.dob,3.3) from TDTT011time n1;
+                                 ^^^
+OCTO> select NULLIF(n1.dob,3.3) from TDTT011time n1;
+OCTO> select COALESCE(n1.dob,NULL) from TDTT011time n1;
+COALESCE
+01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,NULL) from TDTT011time n1;
+GREATEST
+01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,NULL) from TDTT011time n1;
+LEAST
+01:01:01
+(1 row)
+OCTO> select NULLIF(n1.dob,NULL) from TDTT011time n1;
+NULLIF
+01:01:01
+(1 row)
+OCTO> select COALESCE(n1.dob,date'01-01-2023') from TDTT011timestamp n1;
+COALESCE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,date'01-01-2023') from TDTT011timestamp n1;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,date'01-01-2023') from TDTT011timestamp n1;
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(n1.dob,date'01-01-2023') from TDTT011timestamp n1;
+NULLIF
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 318:1: select COALESCE(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                            ^^^^^^
+LINE 318:1: select COALESCE(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                                   ^^^^^^^^^^^^^^
+OCTO> select COALESCE(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 319:1: select GREATEST(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                            ^^^^^^
+LINE 319:1: select GREATEST(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                                   ^^^^^^^^^^^^^^
+OCTO> select GREATEST(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 320:1: select LEAST(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                         ^^^^^^
+LINE 320:1: select LEAST(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                                ^^^^^^^^^^^^^^
+OCTO> select LEAST(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 321:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                          ^^^^^^
+LINE 321:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+                                 ^^^^^^^^^^^^^^
+OCTO> select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamp n1;
+OCTO> select COALESCE(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamp n1;
+COALESCE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamp n1;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamp n1;
+LEAST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select NULLIF(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamp n1;
+NULLIF
+2023-01-01 01:01:01
+(1 row)
+OCTO> select COALESCE(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamp n1;
+COALESCE
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamp n1;
+GREATEST
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select LEAST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamp n1;
+LEAST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select NULLIF(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamp n1;
+NULLIF
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011date n2;
+COALESCE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011date n2;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011date n2;
+LEAST
+2023-01-01 00:00:00
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011date n2;
+NULLIF
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 334:1: select COALESCE(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011...
+                            ^^^^^^
+LINE 334:1: select COALESCE(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011...
+                                   ^^^^^^
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 335:1: select GREATEST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011...
+                            ^^^^^^
+LINE 335:1: select GREATEST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011...
+                                   ^^^^^^
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 336:1: select LEAST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011tim...
+                         ^^^^^^
+LINE 336:1: select LEAST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011tim...
+                                ^^^^^^
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 337:1: select NULLIF(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011ti...
+                          ^^^^^^
+LINE 337:1: select NULLIF(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011ti...
+                                 ^^^^^^
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011time n2;
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamp n2;
+COALESCE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamp n2;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamp n2;
+LEAST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamp n2;
+NULLIF
+
+(1 row)
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamptz n2;
+COALESCE
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamptz n2;
+GREATEST
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamptz n2;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamp n1, TDTT011timestamptz n2;
+NULLIF
+2023-01-01 01:01:01-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 346:1: select COALESCE(n1.dob,3) from TDTT011timestamp n1;
+                            ^^^^^^
+LINE 346:1: select COALESCE(n1.dob,3) from TDTT011timestamp n1;
+                                   ^
+OCTO> select COALESCE(n1.dob,3) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 347:1: select GREATEST(n1.dob,3) from TDTT011timestamp n1;
+                            ^^^^^^
+LINE 347:1: select GREATEST(n1.dob,3) from TDTT011timestamp n1;
+                                   ^
+OCTO> select GREATEST(n1.dob,3) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 348:1: select LEAST(n1.dob,3) from TDTT011timestamp n1;
+                         ^^^^^^
+LINE 348:1: select LEAST(n1.dob,3) from TDTT011timestamp n1;
+                                ^
+OCTO> select LEAST(n1.dob,3) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 349:1: select NULLIF(n1.dob,3) from TDTT011timestamp n1;
+                          ^^^^^^
+LINE 349:1: select NULLIF(n1.dob,3) from TDTT011timestamp n1;
+                                 ^
+OCTO> select NULLIF(n1.dob,3) from TDTT011timestamp n1;
+OCTO> select COALESCE(n1.dob,'sample string') from TDTT011timestamp n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select GREATEST(n1.dob,'sample string') from TDTT011timestamp n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select LEAST(n1.dob,'sample string') from TDTT011timestamp n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+OCTO> select NULLIF(n1.dob,'sample string') from TDTT011timestamp n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 354:1: select COALESCE(n1.dob,3.3) from TDTT011timestamp n1;
+                            ^^^^^^
+LINE 354:1: select COALESCE(n1.dob,3.3) from TDTT011timestamp n1;
+                                   ^^^
+OCTO> select COALESCE(n1.dob,3.3) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 355:1: select GREATEST(n1.dob,3.3) from TDTT011timestamp n1;
+                            ^^^^^^
+LINE 355:1: select GREATEST(n1.dob,3.3) from TDTT011timestamp n1;
+                                   ^^^
+OCTO> select GREATEST(n1.dob,3.3) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 356:1: select LEAST(n1.dob,3.3) from TDTT011timestamp n1;
+                         ^^^^^^
+LINE 356:1: select LEAST(n1.dob,3.3) from TDTT011timestamp n1;
+                                ^^^
+OCTO> select LEAST(n1.dob,3.3) from TDTT011timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 357:1: select NULLIF(n1.dob,3.3) from TDTT011timestamp n1;
+                          ^^^^^^
+LINE 357:1: select NULLIF(n1.dob,3.3) from TDTT011timestamp n1;
+                                 ^^^
+OCTO> select NULLIF(n1.dob,3.3) from TDTT011timestamp n1;
+OCTO> select COALESCE(n1.dob,NULL) from TDTT011timestamp n1;
+COALESCE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select GREATEST(n1.dob,NULL) from TDTT011timestamp n1;
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(n1.dob,NULL) from TDTT011timestamp n1;
+LEAST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select NULLIF(n1.dob,NULL) from TDTT011timestamp n1;
+NULLIF
+2023-01-01 01:01:01
+(1 row)
+OCTO> select COALESCE(n1.dob,date'01-01-2023') from TDTT011timestamptz n1;
+COALESCE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,date'01-01-2023') from TDTT011timestamptz n1;
+GREATEST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select LEAST(n1.dob,date'01-01-2023') from TDTT011timestamptz n1;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,date'01-01-2023') from TDTT011timestamptz n1;
+NULLIF
+2022-12-31 15:01:01-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 366:1: select COALESCE(n1.dob,time'01:01:00') from TDTT011timestamptz n...
+                            ^^^^^^
+LINE 366:1: select COALESCE(n1.dob,time'01:01:00') from TDTT011timestamptz n...
+                                   ^^^^^^^^^^^^^^
+OCTO> select COALESCE(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 367:1: select GREATEST(n1.dob,time'01:01:00') from TDTT011timestamptz n...
+                            ^^^^^^
+LINE 367:1: select GREATEST(n1.dob,time'01:01:00') from TDTT011timestamptz n...
+                                   ^^^^^^^^^^^^^^
+OCTO> select GREATEST(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 368:1: select LEAST(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+                         ^^^^^^
+LINE 368:1: select LEAST(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+                                ^^^^^^^^^^^^^^
+OCTO> select LEAST(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 369:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+                          ^^^^^^
+LINE 369:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+                                 ^^^^^^^^^^^^^^
+OCTO> select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
+OCTO> select COALESCE(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamptz n1;
+COALESCE
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamptz n1;
+GREATEST
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select LEAST(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamptz n1;
+LEAST
+2022-12-31 20:01:00-05
+(1 row)
+OCTO> select NULLIF(n1.dob,timestamp'01-01-2023 01:01:00') from TDTT011timestamptz n1;
+NULLIF
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select COALESCE(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamptz n1;
+COALESCE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamptz n1;
+GREATEST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select LEAST(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamptz n1;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT011timestamptz n1;
+NULLIF
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011date n2;
+COALESCE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011date n2;
+GREATEST
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011date n2;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011date n2;
+NULLIF
+2022-12-31 15:01:01-05
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 382:1: select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT0...
+                            ^^^^^^
+LINE 382:1: select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT0...
+                                   ^^^^^^
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 383:1: select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT0...
+                            ^^^^^^
+LINE 383:1: select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT0...
+                                   ^^^^^^
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 384:1: select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011t...
+                         ^^^^^^
+LINE 384:1: select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011t...
+                                ^^^^^^
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 385:1: select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011...
+                          ^^^^^^
+LINE 385:1: select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011...
+                                 ^^^^^^
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011time n2;
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
+COALESCE
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
+GREATEST
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
+LEAST
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
+NULLIF
+2022-12-31 20:01:01-05
+(1 row)
+OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamptz n2;
+COALESCE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamptz n2;
+GREATEST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamptz n2;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamptz n2;
+NULLIF
+
+(1 row)
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 394:1: select COALESCE(n1.dob,3) from TDTT011timestamptz n1;
+                            ^^^^^^
+LINE 394:1: select COALESCE(n1.dob,3) from TDTT011timestamptz n1;
+                                   ^
+OCTO> select COALESCE(n1.dob,3) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 395:1: select GREATEST(n1.dob,3) from TDTT011timestamptz n1;
+                            ^^^^^^
+LINE 395:1: select GREATEST(n1.dob,3) from TDTT011timestamptz n1;
+                                   ^
+OCTO> select GREATEST(n1.dob,3) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 396:1: select LEAST(n1.dob,3) from TDTT011timestamptz n1;
+                         ^^^^^^
+LINE 396:1: select LEAST(n1.dob,3) from TDTT011timestamptz n1;
+                                ^
+OCTO> select LEAST(n1.dob,3) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 397:1: select NULLIF(n1.dob,3) from TDTT011timestamptz n1;
+                          ^^^^^^
+LINE 397:1: select NULLIF(n1.dob,3) from TDTT011timestamptz n1;
+                                 ^
+OCTO> select NULLIF(n1.dob,3) from TDTT011timestamptz n1;
+OCTO> select COALESCE(n1.dob,'sample string') from TDTT011timestamptz n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select GREATEST(n1.dob,'sample string') from TDTT011timestamptz n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select LEAST(n1.dob,'sample string') from TDTT011timestamptz n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+OCTO> select NULLIF(n1.dob,'sample string') from TDTT011timestamptz n1;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 402:1: select COALESCE(n1.dob,3.3) from TDTT011timestamptz n1;
+                            ^^^^^^
+LINE 402:1: select COALESCE(n1.dob,3.3) from TDTT011timestamptz n1;
+                                   ^^^
+OCTO> select COALESCE(n1.dob,3.3) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 403:1: select GREATEST(n1.dob,3.3) from TDTT011timestamptz n1;
+                            ^^^^^^
+LINE 403:1: select GREATEST(n1.dob,3.3) from TDTT011timestamptz n1;
+                                   ^^^
+OCTO> select GREATEST(n1.dob,3.3) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 404:1: select LEAST(n1.dob,3.3) from TDTT011timestamptz n1;
+                         ^^^^^^
+LINE 404:1: select LEAST(n1.dob,3.3) from TDTT011timestamptz n1;
+                                ^^^
+OCTO> select LEAST(n1.dob,3.3) from TDTT011timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 405:1: select NULLIF(n1.dob,3.3) from TDTT011timestamptz n1;
+                          ^^^^^^
+LINE 405:1: select NULLIF(n1.dob,3.3) from TDTT011timestamptz n1;
+                                 ^^^
+OCTO> select NULLIF(n1.dob,3.3) from TDTT011timestamptz n1;
+OCTO> select COALESCE(n1.dob,NULL) from TDTT011timestamptz n1;
+COALESCE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select GREATEST(n1.dob,NULL) from TDTT011timestamptz n1;
+GREATEST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select LEAST(n1.dob,NULL) from TDTT011timestamptz n1;
+LEAST
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select NULLIF(n1.dob,NULL) from TDTT011timestamptz n1;
+NULLIF
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> -- type:date format:
+drop table TDTT011date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT011time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT011timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT011timestamptz;
+DROP TABLE
+OCTO> select nullif(date'01-02-2023',timestamp with time zone'01-01-2023 00:00:00');
+NULLIF
+2023-01-02
+(1 row)
+OCTO> select nullif(timestamp with time zone'01-01-2023 00:00:00',date'01-02-2023');
+NULLIF
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select nullif(timestamp with time zone'01-01-2023 00:00:00',date'01-01-2023');
+NULLIF
+
+(1 row)
+OCTO> select nullif(date'01-02-2023',timestamp'01-01-2023 00:00:00');
+NULLIF
+2023-01-02
+(1 row)
+OCTO> select nullif(timestamp'01-01-2023 00:00:00',date'01-02-2023');
+NULLIF
+2023-01-01 00:00:00
+(1 row)
+OCTO> select nullif(timestamp'01-01-2023 00:00:00',date'01-01-2023');
+NULLIF
+
+(1 row)
+OCTO> select COALESCE(date'01-01-2023','01-01-2023');
+COALESCE
+2023-01-01
+(1 row)
+OCTO> select GREATEST(date'01-01-2023','01-01-2023');
+GREATEST
+2023-01-01
+(1 row)
+OCTO> select LEAST(date'01-01-2023','01-01-2023');
+LEAST
+2023-01-01
+(1 row)
+OCTO> select NULLIF(date'01-01-2023','01-01-2023');
+NULLIF
+
+(1 row)
+OCTO> select COALESCE(time'01:01:00','01:01:01');
+COALESCE
+01:01:00
+(1 row)
+OCTO> select GREATEST(time'01:01:00','01:01:01');
+GREATEST
+01:01:01
+(1 row)
+OCTO> select LEAST(time'01:01:00','01:01:01');
+LEAST
+01:01:00
+(1 row)
+OCTO> select NULLIF(time'01:01:00','01:01:01');
+NULLIF
+01:01:00
+(1 row)
+OCTO> select COALESCE(timestamp'01-01-2023 01:01:00','01-01-2023 01:01:01');
+COALESCE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select GREATEST(timestamp'01-01-2023 01:01:00','01-01-2023 01:01:01');
+GREATEST
+2023-01-01 01:01:01
+(1 row)
+OCTO> select LEAST(timestamp'01-01-2023 01:01:00','01-01-2023 01:01:01');
+LEAST
+2023-01-01 01:01:00
+(1 row)
+OCTO> select NULLIF(timestamp'01-01-2023 01:01:00','01-01-2023 01:01:01');
+NULLIF
+2023-01-01 01:01:00
+(1 row)
+OCTO> select COALESCE(timestamp with time zone'01-01-2023 01:01:00-05:00','01-01-2023 01:01:01-05');
+COALESCE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select GREATEST(timestamp with time zone'01-01-2023 01:01:00-05:00','01-01-2023 01:01:01-05');
+GREATEST
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select LEAST(timestamp with time zone'01-01-2023 01:01:00-05:00','01-01-2023 01:01:01-05');
+LEAST
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select NULLIF(timestamp with time zone'01-01-2023 01:01:00-05:00','01-01-2023 01:01:01-05');
+NULLIF
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> 

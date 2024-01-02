@@ -43,10 +43,33 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
 		UNPACK_SQL_STATEMENT(runtime_value_stmt, set_stmt->value, value);
 		UNPACK_SQL_STATEMENT(runtime_variable_stmt, set_stmt->variable, value);
-
-		// SET a runtime variable to a specified value
-		status
-		    = set_parameter_in_pg_settings(runtime_variable_stmt->v.string_literal, runtime_value_stmt->v.string_literal);
+		if (0 != strcmp(runtime_variable_stmt->v.string_literal, "datestyle")) {
+			// SET a runtime variable to a specified value
+			status = set_parameter_in_pg_settings(runtime_variable_stmt->v.string_literal,
+							      runtime_value_stmt->v.string_literal);
+		} else {
+			// Set dateformat, outputdateformat and timestampformat, outputtimestampformat
+			const char *old_date_style = config->datestyle;
+			status = set_date_time_format_from_datestyle(runtime_value_stmt->v.string_literal);
+			if (!status) {
+				// SET the new datestyle value to PG_SETTINGS table
+				char *non_const_datestyle = malloc(sizeof(char) * strlen(config->datestyle) + 1);
+				strcpy(non_const_datestyle, config->datestyle);
+				status = set_parameter_in_pg_settings(runtime_variable_stmt->v.string_literal, non_const_datestyle);
+				free(non_const_datestyle);
+				if (YDB_OK != status) {
+					// new datestyle couldn't be set to PG_SETINGS table, retain the old value in Octo config
+					char *non_const_datestyle = malloc(sizeof(char) * strlen(old_date_style) + 1);
+					strcpy(non_const_datestyle, old_date_style);
+					int lcl_status = set_date_time_format_from_datestyle(non_const_datestyle);
+					assert(!lcl_status);
+					UNUSED(lcl_status);
+				}
+			} else {
+				// retain old datestyle value
+				status = 0;
+			}
+		}
 		return status;
 	}
 	if (show_STATEMENT == stmt->type) {

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -67,9 +67,9 @@ SELECT ALL 1 FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM c
 SELECT ALL 1 FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having count(c.first_name=n1.first_name)=1);
 SELECT ALL 1 FROM customers c GROUP BY last_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.first_name having count(c.first_name)=1);
 SELECT ALL 1 FROM customers c GROUP BY last_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.first_name having count(c.first_name=c.first_name)=1);
-SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having EXISTS(SELECT 1 from orders n2 group by n2.order_id having count(c.first_name=order_date)=1));
+SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having EXISTS(SELECT 1 from orders n2 group by n2.order_id having count(c.first_name=order_date::varchar)=1));
 SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.first_name having EXISTS(SELECT 1 from orders n2 group by n2.order_id having count((c.first_name||n1.first_name)=order_amount)=1));
-SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having EXISTS(SELECT 1 from orders n2 group by n2.order_id having count((c.first_name=n1.last_name)=(n2.order_date='test'))=1));
+SELECT ALL first_name FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having EXISTS(SELECT 1 from orders n2 group by n2.order_id having count((c.first_name=n1.last_name)=(n2.order_date::varchar='test'))=1));
 
 -- Edge cases to verify working of aggregate function in inner query having outer query columns when outer query has GROUP BY
 SELECT ALL 1 FROM customers c GROUP BY first_name HAVING EXISTS (SELECT 1 FROM customers n1 GROUP BY n1.last_name having count(c.first_name=n1.first_name)=1);

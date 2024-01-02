@@ -175,6 +175,11 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
 		case NUL_VALUE:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 			*type = value->type;
 			/* This is a literal inside a EXTRACT FUNCTION. All literals inside the EXTRACT
 			 * need to have their parameter index reset to 0 so "tmpl_print_expression.ctemplate"

@@ -1,0 +1,16 @@
+select date(zut) '66475';
+select date(zut) '-66475';
+select date(zut)'-62167201438000000';
+OCTO> select date(zut) '66475';
+???
+1970-01-01
+(1 row)
+OCTO> select date(zut) '-66475';
+???
+1969-12-31
+(1 row)
+OCTO> select date(zut)'-62167201438000000';
+???
+0000-01-01
+(1 row)
+OCTO> 

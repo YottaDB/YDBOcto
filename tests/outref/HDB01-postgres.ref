@@ -54,15 +54,15 @@ customer_id|first_name|last_name|email|address|city|state|zipcode
 # Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : orders]
 #######################################################################
 order_id|order_date|order_amount|customer_id
-1|07/04/1776|$234.56|1
-2|03/14/1760|$78.50|3
-3|05/23/1784|$124.00|2
+1|1776-07-04|$234.56|1
+2|1760-03-14|$78.50|3
+3|1784-05-23|$124.00|2
 ...
 ...
-3|05/23/1784|$124.00|2
-4|09/03/1790|$65.50|3
-5|07/21/1795|$25.50|10
-6|11/27/1787|$14.40|9
+3|1784-05-23|$124.00|2
+4|1790-09-03|$65.50|3
+5|1795-07-21|$25.50|10
+6|1787-11-27|$14.40|9
 #######################################################################
 # Listing first 3 lines and last 3 lines of [SCHEMA : pastas] [TABLE : names4]
 #######################################################################
@@ -119,15 +119,15 @@ categoryid|categoryname|description
 # Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : employees]
 #######################################################################
 employeeid|lastname|firstname|birthdate|photo|notes
-1|Davolio|Nancy|DATE|EmpID1.pic|Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
-2|Fuller|Andrew|DATE|EmpID2.pic|Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.
-3|Leverling|Janet|DATE|EmpID3.pic|Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.
+1|Davolio|Nancy|1968-12-08|EmpID1.pic|Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
+2|Fuller|Andrew|1952-02-19|EmpID2.pic|Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.
+3|Leverling|Janet|1963-08-30|EmpID3.pic|Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.
 ...
 ...
-10|West|Adam|DATE|EmpID10.pic|An old chum.
-7|King|Robert|DATE|EmpID7.pic|Robert King served in the Peace Corps and traveled extensively before completing his degree in English at the University of Michigan and then joining the company. After completing a course entitled 'Selling in Europe', he was transferred to the London office.
-8|Callahan|Laura|DATE|EmpID8.pic|Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
-9|Dodsworth|Anne|DATE|EmpID9.pic|Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
+10|West|Adam|1928-09-19|EmpID10.pic|An old chum.
+7|King|Robert|1960-05-29|EmpID7.pic|Robert King served in the Peace Corps and traveled extensively before completing his degree in English at the University of Michigan and then joining the company. After completing a course entitled 'Selling in Europe', he was transferred to the London office.
+8|Callahan|Laura|1958-01-09|EmpID8.pic|Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
+9|Dodsworth|Anne|1969-07-02|EmpID9.pic|Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
 #######################################################################
 # Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : nwcustomers]
 #######################################################################
@@ -145,15 +145,15 @@ customerid|customername|contactname|address|city|postalcode|country
 # Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : nworders]
 #######################################################################
 orderid|customerid|employeeid|orderdate|shipperid
-10248|90|5|DATE|3
-10249|81|6|DATE|1
-10250|34|4|DATE|2
+10248|90|5|1996-07-04|3
+10249|81|6|1996-07-05|1
+10250|34|4|1996-07-08|2
 ...
 ...
-10440|71|4|DATE|2
-10441|55|3|DATE|2
-10442|20|3|DATE|2
-10443|66|8|DATE|1
+10440|71|4|1997-02-10|2
+10441|55|3|1997-02-10|2
+10442|20|3|1997-02-11|2
+10443|66|8|1997-02-12|1
 #######################################################################
 # Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orderdetails]
 #######################################################################

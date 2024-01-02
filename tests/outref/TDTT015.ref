@@ -1,0 +1,75 @@
+
+select date'01-01-2023'||'test';
+select date'01-01-2023'||NULL;
+select time'01:01:01'||'test';
+select time'01:01:01'||NULL;
+select timestamp'01-01-2023 01:01:01' || NULL;
+select timestamp'01-01-2023 01:01:01' || 'test';
+
+create table test (dob date(horolog), dot time(horolog), dots timestamp(horolog));
+insert into test values(date(horolog)'66749',time(horolog)'50531',timestamp(horolog)'66749,50531');
+select * from test;
+select dob||'test' from test;
+select dot ||'test' from test;
+select dots||'test' from test;
+select dob||NULL from test;
+select dot ||NULL from test;
+select dots||NULL from test;
+
+OCTO> select date'01-01-2023'||'test';
+???
+2023-01-01test
+(1 row)
+OCTO> select date'01-01-2023'||NULL;
+???
+
+(1 row)
+OCTO> select time'01:01:01'||'test';
+???
+01:01:01test
+(1 row)
+OCTO> select time'01:01:01'||NULL;
+???
+
+(1 row)
+OCTO> select timestamp'01-01-2023 01:01:01' || NULL;
+???
+
+(1 row)
+OCTO> select timestamp'01-01-2023 01:01:01' || 'test';
+???
+2023-01-01 01:01:01test
+(1 row)
+OCTO> create table test (dob date(horolog), dot time(horolog), dots timestamp(horolog));
+CREATE TABLE
+OCTO> insert into test values(date(horolog)'66749',time(horolog)'50531',timestamp(horolog)'66749,50531');
+INSERT 0 1
+OCTO> select * from test;
+dob|dot|dots
+2023-10-02|14:02:11|2023-10-02 14:02:11
+(1 row)
+OCTO> select dob||'test' from test;
+???
+2023-10-02test
+(1 row)
+OCTO> select dot ||'test' from test;
+???
+14:02:11test
+(1 row)
+OCTO> select dots||'test' from test;
+???
+2023-10-02 14:02:11test
+(1 row)
+OCTO> select dob||NULL from test;
+???
+
+(1 row)
+OCTO> select dot ||NULL from test;
+???
+
+(1 row)
+OCTO> select dots||NULL from test;
+???
+
+(1 row)
+OCTO> 

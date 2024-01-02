@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,6 +31,21 @@ SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_un
 	case NUL_TYPE:
 		return NUL_VALUE;
 		break;
+	case DATE_TYPE:
+		return DATE_LITERAL;
+		break;
+	case TIME_TYPE:
+		return TIME_LITERAL;
+		break;
+	case TIME_WITH_TIME_ZONE_TYPE:
+		return TIME_WITH_TIME_ZONE_LITERAL;
+		break;
+	case TIMESTAMP_TYPE:
+		return TIMESTAMP_LITERAL;
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+		return TIMESTAMP_WITH_TIME_ZONE_LITERAL;
+		break;
 	case UNKNOWN_SqlDataType:
 		if (is_unknown_type_okay) {
 			return UNKNOWN_SqlValueType;
@@ -41,6 +56,5 @@ SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_un
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		return UNKNOWN_SqlValueType;
-		break;
 	}
 }

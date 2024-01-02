@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,7 +39,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	SqlDataType	coerce_data_type;
 	LPActionType	plan_type;
 	boolean_t	is_avg;
+	boolean_t	done;
 	int		aggregate_cnt;
+	SqlValueType first_operand_type, second_operand_type;
+	boolean_t first_operand_needs_timezone_comp = FALSE;
+	boolean_t second_operand_needs_timezone_comp = FALSE;
 
 	assert(NULL != plan);
 	first_operand = plan->v.lp_default.operand[0];
@@ -121,6 +125,35 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case INTEGER_LITERAL:
 		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
+		case DATE_LITERAL:
+		case TIME_LITERAL:
+		case TIME_WITH_TIME_ZONE_LITERAL:
+		case TIMESTAMP_LITERAL:
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:;
+			// If the value is of type Date/Time then add the conversion routine based on internal format here
+			boolean_t close_date_time_function_paren = FALSE;
+			boolean_t text_format = FALSE;
+			if (IS_DATE_TIME_TYPE(value->type)) {
+				close_date_time_function_paren = TRUE;
+				switch(value->date_time_format_type) {
+				case OPTIONAL_DATE_TIME_HOROLOG:
+					%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
+					break;
+				case OPTIONAL_DATE_TIME_ZHOROLOG:
+					%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
+					break;
+				case OPTIONAL_DATE_TIME_FILEMAN:
+					%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
+					break;
+				case OPTIONAL_DATE_TIME_ZUT:
+					%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
+					break;
+				default:
+					%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
+					text_format = TRUE;
+					break;
+				}
+			}
 			/* Note that "value->parameter_index" is guaranteed to be non-zero in most cases.
 			 * The only exception that we know of currently is CHECK constraints where literals in the
 			 * constraint will have a 0 parameter_index. This is because they can then be used in SELECT queries
@@ -157,6 +190,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				};
 				%{}{{ zwr.buf_addr }}{}%
 				free(zwr.buf_addr);
+			}
+			if (close_date_time_function_paren) {
+				%{},{{ value->type|%d }}{}%
+				if (text_format) {
+					const char *format_specifier;
+					GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(value->type, format_specifier);
+					%{},"{{ format_specifier }}"{}%
+				}
+				%{}){}%
 			}
 			break;
 		case FUNCTION_NAME:
@@ -269,12 +311,68 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case STRING_TYPE:
 			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
 				|| (NUMERIC_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)
-				|| IS_NUL_VALUE(pre_coerce_type));
+				|| IS_NUL_VALUE(pre_coerce_type) || IS_DATE_TIME_TYPE(pre_coerce_type));
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
 				%{}$$Cast2VARCHAR^%%ydboctoplanhelpers({}%
 			}
 			if (BOOLEAN_VALUE == pre_coerce_type) {
 				%{}$$Boolean2String^%%ydboctoplanhelpers({}%
+			}
+			if (IS_DATE_TIME_TYPE(pre_coerce_type)) {
+				%{}$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({}%
+			}
+			break;
+		case DATE_TYPE:
+			// CAST2Date
+			// Convert data in internal format to a value in internal format but modify the value according to the cast
+			// requested
+			assert((DATE_LITERAL == pre_coerce_type) || (TIMESTAMP_LITERAL == pre_coerce_type)
+			       || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)|| (PARAMETER_VALUE == pre_coerce_type));
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
+				%{}$$String2DateTimeCast^%%ydboctoplanhelpers({}%
+			} else {
+				%{}$$DateTimeCast^%%ydboctoplanhelpers({}%
+			}
+			break;
+		case TIME_TYPE:
+			// Cast2Time
+			assert((TIME_LITERAL == pre_coerce_type) || (TIME_WITH_TIME_ZONE_LITERAL == pre_coerce_type)
+			       || (TIMESTAMP_LITERAL == pre_coerce_type) || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == pre_coerce_type) ||
+			       (STRING_LITERAL == pre_coerce_type)|| (PARAMETER_VALUE == pre_coerce_type));
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
+				%{}$$String2DateTimeCast^%%ydboctoplanhelpers({}%
+			} else {
+				%{}$$DateTimeCast^%%ydboctoplanhelpers({}%
+			}
+			break;
+		case TIME_WITH_TIME_ZONE_TYPE:
+			// Cast2TimeWithTimeZone
+			assert((TIME_LITERAL == pre_coerce_type) || (TIME_WITH_TIME_ZONE_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)
+			       || (STRING_LITERAL == pre_coerce_type));
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
+				%{}$$String2DateTimeCast^%%ydboctoplanhelpers({}%
+			} else {
+				%{}$$DateTimeCast^%%ydboctoplanhelpers({}%
+			}
+			break;
+		case TIMESTAMP_TYPE:
+			// Cast2Timestamp
+			assert((DATE_LITERAL == pre_coerce_type) || (TIMESTAMP_LITERAL == pre_coerce_type)
+			       || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type));
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
+				%{}$$String2DateTimeCast^%%ydboctoplanhelpers({}%
+			} else {
+				%{}$$DateTimeCast^%%ydboctoplanhelpers({}%
+			}
+			break;
+		case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+			// Cast2TimestampWithTimeZone
+			assert((DATE_LITERAL == pre_coerce_type) || (TIMESTAMP_LITERAL == pre_coerce_type)
+			       || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)|| (PARAMETER_VALUE == pre_coerce_type));
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
+				%{}$$String2DateTimeCast^%%ydboctoplanhelpers({}%
+			} else {
+				%{}$$DateTimeCast^%%ydboctoplanhelpers({}%
 			}
 			break;
 		default:
@@ -350,6 +448,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}){}%
 			break;
 		case STRING_TYPE:
+			if (IS_DATE_TIME_TYPE(pre_coerce_type)) {
+                                const char *datetime_text_format_specifier;
+                                GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(pre_coerce_type,datetime_text_format_specifier);
+				%{},{{ pre_coerce_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }}{}%
+				%{},"{{ datetime_text_format_specifier }}"){}%
+			}
 			if (BOOLEAN_VALUE == pre_coerce_type) {
 				%{}){}%
 			}
@@ -370,6 +474,61 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				}
 			}
 			break;
+		case DATE_TYPE:
+			// CAST2Date
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)) {
+				const char *datetime_text_format_specifier;
+				SqlValueType output_sql_value_type = get_sqlvaluetype_from_sqldatatype(coerce_data_type,FALSE);
+				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(output_sql_value_type,datetime_text_format_specifier);
+				%{},"{{ datetime_text_format_specifier }}",{{ coerce_data_type|%d }}){}%
+			} else {
+				%{},{{ pre_coerce_type|%d }},{{ coerce_data_type|%d }}){}%
+			}
+			break;
+		case TIME_TYPE:
+			// Cast2Time
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)) {
+				const char *datetime_text_format_specifier;
+				SqlValueType output_sql_value_type = get_sqlvaluetype_from_sqldatatype(coerce_data_type,FALSE);
+				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(output_sql_value_type,datetime_text_format_specifier);
+				%{},"{{ datetime_text_format_specifier }}",{{ coerce_data_type|%d }}){}%
+			} else {
+				%{},{{ pre_coerce_type|%d }},{{ coerce_data_type|%d }}){}%
+			}
+			break;
+		case TIME_WITH_TIME_ZONE_TYPE:
+			// Cast2TimeWithTimeZone
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)) {
+				const char *datetime_text_format_specifier;
+				SqlValueType output_sql_value_type = get_sqlvaluetype_from_sqldatatype(coerce_data_type,FALSE);
+				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(output_sql_value_type,datetime_text_format_specifier);
+				%{},"{{ datetime_text_format_specifier }}",{{ coerce_data_type|%d }}){}%
+			} else {
+				%{},{{ pre_coerce_type|%d }},{{ coerce_data_type|%d }}){}%
+			}
+			break;
+		case TIMESTAMP_TYPE:
+			// Cast2Timestamp
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)) {
+				const char *datetime_text_format_specifier;
+				SqlValueType output_sql_value_type = get_sqlvaluetype_from_sqldatatype(coerce_data_type,FALSE);
+				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(output_sql_value_type,datetime_text_format_specifier);
+				%{},"{{ datetime_text_format_specifier }}",{{ coerce_data_type|%d }}){}%
+			} else {
+				%{},{{ pre_coerce_type|%d }},{{ coerce_data_type|%d }}){}%
+			}
+			break;
+		case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+			// Cast2TimestampWithTimeZone
+			if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)) {
+				const char *datetime_text_format_specifier;
+				SqlValueType output_sql_value_type = get_sqlvaluetype_from_sqldatatype(coerce_data_type,FALSE);
+				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(output_sql_value_type,datetime_text_format_specifier);
+				%{},"{{ datetime_text_format_specifier }}",{{ coerce_data_type|%d }}){}%
+			} else {
+				%{},{{ pre_coerce_type|%d }},{{ coerce_data_type|%d }}){}%
+			}
+			break;
 		default:
 			assert(FALSE);
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -386,7 +545,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		GET_LP(key, plan, 0, LP_KEY);
 
-		boolean_t	done;
 		int 		unique_id;
 		SqlColumnAlias	*subquery_column_alias;
 		SqlKey		*sql_key;
@@ -515,8 +673,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 		}
 		break;
-	case LP_ADDITION:
+	case LP_DATE_TIME_ADDITION:
+		done = FALSE;
+		TMPL(tmpl_print_date_time_addition , first_operand, second_operand, pplan, dot_count, depth, &done);
+		assert(done == TRUE);
+		break;
+	case LP_ADDITION:;
 		m_operator = "+";
+		break;
+	case LP_DATE_TIME_SUBTRACTION:
+		done = FALSE;
+		TMPL(tmpl_print_date_time_subtraction , first_operand, second_operand, pplan, dot_count, depth, &done);
+		assert(done == TRUE);
 		break;
 	case LP_SUBTRACTION:
 		m_operator = "-";
@@ -641,6 +809,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	}
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
+		first_operand_type = lp_get_plan_value_type(first_operand);
+		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == first_operand_type)) {
+			first_operand_needs_timezone_comp = TRUE;
+		}
 		if ((LP_SELECT_QUERY == second_operand->type) || (LP_SET_OPERATION == second_operand->type)
 				|| (LP_TABLE_VALUE == second_operand->type)) {
 			/* This is IN or NOT IN used with a sub-query on the right hand side.
@@ -658,10 +830,19 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (dot_count) {
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={}%
+				if (first_operand_needs_timezone_comp) {
+					%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{{ PP_YDB_OCTO_EXPR }}){}%
+				} else {
+					%{}{{ PP_YDB_OCTO_EXPR }}{}%
+				}
 				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+			}
+			second_operand_type = lp_get_plan_value_type(second_operand);
+			if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+				second_operand_needs_timezone_comp = TRUE;
 			}
 			cur_lp_key = lp_get_output_key(second_operand);
 			%{}$SELECT({}%
@@ -683,23 +864,52 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (dot_count) {
 				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth |%d }}){}%
 			} else {
+				if (first_operand_needs_timezone_comp) {
+					%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+				}
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				if (first_operand_needs_timezone_comp) {
+					%{}){}%
+				}
 			}
 			%{}):$ZYSQLNULL,{}%
 			if (LP_BOOLEAN_NOT_IN != plan_type) {
 				TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_IN, second_operand, dot_count);
 			}
 			/* Check if RHS has at least one equal value. If so use that. */
-			%{}$DATA({}%
-			TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
-			(*buffer_index)--;
-			%{},{}%
-			if (dot_count) {
-				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth |%d }}){}%
+			if (second_operand_needs_timezone_comp) {
+				%{}$$ANY^%%ydboctoplanhelpers({}%
+				if (dot_count) {
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth |%d }}){}%
+				} else {
+					if (first_operand_needs_timezone_comp) {
+						%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+					}
+					TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+					if (first_operand_needs_timezone_comp) {
+						%{}){}%
+					}
+				}
+				%{},{{ cur_lp_key->v.lp_key.key->unique_id|%d }},"=",0,"{}%
+				%{}",1,{{ second_operand_type|%d }}){}%
 			} else {
-				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				%{}$DATA({}%
+				TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
+				(*buffer_index)--;
+				%{},{}%
+				if (dot_count) {
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth |%d }}){}%
+				} else {
+					if (first_operand_needs_timezone_comp) {
+						%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+					}
+					TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+					if (first_operand_needs_timezone_comp) {
+						%{}){}%
+					}
+				}
+				%{})){}%
 			}
-			%{})){}%
 			if (LP_BOOLEAN_IN == plan_type) {
 				%{}:1,{}%
 			} else {
@@ -751,15 +961,41 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={}%
+				if (first_operand_needs_timezone_comp) {
+					%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{{ PP_YDB_OCTO_EXPR }}){}%
+				} else {
+					%{}{{ PP_YDB_OCTO_EXPR }}{}%
+				}
 			}
+			/* All items in the IN list is of same type but its possible that we see NULL values in between so check
+			 * for TIME ZONE type value inside the loop. Once found, the search will not happen again and NULL values
+			 * also go through Conversion logic but the routine invoked returns immediately if NULL value is seen so
+			 * this should be okay.
+			 */
+			// Prevent date/time type search if the first operand is not of similar type
+			boolean_t second_operand_needs_timezone_check = (IS_DATE_TIME_TYPE(first_operand_type));
 			do {
+				if (second_operand_needs_timezone_check) {
+					second_operand_type = lp_get_plan_value_type(plan2);
+					if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)
+					    || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+						second_operand_needs_timezone_comp = TRUE;
+						// re-use the below variable to prevent repeated search
+						second_operand_needs_timezone_check = FALSE;
+					}
+				}
 				value = plan2->v.lp_default.operand[0];
 				if (dot_count) {
 					%{}`n{{ PLAN_LINE_START }}{}%
 					TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},1)={{ PP_YDB_OCTO_EXPR }}{}%
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},1)={}%
+					if (second_operand_needs_timezone_comp) {
+						%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ second_operand_type|%d }},{{ PP_YDB_OCTO_EXPR }}){}%
+					} else {
+						%{}{{ PP_YDB_OCTO_EXPR }}{}%
+					}
 					%{}`n{{ PLAN_LINE_START }}{}%
 					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
@@ -782,7 +1018,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				if (dot_count) {
 					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
 				} else {
+					if (first_operand_needs_timezone_comp) {
+						%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+					}
 					TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+					if (first_operand_needs_timezone_comp) {
+						%{}){}%
+					}
 				}
 				if (coerce_to_numeric) {
 					%{}){}%
@@ -799,7 +1041,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				if (dot_count) {
 					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},1){}%
 				} else {
+					if (second_operand_needs_timezone_comp) {
+						%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ second_operand_type|%d }},{}%
+					}
 					TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
+					if (second_operand_needs_timezone_comp) {
+						%{}){}%
+					}
 				}
 				if (coerce_to_numeric) {
 					%{}){}%
@@ -891,15 +1139,34 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			break;
 		}
 		use_string_comparison = lp_is_operand_type_string(plan, NULL);
+		first_operand_type = lp_get_plan_value_type(first_operand);
+		second_operand_type = lp_get_plan_value_type(second_operand);
+		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == first_operand_type)) {
+			first_operand_needs_timezone_comp = TRUE;
+		}
+		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+			second_operand_needs_timezone_comp = TRUE;
+		}
+
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
+		if (first_operand_needs_timezone_comp) {
+			%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+		}
 		if (dot_count) {
 			%{}{{ PP_YDB_OCTO_EXPR }}{}%
 		} else {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		}
+		if (first_operand_needs_timezone_comp) {
+			%{}){}%
+		}
 		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }},"{}%
 		TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_ANY_ALL, second_operand, dot_count);
-		%{}"){}%
+		%{}"{}%
+		if (second_operand_needs_timezone_comp) {
+			%{},1,{{ second_operand_type|%d }}{}%
+		}
+		%{}){}%
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
@@ -1193,6 +1460,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_NULL_IF:
 		/* NULLIF(a,b) -> $select(a=b:$ZYSQLNULL,1:a) */
 		coerce_to_numeric = !lp_is_operand_type_string(plan, NULL);
+		first_operand_type = lp_get_plan_value_type(first_operand);
+		second_operand_type = lp_get_plan_value_type(second_operand);
+		if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type) {
+			first_operand_needs_timezone_comp = TRUE;
+		}
+		if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) {
+			second_operand_needs_timezone_comp = TRUE;
+		}
 		if (dot_count) {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			TMPL(tmpl_print_dots, dot_count);
@@ -1206,10 +1481,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (coerce_to_numeric) {
 			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 		}
+		if (first_operand_needs_timezone_comp) {
+			%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+		}
 		if (dot_count) {
 			%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
 		} else {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
+		if (first_operand_needs_timezone_comp) {
+			%{}){}%
 		}
 		if (coerce_to_numeric) {
 			%{}){}%
@@ -1218,10 +1499,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (coerce_to_numeric) {
 			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 		}
+		if (second_operand_needs_timezone_comp) {
+			%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ second_operand_type|%d }},{}%
+		}
 		if (dot_count) {
 			%{}{{ PP_YDB_OCTO_EXPR }}{}%
 		} else {
 			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+		}
+		if (second_operand_needs_timezone_comp) {
+			%{}){}%
 		}
 		if (coerce_to_numeric) {
 			%{}){}%
@@ -1239,7 +1526,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_FUNCTION_CALL: {
 		int	numargs;	/* Number of arguments in the function call */
-
+		OptionalKeyword format_type;
 		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name and the second is the function
 		 * hash used to determine which function interface should be used for the call, neither of which is not needed
 		 * during physical planning. Hence, we skip both of these nodes in the tree and use the node after second_operand,
@@ -1254,6 +1541,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		cur_plan = t_operand;
 		// Check for a BOOLEAN return type. If so, convert any string values to 0/1 in the generated plan.
 		return_type = t_operand->v.lp_default.operand[0]->v.lp_value.value->type;
+		format_type = t_operand->v.lp_default.operand[0]->v.lp_value.value->date_time_format_type;
 		if (dot_count) {
 			numargs = 0;
 			for ( ; ; ) {
@@ -1271,8 +1559,30 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
+		boolean_t text_format = FALSE;
 		if (BOOLEAN_VALUE == return_type) {
 			%{}$$String2Boolean^%%ydboctoplanhelpers({}%
+		} else if (IS_DATE_TIME_TYPE(return_type)) {
+			// Output processing
+			// See the format in which it is return and add appropriate conversion
+			switch(format_type) {
+			case OPTIONAL_DATE_TIME_HOROLOG:
+				%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_ZHOROLOG:
+				%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_FILEMAN:
+				%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			case OPTIONAL_DATE_TIME_ZUT:
+				%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
+				break;
+			default:
+				%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
+				text_format = TRUE;
+				break;
+			}
 		}
 		/* Below is function name which should not be a leaf level expression so okay to pass "0" as "dot_count"
 		 * (last but one parameter) even if "dot_count" is non-zero. Passing a non-zero "dot_count" would cause
@@ -1280,21 +1590,85 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		 */
 		TMPL(tmpl_print_expression, second_operand->v.lp_default.operand[0], pplan, 0, depth);
 		%{}({}%
+		// Get the schema parameter list to add date/time format conversion code if needed
+		SqlParameterTypeList *cur_parm,*start_parm;
+		cur_parm = start_parm = plan->extra_detail.lp_function_call.schema_parameter_type_list;
+		UNUSED(start_parm);
 		numargs = 0;
+		LogicalPlan *extrinsic_function_name;
+		GET_LP(extrinsic_function_name, second_operand, 0, LP_VALUE);
+		SqlValue *value = extrinsic_function_name->v.lp_value.value;
+		boolean_t is_concat_func = (0 == strncmp("$$^%ydboctofCONCAT", value->v.string_literal,(sizeof("$$^%ydboctofCONCAT")-1)));
 		while (NULL != cur_plan->v.lp_default.operand[1]) {
 			if (cur_plan != t_operand) {
 				%{},{}%
 			}
 			GET_LP(cur_plan, cur_plan, 1, LP_COLUMN_LIST);
+			if (cur_parm != NULL) {
+				if (IS_DATE_TIME_DATA_TYPE(cur_parm->data_type_struct->v.data_type_struct.data_type)) {
+					%{}$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({}%
+				}
+			}
 			if (dot_count) {
 				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d}},{{ numargs|%d }}){}%
 				numargs++;
 			} else {
 				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
 			}
+			if (cur_parm != NULL) {
+				if (IS_DATE_TIME_DATA_TYPE(cur_parm->data_type_struct->v.data_type_struct.data_type)) {
+					// Input processing
+					SqlValueType date_time_operand_type = get_sqlvaluetype_from_sqldatatype(cur_parm->data_type_struct->v.data_type_struct.data_type, FALSE);
+					const char *datetime_text_format_specifier;
+					if (MYSQL == config->database_emulation) {
+						// Timezone information is not displayed in MYSQL
+						if (TIME_WITH_TIME_ZONE_LITERAL == date_time_operand_type) {
+							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(TIME_LITERAL,datetime_text_format_specifier);
+						} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_operand_type) {
+							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(TIMESTAMP_LITERAL,datetime_text_format_specifier);
+						} else {
+							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,datetime_text_format_specifier);
+						}
+					} else {
+						if (is_concat_func) {
+							GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,
+												       datetime_text_format_specifier);
+						} else {
+							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,
+												      datetime_text_format_specifier);
+						}
+					}
+					%{},{{ date_time_operand_type|%d }},{{ cur_parm->data_type_struct->v.data_type_struct.format|%d }},"{{ datetime_text_format_specifier }}"){}%
+				}
+				cur_parm = cur_parm->next;
+			}
 		}
 		%{}){}%
 		if (BOOLEAN_VALUE == return_type) {
+			%{}){}%
+		} else if (IS_DATE_TIME_TYPE(return_type)) {
+			// Output processing
+			// Close the function
+			%{},{{ return_type|%d }}{}%
+			if (text_format) {
+				/* Check whether the specified function is internal to Octo or is user-defined
+				 * by checking whether the routine name for the function includes the prefix
+				 * used for Octo's internal SQL functions, i.e. OCTOLIT_YDBOCTO. Note that this
+				 * comparison starts at string index 2 to omit the "$$" at the start of the M
+				 * extrinsic function name.
+				 */
+				const char *format_specifier;
+				if ((EXTRINSIC_PREFIX_LEN < strlen(value->v.string_literal))
+					&& strncmp(&value->v.string_literal[2], OCTOLIT_YDBOCTO, (sizeof(OCTOLIT_YDBOCTO) - 1)) == 0) {
+					/* Octo does not use YDB intrinsic functions internally, only extrinsic functions. So assert that
+					 * here, i.e. the function name begins with `$$`. */
+					assert(('$' == value->v.string_literal[0]) && ('$' == value->v.string_literal[1]));
+					GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(return_type, format_specifier);
+				} else {
+					GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(return_type, format_specifier);
+				}
+				%{},"{{ format_specifier }}"{}%
+			}
 			%{}){}%
 		}
 		if (dot_count) {
@@ -1651,9 +2025,45 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 		}
 		if (!done) {
+			SqlValueType first_operand_type, second_operand_type;
+			first_operand_type = second_operand_type = UNKNOWN_SqlValueType;
+			boolean_t is_concat = FALSE;
+			const char *datetime_text_format_specifier=""; // Avoid [-Wmaybe-uninitialized] warning by compiler
+			if ('_' == *m_operator) {
+				is_concat = TRUE;
+				first_operand_type = lp_get_plan_value_type(first_operand);
+				second_operand_type = lp_get_plan_value_type(second_operand);
+				if (IS_DATE_TIME_TYPE(first_operand_type) || IS_DATE_TIME_TYPE(second_operand_type)) {
+					SqlValueType date_time_operand_type = (IS_DATE_TIME_TYPE(first_operand_type))?first_operand_type:second_operand_type;
+					GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,datetime_text_format_specifier);
+				}
+			}
+			boolean_t first_operand_needs_timezone_comp = FALSE;
+			boolean_t second_operand_needs_timezone_comp = FALSE;
+			first_operand_type = lp_get_plan_value_type(first_operand);
+			second_operand_type = lp_get_plan_value_type(second_operand);
+			if (!is_concat) {
+				if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == first_operand_type)) {
+					first_operand_needs_timezone_comp = TRUE;
+				}
+				if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+					second_operand_needs_timezone_comp = TRUE;
+				}
+			}
 			if (dot_count) {
 				/* Evaluate left hand side of binary/boolean operator */
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				if (first_operand_needs_timezone_comp) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{{ PP_YDB_OCTO_EXPR }}){}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
+				if (is_concat && IS_DATE_TIME_TYPE(first_operand_type)) {
+					//CONVERT it to output format
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ first_operand_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
 				TMPL(tmpl_print_dots, dot_count);
 				/* Move result into temporary variable (using recursion "depth" to avoid interference from M code
 				 * generated by next "tmpl_print_expression" call which evaluates right side of binary/boolean
@@ -1675,6 +2085,17 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ForceNumeric^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 				}
+				if (second_operand_needs_timezone_comp) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ second_operand_type|%d }},{{ PP_YDB_OCTO_EXPR }}){}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
+				if (is_concat && IS_DATE_TIME_TYPE(second_operand_type)) {
+					//CONVERT it to output format
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ second_operand_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
 				/* Evaluate result of binary/boolean operator */
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){{ m_operator }}{}%
@@ -1685,7 +2106,23 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				if (coerce_to_numeric) {
 					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 				}
+				boolean_t close_date_function = FALSE;
+				if (is_concat && IS_DATE_TIME_TYPE(first_operand_type)) {
+					//CONVERT it to output format
+					%{}$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({}%
+					close_date_function = TRUE;
+				}
+				if (first_operand_needs_timezone_comp) {
+					%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
+				}
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				if (first_operand_needs_timezone_comp) {
+					%{}){}%
+				}
+				if (close_date_function) {
+					%{},{{ first_operand_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
+					close_date_function = FALSE;
+				}
 				if (coerce_to_numeric) {
 					%{}){}%
 				}
@@ -1693,7 +2130,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				if (coerce_to_numeric) {
 					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 				}
+				if (is_concat && IS_DATE_TIME_TYPE(second_operand_type)) {
+					//CONVERT it to output format
+					%{}$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({}%
+					close_date_function = TRUE;
+				}
+				if (second_operand_needs_timezone_comp) {
+					%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ second_operand_type|%d }},{}%
+				}
 				TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+				if (second_operand_needs_timezone_comp) {
+					%{}){}%
+				}
+				if (close_date_function) {
+					%{},{{ second_operand_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
+				}
 				if (coerce_to_numeric) {
 					%{}){}%
 				}

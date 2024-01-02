@@ -252,6 +252,10 @@ typedef struct LpExtraCoerceType {
 
 typedef struct LpExtraFunctionCall {
 	struct LogicalPlan *next_function; /* maintains linked list of LP_FUNCTION_CALL plans in entire query */
+	SqlParameterTypeList
+	    *schema_parameter_type_list; /* Only used for date/time type processing. It helps tmpl_print_expression.ctemplate
+					  * to add format conversion routines by looking at the function's parameter definition.
+					  */
 } LpExtraFunctionCall;
 
 typedef struct LpExtraTable {
@@ -297,6 +301,9 @@ typedef struct LpExtraConstraint {
 				     */
 } LpExtraConstraint;
 
+typedef struct LpExtraDateTimeOperation {
+	SqlValueType return_type;
+} LpExtraDateTimeOperation;
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
  */
@@ -334,6 +341,7 @@ typedef struct LogicalPlan {
 		LpExtraView		 lp_view;		// To be used if type == LP_VIEW
 		LpExtraConstraint	 lp_constraint;		// To be used if type == LP_CHECK_CONSTRAINT
 								//	or LP_UNIQUE_CONSTRAINT
+		LpExtraDateTimeOperation lp_date_time_operation;
 	} extra_detail;
 } LogicalPlan;
 
@@ -442,6 +450,9 @@ int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 LogicalPlan *lp_get_col_num_n_in_select_column_list(LogicalPlan *column_list, int n);
 // Returns the M function name in _ydboctoplanhelpers.m corresponding to the aggregate function type (input parameter `type`)
 char *lp_get_aggregate_plan_helper_func_name(LPActionType type);
+
+// Returns type of the logical plan
+SqlValueType lp_get_plan_value_type(LogicalPlan *plan);
 
 // Returns "unique_id" given a LP_COLUMN_ALIAS or LP_DERIVED_COLUMN logical plan
 int lp_get_unique_id_from_lp_column_alias_or_lp_derived_column(LogicalPlan *plan);

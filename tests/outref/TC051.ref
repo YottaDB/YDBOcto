@@ -10,7 +10,7 @@ CREATE TABLE namesWithAges (
  firstName VARCHAR(30),
  lastName VARCHAR(30),
  age INTEGER,
- datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+ datetime TIMESTAMP EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";
 OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
@@ -20,7 +20,7 @@ OCTO> CREATE TABLE namesWithAges (
  firstName VARCHAR(30),
  lastName VARCHAR(30),
  age INTEGER,
- datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+ datetime TIMESTAMP EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";
 CREATE TABLE
@@ -35,7 +35,7 @@ CREATE TABLE namesWithAges (
  firstName VARCHAR(30),
  lastName VARCHAR(30),
  age INTEGER,
- datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+ datetime TIMESTAMP EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";
 OCTO> CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
@@ -45,7 +45,7 @@ OCTO> CREATE TABLE namesWithAges (
  firstName VARCHAR(30),
  lastName VARCHAR(30),
  age INTEGER,
- datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+ datetime TIMESTAMP EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names";
 CREATE TABLE

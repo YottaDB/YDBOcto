@@ -104,6 +104,12 @@ typedef struct OctoConfig {
 #ifndef NDEBUG
 	boolean_t seedreload; /* Only used for testing autoload */
 #endif
+	/* Date and Time related config variables */
+	const char     *date_format;
+	const char     *timestamp_format;
+	const char     *timestamptz_format;
+	OptionalKeyword date_time_output_format;
+	const char     *datestyle;
 } OctoConfig;
 
 extern OctoConfig *config;

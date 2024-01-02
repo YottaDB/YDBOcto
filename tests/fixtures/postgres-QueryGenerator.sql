@@ -1,6 +1,6 @@
 -- ######################################################################
 -- #									#
--- # Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+-- # Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 -- # All rights reserved.						#
 -- #									#
 -- #	This source code contains the intellectual property		#
@@ -23,6 +23,10 @@ CREATE FUNCTION SAMEVALUE(varchar) RETURNS varchar
     LANGUAGE SQL
     IMMUTABLE;
 CREATE FUNCTION SAMEVALUE(boolean) RETURNS boolean
+    AS 'select $1;'
+    LANGUAGE SQL
+    IMMUTABLE;
+CREATE FUNCTION SAMEVALUE(date) RETURNS date
     AS 'select $1;'
     LANGUAGE SQL
     IMMUTABLE;

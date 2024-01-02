@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -65,5 +65,14 @@
 
 int load_pg_defaults(void) {
 #include "pg_defaults_table.h" /* this would return with a value that is not YDB_OK in case of errors */
+	// Set datestyle to config->datestyle
+	int   datestyle_len = strlen(config->datestyle);
+	int   length = datestyle_len + strlen(DEFAULT_DATESTYLE_ROW);
+	char *non_const_datestyle = malloc(sizeof(char) * length + 1);
+	strcpy(non_const_datestyle, config->datestyle);
+	strcpy(non_const_datestyle + datestyle_len, DEFAULT_DATESTYLE_ROW);
+	/* Following macro will return with a value that is not YDB_OK in case of errors */
+	LOAD_PG_VARIABLE("datestyle", non_const_datestyle);
+	free(non_const_datestyle);
 	return YDB_OK;
 }

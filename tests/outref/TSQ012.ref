@@ -90,7 +90,7 @@ id|INTEGER||NOT NULL|
 firstname|VARCHAR(30)|||
 lastname|VARCHAR(30)|||
 age|INTEGER|||
-datetime|VARCHAR(10)|||
+datetime|TIMESTAMP|||
 Indexes:
     "nameswithages_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
 Table "octoonerowtable" stored in Global: ^%ydboctoocto("tables","octoOneRow",id) : Type = READONLY

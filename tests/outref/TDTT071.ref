@@ -1,0 +1,124 @@
+
+select timestamp'01-01-2023';
+select timestamp with time zone'01-01-2023 01:01:01';
+select timestamp with time zone'01-01-2023';
+
+select timestamp(fileman)'3230101';
+select timestamp(fileman)'3230101.';
+select timestamp(fileman) with time zone'3230101';
+select timestamp(fileman) with time zone'3230101.';
+
+select timestamp(horolog)'66840';
+select timestamp(horolog) with time zone'66840';
+
+select timestamp(zhorolog)'66840,,,';
+select timestamp(zhorolog) with time zone'66840,38891,920149,';
+
+create table TDTT071t (id integer primary key, dob timestamp) global "^TDTT071t(keys(""id""))" readonly;
+select * from TDTT071t;
+create table TDTT071tz (id integer primary key, dob timestamp with time zone) global "^TDTT071tz(keys(""id""))" readonly;
+select * from TDTT071tz;
+create table TDTT071tf (id integer primary key, dob timestamp(fileman)) global "^TDTT071tf(keys(""id""))" readonly;
+select * from TDTT071tf;
+create table TDTT071tzf (id integer primary key, dob timestamp(fileman) with time zone) global "^TDTT071tzf(keys(""id""))" readonly;
+select * from TDTT071tzf;
+create table TDTT071th (id integer primary key, dob timestamp(horolog)) global "^TDTT071th(keys(""id""))" readonly;
+select * from TDTT071th;
+create table TDTT071tzh (id integer primary key, dob timestamp(horolog) with time zone) global "^TDTT071tzh(keys(""id""))" readonly;
+select * from TDTT071tzh;
+create table TDTT071tzho (id integer primary key, dob timestamp(zhorolog)) global "^TDTT071tzho(keys(""id""))" readonly;
+select * from TDTT071tzho;
+create table TDTT071tzzho (id integer primary key, dob timestamp(zhorolog) with time zone) global "^TDTT071tzzho(keys(""id""))" readonly;
+select * from TDTT071tzzho;
+
+
+OCTO> select timestamp'01-01-2023';
+???
+2023-01-01 00:00:00
+(1 row)
+OCTO> select timestamp with time zone'01-01-2023 01:01:01';
+???
+2023-01-01 01:01:01-05
+(1 row)
+OCTO> select timestamp with time zone'01-01-2023';
+???
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select timestamp(fileman)'3230101';
+???
+2023-01-01 00:00:00
+(1 row)
+OCTO> select timestamp(fileman)'3230101.';
+???
+2023-01-01 00:00:00
+(1 row)
+OCTO> select timestamp(fileman) with time zone'3230101';
+???
+2023-01-01 00:00:00-05
+(1 row)
+OCTO> select timestamp(fileman) with time zone'3230101.';
+???
+2023-01-01 00:00:00-05
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840" is invalid for type TIMESTAMP and format HOROLOG
+LINE 11:1: select timestamp(horolog)'66840';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(horolog)'66840';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+LINE 12:1: select timestamp(horolog) with time zone'66840';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(horolog) with time zone'66840';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840,,," is invalid for type TIMESTAMP and format ZHOROLOG
+LINE 14:1: select timestamp(zhorolog)'66840,,,';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(zhorolog)'66840,,,';
+OCTO> select timestamp(zhorolog) with time zone'66840,38891,920149,';
+???
+2024-01-01 10:48:11.920149-05
+(1 row)
+OCTO> create table TDTT071t (id integer primary key, dob timestamp) global "^TDTT071t(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071t;
+id|dob
+1|2023-01-01 00:00:00
+(1 row)
+OCTO> create table TDTT071tz (id integer primary key, dob timestamp with time zone) global "^TDTT071tz(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071tz;
+id|dob
+1|2023-01-01 01:01:01-05
+2|2023-01-01 00:00:00-05
+(2 rows)
+OCTO> create table TDTT071tf (id integer primary key, dob timestamp(fileman)) global "^TDTT071tf(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071tf;
+id|dob
+1|2023-01-01 00:00:00
+2|2023-01-01 00:00:00
+(2 rows)
+OCTO> create table TDTT071tzf (id integer primary key, dob timestamp(fileman) with time zone) global "^TDTT071tzf(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071tzf;
+id|dob
+1|2023-01-01 00:00:00-05
+2|2023-01-01 00:00:00-05
+(2 rows)
+OCTO> create table TDTT071th (id integer primary key, dob timestamp(horolog)) global "^TDTT071th(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071th;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840" is invalid for type TIMESTAMP and format HOROLOG
+OCTO> create table TDTT071tzh (id integer primary key, dob timestamp(horolog) with time zone) global "^TDTT071tzh(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071tzh;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+OCTO> create table TDTT071tzho (id integer primary key, dob timestamp(zhorolog)) global "^TDTT071tzho(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071tzho;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840,,," is invalid for type TIMESTAMP and format ZHOROLOG
+OCTO> create table TDTT071tzzho (id integer primary key, dob timestamp(zhorolog) with time zone) global "^TDTT071tzzho(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from TDTT071tzzho;
+id|dob
+1|2024-01-01 10:48:11.920149-05
+(1 row)
+OCTO> 

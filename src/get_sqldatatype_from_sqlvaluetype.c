@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,6 +38,21 @@ SqlDataType get_sqldatatype_from_sqlvaluetype(SqlValueType type) {
 		break;
 	case NUL_VALUE:
 		return NUL_TYPE;
+		break;
+	case DATE_LITERAL:
+		return DATE_TYPE;
+		break;
+	case TIME_LITERAL:
+		return TIME_TYPE;
+		break;
+	case TIME_WITH_TIME_ZONE_LITERAL:
+		return TIME_WITH_TIME_ZONE_TYPE;
+		break;
+	case TIMESTAMP_LITERAL:
+		return TIMESTAMP_TYPE;
+		break;
+	case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+		return TIMESTAMP_WITH_TIME_ZONE_TYPE;
 		break;
 	default:
 		/* Note: We don't expect to enter this function if the "type" is "IS_NULL_LITERAL" too.

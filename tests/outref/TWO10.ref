@@ -62,7 +62,8 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS"),20,"%m-%d-%Y %H:%M:%S") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -82,7 +83,8 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS"),20,"%m-%d-%Y %H:%M:%S") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -102,7 +104,8 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS"),20,"%m-%d-%Y %H:%M:%S") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -122,7 +125,8 @@ octoPlan1(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS"),20,"%m-%d-%Y %H:%M:%S") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctocursor(cursorId,"keys",6,"","",%ydboctocursor(cursorId,"keys",6,"",""))=%ydboctoexpr

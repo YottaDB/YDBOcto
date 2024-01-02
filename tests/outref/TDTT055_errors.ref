@@ -1,0 +1,66 @@
+
+drop table if exists tdtt055;
+create table TDTT055 (id int, tob time);
+insert into TDTT055 values(1,date'2023-01-01');
+
+drop table if exists tdtt055;
+create table TDTT055 (id int, dob timestamp with time zone);
+insert into TDTT055 values(1,time with time zone'11:00:00');
+insert into TDTT055 values(1,time'11:00:00');
+
+drop table if exists tdtt055;
+create table tdtt055 (id int, dob date);
+insert into tdtt055 values(1,time'01:01:01');
+insert into tdtt055 values(1,time with time zone'01:01:01');
+
+drop table if exists tdtt055;
+create table tdtt055 (id int, dob timestamp);
+insert into tdtt055 values(1,time'01:01:01');
+insert into tdtt055 values(1,time with time zone'01:01:01');
+
+drop table if exists tdtt055;
+create table tdtt055 (id int, tob time with time zone);
+insert into tdtt055 values(1,date'2023-01-01');
+insert into TDTT055 values(1, timestamp with time zone'2023-01-01 11:00:00-05:00');
+insert into TDTT055 values(1, timestamp'2023-01-01 11:00:00');
+OCTO> drop table if exists tdtt055;
+DROP TABLE
+OCTO> create table TDTT055 (id int, tob time);
+CREATE TABLE
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "tob" is of type TIME but expression is of type DATE
+OCTO> insert into TDTT055 values(1,date'2023-01-01');
+OCTO> drop table if exists tdtt055;
+DROP TABLE
+OCTO> create table TDTT055 (id int, dob timestamp with time zone);
+CREATE TABLE
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dob" is of type TIMESTAMP WITH TIME ZONE but expression is of type TIME WITH TIME ZONE
+OCTO> insert into TDTT055 values(1,time with time zone'11:00:00');
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dob" is of type TIMESTAMP WITH TIME ZONE but expression is of type TIME
+OCTO> insert into TDTT055 values(1,time'11:00:00');
+OCTO> drop table if exists tdtt055;
+DROP TABLE
+OCTO> create table tdtt055 (id int, dob date);
+CREATE TABLE
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dob" is of type DATE but expression is of type TIME
+OCTO> insert into tdtt055 values(1,time'01:01:01');
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dob" is of type DATE but expression is of type TIME WITH TIME ZONE
+OCTO> insert into tdtt055 values(1,time with time zone'01:01:01');
+OCTO> drop table if exists tdtt055;
+DROP TABLE
+OCTO> create table tdtt055 (id int, dob timestamp);
+CREATE TABLE
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dob" is of type TIMESTAMP but expression is of type TIME
+OCTO> insert into tdtt055 values(1,time'01:01:01');
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "dob" is of type TIMESTAMP but expression is of type TIME WITH TIME ZONE
+OCTO> insert into tdtt055 values(1,time with time zone'01:01:01');
+OCTO> drop table if exists tdtt055;
+DROP TABLE
+OCTO> create table tdtt055 (id int, tob time with time zone);
+CREATE TABLE
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "tob" is of type TIME WITH TIME ZONE but expression is of type DATE
+OCTO> insert into tdtt055 values(1,date'2023-01-01');
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "tob" is of type TIME WITH TIME ZONE but expression is of type TIMESTAMP WITH TIME ZONE
+OCTO> insert into TDTT055 values(1, timestamp with time zone'2023-01-01 11:00:00-05:00');
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "tob" is of type TIME WITH TIME ZONE but expression is of type TIMESTAMP
+OCTO> insert into TDTT055 values(1, timestamp'2023-01-01 11:00:00');
+OCTO> 

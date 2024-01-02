@@ -112,6 +112,11 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 				case PSQL_TypeOid_numeric:
 				case PSQL_TypeOid_unknown:
 				case PSQL_TypeOid_varchar:
+				case PSQL_TypeOid_date:
+				case PSQL_TypeOid_time:
+				case PSQL_TypeOid_timetz:
+				case PSQL_TypeOid_timestamp:
+				case PSQL_TypeOid_timestamptz:
 				default:
 					COPY_TEXT_PARM(c, parms[i]);
 					break;

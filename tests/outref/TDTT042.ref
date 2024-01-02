@@ -1,0 +1,103 @@
+
+create table test (dob date);
+insert into test values(date'01-01-2023');
+insert into test values(date'01-02-2023');
+insert into test values(date'01-02-2023');
+insert into test values(date'01-03-2023');
+select * from test;
+select count(test.*) from test;
+select count(distinct test.*) from test;
+
+create table test1 (id int, dob date);
+insert into test1 values(1, date'01-01-2023');
+insert into test1 values(2, date'01-02-2023');
+insert into test1 values(2, date'01-02-2023');
+insert into test1 values(3, date'01-03-2023');
+select * from test1;
+select count(test1.*) from test1;
+select count(distinct test1.*) from test1;
+
+create table test2 (tob time);
+insert into test2 values(time'01:01:01');
+insert into test2 values(time'01:02:01');
+insert into test2 values(time'01:02:01');
+insert into test2 values(time'01:03:01');
+select * from test2;
+select count(test2.*) from test2;
+select count(distinct test2.*) from test2;
+OCTO> create table test (dob date);
+CREATE TABLE
+OCTO> insert into test values(date'01-01-2023');
+INSERT 0 1
+OCTO> insert into test values(date'01-02-2023');
+INSERT 0 1
+OCTO> insert into test values(date'01-02-2023');
+INSERT 0 1
+OCTO> insert into test values(date'01-03-2023');
+INSERT 0 1
+OCTO> select * from test;
+dob
+2023-01-01
+2023-01-02
+2023-01-02
+2023-01-03
+(4 rows)
+OCTO> select count(test.*) from test;
+count
+4
+(1 row)
+OCTO> select count(distinct test.*) from test;
+count
+3
+(1 row)
+OCTO> create table test1 (id int, dob date);
+CREATE TABLE
+OCTO> insert into test1 values(1, date'01-01-2023');
+INSERT 0 1
+OCTO> insert into test1 values(2, date'01-02-2023');
+INSERT 0 1
+OCTO> insert into test1 values(2, date'01-02-2023');
+INSERT 0 1
+OCTO> insert into test1 values(3, date'01-03-2023');
+INSERT 0 1
+OCTO> select * from test1;
+id|dob
+1|2023-01-01
+2|2023-01-02
+2|2023-01-02
+3|2023-01-03
+(4 rows)
+OCTO> select count(test1.*) from test1;
+count
+4
+(1 row)
+OCTO> select count(distinct test1.*) from test1;
+count
+3
+(1 row)
+OCTO> create table test2 (tob time);
+CREATE TABLE
+OCTO> insert into test2 values(time'01:01:01');
+INSERT 0 1
+OCTO> insert into test2 values(time'01:02:01');
+INSERT 0 1
+OCTO> insert into test2 values(time'01:02:01');
+INSERT 0 1
+OCTO> insert into test2 values(time'01:03:01');
+INSERT 0 1
+OCTO> select * from test2;
+tob
+01:01:01
+01:02:01
+01:02:01
+01:03:01
+(4 rows)
+OCTO> select count(test2.*) from test2;
+count
+4
+(1 row)
+OCTO> select count(distinct test2.*) from test2;
+count
+3
+(1 row)
+OCTO> 

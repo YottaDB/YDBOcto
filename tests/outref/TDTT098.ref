@@ -1,0 +1,36 @@
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): select ? > date'2023-01-01'; <--
+-------------------------------------------------------------------------
+SQL State: 02000
+No results were returned by the query.
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): select ? + date'2023-01-01'; <--
+-------------------------------------------------------------------------
+SQL State: 02000
+No results were returned by the query.
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): select ?,?; <--
+-------------------------------------------------------------------------
+SQL State: 22023
+No value specified for parameter 2.
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): select ?,?; <--
+-------------------------------------------------------------------------
+2016-06-30|2016-06-30 01:01:01
+
+---------Test END-----------
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left PARAMETER, right DATE
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select $1 > date'2023-01-01'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                  ^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select $1 > date'2023-01-01'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                       ^^^^^^^^^^^^^^^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_TYPE_MISMATCH: Type mismatch: left PARAMETER, right DATE
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select $1 + date'2023-01-01'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                  ^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select $1 + date'2023-01-01'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                       ^^^^^^^^^^^^^^^^
+Conversion routines should be used for both values
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),20,"%Y-%m-%d %H:%M:%S")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")

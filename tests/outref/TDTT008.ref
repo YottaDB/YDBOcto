@@ -1,0 +1,1254 @@
+OCTO> -- type:date format:
+create table TDTT008date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT008date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT008time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT008time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT008timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT008timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT008timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT008timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT008timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT008timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+OCTO> select CASE date'01-01-2023' WHEN date'01-01-2023' THEN date'01-01-2023' ELSE date'01-01-2023' END;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE WHEN date'01-01-2023' = date'01-01-2023' THEN date'01-01-2023' ELSE date'01-01-2023' END;
+CASE
+2023-01-01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a DATE type
+LINE 28:1: ...SE date'01-01-2023' WHEN time'01:01:00' THEN date'01-01-2023' EL...
+                                       ^^^^^^^^^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN time'01:01:00' THEN date'01-01-2023' ELSE time'01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 29:1: select CASE WHEN date'01-01-2023' = time'01:01:00' THEN date'01-...
+                            ^^^^^^^^^^^^^^^^
+LINE 29:1: ... WHEN date'01-01-2023' = time'01:01:00' THEN date'01-01-2023' EL...
+                                       ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = time'01:01:00' THEN date'01-01-2023' ELSE time'01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a DATE type
+LINE 30:1: ...01-01-2023' WHEN timestamp'01-01-2023 01:01:00' THEN date'01-01-...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN timestamp'01-01-2023 01:01:00' THEN date'01-01-2023' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP
+LINE 31:1: ...-01-2023 01:01:00' THEN date'01-01-2023' ELSE timestamp'01-01-20...
+                                      ^^^^^^^^^^^^^^^^
+LINE 31:1: ...' THEN date'01-01-2023' ELSE timestamp'01-01-2023 01:01:00' END;
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = timestamp'01-01-2023 01:01:00' THEN date'01-01-2023' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a DATE type
+LINE 32:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN date'01-01-2023' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP WITH TIME ZONE
+LINE 33:1: ...23 01:01:00-05:00' THEN date'01-01-2023' ELSE timestamp with tim...
+                                      ^^^^^^^^^^^^^^^^
+LINE 33:1: ...' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN date'01-01-2023' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+OCTO> select CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008date n1;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE WHEN date'01-01-2023' = n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008date n1;
+CASE
+2023-01-01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a DATE type
+LINE 36:1: ...t CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n...
+                                           ^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 37:1: select CASE WHEN date'01-01-2023' = n1.dob THEN date'01-01-2023'...
+                            ^^^^^^^^^^^^^^^^
+LINE 37:1: ...CASE WHEN date'01-01-2023' = n1.dob THEN date'01-01-2023' ELSE n...
+                                           ^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a DATE type
+LINE 38:1: ...t CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n...
+                                           ^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP
+LINE 39:1: ...-01-2023' = n1.dob THEN date'01-01-2023' ELSE n1.dob END from TD...
+                                      ^^^^^^^^^^^^^^^^
+LINE 39:1: ...b THEN date'01-01-2023' ELSE n1.dob END from TDTT008timestamp n1...
+                                           ^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a DATE type
+LINE 40:1: ...t CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n...
+                                           ^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP WITH TIME ZONE
+LINE 41:1: ...-01-2023' = n1.dob THEN date'01-01-2023' ELSE n1.dob END from TD...
+                                      ^^^^^^^^^^^^^^^^
+LINE 41:1: ...b THEN date'01-01-2023' ELSE n1.dob END from TDTT008timestamptz ...
+                                           ^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = n1.dob THEN date'01-01-2023' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a DATE type
+LINE 42:1: ...ect CASE date'01-01-2023' WHEN 3 THEN date'01-01-2023' ELSE 3 E...
+                                             ^
+OCTO> select CASE date'01-01-2023' WHEN 3 THEN date'01-01-2023' ELSE 3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 43:1: select CASE WHEN date'01-01-2023' = 3 THEN date'01-01-2023' ELSE...
+                            ^^^^^^^^^^^^^^^^
+LINE 43:1: ...t CASE WHEN date'01-01-2023' = 3 THEN date'01-01-2023' ELSE 3 E...
+                                             ^
+OCTO> select CASE WHEN date'01-01-2023' = 3 THEN date'01-01-2023' ELSE 3 END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a DATE type
+LINE 44:1: ...E date'01-01-2023' WHEN 'sample string' THEN date'01-01-2023' E...
+                                      ^^^^^^^^^^^^^^^
+OCTO> select CASE date'01-01-2023' WHEN 'sample string' THEN date'01-01-2023' ELSE 'sample string' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right VARCHAR
+LINE 45:1: select CASE WHEN date'01-01-2023' = 'sample string' THEN date'01...
+                            ^^^^^^^^^^^^^^^^
+LINE 45:1: ...WHEN date'01-01-2023' = 'sample string' THEN date'01-01-2023' E...
+                                      ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN date'01-01-2023' = 'sample string' THEN date'01-01-2023' ELSE 'sample string' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a DATE type
+LINE 46:1: ...ct CASE date'01-01-2023' WHEN 3.3 THEN date'01-01-2023' ELSE 3....
+                                            ^^^
+OCTO> select CASE date'01-01-2023' WHEN 3.3 THEN date'01-01-2023' ELSE 3.3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 47:1: select CASE WHEN date'01-01-2023' = 3.3 THEN date'01-01-2023' EL...
+                            ^^^^^^^^^^^^^^^^
+LINE 47:1: ... CASE WHEN date'01-01-2023' = 3.3 THEN date'01-01-2023' ELSE 3....
+                                            ^^^
+OCTO> select CASE WHEN date'01-01-2023' = 3.3 THEN date'01-01-2023' ELSE 3.3 END;
+OCTO> select CASE date'01-01-2023' WHEN NULL THEN date'01-01-2023' ELSE NULL END;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN date'01-01-2023' = NULL THEN date'01-01-2023' ELSE NULL END;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIME type
+LINE 50:1: ...ASE time'01:01:00' WHEN date'01-01-2023' THEN time'01:01:00' ELS...
+                                      ^^^^^^^^^^^^^^^^
+OCTO> select CASE time'01:01:00' WHEN date'01-01-2023' THEN time'01:01:00' ELSE date'01-01-2023' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 51:1: select CASE WHEN time'01:01:00' = date'01-01-2023' THEN time'01:...
+                            ^^^^^^^^^^^^^^
+LINE 51:1: ...E WHEN time'01:01:00' = date'01-01-2023' THEN time'01:01:00' ELS...
+                                      ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = date'01-01-2023' THEN time'01:01:00' ELSE date'01-01-2023' END;
+OCTO> select CASE time'01:01:00' WHEN time'01:01:00' THEN time'01:01:00' ELSE time'01:01:00' END;
+CASE
+01:01:00
+(1 row)
+OCTO> select CASE WHEN time'01:01:00' = time'01:01:00' THEN time'01:01:00' ELSE time'01:01:00' END;
+CASE
+01:01:00
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIME type
+LINE 54:1: ...e'01:01:00' WHEN timestamp'01-01-2023 01:01:00' THEN time'01:01:...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE time'01:01:00' WHEN timestamp'01-01-2023 01:01:00' THEN time'01:01:00' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 55:1: select CASE WHEN time'01:01:00' = timestamp'01-01-2023 01:01:00'...
+                            ^^^^^^^^^^^^^^
+LINE 55:1: ...time'01:01:00' = timestamp'01-01-2023 01:01:00' THEN time'01:01:...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = timestamp'01-01-2023 01:01:00' THEN time'01:01:00' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIME type
+LINE 56:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE time'01:01:00' WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN time'01:01:00' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 57:1: select CASE WHEN time'01:01:00' = timestamp with time zone'01-01...
+                            ^^^^^^^^^^^^^^
+LINE 57:1: ...00' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN time'01:01:00' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIME type
+LINE 58:1: ...ect CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1....
+                                           ^^^^^^
+OCTO> select CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 59:1: select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELS...
+                            ^^^^^^^^^^^^^^
+LINE 59:1: ...t CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1....
+                                           ^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008date n1;
+OCTO> select CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008time n1;
+CASE
+01:01:01
+(1 row)
+OCTO> select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008time n1;
+CASE
+01:01:01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIME type
+LINE 62:1: ...ect CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1....
+                                           ^^^^^^
+OCTO> select CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 63:1: select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELS...
+                            ^^^^^^^^^^^^^^
+LINE 63:1: ...t CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1....
+                                           ^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIME type
+LINE 64:1: ...ect CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1....
+                                           ^^^^^^
+OCTO> select CASE time'01:01:00' WHEN n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 65:1: select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELS...
+                            ^^^^^^^^^^^^^^
+LINE 65:1: ...t CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1....
+                                           ^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = n1.dob THEN time'01:01:00' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a TIME type
+LINE 66:1: ...elect CASE time'01:01:00' WHEN 3 THEN time'01:01:00' ELSE 3 END...
+                                             ^
+OCTO> select CASE time'01:01:00' WHEN 3 THEN time'01:01:00' ELSE 3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 67:1: select CASE WHEN time'01:01:00' = 3 THEN time'01:01:00' ELSE 3 E...
+                            ^^^^^^^^^^^^^^
+LINE 67:1: ...ect CASE WHEN time'01:01:00' = 3 THEN time'01:01:00' ELSE 3 END...
+                                             ^
+OCTO> select CASE WHEN time'01:01:00' = 3 THEN time'01:01:00' ELSE 3 END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a TIME type
+LINE 68:1: ...ASE time'01:01:00' WHEN 'sample string' THEN time'01:01:00' ELS...
+                                      ^^^^^^^^^^^^^^^
+OCTO> select CASE time'01:01:00' WHEN 'sample string' THEN time'01:01:00' ELSE 'sample string' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right VARCHAR
+LINE 69:1: select CASE WHEN time'01:01:00' = 'sample string' THEN time'01:0...
+                            ^^^^^^^^^^^^^^
+LINE 69:1: ...E WHEN time'01:01:00' = 'sample string' THEN time'01:01:00' ELS...
+                                      ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN time'01:01:00' = 'sample string' THEN time'01:01:00' ELSE 'sample string' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a TIME type
+LINE 70:1: ...lect CASE time'01:01:00' WHEN 3.3 THEN time'01:01:00' ELSE 3.3 ...
+                                            ^^^
+OCTO> select CASE time'01:01:00' WHEN 3.3 THEN time'01:01:00' ELSE 3.3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 71:1: select CASE WHEN time'01:01:00' = 3.3 THEN time'01:01:00' ELSE 3...
+                            ^^^^^^^^^^^^^^
+LINE 71:1: ...ct CASE WHEN time'01:01:00' = 3.3 THEN time'01:01:00' ELSE 3.3 ...
+                                            ^^^
+OCTO> select CASE WHEN time'01:01:00' = 3.3 THEN time'01:01:00' ELSE 3.3 END;
+OCTO> select CASE time'01:01:00' WHEN NULL THEN time'01:01:00' ELSE NULL END;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN time'01:01:00' = NULL THEN time'01:01:00' ELSE NULL END;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP type
+LINE 74:1: ...-01-2023 01:01:00' WHEN date'01-01-2023' THEN timestamp'01-01-20...
+                                      ^^^^^^^^^^^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN date'01-01-2023' THEN timestamp'01-01-2023 01:01:00' ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right DATE
+LINE 75:1: ...01-01-2023' THEN timestamp'01-01-2023 01:01:00' ELSE date'01-01-...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 75:1: ...' THEN timestamp'01-01-2023 01:01:00' ELSE date'01-01-2023' END;
+                                                         ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = date'01-01-2023' THEN timestamp'01-01-2023 01:01:00' ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP type
+LINE 76:1: ...1-01-2023 01:01:00' WHEN time'01:01:00' THEN timestamp'01-01-202...
+                                       ^^^^^^^^^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN time'01:01:00' THEN timestamp'01-01-2023 01:01:00' ELSE time'01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 77:1: select CASE WHEN timestamp'01-01-2023 01:01:00' = time'01:01:00'...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 77:1: ...p'01-01-2023 01:01:00' = time'01:01:00' THEN timestamp'01-01-202...
+                                       ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = time'01:01:00' THEN timestamp'01-01-2023 01:01:00' ELSE time'01:01:00' END;
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN timestamp'01-01-2023 01:01:00' THEN timestamp'01-01-2023 01:01:00' ELSE timestamp'01-01-2023 01:01:00' END;
+CASE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = timestamp'01-01-2023 01:01:00' THEN timestamp'01-01-2023 01:01:00' ELSE timestamp'01-01-2023 01:01:00' END;
+CASE
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIMESTAMP type
+LINE 80:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN timestamp'01-01-2023 01:01:00' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right TIMESTAMP WITH TIME ZONE
+LINE 81:1: ...1:00-05:00' THEN timestamp'01-01-2023 01:01:00' ELSE timestamp w...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 81:1: ...' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN timestamp'01-01-2023 01:01:00' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP type
+LINE 82:1: ...mp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01...
+                                           ^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right DATE
+LINE 83:1: ...0' = n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END ...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 83:1: ...estamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008date n1;
+                                               ^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP type
+LINE 84:1: ...mp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01...
+                                           ^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 85:1: select CASE WHEN timestamp'01-01-2023 01:01:00' = n1.dob THEN ti...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 85:1: ...stamp'01-01-2023 01:01:00' = n1.dob THEN timestamp'01-01-2023 01...
+                                           ^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008time n1;
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008timestamp n1;
+CASE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008timestamp n1;
+CASE
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIMESTAMP type
+LINE 88:1: ...mp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01...
+                                           ^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right TIMESTAMP WITH TIME ZONE
+LINE 89:1: ...0' = n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END ...
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 89:1: ...mp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008timestamptz ...
+                                           ^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = n1.dob THEN timestamp'01-01-2023 01:01:00' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a TIMESTAMP type
+LINE 90:1: ...tamp'01-01-2023 01:01:00' WHEN 3 THEN timestamp'01-01-2023 01:0...
+                                             ^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN 3 THEN timestamp'01-01-2023 01:01:00' ELSE 3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 91:1: select CASE WHEN timestamp'01-01-2023 01:01:00' = 3 THEN timesta...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 91:1: ...mestamp'01-01-2023 01:01:00' = 3 THEN timestamp'01-01-2023 01:0...
+                                             ^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = 3 THEN timestamp'01-01-2023 01:01:00' ELSE 3 END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a TIMESTAMP type
+LINE 92:1: ...-01-2023 01:01:00' WHEN 'sample string' THEN timestamp'01-01-20...
+                                      ^^^^^^^^^^^^^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN 'sample string' THEN timestamp'01-01-2023 01:01:00' ELSE 'sample string' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right VARCHAR
+LINE 93:1: select CASE WHEN timestamp'01-01-2023 01:01:00' = 'sample string...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 93:1: ...'01-01-2023 01:01:00' = 'sample string' THEN timestamp'01-01-20...
+                                      ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = 'sample string' THEN timestamp'01-01-2023 01:01:00' ELSE 'sample string' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a TIMESTAMP type
+LINE 94:1: ...amp'01-01-2023 01:01:00' WHEN 3.3 THEN timestamp'01-01-2023 01:...
+                                            ^^^
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN 3.3 THEN timestamp'01-01-2023 01:01:00' ELSE 3.3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 95:1: select CASE WHEN timestamp'01-01-2023 01:01:00' = 3.3 THEN times...
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 95:1: ...estamp'01-01-2023 01:01:00' = 3.3 THEN timestamp'01-01-2023 01:...
+                                            ^^^
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = 3.3 THEN timestamp'01-01-2023 01:01:00' ELSE 3.3 END;
+OCTO> select CASE timestamp'01-01-2023 01:01:00' WHEN NULL THEN timestamp'01-01-2023 01:01:00' ELSE NULL END;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN timestamp'01-01-2023 01:01:00' = NULL THEN timestamp'01-01-2023 01:01:00' ELSE NULL END;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 98:1: ...23 01:01:00-05:00' WHEN date'01-01-2023' THEN timestamp with tim...
+                                      ^^^^^^^^^^^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN date'01-01-2023' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right DATE
+LINE 99:1: ... THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE ...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 99:1: ... time zone'01-01-2023 01:01:00-05:00' ELSE date'01-01-2023' END;
+                                                         ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = date'01-01-2023' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 100:1: ...023 01:01:00-05:00' WHEN time'01:01:00' THEN timestamp with time...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN time'01:01:00' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE time'01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 101:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = tim...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 101:1: ...1-2023 01:01:00-05:00' = time'01:01:00' THEN timestamp with time...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = time'01:01:00' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE time'01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 102:1: ...1:00-05:00' WHEN timestamp'01-01-2023 01:01:00' THEN timestamp w...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN timestamp'01-01-2023 01:01:00' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right TIMESTAMP
+LINE 103:1: ... THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 103:1: ...01-2023 01:01:00-05:00' ELSE timestamp'01-01-2023 01:01:00' END;
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = timestamp'01-01-2023 01:01:00' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE timestamp'01-01-2023 01:01:00' END;
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+CASE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+CASE
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 106:1: ...01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zon...
+                                            ^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right DATE
+LINE 107:1: ... THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 107:1: ...'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008date n1;
+                                                ^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 108:1: ...01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zon...
+                                            ^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 109:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = n1....
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 109:1: ...01-01-2023 01:01:00-05:00' = n1.dob THEN timestamp with time zon...
+                                            ^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 110:1: ...01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zon...
+                                            ^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right TIMESTAMP
+LINE 111:1: ... THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 111:1: ...01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008timestamp n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008timestamp n1;
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008timestamptz n1;
+CASE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = n1.dob THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE n1.dob END from TDTT008timestamptz n1;
+CASE
+2022-12-31 15:01:01-05
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 114:1: ...1-01-2023 01:01:00-05:00' WHEN 3 THEN timestamp with time zone'...
+                                              ^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN 3 THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE 3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 115:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = 3 T...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 115:1: ...e'01-01-2023 01:01:00-05:00' = 3 THEN timestamp with time zone'...
+                                              ^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = 3 THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE 3 END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 116:1: ...23 01:01:00-05:00' WHEN 'sample string' THEN timestamp with tim...
+                                       ^^^^^^^^^^^^^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN 'sample string' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE 'sample string' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right VARCHAR
+LINE 117:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = 'sa...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 117:1: ...-2023 01:01:00-05:00' = 'sample string' THEN timestamp with tim...
+                                       ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = 'sample string' THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE 'sample string' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 118:1: ...-01-2023 01:01:00-05:00' WHEN 3.3 THEN timestamp with time zone...
+                                             ^^^
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN 3.3 THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE 3.3 END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 119:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = 3.3...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LINE 119:1: ...'01-01-2023 01:01:00-05:00' = 3.3 THEN timestamp with time zone...
+                                             ^^^
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = 3.3 THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE 3.3 END;
+OCTO> select CASE timestamp with time zone'01-01-2023 01:01:00-05:00' WHEN NULL THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE NULL END;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' = NULL THEN timestamp with time zone'01-01-2023 01:01:00-05:00' ELSE NULL END;
+CASE
+
+(1 row)
+OCTO> select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008date n1;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE WHEN n1.dob = date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008date n1;
+CASE
+2023-01-01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a DATE type
+LINE 124:1: select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:...
+                                    ^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 125:1: select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'0...
+                             ^^^^^^
+LINE 125:1: ...elect CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a DATE type
+LINE 126:1: ...CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008date n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP
+LINE 127:1: ...mp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01...
+                                            ^^^^^^
+LINE 127:1: ...THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a DATE type
+LINE 128:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008date n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP WITH TIME ZONE
+LINE 129:1: ...01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zon...
+                                            ^^^^^^
+LINE 129:1: ... ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END f...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008date n1;
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008date n2;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008date n2;
+CASE
+2023-01-01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a DATE type
+LINE 132:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
+LINE 133:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                             ^^^^^^
+LINE 133:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                                      ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008time n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a DATE type
+LINE 134:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008timestamp n2;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP
+LINE 135:1: ...SE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008...
+                                            ^^^^^^
+LINE 135:1: ...ob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDT...
+                                            ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008timestamp n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a DATE type
+LINE 136:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008timestamptz n2;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left DATE, right TIMESTAMP WITH TIME ZONE
+LINE 137:1: ...SE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008...
+                                            ^^^^^^
+LINE 137:1: ...ob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDT...
+                                            ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008date n1, TDTT008timestamptz n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a DATE type
+LINE 138:1: select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008da...
+                                    ^
+OCTO> select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
+LINE 139:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008d...
+                             ^^^^^^
+LINE 139:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008...
+                                      ^
+OCTO> select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a DATE type
+LINE 140:1: select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sampl...
+                                    ^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right VARCHAR
+LINE 141:1: select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'samp...
+                             ^^^^^^
+LINE 141:1: ...lect CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sampl...
+                                       ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a DATE type
+LINE 142:1: select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT0...
+                                    ^^^
+OCTO> select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
+LINE 143:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT...
+                             ^^^^^^
+LINE 143:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDT...
+                                      ^^^
+OCTO> select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT008date n1;
+OCTO> select CASE n1.dob WHEN NULL THEN n1.dob ELSE NULL END from TDTT008date n1;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN n1.dob = NULL THEN n1.dob ELSE NULL END from TDTT008date n1;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIME type
+LINE 146:1: select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'0...
+                                    ^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 147:1: select CASE WHEN n1.dob = date'01-01-2023' THEN n1.dob ELSE date...
+                             ^^^^^^
+LINE 147:1: ...lect CASE WHEN n1.dob = date'01-01-2023' THEN n1.dob ELSE date'0...
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008time n1;
+OCTO> select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008time n1;
+CASE
+01:01:00
+(1 row)
+OCTO> select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008time n1;
+CASE
+01:01:00
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIME type
+LINE 150:1: ...CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 151:1: select CASE WHEN n1.dob = timestamp'01-01-2023 01:01:00' THEN n1...
+                             ^^^^^^
+LINE 151:1: ...SE WHEN n1.dob = timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIME type
+LINE 152:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 153:1: select CASE WHEN n1.dob = timestamp with time zone'01-01-2023 01...
+                             ^^^^^^
+LINE 153:1: ...dob = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIME type
+LINE 154:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008date n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
+LINE 155:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                             ^^^^^^
+LINE 155:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                                      ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008date n2;
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008time n2;
+CASE
+01:01:01
+(1 row)
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008time n2;
+CASE
+01:01:01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIME type
+LINE 158:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008timestamp n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
+LINE 159:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                             ^^^^^^
+LINE 159:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                                      ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008timestamp n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIME type
+LINE 160:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008timestamptz n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
+LINE 161:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                             ^^^^^^
+LINE 161:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                                      ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008time n1, TDTT008timestamptz n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a TIME type
+LINE 162:1: select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008ti...
+                                    ^
+OCTO> select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right INTEGER
+LINE 163:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008t...
+                             ^^^^^^
+LINE 163:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008...
+                                      ^
+OCTO> select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a TIME type
+LINE 164:1: select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sampl...
+                                    ^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right VARCHAR
+LINE 165:1: select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'samp...
+                             ^^^^^^
+LINE 165:1: ...lect CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sampl...
+                                       ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a TIME type
+LINE 166:1: select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT0...
+                                    ^^^
+OCTO> select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
+LINE 167:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT...
+                             ^^^^^^
+LINE 167:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDT...
+                                      ^^^
+OCTO> select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT008time n1;
+OCTO> select CASE n1.dob WHEN NULL THEN n1.dob ELSE NULL END from TDTT008time n1;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN n1.dob = NULL THEN n1.dob ELSE NULL END from TDTT008time n1;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP type
+LINE 170:1: select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'0...
+                                    ^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right DATE
+LINE 171:1: ....dob = date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END fr...
+                                            ^^^^^^
+LINE 171:1: ...-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008timesta...
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP type
+LINE 172:1: select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:...
+                                    ^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 173:1: select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'0...
+                             ^^^^^^
+LINE 173:1: ...elect CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008timestamp n1;
+OCTO> select CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008timestamp n1;
+CASE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CASE WHEN n1.dob = timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008timestamp n1;
+CASE
+2023-01-01 01:01:00
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIMESTAMP type
+LINE 176:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right TIMESTAMP WITH TIME ZONE
+LINE 177:1: ...01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zon...
+                                            ^^^^^^
+LINE 177:1: ... ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END f...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP type
+LINE 178:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008date n2;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right DATE
+LINE 179:1: ...SE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008...
+                                            ^^^^^^
+LINE 179:1: ...ob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008date n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP type
+LINE 180:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
+LINE 181:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                             ^^^^^^
+LINE 181:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                                      ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008time n2;
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008timestamp n2;
+CASE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008timestamp n2;
+CASE
+2023-01-01 01:01:01
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a TIMESTAMP type
+LINE 184:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008timestamptz n2;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP, right TIMESTAMP WITH TIME ZONE
+LINE 185:1: ...SE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008...
+                                            ^^^^^^
+LINE 185:1: ...ob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamp n1, TDTT008timestamptz n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a TIMESTAMP type
+LINE 186:1: select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008ti...
+                                    ^
+OCTO> select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
+LINE 187:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008t...
+                             ^^^^^^
+LINE 187:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008...
+                                      ^
+OCTO> select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a TIMESTAMP type
+LINE 188:1: select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sampl...
+                                    ^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right VARCHAR
+LINE 189:1: select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'samp...
+                             ^^^^^^
+LINE 189:1: ...lect CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sampl...
+                                       ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a TIMESTAMP type
+LINE 190:1: select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT0...
+                                    ^^^
+OCTO> select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
+LINE 191:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT...
+                             ^^^^^^
+LINE 191:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDT...
+                                      ^^^
+OCTO> select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT008timestamp n1;
+OCTO> select CASE n1.dob WHEN NULL THEN n1.dob ELSE NULL END from TDTT008timestamp n1;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN n1.dob = NULL THEN n1.dob ELSE NULL END from TDTT008timestamp n1;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 194:1: select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'0...
+                                    ^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right DATE
+LINE 195:1: ....dob = date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END fr...
+                                            ^^^^^^
+LINE 195:1: ...-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008timesta...
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = date'01-01-2023' THEN n1.dob ELSE date'01-01-2023' END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 196:1: select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:...
+                                    ^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 197:1: select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'0...
+                             ^^^^^^
+LINE 197:1: ...elect CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = time'01:01:00' THEN n1.dob ELSE time'01:01:00' END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 198:1: ...CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right TIMESTAMP
+LINE 199:1: ...mp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01...
+                                            ^^^^^^
+LINE 199:1: ...THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = timestamp'01-01-2023 01:01:00' THEN n1.dob ELSE timestamp'01-01-2023 01:01:00' END from TDTT008timestamptz n1;
+OCTO> select CASE n1.dob WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008timestamptz n1;
+CASE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CASE WHEN n1.dob = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN n1.dob ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END from TDTT008timestamptz n1;
+CASE
+2023-01-01 01:01:00-05
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 202:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008date n2;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right DATE
+LINE 203:1: ...SE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008...
+                                            ^^^^^^
+LINE 203:1: ...ob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz ...
+                                            ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008date n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 204:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008time n2;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
+LINE 205:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                             ^^^^^^
+LINE 205:1: select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END fro...
+                                      ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008time n2;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 206:1: select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from ...
+                                    ^^^^^^
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008timestamp n2;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left TIMESTAMP WITH TIME ZONE, right TIMESTAMP
+LINE 207:1: ...SE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008...
+                                            ^^^^^^
+LINE 207:1: ...ob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz ...
+                                            ^^^^^^
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008timestamp n2;
+OCTO> select CASE n1.dob WHEN n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008timestamptz n2;
+CASE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select CASE WHEN n1.dob = n2.dob THEN n1.dob ELSE n2.dob END from TDTT008timestamptz n1, TDTT008timestamptz n2;
+CASE
+2022-12-31 15:01:01-05
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type INTEGER but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 210:1: select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008ti...
+                                    ^
+OCTO> select CASE n1.dob WHEN 3 THEN n1.dob ELSE 3 END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
+LINE 211:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008t...
+                             ^^^^^^
+LINE 211:1: select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008...
+                                      ^
+OCTO> select CASE WHEN n1.dob = 3 THEN n1.dob ELSE 3 END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type VARCHAR but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 212:1: select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sampl...
+                                    ^^^^^^^^^^^^^^^
+OCTO> select CASE n1.dob WHEN 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right VARCHAR
+LINE 213:1: select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'samp...
+                             ^^^^^^
+LINE 213:1: ...lect CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sampl...
+                                       ^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN n1.dob = 'sample string' THEN n1.dob ELSE 'sample string' END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type NUMERIC but is used in a context that expects a TIMESTAMP WITH TIME ZONE type
+LINE 214:1: select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT0...
+                                    ^^^
+OCTO> select CASE n1.dob WHEN 3.3 THEN n1.dob ELSE 3.3 END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
+LINE 215:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT...
+                             ^^^^^^
+LINE 215:1: select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDT...
+                                      ^^^
+OCTO> select CASE WHEN n1.dob = 3.3 THEN n1.dob ELSE 3.3 END from TDTT008timestamptz n1;
+OCTO> select CASE n1.dob WHEN NULL THEN n1.dob ELSE NULL END from TDTT008timestamptz n1;
+CASE
+
+(1 row)
+OCTO> select CASE WHEN n1.dob = NULL THEN n1.dob ELSE NULL END from TDTT008timestamptz n1;
+CASE
+
+(1 row)
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a INTEGER type
+LINE 218:1: select CASE 3 WHEN date'01-01-2023' THEN 3 ELSE date'01-01-2023'...
+                               ^^^^^^^^^^^^^^^^
+OCTO> select CASE 3 WHEN date'01-01-2023' THEN 3 ELSE date'01-01-2023' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right DATE
+LINE 219:1: select CASE WHEN 3 = date'01-01-2023' THEN 3 ELSE date'01-01-20...
+                             ^
+LINE 219:1: select CASE WHEN 3 = date'01-01-2023' THEN 3 ELSE date'01-01-202...
+                                 ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3 = date'01-01-2023' THEN 3 ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a INTEGER type
+LINE 220:1: select CASE 3 WHEN time'01:01:00' THEN 3 ELSE time'01:01:00' END...
+                               ^^^^^^^^^^^^^^
+OCTO> select CASE 3 WHEN time'01:01:00' THEN 3 ELSE time'01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIME
+LINE 221:1: select CASE WHEN 3 = time'01:01:00' THEN 3 ELSE time'01:01:00' ...
+                             ^
+LINE 221:1: select CASE WHEN 3 = time'01:01:00' THEN 3 ELSE time'01:01:00' E...
+                                 ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3 = time'01:01:00' THEN 3 ELSE time'01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a INTEGER type
+LINE 222:1: ...lect CASE 3 WHEN timestamp'01-01-2023 01:01:00' THEN 3 ELSE time...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE 3 WHEN timestamp'01-01-2023 01:01:00' THEN 3 ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIMESTAMP
+LINE 223:1: select CASE WHEN 3 = timestamp'01-01-2023 01:01:00' THEN 3 ELSE...
+                             ^
+LINE 223:1: ...ct CASE WHEN 3 = timestamp'01-01-2023 01:01:00' THEN 3 ELSE time...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3 = timestamp'01-01-2023 01:01:00' THEN 3 ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a INTEGER type
+LINE 224:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE 3 WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN 3 ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIMESTAMP WITH TIME ZONE
+LINE 225:1: select CASE WHEN 3 = timestamp with time zone'01-01-2023 01:01:...
+                             ^
+LINE 225:1: ...N 3 = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3 = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN 3 ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a INTEGER type
+LINE 226:1: select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008dat...
+                               ^^^^^^
+OCTO> select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right DATE
+LINE 227:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008...
+                             ^
+LINE 227:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008d...
+                                 ^^^^^^
+OCTO> select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a INTEGER type
+LINE 228:1: select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008tim...
+                               ^^^^^^
+OCTO> select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIME
+LINE 229:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008...
+                             ^
+LINE 229:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008t...
+                                 ^^^^^^
+OCTO> select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a INTEGER type
+LINE 230:1: select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008tim...
+                               ^^^^^^
+OCTO> select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIMESTAMP
+LINE 231:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008...
+                             ^
+LINE 231:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008t...
+                                 ^^^^^^
+OCTO> select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a INTEGER type
+LINE 232:1: select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008tim...
+                               ^^^^^^
+OCTO> select CASE 3 WHEN n1.dob THEN 3 ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIMESTAMP WITH TIME ZONE
+LINE 233:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008...
+                             ^
+LINE 233:1: select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008t...
+                                 ^^^^^^
+OCTO> select CASE WHEN 3 = n1.dob THEN 3 ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a VARCHAR type
+LINE 234:1: ...SE 'sample string' WHEN date'01-01-2023' THEN 'sample string' EL...
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select CASE 'sample string' WHEN date'01-01-2023' THEN 'sample string' ELSE date'01-01-2023' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right DATE
+LINE 235:1: select CASE WHEN 'sample string' = date'01-01-2023' THEN 'sampl...
+                             ^^^^^^^^^^^^^^^
+LINE 235:1: ... WHEN 'sample string' = date'01-01-2023' THEN 'sample string' EL...
+                                       ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 'sample string' = date'01-01-2023' THEN 'sample string' ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a VARCHAR type
+LINE 236:1: ...ASE 'sample string' WHEN time'01:01:00' THEN 'sample string' ELS...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE 'sample string' WHEN time'01:01:00' THEN 'sample string' ELSE time'01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TIME
+LINE 237:1: select CASE WHEN 'sample string' = time'01:01:00' THEN 'sample ...
+                             ^^^^^^^^^^^^^^^
+LINE 237:1: ...E WHEN 'sample string' = time'01:01:00' THEN 'sample string' ELS...
+                                        ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 'sample string' = time'01:01:00' THEN 'sample string' ELSE time'01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a VARCHAR type
+LINE 238:1: ...ple string' WHEN timestamp'01-01-2023 01:01:00' THEN 'sample str...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE 'sample string' WHEN timestamp'01-01-2023 01:01:00' THEN 'sample string' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TIMESTAMP
+LINE 239:1: select CASE WHEN 'sample string' = timestamp'01-01-2023 01:01:0...
+                             ^^^^^^^^^^^^^^^
+LINE 239:1: ...sample string' = timestamp'01-01-2023 01:01:00' THEN 'sample str...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 'sample string' = timestamp'01-01-2023 01:01:00' THEN 'sample string' ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a VARCHAR type
+LINE 240:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE 'sample string' WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN 'sample string' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TIMESTAMP WITH TIME ZONE
+LINE 241:1: select CASE WHEN 'sample string' = timestamp with time zone'01-...
+                             ^^^^^^^^^^^^^^^
+LINE 241:1: ...ng' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 'sample string' = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN 'sample string' ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a VARCHAR type
+LINE 242:1: ...ct CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right DATE
+LINE 243:1: select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ...
+                             ^^^^^^^^^^^^^^^
+LINE 243:1: ... CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a VARCHAR type
+LINE 244:1: ...ct CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TIME
+LINE 245:1: select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ...
+                             ^^^^^^^^^^^^^^^
+LINE 245:1: ... CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a VARCHAR type
+LINE 246:1: ...ct CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TIMESTAMP
+LINE 247:1: select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ...
+                             ^^^^^^^^^^^^^^^
+LINE 247:1: ... CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a VARCHAR type
+LINE 248:1: ...ct CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE 'sample string' WHEN n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right TIMESTAMP WITH TIME ZONE
+LINE 249:1: select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ...
+                             ^^^^^^^^^^^^^^^
+LINE 249:1: ... CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1...
+                                            ^^^^^^
+OCTO> select CASE WHEN 'sample string' = n1.dob THEN 'sample string' ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a NUMERIC type
+LINE 250:1: select CASE 3.3 WHEN date'01-01-2023' THEN 3.3 ELSE date'01-01-2...
+                                 ^^^^^^^^^^^^^^^^
+OCTO> select CASE 3.3 WHEN date'01-01-2023' THEN 3.3 ELSE date'01-01-2023' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right DATE
+LINE 251:1: select CASE WHEN 3.3 = date'01-01-2023' THEN 3.3 ELSE date'01-0...
+                             ^^^
+LINE 251:1: select CASE WHEN 3.3 = date'01-01-2023' THEN 3.3 ELSE date'01-01...
+                                   ^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3.3 = date'01-01-2023' THEN 3.3 ELSE date'01-01-2023' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a NUMERIC type
+LINE 252:1: select CASE 3.3 WHEN time'01:01:00' THEN 3.3 ELSE time'01:01:00'...
+                                 ^^^^^^^^^^^^^^
+OCTO> select CASE 3.3 WHEN time'01:01:00' THEN 3.3 ELSE time'01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIME
+LINE 253:1: select CASE WHEN 3.3 = time'01:01:00' THEN 3.3 ELSE time'01:01:...
+                             ^^^
+LINE 253:1: select CASE WHEN 3.3 = time'01:01:00' THEN 3.3 ELSE time'01:01:0...
+                                   ^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3.3 = time'01:01:00' THEN 3.3 ELSE time'01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a NUMERIC type
+LINE 254:1: ...ct CASE 3.3 WHEN timestamp'01-01-2023 01:01:00' THEN 3.3 ELSE ti...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE 3.3 WHEN timestamp'01-01-2023 01:01:00' THEN 3.3 ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIMESTAMP
+LINE 255:1: select CASE WHEN 3.3 = timestamp'01-01-2023 01:01:00' THEN 3.3 ...
+                             ^^^
+LINE 255:1: ... CASE WHEN 3.3 = timestamp'01-01-2023 01:01:00' THEN 3.3 ELSE ti...
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3.3 = timestamp'01-01-2023 01:01:00' THEN 3.3 ELSE timestamp'01-01-2023 01:01:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a NUMERIC type
+LINE 256:1: ... WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE 3.3 WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN 3.3 ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIMESTAMP WITH TIME ZONE
+LINE 257:1: select CASE WHEN 3.3 = timestamp with time zone'01-01-2023 01:0...
+                             ^^^
+LINE 257:1: ...3.3 = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN ...
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select CASE WHEN 3.3 = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN 3.3 ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type DATE but is used in a context that expects a NUMERIC type
+LINE 258:1: select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT00...
+                                 ^^^^^^
+OCTO> select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right DATE
+LINE 259:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDT...
+                             ^^^
+LINE 259:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT...
+                                   ^^^^^^
+OCTO> select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT008date n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIME but is used in a context that expects a NUMERIC type
+LINE 260:1: select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT00...
+                                 ^^^^^^
+OCTO> select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIME
+LINE 261:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDT...
+                             ^^^
+LINE 261:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT...
+                                   ^^^^^^
+OCTO> select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT008time n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP but is used in a context that expects a NUMERIC type
+LINE 262:1: select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT00...
+                                 ^^^^^^
+OCTO> select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIMESTAMP
+LINE 263:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDT...
+                             ^^^
+LINE 263:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT...
+                                   ^^^^^^
+OCTO> select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT008timestamp n1;
+[ERROR]: ERR_CASE_VALUE_TYPE_MISMATCH: WHEN argument is of type TIMESTAMP WITH TIME ZONE but is used in a context that expects a NUMERIC type
+LINE 264:1: select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT00...
+                                 ^^^^^^
+OCTO> select CASE 3.3 WHEN n1.dob THEN 3.3 ELSE n1.dob END from TDTT008timestamptz n1;
+[ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIMESTAMP WITH TIME ZONE
+LINE 265:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDT...
+                             ^^^
+LINE 265:1: select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT...
+                                   ^^^^^^
+OCTO> select CASE WHEN 3.3 = n1.dob THEN 3.3 ELSE n1.dob END from TDTT008timestamptz n1;
+OCTO> select CASE NULL WHEN date'01-01-2023' THEN NULL ELSE date'01-01-2023' END;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE WHEN NULL = date'01-01-2023' THEN NULL ELSE date'01-01-2023' END;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE NULL WHEN time'01:01:00' THEN NULL ELSE time'01:01:00' END;
+CASE
+01:01:00
+(1 row)
+OCTO> select CASE WHEN NULL = time'01:01:00' THEN NULL ELSE time'01:01:00' END;
+CASE
+01:01:00
+(1 row)
+OCTO> select CASE NULL WHEN timestamp'01-01-2023 01:01:00' THEN NULL ELSE timestamp'01-01-2023 01:01:00' END;
+CASE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CASE WHEN NULL = timestamp'01-01-2023 01:01:00' THEN NULL ELSE timestamp'01-01-2023 01:01:00' END;
+CASE
+2023-01-01 01:01:00
+(1 row)
+OCTO> select CASE NULL WHEN timestamp with time zone'01-01-2023 01:01:00-05:00' THEN NULL ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+CASE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CASE WHEN NULL = timestamp with time zone'01-01-2023 01:01:00-05:00' THEN NULL ELSE timestamp with time zone'01-01-2023 01:01:00-05:00' END;
+CASE
+2023-01-01 01:01:00-05
+(1 row)
+OCTO> select CASE NULL WHEN n1.dob THEN NULL ELSE n1.dob END from TDTT008date n1;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE WHEN NULL = n1.dob THEN NULL ELSE n1.dob END from TDTT008date n1;
+CASE
+2023-01-01
+(1 row)
+OCTO> select CASE NULL WHEN n1.dob THEN NULL ELSE n1.dob END from TDTT008time n1;
+CASE
+01:01:01
+(1 row)
+OCTO> select CASE WHEN NULL = n1.dob THEN NULL ELSE n1.dob END from TDTT008time n1;
+CASE
+01:01:01
+(1 row)
+OCTO> select CASE NULL WHEN n1.dob THEN NULL ELSE n1.dob END from TDTT008timestamp n1;
+CASE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CASE WHEN NULL = n1.dob THEN NULL ELSE n1.dob END from TDTT008timestamp n1;
+CASE
+2023-01-01 01:01:01
+(1 row)
+OCTO> select CASE NULL WHEN n1.dob THEN NULL ELSE n1.dob END from TDTT008timestamptz n1;
+CASE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> select CASE WHEN NULL = n1.dob THEN NULL ELSE n1.dob END from TDTT008timestamptz n1;
+CASE
+2022-12-31 15:01:01-05
+(1 row)
+OCTO> -- type:date format:
+drop table TDTT008date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT008time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT008timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT008timestamptz;
+DROP TABLE
+OCTO> 

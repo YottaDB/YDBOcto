@@ -583,13 +583,13 @@ CREATE TABLE Course_Enrollment_Session (
 );
 INSERT INTO Course_Enrollment_Session
 VALUES
-(1,2020,'DATE','DATE'),
-(2,2021,'DATE','DATE')
+(1,2020,date'DATE',date'DATE'),
+(2,2021,date'DATE',date'DATE')
 ;
 SELECT * FROM Course_Enrollment_Session;
-UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 1;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = date'DATE' WHERE ID = 1;
 SELECT * FROM Course_Enrollment_Session;
-UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 2;
+UPDATE Course_Enrollment_Session SET End_Registration_Date = date'DATE' WHERE ID = 2;
 SELECT * FROM Course_Enrollment_Session;
 UPDATE Course_Enrollment_Session SET End_Registration_Date = NULL WHERE ID = 2;
 SELECT * FROM Course_Enrollment_Session;
@@ -2138,8 +2138,8 @@ OCTO> CREATE TABLE Course_Enrollment_Session (
 CREATE TABLE
 OCTO> INSERT INTO Course_Enrollment_Session
 VALUES
-(1,2020,'DATE','DATE'),
-(2,2021,'DATE','DATE')
+(1,2020,date'DATE',date'DATE'),
+(2,2021,date'DATE',date'DATE')
 ;
 INSERT 0 2
 OCTO> SELECT * FROM Course_Enrollment_Session;
@@ -2147,14 +2147,14 @@ id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
 (2 rows)
-OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 1;
+OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = date'DATE' WHERE ID = 1;
 [ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table course_enrollment_session violates CHECK constraint course_enrollment_session_check : Failing row contains (1, 2020, DATE, DATE)
 OCTO> SELECT * FROM Course_Enrollment_Session;
 id|year|start_registration_date|end_registration_date
 1|2020|DATE|DATE
 2|2021|DATE|DATE
 (2 rows)
-OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = 'DATE' WHERE ID = 2;
+OCTO> UPDATE Course_Enrollment_Session SET End_Registration_Date = date'DATE' WHERE ID = 2;
 UPDATE 1
 OCTO> SELECT * FROM Course_Enrollment_Session;
 id|year|start_registration_date|end_registration_date

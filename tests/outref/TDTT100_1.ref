@@ -1,0 +1,10 @@
+
+show datestyle;
+select date_format(now(),'%m-%d-%Y');
+OCTO> show datestyle;
+ISO, YMD
+OCTO> select date_format(now(),'%m-%d-%Y');
+date_format
+DATE TIME
+(1 row)
+OCTO> 

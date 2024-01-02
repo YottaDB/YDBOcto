@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -191,7 +191,20 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 				break;
 			}
 			if (emit_col_i) {
+				// Insert the conversion routine here if cur_column is of type date/time
+				boolean_t close_conversion_routine = FALSE;
+				if ((ConstraintColValList == list_type) && (IS_DATE_TIME_DATA_TYPE(cur_column->data_type_struct.data_type))) {
+					%{}$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({}%
+					close_conversion_routine = TRUE;
+				}
 				%{}{{ PP_COL }}({{ column_number|%d }}){}%
+				if (close_conversion_routine) {
+					const char *datetime_text_format_specifier;
+					SqlValueType column_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type,FALSE);
+					GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(column_type,datetime_text_format_specifier);
+					%{},{{ column_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }}{}%
+					%{},"{{ datetime_text_format_specifier }}"){}%
+				}
 			}
 			switch(list_type) {
 			case ConstraintColNullList:

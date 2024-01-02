@@ -1,0 +1,290 @@
+
+-- In-exact dates
+select date(fileman)'3230000';
+select date(fileman)'3230100';
+select date(fileman)'3230001'; -- This should result in an error
+select date(fileman)'323'; -- This should result in an error
+create table test (id int primary key, dob date(fileman)) global "^datefileman"readonly;
+select * from test;
+create table testerror (id int primary key, dob date(fileman)) global "^datefilemanerror"readonly;
+select * from testerror;
+
+-- Edge case timestamp
+select timestamp(fileman)'2960714.24';
+select timestamp(fileman)'2960714.23';
+select timestamp(fileman)'2960731.24';
+select timestamp(fileman)'2991231.24';
+select timestamp(fileman)'2991231.25';
+select timestamp(fileman)'323';
+select timestamp(fileman)'2960124.16263'; -- second is having a single digit
+select timestamp(fileman)'2960124.16265'; -- second is having a single digit
+select timestamp(fileman)'2960124.16266'; -- second is having a single digit error case
+select timestamp(fileman)'2960124.16267'; -- second is having a single digit error case
+select timestamp(fileman)'2960124.163'; -- minute is having a single digit
+select timestamp(fileman)'2960124.165'; -- minute is having a single digit
+select timestamp(fileman)'2960124.166'; -- minute is having a single digit error case
+select timestamp(fileman)'2960124.167'; -- minute is having a single digit error case
+select timestamp(fileman)'2960124.1';
+select timestamp(fileman)'2960124.2';
+select timestamp(fileman)'2960124.3'; -- hour is having a single digit error case
+select timestamp(fileman)'2960124.9'; -- hour is having a single digit error case
+select timestamp(fileman)'2960124.01';
+select timestamp(fileman)'2960124.10'; -- error
+select timestamp(fileman)'2960124.100';
+select timestamp(fileman)'2960124.1000';
+select timestamp(fileman)'2960124.10000';
+select timestamp(fileman)'2960124.100000';
+select timestamp(fileman)'2960124.20'; -- error
+select timestamp(fileman)'2960124.200';
+select timestamp(fileman)'2960124.2000';
+select timestamp(fileman)'2960124.20000';
+select timestamp(fileman)'2960124.200000';
+create table testtimestamp (id int primary key, dob timestamp(fileman)) global "^timestampfileman"readonly;
+select * from testtimestamp;
+create table testtimestamperror1 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror1"readonly;
+create table testtimestamperror2 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror2"readonly;
+create table testtimestamperror3 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror3"readonly;
+create table testtimestamperror4 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror4"readonly;
+create table testtimestamperror5 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror5"readonly;
+create table testtimestamperror6 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror6"readonly;
+create table testtimestamperror7 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror7"readonly;
+create table testtimestamperror8 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror8"readonly;
+create table testtimestamperror9 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror9"readonly;
+select * from testtimestamperror1;
+select * from testtimestamperror2;
+select * from testtimestamperror3;
+select * from testtimestamperror4;
+select * from testtimestamperror5;
+select * from testtimestamperror6;
+select * from testtimestamperror7;
+select * from testtimestamperror8;
+select * from testtimestamperror9;
+OCTO> select date(fileman)'3230000';
+???
+2023-01-01
+(1 row)
+OCTO> select date(fileman)'3230100';
+???
+2023-01-01
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "3230001" is invalid for type DATE and format FILEMAN
+LINE 4:1: select date(fileman)'3230001'; -- This should result in an error
+                 ^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select date(fileman)'3230001';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "323" is invalid for type DATE and format FILEMAN
+LINE 5:2: select date(fileman)'323'; -- This should result in an error
+                 ^^^^^^^^^^^^^^^^^^
+OCTO> -- This should result in an error
+select date(fileman)'323';
+OCTO> -- This should result in an error
+create table test (id int primary key, dob date(fileman)) global "^datefileman"readonly;
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+0|2023-01-01
+1|2023-01-01
+2|
+(3 rows)
+OCTO> create table testerror (id int primary key, dob date(fileman)) global "^datefilemanerror"readonly;
+CREATE TABLE
+OCTO> select * from testerror;
+id|dob
+0|
+(1 row)
+OCTO> select timestamp(fileman)'2960714.24';
+???
+1996-07-15 00:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960714.23';
+???
+1996-07-14 23:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960731.24';
+???
+1996-08-01 00:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2991231.24';
+???
+2000-01-01 00:00:00
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2991231.25" is invalid for type TIMESTAMP and format FILEMAN
+LINE 15:1: select timestamp(fileman)'2991231.25';
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(fileman)'2991231.25';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "323" is invalid for type TIMESTAMP and format FILEMAN
+LINE 16:1: select timestamp(fileman)'323';
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(fileman)'323';
+OCTO> select timestamp(fileman)'2960124.16263';
+???
+1996-01-24 16:26:30
+(1 row)
+OCTO> -- second is having a single digit
+select timestamp(fileman)'2960124.16265';
+???
+1996-01-24 16:26:50
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.16266" is invalid for type TIMESTAMP and format FILEMAN
+LINE 19:2: select timestamp(fileman)'2960124.16266'; -- second is having a...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- second is having a single digit
+select timestamp(fileman)'2960124.16266';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.16267" is invalid for type TIMESTAMP and format FILEMAN
+LINE 20:2: select timestamp(fileman)'2960124.16267'; -- second is having a...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- second is having a single digit error case
+select timestamp(fileman)'2960124.16267';
+OCTO> -- second is having a single digit error case
+select timestamp(fileman)'2960124.163';
+???
+1996-01-24 16:30:00
+(1 row)
+OCTO> -- minute is having a single digit
+select timestamp(fileman)'2960124.165';
+???
+1996-01-24 16:50:00
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.166" is invalid for type TIMESTAMP and format FILEMAN
+LINE 23:2: select timestamp(fileman)'2960124.166'; -- minute is having a s...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- minute is having a single digit
+select timestamp(fileman)'2960124.166';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.167" is invalid for type TIMESTAMP and format FILEMAN
+LINE 24:2: select timestamp(fileman)'2960124.167'; -- minute is having a s...
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> -- minute is having a single digit error case
+select timestamp(fileman)'2960124.167';
+OCTO> -- minute is having a single digit error case
+select timestamp(fileman)'2960124.1';
+???
+1996-01-24 10:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.2';
+???
+1996-01-24 20:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.3';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> -- hour is having a single digit error case
+select timestamp(fileman)'2960124.9';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.9" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> -- hour is having a single digit error case
+select timestamp(fileman)'2960124.01';
+???
+1996-01-24 01:00:00
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.10" is invalid for type TIMESTAMP and format FILEMAN
+LINE 30:1: select timestamp(fileman)'2960124.10'; -- error
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(fileman)'2960124.10';
+OCTO> -- error
+select timestamp(fileman)'2960124.100';
+???
+1996-01-24 10:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.1000';
+???
+1996-01-24 10:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.10000';
+???
+1996-01-24 10:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.100000';
+???
+1996-01-24 10:00:00
+(1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.20" is invalid for type TIMESTAMP and format FILEMAN
+LINE 35:1: select timestamp(fileman)'2960124.20'; -- error
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select timestamp(fileman)'2960124.20';
+OCTO> -- error
+select timestamp(fileman)'2960124.200';
+???
+1996-01-24 20:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.2000';
+???
+1996-01-24 20:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.20000';
+???
+1996-01-24 20:00:00
+(1 row)
+OCTO> select timestamp(fileman)'2960124.200000';
+???
+1996-01-24 20:00:00
+(1 row)
+OCTO> create table testtimestamp (id int primary key, dob timestamp(fileman)) global "^timestampfileman"readonly;
+CREATE TABLE
+OCTO> select * from testtimestamp;
+id|dob
+0|1996-07-15 00:00:00
+1|1996-07-14 23:00:00
+2|1996-08-01 00:00:00
+3|2000-01-01 00:00:00
+4|
+5|1996-01-24 16:26:30
+6|1996-01-24 16:26:50
+7|1996-01-24 16:50:00
+8|1996-01-24 10:00:00
+9|1996-01-24 20:00:00
+10|1996-01-24 01:00:00
+11|1996-01-24 10:00:00
+12|1996-01-24 10:00:00
+13|1996-01-24 10:00:00
+14|1996-01-24 20:00:00
+15|1996-01-24 20:00:00
+16|1996-01-24 20:00:00
+17|1996-01-24 20:00:00
+18|1996-01-24 10:00:00
+(19 rows)
+OCTO> create table testtimestamperror1 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror1"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror2 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror2"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror3 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror3"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror4 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror4"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror5 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror5"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror6 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror6"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror7 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror7"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror8 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror8"readonly;
+CREATE TABLE
+OCTO> create table testtimestamperror9 (id int primary key, dob timestamp(fileman)) global "^timestampfilemanerror9"readonly;
+CREATE TABLE
+OCTO> select * from testtimestamperror1;
+id|dob
+0|
+(1 row)
+OCTO> select * from testtimestamperror2;
+id|dob
+0|
+(1 row)
+OCTO> select * from testtimestamperror3;
+id|dob
+0|
+(1 row)
+OCTO> select * from testtimestamperror4;
+id|dob
+0|
+(1 row)
+OCTO> select * from testtimestamperror5;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.25" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> select * from testtimestamperror6;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> select * from testtimestamperror7;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.9" is invalid for type TIMESTAMP and format FILEMAN
+OCTO> select * from testtimestamperror8;
+id|dob
+0|
+(1 row)
+OCTO> select * from testtimestamperror9;
+id|dob
+0|
+(1 row)
+OCTO> 

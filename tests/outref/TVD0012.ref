@@ -30,7 +30,7 @@ dateformat
 (1 row)
 OCTO> select DATEFORMAT(3000101.010101,'5Z');
 dateformat
-01/01/2000@TIME
+01/01/2000@01:01:01
 (1 row)
 OCTO> select FMGET(200,.01,1);
 fmget
@@ -86,6 +86,6 @@ fmdiff
 (1 row)
 OCTO> select FMADD(3000101.010101,1,0,0,0);
 fmadd
-3000102.010101
+2000-01-02 01:01:01
 (1 row)
 OCTO> 

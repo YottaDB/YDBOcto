@@ -310,12 +310,17 @@ LP_SET_OPERATION:
 [ INFO] PATH:LINENUM DATE TIME: INFO_ENTERING_FUNCTION: Entering print_temporary_table
 typname|oid
 bool|16
+date|1082
 int4|23
 name|19
 numeric|1700
+time|1083
+timestamp|1114
+timestamptz|1184
+timetz|1266
 unknown|705
 varchar|1043
-(6 rows)
+(11 rows)
 [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []
 OCTO> 

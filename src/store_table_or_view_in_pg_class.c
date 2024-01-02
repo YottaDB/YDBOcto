@@ -79,6 +79,11 @@ typedef enum PG_AttributeLength {
 	int4_AttributeLength = 4,
 	varchar_AttributeLength = -1,
 	numeric_AttributeLength = -1,
+	date_AttributeLength = 4,
+	time_AttributeLength = 8,
+	timetz_AttributeLength = 12,
+	timestamp_AttributeLength = 8,
+	timestamptz_AttributeLength = 8,
 } PG_AttributeLength;
 
 /* The type id of each supported PostgreSQL type, as documented in the
@@ -90,6 +95,11 @@ typedef enum PG_AttributeTypeId {
 	int4_AttributeTypeId = 23,
 	varchar_AttributeTypeId = 1043,
 	numeric_AttributeTypeId = 1700,
+	date_AttributeTypeId = 1082,
+	time_AttributeTypeId = 1083,
+	timetz_AttributeTypeId = 1266,
+	timestamp_AttributeTypeId = 1114,
+	timestamptz_AttributeTypeId = 1184,
 } PG_AttributeTypeId;
 
 typedef enum PG_AttributeByVal {
@@ -97,6 +107,11 @@ typedef enum PG_AttributeByVal {
 	int4_AttributeByVal = TRUE,
 	varchar_AttributeByVal = FALSE,
 	numeric_AttributeByVal = FALSE,
+	date_AttributeByVal = TRUE,
+	time_AttributeByVal = TRUE,
+	timetz_AttributeByVal = FALSE,
+	timestamp_AttributeByVal = TRUE,
+	timestamptz_AttributeByVal = TRUE,
 } PG_AttributeByVal;
 
 typedef enum PG_AttributeStorage {
@@ -104,6 +119,11 @@ typedef enum PG_AttributeStorage {
 	int4_AttributeStorage = 'p',
 	varchar_AttributeStorage = 'x',
 	numeric_AttributeStorage = 'm',
+	date_AttributeStorage = 'p',
+	time_AttributeStorage = 'p',
+	timetz_AttributeStorage = 'p',
+	timestamp_AttributeStorage = 'p',
+	timestamptz_AttributeStorage = 'p',
 } PG_AttributeStorage;
 
 typedef enum PG_AttributeAlign {
@@ -111,6 +131,11 @@ typedef enum PG_AttributeAlign {
 	int4_AttributeAlign = 'i',
 	varchar_AttributeAlign = 'i',
 	numeric_AttributeAlign = 'i',
+	date_AttributeAlign = 'i',
+	time_AttributeAlign = 'd',
+	timetz_AttributeAlign = 'd',
+	timestamp_AttributeAlign = 'd',
+	timestamptz_AttributeAlign = 'd',
 } PG_AttributeAlign;
 
 /* Attempts to store a row in pg_catalog.pg_class for this table.
@@ -306,6 +331,41 @@ int store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer
 					attstorage = numeric_AttributeStorage;
 					attalign = numeric_AttributeAlign;
 					break;
+				case DATE_TYPE:
+					atttypid = date_AttributeTypeId;
+					attlen = date_AttributeLength;
+					attbyval = date_AttributeByVal;
+					attstorage = date_AttributeStorage;
+					attalign = date_AttributeAlign;
+					break;
+				case TIME_TYPE:
+					atttypid = time_AttributeTypeId;
+					attlen = time_AttributeLength;
+					attbyval = time_AttributeByVal;
+					attstorage = time_AttributeStorage;
+					attalign = time_AttributeAlign;
+					break;
+				case TIME_WITH_TIME_ZONE_TYPE:
+					atttypid = timetz_AttributeTypeId;
+					attlen = timetz_AttributeLength;
+					attbyval = timetz_AttributeByVal;
+					attstorage = timetz_AttributeStorage;
+					attalign = timetz_AttributeAlign;
+					break;
+				case TIMESTAMP_TYPE:
+					atttypid = timestamp_AttributeTypeId;
+					attlen = timestamp_AttributeLength;
+					attbyval = timestamp_AttributeByVal;
+					attstorage = timestamp_AttributeStorage;
+					attalign = timestamp_AttributeAlign;
+					break;
+				case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+					atttypid = timestamptz_AttributeTypeId;
+					attlen = timestamptz_AttributeLength;
+					attbyval = timestamptz_AttributeByVal;
+					attstorage = timestamptz_AttributeStorage;
+					attalign = timestamptz_AttributeAlign;
+					break;
 				default:
 					assert(FALSE);
 					status = 1;
@@ -475,6 +535,41 @@ int store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer
 				attstorage = 'x';
 				attalign = 'i';
 				// atttypmod = -1;
+				break;
+			case DATE_LITERAL:
+				atttypid = date_AttributeTypeId;
+				attlen = date_AttributeLength;
+				attbyval = date_AttributeByVal;
+				attstorage = date_AttributeStorage;
+				attalign = date_AttributeAlign;
+				break;
+			case TIME_LITERAL:
+				atttypid = time_AttributeTypeId;
+				attlen = time_AttributeLength;
+				attbyval = time_AttributeByVal;
+				attstorage = time_AttributeStorage;
+				attalign = time_AttributeAlign;
+				break;
+			case TIME_WITH_TIME_ZONE_LITERAL:
+				atttypid = timetz_AttributeTypeId;
+				attlen = timetz_AttributeLength;
+				attbyval = timetz_AttributeByVal;
+				attstorage = timetz_AttributeStorage;
+				attalign = timetz_AttributeAlign;
+				break;
+			case TIMESTAMP_LITERAL:
+				atttypid = timestamp_AttributeTypeId;
+				attlen = timestamp_AttributeLength;
+				attbyval = timestamp_AttributeByVal;
+				attstorage = timestamp_AttributeStorage;
+				attalign = timestamp_AttributeAlign;
+				break;
+			case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+				atttypid = timestamptz_AttributeTypeId;
+				attlen = timestamptz_AttributeLength;
+				attbyval = timestamptz_AttributeByVal;
+				attstorage = timestamptz_AttributeStorage;
+				attalign = timestamptz_AttributeAlign;
 				break;
 			default:
 				assert(FALSE);

@@ -15,7 +15,7 @@ ERROR:  Runtime parameter "session_authorization" cannot be changed
 
  datestyle 
 -----------
- TEST
+ ISO, YMD
 (1 row)
 
  integer_datetimes 
@@ -73,7 +73,7 @@ SET
 
  datestyle 
 -----------
- TEST2
+ ISO, YMD
 (1 row)
 
  integer_datetimes 

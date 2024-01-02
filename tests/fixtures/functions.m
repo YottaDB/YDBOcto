@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -14,6 +14,18 @@
 
 samevalue(param)	; Returns input parameter as output (used by a few bats tests)
 	quit param
+
+samevaluemdy(param)
+	quit:$ZYISSQLNULL(param) param
+	new val
+	set val=param
+	set month=$piece(val,"-",1)
+	set day=$piece(val,"-",2)
+	set year=$piece(val,"-",3)
+	set rest=$piece(year," ",2)
+	set year=$piece(year," ",1)
+	quit year_"-"_month_"-"_day_$select(rest'="":" "_rest,1:"")
+
 
 threeparmfunc(parm1,parm2,parm3)	; Returns first input parmeter as output
 	quit parm1

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -180,6 +180,6 @@ teardown() {
 			sed -i 's/|f$/|0/g;' output.txt
 		fi
 		mv output.txt output-$db.txt
-		verify_output HDB01-$db output-$db.txt # HDB01-postgres.ref or HDB01-mysql.ref
+		verify_output HDB01-$db output-$db.txt nodatetimefilter # HDB01-postgres.ref or HDB01-mysql.ref
 	done
 }

@@ -86,6 +86,13 @@ typedef void* yyscan_t;
 	 */											\
 }
 
+/* Following macro creates date and time SqlDataTypeStruct with the passed arguments */
+#define DATE_TIME_DATA_TYPE_STRUCT(RET,TYPE,FORMAT)\
+	{\
+		RET = data_type(TYPE,NULL,NULL);\
+		SET_INTERNAL_FORMAT_FOR_DATA_TYPE(RET,FORMAT);\
+	}
+
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
 extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context);
 extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
@@ -127,6 +134,10 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token CREATE
 %token CROSS
 %token DATE
+%token DATE_TIME_FILEMAN
+%token DATE_TIME_HOROLOG
+%token DATE_TIME_ZHOROLOG
+%token DATE_TIME_ZUT
 %token DEALLOCATE
 %token DEC
 %token DECIMAL
@@ -216,6 +227,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token TABLE
 %token THEN
 %token TIME
+%token TIMESTAMP
 %token TO
 %token TRUNCATE
 %token UNION
@@ -230,6 +242,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token VIEW
 %token WHEN
 %token WHERE
+%token WITH_TIME_ZONE
+%token WITHOUT_TIME_ZONE
 
 %token TRUE_TOKEN
 %token FALSE_TOKEN
@@ -1573,7 +1587,7 @@ table_definition
 
 table_definition_tail
   : /* Empty */ {
-      $$ = alloc_no_keyword();
+      $$ = alloc_keyword_of_type(NO_KEYWORD);
     }
   | optional_keyword { $$ = $optional_keyword; }
   ;
@@ -1734,7 +1748,7 @@ delim_char_list_tail
 
 optional_keyword_tail
   : /* Empty */ {
-      $$ = alloc_no_keyword();
+      $$ = alloc_keyword_of_type(NO_KEYWORD);
     }
   | optional_keyword { assert($optional_keyword->type == keyword_STATEMENT); $$ = $optional_keyword; }
   ;
@@ -2215,6 +2229,7 @@ data_type
     }
   | datetime_type {
 	$$ = $datetime_type;
+	$$->loc = yyloc;
     }
 //  | interval_type
   ;
@@ -2264,16 +2279,54 @@ boolean_type
   ;
 
 datetime_type
-  /* For now treat DATE or TIME types as equivalent to the STRING/VARCHAR type */
-  : DATE { $$ = data_type(STRING_TYPE, NULL, NULL); }
-  | TIME time_type_tail { $$ = data_type(STRING_TYPE, $time_type_tail, NULL); }
+  : dt_type {
+	SqlStatement *dt_type = $dt_type;
+	SqlDataTypeStruct *data_struct = &(dt_type->v.data_type_struct);
+	if (OPTIONAL_DATE_TIME_FILEMAN == data_struct->format) {
+		if ((TIME_TYPE == data_struct->data_type) || (TIME_WITH_TIME_ZONE_TYPE == data_struct->data_type)) {
+			ERROR(ERR_INVALID_DATE_TIME_TYPE_FORMAT, "");
+			yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+			YYERROR;
+		}
+	} else if (OPTIONAL_DATE_TIME_ZUT == data_struct->format) {
+		if ((TIME_TYPE == data_struct->data_type) || (TIME_WITH_TIME_ZONE_TYPE == data_struct->data_type)
+		    || (TIMESTAMP_WITH_TIME_ZONE_TYPE == data_struct->data_type)) {
+			ERROR(ERR_INVALID_DATE_TIME_TYPE_FORMAT, "");
+			yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+			YYERROR;
+		}
+	}
+	$$ = $dt_type;
+  }
+
+
+dt_type
+  : DATE dt_format { DATE_TIME_DATA_TYPE_STRUCT($$, DATE_TYPE, $dt_format); }
+  | TIME dt_format { DATE_TIME_DATA_TYPE_STRUCT($$, TIME_TYPE, $dt_format); }
+  | TIME dt_format WITHOUT_TIME_ZONE { DATE_TIME_DATA_TYPE_STRUCT($$, TIME_TYPE, $dt_format); }
+  | TIME dt_format WITH_TIME_ZONE { DATE_TIME_DATA_TYPE_STRUCT($$, TIME_WITH_TIME_ZONE_TYPE, $dt_format); }
+  | TIMESTAMP dt_format { DATE_TIME_DATA_TYPE_STRUCT($$, TIMESTAMP_TYPE, $dt_format); }
+  | TIMESTAMP dt_format WITHOUT_TIME_ZONE { DATE_TIME_DATA_TYPE_STRUCT($$, TIMESTAMP_TYPE, $dt_format); }
+  | TIMESTAMP dt_format WITH_TIME_ZONE { DATE_TIME_DATA_TYPE_STRUCT($$, TIMESTAMP_WITH_TIME_ZONE_TYPE, $dt_format); }
   ;
 
-time_type_tail
-  : /* Empty */ { $$ = NULL; }
-  | LEFT_PAREN precision RIGHT_PAREN {
-      $$ = $precision;
+dt_format
+  : /* Empty */ {
+	$$ = alloc_keyword_of_type(OPTIONAL_DATE_TIME_TEXT);
     }
+  | LEFT_PAREN DATE_TIME_FILEMAN RIGHT_PAREN {
+	$$ = alloc_keyword_of_type(OPTIONAL_DATE_TIME_FILEMAN);
+    }
+  | LEFT_PAREN DATE_TIME_HOROLOG RIGHT_PAREN {
+	$$ = alloc_keyword_of_type(OPTIONAL_DATE_TIME_HOROLOG);
+    }
+  | LEFT_PAREN DATE_TIME_ZHOROLOG RIGHT_PAREN {
+	$$ = alloc_keyword_of_type(OPTIONAL_DATE_TIME_ZHOROLOG);
+    }
+  | LEFT_PAREN DATE_TIME_ZUT RIGHT_PAREN {
+	$$ = alloc_keyword_of_type(OPTIONAL_DATE_TIME_ZUT);
+    }
+  ;
 
 exact_numeric_type_tail
   : /* Empty */ { $$ = data_type(NUMERIC_TYPE, NULL, NULL); }
@@ -2419,6 +2472,44 @@ literal_value
 			break;
 		}
 	}
+	$$ = ret;
+    }
+  /* Following set of grammar rules are to simplify identification of date time literals.
+   * These rules and the validations done in them make the date and time literal to be of the following format
+   * DATE '2023-01-01'
+   * TIME '12:00:00'
+   * TIMESTAMP '2023-01-01 12:00:00'
+   */
+  | date_time_literal {
+  	SqlStatement *ret = $date_time_literal;
+	SqlValue *value;
+	UNPACK_SQL_STATEMENT(value, ret, value);
+
+	const char *text_format;
+	GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(value->type, text_format);
+	if (1 == validate_date_time_value(&value->v.string_literal,
+			value->type, value->date_time_format_type, (char *)text_format,TRUE)) {
+		char *format_str;
+		DATE_TIME_FORMAT_STRING(value->date_time_format_type, format_str);
+		ERROR(ERR_INVALID_DATE_TIME_VALUE, value->v.string_literal, get_user_visible_type_string(value->type)
+		      , format_str);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, value, FALSE);
+	$$ = ret;
+    }
+  ;
+
+date_time_literal
+  : datetime_type LITERAL {
+  	// Form the Date/Time type SqlStatement
+  	SqlStatement *ret = $LITERAL;
+	SqlValue *value;
+	UNPACK_SQL_STATEMENT(value, ret, value);
+	value->type = get_sqlvaluetype_from_sqldatatype($datetime_type->v.data_type_struct.data_type, FALSE);
+	value->date_time_format_type = $datetime_type->v.data_type_struct.format;
+	ret->loc = yyloc;
 	$$ = ret;
     }
   ;

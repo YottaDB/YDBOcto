@@ -1,0 +1,166 @@
+OCTO> -- type:date format:
+create table TDTT006date (id integer, dob date );
+CREATE TABLE
+OCTO> insert into TDTT006date values(1,date'01-01-2023');
+INSERT 0 1
+OCTO> -- type:time format:
+create table TDTT006time (id integer, dob time );
+CREATE TABLE
+OCTO> insert into TDTT006time values(1,time'01:01:01');
+INSERT 0 1
+OCTO> -- type:time with time zone format:
+create table TDTT006timetz (id integer, dob time with time zone );
+CREATE TABLE
+OCTO> insert into TDTT006timetz values(1,time with time zone'01:01:01+05:00');
+INSERT 0 1
+OCTO> -- type:timestamp format:
+create table TDTT006timestamp (id integer, dob timestamp );
+CREATE TABLE
+OCTO> insert into TDTT006timestamp values(1,timestamp'01-01-2023 01:01:01');
+INSERT 0 1
+OCTO> -- type:timestamp with time zone format:
+create table TDTT006timestamptz (id integer, dob timestamp with time zone );
+CREATE TABLE
+OCTO> insert into TDTT006timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+INSERT 0 1
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type DATE
+LINE 26:1: select +date'01-01-2023';
+                   ^^^^^^^^^^^^^^^^
+OCTO> select +date'01-01-2023';
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type DATE
+LINE 27:1: select -date'01-01-2023';
+                   ^^^^^^^^^^^^^^^^
+OCTO> select -date'01-01-2023';
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: DATE type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 28:1: select NOT date'01-01-2023';
+                      ^^^^^^^^^^^^^^^^
+OCTO> select NOT date'01-01-2023';
+OCTO> select EXISTS(select date'01-01-2023');
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIME
+LINE 30:1: select +time'01:01:00';
+                   ^^^^^^^^^^^^^^
+OCTO> select +time'01:01:00';
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIME
+LINE 31:1: select -time'01:01:00';
+                   ^^^^^^^^^^^^^^
+OCTO> select -time'01:01:00';
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TIME type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 32:1: select NOT time'01:01:00';
+                      ^^^^^^^^^^^^^^
+OCTO> select NOT time'01:01:00';
+OCTO> select EXISTS(select time'01:01:00');
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP
+LINE 34:1: select +timestamp'01-01-2023 01:01:00';
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select +timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP
+LINE 35:1: select -timestamp'01-01-2023 01:01:00';
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select -timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TIMESTAMP type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 36:1: select NOT timestamp'01-01-2023 01:01:00';
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NOT timestamp'01-01-2023 01:01:00';
+OCTO> select EXISTS(select timestamp'01-01-2023 01:01:00');
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP WITH TIME ZONE
+LINE 38:1: select +timestamp with time zone'01-01-2023 01:01:00-05:00';
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select +timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP WITH TIME ZONE
+LINE 39:1: select -timestamp with time zone'01-01-2023 01:01:00-05:00';
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select -timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TIMESTAMP WITH TIME ZONE type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 40:1: select NOT timestamp with time zone'01-01-2023 01:01:00-05:00';
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> select NOT timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select EXISTS(select timestamp with time zone'01-01-2023 01:01:00-05:00');
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type DATE
+LINE 42:1: select +dob from TDTT006date n1;
+                   ^^^
+OCTO> select +dob from TDTT006date n1;
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type DATE
+LINE 43:1: select -dob from TDTT006date n1;
+                   ^^^
+OCTO> select -dob from TDTT006date n1;
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: DATE type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 44:1: select NOT dob from TDTT006date n1;
+                      ^^^
+OCTO> select NOT dob from TDTT006date n1;
+OCTO> select EXISTS(select dob from TDTT006date n1);
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIME
+LINE 46:1: select +dob from TDTT006time n1;
+                   ^^^
+OCTO> select +dob from TDTT006time n1;
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIME
+LINE 47:1: select -dob from TDTT006time n1;
+                   ^^^
+OCTO> select -dob from TDTT006time n1;
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TIME type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 48:1: select NOT dob from TDTT006time n1;
+                      ^^^
+OCTO> select NOT dob from TDTT006time n1;
+OCTO> select EXISTS(select dob from TDTT006time n1);
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP
+LINE 50:1: select +dob from TDTT006timestamp n1;
+                   ^^^
+OCTO> select +dob from TDTT006timestamp n1;
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP
+LINE 51:1: select -dob from TDTT006timestamp n1;
+                   ^^^
+OCTO> select -dob from TDTT006timestamp n1;
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TIMESTAMP type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 52:1: select NOT dob from TDTT006timestamp n1;
+                      ^^^
+OCTO> select NOT dob from TDTT006timestamp n1;
+OCTO> select EXISTS(select dob from TDTT006timestamp n1);
+EXISTS
+1
+(1 row)
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP WITH TIME ZONE
+LINE 54:1: select +dob from TDTT006timestamptz n1;
+                   ^^^
+OCTO> select +dob from TDTT006timestamptz n1;
+[ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP WITH TIME ZONE
+LINE 55:1: select -dob from TDTT006timestamptz n1;
+                   ^^^
+OCTO> select -dob from TDTT006timestamptz n1;
+[ERROR]: ERR_NOT_OPERATION_TYPE_MISMATCH: TIMESTAMP WITH TIME ZONE type operand is incorrect for NOT operation. Need a boolean operand.
+LINE 56:1: select NOT dob from TDTT006timestamptz n1;
+                      ^^^
+OCTO> select NOT dob from TDTT006timestamptz n1;
+OCTO> select EXISTS(select dob from TDTT006timestamptz n1);
+EXISTS
+1
+(1 row)
+OCTO> -- type:date format:
+drop table TDTT006date;
+DROP TABLE
+OCTO> -- type:time format:
+drop table TDTT006time;
+DROP TABLE
+OCTO> -- type:timestamp format:
+drop table TDTT006timestamp;
+DROP TABLE
+OCTO> -- type:timestamp with time zone format:
+drop table TDTT006timestamptz;
+DROP TABLE
+OCTO> 

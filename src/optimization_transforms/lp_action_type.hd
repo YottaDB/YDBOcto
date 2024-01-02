@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -133,6 +133,8 @@ LP_ACTION_TYPE(LP_BOOLEAN_ALL_LESS_THAN)
 LP_ACTION_TYPE(LP_BOOLEAN_ALL_GREATER_THAN)
 LP_ACTION_TYPE(LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS)
 LP_ACTION_TYPE(LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
+LP_ACTION_TYPE(LP_DATE_TIME_ADDITION)
+LP_ACTION_TYPE(LP_DATE_TIME_SUBTRACTION)
 LP_ACTION_TYPE(LP_BOOLEAN_LAST)	/* Marks the end of boolean operations. Any new boolean opcode should be added BEFORE this.
 				 * This is because there is code that does boolean checks on this (e.g. `LP_BOOLEAN_LAST > type`)
 				 * assuming this is the last of the boolean operations. Such checks will otherwise break.

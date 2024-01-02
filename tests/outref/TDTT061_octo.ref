@@ -1,0 +1,33 @@
+
+create table TDTT061 (id integer primary key, dob date);
+insert into TDTT061 values (2, (select '2023-12-31'));
+insert into TDTT061 values (3, '3231231'); -- This needs to fail
+select * from TDTT061;
+
+drop table TDTT061;
+create table TDTT061 (id integer primary key, dob date(fileman));
+insert into TDTT061 values (1, '3231231'); -- This needs insert a fileman date
+select * from TDTT061;
+OCTO> create table TDTT061 (id integer primary key, dob date);
+CREATE TABLE
+OCTO> insert into TDTT061 values (2, (select '2023-12-31'));
+INSERT 0 1
+OCTO> insert into TDTT061 values (3, '3231231');
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "3231231" is invalid for type DATE and format TEXT
+OCTO> -- This needs to fail
+select * from TDTT061;
+id|dob
+2|2023-12-31
+(1 row)
+OCTO> drop table TDTT061;
+DROP TABLE
+OCTO> create table TDTT061 (id integer primary key, dob date(fileman));
+CREATE TABLE
+OCTO> insert into TDTT061 values (1, '3231231');
+INSERT 0 1
+OCTO> -- This needs insert a fileman date
+select * from TDTT061;
+id|dob
+1|2023-12-31
+(1 row)
+OCTO> 

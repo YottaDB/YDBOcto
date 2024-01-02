@@ -46,6 +46,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 	switch (stmt->type) {
 	case value_STATEMENT:;
 		SqlValue *value;
+		char	 *date_time_format;
 
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch (value->type) {
@@ -98,6 +99,58 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 				break;
 			}
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s", boolean_string);
+			break;
+		case DATE_LITERAL:
+			if (OPTIONAL_DATE_TIME_TEXT == value->date_time_format_type) {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "DATE'%s'",
+									    value->v.string_literal);
+			} else {
+				GET_DATE_TIME_FORMAT_STRING_FROM_KEYWORD_TYPE(value->date_time_format_type, date_time_format)
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "DATE(%s)'%s'",
+									    date_time_format, value->v.string_literal);
+			}
+			break;
+		case TIME_LITERAL:
+			if (OPTIONAL_DATE_TIME_TEXT == value->date_time_format_type) {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "TIME'%s'",
+									    value->v.string_literal);
+			} else {
+				GET_DATE_TIME_FORMAT_STRING_FROM_KEYWORD_TYPE(value->date_time_format_type, date_time_format)
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "TIME(%s)'%s'",
+									    date_time_format, value->v.string_literal);
+			}
+			break;
+		case TIMESTAMP_LITERAL:
+			if (OPTIONAL_DATE_TIME_TEXT == value->date_time_format_type) {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "TIMESTAMP'%s'",
+									    value->v.string_literal);
+			} else {
+				GET_DATE_TIME_FORMAT_STRING_FROM_KEYWORD_TYPE(value->date_time_format_type, date_time_format)
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "TIMESTAMP(%s)'%s'",
+									    date_time_format, value->v.string_literal);
+			}
+			break;
+		case TIME_WITH_TIME_ZONE_LITERAL:
+			if (OPTIONAL_DATE_TIME_TEXT == value->date_time_format_type) {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr,
+									    "TIME WITH TIME ZONE'%s'", value->v.string_literal);
+			} else {
+				GET_DATE_TIME_FORMAT_STRING_FROM_KEYWORD_TYPE(value->date_time_format_type, date_time_format)
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr,
+									    "TIME(%s) WITH TIME ZONE'%s'", date_time_format,
+									    value->v.string_literal);
+			}
+			break;
+		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+			if (OPTIONAL_DATE_TIME_TEXT == value->date_time_format_type) {
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(
+				    buffer, buffer_size, buff_ptr, "TIMESTAMP WITH TIME ZONE'%s'", value->v.string_literal);
+			} else {
+				GET_DATE_TIME_FORMAT_STRING_FROM_KEYWORD_TYPE(value->date_time_format_type, date_time_format)
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr,
+									    "TIMESTAMP(%s) WITH TIME ZONE'%s'", date_time_format,
+									    value->v.string_literal);
+			}
 			break;
 		case BOOLEAN_OR_STRING_LITERAL:
 			/* All literals with this type that have not already been cast to a BOOLEAN_VALUE type

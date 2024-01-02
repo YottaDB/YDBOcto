@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,13 +33,13 @@ optional_query_words
       dqappend(keyword, ($$)->v.keyword);
     }
   | /* Empty */ {
-      $$ = alloc_no_keyword();
+      $$ = alloc_keyword_of_type(NO_KEYWORD);
     }
   ;
 
  optional_query_word_tail
   : /* Empty */ {
-      $$ = alloc_no_keyword();
+      $$ = alloc_keyword_of_type(NO_KEYWORD);
     }
   ;
 

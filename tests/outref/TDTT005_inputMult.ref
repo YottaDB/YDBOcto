@@ -1,0 +1,289 @@
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * 3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 10:1: select date'01-01-2023' * 'sample string';
+                                     ^^^^^^^^^^^^^^^
+OCTO> select date'01-01-2023' * 'sample string';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * 3.3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select date'01-01-2023' * NULL;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * 3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 22:1: select time'01:01:00' * 'sample string';
+                                   ^^^^^^^^^^^^^^^
+OCTO> select time'01:01:00' * 'sample string';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * 3.3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select time'01:01:00' * NULL;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * 3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 34:1: select timestamp'01-01-2023 01:01:00' * 'sample string';
+                                                   ^^^^^^^^^^^^^^^
+OCTO> select timestamp'01-01-2023 01:01:00' * 'sample string';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * 3.3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp'01-01-2023 01:01:00' * NULL;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * date'01-01-2023';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * time'01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * timestamp'01-01-2023 01:01:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * timestamp with time zone'01-01-2023 01:01:00-05:00';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * n1.dob from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * n1.dob from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * n1.dob from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * n1.dob from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * 3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 46:1: ...mp with time zone'01-01-2023 01:01:00-05:00' * 'sample string';
+                                                             ^^^^^^^^^^^^^^^
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * 'sample string';
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * 3.3;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' * NULL;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * date'01-01-2023' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * time'01:01:00' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005date n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005date n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005date n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005date n1, TDTT005timestamptz n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3 from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 58:1: select n1.dob * 'sample string' from TDTT005date n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob * 'sample string' from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3.3 from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * NULL from TDTT005date n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * date'01-01-2023' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * time'01:01:00' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp'01-01-2023 01:01:00' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005time n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005time n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005time n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005time n1, TDTT005timestamptz n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3 from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 70:1: select n1.dob * 'sample string' from TDTT005time n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob * 'sample string' from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3.3 from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * NULL from TDTT005time n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * date'01-01-2023' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * time'01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamp n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamp n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3 from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 82:1: select n1.dob * 'sample string' from TDTT005timestamp n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob * 'sample string' from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3.3 from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * NULL from TDTT005timestamp n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * date'01-01-2023' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * time'01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamptz n1, TDTT005date n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamptz n1, TDTT005time n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3 from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
+LINE 94:1: select n1.dob * 'sample string' from TDTT005timestamptz n1;
+                           ^^^^^^^^^^^^^^^
+OCTO> select n1.dob * 'sample string' from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * 3.3 from TDTT005timestamptz n1;
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+[ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Date/time arithmetic operations
+OCTO> select n1.dob * NULL from TDTT005timestamptz n1;
+OCTO> 

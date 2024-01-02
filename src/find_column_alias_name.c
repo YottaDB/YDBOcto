@@ -87,6 +87,16 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 					return string_literal("NUMERIC");
 				case STRING_TYPE:
 					return string_literal("VARCHAR");
+				case DATE_TYPE:
+					return string_literal("DATE");
+				case TIME_TYPE:
+					return string_literal("TIME");
+				case TIMESTAMP_TYPE:
+					return string_literal("TIMESTAMP");
+				case TIME_WITH_TIME_ZONE_TYPE:
+					return string_literal("TIMETZ");
+				case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+					return string_literal("TIMESTAMPTZ");
 				case NUL_TYPE:
 					assert(FALSE);
 				case UNKNOWN_SqlDataType:

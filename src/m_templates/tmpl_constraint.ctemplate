@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -260,6 +260,8 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 				 */
 				%{} DO {}%
 			}
+			// Ensure date/time values are converted to output format if the previous if condition is true and following
+			// CheckConstraintViolation is called
 			%{}CheckConstraintViolation^%%ydboctoplanhelpers({}%
 
 			/* Pass 1st parameter to CheckConstraintViolation^%ydboctoplanhelpers */
@@ -303,6 +305,26 @@ TEMPLATE(tmpl_constraint, PhysicalPlan *pplan, LogicalPlan *lp_constraint, SqlTa
 						 * usual. This is because this lvn is set only in the error code path
 						 * and not in the normal code path.
 						 */
+					}
+					if ((NULL != cur_column->columnName) && !cur_column->is_hidden_keycol) {
+						/* Set PP_COL_META_DATA. This will help `CheckConstraintViolation`
+						 * to convert date/time value to output format for the error message.
+						 */
+						if (IS_DATE_TIME_DATA_TYPE(cur_column->data_type_struct.data_type)) {
+							assert(0 < cur_column->column_number);
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							SqlValueType date_time_value_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
+							%{}SET {{ PP_COL_META_DATA }}({{ cur_column->column_number|%d }},1)={{ date_time_value_type|%d }}{}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_COL_META_DATA }}({{ cur_column->column_number|%d }},2)={{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }}{}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							const char *format_specifier;
+							GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_value_type, format_specifier);
+							%{}SET {{ PP_COL_META_DATA }}({{ cur_column->column_number|%d }},3)="{{ format_specifier }}"{}%
+						}
 					}
 					cur_column = cur_column->next;
 				} while (cur_column != start_column);

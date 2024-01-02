@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -242,6 +242,14 @@ ERR_CASE_VALUE_TYPE_MISMATCH
 
   Description/Action: This error is generated when there is a type mismatch between :code:`CASE value` and :code:`WHEN condition` type in :code:`CASE` statement. PSQL Error Code: 42804
 
++++++++++++++++++++++++++++++++++
+ERR_FORMAT_NOT_ALLOWED_WITH_CAST
++++++++++++++++++++++++++++++++++
+
+  Text: Date/time format cannot be specified for cast operation
+
+  Description/Action: This error is generated when :code:`fileman`, :code:`horolog`, :code:`zhorolog` or :code:`zut` is specificed as format in a cast operation (example: :code:`::date(fileman)`). This is not allowed. Make use of date/time conversion functions if such conversion is needed. Refer to `Functions <https://docs.yottadb.com/Octo/grammar.html#date-time-functions>` for the list of conversion functions available. Refer to `CAST operation <https://docs.yottadb.com/Octo/grammar.html#operations-and-allowed-operand-types>` for the list of valid cast operation available with date/time values. Refer to PSQL Error Code: 42846
+
 +++++++++++++++++++++++++++++++
 ERR_CHECK_CONSTRAINT_VIOLATION
 +++++++++++++++++++++++++++++++
@@ -305,6 +313,14 @@ ERR_DATABASE_FILES_OOS
   Text: Generated routines and database seem to be out of sync
 
   Description/Action: This error indicates that the generated routines and the database are not synchronized. PSQL Error Code: XX000
+
+++++++++++++++++++++++++++++++++++
+ERR_DATE_TIME_RESULT_OUT_OF_RANGE
+++++++++++++++++++++++++++++++++++
+
+  Text: Result of operation exceeds date/time allowed range of values
+
+  Description/Action: This error indicates that the date/time value result of an operation exceeds the allowed range. PSQL Error Code: 22008
 
 ++++++++++++++++++++++
 ERR_DDL_LITERAL
@@ -649,6 +665,30 @@ ERR_INVALID_CONSTRAINT_EXPRESSION
   Text: xxx expressions not accepted within CHECK constraints
 
   Description/Action: This error is issued when a user attempts to use an unacceptable expression in a :code:`CHECK` constraint. PSQL Error Code: 22P02
+
+++++++++++++++++++++++++++++
+ERR_INVALID_DATE_TIME_VALUE
+++++++++++++++++++++++++++++
+
+  Text: "xxx" is invalid for type xxx and format xxx
+
+  Description/Action: This error is issued when a date/time value is outside the range of valid values(`RANGE <https://docs.yottadb.com/Octo/grammar.html#range>`) or is syntactically incorrect for the given date/time type and format, or if value doesn't match the format specified in datestyle(`INPUT AND OUTPUT TEXT FORMAT VALUE <https://docs.yottadb.com/Octo/grammar.html#input-and-output-text-format-value>`), or when an in-exact fileman date is having either year as zero or when month is zero and day is non zero(`NOTE <https://docs.yottadb.com/Octo/grammar.html#note>`). PSQL Error Code: 22007
+
++++++++++++++++++++++++++++++++++++
+ERR_INVALID_DATE_TIME_TYPE_FORMAT
++++++++++++++++++++++++++++++++++++
+
+  Text: The given type and format is invalid
+
+  Description/Action: This error is issued when a time/time with time zone type is specified to have fileman format or when time/time with time zone/timestamp with time zone type is specified to have zut format. This is invalid. PSQL Error Code: 22007
+
+++++++++++++++++++++++++++++
+ERR_INVALID_DATESTYLE_VALUE
+++++++++++++++++++++++++++++
+
+  Text: DATESTYLE value "xxx" is invalid
+
+  Description/Action: This error is issued when the value given to set DATESTYLE is incorrect. See `INPUT AND OUTPUT TEXT FORMAT VALUE <https://docs.yottadb.com/Octo/grammar.html#input-and-output-text-format-value>` for more details. PSQL Error Code: 22023
 
 +++++++++++++++++++++++++++
 ERR_INVALID_ESCAPE_PATTERN

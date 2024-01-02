@@ -259,6 +259,8 @@ typedef enum BinaryOperations {
 	BOOLEAN_ALL_GREATER_THAN,
 	BOOLEAN_ALL_LESS_THAN_OR_EQUALS,
 	BOOLEAN_ALL_GREATER_THAN_OR_EQUALS,
+	DATE_TIME_ADDITION,
+	DATE_TIME_SUBTRACTION,
 } BinaryOperations;
 
 typedef enum SqlValueType {
@@ -289,6 +291,11 @@ typedef enum SqlValueType {
 				    * until it is expanded to the list of columns derived from the FROM/JOIN list of tables.
 				    * So most of the code after early parsing should expect to not see this at all.
 				    */
+	DATE_LITERAL,
+	TIME_LITERAL,
+	TIME_WITH_TIME_ZONE_LITERAL,
+	TIMESTAMP_LITERAL,
+	TIMESTAMP_WITH_TIME_ZONE_LITERAL,
 	INVALID_SqlValueType
 } SqlValueType;
 
@@ -298,7 +305,19 @@ typedef enum SqlValueType {
 #define SIZE_OR_PRECISION_UNSPECIFIED -1
 #define SCALE_UNSPECIFIED	      SIZE_OR_PRECISION_UNSPECIFIED
 
-typedef enum SqlDataType { UNKNOWN_SqlDataType, BOOLEAN_TYPE, INTEGER_TYPE, NUMERIC_TYPE, STRING_TYPE, NUL_TYPE } SqlDataType;
+typedef enum SqlDataType {
+	UNKNOWN_SqlDataType,
+	BOOLEAN_TYPE,
+	INTEGER_TYPE,
+	NUMERIC_TYPE,
+	STRING_TYPE,
+	NUL_TYPE,
+	DATE_TYPE,
+	TIME_TYPE,
+	TIME_WITH_TIME_ZONE_TYPE,
+	TIMESTAMP_TYPE,
+	TIMESTAMP_WITH_TIME_ZONE_TYPE
+} SqlDataType;
 
 /* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
  *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,OCTOLIT_BINARY,*) global nodes
@@ -339,6 +358,11 @@ typedef enum OptionalKeyword {
 	OPTIONAL_DEFAULT,
 	OPTIONAL_GENERATED_BY_DEFAULT_IDENTITY,
 	OPTIONAL_GENERATED_ALWAYS_IDENTITY,
+	OPTIONAL_DATE_TIME_HOROLOG,
+	OPTIONAL_DATE_TIME_ZHOROLOG,
+	OPTIONAL_DATE_TIME_FILEMAN,
+	OPTIONAL_DATE_TIME_ZUT,
+	OPTIONAL_DATE_TIME_TEXT,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -391,6 +415,11 @@ typedef enum {
 	PSQL_TypeOid_unknown = 705,
 	PSQL_TypeOid_varchar = 1043,
 	PSQL_TypeOid_numeric = 1700,
+	PSQL_TypeOid_date = 1082,
+	PSQL_TypeOid_time = 1083,
+	PSQL_TypeOid_timetz = 1266,
+	PSQL_TypeOid_timestamp = 1114,
+	PSQL_TypeOid_timestamptz = 1184,
 } PSQL_TypeOid;
 
 // Values for this enum are derived from the PostgreSQL catalog and
@@ -404,6 +433,11 @@ typedef enum {
 	PSQL_TypeSize_varchar = TYPLEN_VARLENA,
 	PSQL_TypeSize_bool = 1,
 	PSQL_TypeSize_int4 = 4,
+	PSQL_TypeSize_date = 4,
+	PSQL_TypeSize_time = 8,
+	PSQL_TypeSize_timetz = 12,
+	PSQL_TypeSize_timestamp = 8,
+	PSQL_TypeSize_timestamptz = 8,
 } PSQL_TypeSize;
 
 /* Source: https://www.postgresql.org/docs/current/protocol-message-formats.html
@@ -515,8 +549,9 @@ typedef struct SqlDataTypeStruct {
 	 *	a parameter as changes in the actual value of size/precision/scale needs to generate different plans.
 	 *	In those cases the below parameter index fields are initialized to 0.
 	 */
-	int size_or_precision_parameter_index;
-	int scale_parameter_index;
+	int		     size_or_precision_parameter_index;
+	int		     scale_parameter_index;
+	enum OptionalKeyword format; // Only used for Date and time type
 } SqlDataTypeStruct;
 
 /**
@@ -856,6 +891,7 @@ typedef struct SqlBinaryOperation {
 	enum BinaryOperations operation; // '+', '-', '*', '/'
 	struct SqlStatement  *operands[2];
 	group_by_fields_t     group_by_fields;
+	SqlValueType	      date_time_return_type; // Only used when the operation is date/time operation
 } SqlBinaryOperation;
 
 typedef struct SqlAggregateFunction {
@@ -927,6 +963,9 @@ typedef struct SqlParameterTypeList {
 
 typedef struct SqlValue {
 	enum SqlValueType type;
+	// Following field is used to represent the internal format of a date/time value
+	// Note date/time literals are still stored as a string
+	OptionalKeyword date_time_format_type;
 	union {
 		struct {
 			SqlDataTypeStruct coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */

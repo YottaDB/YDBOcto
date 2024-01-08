@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,10 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+
+# We have seen TC015 test failures in rare cases where an "expect" command "timed out" due to the default 10 second
+# timeout of the "expect" utility. Therefore, set the timeout to a bigger value at the start of the test.
+set timeout 60
 
 # Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
 spawn /bin/bash --noprofile

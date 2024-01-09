@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -276,4 +276,9 @@ teardown() {
   # Verify that history does have the first and second commands with a semi-colon substituted at the end of the
   # second command even though the user did not specify it.
   verify_output TR22-2 octo_history
+}
+
+@test "TR23 : OCTO1024 : Call-in programs (like Octo) which have their own readline history won't read YDB readline history" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR23.exp > expect.out) &> expect.dbg
+  verify_output TR23 expect.out noinfo nodebug noexpect stripreturns
 }

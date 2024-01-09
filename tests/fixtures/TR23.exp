@@ -1,0 +1,48 @@
+#!/usr/bin/env expect
+#################################################################
+#                                                               #
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.       #
+# All rights reserved.                                          #
+#                                                               #
+#	This source code contains the intellectual property         #
+#	of its copyright holder(s), and is made available           #
+#	under a license.  If you do not know the terms of           #
+#	the license, please stop and do not read further.           #
+#                                                               #
+#################################################################
+
+puts "# Call-in programs (like Octo) which have their own readline history won't read YDB readline history\n"
+
+# Save YottaDB history in the current directory
+set ::env(HOME) $::env(PWD)
+set ::env(ydb_readline) true
+
+puts "spawning yottadb..."
+spawn -noecho $::env(ydb_dist)/yottadb -dir
+expect "YDB>"
+    send "W 1,!\r"
+    expect "YDB>"
+    send "W 2,!\r"
+    expect "YDB>"
+    send "W 3,!\r"
+    expect "YDB>"
+send "HALT\r"
+expect eof
+puts "...yottadb halted\n"
+
+puts "dumping yottadb history..."
+spawn -noecho /usr/bin/cat .ydb_YottaDB_history
+expect eof
+
+puts "spawning octo..."
+spawn -noecho octo
+expect "OCTO>"
+# \s command should display empty history
+    send "\\s\r"
+send "exit\r"
+expect eof
+puts "...octo exited"
+
+puts "dumping octo history..."
+spawn -noecho /usr/bin/cat octo_history
+expect eof

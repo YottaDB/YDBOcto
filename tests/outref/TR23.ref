@@ -1,0 +1,28 @@
+# Call-in programs (like Octo) which have their own readline history won't read YDB readline history
+
+spawning yottadb...
+
+YDB>W 1,!
+1
+
+YDB>W 2,!
+2
+
+YDB>W 3,!
+3
+
+YDB>HALT
+...yottadb halted
+
+dumping yottadb history...
+W 1,!
+W 2,!
+W 3,!
+HALT
+spawning octo...
+OCTO> \s
+OCTO> exit
+...octo exited
+dumping octo history...
+\s
+exit;

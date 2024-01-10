@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,6 +22,7 @@ setup() {
 
 teardown() {
 	stop_rocto
+	corecheck
 }
 
 @test "TCV047: Verify that 'INFO_VIEW_DOES_NOT_EXIST' is seen with a 'DROP VIEW IF EXISTS' when the view doesn't exist" {

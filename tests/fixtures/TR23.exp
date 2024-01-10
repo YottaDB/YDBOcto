@@ -38,7 +38,8 @@ puts "spawning octo..."
 spawn -noecho octo
 expect "OCTO>"
 # \s command should display empty history
-    send "\\s\r"
+send "\\s\r"
+expect "OCTO>"
 send "exit\r"
 expect eof
 puts "...octo exited"

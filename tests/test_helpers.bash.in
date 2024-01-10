@@ -467,24 +467,36 @@ start_rocto() {
 
 wait_for_rocto_server_pids_to_die() {
 	listener_pid=$(cat rocto.pid)
+	echo " `date -Ins` : listener PID [$listener_pid]" >> wait_for_rocto_server_pids_to_die.out
 	# Wait for rocto servers (i.e. children of the listener) to die
 	# The grep is to filter out non-rocto processes that can start with ASAN
 	# With clang, we found that llvm-symbolizer starts as a child process of rocto and won't die on its own
 	ps --no-headers --ppid $listener_pid | grep rocto | awk '{print $1}' | while read server_pid; do
 		# Wait for rocto server process to actually die
+		echo " `date -Ins` : Waiting for server PID [$server_pid] to die" >> wait_for_rocto_server_pids_to_die.out
 		tail --pid=$server_pid -f /dev/null
 	done
+	echo " `date -Ins` : Server PIDs wait : DONE" >> wait_for_rocto_server_pids_to_die.out
 }
 
 stop_rocto() {
 	# Wait for rocto listener to die
 	if [[ -e rocto.pid ]]; then
 		listener_pid=$(cat rocto.pid)
+		echo "# Output of [ps -f -p $listener_pid] follows" >> wait_for_rocto_server_pids_to_die.out
+		# Note that it is possible in some cases the listener pid is not alive (some test might explicitly kill it etc.).
+		# Therefore, avoid a bats test failure from the ps command below by adding a "|| true" at the end.
+		ps -f -p $listener_pid >> wait_for_rocto_server_pids_to_die.out || true
+		echo "# Output of [ps -f --ppid $listener_pid] follows" >> wait_for_rocto_server_pids_to_die.out
+		# Add " || true" for same reason as previous "ps -f"
+		ps -f --ppid $listener_pid >> wait_for_rocto_server_pids_to_die.out || true
 		# Signal listener rocto process to die
 		$ydb_dist/mupip stop $listener_pid
 		wait_for_rocto_server_pids_to_die
 		# Wait for listener rocto process to actually die
+		echo " `date -Ins` : Waiting for listener PID [$listener_pid] to die" >> wait_for_rocto_server_pids_to_die.out
 		tail --pid=$listener_pid -f /dev/null
+		echo " `date -Ins` : Listener PID wait : DONE" >> wait_for_rocto_server_pids_to_die.out
 		# Release port number held by rocto (stored in the file "rocto.port")
 		local lockfile=@TEST_OUTPUT_DIR@/find_open_port
 		local test_port=`cat rocto.port`

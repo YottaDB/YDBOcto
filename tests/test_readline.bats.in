@@ -279,6 +279,13 @@ teardown() {
 }
 
 @test "TR23 : OCTO1024 : Call-in programs (like Octo) which have their own readline history won't read YDB readline history" {
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR23.exp > expect.out) &> expect.dbg
-  verify_output TR23 expect.out noinfo nodebug noexpect stripreturns
+	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
+	if  [ "$ydb_version" \< "r1.39" ] ; then
+		# r1.38 and older releases do not have YottaDB/DB/YDB#88 changes and so will not honor "ydb_readline" env var
+		# which is relied upon in this test (to generate the "$HOME/.ydb_YottaDB_history" file). Therefore skip this
+		# subtest for r1.38 (possible for example in the "release-ubuntu" pipeline job) and older releases.
+		skip "Skip TR23 subtest for r1.38 and older releases as it does not have YottaDB/DB/YDB#88 (aka readline) changes"
+	fi
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR23.exp > expect.out) &> expect.dbg
+	verify_output TR23 expect.out noinfo nodebug noexpect stripreturns
 }

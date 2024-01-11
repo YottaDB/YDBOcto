@@ -1,0 +1,276 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+	# Stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
+	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
+	# Also, note that `stop_rocto` checks for the `rocto.pid` file created by `start_rocto` and only attempts to stop
+	# rocto if it finds this file. Hence, it is safe to call `stop_rocto` even if `start_rocto` was not run.
+	stop_rocto
+	corecheck
+}
+
+@test "TC055 : OCTO583 : Validate IDENTITY constraint on columns" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1400 -aw) # --read write and --allow schema changes required for this test
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC055.sql "trim_trailing_zeroes"
+	load_fixture TC055_errors.sql subtest novv
+	verify_output TC055_errors output.txt
+}
+
+@test "TC056 : OCTO583 : Validate that constraint failure rolls back auto-increment value to what it was prior to the query which caused the failure" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TC056.sql subtest novv
+	verify_output TC056 output.txt
+}
+
+@test "TC057 : OCTO583 : Validate that text table definition has IDENTITY in the column specification" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TC057.sql subtest
+	verify_output TC057 output.txt
+}
+
+@test "TC058 : OCTO519 : Case-sensitivity of double-quoted table names is preserved in constraint names" {
+	load_fixture TC058_drop.sql subtest novv
+	load_fixture TC058.sql subtest novv
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("T","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("t","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp2","text",0),!' >> recreate.sql
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp3","text",0),!' >> recreate.sql
+	load_fixture TC058_drop.sql subtest novv
+	octo -f recreate.sql 2>&1 | tee -a output.txt
+	verify_output TC058 output.txt
+}
+
+@test "TC059 : OCTO519 : Double-quoted strings are treated as case sensitive identifiers in CREATE/DROP TABLE statements" {
+	load_fixture TC059.sql subtest novv
+	verify_output TC059 output.txt
+}
+
+@test "TC060 : OCTO519 : Column names differing only in case yield correct constraint names" {
+	load_fixture TC060.sql subtest novv
+	$ydb_dist/yottadb -run %XCMD write '^%ydboctoschema("tmp","text",0),!' >> recreate.sql
+	load_fixture TC060_drop.sql subtest novv
+	octo -f recreate.sql 2>&1 | tee -a output.txt
+	verify_output TC060 output.txt
+}
+
+@test "TC061 : OCTO633 : EXTRACT accepts non-key columns" {
+	load_fixture names.zwr
+	load_fixture TC061.zwr
+	load_fixture TC061.sql subtest novv
+	verify_output TC061 output.txt
+}
+
+@test "TC062 : OCTO633 : EXTRACT doesn't parse names of global variables as key or value specifications" {
+	load_fixture TC062.sql subtest novv
+	verify_output TC062 output.txt
+}
+
+@test "TC063 : OCTO633 : EXTRACT accepts SQL function calls" {
+	load_fixture names.zwr
+	load_fixture TC063.sql subtest novv
+	verify_output TC063 output.txt
+}
+
+@test "TC064 : OCTO633 : Correct text table definitions are generated for DDLs with EXTRACT column and > 2 non-key columns" {
+	load_fixture names.zwr
+	load_fixture TC061.zwr
+	load_fixture TC064a.sql subtest novv
+
+	$ydb_dist/yottadb -r WRITESCHEMA delimnamescol
+	$ydb_dist/yottadb -r WRITESCHEMA delimnamescol &> schema.txt
+	load_fixture TC064b.sql subtest novv
+	octo -f schema.txt 2>&1 | tee -a output.txt
+	$ydb_dist/yottadb -r WRITESCHEMA delimnamescol >> schema.txt
+	load_fixture TC064c.sql subtest novv
+	cat schema.txt >> output.txt
+	verify_output TC064 output.txt
+}
+
+@test "TC065 : OCTO633 : String literals in EXTRACT SQL function calls can contain only a double-quote character" {
+	load_fixture names.zwr
+	load_fixture TC065.sql subtest novv
+	verify_output TC065 output.txt
+}
+
+@test "TC066 : OCTO633 : EXTRACT containing values() expression works when there are single or multiple key columns" {
+	$ydb_dist/yottadb -run %XCMD 'kill ^x for i=1:1:2 set ^x(i,i*5)=i*10'
+	$ydb_dist/yottadb -run %XCMD 'for i=1:1:2 set ^x(i)=i'
+	load_fixture TC066.sql subtest novv
+	verify_output TC066 output.txt
+}
+
+@test "TC067 : OCTO633 : Circular dependencies in/across EXTRACT columns is prohibited" {
+	load_fixture TC067.sql subtest novv
+	verify_output TC067 output.txt
+}
+
+@test "TC068 : OCTO633 : EXTRACT containing values() works after manual addition of rows to table" {
+	load_fixture TC068.sql subtest novv
+	load_fixture TC068b.sql subtest novv
+	$ydb_dist/yottadb -run %XCMD 'kill ^x for i=1:1:2 set ^x(i,i*5)=i*10'
+	load_fixture TC068c.sql subtest novv
+	verify_output TC068 output.txt
+}
+
+@test "TC069 : OCTO633 : Double-quotes accepted in EXTRACT function arguments" {
+	load_fixture TC069.sql subtest novv
+	verify_output TC069 output.txt
+}
+
+@test "TC070 : OCTO583 : Validate that identity columns have NOT NULL constraint implicitly" {
+	load_fixture TC070.sql subtest novv
+	verify_output TC070 output.txt
+}
+
+@test "TC071 : OCTO583 : Identity columns in a readonly table is disallowed" {
+	echo 'tabletype = "READONLY"' > octo.conf
+	load_fixture TC071.sql subtest novv
+	verify_output TC071 output.txt
+}
+
+@test "TC072 : OCTO519 : Test x.y column name syntax" {
+	load_fixture names.zwr
+	load_fixture TC072.sql subtest novv
+	verify_output TC072 output.txt
+}
+
+@test "TC073 : OCTO940 : Check auto load doesn't result in SIG-11 when there is a dependency from non octo-seed table to octo-seed function" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC073_before_load.sql subtest novv
+	verify_output TC073_before_load output.txt
+	mv output.txt TC073_before_load_output.txt
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Avoid polluting reference file with octo-seed.sql auto load output
+	octo < /dev/null
+	mv octo.conf octo_seed.conf
+	load_fixture TC073_after_load.sql subtest novv
+	verify_output TC073_after_load output.txt
+	mv output.txt TC073_after_load_output.txt
+	# Queries in the following file results in SIG-11 without #940 fix
+	load_fixture TC073_after_load_2.sql subtest novv
+	verify_output TC073_after_load_2 output.txt
+}
+
+@test "TC074 : OCTO940 : Check table dependency doesn't get deleted after a auto-load of octo-seed" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC074_before_load.sql subtest novv
+	verify_output TC074_before_load output.txt
+	mv output.txt TC074_before_load_output.txt
+	rm _ydbocto*.m
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Before #940 fix, the DROP FUNCTION in the below TC074_after_load.sql would have dropped the function instead
+	# of giving an error saying a table depends on it.
+	# This was because octo-seed auto load did a drop of that function and this deleted all relation gvns.
+	# This is not expected. After #940 fix the relation gvns are retained and thus the DROP FUNCTION
+	# in TC074_after_load.sql outputs an error as expected.
+	# Avoid polluting reference file with octo-seed.sql auto load output
+	octo < /dev/null
+	mv octo.conf octo_seed.conf
+	load_fixture TC074_after_load.sql subtest novv
+	verify_output TC074_after_load output.txt
+}
+
+@test "TC075 : OCTO918 : Check EXTRACT and GLOBAL keyword for valid column references at CREATE TABLE time" {
+	load_fixture TC075_errors.sql subtest novv
+	verify_output TC075_errors output.txt
+}
+
+@test "TC076 : OCTO685 : Check error issued if column is computed (EXTRACT) and key column (KEY NUM) at same time" {
+	load_fixture TC076_errors.sql subtest novv
+	verify_output TC076_errors output.txt
+}
+
+@test "TC077 : OCTO913 : Test old_input_line_begin maintenance in readline_get_more.c (used to asert fail)" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# This test used to previously assert fail in the second "load_fixture" call below as follows.
+	#	octo: src/readline_get_more.c:73: readline_get_more: Assertion `old_input_line_begin >= input_buffer_combined' failed.
+	#	%YDB-F-KILLBYSIGSINFO1, YottaDB process 93300 has been killed by a signal 6 at address 0x00007F5CC3C8BA7C (vaddr 0x000000E400016C74)
+	echo 'seedreload = "TRUE"' > octo.conf
+	load_fixture vista-mini.sql || true
+	load_fixture vista-mini.sql || true
+}
+
+@test "TC078 : OCTO977 : Test that a higher binary definition to lower binary definition upgrade refuses Octo startup" {
+	load_fixture names.sql # Adds ^ydboctoocto("binfmt") based on current value of FMT_BINARY_DEFINITION
+	yottadb -run %XCMD 'set ^%ydboctoocto("binfmt")=^%ydboctoocto("binfmt")+1'
+	octo < /dev/null >> output.txt 2>&1 || true
+	verify_output TC078 output.txt
+}
+
+@test "TC079 : OCTO993 : Check auto load works fine when table and column names start with `_`" {
+	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	load_fixture names.zwr
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC079_before_load.sql subtest novv
+	verify_output TC079_before_load output.txt
+	mv output.txt TC079_before_load_output.txt
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Check if auto load created the tables again
+	octo -vvv < /dev/null >> seed_reload_log.txt 2>&1
+	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_test1`' seed_reload_log.txt) -eq 1 ]]
+	[[ $(grep -c 'INFO_PARSING_DONE: Parsing done for SQL command \[CREATE TABLE `_test2`' seed_reload_log.txt) -eq 1 ]]
+	mv octo.conf octo_seed.conf
+	# Check if select on the reloaded tables work fine
+	load_fixture TC079_after_load.sql subtest novv
+	verify_output TC079_after_load output.txt
+	mv output.txt TC079_after_load_output.txt
+}
+
+@test "TC080 : OCTO929 : Test that repeated auto upgrade runs work fine with user defined tables" {
+	export octo_dbg_drop_cache_expected=1	# needed to let Octo know that DROP TABLE commands run in this test
+						# as part of the auto upgrade (or else asserts fail).
+	echo "# Create a user-defined table (by loading names.sql)" >> output.txt
+	load_fixture names.sql
+	echo '# Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)' >> output.txt
+	yottadb -run %XCMD 'set ^%ydboctoocto("seeddfnfmt")=6'
+	echo "# Start octo which will automatically run auto upgrade due to previous step" >> output.txt
+	echo "# We expect no errors in this step" >> output.txt
+	echo "# This step used to previously issue an ERR_DUPLICATE_PRIMARY_KEY_CONSTRAINT error" >> output.txt
+	echo "" | octo
+	echo "# Also verify that tables/function that were added to octo-seed.sql after YDBOcto#929 (23b2d60c) are still there" >> output.txt
+	load_fixture TC080.sql subtest novv
+	verify_output TC080 output.txt noinfo nodebug
+}
+

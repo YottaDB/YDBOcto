@@ -1,0 +1,320 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+	# Stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
+	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
+	# Also, note that `stop_rocto` checks for the `rocto.pid` file created by `start_rocto` and only attempts to stop
+	# rocto if it finds this file. Hence, it is safe to call `stop_rocto` even if `start_rocto` was not run.
+	stop_rocto
+	corecheck
+}
+
+@test "TC001 : create a table so large it can't fit in the buffer" {
+  # Generate a file with the mapping
+  cat <<OCTO > table1.sql
+CREATE TABLE table1 (
+  id INTEGER PRIMARY KEY
+  $(for i in $(seq 1 2000); do echo ", column$i VARCHAR"; done)
+);
+OCTO
+  # Load the table schema into octo
+  octo -f table1.sql >& output.txt
+  # Verify that the table created above exists by doing a SELECT (will return no rows since it does not have data).
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * from table1;
+OCTO
+  verify_output TC001 output.txt noinfo nodebug
+}
+
+@test "TC001A : create table with key in extract" {
+  load_fixture names.zwr
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE TABLE namesE(
+  id INTEGER PRIMARY KEY,
+  firstName VARCHAR EXTRACT "^names(keys(""id""))",
+  lastName VARCHAR
+) GLOBAL "^names(keys(""id""))";
+OCTO
+  run octo <<OCTO
+SELECT * FROM namesE;
+OCTO
+  [ "$status" -eq 0 ]
+}
+
+@test "TC001B : create multiple tables in sequence" {
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY);
+CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY);
+OCTO
+  [ "$?" -eq 0 ]
+}
+
+@test "TC002 : create a table which has no keys" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table names4 (id int, First char(20), Last char(30));
+OCTO
+  load_fixture names4.zwr
+  verify_output TC002 output.txt noinfo nodebug
+}
+
+@test "TC003 : create a table which has no keys and select from it later" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table names4 (id int, First char(20), Last char(30)) READONLY GLOBAL "^%ydboctoDRjvo6GxnmC6en4dT5J9vL3";
+OCTO
+  load_fixture names4.zwr
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names4;
+OCTO
+  verify_output TC003 output.txt noinfo nodebug
+}
+
+@test "TC004 : recreate a cached table and check that the cached version is deleted" {
+	# create a row that will change when more columns are added
+	yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
+	load_fixture TC004.sql subtest novv
+	verify_output TC004 output.txt noinfo nodebug
+}
+
+@test "TC005 : create a table with duplicate primary keys then select from it" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int primary key, b int primary key);
+select * from t1;
+OCTO
+  verify_output TC005 output.txt noinfo nodebug
+}
+
+@test "TC006 : create a table with duplicate key nums then select from it" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int primary key, b int key num 1, c int key num 1);
+select * from t1;
+OCTO
+  verify_output TC006 output.txt noinfo nodebug
+}
+
+@test "TC007 : create a table with gaps in key nums then select from it" {
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int key num 10, b int key num 5, c int key num 7);
+select * from t1;
+OCTO
+  verify_output TC007 output.txt noinfo nodebug
+}
+
+@test "TC008 : create a table with an INTEGER and NUMERIC columns with decimals and integers stored in both" {
+	yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1.1|2|3"'
+	octo <<OCTO 2>&1 | tee output.txt
+	create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2) global "^T1(keys(""a""),keys(""d""),keys(""f""))";
+	select * from t1;
+	drop table t1;
+OCTO
+	verify_output TC008 output.txt
+}
+
+@test "TC009 : create a table with INTEGER and NUMERIC column types with strings stored in both" {
+	yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="world"'
+	octo <<OCTO 2>&1 | tee output.txt
+	create table t1(a int primary key, b numeric) global "^T1(keys(""a""))";
+	select * from t1;
+	drop table t1;
+OCTO
+	verify_output TC009 output.txt
+}
+
+@test "TC010 : OCTO381 : Allow DATE and TIME types to be specified in the Octo DDL but treated as strings internally" {
+	yottadb -run TC010	# load ^datetime global
+	load_fixture TC010.sql subtest novv
+	# Do not use `verify_output` here as we do not want DATE/TIME substitutions to happen
+	# but want to see the actual date/time strings from the ^datetime global displayed in the reference file.
+	# That said, there are a few date/time usages that will show up in error message that we want taken out as they
+	# correspond to non-deterministic output.
+	cp output.txt clean_output.txt
+	sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/DATE TIME/g' clean_output.txt
+	filter_file_path
+	# Strip config file loading message as it is irrelevant to the behavior under test and can cause failures depending on
+	# installation configuration
+	sed -i '/Loading config from/d' clean_output.txt
+	diff @PROJECT_SOURCE_DIR@/tests/outref/TC010.ref clean_output.txt
+}
+
+@test "TC011 : OCTO411 : Add support for INTEGER precision specification to parser for CREATE TABLE statements" {
+  load_fixture names.zwr
+  load_fixture TC011.sql subtest novv
+  verify_output TC011 output.txt
+}
+
+@test "TC012 : OCTO484 : PIECE numbers of non-primary-key columns specified in CREATE TABLE should start at 1 by default" {
+  yottadb -dir << "END" 2>&1 | tee ydbsets.txt
+set prefix="^%ydboctoD"
+set @(prefix_$zysuffix("simple0"))@(1)=""
+set @(prefix_$zysuffix("simple1"))@(1)="First"
+set @(prefix_$zysuffix("simple2"))@(1)="First|Last"
+END
+  load_fixture TC012.sql subtest novv
+  verify_output TC012 output.txt
+}
+
+@test "TC013 : OCTO439 : CREATE TABLE and SELECT can run concurrently without errors/assertions" {
+  # This subtest no longer works because CREATE TABLE of an already existing table issues a ERR_CANNOT_CREATE_TABLE error
+  # as part of OCTO669 changes. To fix that, we can do a DROP TABLE before the CREATE TABLE but that creates a small window
+  # when the table does not exist (in between the DROP TABLE and CREATE TABLE commands) and if a concurrently running
+  # SELECT references this table then it will issue an error. If we support transactions (i.e. BEGIN/END sql commands) then
+  # we can get this test to work as the DROP TABLE and CREATE TABLE can be enclosed within a BEGIN/END transaction. Until
+  # then, we have to skip this test.
+  skip		# TODO : YDBOcto#610 : Remove this line once BEGIN/END are supported.
+  export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
+  echo "# Populate ^lotsofcols globals and create ddl.sql containing lots of CREATE TABLE commands : yottadb -run init^TC013" > output.txt
+  yottadb -run init^TC013
+  echo "# Create LOTSOFCOLS table before starting concurrency test : octo -f ddl.sql" >> output.txt
+  octo -f ddl.sql >& octo_ddl.out
+  echo "# Run CREATE TABLE and SELECT commands concurrently : yottadb -run job^TC013" >> output.txt
+  try=1
+  while [ $try -le 10 ];
+  do
+	yottadb -run job^TC013 >> output.txt
+	# We have seen that one or more of the 8 jobs occasionally produce the following error.
+	#	[ERROR] /builds/YottaDB/DBMS/YDBOcto/src/run_query.c:443 2020-09-19 05:09:31 :
+	#		ERR_YOTTADB : YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out.
+	#		Another process with schema change rights, or a long-running query, is active.
+	# Retry the test in this case. The hope is that the retry will not encounter this.
+	# Fail the test if we don't see at least one successful try even after 10 retries.
+	numerrs=`cat *.mje* | wc -l`
+	if [[ $numerrs == 0 ]]; then
+		break
+	else
+		# Move files from this iteration to make way for the next iteration
+		mkdir round$try
+		mv *.mje* *.mjo* round$try
+		try=$[$try + 1]
+	fi
+  done
+  echo "# Verify that the .mjo files contain what we expect them to : yottadb -run verify^TC013" >> output.txt
+  yottadb -run verify^TC013 >> output.txt
+  echo "# Verify that the .mje files do not have any errors : cat *.mje*" >> output.txt
+  cat *.mje* >> output.txt
+  verify_output TC013 output.txt
+}
+
+@test "TC014 : Test that CREATE and DROP TABLE do NOT time out if another process is at the OCTO> prompt" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC014.exp > expect.out) &> expect.dbg
+  sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR|^OCTO>|123456' | grep -vE 'PS1|^OCTO> (|exit)$' > output.txt
+  verify_output TC014 output.txt
+}
+
+@test "TC015 : OCTO439 : Test that Octo/Rocto reload table from database after a concurrent CREATE or DROP TABLE" {
+  # READONLY config is needed as the test does a DROP TABLE and expects underlying M global ^names to not be deleted
+  echo 'tabletype = "READONLY"' > octo.conf
+  load_fixture names.sql
+  load_fixture names.zwr
+  export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC015.exp > expect.out) &> expect.dbg
+  # Remove <Ctrl-M> characters (carriage return, i.e. \r) from expect output.
+  sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E "^# |^\[ERROR|^[0-5]" | grep -v PS1 > output.txt
+  verify_output TC015 output.txt
+}
+
+@test "TC016 : OCTO483 : CREATE TABLE allows TAB characters in DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (TAB)
+	load_fixture TC016.zwr
+	load_fixture TC016.sql subtest novv
+	verify_output TC016 output.txt
+}
+
+@test "TC017 : OCTO483 : CREATE TABLE allows other non-printable characters in DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (carriage return)
+	load_fixture TC017.zwr
+	load_fixture TC017.sql subtest novv
+	verify_output TC017 output.txt
+}
+
+@test "TC018 : OCTO483 : CREATE TABLE works with regular characters as DELIM qualifier" {
+	# Load fixture with rows delimited by regular characters
+	load_fixture TC018U.zwr	# '_'-delimited
+	load_fixture TC018P.zwr # '|'-delimited
+	load_fixture TC018.sql subtest novv
+	verify_output TC018 output.txt
+}
+
+@test "TC019 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier" {
+	# Load fixture with rows delimited by multiple regular characters
+	load_fixture TC019.zwr
+	load_fixture TC019.sql subtest novv
+	verify_output TC019 output.txt
+}
+
+@test "TC020 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier, including non-printable characters" {
+	# Load fixture with rows delimited by multiple regular and non-printable characters
+	load_fixture TC020.zwr
+	load_fixture TC020.sql subtest novv
+	verify_output TC020 output.txt
+}
+
+@test "TC021 : OCTO483 : CREATE TABLE works with more characters in the DELIM qualifier than is initially allocated (8)" {
+	# Load fixture with rows delimited by multiple regular and non-printable characters
+	load_fixture TC021.zwr
+	load_fixture TC021.sql subtest novv
+	verify_output TC021 output.txt
+}
+
+@test "TC022 : OCTO320 : Octo converts empty column values based on type when NOT NULL is specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC022.sql "trim_trailing_zeroes"
+}
+
+@test "TC023 : OCTO320 : Octo treats empty column values as NULL when NOT NULL is not specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes"
+}
+
+@test "TC024 : OCTO320 : Rocto converts empty column values based on type when NOT NULL is specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	# No need for new fixture, just testing same functionality in Rocto
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC022.sql "trim_trailing_zeroes" "usejdbc"
+}
+
+@test "TC025 : OCTO320 : Rocto treats empty column values as NULL when NOT NULL is not specified in the DDL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	# No need for new fixture, just testing same functionality in Rocto
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes" "usejdbc"
+}
+
+@test "TC026 : OCTO527 : Correct handling ASCII null-byte when NOT NULL is not specified" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	$ydb_dist/yottadb -run %XCMD 'set ^names(6)="First|"_$char(0)'
+	load_fixture TC026.sql subtest novv
+	verify_output TC026 output.txt
+}
+
+@test "TC027 : OCTO527 : CREATE TABLE accepts user-defined NULL character and enforces correct precedence when used with NOT NULL" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	# Load fixture with user-defined NULL character in DDL and NOT NULL column
+	testname="TC027"
+	load_fixture nullcharnames.sql
+	load_fixture nullcharnames.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullcharnames $testname.sql
+}
+

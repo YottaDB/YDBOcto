@@ -1,0 +1,447 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+	# Stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
+	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
+	# Also, note that `stop_rocto` checks for the `rocto.pid` file created by `start_rocto` and only attempts to stop
+	# rocto if it finds this file. Hence, it is safe to call `stop_rocto` even if `start_rocto` was not run.
+	stop_rocto
+	corecheck
+}
+
+@test "TC029 : OCTO320 : Select a combination of populated and NULL/empty fields" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	run_java run_query $test_port TC029 useextended &> output.txt
+	verify_output TC029 output.txt
+}
+
+@test "TC030 : OCTO90 : Rerunning query after CREATE TABLE should recreate plans that relied on the recreated table" {
+	# READONLY config is needed as the test does a DROP TABLE and expects underlying M global to not be deleted
+	echo 'tabletype = "READONLY"' > octo.conf
+	echo "# Load customers DDL and ZWR data" > output.txt
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	echo "" >> output.txt
+
+	echo "# Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC030.sql .
+	octo -vv -f TC030.sql > run1.out 2>&1
+	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
+
+	echo "# Stage 2 : Run DROP TABLE ORDERS followed by CREATE TABLE of ORDERS" >> output.txt
+	echo "DROP TABLE orders;" > TC030b.sql
+	grep -i "CREATE TABLE orders" @PROJECT_SOURCE_DIR@/tests/fixtures/customers.sql >> TC030b.sql
+	octo -f TC030b.sql > run2.out 2>&1
+	cat run2.out >> output.txt
+	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
+
+	echo "# Stage 3 : Rerun 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
+	octo -vv -f TC030.sql > run3.out 2>&1
+	verify_plans_xrefs_gvns_triggers run3.out output.txt run3.ext
+
+	verify_output TC030 output.txt
+}
+
+@test "TC031 : OCTO587 : SIG-11 when executing a lot of CREATE TABLE queries" {
+	echo "# Run [yottadb -run TC031] to generate input.sql" > output.txt
+	$ydb_dist/yottadb -run TC031 > input.sql
+	echo "# Run [octo -f input.sql] and verify no SIG-11 etc." >> output.txt
+	# The above produces lots of 'CREATE TABLE' output. Don't want to keep that in the reference file so filter that out.
+	octo -f input.sql | grep -v 'CREATE TABLE' >> output.txt || true 2>&1
+	verify_output TC031 output.txt
+}
+
+@test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	testname="TC032"
+	load_fixture $testname.zwr
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$testname".sql
+	for queryfile in $(ls TC032-*.sql); do
+		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
+	done
+	echo -e "\n# Confirm piecevalue2colvalue call included in generated plan:\n" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output $testname output.txt
+}
+
+@test "TC033 : OCTO524 :  Maintain text based table definition of each column in sync with CREATE TABLE specification" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC033.sql .
+	echo "# Run [octo -f TC033.sql] to run lots of CREATE TABLE queries" > output.txt
+	octo -f TC033.sql >> output.txt 2>&1
+	echo "" >> output.txt
+	echo "# Run [mupip extract run.ext]" >> output.txt
+	$ydb_dist/mupip extract run.ext
+	echo "" >> output.txt
+	echo "# Verify text based table definition for all CREATE TABLE queries in TC033.sql" >> output.txt
+	grep -w "text" run.ext >> output.txt
+	verify_output TC033 output.txt
+}
+
+@test "TC034 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with piecevalue2colvalue" {
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	testname="TC034"
+	load_fixture $testname.zwr
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$testname".sql
+	for queryfile in $(ls $testname-*.sql); do
+		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
+	done
+	echo -e "\n# Confirm piecevalue2colvalue call included in generated plan:\n" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output $testname output.txt
+}
+
+@test "TC035 : OCTO483 : CREATE TABLE allows column-level DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (TAB)
+	testname="TC035"
+	load_fixture $testname.zwr
+	load_fixture $testname.sql subtest novv
+	verify_output $testname output.txt
+}
+
+@test "TC036 : OCTO90 : Simple tests of auto upgrade of binary table/function/plan definitions/artifacts" {
+	# The below fixture call results in the required Octo related env for this test. Note names table itself is irrelevant here.
+	load_fixture names.sql
+	echo "" > empty_query.sql
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_BINARY_DEFINITION is different between current commit and random prior commit," >> output.txt
+	echo '# the global node ^%ydboctoocto("binfmt")= gets set to the current FMT_BINARY_DEFINITION value' >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Run [mupip extract run1.ext]" >> output.txt
+	$ydb_dist/mupip extract run1.ext
+	echo '# Determine current binary definition format number (FMT_BINARY_DEFINITION) from run1.ext' >> output.txt
+	curbinfmt=`grep -w "binfmt" run1.ext | sed 's/.*="//;s/"//;'`
+	oldbinfmt=$[$curbinfmt - 1]
+	echo "# Simulate random prior commit by setting binary definition format number to a smaller value" >> output.txt
+	yottadb -run %XCMD "set ^%ydboctoocto(\"binfmt\")=$oldbinfmt"
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon1.log
+	echo "# Run [octo -f empty_query.sql] so auto upgrade of binary table/function definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff1.log
+	echo '# Verify that ^%ydboctoocto("binfmt") gets set to current FMT_BINARY_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext1.log
+	[[ $(grep "SET.*binfmt" octo.mjf | grep "=\"$curbinfmt\"" | wc -l) -eq 1 ]]
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_BINARY_DEFINITION is same between current commit and random prior commit," >> output.txt
+	echo "the global node ^%ydboctoocto(\"binfmt\")= is untouched and auto-upgrade is skipped." >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon2.log
+	echo "# Run [octo -f empty_query.sql] to verify no auto upgrade of binary table/function definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff2.log
+	echo '# Verify that ^%ydboctoocto("binfmt") gets set to current FMT_BINARY_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext2.log
+	[[ $(grep "SET.*binfmt" octo.mjf | wc -l) -eq 0 ]]
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_PLAN_DEFINITION is different between current commit and random prior commit," >> output.txt
+	echo "# 1) the global node ^%ydboctoocto(\"planfmt\")= gets set to the current FMT_PLAN_DEFINITION value AND" >> output.txt
+	echo "# 2) all plans/artifacts get deleted." >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Run [mupip extract run3.ext]" >> output.txt
+	$ydb_dist/mupip extract run3.ext
+	echo '# Determine current plan definition format number (FMT_PLAN_DEFINITION) from run3.ext' >> output.txt
+	curplanfmt=`grep -w "planfmt" run3.ext | sed 's/.*="//;s/"//;'`
+	oldplanfmt=$[$curplanfmt - 1]
+	echo "# Simulate random prior commit by setting plan definition format number to a smaller value" >> output.txt
+	yottadb -run %XCMD "set ^%ydboctoocto(\"planfmt\")=$oldplanfmt"
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon3.log
+	echo "# Run [octo -f empty_query.sql] so auto upgrade of plan definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff3.log
+	echo '# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext3.log
+	[[ $(grep "SET.*planfmt" octo.mjf | grep "=\"$curplanfmt\"" | wc -l) -eq 1 ]]
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_PLAN_DEFINITION is same between current commit and random prior commit," >> output.txt
+	echo "# the global node ^%ydboctoocto(\"planfmt\")= is untouched and auto-upgrade is skipped." >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon4.log
+	echo "# Run [octo -f empty_query.sql] to verify no auto upgrade of plan definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff4.log
+	echo '# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext4.log
+	[[ $(grep "SET.*planfmt" octo.mjf | wc -l) -eq 0 ]]
+}
+
+@test "TC037 : OCTO589 : DELIM "" at the column level invalidates any PIECE specified and fetches entire node" {
+	# This test requires READONLY config as it does a CREATE TABLE without using READONLY but using keywords that are not
+	# compatible with the default READWRITE.
+	echo 'tabletype = "READONLY"' > octo.conf
+	load_fixture names.zwr
+	$ydb_dist/yottadb -run %XCMD 'set ^names3(1)="first|1",^names3(2)="second|2"'	# needed for one query in TC037.sql
+	testname="TC037"
+	load_fixture $testname.sql subtest novv
+	mv output.txt $testname.log
+	grep '^-- ' $testname.sql > output.txt	# Capture high level purpose of test at start of reference file
+	cat $testname.log >> output.txt
+	echo '# Verify generated plans (including xref plans) do not have $PIECE for FIRSTNAME column' >> output.txt
+	grep -E '=$ZYSQLNULL|\$PIECE' _ydbocto*.m >> output.txt
+	echo '# Verify text table definition does not have PIECE specified for FIRSTNAME column' >> output.txt
+	$ydb_dist/mupip extract $testname.ext
+	grep -w "text" $testname.ext | grep -wE "names1|names2|names3" >> output.txt
+	verify_output $testname output.txt
+}
+
+@test "TC038 : OCTO626 : CREATE TABLE should issue error if more than one column with the same name is specified" {
+	load_fixture TC038.sql subtest novv
+	verify_output TC038 output.txt
+}
+
+@test "TC039 : OCTO590 : Confirm table text definitions are correctly broken up across multiple GVNs by attempting to load them" {
+	# This test cannot run with rocto in the background as enabling journaling requires standalone access. So stop it.
+	stop_rocto
+	echo "# Run [yottadb -run TC039] to generate input.sql" > output.txt
+	$ydb_dist/yottadb -run TC039 &> input.sql
+	echo "# Run [octo -f input.sql] and verify no SIG-11 etc." >> output.txt
+	octo -f input.sql >> output.txt 2>&1
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Validate that long DDL definitions are correctly fragmented and retrieved" >> output.txt
+	echo "# Do this by causing a difference in FMT_PLAN_DEFINITION to force retrieval after initial storage" >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Run [mupip extract run3.ext]" >> output.txt
+	$ydb_dist/mupip extract run3.ext
+	echo '# Determine current plan definition format number (FMT_PLAN_DEFINITION) from run3.ext' >> output.txt
+	curplanfmt=`grep -w "planfmt" run3.ext | sed 's/.*="//;s/"//;'`
+	oldplanfmt=$[$curplanfmt - 1]
+	echo "# Simulate random prior commit by setting plan definition format number to a smaller value" >> output.txt
+	yottadb -run %XCMD "set ^%ydboctoocto(\"planfmt\")=$oldplanfmt"
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon3.log
+	echo "# Run [octo -f empty_query.sql] so auto upgrade of plan definitions happens" >> output.txt
+	octo <<OCTO >> output.txt 2>&1
+	SELECT * FROM TC039;
+OCTO
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff3.log
+	echo '# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext3.log
+	[[ $(grep "SET.*planfmt" octo.mjf | grep "=\"$curplanfmt\"" | wc -l) -eq 1 ]]
+	verify_output TC039 output.txt
+}
+
+@test "TC040 : OCTO590 : Confirm enforcement of table name length limits during table creation and cleanup" {
+	load_fixture names.zwr
+	load_fixture TC040.sql subtest novv
+	verify_output TC040 output.txt
+}
+
+@test "TC041 : OCTO483 : Prohibit specification of more than 255 characters using DELIM, i.e. the max number of args for \$CHAR" {
+	echo "# Run [yottadb -run TC041] to generate input.sql with 256 characters" > output.txt
+	$ydb_dist/yottadb -run TC041 &> input-256char.sql
+	echo "# Run [octo -f input-256char.sql] and verify error message" >> output.txt
+	run_octo_allow_error input-256char.sql output.txt
+	cat input-256char.sql | sed 's/(1,/(/' &> input-255char.sql
+	echo "# Run [octo -f input-255char.sql] and verify no error message" >> output.txt
+	run_octo_allow_error input-255char.sql output.txt
+	verify_output TC041 output.txt
+}
+
+@test "TC042 : OCTO669 : Test of ERR_CANNOT_CREATE_TABLE error" {
+	load_fixture TC042.sql subtest novv
+	verify_output TC042 output.txt
+}
+
+@test "TC043 : OCTO439 : CREATE TABLE times out if concurrent SELECT query is long running" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture HANGTIME.sql	# Define HANGTIME as a function
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC043.exp > expect.out) &> expect.dbg
+	sed 's/\r//g;s/.*SHELL#/#/g;s/.*SHELL$/$/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR|^OCTO>|^CREATE' | grep -vE 'PS1|^OCTO> (|exit)$' > output.txt
+	verify_output TC043 output.txt
+}
+
+@test "TC044 : OCTO575 : Octo CREATE TABLE naively creates invalid GVNs from table names" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "# Create table with name that contains _ or . then run select on it and" > output.txt
+	echo "# verify that we don't get any errors." >> output.txt
+	load_fixture TC044.sql subtest novv
+	verify_output TC044 output.txt
+}
+
+@test "TC045 : OCTO502 : Various tests of READONLY and READWRITE keywords in CREATE TABLE" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC045.sql .
+	grep '^--' TC045.sql > output.txt
+	echo "# Verify text based table definition from database extract to see which keyword prevailed" >> output.txt
+	for setting in READONLY READWRITE UNSPECIFIED
+	do
+		echo "# ----------------------------------" >> output.txt
+		echo '# Test of [tabletype = "'$setting'"]' >> output.txt
+		echo "# ----------------------------------" >> output.txt
+		if [[ UNSPECIFIED == $setting ]]; then
+			confsetting=""
+		else
+			confsetting="tabletype = \"$setting\""
+		fi
+		echo $confsetting > octo.conf
+		sed 's/MYTBL/&'$setting'/g' TC045.sql > input_$setting.sql
+		octo -f input_$setting.sql >> output.txt 2>&1
+		$ydb_dist/mupip extract run$setting.ext
+		grep "ydboctoschema.*mytbl"$(echo -n $setting | tr '[:upper:]' '[:lower:]')".*text.*CREATE TABLE" run$setting.ext >> output.txt
+	done
+	verify_output TC045 output.txt
+}
+
+@test "TC046 : OCTO502 : Allow READWRITE table with column-level DELIM of \"\" if there is only 1 non-primary-key column" {
+	load_fixture TC046.sql subtest novv
+	verify_output TC046 output.txt
+}
+
+@test "TC047 : OCTO672 : GLOBAL keyword in CREATE TABLE command should accept just an unsubscripted global name" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TC047.sql subtest novv
+	echo '# Verify text table definition does not keys() inserted appropriately in the GLOBAL keyword' >> output.txt
+	$ydb_dist/mupip extract octo672.ext
+	grep -w "text" octo672.ext | grep "tmp" >> output.txt
+	verify_output TC047 output.txt
+}
+
+@test "TC048 : OCTO595 : Creation of multiple tables of the same name in sequence with IF NOT EXISTS is skipped with a info message" {
+	# Invoke octo to finish auto load of octo-seed.sql before "load_fixture ... subtest" invocation.
+	# This is to avoid verbose output of each query in "octo-seed.sql" (the "load_fixture" invocation is not
+	# done with "novv") which would otherwise pollute the reference file.
+	octo < /dev/null
+	load_fixture TC048.sql subtest v
+	echo "Exit Status:" $? | tee -a output.txt
+	# Check that we unlock properly
+	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "CREATE TABLE IF NOT EXISTS Customers (CustomerID INTEGER PRIMARY KEY);",!' > lock.sql
+	# The above produces lots of 'CREATE TABLE' output. Don't want to keep that in the reference file so filter that out.
+	octo -f lock.sql | grep -v 'CREATE TABLE' || true &>> output.txt # should not error.
+	verify_output TC048 output.txt
+}
+
+@test "TC049 : OCTO476 : ENDPOINT keyword, as a supplement to END" {
+	# This test inserts records with $CHAR(27) which is an escape sequence.
+	# On RHEL7 systems, verify_output() invokes escape_sequence_sanitize() which removes all escape sequences
+	# from the reference file. This will cause a test failure. But we know this escape sequence sanitization is
+	# not needed for this test so set the var accordingly. This will let us run this test on RHEL7 too.
+	skip_escape_sequence_sanitize=1
+
+	load_fixture vista-mini.zwr
+
+	echo 'Test ENDPOINT with a space' | tee -a output.txt
+	load_fixture TC049-1.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a $CHAR(0) (should be same as space)' | tee -a output.txt
+	load_fixture TC049-2.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Add a couple of records at $CHAR(27), and test with space again' | tee -a output.txt
+	yottadb -run %XCMD 'set ^ORD(100.01,$C(27),0)="ESC STATUS 1^esc1"'
+	yottadb -run %XCMD 'set ^ORD(100.01,$C(27)_"[PQ",0)="ESC STATUS 2^esc2"'
+	load_fixture TC049-1.sql subtest novv
+	yottadb -run %XCMD 'kill ^ORD(100.01,$C(27),0)'
+	yottadb -run %XCMD 'kill ^ORD(100.01,$C(27)_"[PQ",0)'
+
+	echo | tee -a output.txt
+	echo 'Add a couple of records at "A", and test ENDPOINT with a "A"' | tee -a output.txt
+	yottadb -run %XCMD 'set ^ORD(100.01,"A",0)="A STATUS^a"'
+	yottadb -run %XCMD 'set ^ORD(100.01,"ABC",0)="ABC STATUS^abc"'
+	load_fixture TC049-3.sql subtest novv
+	yottadb -run %XCMD 'kill ^ORD(100.01,"A",0)'
+	yottadb -run %XCMD 'kill ^ORD(100.01,"ABC",0)'
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a ""' | tee -a output.txt
+	load_fixture TC049-4.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test ENDPOINT with a 3' | tee -a output.txt
+	load_fixture TC049-5.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test END and ENDPOINT together; END overrides ENDPOINT' | tee -a output.txt
+	load_fixture TC049-6.sql subtest novv
+
+	echo | tee -a output.txt
+	echo 'Test END and ENDPOINT together; END never happens, ENDPOINT prevails' | tee -a output.txt
+	load_fixture TC049-7.sql subtest novv
+
+	verify_output TC049 output.txt
+}
+
+@test "TC050 : OCTO761 : DELIM \"\" with GLOBAL on a column crash with GVUNDEF error" {
+	echo '# Run query with extract fields that previously crashed' | tee -a output.txt
+	load_fixture TC050.zwr
+	load_fixture TC050-1.sql subtest novv
+
+	echo | tee -a output.txt
+	echo '# Verify that PIECE keyword is ignored if EXTRACT is specified' | tee -a output.txt
+	load_fixture TC050-2.sql subtest novv
+
+	verify_output TC050 output.txt
+}
+
+@test "TC051 : OCTO776 : INVSTRLEN in find_table.c when there are > 999,999 objects in Octo" {
+	# READONLY config is needed as the test does a DROP TABLE and expects underlying M global ^names to not be deleted
+	echo 'tabletype = "READONLY"' > octo.conf
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo '# Set OID counter to 999,999' | tee -a output.txt
+	yottadb -r %XCMD 'set ^%ydboctoocto("oid")=999999'
+
+	echo '# Increment subscript "pg_class" to above 999,999' | tee -a output.txt
+	echo "DROP TABLE IF EXISTS names;"          > TC051a.sql
+	echo "DROP TABLE IF EXISTS namesWithAges;" >> TC051a.sql
+	octo -f TC051a.sql                        &>> output.txt
+	load_fixture names.sql subtest novv
+	octo -f TC051a.sql                        &>> output.txt
+	load_fixture names.sql subtest novv
+
+	echo '# Verify Increment' | tee -a output.txt
+	yottadb -r %XCMD 'write ^%ydboctoschema("names","pg_class")' | tee -a output.txt
+	echo '# Run select query twice. The second one fails with assert without the fix.' | tee -a output.txt
+	echo 'SELECT * FROM names;'                 > TC051b.sql
+	echo 'SELECT * FROM names;'                >> TC051b.sql
+	octo -f TC051b.sql                        &>> output.txt
+	verify_output TC051 output.txt
+}
+
+@test "TC052 : OCTO837 : pg_enum and pg_range are minimally supported (empty)" {
+	load_fixture TC052.sql subtest novv
+	verify_output TC052 output.txt
+}
+
+@test "TC053 : OCTO863 : Parens in EXTRACT fields do not affect generated M code parens" {
+	load_fixture TC053.sql subtest novv
+	verify_output TC053 output.txt
+}
+
+@test "TC054 : OCTO931 : Test no assert failure in CREATE TABLE when multi-column UNIQUE constraint and READONLY is used" {
+	load_fixture TC054.sql subtest novv
+	verify_output TC054 output.txt
+}
+

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -85,7 +85,7 @@ DROP TABLE IF EXISTS test;
 -- DEFAULT set value for non-IDENTITY column in an UPDATE query is not implemented. Such usage should result in
 -- ERR_FEATURE_NOT_IMPLEMENTED error.
 -- Note:
--- * test_createtable.bats.in includes READONLY as table type in octo.conf. This results in the table `test` being considered as a READONLY
+-- * test_createtable3.bats.in includes READONLY as table type in octo.conf. This results in the table `test` being considered as a READONLY
 --   table. In this case, `UPDATE` that follows will lead to a `ERR_TABLE_READONLY` error and thats not what we are testing. Hence the use of
 --   READWRITE keyword to allow `UPDATE` usage on the table.
 create table test (id int, name text) READWRITE;

@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -979,8 +979,8 @@ else
 			# 5) By a similar reasoning as (4), the TJC004/TJC005/TJC006/TJC007 subtests in the
 			#    "test_jdbc_connection" test use the same query generator that the "TQG*" subtests use.
 			#    And so need to be skipped for the same conditions as TQG*.
-			# 6) By a similar reasoning, the TC027/TC033/TC034 subtests (in the "test_createtable" bats test) used
-			#    "NULLCHAR" previously and so have to be skipped.
+			# 6) By a similar reasoning, the TC027/TC033/TC034 subtests (in the "test_createtable1" and
+			#    "test_createtable2" bats tests) used "NULLCHAR" previously and so have to be skipped.
 			# 7) The "TLQ02" subtest runs a large query which require a lot of memory when rerun in the
 			#    test-auto-upgrade job (VmSize value in /proc/PID/status goes as high as 3.3GiB) and causes the
 			#    process to get "Killed" in the gitlab pipelines (likely the OOM killer kicks in) so skip this.

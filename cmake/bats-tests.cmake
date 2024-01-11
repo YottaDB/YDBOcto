@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -163,7 +163,9 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_errors)
 	ADD_BATS_TEST_DML(test_where)
 	ADD_BATS_TEST_DML(test_order_by)
-	ADD_BATS_TEST_DML(test_createtable)
+	ADD_BATS_TEST_DML(test_createtable1)
+	ADD_BATS_TEST_DML(test_createtable2)
+	ADD_BATS_TEST_DML(test_createtable3)
 	ADD_BATS_TEST_DML(test_create_function)
 	ADD_BATS_TEST_DML(test_create_view1_1)
 	ADD_BATS_TEST_DML(test_create_view1_2)

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -73,7 +73,7 @@ OCTO
 }
 
 @test "TDT04 : OCTO90 : DROP TABLE should delete db nodes for plans that relied on the dropped table" {
-	# Note this test is mostly the same as the "test_createtable/TC030" subtest.
+	# Note this test is mostly the same as the "test_createtable2/TC030" subtest.
 	# Change to one might need to be done in both places.
 	echo "# Load customers DDL" > output.txt
 	load_fixture customers.sql

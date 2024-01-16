@@ -1376,5 +1376,9 @@ corecheck() {
 		touch bats_test_"$subtest"_end_skipped.out
 	else
 		touch bats_test_"$subtest"_end_failed.out
+		# Now that we know this subtest failed, capture the "ps -ef" listing.
+		# This is to help analyze some pipeline failures where we see "fork: Cannot allocate memory" symptom
+		# and one likely reason could be the kernel running out of the max pid limit.
+		ps -ef --forest >& ps_ef_forest.txt
 	fi
 }

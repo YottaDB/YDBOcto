@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,7 +22,7 @@ teardown() {
   corecheck
 }
 
-@test "global in both table and column DDL" {
+@test "TOCTS01 : global in both table and column DDL" {
   octo <<OCTO >& output.txt
 CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^people(keys(""id""))")
 GLOBAL "^people(keys(""id""))";
@@ -30,7 +30,7 @@ SELECT * FROM abc;
 OCTO
 }
 
-@test "piece is actually applied to columns" {
+@test "TOCTS02 : piece is actually applied to columns" {
   # Fetch the last names from the names schema, which is stored in the 3rd piece
   octo <<OCTO >& output.txt
 CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR PIECE 3) GLOBAL "^names(keys(""id""))";

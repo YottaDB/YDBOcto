@@ -26,7 +26,10 @@ setup_bats_env() {
 	# Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
 	export COLUMNS=4096
 	# Create a a log of the test being run
-	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
+	subtest=$(echo $BATS_TEST_DESCRIPTION | sed 's/:.*//;s/ .*//;')
+	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test_"$subtest"_begin.out
+	# Keep bats_test.out as a soft link as it is used by tools/ci/build.sh and tools/ci/vistatest.sh
+	ln -s bats_test_"$subtest"_begin.out bats_test.out
 	if [ ! -x "$(which rpm)" ] || ! grep -q 'VERSION_ID="7' /etc/os-release; then
 		is_rhel7=false
 	else
@@ -1363,14 +1366,15 @@ run_query_in_two_emulations_and_crosscheck() {
 corecheck() {
 	# Check if any core files exist.
 	corefilelist=$(find . -name "core*")
+	subtest=$(echo $BATS_TEST_DESCRIPTION | sed 's/:.*//;s/ .*//;')
 	[[ -z $corefilelist ]]
 	# See https://github.com/bats-core/bats-core/issues/383#issuecomment-738628888
 	# for how the determination of a failure is done.
 	if [[ 1 == $BATS_TEST_COMPLETED ]]; then
-		touch bats_test.passed
+		touch bats_test_"$subtest"_end_passed.out
 	elif [[ "" != $BATS_TEST_SKIPPED ]]; then
-		touch bats_test.skipped
+		touch bats_test_"$subtest"_end_skipped.out
 	else
-		touch bats_test.failed
+		touch bats_test_"$subtest"_end_failed.out
 	fi
 }

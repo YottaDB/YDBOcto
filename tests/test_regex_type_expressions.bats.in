@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -40,7 +40,7 @@ teardown() {
   verify_output TRTE03_errors output.txt noinfo nodebug
 }
 
-@test "TRTE04a & TRTE04b : OCTO468 : LIKE, SIMLAR TO and ~ works with non string literal comparison" {
+@test "TRTE04 : TRTE04a & TRTE04b : OCTO468 : LIKE, SIMLAR TO and ~ works with non string literal comparison" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE04a.sql
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TRTE04b.sql
 }

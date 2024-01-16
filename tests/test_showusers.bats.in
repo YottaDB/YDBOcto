@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,13 +21,13 @@ teardown() {
   corecheck
 }
 
-@test "call %ydboctoAdmin show users with no users" {
+@test "TSU001 : call %ydboctoAdmin show users with no users" {
   yottadb -r %ydboctoAdmin show users >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "No YDBOcto users found." ]]
 }
 
-@test "call %ydboctoAdmin show users with one user" {
+@test "TSU002 : call %ydboctoAdmin show users with one user" {
   echo -en "tester\ntester" | yottadb -r %ydboctoAdmin add user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
@@ -37,7 +37,7 @@ teardown() {
   [[ "$log" =~ "jon" ]]
 }
 
-@test "call %ydboctoAdmin show users with three users" {
+@test "TSU003 : call %ydboctoAdmin show users with three users" {
   echo -en "tester\ntester" | yottadb -r %ydboctoAdmin add user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]

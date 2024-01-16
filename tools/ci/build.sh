@@ -663,8 +663,8 @@ PSQL
 	# which would then cause this script (that belongs to the latest commit) to incorrectly (and prematurely) "exit 1" below.
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
 		# Note down list of bats test directory names and corresponding subtest name in one file
-		cat ./*/bats_test.out > all_bats_test.out
-		ls -lart ./*/bats_test.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test.out files
+		cat ./*/bats_test_*.out > all_bats_test.out
+		ls -lart --full-time ./*/bats_test_*.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test_*.out files
 		grep '^ok' Testing/Temporary/LastTest.log > passed_bats_subtests.txt || true
 		grep '^not ok' Testing/Temporary/LastTest.log > failed_bats_subtests.txt || true
 		touch summary_bats_dirs.txt passed_bats_dirs.txt

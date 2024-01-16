@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -102,12 +102,14 @@ OCTO
 }
 
 @test "TPC00I : verify that dead procs don't become zombies" {
-  run_psql $test_port <<OCTO 2>&1 | tee output.txt
+    run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  # Sleep for a moment so rocto has time to clean the PID
-  sleep 1s
-  [[ $(ps -ef | awk '$3 == '`cat rocto.pid`' { print $0;}' | wc -l) -eq 0 ]]
+    # Verify that the dead rocto server process does not become a zombie (which it would if the rocto listener process
+    # did not do a waitpid() on the server pid) by waiting for the rocto server process to disappear from the ps -ef listing.
+    wait_for_rocto_server_pids_to_die
+    # Even though the above call does exactly the same thing, verify explicitly that the rocto server listener pid is gone.
+    [[ $(ps -ef | awk '$3 == '`cat rocto.pid`' { print $0;}' | wc -l) -eq 0 ]]
 }
 
 @test "TPC00J : ensure error message when YDB_TLS_AVAILABLE not set and ssl_on is set " {
@@ -225,7 +227,7 @@ OCTO
 \q
 OCTO
     # Confirm that the Termination was received and applied within rocto_main_loop
-    # But before that wait for the rocto server process (which is a child of the rocto listener process to terminate)
+    # But before that wait for the rocto server process (which is a child of the rocto listener process) to terminate
     wait_for_rocto_server_pids_to_die
     [[ "$(grep -c -E "rocto_main_loop.*connection closed cleanly" rocto.log)" == "1" ]]
     grep -Ev "SSLRequest|Loaded config|rocto started on port" rocto.log >> rocto.clean

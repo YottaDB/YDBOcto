@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -100,7 +100,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	// Convert raw md5 hash to hex string
 	result = md5_to_hex(hash_buf, md5_hex, MD5_HEX_LEN);
 	if (0 != result) {
-		FATAL(ERR_ROCTO_HASH_CONVERSION, "handle_password_message", "md5 hash", "hexidecimal string");
+		FATAL(ERR_ROCTO_HASH_CONVERSION, "handle_password_message", "md5 hash", "hexadecimal string");
 		return 1;
 	}
 	// Compare final hash of stored password against hash sent by client

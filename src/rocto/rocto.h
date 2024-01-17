@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -80,7 +80,7 @@
 #define TEXT_FORMAT   0
 #define BINARY_FORMAT 1
 
-/* Length required to store an MD5 hash digest as a hexidecimal string, including NULL terminator.
+/* Length required to store an MD5 hash digest as a hexadecimal string, including NULL terminator.
  * This value should be 33 = (16 * 2) + 1, per the MD5 specification which stipulates a digest length of 128 bits (16 bytes).
  */
 #define MD5_HEX_LEN ((MD5_DIGEST_LENGTH * 2) + 1)

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -998,6 +998,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 		if (UNKNOWN_SqlDataType != table_value->column_stmt->v.column->data_type_struct.data_type) {
 			*type = get_sqlvaluetype_from_sqldatatype(table_value->column_stmt->v.column->data_type_struct.data_type,
 								  FALSE);
+			assert(BOOLEAN_OR_STRING_LITERAL != *type);
 		} else {
 			/* For a table constructed using the VALUES clause, go through each value specified and determine
 			 * its type. Verify all rows have same type for each column.
@@ -1129,12 +1130,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				} while (column != start_column);
 				assert(colno == num_columns);
 				*type = type_array[0]; /* Return the type of the first column in the VALUES clause */
+				assert(BOOLEAN_OR_STRING_LITERAL != *type);
 			}
 			free(saw_boolean_or_string_literal_array);
 			free(type_array);
 			free(first_value);
 		}
-		assert(BOOLEAN_OR_STRING_LITERAL != *type);
 		break;
 	case table_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, v, table_alias);

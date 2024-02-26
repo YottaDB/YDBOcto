@@ -1147,6 +1147,18 @@ run_query_verify() {
 		# diff result is captured to stop_rocto before issuing a test fail
 		diff $fname.ref $fname.log >& $fname.diff || true
 		if [[ -s $fname.diff ]]; then
+			echo "#######################################"
+			echo "# [diff $fname.ref $fname.log] failed"
+			echo "#######################################"
+			echo "# [cat $fname.diff] output follows"
+			cat $fname.diff
+			echo "# [cat $fname.sql] output follows"
+			cat $fname.sql
+			echo "# [cat $fname.ref] output follows"
+			cat $fname.ref
+			echo "# [cat $fname.log] output follows"
+			cat $fname.log
+			echo "#######################################"
 			run_query_stop_rocto
 			exit 1
 		fi
@@ -1156,7 +1168,16 @@ run_query_verify() {
 		psqllines=$(wc -l $fname.ref | awk '{print $1}')
 		octolines=$(wc -l $fname.log | awk '{print $1}')
 		if [[ $psqllines -ne $octolines ]]; then
+			echo "#######################################"
 			echo "Expected $psqllines lines but found $octolines lines in $fname.log"
+			echo "#######################################"
+			echo "# [cat $fname.sql] output follows"
+			cat $fname.sql
+			echo "# [cat $fname.ref] output follows"
+			cat $fname.ref
+			echo "# [cat $fname.log] output follows"
+			cat $fname.log
+			echo "#######################################"
 			run_query_stop_rocto
 			exit 1
 		fi

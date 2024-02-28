@@ -569,16 +569,17 @@ setup_go() {
 
 run_go() {
 	cp -r @PROJECT_SOURCE_DIR@/tests/go/src/$1 $GOPATH/src/$1
-	# As of Go 1.16, the default behavior is GO111MODULE=on but we want to keep using the old GOPATH way,
-	# therefore set the below env var to Go not to use the Go Modules feature. This is not needed by
-	# Go versions older the Go 1.16 but it does not hurt.
-	export GO111MODULE=off
-	go get $1
-	go build $1
+	# Go versions newer than 1.22 officially stopped supporting GO111MODULE=off
+	# so we need to use Go Modules feature instead.
+	# Fix was mentioned in https://gitlab.com/YottaDB/DB/YDBTest/-/merge_requests/1889.
+	go mod init rungo >& gomod.out
+	go mod tidy >& gomod.out
+	go build -o $GOPATH/bin/$1 $GOPATH/src/$1
 	$GOPATH/bin/$1 $2
+        chmod -R +w go/pkg
 	# Executables created by go occupy a noticeable part of the artifacts.zip file created in the pipeline.
 	# They are not considered necessary at this point for test failure analysis so remove them.
-	rm -f $1
+	rm -f $GOPATH/bin/$1
 }
 
 run_java() {

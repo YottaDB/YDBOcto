@@ -41,6 +41,9 @@ Installing YottaDB
      # Rocky Linux/RHEL
      yum install wget file procps-ng binutils findutils elfutils-libelf libicu libicu-devel curl cmake make gcc pkg-config sudo git nano gzip
 
+     # SUSE (SLES or SLED) or OpenSUSE Leap or OpenSUSE Tumbleweed
+     zypper install cmake make gcc git file curl tcsh binutils-gold icu {libconfig,libicu,ncurses,libelf,readline}-devel binutils ca-certificates
+
      # Install YottaDB
      mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
      cd /tmp/tmp ; chmod +x ydbinstall.sh
@@ -78,6 +81,19 @@ Rocky Linux/RHEL
     # RHEL 8
     sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
     sudo yum install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat
+
+~~~~~~~~~~~~~~~~~
+OpenSUSE/SLES
+~~~~~~~~~~~~~~~~~
+
+ Run the following commands to install and setup all of the prerequisites needed for testing Octo on OpenSUSE/SLES. You can substitute `mariadb` and `mariadb-server` for `mysql` and `mysql-server`.
+
+  .. code-block:: bash
+
+    git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
+
+    # SLES
+    zypper install java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL and MySQL/MariaDB

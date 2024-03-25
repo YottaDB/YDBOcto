@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.       #
+.. # Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.       #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -248,12 +248,12 @@ Contributing
      ln -s ../../pre-commit .git/hooks/pre-commit
      ln -s ../../pre-rebase .git/hooks/pre-rebase
 
- Note that this script will require :code:`tcsh` and :code:`clang-format-11` or a later release.
+ Note that this script will require :code:`tcsh` and :code:`clang-format-15` or a later release.
 
   .. code-block:: bash
 
-     # Ubuntu 20.04
-     sudo apt install --no-install-recommends clang-format-11
+     # Ubuntu 22.04
+     sudo apt install --no-install-recommends clang-format-15
      # Any Debian-like distro; see also https://apt.llvm.org/
      bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
      # RHEL 8/Rocky Linux

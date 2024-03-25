@@ -207,7 +207,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	# clang-format only on one OS. We pick Ubuntu for now. Hence the "$is_ubuntu" check below.
 	if $is_ubuntu; then
 		# If we found a recent enough version, run clang-format
-		if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 11)"; then
+		if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 15)"; then
 			echo "# Check code style using clang-format"
 			# This modifies the files in place so no need to record the output.
 			../tools/ci/clang-format-all.sh $CLANG_FORMAT

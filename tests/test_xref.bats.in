@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -153,3 +153,9 @@ OCTO
 	verify_output TX08 output.txt
 }
 
+@test "TX09 : OCTO1034 : %YDBAIM-F-BADTEMPLATE error when indexing string subscripts that include \"/\"" {
+	$ydb_dist/mupip set -null=NEVER -reg=DEFAULT
+	$ydb_dist/yottadb -run %XCMD 'set ^tmp(1,"/")="abcd"'
+	load_fixture TX09.sql subtest novv
+	verify_output TX09 output.txt
+ }

@@ -1,0 +1,10 @@
+-- TX09 : OCTO1034 : %YDBAIM-F-BADTEMPLATE error when indexing string subscripts that include "/"
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^tmp(keys(""id""),""/"")") GLOBAL "^tmp" AIMTYPE 1;
+SELECT * FROM tmp WHERE name = 'abcd';
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^tmp(keys(""id""),""/"")") GLOBAL "^tmp" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM tmp WHERE name = 'abcd';
+id|name
+1|abcd
+(1 row)
+OCTO> 

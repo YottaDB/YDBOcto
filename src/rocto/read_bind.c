@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,8 @@
 #include "message_formats.h"
 
 Bind *read_bind(BaseMessage *message) {
-	Bind *	      ret;
-	char *	      cur_pointer, *last_byte, *length_ptr;
+	Bind	     *ret;
+	char	     *cur_pointer, *last_byte, *length_ptr;
 	uint32_t      remaining_length;
 	const int32_t default_format_max = 1;
 	int32_t	      i = 0;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,7 +39,7 @@ int is_update_keycol_or_xref(PhysicalPlan *pplan) {
 
 		do {
 			LogicalPlan *lp_upd_col_value, *lp_column;
-			SqlColumn *  cur_column;
+			SqlColumn   *cur_column;
 
 			GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
 			GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,7 @@ int set_parameter_in_pg_settings(char *variable, char *value) {
 	ydb_buffer_t pg_buffers[5];
 	ydb_buffer_t value_buffer;
 	ydb_string_t ci_variable, ci_value;
-	char *	     column_end, *new_row;
+	char	    *column_end, *new_row;
 	int	     status;
 	int	     value_len, row_len, copied;
 

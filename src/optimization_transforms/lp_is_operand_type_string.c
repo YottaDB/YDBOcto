@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,7 @@
  */
 boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 	boolean_t	ret, loop_done;
-	LogicalPlan *	cur_plan, *ret_type_plan;
+	LogicalPlan    *cur_plan, *ret_type_plan;
 	SqlColumnAlias *column_alias;
 	SqlValueType	return_type;
 

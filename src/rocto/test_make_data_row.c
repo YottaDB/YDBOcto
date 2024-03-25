@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -46,8 +46,8 @@ static void test_null_input(void **state) {
 }
 
 static void test_zero_parms(void **state) {
-	DataRow *   response = NULL;
-	DataRow *   received_response = NULL;
+	DataRow	   *response = NULL;
+	DataRow	   *received_response = NULL;
 	int32_t	    num_parms = 0;
 	DataRowParm parms[num_parms];
 
@@ -68,13 +68,13 @@ static void test_zero_parms(void **state) {
 }
 
 static void test_one_text_parm(void **state) {
-	DataRow *   response = NULL;
-	DataRow *   received_response = NULL;
+	DataRow	   *response = NULL;
+	DataRow	   *received_response = NULL;
 	int32_t	    num_parms = 1, i = 0;
 	DataRowParm parms[num_parms];
 
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
-	char *	parm_value = "helloWorld";
+	char   *parm_value = "helloWorld";
 	int32_t parm_length = strlen(parm_value);
 	parms[0].length = parm_length;
 	parms[0].value = (char *)malloc(parm_length * sizeof(char));
@@ -99,19 +99,19 @@ static void test_one_text_parm(void **state) {
 }
 
 static void test_two_text_parms(void **state) {
-	DataRow *   response = NULL;
-	DataRow *   received_response = NULL;
+	DataRow	   *response = NULL;
+	DataRow	   *received_response = NULL;
 	int32_t	    num_parms = 2;
 	DataRowParm parms[num_parms];
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
 
-	char *	parm1_value = "helloWorld";
+	char   *parm1_value = "helloWorld";
 	int32_t parm1_length = strlen(parm1_value);
 	parms[0].length = parm1_length;
 	parms[0].value = (char *)malloc(parm1_length * sizeof(char));
 	strncpy(parms[0].value, parm1_value, parm1_length);
 
-	char *	parm2_value = "helloUniverse";
+	char   *parm2_value = "helloUniverse";
 	int32_t parm2_length = strlen(parm2_value);
 	parms[1].length = parm2_length;
 	parms[1].value = (char *)malloc(parm2_length * sizeof(char));
@@ -140,25 +140,25 @@ static void test_two_text_parms(void **state) {
 }
 
 static void test_three_text_parms(void **state) {
-	DataRow *   response = NULL;
-	DataRow *   received_response = NULL;
+	DataRow	   *response = NULL;
+	DataRow	   *received_response = NULL;
 	int32_t	    num_parms = 3;
 	DataRowParm parms[num_parms];
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
 
-	char *	parm1_value = "helloWorld";
+	char   *parm1_value = "helloWorld";
 	int32_t parm1_length = strlen(parm1_value);
 	parms[0].length = parm1_length;
 	parms[0].value = (char *)malloc(parm1_length * sizeof(char));
 	strncpy(parms[0].value, parm1_value, parm1_length);
 
-	char *	parm2_value = "helloUniverse";
+	char   *parm2_value = "helloUniverse";
 	int32_t parm2_length = strlen(parm2_value);
 	parms[1].length = parm2_length;
 	parms[1].value = (char *)malloc(parm2_length * sizeof(char));
 	strncpy(parms[1].value, parm2_value, parm2_length);
 
-	char *	parm3_value = "helloThingBiggerThanUniverse";
+	char   *parm3_value = "helloThingBiggerThanUniverse";
 	int32_t parm3_length = strlen(parm3_value);
 	parms[2].length = parm3_length;
 	parms[2].value = (char *)malloc(parm3_length * sizeof(char));
@@ -191,13 +191,13 @@ static void test_three_text_parms(void **state) {
 }
 
 static void test_one_binary_parm(void **state) {
-	DataRow *   response = NULL;
-	DataRow *   received_response = NULL;
+	DataRow	   *response = NULL;
+	DataRow	   *received_response = NULL;
 	int32_t	    num_parms = 1, i = 0;
 	DataRowParm parms[num_parms];
 
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
-	char *	parm_value = "12";
+	char   *parm_value = "12";
 	int32_t parm_length = strlen(parm_value);
 	parms[0].length = PSQL_TypeSize_int4;
 	parms[0].value = (char *)malloc(parms[0].length);

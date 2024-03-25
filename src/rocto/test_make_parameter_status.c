@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,8 +26,8 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-	ParameterStatus *  response = NULL;
-	ParameterStatus *  received_response = NULL;
+	ParameterStatus	  *response = NULL;
+	ParameterStatus	  *received_response = NULL;
 	StartupMessageParm parm = {"user", "Alice"};
 
 	// Expected length is length field + parameter strings, including null terminators
@@ -50,8 +50,8 @@ static void test_valid_input(void **state) {
 }
 
 static void test_null_input(void **state) {
-	ParameterStatus *   response = NULL;
-	ParameterStatus *   received_response = NULL;
+	ParameterStatus	   *response = NULL;
+	ParameterStatus	   *received_response = NULL;
 	StartupMessageParm *parm = NULL;
 
 	// Expected length is length field, since no parameter is passed

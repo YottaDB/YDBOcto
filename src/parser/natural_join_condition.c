@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,13 +32,13 @@
  *	1 in case of errors (duplicate common columns etc.) so caller can take appropriate action.
  */
 int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
-	SqlStatement * ret;
-	SqlJoin *      l_join;
-	SqlStatement * r_sql_stmt;
+	SqlStatement  *ret;
+	SqlJoin	      *l_join;
+	SqlStatement  *r_sql_stmt;
 	SqlTableAlias *r_table_alias;
-	char *	       r_table_name;
+	char	      *r_table_name;
 	size_t	       r_table_name_len;
-	SqlValue *     value;
+	SqlValue      *value;
 
 	assert(NULL != start);
 	assert(NULL != r_join);
@@ -52,10 +52,10 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 	ret = NULL;
 	/* Loop through each table on left side of NATURAL JOIN */
 	for (l_join = start; l_join != r_join; l_join = l_join->next) {
-		SqlStatement *	    l_sql_stmt;
-		SqlTableAlias *	    l_table_alias;
+		SqlStatement	   *l_sql_stmt;
+		SqlTableAlias	   *l_table_alias;
 		SqlColumnListAlias *l_cl_start, *l_cl_cur;
-		char *		    l_table_name;
+		char		   *l_table_name;
 		size_t		    l_table_name_len;
 
 		l_sql_stmt = drill_to_table_alias(l_join->value);
@@ -67,7 +67,7 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 		l_cl_cur = l_cl_start;
 		do { /* Loop through each column on left side table of the NATURAL JOIN */
 			if (NULL == l_cl_cur->duplicate_of_column) {
-				char *		    l_column_name;
+				char		   *l_column_name;
 				size_t		    l_column_name_len;
 				SqlColumnListAlias *r_matched_column;
 				boolean_t	    ambiguous;
@@ -83,8 +83,8 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 				 * because we will issue the more accurate ERR_COMMON_COLUMN error below.
 				 */
 				if (NULL != r_matched_column) {
-					SqlStatement *	    l_qual_col_name, *r_qual_col_name;
-					SqlStatement *	    cur_condition;
+					SqlStatement	   *l_qual_col_name, *r_qual_col_name;
+					SqlStatement	   *cur_condition;
 					SqlBinaryOperation *binary;
 
 					if (NULL != r_matched_column->duplicate_of_column) {

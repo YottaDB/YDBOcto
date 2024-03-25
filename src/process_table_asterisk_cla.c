@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,10 +39,10 @@
 void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **c_cla_cur, SqlColumnListAlias **c_cla_head,
 				QualifyQueryStage qualify_query_stage) {
 	SqlColumnListAlias *cla_cur, *cla_head, *result, *cla;
-	SqlColumnAlias *    column_alias;
-	SqlStatement *	    cur_table_alias_stmt;
-	SqlTableAlias *	    cur_table_alias;
-	SqlColumnList *	    cl_cur;
+	SqlColumnAlias	   *column_alias;
+	SqlStatement	   *cur_table_alias_stmt;
+	SqlTableAlias	   *cur_table_alias;
+	SqlColumnList	   *cl_cur;
 
 	switch (qualify_query_stage) {
 	case QualifyQuery_ORDER_BY:

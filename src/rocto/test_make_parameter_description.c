@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,7 +33,7 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
 	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)) {
-		char *	ydb_chset, *ydb_routines, *src_path;
+		char   *ydb_chset, *ydb_routines, *src_path;
 		char	exe_path[OCTO_PATH_MAX];
 		ssize_t exe_path_len;
 
@@ -71,7 +71,7 @@ int __wrap_ydb_subscript_next_s(ydb_buffer_t *varname, int subs_used, ydb_buffer
 static void test_no_parms(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names;";
+	char		     *query = "select * from names;";
 	int32_t		      dlength = 0;
 	int16_t		      num_parms = 0;
 	boolean_t	      done;
@@ -100,7 +100,7 @@ static void test_no_parms(void **state) {
 static void test_valid_input_one_parm_no_types(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1;";
+	char		     *query = "select * from names where id = $1;";
 	int32_t		      dlength = 0, cur_parm_type = 0;
 	int16_t		      num_parms = 1;
 	boolean_t	      done;
@@ -137,7 +137,7 @@ static void test_valid_input_one_parm_no_types(void **state) {
 static void test_valid_input_two_parms_no_types(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1 and firstname = $2;";
+	char		     *query = "select * from names where id = $1 and firstname = $2;";
 	int32_t		      dlength = 0, cur_parm_type = 0;
 	int16_t		      num_parms = 2;
 	boolean_t	      done;
@@ -177,7 +177,7 @@ static void test_valid_input_two_parms_no_types(void **state) {
 static void test_valid_input_three_parms_no_types(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1 and firstname = $2 or lastname = $3;";
+	char		     *query = "select * from names where id = $1 and firstname = $2 or lastname = $3;";
 	int32_t		      dlength = 0, cur_parm_type = 0;
 	int16_t		      num_parms = 3;
 	boolean_t	      done;
@@ -220,7 +220,7 @@ static void test_valid_input_three_parms_no_types(void **state) {
 static void test_valid_input_one_parm_one_type(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1;";
+	char		     *query = "select * from names where id = $1;";
 	int32_t		      dlength = 0;
 	int16_t		      num_parms = 1;
 	boolean_t	      done = FALSE;
@@ -255,7 +255,7 @@ static void test_valid_input_one_parm_one_type(void **state) {
 static void test_valid_input_two_parms_one_type(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1 and lastname = $2;";
+	char		     *query = "select * from names where id = $1 and lastname = $2;";
 	int32_t		      dlength = 0;
 	int16_t		      num_parms = 2;
 	boolean_t	      done = FALSE;
@@ -295,7 +295,7 @@ static void test_valid_input_two_parms_one_type(void **state) {
 static void test_valid_input_three_parms_two_types(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1 and lastname = $2 or firstname = $3;";
+	char		     *query = "select * from names where id = $1 and lastname = $2 or firstname = $3;";
 	int32_t		      dlength = 0;
 	int16_t		      num_parms = 3;
 	boolean_t	      done = FALSE;
@@ -340,7 +340,7 @@ static void test_valid_input_three_parms_two_types(void **state) {
 static void test_num_parms_ydb_get_s_failure(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1;";
+	char		     *query = "select * from names where id = $1;";
 	int32_t		      dlength = 0, cur_parm_type = 0;
 	int16_t		      num_parms = 1;
 	boolean_t	      done;
@@ -369,7 +369,7 @@ static void test_num_parms_ydb_get_s_failure(void **state) {
 static void test_parm_type_ydb_get_s_failure(void **state) {
 	RoctoSession	      session;
 	ParameterDescription *description;
-	char *		      query = "select * from names where id = $1;";
+	char		     *query = "select * from names where id = $1;";
 	int32_t		      dlength = 0, cur_parm_type = 0;
 	int16_t		      num_parms = 1;
 	boolean_t	      done;

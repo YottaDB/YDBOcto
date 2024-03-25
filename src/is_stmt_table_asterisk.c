@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.      *
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.      *
  * All rights reserved.                                         *
  *                                                              *
  *      This source code contains the intellectual property     *
@@ -16,10 +16,10 @@
 #include "octo_types.h"
 
 boolean_t is_stmt_table_asterisk(SqlStatement *stmt) {
-	SqlValue *	    value;
+	SqlValue	   *value;
 	SqlColumnListAlias *cla;
-	SqlColumnList *	    cl;
-	SqlColumnAlias *    ca;
+	SqlColumnList	   *cl;
+	SqlColumnAlias	   *ca;
 	boolean_t	    ret;
 
 	ret = FALSE;

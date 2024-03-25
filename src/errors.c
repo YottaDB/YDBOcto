@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -136,7 +136,7 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	struct tm   local_time;
 	int	    copied, full_err_len;
 	char	    err_prefix[MAX_ERR_PREFIX_LEN + 1]; // Null terminator
-	char *	    full_err_str;
+	char	   *full_err_str;
 
 	if (level < config->verbosity_level)
 		return;
@@ -169,7 +169,7 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 		break;
 	}
 #ifdef IS_ROCTO
-	const char *   line_start, *line_end;
+	const char    *line_start, *line_end;
 	int	       err_level;
 	ErrorResponse *err;
 

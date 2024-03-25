@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,8 @@
  *    0 otherwise (i.e. success).
  */
 int validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table) {
-	char *	  ptr, *ptr_start;
-	char *	  start;
+	char	 *ptr, *ptr_start;
+	char	 *start;
 	SqlValue *value;
 
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);

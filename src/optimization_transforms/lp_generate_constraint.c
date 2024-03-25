@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,11 +17,11 @@
  * If so, convert them into LP_CHECK_CONSTRAINT/LP_UNIQUE_CONSTRAINT etc. logical plans.
  */
 boolean_t lp_generate_constraint(LogicalPlan **lp_constraint_ptr, SqlStatement *stmt, SqlTableAlias *table_alias) {
-	SqlColumn *   cur_column, *start_column;
-	SqlTable *    table;
-	LogicalPlan * ret;
+	SqlColumn    *cur_column, *start_column;
+	SqlTable     *table;
+	LogicalPlan  *ret;
 	boolean_t     error_encountered = FALSE;
-	LogicalPlan * lp_constraint;
+	LogicalPlan  *lp_constraint;
 	LogicalPlan **lp_check_constraint_ptr, **lp_unique_constraint_ptr;
 
 	lp_constraint = NULL;

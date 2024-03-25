@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,9 +20,9 @@
  * If not allocates a SqlColumnAlias and returns that.
  */
 SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt) {
-	SqlColumnList * col_list;
+	SqlColumnList  *col_list;
 	SqlColumnAlias *ret;
-	SqlTableAlias * table_alias, *matching_alias;
+	SqlTableAlias  *table_alias, *matching_alias;
 
 	UNPACK_SQL_STATEMENT(matching_alias, matching_alias_stmt, table_alias);
 	/* Check if "col_cla" already points to a SqlColumnAlias that we can return.

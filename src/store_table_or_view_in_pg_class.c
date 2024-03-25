@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -118,7 +118,7 @@ typedef enum PG_AttributeAlign {
  */
 int store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer_t *name_buffer) {
 	boolean_t is_view = FALSE;
-	SqlView * view;
+	SqlView	 *view;
 	SqlTable *table;
 	if (create_view_STATEMENT == table_or_view_stmt->type) {
 		is_view = TRUE;
@@ -129,8 +129,8 @@ int store_table_or_view_in_pg_class(SqlStatement *table_or_view_stmt, ydb_buffer
 		view = NULL;
 	}
 	int	     attnum;
-	SqlColumn *  start_column;
-	SqlColumn *  cur_column;
+	SqlColumn   *start_column;
+	SqlColumn   *cur_column;
 	ydb_buffer_t buffer_b;
 
 	// Prepare buffers

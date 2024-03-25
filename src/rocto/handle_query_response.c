@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,7 +33,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 	/* A NULL stmt means the query was canceled and we should not process the query response (e.g. generate DataRows) */
 	if (NULL != stmt) {
 		QueryResponseParms *parms;
-		RoctoSession *	    session;
+		RoctoSession	   *session;
 
 		parms = (QueryResponseParms *)_parms;
 		session = parms->session;
@@ -41,7 +41,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			/* SET the current value of a runtime variable by looking at the appropriate session LVN */
 			if (PSQL_Query == msg_type) {
 				SqlSetStatement *set_stmt;
-				SqlValue *	 runtime_variable_stmt, *runtime_value_stmt;
+				SqlValue	*runtime_variable_stmt, *runtime_value_stmt;
 
 				UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
 				UNPACK_SQL_STATEMENT(runtime_value_stmt, set_stmt->value, value);
@@ -58,7 +58,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				 * later use in "handle_bind()" followed by "handle_execute()" (to do SET of runtime variable).
 				 */
 				ydb_buffer_t	 statement_subs[5];
-				SqlValue *	 runtime_variable, *runtime_value;
+				SqlValue	*runtime_variable, *runtime_value;
 				SqlSetStatement *set_stmt;
 
 				UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
@@ -139,15 +139,15 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			/* SHOW the current value of the specified runtime variable by looking at the appropriate session LVN */
 			ydb_buffer_t name_buffer;
 			DataRowParm  data_row_parms;
-			DataRow *    data_row;
-			char *	     variable_name, *variable_value;
+			DataRow	    *data_row;
+			char	    *variable_name, *variable_value;
 
 			if (PSQL_Parse == msg_type) {
 				/* Caller is "handle_parse()" (extended query protocol). Set up prepared statement lvns for
 				 * later use in "handle_bind()" followed by "handle_execute()" (to do SHOW of runtime variable).
 				 */
 				ydb_buffer_t	  statement_subs[5];
-				SqlValue *	  runtime_variable;
+				SqlValue	 *runtime_variable;
 				SqlShowStatement *show_stmt;
 
 				UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
@@ -170,7 +170,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				 * Set up "parms->parm_name" to hold the name of the variable to show.
 				 */
 				SqlShowStatement *show_stmt;
-				SqlValue *	  runtime_variable;
+				SqlValue	 *runtime_variable;
 
 				UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 				UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
@@ -178,7 +178,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 			}
 			if ((PSQL_Describe == msg_type) || (PSQL_Query == msg_type)) {
 				RowDescriptionParm row_desc_parm;
-				RowDescription *   row_description;
+				RowDescription	  *row_description;
 
 				/* Send RowDescription for SHOW. It is a column of type STRING with hardcoded values for most other
 				 * fields. */
@@ -224,7 +224,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				variable_name = name_buffer.buf_addr;
 			} else {
 				/* Caller is "handle_query()" (simple query protocol). Do the SHOW right away */
-				SqlValue *	  runtime_variable;
+				SqlValue	 *runtime_variable;
 				SqlShowStatement *show_stmt;
 
 				assert(PSQL_Query == msg_type);

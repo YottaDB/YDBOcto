@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,8 +24,8 @@
 
 int handle_describe(Describe *describe, RoctoSession *session) {
 	ParameterDescription *parm_description;
-	RowDescription *      description;
-	NoData *	      no_data;
+	RowDescription	     *description;
+	NoData		     *no_data;
 	ydb_buffer_t	      routine_buf, filename_buf, tag_buf;
 	ydb_buffer_t	      describe_subs[5];
 	uint32_t	      found = 0;

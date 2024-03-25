@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -75,7 +75,7 @@
 /* The below code needs to be kept in sync with `enum OptionalKeyword` in "octo_types.h" */
 #define EMIT_SNPRINTF_KEYWORD_IF_NEEDED(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, KEYWORD)                \
 	{                                                                                              \
-		char *	  keywordName, keyWordStr[64];                                                 \
+		char	 *keywordName, keyWordStr[64];                                                 \
 		SqlValue *value;                                                                       \
                                                                                                        \
 		switch (KEYWORD->keyword) {                                                            \
@@ -98,7 +98,7 @@
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan, LogicalPlan *parent_plan);
 
 void lp_emit_plan(LogicalPlan *plan, char *stage) {
-	char * buffer, *buff_ptr;
+	char  *buffer, *buff_ptr;
 	size_t buffer_len, written;
 	DEBUG_ONLY(size_t actual_len);
 
@@ -123,15 +123,15 @@ void lp_emit_plan(LogicalPlan *plan, char *stage) {
 }
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan, LogicalPlan *parent_plan) {
-	char *		    buff_ptr, *table_name, *column_name, *data_type_ptr;
+	char		   *buff_ptr, *table_name, *column_name, *data_type_ptr;
 	size_t		    written;
 	int		    table_id;
-	SqlValue *	    value;
-	SqlKey *	    key;
+	SqlValue	   *value;
+	SqlKey		   *key;
 	SqlOptionalKeyword *start_keyword, *cur_keyword;
 	boolean_t	    skip_emit;
-	SqlColumnAlias *    column_alias;
-	SqlStatement *	    column;
+	SqlColumnAlias	   *column_alias;
+	SqlStatement	   *column;
 
 	if (NULL == plan)
 		return 0;
@@ -189,7 +189,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 	case LP_UNIQUE_CONSTRAINT:
 		if ((LP_CHECK_CONSTRAINT == plan->type) || (LP_UNIQUE_CONSTRAINT == plan->type)) {
 			SqlConstraint *constraint;
-			SqlValue *     value;
+			SqlValue      *value;
 
 			constraint = plan->extra_detail.lp_constraint.constraint;
 			UNPACK_SQL_STATEMENT(value, constraint->name, value);
@@ -335,7 +335,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			}
 		} else {
 			if (LP_ORDER_BY == plan->type) {
-				char *		     str;
+				char		    *str;
 				enum OptionalKeyword direction;
 
 				direction = plan->extra_detail.lp_order_by.direction;
@@ -345,7 +345,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			}
 			if (LP_COERCE_TYPE == plan->type) {
 				SqlValueType	   value_type;
-				char *		   precision_and_scale;
+				char		  *precision_and_scale;
 				SqlDataTypeStruct *data_type_ptr;
 				int		   size_or_precision, scale;
 				/* The array size below takes into account space needed to store

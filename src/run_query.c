@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -91,12 +91,12 @@
  *	-1 if query has been canceled.
  */
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context) {
-	FILE *	      out;
+	FILE	     *out;
 	SqlStatement *result;
-	SqlValue *    value;
+	SqlValue     *value;
 	boolean_t     free_memory_chunks;
 	// + 1 for NULL terminator
-	char *		buffer, filename[OCTO_PATH_MAX + 1], routine_name[MAX_ROUTINE_LEN + 1], function_hash[MAX_ROUTINE_LEN + 1];
+	char	       *buffer, filename[OCTO_PATH_MAX + 1], routine_name[MAX_ROUTINE_LEN + 1], function_hash[MAX_ROUTINE_LEN + 1];
 	ydb_long_t	cursorId;
 	hash128_state_t state;
 	int		status;
@@ -109,17 +109,17 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	boolean_t	canceled = FALSE, cursor_used;
 	int		length;
 	unsigned int	ret_value;
-	SqlTable *	table;
-	SqlDropTableStatement *	  drop_table;
-	char *			  tablename;
-	char *			  spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
+	SqlTable       *table;
+	SqlDropTableStatement	 *drop_table;
+	char			 *tablename;
+	char			 *spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
 	ydb_buffer_t		  table_name_buffers[3];
-	ydb_buffer_t *		  table_name_buffer;
-	SqlFunction *		  function;
+	ydb_buffer_t		 *table_name_buffer;
+	SqlFunction		 *function;
 	SqlDropFunctionStatement *drop_function;
-	char *			  function_name;
+	char			 *function_name;
 	ydb_buffer_t		  function_name_buffers[5];
-	ydb_buffer_t *		  function_name_buffer, *function_hash_buffer;
+	ydb_buffer_t		 *function_name_buffer, *function_hash_buffer;
 	char			  cursor_buffer[INT64_TO_STRING_MAX];
 	char		    pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	    release_query_lock;
@@ -127,7 +127,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	boolean_t	    ok_to_drop, wrapInTp;
 	SqlStatementType    result_type;
 	SqlDisplayRelation *display_relation;
-	SqlStatement *	    table_stmt;
+	SqlStatement	   *table_stmt;
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -715,8 +715,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		 */
 		/* First get a ydb_buffer_t of the view name into "view_name_buffer" */
 		SqlDropViewStatement *drop_view;
-		SqlView *	      view;
-		char *		      viewname;
+		SqlView		     *view;
+		char		     *viewname;
 		boolean_t	      is_view = FALSE, node_found = TRUE;
 		if (drop_view_STATEMENT == result_type) {
 			UNPACK_SQL_STATEMENT(drop_view, result, drop_view);

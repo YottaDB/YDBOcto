@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -46,7 +46,7 @@ typedef struct __attribute__((packed)) {
 } AuthenticationCleartextPassword;
 
 // B
-//# AuthenticationKerberosV5;
+// # AuthenticationKerberosV5;
 
 // B
 typedef struct __attribute__((packed)) {
@@ -57,13 +57,13 @@ typedef struct __attribute__((packed)) {
 } AuthenticationMD5Password;
 
 // B
-//# AuthenticationGSS
-//# AuthenticationSSPI
-//# AuthenticationGSSContinue
-//# AuthenticationSASL
-//# AuthenticationSASLContinue
-//# AuthenticationSASLFinal
-//# AuthenticationSCMCredential
+// # AuthenticationGSS
+// # AuthenticationSSPI
+// # AuthenticationGSSContinue
+// # AuthenticationSASL
+// # AuthenticationSASLContinue
+// # AuthenticationSASLFinal
+// # AuthenticationSCMCredential
 
 // B
 typedef struct __attribute__((packed)) {
@@ -75,20 +75,20 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
 	int32_t length;
-	void *	value;
+	void   *value;
 } BindParm;
 
 // F
 typedef struct __attribute__((packed)) {
 	ParseContext parse_context;
-	char *	     dest;
-	char *	     source;
+	char	    *dest;
+	char	    *source;
 	int16_t	     num_parm_format_codes;
-	int16_t *    parm_format_codes;
+	int16_t	    *parm_format_codes;
 	int16_t	     num_parms;
-	BindParm *   parms;
+	BindParm    *parms;
 	int16_t	     num_result_col_format_codes;
-	int16_t *    result_col_format_codes;
+	int16_t	    *result_col_format_codes;
 
 	char	 type;
 	uint32_t length;
@@ -134,7 +134,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct {
 	int32_t length;
-	char *	value;
+	char   *value;
 	int16_t format;
 	int32_t column_type;
 } DataRowParm;
@@ -180,7 +180,7 @@ typedef struct __attribute__((packed)) {
 
 // F
 typedef struct __attribute__((packed)) {
-	char *	 source;
+	char	*source;
 	uint32_t rows_to_return;
 
 	char	 type;
@@ -209,8 +209,8 @@ typedef struct __attribute__((packed)) {
 
 // F
 typedef struct __attribute__((packed)) {
-	char *	  dest;
-	char *	  query;
+	char	 *dest;
+	char	 *query;
 	int16_t	  num_parm_data_types;
 	uint32_t *parm_data_types;
 
@@ -233,7 +233,7 @@ typedef struct __attribute__((packed)) {
 
 // F
 typedef struct __attribute__((packed)) {
-	char *	 query;
+	char	*query;
 	char	 type;
 	uint32_t length;
 	char	 data[];
@@ -241,7 +241,7 @@ typedef struct __attribute__((packed)) {
 
 // F
 typedef struct __attribute__((packed)) {
-	char *	 password;
+	char	*password;
 	char	 type;
 	uint32_t length;
 	char	 data[];
@@ -257,7 +257,7 @@ typedef struct __attribute__((packed)) {
 // This must be packed because we use it to calculate size
 //  of the RowDescription
 typedef struct __attribute__((packed)) {
-	char *	name;
+	char   *name;
 	int32_t table_id;
 	int16_t column_id;
 	int32_t data_type;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,7 +20,7 @@
 
 SqlColumn *find_column(char *column_name, SqlTable *table) {
 	SqlColumn *cur_column, *start_column;
-	SqlValue * value;
+	SqlValue  *value;
 
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;

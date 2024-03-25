@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -473,7 +473,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		result |= qualify_check_constraint_column_list(least_call->arguments, table, type, NULL, ensure_same_type);
 		break;
 	case null_if_STATEMENT:;
-		SqlNullIf *  null_if;
+		SqlNullIf   *null_if;
 		SqlValueType tmpType;
 
 		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);

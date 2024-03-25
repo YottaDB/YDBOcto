@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,7 +34,7 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
 	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)) {
-		char *	ydb_chset, *ydb_routines, *src_path;
+		char   *ydb_chset, *ydb_routines, *src_path;
 		char	exe_path[OCTO_PATH_MAX];
 		ssize_t exe_path_len;
 
@@ -88,7 +88,7 @@ static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
 	uint32_t	data_len = 0;
 	uint32_t	name_len;
 	uint32_t	value_len = 0;
-	char *		c;
+	char	       *c;
 
 	// Get length of parameter name and value
 	name_len = strlen(parm_name) + 1;
@@ -186,9 +186,9 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 
 static void test_valid_password_message(void **state) {
 	PasswordMessage *password_message;
-	char *		 user = "user";
-	char *		 password = "password";
-	char *		 salt = "salt";
+	char		*user = "user";
+	char		*password = "password";
+	char		*salt = "salt";
 
 	password_message = make_password_message(user, password, salt);
 	assert_non_null(password_message);
@@ -207,7 +207,7 @@ static void test_valid_input(void **state) {
 	session.session_id = &session_id;
 
 	// Prepare startup message with username
-	char *		username = "user";
+	char	       *username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
@@ -243,10 +243,10 @@ static void test_error_not_md5(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *		username = "user";
+	char	       *username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
-	char *		password = "password";
-	char *		salt = "salt";
+	char	       *password = "password";
+	char	       *salt = "salt";
 
 	// Wrap calls in make_password_message
 	will_return(__wrap_octo_log, 0);
@@ -270,7 +270,7 @@ static void test_error_user_info_lookup(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *		username = "user";
+	char	       *username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
@@ -306,7 +306,7 @@ static void test_error_hash_lookup(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *		username = "user";
+	char	       *username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
@@ -345,7 +345,7 @@ static void test_error_hash_conversion(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *		username = "user";
+	char	       *username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
@@ -384,7 +384,7 @@ static void test_error_bad_password(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *		username = "user";
+	char	       *username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
@@ -417,10 +417,10 @@ static void test_error_bad_password(void **state) {
 
 static void test_error_missing_username() {
 	PasswordMessage *password_message;
-	StartupMessage * startup_message;
+	StartupMessage	*startup_message;
 	RoctoSession	 session;
 	ydb_buffer_t	 session_id;
-	char *		 password = "password", *salt = "salt";
+	char		*password = "password", *salt = "salt";
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -123,14 +123,14 @@ SqlStatement *find_view_or_table(const char *view_or_table_name) {
 	SqlStatement *table_or_view_stmt;
 	int	      status;
 	int	      length;
-	MemoryChunk * old_chunk;
+	MemoryChunk  *old_chunk;
 	ydb_buffer_t  varname, subs_array[3];
-	char *	      buff, *cur_buff;
+	char	     *buff, *cur_buff;
 	ydb_buffer_t  save_value;
 	ydb_buffer_t *table_or_view_binary_b;
 	ydb_buffer_t  value_b;
 	char	      value_b_buffer[MAX_DEFINITION_FRAGMENT_SIZE];
-	const char *  c;
+	const char   *c;
 
 	TRACE(INFO_TABLE_OR_VIEW_SEARCH, view_or_table_name);
 	/* This function is used to find both views and tables.

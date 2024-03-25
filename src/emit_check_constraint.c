@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,7 +57,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 			break;
 		case COERCE_TYPE:;
 			SqlDataType data_type;
-			char *	    type_name;
+			char	   *type_name;
 
 			ret = emit_check_constraint(buffer, buffer_size, buff_ptr, value->v.coerce_target);
 			if (0 > ret) {

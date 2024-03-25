@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,9 +57,9 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
  *  values
  */
 PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
-	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table, *view;
-	PhysicalPlan *	    pplan;
-	SqlValue *	    value;
+	LogicalPlan	   *plan, *cur_plan, *column_alias, *function, *table, *view;
+	PhysicalPlan	   *pplan;
+	SqlValue	   *value;
 	char		    valbuff[INT32_TO_STRING_MAX];
 	int		    status;
 	int16_t		    num_columns = 0;
@@ -183,7 +183,7 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename) {
 		table_buff[2] = plan_meta[2];
 		do {
 			SqlStatement *table_stmt, *tableName;
-			SqlTable *    sql_table;
+			SqlTable     *sql_table;
 
 			/* Store table name in "table_buff[1]" */
 			assert(LP_TABLE == table->type);

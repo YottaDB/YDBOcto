@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,8 +45,8 @@ static void test_null_input(void **state) {
 }
 
 static void test_one_parms(void **state) {
-	RowDescription *   response = NULL;
-	RowDescription *   received_response = NULL;
+	RowDescription	  *response = NULL;
+	RowDescription	  *received_response = NULL;
 	int32_t		   num_parms = 1;
 	RowDescriptionParm parms[num_parms];
 
@@ -85,8 +85,8 @@ static void test_one_parms(void **state) {
 }
 
 static void test_multi_parms(void **state) {
-	RowDescription *   response = NULL;
-	RowDescription *   received_response = NULL;
+	RowDescription	  *response = NULL;
+	RowDescription	  *received_response = NULL;
 	int32_t		   num_parms = 2;
 	RowDescriptionParm parms[num_parms];
 

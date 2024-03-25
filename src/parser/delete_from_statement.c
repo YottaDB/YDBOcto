@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,10 +22,10 @@
  */
 SqlStatement *delete_from_statement(SqlStatement *table_name, SqlStatement *alias_name, SqlStatement *where_clause, int *plan_id,
 				    ParseContext *parse_context) {
-	SqlStatement * join_stmt;
-	SqlJoin *      join;
+	SqlStatement  *join_stmt;
+	SqlJoin	      *join;
 	SqlTableAlias *table_alias;
-	SqlTable *     table;
+	SqlTable      *table;
 
 	assert(value_STATEMENT == table_name->type);
 	join_stmt = table_reference(table_name, NULL, plan_id);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,16 +26,16 @@
  *	1 if failure.
  */
 int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_context) {
-	SqlTableAlias *	    table_alias[2];
+	SqlTableAlias	   *table_alias[2];
 	SqlColumnListAlias *cur_cla[2], *start_cla[2];
-	SqlStatement *	    sql_stmt;
+	SqlStatement	   *sql_stmt;
 	boolean_t	    terminate_loop[2] = {FALSE, FALSE};
 	SqlColumnListAlias *type_mismatch_cla[2] = {NULL, NULL};
 	SqlColumnListAlias *cur_set_cla, *start_set_cla;
-	SqlSetOperation *   set_operand;
+	SqlSetOperation	   *set_operand;
 	int		    i;
 	SqlInsertStatement *insert;
-	SqlSetOperation *   set_operation;
+	SqlSetOperation	   *set_operation;
 	boolean_t	    is_set_operation, cla1_is_of_type_cl, fixed_type;
 	int		    result;
 
@@ -60,7 +60,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 		cla1_is_of_type_cl = FALSE;
 	} else {
 		SqlTableAlias *src_table_alias;
-		SqlStatement * src_table_alias_stmt, *src_table_alias_stmt2;
+		SqlStatement  *src_table_alias_stmt, *src_table_alias_stmt2;
 
 		is_set_operation = FALSE;
 		set_operation = NULL; /* Not needed but there to prevent [-Wmaybe-uninitialized] warning from C compiler */
@@ -77,7 +77,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 			UNPACK_SQL_STATEMENT(start_cla[1], dst_table_alias->column_list, column_list_alias);
 			cla1_is_of_type_cl = FALSE;
 		} else {
-			SqlStatement * cl1_stmt;
+			SqlStatement  *cl1_stmt;
 			SqlColumnList *cl1;
 
 			/* We only have a "SqlColumnList *" pointer in "insert->columns" but the variable
@@ -110,7 +110,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 			right_type = cur_cla[1]->type;
 		} else {
 			SqlColumnList *cl1;
-			SqlColumn *    col1;
+			SqlColumn     *col1;
 
 			/* Note: "cl1->value->type" was changed from "value_STATEMENT" to "column_STATEMENT"
 			 * in "insert_statement.c". Hence it is safe to do the below.
@@ -273,12 +273,12 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 			location = type_mismatch_cla[1]->column_list->loc;
 			yyerror(&location, NULL, NULL, NULL, NULL, NULL);
 		} else {
-			SqlColumnList * column_list;
+			SqlColumnList  *column_list;
 			SqlColumnAlias *column_alias;
-			SqlColumn *	column;
-			SqlValue *	value;
+			SqlColumn      *column;
+			SqlValue       *value;
 			SqlValueType	cla1_type;
-			SqlColumnList * cl1;
+			SqlColumnList  *cl1;
 
 			if (!cla1_is_of_type_cl) {
 				UNPACK_SQL_STATEMENT(column_list, type_mismatch_cla[1]->column_list, column_list);

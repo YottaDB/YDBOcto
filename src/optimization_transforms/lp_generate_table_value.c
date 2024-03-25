@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,12 +17,12 @@
 
 /* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered) {
-	SqlTableValue *	    table_value;
-	SqlStatement *	    table_value_stmt;
-	LogicalPlan *	    lp_table_value, *lp_table_data, *lp_row_value_next;
-	SqlRowValue *	    row_value, *start_row_value;
+	SqlTableValue	   *table_value;
+	SqlStatement	   *table_value_stmt;
+	LogicalPlan	   *lp_table_value, *lp_table_data, *lp_row_value_next;
+	SqlRowValue	   *row_value, *start_row_value;
 	SqlColumnListAlias *cla;
-	SqlTableAlias *	    table_alias;
+	SqlTableAlias	   *table_alias;
 
 	assert(table_alias_STATEMENT == stmt->type);
 	table_alias = stmt->v.table_alias;
@@ -39,7 +39,7 @@ LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error
 	start_row_value = row_value;
 	do {
 		SqlColumnList *column_list;
-		LogicalPlan *  lp_row_value;
+		LogicalPlan   *lp_row_value;
 
 		MALLOC_LP(lp_row_value, lp_row_value_next->v.lp_default.operand[1], LP_ROW_VALUE);
 		UNPACK_SQL_STATEMENT(column_list, row_value->value_list, column_list);

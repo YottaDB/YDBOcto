@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,8 @@
 #include "message_formats.h"
 
 Parse *read_parse(BaseMessage *message) {
-	Parse *	 ret;
-	char *	 cur_pointer, *last_byte;
+	Parse	*ret;
+	char	*cur_pointer, *last_byte;
 	uint32_t remaining_length;
 
 	// Begin Parse initialization from message

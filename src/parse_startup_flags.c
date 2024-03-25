@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,7 @@ void handle_invalid_option(char *executable_name, char short_option) {
 
 int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	enum VERBOSITY_LEVEL prev_error_level = ERROR; // ERROR is the default level
-	char *		     octo_usage
+	char		    *octo_usage
 	    = "Usage: octo [OPTION]...\n"
 	      "Start the Octo SQL server.\n\n"
 	      "Mandatory arguments for long options are also mandatory for short options.\n"

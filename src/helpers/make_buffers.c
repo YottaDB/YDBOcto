@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,7 +29,7 @@ ydb_buffer_t *make_buffers(char *global, size_t num_args, ...) {
 
 ydb_buffer_t *vmake_buffers(char *global, size_t num_args, va_list args) {
 	ydb_buffer_t *buffers;
-	char *	      arg;
+	char	     *arg;
 	int	      i;
 
 	buffers = (ydb_buffer_t *)malloc((num_args + 1) * sizeof(ydb_buffer_t));

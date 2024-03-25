@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,7 @@
  */
 void generate_name_type(NameType name_type, hash128_state_t *state, int len, char *ret_name, int ret_name_len) {
 	char	   hash_str[MAX_ROUTINE_LEN];
-	char *	   c = NULL;
+	char	  *c = NULL;
 	ydb_uint16 hash;
 
 	/* Assert that "ret_name" has space for "MAX_ROUTINE_LEN" + 1-byte null terminator + 1-byte '^' where applicable */

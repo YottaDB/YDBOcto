@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 
 RowDescription *read_row_description(BaseMessage *message) {
 	RowDescription *ret;
-	char *		cur_pointer;
+	char	       *cur_pointer;
 	uint32_t	remaining_length = 0;
 
 	remaining_length = ntohl(message->length);

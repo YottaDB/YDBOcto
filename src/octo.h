@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -426,7 +426,7 @@
 #define TOLOWER_STR(STR)                             \
 	{                                            \
 		size_t len;                          \
-		char * end, *begin;                  \
+		char  *end, *begin;                  \
                                                      \
 		begin = STR;                         \
 		len = strlen(begin);                 \
@@ -472,8 +472,8 @@
 #define TOUPPER_STR(STR)                             \
 	{                                            \
 		size_t len;                          \
-		char * end;                          \
-		char * begin;                        \
+		char  *end;                          \
+		char  *begin;                        \
                                                      \
 		begin = STR;                         \
 		len = strlen(begin);                 \
@@ -745,7 +745,7 @@ typedef enum DDLDependencyType {
 		if (QUERY_LENGTH >= (cur_input_max - cur_input_index - padding)) {                                 \
 			int    resize_amt;                                                                         \
 			size_t old_begin_index;                                                                    \
-			char * tmp;                                                                                \
+			char  *tmp;                                                                                \
                                                                                                                    \
 			resize_amt = ((QUERY_LENGTH > (cur_input_max * 2)) ? QUERY_LENGTH : (cur_input_max * 2));  \
 			tmp = malloc(resize_amt + NEWLINE_NEEDED + 1);                                             \
@@ -822,7 +822,7 @@ typedef enum DDLDependencyType {
 #define GET_TABLE_ASTERISK_COLUMN_ALIAS_FROM_COLUMN_LIST(RET, CL_STMT)            \
 	{                                                                         \
 		SqlColumnAlias *ca;                                               \
-		SqlColumnList * inner_column_list;                                \
+		SqlColumnList  *inner_column_list;                                \
 		DEBUG_ONLY(SqlValue *value);                                      \
                                                                                   \
 		UNPACK_SQL_STATEMENT(inner_column_list, CL_STMT, column_list);    \
@@ -1000,8 +1000,8 @@ typedef enum DDLDependencyType {
 #define POPULATE_GVN_BUFFER_FROM_TABLE(GVN_BUFFER, TABLE, GVN_STR)                                                 \
 	{                                                                                                          \
 		SqlOptionalKeyword *keyword;                                                                       \
-		char *		    gvname, *firstsub;                                                             \
-		SqlValue *	    value;                                                                         \
+		char		   *gvname, *firstsub;                                                             \
+		SqlValue	   *value;                                                                         \
                                                                                                                    \
 		UNPACK_SQL_STATEMENT(keyword, (TABLE)->source, keyword);                                           \
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);                                                    \
@@ -1189,7 +1189,7 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlStatement *get_deepest_column_alias_stmt(SqlStatement *new_column_alias_stmt, SqlStatement *column_alias_to_cmp_stmt);
 SqlStatement *find_view_or_table(const char *table_name);
-SqlFunction * find_function(const char *function_name, const char *function_hash);
+SqlFunction  *find_function(const char *function_name, const char *function_hash);
 void	      get_function_name_and_parmtypes(char *ret_buff, int ret_buff_len, char *function_name, SqlStatement *parm_list_stmt);
 int	   drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type, ydb_buffer_t *function_hash_buffer);
 SqlColumn *find_column(char *column_name, SqlTable *table);
@@ -1214,7 +1214,7 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_nam
 					  boolean_t issue_error);
 boolean_t	    match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
-char *		    get_keyword_name(enum OptionalKeyword keyword);
+char		   *get_keyword_name(enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
@@ -1235,13 +1235,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 /* Executes a sequence of SQL queries stored in file name "query_file_name" */
 int run_query_file(char *query_file_name);
 
-char *	      get_aggregate_func_name(SqlAggregateType type);
+char	     *get_aggregate_func_name(SqlAggregateType type);
 SqlValueType  get_set_operation_column_alias_type(SqlStatement *ca_stmt);
-char *	      get_set_operation_string(SqlSetOperationType type);
-char *	      get_user_visible_binary_operator_string(enum BinaryOperations operation);
+char	     *get_set_operation_string(SqlSetOperationType type);
+char	     *get_user_visible_binary_operator_string(enum BinaryOperations operation);
 int	      get_user_visible_data_type_string(SqlDataTypeStruct *data_type_ptr, char *ret_buff, int ret_buff_size);
-char *	      get_user_visible_type_string(SqlValueType type);
-char *	      get_user_visible_unary_operator_string(enum UnaryOperations operation);
+char	     *get_user_visible_type_string(SqlValueType type);
+char	     *get_user_visible_unary_operator_string(enum UnaryOperations operation);
 SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_type, ParseContext *parse_context);
 
 // Implements the "\d tablename/viewname" command at the OCTO> prompt
@@ -1263,17 +1263,17 @@ SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number);
 
 SqlColumnListAlias *get_encapsulated_cla_list(SqlStatement *table_stmt, SqlStatement *table_alias_stmt);
 
-SqlStatement *	    drill_to_table_alias(SqlStatement *sqlStmt);
-SqlColumn *	    get_column_under_column_list_alias(SqlColumnListAlias *cla);
+SqlStatement	   *drill_to_table_alias(SqlStatement *sqlStmt);
+SqlColumn	   *get_column_under_column_list_alias(SqlColumnListAlias *cla);
 int		    get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlTableAlias *table_alias);
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
-SqlColumnAlias *    get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
+SqlColumnAlias	   *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 int		    get_num_cols_in_table_alias(SqlTableAlias *table_alias);
-SqlColumnAlias *    get_column_alias_from_column_name(char *columnName, SqlTableAlias *table_alias);
+SqlColumnAlias	   *get_column_alias_from_column_name(char *columnName, SqlTableAlias *table_alias);
 
 SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords);
-SqlStatement *	    copy_sql_statement(SqlStatement *stmt);
+SqlStatement	   *copy_sql_statement(SqlStatement *stmt);
 boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
 void	      compress_statement(SqlStatement *stmt, char **out, int *out_length, boolean_t is_view_processing);
@@ -1409,7 +1409,7 @@ extern int   eof_hit;
 extern FILE *inputFile;
 extern char *input_buffer_combined; // The input buffer for octo. Contains the query strings.
 extern int (*cur_input_more)(void);
-extern OctoConfig * config;
+extern OctoConfig  *config;
 extern ydb_buffer_t lex_buffer;		// String buffer for use in lexer.l
 extern int	    ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@
 int regex_has_no_special_characters(SqlStatement *stmt, enum RegexType regex_type, ParseContext *parse_context) {
 	boolean_t has_regex_chars;
 	boolean_t esc_state;
-	char *	  ptr, *ptr_start, *ptr_top, *ptr_minus_escape_start, *ptr_minus_escape;
+	char	 *ptr, *ptr_start, *ptr_top, *ptr_minus_escape_start, *ptr_minus_escape;
 	size_t	  len;
 
 	if ((value_STATEMENT != stmt->type) || !IS_STRING_TYPE(stmt->v.value->type)) {

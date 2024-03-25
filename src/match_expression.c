@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,9 +28,9 @@
  * is returned to the caller.
  */
 ExpressionMatchType match_expression(char *start, char *column, int *expr_len, int column_size, char prev) {
-	char *		    c, *c2, *column_start;
-	char *		    keys = "keys(";
-	char *		    values = "values(";
+	char		   *c, *c2, *column_start;
+	char		   *keys = "keys(";
+	char		   *values = "values(";
 	int		    paren_count = 0;
 	ExpressionMatchType match;
 

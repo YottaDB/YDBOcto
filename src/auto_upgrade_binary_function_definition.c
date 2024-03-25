@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -98,7 +98,7 @@ int auto_upgrade_binary_function_definition(void) {
 		 */
 		function_subs[2].len_used = 0;
 		while (TRUE) {
-			char *	     binary_function_defn; /* pointer to the binary function definition */
+			char	    *binary_function_defn; /* pointer to the binary function definition */
 			int	     binary_function_defn_length;
 			char	     text_defn_str[MAX_DEFINITION_FRAGMENT_SIZE];
 			long	     text_defn_len;
@@ -108,9 +108,9 @@ int auto_upgrade_binary_function_definition(void) {
 			char	     cursor_buffer[INT64_TO_STRING_MAX];
 			char	     cur_frag_str[INT64_TO_STRING_MAX];
 			SqlFunction *function;
-			SqlValue *   value;
+			SqlValue    *value;
 			long long    function_oid;
-			char *	     as_with_spaces = " AS ", *curstr, *prevstr;
+			char	    *as_with_spaces = " AS ", *curstr, *prevstr;
 			size_t	     as_len;
 			unsigned int data_ret;
 
@@ -229,7 +229,7 @@ int auto_upgrade_binary_function_definition(void) {
 			}
 			if (prevstr != ret_buff.buf_addr) {
 				size_t len;
-				char * endstr;
+				char  *endstr;
 
 				/* Found " AS ". Check if back-quotes surround M extrinsic that follows this. If so remove them. */
 				curstr = prevstr;

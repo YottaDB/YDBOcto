@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 StartupMessage *read_startup_message(RoctoSession *session, char **data, int32_t *data_length) {
 	StartupMessage *ret = NULL;
 	int32_t		num_parms = 0, cur_parm = 0, to_read, tmp_len;
-	char *		c, *message_end, *tmp;
+	char	       *c, *message_end, *tmp;
 	// Length plus protocol version
 	uint32_t hard_coded_ints = sizeof(uint32_t) + sizeof(int);
 

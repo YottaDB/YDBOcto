@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -79,8 +79,8 @@ SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_ty
 	boolean_t save_is_tty = config->is_tty;
 	int	  save_cur_input_index = cur_input_index;
 	int	  save_old_input_index = old_input_index;
-	char *	  save_input_buffer_combined = input_buffer_combined;
-	char *	  save_old_input_line_begin = old_input_line_begin;
+	char	 *save_input_buffer_combined = input_buffer_combined;
+	char	 *save_old_input_line_begin = old_input_line_begin;
 	int	  save_leading_spaces = leading_spaces;
 	int (*save_cur_input_more)(void);
 	assert(cur_input_more == &readline_get_more);

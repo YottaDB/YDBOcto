@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,13 +22,13 @@
 #define CARET_CHAR '^'
 
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id) {
-	LogicalPlan *	    root, *project, *output, *column_list, *select, *cur, *lp_cla;
-	LogicalPlan *	    table_join, *criteria, *lp_key, *lp_table;
-	LogicalPlan *	    select_options, *select_more_options, *lp_keywords;
-	SqlColumnAlias *    cla;
-	SqlTableAlias *	    table_alias;
-	SqlStatement *	    table_alias_statement;
-	SqlColumn *	    key_columns[MAX_KEY_COUNT];
+	LogicalPlan	   *root, *project, *output, *column_list, *select, *cur, *lp_cla;
+	LogicalPlan	   *table_join, *criteria, *lp_key, *lp_table;
+	LogicalPlan	   *select_options, *select_more_options, *lp_keywords;
+	SqlColumnAlias	   *cla;
+	SqlTableAlias	   *table_alias;
+	SqlStatement	   *table_alias_statement;
+	SqlColumn	   *key_columns[MAX_KEY_COUNT];
 	SqlOptionalKeyword *keywords, *source_keyword;
 	int		    cur_key, max_key;
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,7 +31,7 @@ int handle_query(Query *query, RoctoSession *session) {
 	ParseContext	    parse_context;
 	QueryResponseParms  parms;
 	EmptyQueryResponse *empty_query_response;
-	CommandComplete *   response;
+	CommandComplete	   *response;
 	int32_t		    query_length = 0, run_query_result = 0;
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_query");

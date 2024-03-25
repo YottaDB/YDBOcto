@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,22 +20,22 @@
 
 /* Note: This function is very similar to "match_sql_statement.c". Any changes there might need to be reflected here too. */
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
-	SqlTableAlias *		table_alias, *new_table_alias;
-	SqlColumnList *		cur_column_list, *start_column_list, *new_column_list;
-	SqlJoin *		cur_join, *start_join, *new_join;
-	SqlStatement *		ret;
-	SqlSelectStatement *	select;
-	SqlDropTableStatement * drop_table;
-	SqlValue *		value;
-	SqlBinaryOperation *	binary;
-	SqlUnaryOperation *	unary;
-	SqlOptionalKeyword *	cur_keyword, *start_keyword, *new_keyword;
-	SqlColumnListAlias *	new_cl_alias, *cur_cl_alias, *start_cl_alias;
-	SqlColumnAlias *	column_alias;
-	SqlCaseStatement *	cas;
+	SqlTableAlias	       *table_alias, *new_table_alias;
+	SqlColumnList	       *cur_column_list, *start_column_list, *new_column_list;
+	SqlJoin		       *cur_join, *start_join, *new_join;
+	SqlStatement	       *ret;
+	SqlSelectStatement     *select;
+	SqlDropTableStatement  *drop_table;
+	SqlValue	       *value;
+	SqlBinaryOperation     *binary;
+	SqlUnaryOperation      *unary;
+	SqlOptionalKeyword     *cur_keyword, *start_keyword, *new_keyword;
+	SqlColumnListAlias     *new_cl_alias, *cur_cl_alias, *start_cl_alias;
+	SqlColumnAlias	       *column_alias;
+	SqlCaseStatement       *cas;
 	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch;
-	SqlFunctionCall *	function_call;
-	SqlAggregateFunction *	aggregate_function;
+	SqlFunctionCall	       *function_call;
+	SqlAggregateFunction   *aggregate_function;
 	int			len;
 
 	if (NULL == stmt)

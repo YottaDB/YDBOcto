@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,9 +28,9 @@
  */
 int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 	int		    key_num, max_key = -1, error = 0;
-	SqlColumn *	    start_column, *cur_column;
+	SqlColumn	   *start_column, *cur_column;
 	SqlOptionalKeyword *keyword;
-	SqlValue *	    value;
+	SqlValue	   *value;
 
 	assert(NULL != key_columns);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);

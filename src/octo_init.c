@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -125,8 +125,8 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
  */
 int merge_config_file(const char *path, config_t **config_file, enum config_kind kind) {
 	config_setting_t *a_root, *b_root;
-	config_t *	  new_config_file;
-	const char *	  error_message, *error_file;
+	config_t	 *new_config_file;
+	const char	 *error_message, *error_file;
 	int		  error_line, status;
 
 	new_config_file = (config_t *)calloc(1, sizeof(config_t));
@@ -154,7 +154,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 		// TODO: this leaks memory for the same reason as `parse_config_file_settings` (see below).
 		ssize_t	    exe_path_len;
 		char	    exe_path[OCTO_PATH_MAX], default_conf_file[OCTO_PATH_MAX];
-		char *	    ydb_dist;
+		char	   *ydb_dist;
 		const char *src_path;
 
 		if (DISABLE_INSTALL) {
@@ -211,7 +211,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 // Merges b into a, updating a with any values from b
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 	config_setting_t *t_setting, *b_setting;
-	char *		  setting_name;
+	char		 *setting_name;
 	int		  setting_type, b_index;
 
 	b_index = 0;
@@ -265,8 +265,8 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	config_setting_t *ydb_settings, *cur_ydb_setting;
 	ydb_buffer_t	  zroutines_buffer, dollar_zroutines_buffer;
 	unsigned int	  offset, zroutines_from_file_len, zroutines_len;
-	const char *	  item_name, *item_value, *verbosity, *tabletype, *emulate;
-	char *		  zroutines_buf_start, *zroutines_from_file;
+	const char	 *item_name, *item_value, *verbosity, *tabletype, *emulate;
+	char		 *zroutines_buf_start, *zroutines_from_file;
 	int		  status, done, i, emulate_int, verbosity_int, tabletype_int, plan_src_dir_len, plan_obj_dir_len;
 	char		  plan_src_dir[OCTO_PATH_MAX], plan_obj_dir[OCTO_PATH_MAX], *obj_dir;
 	struct stat	  statbuf;
@@ -690,18 +690,18 @@ void init_crypto(void) {
 
 int octo_init(int argc, char **argv) {
 	OctoConfig     temp_config;
-	const char *   src_path;
+	const char    *src_path;
 	ydb_long_t     ci_return;
 	uintptr_t      ci_tab_handle_new, ci_tab_handle_old;
 	boolean_t      verbosity_set;
-	config_t *     config_file;
+	config_t      *config_file;
 	ssize_t	       exe_path_len;
 	char	       ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
 	char	       cwd_file_name[OCTO_PATH_MAX], homedir_file_name[OCTO_PATH_MAX], plugin_file_name[OCTO_PATH_MAX];
 	char	       zstatus_message[YDB_MAX_ERRORMSG];
-	char *	       homedir, *ydb_dist, *most_recent_filename, *config_file_name = NULL;
+	char	      *homedir, *ydb_dist, *most_recent_filename, *config_file_name = NULL;
 	int	       status, i;
-	DIR *	       dir;
+	DIR	      *dir;
 	ConfigFileList config_file_list;
 
 	config = (OctoConfig *)malloc(sizeof(OctoConfig));
@@ -758,7 +758,7 @@ int octo_init(int argc, char **argv) {
 	// Note: This loop is only ever executed once. Structured this way to make it easy to break out in case of error code paths.
 	for (;;) {
 		ydb_buffer_t zyrelease, zyrel_value;
-		char *	     ch, *ch2, zyrel_value_buff[128]; /* should be more than enough to store $ZYRELEASE value */
+		char	    *ch, *ch2, zyrel_value_buff[128]; /* should be more than enough to store $ZYRELEASE value */
 
 		// This should always be 1
 		setenv("ydb_lvnullsubs", "1", 1);

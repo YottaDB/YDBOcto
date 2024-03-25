@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,9 +22,9 @@
  * Generates a meta-plan for doing a KEY_<set operation>
  */
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
-	SqlStatement *	 set_operation_stmt;
-	LogicalPlan *	 options, *set_operation, *plans, *key, *set_plans[2];
-	LogicalPlan *	 dst;
+	SqlStatement	*set_operation_stmt;
+	LogicalPlan	*options, *set_operation, *plans, *key, *set_plans[2];
+	LogicalPlan	*dst;
 	SqlSetOperation *set_operation_sql;
 
 	// Get plans for each of the sub plans

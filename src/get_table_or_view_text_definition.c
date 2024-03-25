@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -65,7 +65,7 @@ int get_table_or_view_text_definition(ydb_buffer_t *view_or_table_name, char **t
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	ydb_buffer_t text_defn_buff;
 	char	     text_defn_str[MAX_DEFINITION_FRAGMENT_SIZE];
-	char *	     text_defn = NULL;
+	char	    *text_defn = NULL;
 	long	     text_defn_len, cur_len;
 
 	text_defn_buff.buf_addr = text_defn_str;

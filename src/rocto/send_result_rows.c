@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -53,7 +53,7 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 
 int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	QueryResponseParms *parms = (QueryResponseParms *)_parms;
-	RoctoSession *	    session = parms->session;
+	RoctoSession	   *session = parms->session;
 
 	ydb_buffer_t cursor_subs[7], plan_meta[6], portal_subs[6];
 	ydb_buffer_t value_buffer, row_value_buffer, total_rows_buffer;
@@ -66,10 +66,10 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	char cur_row_str[INT32_TO_STRING_MAX];
 
 	int	     status;
-	DataRow *    data_row;
+	DataRow	    *data_row;
 	DataRowParm *data_row_parms, *cur_row_parms;
-	int16_t *    col_format_codes = NULL;
-	int32_t *    col_data_types = NULL;
+	int16_t	    *col_format_codes = NULL;
+	int32_t	    *col_data_types = NULL;
 	int16_t	     num_columns, cur_column, num_format_codes, global_column_format;
 	int32_t	     data_row_parms_alloc_len = 0;
 	int32_t	     total_rows, cur_row, last_row, rows_remaining;

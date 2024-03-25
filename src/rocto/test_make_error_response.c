@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,7 +27,7 @@
 
 static ErrorResponse *read_error_response(BaseMessage *message) {
 	ErrorResponse *ret;
-	char *	       cur_pointer, *last_byte;
+	char	      *cur_pointer, *last_byte;
 	uint32_t       remaining_length, num_args, i;
 
 	remaining_length = ntohl(message->length);
@@ -73,10 +73,10 @@ static ErrorResponse *read_error_response(BaseMessage *message) {
 }
 
 static void test_error_with_one_parm(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_ERROR, PSQL_Code_Success, message, 1, &a);
@@ -98,10 +98,10 @@ static void test_error_with_one_parm(void **state) {
 }
 
 static void test_error_with_no_additional_parms(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_ERROR, PSQL_Code_Success, message, 0);
@@ -123,10 +123,10 @@ static void test_error_with_no_additional_parms(void **state) {
 }
 
 static void test_error_with_additional_parms(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_ERROR, PSQL_Code_Success, message, 10, &a, &a, &a, &a, &a, &a, &a, &a, &a, &a);
@@ -148,10 +148,10 @@ static void test_error_with_additional_parms(void **state) {
 }
 
 static void test_error_verify_args_pointers_correct(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_ERROR, PSQL_Code_Success, message, 10, &a, &a, &a, &a, &a, &a, &a, &a, &a, &a);
@@ -198,10 +198,10 @@ static void test_error_verify_args_pointers_correct(void **state) {
 }
 
 static void test_notice_with_one_parm(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_WARNING, PSQL_Code_Protocol_Violation, message, 1, &a);
@@ -223,10 +223,10 @@ static void test_notice_with_one_parm(void **state) {
 }
 
 static void test_notice_with_no_additional_parms(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_WARNING, PSQL_Code_Protocol_Violation, message, 0);
@@ -248,10 +248,10 @@ static void test_notice_with_no_additional_parms(void **state) {
 }
 
 static void test_notice_with_additional_parms(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_WARNING, PSQL_Code_Protocol_Violation, message, 10, &a, &a, &a, &a, &a, &a, &a,
@@ -275,10 +275,10 @@ static void test_notice_with_additional_parms(void **state) {
 }
 
 static void test_notice_verify_args_pointers_correct(void **state) {
-	ErrorResponse *	 received_response = NULL;
-	ErrorResponse *	 response = NULL;
-	char *		 message = "Seems OK to me man";
-	char *		 detail = "This is a more complicated message";
+	ErrorResponse	*received_response = NULL;
+	ErrorResponse	*response = NULL;
+	char		*message = "Seems OK to me man";
+	char		*detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
 
 	response = make_error_response(PSQL_Error_WARNING, PSQL_Code_Protocol_Violation, message, 10, &a, &a, &a, &a, &a, &a, &a,

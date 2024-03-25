@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -155,7 +155,7 @@ typedef struct LpDefault {
 typedef struct LpExtraTableJoin {
 	enum SqlJoinType    cur_join_type;
 	struct LogicalPlan *join_on_condition;
-	char *		    left_join_buffer; /* If non-NULL, points to M code under `octoLeftJoinNN` label corresponding
+	char		   *left_join_buffer; /* If non-NULL, points to M code under `octoLeftJoinNN` label corresponding
 					       * to this LEFT JOIN.
 					       */
 	uint64_t left_join_save_buffer_index;
@@ -195,7 +195,7 @@ typedef struct LpExtraInsert {
 					       *   corresponding to source table of the DELETE FROM.
 					       * If LP_INSERT_INTO, this is currently NULL
 					       */
-	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used otherwise */
+	struct LogicalPlan  *first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used otherwise */
 	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there is only ONE physical
 					       * plan corresponding to this logical plan i.e. there is a 1 to 1 mapping.
 					       */
@@ -338,7 +338,7 @@ typedef struct LogicalPlan {
 } LogicalPlan;
 
 typedef struct SqlKey {
-	SqlTable * table;
+	SqlTable  *table;
 	SqlColumn *column;
 	int	   unique_id;
 	// If this key is fixed, this is the value

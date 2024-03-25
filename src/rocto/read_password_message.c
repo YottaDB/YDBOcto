@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 PasswordMessage *read_password_message(BaseMessage *message) {
 	PasswordMessage *ret;
 	uint32_t	 length;
-	char *		 c, *message_end;
+	char		*c, *message_end;
 
 	length = ntohl(message->length);
 	ret = (PasswordMessage *)malloc(sizeof(PasswordMessage) + length - sizeof(uint32_t));

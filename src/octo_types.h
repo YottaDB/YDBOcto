@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -97,7 +97,7 @@ typedef void *yyscan_t;
 #define SQL_VALUE_STATEMENT(DEST, TYPE, STRING_LITERAL)          \
 	{                                                        \
 		SqlStatement *lcl_ret;                           \
-		SqlValue *    lcl_value;                         \
+		SqlValue     *lcl_value;                         \
                                                                  \
 		SQL_STATEMENT(lcl_ret, value_STATEMENT);         \
 		MALLOC_STATEMENT(lcl_ret, value, SqlValue);      \
@@ -461,13 +461,13 @@ struct YYLTYPE {
 typedef struct {
 	// General purpose parser fields
 	ydb_long_t cursorId;
-	char *	   cursorIdString;
+	char	  *cursorIdString;
 	boolean_t  abort; // Used to defer YYABORT in certain error cases
 	// Extended Query specific fields
-	PSQL_TypeOid *	 types;
+	PSQL_TypeOid	*types;
 	SqlStatementType command_tag;
 	int16_t		 types_size;
-	int32_t *	 parm_start; /* Note that the type size used for parm_start and parm_end is int32_t despite the fact that
+	int32_t		*parm_start; /* Note that the type size used for parm_start and parm_end is int32_t despite the fact that
 				      *	only INT16_MAX parameters are possible. This is because this array is for tracking buffer
 				      * offsets within the query string, whose length max exceed INT16_MAX since:
 				      * OCTO_MAX_QUERY_LEN == YDB_MAX_STR == 1024 * 1024, while INT16_MAX == 32767.
@@ -535,10 +535,10 @@ typedef struct SqlColumn {
 	struct SqlDataTypeStruct data_type_struct;
 	int			 column_number;
 	boolean_t		 is_hidden_keycol;
-	struct SqlStatement *	 table;
-	struct SqlStatement *	 delim;
-	struct SqlStatement *	 keywords;
-	void *			 bin_defn_offset; /* Refer to comments above similar field in SqlTable */
+	struct SqlStatement	*table;
+	struct SqlStatement	*delim;
+	struct SqlStatement	*keywords;
+	void			*bin_defn_offset; /* Refer to comments above similar field in SqlTable */
 	dqcreate(SqlColumn);
 } SqlColumn;
 
@@ -719,7 +719,7 @@ typedef struct SqlTableAlias {
 							   * column alias and not multiple copies of it.
 							   */
 	QualifyQueryStage qualify_query_stage;
-	void *		  bin_defn_offset; /* Refer to comments above similar field in SqlTable */
+	void		 *bin_defn_offset; /* Refer to comments above similar field in SqlTable */
 } SqlTableAlias;
 
 /**
@@ -811,9 +811,9 @@ typedef struct SqlUpdateColumnValue {
 } SqlUpdateColumnValue;
 
 typedef struct SqlUpdateStatement {
-	struct SqlStatement * src_join; /* SqlJoin */
+	struct SqlStatement  *src_join; /* SqlJoin */
 	SqlUpdateColumnValue *col_value_list;
-	struct SqlStatement * where_clause; /* SqlBinaryOperation or SqlUnaryOperation etc. */
+	struct SqlStatement  *where_clause; /* SqlBinaryOperation or SqlUnaryOperation etc. */
 } SqlUpdateStatement;
 
 typedef struct SqlDropTableStatement {
@@ -854,7 +854,7 @@ typedef struct SqlUnaryOperation {
  */
 typedef struct SqlBinaryOperation {
 	enum BinaryOperations operation; // '+', '-', '*', '/'
-	struct SqlStatement * operands[2];
+	struct SqlStatement  *operands[2];
 	group_by_fields_t     group_by_fields;
 } SqlBinaryOperation;
 
@@ -1088,7 +1088,7 @@ typedef struct SqlConstraint {
 
 typedef struct SqlDisplayRelation {
 	SqlDisplayRelationType type;
-	struct SqlStatement *  table_name; /* Used by `\d tablename` command */
+	struct SqlStatement   *table_name; /* Used by `\d tablename` command */
 } SqlDisplayRelation;
 
 typedef struct SqlStatement {
@@ -1098,57 +1098,57 @@ typedef struct SqlStatement {
 		/* Note: The order of the fields listed below is the same as the order of statement types listed in
 		 * "typedef enum SqlStatementType" in a different section of this same file ("octo_types.h").
 		 */
-		struct SqlTable *		  create_table;
-		struct SqlView *		  create_view;
-		struct SqlFunction *		  create_function;
-		struct SqlSelectStatement *	  select;
-		struct SqlInsertStatement *	  insert;
-		struct SqlDropTableStatement *	  drop_table;
-		struct SqlDropViewStatement *	  drop_view;
-		struct SqlDropFunctionStatement * drop_function;
+		struct SqlTable			 *create_table;
+		struct SqlView			 *create_view;
+		struct SqlFunction		 *create_function;
+		struct SqlSelectStatement	 *select;
+		struct SqlInsertStatement	 *insert;
+		struct SqlDropTableStatement	 *drop_table;
+		struct SqlDropViewStatement	 *drop_view;
+		struct SqlDropFunctionStatement	 *drop_function;
 		struct SqlTruncateTableStatement *truncate_table;
-		struct SqlValue *		  value;
-		struct SqlFunctionCall *	  function_call;
-		struct SqlCoalesceCall *	  coalesce;
-		struct SqlGreatest *		  greatest;
-		struct SqlLeast *		  least;
-		struct SqlNullIf *		  null_if;
-		struct SqlAggregateFunction *	  aggregate_function;
-		struct SqlBinaryOperation *	  binary;
-		struct SqlUnaryOperation *	  unary;
-		struct SqlColumnList *		  column_list;
-		struct SqlColumn *		  column; // Note singular versus plural
-		struct SqlJoin *		  join;
-		struct SqlParameterTypeList *	  parameter_type_list;
-		struct SqlConstraint *		  constraint; /* corresponding to constraint_STATEMENT */
-		struct SqlOptionalKeyword *	  keyword;
-		struct SqlColumnListAlias *	  column_list_alias;
-		struct SqlColumnAlias *		  column_alias;
-		struct SqlTableAlias *		  table_alias;
-		struct SqlSetOperation *	  set_operation;
-		struct SqlBeginStatement *	  begin;
-		struct SqlCommitStatement *	  commit;
-		struct SqlCaseStatement *	  cas;
-		struct SqlCaseBranchStatement *	  cas_branch;
-		struct SqlSetStatement *	  set;
-		struct SqlShowStatement *	  show;
-		struct SqlNoDataStatement *	  no_data;
+		struct SqlValue			 *value;
+		struct SqlFunctionCall		 *function_call;
+		struct SqlCoalesceCall		 *coalesce;
+		struct SqlGreatest		 *greatest;
+		struct SqlLeast			 *least;
+		struct SqlNullIf		 *null_if;
+		struct SqlAggregateFunction	 *aggregate_function;
+		struct SqlBinaryOperation	 *binary;
+		struct SqlUnaryOperation	 *unary;
+		struct SqlColumnList		 *column_list;
+		struct SqlColumn		 *column; // Note singular versus plural
+		struct SqlJoin			 *join;
+		struct SqlParameterTypeList	 *parameter_type_list;
+		struct SqlConstraint		 *constraint; /* corresponding to constraint_STATEMENT */
+		struct SqlOptionalKeyword	 *keyword;
+		struct SqlColumnListAlias	 *column_list_alias;
+		struct SqlColumnAlias		 *column_alias;
+		struct SqlTableAlias		 *table_alias;
+		struct SqlSetOperation		 *set_operation;
+		struct SqlBeginStatement	 *begin;
+		struct SqlCommitStatement	 *commit;
+		struct SqlCaseStatement		 *cas;
+		struct SqlCaseBranchStatement	 *cas_branch;
+		struct SqlSetStatement		 *set;
+		struct SqlShowStatement		 *show;
+		struct SqlNoDataStatement	 *no_data;
 		struct SqlDelimiterCharacterList *delim_char_list;
-		struct SqlIndex *		  index;
+		struct SqlIndex			 *index;
 		struct SqlDataTypeStruct	  data_type_struct;
-		struct SqlDisplayRelation *	  display_relation;
+		struct SqlDisplayRelation	 *display_relation;
 		enum SqlJoinType		  join_type;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	discard_all_STATEMENT
 		 */
-		struct SqlRowValue *  row_value;   /* corresponding to row_value_STATEMENT */
+		struct SqlRowValue   *row_value;   /* corresponding to row_value_STATEMENT */
 		struct SqlTableValue *table_value; /* corresponding to table_value_STATEMENT */
-		struct SqlArray *     array;
+		struct SqlArray	     *array;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	history_STATEMENT
 		 */
 		struct SqlDeleteFromStatement *delete_from;
-		struct SqlUpdateStatement *    update;
+		struct SqlUpdateStatement     *update;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	invalid_STATEMENT
 		 */
@@ -1168,8 +1168,8 @@ typedef struct SqlStatement {
 /* The below is used by qualify_statement.c */
 typedef struct {
 	SqlColumnListAlias **ret_cla;
-	int *		     max_unique_id;
-	SqlStatement *	     deepest_column_alias_stmt; /* Used by COLUMN_REFERENCE case of qualify_statement() to communicate
+	int		    *max_unique_id;
+	SqlStatement	    *deepest_column_alias_stmt; /* Used by COLUMN_REFERENCE case of qualify_statement() to communicate
 							 * the deepest `column_alias` in the aggregate parameter to
 							 * aggregate_function_STATEMENT case.
 							 */

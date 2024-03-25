@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@
 #include "message_formats.h"
 
 CancelRequest *read_cancel_request(RoctoSession *session, char **data, int32_t *data_size) {
-	char *	       tmp;
+	char	      *tmp;
 	int	       tmp_len;
 	CancelRequest *ret = NULL;
 	uint32_t       expected_length = sizeof(CancelRequest);

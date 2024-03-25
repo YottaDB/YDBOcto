@@ -175,23 +175,23 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, SqlState
 int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent_stmt, ParseContext *parse_context,
 		       SqlValueType *fix_type) {
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlCaseStatement *	cas;
-	SqlColumn *		column, *start_column;
-	SqlCoalesceCall *	coalesce_call;
-	SqlArray *		array;
-	SqlGreatest *		greatest_call;
-	SqlLeast *		least_call;
-	SqlNullIf *		null_if;
-	SqlSetOperation *	set_operation;
-	SqlTableAlias *		table_alias;
-	SqlValue *		value;
+	SqlCaseStatement       *cas;
+	SqlColumn	       *column, *start_column;
+	SqlCoalesceCall	       *coalesce_call;
+	SqlArray	       *array;
+	SqlGreatest	       *greatest_call;
+	SqlLeast	       *least_call;
+	SqlNullIf	       *null_if;
+	SqlSetOperation	       *set_operation;
+	SqlTableAlias	       *table_alias;
+	SqlValue	       *value;
 	SqlValueType		child_type[2];
-	SqlSelectStatement *	select;
+	SqlSelectStatement     *select;
 	int			result;
-	SqlTableValue *		table_value;
-	SqlRowValue *		row_value, *start_row_value;
+	SqlTableValue	       *table_value;
+	SqlRowValue	       *row_value, *start_row_value;
 	int			num_columns;
-	SqlInsertStatement *	insert;
+	SqlInsertStatement     *insert;
 
 	assert(NULL != parse_context); /* helps distinguish "populate_data_type.c" from "qualify_check_constraint.c" when
 					* calling common functions like "function_call_data_type_check()".
@@ -1010,7 +1010,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 			num_columns = row_value->num_columns;
 			assert(num_columns);
 
-			SqlValueType * type_array;
+			SqlValueType  *type_array;
 			boolean_t      saw_boolean_or_string_literal, *saw_boolean_or_string_literal_array;
 			SqlStatement **first_value;
 

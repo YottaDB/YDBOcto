@@ -1,6 +1,6 @@
 /****************************************************************
  *                                                              *
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.      *
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.      *
  * All rights reserved.                                         *
  *                                                              *
  *      This source code contains the intellectual property     *
@@ -59,7 +59,7 @@ SqlStatement *function_definition(SqlStatement *identifier, SqlStatement *functi
 		need_iteration_two = FALSE;
 		if (config->is_auto_upgrade_octo929) {
 			SqlValue *value;
-			char *	  function_name, *orig_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
+			char	 *function_name, *orig_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
 			UNPACK_SQL_STATEMENT(value, identifier, value);
 			orig_name = value->v.string_literal;
 			if (!value->is_double_quoted) {

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -77,11 +77,11 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	char		 cur_bind_parm_str[INT16_TO_STRING_MAX];
 	uint32_t	 data_ret;
 	int32_t		 status, done;
-	int32_t *	 parse_context_array;
+	int32_t		*parse_context_array;
 	int16_t		 num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
 	int16_t		 num_col_format_codes, cur_format_code;
 	long int	 num_parms_long, offset_long, type_long;
-	BindComplete *	 response;
+	BindComplete	*response;
 	ParseContext	 parse_context;
 	SqlStatementType command_tag;
 	long int	 temp_long;

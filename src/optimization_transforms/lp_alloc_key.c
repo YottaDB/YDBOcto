@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,7 @@
 LogicalPlan *lp_alloc_key(SqlTable *table, SqlColumn *column, int unique_id, LPActionType type, SqlKey *cross_reference_output_key,
 			  boolean_t is_cross_reference_key, LogicalPlan *view_definition_output_key) {
 	LogicalPlan *ret;
-	SqlKey *     key;
+	SqlKey	    *key;
 
 	MALLOC_LP_2ARGS(ret, LP_KEY);
 	OCTO_CMALLOC_STRUCT(key, SqlKey);

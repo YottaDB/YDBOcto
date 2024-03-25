@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,8 +20,8 @@
  */
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
 				  SqlStatement *sort_specification_list, int *plan_id) {
-	SqlStatement *	    ret, *quantifier;
-	SqlTableAlias *	    this_table_alias;
+	SqlStatement	   *ret, *quantifier;
+	SqlTableAlias	   *this_table_alias;
 	SqlSelectStatement *select;
 
 	SQL_STATEMENT(ret, table_alias_STATEMENT);

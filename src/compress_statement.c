@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,15 +49,15 @@ void compress_statement(SqlStatement *stmt, char **out, int *out_length, boolean
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, boolean_t is_view_processing) {
-	SqlColumn *	      cur_column, *start_column, *new_column;
-	SqlOptionalKeyword *  start_keyword, *cur_keyword, *new_keyword;
-	SqlStatement *	      new_stmt;
-	SqlTable *	      table, *new_table;
-	SqlFunction *	      function, *new_function;
+	SqlColumn	     *cur_column, *start_column, *new_column;
+	SqlOptionalKeyword   *start_keyword, *cur_keyword, *new_keyword;
+	SqlStatement	     *new_stmt;
+	SqlTable	     *table, *new_table;
+	SqlFunction	     *function, *new_function;
 	SqlParameterTypeList *new_parameter_type_list, *cur_parameter_type_list, *start_parameter_type_list;
-	SqlValue *	      value, *new_value;
+	SqlValue	     *value, *new_value;
 	int		      len;
-	void *		      r, *ret;
+	void		     *r, *ret;
 	// Following code is to prevent [-Wmaybe-uninitialized] compiler warning from gcc 7.5.0
 	// Asserts before the use of new_stmt ensure its value is never NULL
 	new_stmt = NULL;

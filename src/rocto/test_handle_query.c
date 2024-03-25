@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,9 +42,9 @@ int __wrap_run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT m
 }
 
 static void test_valid_input(void **state) {
-	Query *	     query;
+	Query	    *query;
 	RoctoSession session;
-	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	char	    *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
 	int	     query_length = strlen(query_text);
 	int32_t	     result;
 
@@ -64,9 +64,9 @@ static void test_valid_input(void **state) {
 }
 
 static void test_query_length_equals_zero(void **state) {
-	Query *	     query;
+	Query	    *query;
 	RoctoSession session;
-	char *	     query_text = "";
+	char	    *query_text = "";
 	int	     query_length = strlen(query_text);
 	int32_t	     result;
 
@@ -87,9 +87,9 @@ static void test_query_length_greater_than_max(void **state) {
 	// change global variable's value to a small number for testing
 	cur_input_max = 2;
 
-	Query *	     query;
+	Query	    *query;
 	RoctoSession session;
-	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	char	    *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
 	int	     query_length = strlen(query_text);
 	int32_t	     result;
 
@@ -113,9 +113,9 @@ static void test_query_length_greater_than_max(void **state) {
 }
 
 static void test_run_query_result_equals_negative_one(void **state) {
-	Query *	     query;
+	Query	    *query;
 	RoctoSession session;
-	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	char	    *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
 	int	     query_length = strlen(query_text);
 	int32_t	     result;
 
@@ -135,9 +135,9 @@ static void test_run_query_result_equals_negative_one(void **state) {
 
 // Also cannot equal -1, as that would trigger the same thing as the test above
 static void test_run_query_result_does_not_equal_zero(void **state) {
-	Query *	     query;
+	Query	    *query;
 	RoctoSession session;
-	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	char	    *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
 	int	     query_length = strlen(query_text);
 	int32_t	     result;
 

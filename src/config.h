@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -63,10 +63,10 @@ typedef struct OctoConfig {
 	DatabaseEmulation    database_emulation;
 	RoctoConfig	     rocto_config;
 	GlobalNames	     global_names;
-	const char *	     plan_src_dir; /* the directory where _ydbocto*.m plans are generated */
-	const char *	     plan_obj_dir; /* the directory where _ydbocto*.o object files are generated */
+	const char	    *plan_src_dir; /* the directory where _ydbocto*.m plans are generated */
+	const char	    *plan_obj_dir; /* the directory where _ydbocto*.o object files are generated */
 	boolean_t	     is_tty, is_rocto;
-	config_t *	     config_file;
+	config_t	    *config_file;
 	pid_t		     process_id;
 	boolean_t	     dry_run;
 	boolean_t	     octo_print_flag_specified; /* TRUE if "-p" or "--print-sql-query" was specified in octo startup */

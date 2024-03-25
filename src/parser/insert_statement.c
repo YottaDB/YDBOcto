@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,12 +37,12 @@
  */
 SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *optional_words,
 			       SqlStatement *query_expression, int *plan_id, ParseContext *parse_context) {
-	SqlStatement *	    ret, *validated_query_expression;
-	SqlStatement *	    join_stmt;
+	SqlStatement	   *ret, *validated_query_expression;
+	SqlStatement	   *join_stmt;
 	SqlInsertStatement *insert;
-	SqlJoin *	    join;
-	SqlTableAlias *	    table_alias;
-	SqlTable *	    table;
+	SqlJoin		   *join;
+	SqlTableAlias	   *table_alias;
+	SqlTable	   *table;
 
 	assert(value_STATEMENT == table_name->type);
 	join_stmt = table_reference(table_name, NULL, plan_id);
@@ -67,8 +67,8 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 		UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
 		cur_cl = start_cl;
 		do {
-			SqlColumn *    tbl_col;
-			SqlValue *     col_name;
+			SqlColumn     *tbl_col;
+			SqlValue      *col_name;
 			SqlColumnList *cur_cl2;
 			UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
 			tbl_col = find_column(col_name->v.string_literal, table);

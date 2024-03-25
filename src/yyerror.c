@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -66,7 +66,7 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 		 * In this case, compute "llocp" from "out".
 		 */
 		SqlSetOperation *set_operation;
-		SqlStatement *	 sql_stmt, *stmt;
+		SqlStatement	*sql_stmt, *stmt;
 
 		assert(NULL == llocp);
 		stmt = *out;
@@ -99,10 +99,10 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 void print_yyloc(YYLTYPE *llocp) {
 	int	  cur_line, line_in_file, cur_column, err_out_len, prev_query_len;
 	int	  prefix_len, line_len, highlight_len, i, newline_offset;
-	char *	  c, *line_end, old_terminator, placeholder;
-	char *	  highlight_begin, *highlight_end, *excerpt_begin, *excerpt_end, *prev_query_end;
-	char *	  left_ellipsis, *right_ellipsis;
-	char *	  err_out, *err_ptr;
+	char	 *c, *line_end, old_terminator, placeholder;
+	char	 *highlight_begin, *highlight_end, *excerpt_begin, *excerpt_end, *prev_query_end;
+	char	 *left_ellipsis, *right_ellipsis;
+	char	 *err_out, *err_ptr;
 	char	  prefix[sizeof(LINE_LIT) + INT32_TO_STRING_MAX];
 	boolean_t is_multiquery_line, line_begin_was_reset, follows_blank_lines;
 

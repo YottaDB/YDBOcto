@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,10 +18,10 @@
 /* Encapsulates the given cla or column with `SqlColumnListAlias->SqlColumnList->SqlColumnAlias` */
 SqlColumnListAlias *get_encapsulated_cla(SqlColumn *cur_column, SqlColumnListAlias *cur_cla, SqlStatement *table_alias_stmt) {
 	assert((NULL == cur_column) || (NULL == cur_cla));
-	SqlColumnList *	    cur;
+	SqlColumnList	   *cur;
 	SqlColumnListAlias *column_list_alias;
-	SqlColumnAlias *    column_alias;
-	SqlStatement *	    stmt;
+	SqlColumnAlias	   *column_alias;
+	SqlStatement	   *stmt;
 	SQL_STATEMENT(stmt, column_alias_STATEMENT);
 	MALLOC_STATEMENT(stmt, column_alias, SqlColumnAlias);
 	column_alias = stmt->v.column_alias;
@@ -80,7 +80,7 @@ SqlColumnListAlias *get_encapsulated_cla_list(SqlStatement *table_stmt, SqlState
 		assert(FALSE);
 		break;
 	}
-	SqlColumn *	    column;
+	SqlColumn	   *column;
 	SqlColumnListAlias *cla;
 	if (NULL == column_or_cla_stmt) {
 		return NULL;

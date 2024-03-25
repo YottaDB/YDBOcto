@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,7 +38,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 
 	if (set_STATEMENT == stmt->type) {
 		SqlSetStatement *set_stmt;
-		SqlValue *	 runtime_variable_stmt, *runtime_value_stmt;
+		SqlValue	*runtime_variable_stmt, *runtime_value_stmt;
 
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
 		UNPACK_SQL_STATEMENT(runtime_value_stmt, set_stmt->value, value);
@@ -51,9 +51,9 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	}
 	if (show_STATEMENT == stmt->type) {
 		SqlShowStatement *show_stmt;
-		SqlValue *	  runtime_variable;
+		SqlValue	 *runtime_variable;
 		ydb_buffer_t	  value_buffer;
-		char *		  parameter_value;
+		char		 *parameter_value;
 
 		// SHOW a runtime variable value
 		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);

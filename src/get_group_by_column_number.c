@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,9 +31,9 @@ int get_group_by_column_number(SqlTableAlias *table_alias, SqlStatement *stmt_to
 
 	// See if there is match between GROUP BY column and `stmt_to_match`
 	int		    column_number = 1;
-	SqlColumnList *	    cl;
+	SqlColumnList	   *cl;
 	SqlColumnListAlias *cur_cla, *start_cla;
-	group_by_fields_t * gb_fields;
+	group_by_fields_t  *gb_fields;
 	UNPACK_SQL_STATEMENT(start_cla, group_by_expression, column_list_alias);
 	cur_cla = start_cla;
 	do {

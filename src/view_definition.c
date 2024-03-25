@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,7 +30,7 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 	SqlStatement *viewName = view->viewName;
 	if (config->is_auto_upgrade_octo929) {
 		SqlValue *value;
-		char *	  view_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
+		char	 *view_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
 
 		/* See comment in "src/parser/table_definition.c" for why "for" loop that runs 2 iterations is needed */
 		int i;
@@ -66,7 +66,7 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 	SqlStatement *column_name_list = view->column_name_list;
 	SqlStatement *query_expression = view->src_table_alias_stmt;
 	assert(value_STATEMENT == viewName->type);
-	SqlStatement *	 src_table_alias_stmt;
+	SqlStatement	*src_table_alias_stmt;
 	SqlStatementType save_command_tag = parse_context->command_tag;
 	// Pass command type to be select as we are processing view definition
 	src_table_alias_stmt = validate_query_expression(query_expression, parse_context, select_STATEMENT);
@@ -81,8 +81,8 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 	if (NULL != column_name_list) {
 		/* Assign view column name as alias for the underlying view definition columns */
 		SqlColumnListAlias *start_cla, *cur_cla;
-		SqlStatement *	    table_alias_stmt = drill_to_table_alias(view->src_table_alias_stmt);
-		SqlTableAlias *	    table_alias;
+		SqlStatement	   *table_alias_stmt = drill_to_table_alias(view->src_table_alias_stmt);
+		SqlTableAlias	   *table_alias;
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
@@ -107,8 +107,8 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 		} while (cur_cl != start_cl);
 	}
 	// Validate that no duplicate column names exist
-	SqlStatement *	    table_alias_stmt;
-	SqlTableAlias *	    table_alias;
+	SqlStatement	   *table_alias_stmt;
+	SqlTableAlias	   *table_alias;
 	SqlColumnListAlias *start_cla, *cur_cla, *cur_cla2;
 	table_alias_stmt = drill_to_table_alias(view->src_table_alias_stmt);
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@
 // Function invoked by the rule named "sort_specification" in src/parser/parser.y
 // When supported collate clause SqlStatement may be passed here.
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification) {
-	SqlStatement *	    ret, *order_spec;
+	SqlStatement	   *ret, *order_spec;
 	SqlColumnListAlias *alias;
 
 	SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);

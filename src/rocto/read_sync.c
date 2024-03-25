@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
 #include "message_formats.h"
 
 Sync *read_sync(BaseMessage *message) {
-	Sync *	 ret;
+	Sync	*ret;
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if (message->type != PSQL_Sync) {

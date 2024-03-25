@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,27 +23,27 @@
  *    CHECK constraints to indicate special processing. This parameter stays the same across recursive invocations.
  */
 LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
-	LogicalPlan *		ret = NULL, *cur_lp;
+	LogicalPlan	       *ret = NULL, *cur_lp;
 	LPActionType		type;
-	SqlArray *		array;
-	SqlValue *		value;
-	SqlUnaryOperation *	unary;
-	SqlBinaryOperation *	binary;
-	SqlCoalesceCall *	coalesce_call;
-	SqlGreatest *		greatest_call;
-	SqlLeast *		least_call;
-	SqlNullIf *		null_if;
-	SqlFunctionCall *	function_call;
-	SqlAggregateFunction *	aggregate_function;
-	SqlColumnAlias *	column_alias;
-	SqlColumn *		column;
-	SqlColumnList *		cur_cl, *start_cl;
-	SqlCaseStatement *	cas;
+	SqlArray	       *array;
+	SqlValue	       *value;
+	SqlUnaryOperation      *unary;
+	SqlBinaryOperation     *binary;
+	SqlCoalesceCall	       *coalesce_call;
+	SqlGreatest	       *greatest_call;
+	SqlLeast	       *least_call;
+	SqlNullIf	       *null_if;
+	SqlFunctionCall	       *function_call;
+	SqlAggregateFunction   *aggregate_function;
+	SqlColumnAlias	       *column_alias;
+	SqlColumn	       *column;
+	SqlColumnList	       *cur_cl, *start_cl;
+	SqlCaseStatement       *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlStatement *		ret_type, *sql_function_name, *sql_function_hash;
+	SqlStatement	       *ret_type, *sql_function_name, *sql_function_hash;
 	boolean_t		error_encountered = FALSE;
 	SqlDataType		data_type;
-	SqlOptionalKeyword *	keyword;
+	SqlOptionalKeyword     *keyword;
 
 	assert(NULL != stmt);
 	assert((NULL == root_stmt) || (insert_STATEMENT == root_stmt->type) || (update_STATEMENT == root_stmt->type));
@@ -78,8 +78,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 				case update_STATEMENT:;
 					SqlInsertStatement *insert;
 					SqlUpdateStatement *update;
-					SqlJoin *	    join;
-					SqlTableAlias *	    table_alias;
+					SqlJoin		   *join;
+					SqlTableAlias	   *table_alias;
 
 					if (insert_STATEMENT == root_stmt->type) {
 						UNPACK_SQL_STATEMENT(insert, root_stmt, insert);
@@ -332,7 +332,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt) {
 				 * logical plan.
 				 */
 				SqlValueType   type;
-				SqlStatement * extract_stmt;
+				SqlStatement  *extract_stmt;
 				SqlColumnList *dependencies;
 
 				extract_stmt = copy_sql_statement(keyword->v);

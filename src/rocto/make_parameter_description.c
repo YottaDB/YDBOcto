@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,7 +28,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 	int32_t		      status = 0, *parm_data_types;
 	int16_t		      num_parms = 0, cur_parm_type = 0, cur_parm_type_temp;
 	long int	      test_type = 0, num_parms_from_str = 0;
-	ydb_buffer_t *	      src_subs;
+	ydb_buffer_t	     *src_subs;
 	ydb_buffer_t	      num_parms_buf, parm_type_buf;
 
 	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);

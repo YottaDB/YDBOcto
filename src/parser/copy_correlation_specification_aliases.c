@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
  *	1 in case of errors so caller can take appropriate action.
  */
 int copy_correlation_specification_aliases(SqlTableAlias *table_alias) {
-	SqlColumnList *	    table_name_alias, *column_name_alias;
+	SqlColumnList	   *table_name_alias, *column_name_alias;
 	SqlColumnListAlias *start_cla, *cur_cla;
 	int		    table_columns, correlation_columns;
 

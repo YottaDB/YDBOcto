@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,30 +20,30 @@
  * Note: This function is very similar to "copy_sql_statement.c". Any changes there might need to be reflected here too.
  */
 boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
-	SqlTableAlias *		table_alias, *match_table_alias;
-	SqlColumnList *		cur_column_list, *start_column_list;
-	SqlColumnList *		match_cur_column_list, *match_start_column_list;
-	SqlJoin *		cur_join, *start_join;
-	SqlJoin *		match_cur_join, *match_start_join;
-	SqlSelectStatement *	select, *match_select;
-	SqlDropTableStatement * drop_table, *match_drop_table;
-	SqlValue *		value, *match_value;
-	SqlBinaryOperation *	binary, *match_binary;
-	SqlUnaryOperation *	unary, *match_unary;
-	SqlOptionalKeyword *	cur_keyword, *start_keyword;
-	SqlOptionalKeyword *	match_cur_keyword, *match_start_keyword;
-	SqlColumnListAlias *	cur_cl_alias, *start_cl_alias;
-	SqlColumnListAlias *	match_cur_cl_alias, *match_start_cl_alias;
-	SqlColumnAlias *	column_alias, *match_column_alias;
-	SqlCaseStatement *	cas, *match_cas;
+	SqlTableAlias	       *table_alias, *match_table_alias;
+	SqlColumnList	       *cur_column_list, *start_column_list;
+	SqlColumnList	       *match_cur_column_list, *match_start_column_list;
+	SqlJoin		       *cur_join, *start_join;
+	SqlJoin		       *match_cur_join, *match_start_join;
+	SqlSelectStatement     *select, *match_select;
+	SqlDropTableStatement  *drop_table, *match_drop_table;
+	SqlValue	       *value, *match_value;
+	SqlBinaryOperation     *binary, *match_binary;
+	SqlUnaryOperation      *unary, *match_unary;
+	SqlOptionalKeyword     *cur_keyword, *start_keyword;
+	SqlOptionalKeyword     *match_cur_keyword, *match_start_keyword;
+	SqlColumnListAlias     *cur_cl_alias, *start_cl_alias;
+	SqlColumnListAlias     *match_cur_cl_alias, *match_start_cl_alias;
+	SqlColumnAlias	       *column_alias, *match_column_alias;
+	SqlCaseStatement       *cas, *match_cas;
 	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch;
 	SqlCaseBranchStatement *match_cur_cas_branch, *match_start_cas_branch;
-	SqlFunctionCall *	function_call, *match_function_call;
-	SqlGreatest *		greatest_call, *match_greatest_call;
-	SqlLeast *		least_call, *match_least_call;
-	SqlCoalesceCall *	coalesce_call, *match_coalesce_call;
-	SqlNullIf *		null_if, *match_null_if;
-	SqlAggregateFunction *	aggregate_function, *match_aggregate_function;
+	SqlFunctionCall	       *function_call, *match_function_call;
+	SqlGreatest	       *greatest_call, *match_greatest_call;
+	SqlLeast	       *least_call, *match_least_call;
+	SqlCoalesceCall	       *coalesce_call, *match_coalesce_call;
+	SqlNullIf	       *null_if, *match_null_if;
+	SqlAggregateFunction   *aggregate_function, *match_aggregate_function;
 	boolean_t		ret;
 
 	if ((NULL == stmt) != (NULL == match_stmt)) {

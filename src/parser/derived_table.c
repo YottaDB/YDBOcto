@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
  */
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification) {
 	SqlStatement *sql_stmt, *ret;
-	SqlJoin *     join;
+	SqlJoin	     *join;
 
 	SQL_STATEMENT(ret, join_STATEMENT);
 	MALLOC_STATEMENT(ret, join, SqlJoin);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@
 // Function invoked by the rules named "non_join_query_expression" and "non_join_query_term" in src/parser.y
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand) {
 	SqlSetOperation *set_oper;
-	SqlStatement *	 ret;
+	SqlStatement	*ret;
 
 	SQL_STATEMENT(ret, set_operation_STATEMENT);
 	MALLOC_STATEMENT(ret, set_operation, SqlSetOperation);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,8 @@
 #include "message_formats.h"
 
 Close *read_close(BaseMessage *message) {
-	Close *	 ret;
-	char *	 cur_pointer, *last_byte;
+	Close	*ret;
+	char	*cur_pointer, *last_byte;
 	uint32_t remaining_length;
 
 	// Create Close struct and initialize ALL bytes to prevent leaks

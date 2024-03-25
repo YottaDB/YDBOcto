@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@
 // Function invoked by various rules in src/parser.y
 SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp) {
 	SqlColumnList *column_list, *cl_tail;
-	SqlStatement * ret;
+	SqlStatement  *ret;
 
 	SQL_COLUMN_LIST_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(column_list, ret, column_list);

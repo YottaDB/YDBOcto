@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,11 +30,11 @@
 typedef struct MemoryChunk {
 	dqcreate(MemoryChunk);
 	size_t offset, max_size;
-	char * value;
+	char  *value;
 } MemoryChunk;
 
 MemoryChunk *alloc_chunk(size_t size);
-void *	     octo_cmalloc(MemoryChunk *root, size_t size);
+void	    *octo_cmalloc(MemoryChunk *root, size_t size);
 void	     octo_cfree(MemoryChunk *root);
 
 // GLOBAL

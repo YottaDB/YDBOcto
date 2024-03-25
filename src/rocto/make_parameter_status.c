@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 ParameterStatus *make_parameter_status(StartupMessageParm *parm) {
 	uint32_t	 length;
 	ParameterStatus *ret;
-	char *		 c;
+	char		*c;
 	int32_t		 name_len, value_len;
 
 	if (NULL == parm) {

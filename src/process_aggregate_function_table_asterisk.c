@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,9 +45,9 @@ void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 
 	/* Replace TABLENAME.ASTERISK node in specification_list with column list corresponding to TABLENAME table. */
 	SqlColumnAlias *column_alias;
-	SqlColumnList * cl_new;
-	SqlStatement *	table_alias_stmt;
-	SqlTableAlias * table_alias;
+	SqlColumnList  *cl_new;
+	SqlStatement   *table_alias_stmt;
+	SqlTableAlias  *table_alias;
 
 	GET_TABLE_ASTERISK_COLUMN_ALIAS_FROM_COLUMN_LIST(column_alias, specification_list);
 	cl_new = NULL;
@@ -56,7 +56,7 @@ void process_aggregate_function_table_asterisk(SqlAggregateFunction *af) {
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 
 	SqlColumnListAlias *inner_cur_cla, *inner_start_cla;
-	SqlColumnList *	    cl;
+	SqlColumnList	   *cl;
 	assert(NULL != table_alias->column_list);
 	UNPACK_SQL_STATEMENT(inner_start_cla, table_alias->column_list, column_list_alias);
 	inner_cur_cla = inner_start_cla;

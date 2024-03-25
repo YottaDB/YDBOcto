@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,8 +24,8 @@
 #include "helpers.h"
 
 int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *cursorId) {
-	CommandComplete *   command_complete;
-	PortalSuspended *   portal_suspended;
+	CommandComplete	   *command_complete;
+	PortalSuspended	   *portal_suspended;
 	QueryResponseParms  parms;
 	EmptyQueryResponse *empty;
 	ydb_buffer_t	    portal_subs[8], cursor_subs[5];

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -52,18 +52,18 @@ unsigned long __wrap_ERR_peek_last_error() {
 
 char *__wrap_ERR_error_string(unsigned long error_code, char *buf) {
 	unsigned long expected_error_code = mock_type(unsigned long);
-	char *	      expected_return = mock_type(char *);
+	char	     *expected_return = mock_type(char *);
 	assert_int_equal(error_code, expected_error_code);
 	return expected_return;
 }
 
 void __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...) {
-	char *	error_string = NULL;
+	char   *error_string = NULL;
 	va_list args;
 	va_start(args, error);
 	int32_t expected_level = mock_type(int);
 	int32_t expected_error = mock_type(int);
-	char *	expected_error_string = mock_type(char *);
+	char   *expected_error_string = mock_type(char *);
 
 	assert_int_equal(level, expected_level);
 	assert_int_equal(error, expected_error);
@@ -75,7 +75,7 @@ void __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVE
 }
 
 static void test_valid_input_no_SSL(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     rt = 1;
 	BaseMessage  message;
 	RoctoSession session;

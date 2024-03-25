@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,7 +34,7 @@ SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStat
 			*cla_new = *cla_cur;
 		} else {
 			SqlColumnAlias *column_alias;
-			SqlColumnList * cur;
+			SqlColumnList  *cur;
 
 			cla_new->alias = cla_cur->alias;
 			cla_new->type = cla_cur->type;

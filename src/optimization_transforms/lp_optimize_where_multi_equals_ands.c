@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,11 +22,11 @@
 
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
 					 boolean_t num_outer_joins) {
-	int *	     key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
+	int	    *key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
 	int	     max_unique_id;	  // 1 more than maximum possible table_id/unique_id
 	int	     i;
 	LogicalPlan *cur, *lp_key;
-	SqlKey *     key;
+	SqlKey	    *key;
 
 	max_unique_id = config->plan_id; /* similar logic exists in "lp_optimize_cross_join()" */
 	key_unique_id_array = octo_cmalloc(memory_chunks, sizeof(int) * max_unique_id); /* guarantees 0-initialized memory */
@@ -61,16 +61,16 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, 
  */
 LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array, void *ptr,
 							boolean_t num_outer_joins) {
-	LogicalPlan *	cur, *left, *right, *t;
-	LogicalPlan *	first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
-	LogicalPlan *	generated_xref_keys, *lp_key;
+	LogicalPlan    *cur, *left, *right, *t;
+	LogicalPlan    *first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
+	LogicalPlan    *generated_xref_keys, *lp_key;
 	SqlColumnAlias *column_alias;
-	SqlTableAlias * table_alias;
-	SqlKey *	key;
+	SqlTableAlias  *table_alias;
+	SqlKey	       *key;
 	int		left_id, right_id;
-	LogicalPlan *	new_left, *new_right, *list;
+	LogicalPlan    *new_left, *new_right, *list;
 	LPActionType	type;
-	SqlTableAlias * right_table_alias;
+	SqlTableAlias  *right_table_alias;
 	boolean_t	is_null;
 
 	if (LP_WHERE == where->type) {
@@ -362,7 +362,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 */
 		if (LP_COLUMN_ALIAS == left->type) {
 			SqlColumnAlias *column_alias;
-			SqlTableAlias * column_table_alias;
+			SqlTableAlias  *column_table_alias;
 
 			column_alias = left->v.lp_column_alias.column_alias;
 			UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias_stmt, table_alias);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,10 +25,10 @@
  */
 int emit_xref_plan(char *plan_filename, char *tableName, char *columnName, PhysicalPlan *xref_plan) {
 	ydb_buffer_t table_buff[4];
-	FILE *	     output_file;
+	FILE	    *output_file;
 	uint64_t     buffer_index, buffer_len;
 	int	     fd, status;
-	char *	     buffer;
+	char	    *buffer;
 
 	buffer_len = INIT_M_ROUTINE_LENGTH;
 	buffer = calloc(buffer_len, sizeof(char));

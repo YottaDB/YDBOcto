@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -61,7 +61,7 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 
 	// Identify the type of each function parameter and add it to the hash
 	FunctionCallContext fc_context;
-	SqlColumnList *	    cur_column_list, *start_column_list;
+	SqlColumnList	   *cur_column_list, *start_column_list;
 
 	cur_column_list = start_column_list = fc->parameters->v.column_list;
 	fc_context.fc = fc;

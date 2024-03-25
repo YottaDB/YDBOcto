@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -130,22 +130,22 @@
  */
 SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_element_list, SqlStatement *table_definition_tail,
 			       boolean_t if_not_exists_specified) {
-	SqlStatement *	    table_stmt;
-	SqlTable *	    table;
-	SqlColumn *	    key_columns[MAX_KEY_COUNT];
+	SqlStatement	   *table_stmt;
+	SqlTable	   *table;
+	SqlColumn	   *key_columns[MAX_KEY_COUNT];
 	int		    max_key;
 	int		    column_number;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
-	SqlColumn *	    cur_column, *start_column, *next_column, *first_non_key_column;
-	SqlColumnList *	    dependencies;
-	SqlStatement *	    statement;
-	SqlValue *	    value;
+	SqlColumn	   *cur_column, *start_column, *next_column, *first_non_key_column;
+	SqlColumnList	   *dependencies;
+	SqlStatement	   *statement;
+	SqlValue	   *value;
 	size_t		    str_len;
 	int		    len, piece_number, num_non_key_columns;
 	unsigned int	    options;
 	tabletype_t	    table_type;
 	boolean_t	    hidden_column_added;
-	char *		    table_source_gvname; /* Points to a null-terminated string containing the unsubscripted global
+	char		   *table_source_gvname; /* Points to a null-terminated string containing the unsubscripted global
 						  * name specified in the GLOBAL keyword (if one was specified by the user).
 						  * If a subscripted global name is specified in the GLOBAL keyword or no
 						  * GLOBAL keyword was specified, this is NULL.
@@ -158,7 +158,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	table->tableName = tableName;
 	if (config->is_auto_upgrade_octo929) {
 		SqlValue *value;
-		char *	  table_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
+		char	 *table_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
 
 		UNPACK_SQL_STATEMENT(value, tableName, value);
 
@@ -333,8 +333,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		cur_keyword = start_keyword;
 		do {
 			SqlOptionalKeyword *next_keyword;
-			SqlColumn *	    noted_column;
-			SqlConstraint *	    constraint;
+			SqlColumn	   *noted_column;
+			SqlConstraint	   *constraint;
 
 			start_keyword_changed = FALSE;
 			next_keyword = cur_keyword->next;
@@ -1183,7 +1183,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 					SqlStatement *name_stmt;
 					int	      len;
-					char *	      malloc_space;
+					char	     *malloc_space;
 					len = strlen(constraint_name);
 					malloc_space = octo_cmalloc(memory_chunks, len + 1);
 					strncpy(malloc_space, constraint_name, len + 1);
@@ -1195,7 +1195,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					constraint->name = name_stmt;
 					YDB_STRING_TO_BUFFER(malloc_space, &subs[1]); /* for use in "ydb_set_s()" call below */
 				} else {
-					char *	  constraint_name;
+					char	 *constraint_name;
 					SqlValue *value;
 
 					/* Now that we have a constraint name (either user-specified or auto generated), check if
@@ -1322,7 +1322,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					cur_cl = start_cl;
 					do {
 						SqlValue *col_name;
-						char *	  col_name2, uppercase_name[OCTO_MAX_IDENT + 1];
+						char	 *col_name2, uppercase_name[OCTO_MAX_IDENT + 1];
 						int	  col_len;
 
 						UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
@@ -1833,8 +1833,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	num_non_key_columns = 0;
 	first_non_key_column = NULL;
 	do {
-		SqlColumn *	    cur_column2;
-		SqlValue *	    columnName1;
+		SqlColumn	   *cur_column2;
+		SqlValue	   *columnName1;
 		boolean_t	    is_key_column;
 		SqlOptionalKeyword *piece_keyword, *delim_keyword;
 
@@ -1952,7 +1952,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 
 			if (NULL != delim_keyword) {
 				boolean_t delim_is_empty;
-				char *	  delim, ch;
+				char	 *delim, ch;
 
 				UNPACK_SQL_STATEMENT(lcl_value, delim_keyword->v, value);
 				delim = lcl_value->v.reference;

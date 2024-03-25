@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,15 +60,15 @@
  */
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
 		  QualifyStatementParms *ret) {
-	SqlJoin *	    prev_start, *prev_end;
-	SqlJoin *	    start_join, *cur_join;
+	SqlJoin		   *prev_start, *prev_end;
+	SqlJoin		   *start_join, *cur_join;
 	SqlSelectStatement *select;
-	SqlTableAlias *	    table_alias;
-	SqlStatement *	    group_by_expression;
+	SqlTableAlias	   *table_alias;
+	SqlStatement	   *group_by_expression;
 	int		    result;
 	SqlStatementType    table_type;
-	SqlTableValue *	    table_value;
-	SqlRowValue *	    row_value, *start_row_value;
+	SqlTableValue	   *table_value;
+	SqlRowValue	   *row_value, *start_row_value;
 
 	result = 0;
 
@@ -77,7 +77,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 
 	switch (table_alias_stmt->type) {
 	case insert_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
-		SqlStatement *	    insert_stmt;
+		SqlStatement	   *insert_stmt;
 		SqlInsertStatement *insert;
 
 		insert_stmt = table_alias_stmt;
@@ -93,10 +93,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		 * (called by "populate_data_type()").
 		 */
 		if (NULL != insert->columns) {
-			SqlColumnList *	    start_cl, *cur_cl;
-			SqlTableAlias *	    src_table_alias;
+			SqlColumnList	   *start_cl, *cur_cl;
+			SqlTableAlias	   *src_table_alias;
 			SqlColumnListAlias *start_cla, *cur_cla;
-			SqlStatement *	    table_alias_stmt;
+			SqlStatement	   *table_alias_stmt;
 
 			table_alias_stmt = drill_to_table_alias(insert->src_table_alias_stmt);
 			UNPACK_SQL_STATEMENT(src_table_alias, table_alias_stmt, table_alias);
@@ -151,7 +151,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		return result;
 		break;
 	case update_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
-		SqlStatement *	    update_stmt;
+		SqlStatement	   *update_stmt;
 		SqlUpdateStatement *update;
 
 		update_stmt = table_alias_stmt;
@@ -320,7 +320,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * Therefore it cannot do "*" expansion then. We deferred this processing till here as all parent query contexts are
 	 * available only here. See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583797217 for details.
 	 */
-	SqlStatement *	    select_list;
+	SqlStatement	   *select_list;
 	SqlColumnListAlias *cla_cur, *cla_head, *asterisk_list;
 	select_list = select->select_list;
 	assert((NULL != select_list) && (column_list_alias_STATEMENT == select_list->type));
@@ -329,7 +329,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	/* Go through the select column list (`select n1.id,*,n2.id ...`) to find/process ASTERISK */
 	do {
 		SqlColumnList *column_list;
-		SqlValue *     value;
+		SqlValue      *value;
 		UNPACK_SQL_STATEMENT(column_list, cla_cur->column_list, column_list);
 		if (value_STATEMENT == column_list->value->type) {
 			UNPACK_SQL_STATEMENT(value, column_list->value, value);
@@ -386,7 +386,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		cla_cur = cla_cur->next;
 	} while (cla_cur != cla_head);
 
-	SqlColumnListAlias *  ret_cla;
+	SqlColumnListAlias   *ret_cla;
 	QualifyStatementParms lcl_ret, *lcl_ret_ptr;
 	ret_cla = NULL;
 	/* Initialize "lcl_ret->ret_cla" to a non-NULL value (&ret_cla) and pass "&lcl_ret" (through the "lcl_ret_ptr" variable)
@@ -478,7 +478,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				 * list is empty.
 				 */
 				SqlColumnListAlias *start_cla, *cur_cla;
-				SqlColumnList *	    col_list;
+				SqlColumnList	   *col_list;
 
 				UNPACK_SQL_STATEMENT(start_cla, group_by_expression, column_list_alias);
 				group_by_column_count = 0;
@@ -487,7 +487,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 					UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
 					if (column_alias_STATEMENT == col_list->value->type) {
 						SqlColumnAlias *column_alias;
-						SqlTableAlias * group_by_table_alias;
+						SqlTableAlias  *group_by_table_alias;
 
 						UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
 						UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt,

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,16 +22,16 @@
 
 // Note that this function is very similar to find_view_or_table.c, so changes there may need to be reflected here also.
 SqlFunction *find_function(const char *function_name, const char *function_hash) {
-	SqlFunction * function;
+	SqlFunction  *function;
 	SqlStatement *stmt;
 	ydb_buffer_t  save_value;
 	ydb_buffer_t  value_buffer;
 	char	      value_str[MAX_DEFINITION_FRAGMENT_SIZE];
-	char *	      buff, *cur_buff;
+	char	     *buff, *cur_buff;
 	int	      status;
 	int32_t	      length;
 	long	      length_long;
-	MemoryChunk * old_chunk;
+	MemoryChunk  *old_chunk;
 	ydb_buffer_t  loaded_schemas, octo_global, function_subs[5], ret;
 	char	      retbuff[sizeof(void *)];
 	char	      oid_buff[INT32_TO_STRING_MAX], len_str[INT32_TO_STRING_MAX];

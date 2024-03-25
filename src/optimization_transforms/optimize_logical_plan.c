@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,13 +22,13 @@
  * plan should be a LP_TABLE_JOIN
  */
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
-	LogicalPlan *  keys, *select, *criteria, *cur_lp_key;
-	LogicalPlan *  oper0;
-	SqlTable *     table;
+	LogicalPlan   *keys, *select, *criteria, *cur_lp_key;
+	LogicalPlan   *oper0;
+	SqlTable      *table;
 	SqlTableAlias *table_alias;
-	SqlColumn *    key_columns[MAX_KEY_COUNT];
+	SqlColumn     *key_columns[MAX_KEY_COUNT];
 	int	       max_key, cur_key, unique_id;
-	LogicalPlan *  set_plans;
+	LogicalPlan   *set_plans;
 
 	if ((LP_TABLE_JOIN != plan->type)) {
 		return plan;
@@ -187,9 +187,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *option
 		}
 		while (LP_BOOLEAN_OR == cur->type) {
 			SqlOptionalKeyword *keywords, *new_keyword;
-			LogicalPlan *	    p;
-			LogicalPlan *	    child_where;
-			LogicalPlan *	    set_operation, *set_option, *set_plans;
+			LogicalPlan	   *p;
+			LogicalPlan	   *child_where;
+			LogicalPlan	   *set_operation, *set_option, *set_plans;
 
 			keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
 			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
@@ -249,7 +249,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *option
 	do {
 		assert(LP_TABLE_JOIN == table_join->type);
 		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
-			LogicalPlan *  select_query, *operand0;
+			LogicalPlan   *select_query, *operand0;
 			SqlTableAlias *right_table_alias;
 
 			/* Note that even an INNER JOIN will have a non-NULL join_on_condition if it is preceded by

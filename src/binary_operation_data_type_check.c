@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -94,7 +94,7 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 			}
 			if (NULL != target) {
 				SqlStatement *sql_stmt;
-				SqlValue *    value;
+				SqlValue     *value;
 
 				SQL_STATEMENT(sql_stmt, value_STATEMENT);
 				MALLOC_STATEMENT(sql_stmt, value, SqlValue);

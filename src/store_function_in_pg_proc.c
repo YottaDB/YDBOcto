@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -66,7 +66,7 @@ PSQL_TypeOid get_psql_type_from_sqldatatype(SqlDataType type) {
  */
 int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
-	SqlValue *	      value;
+	SqlValue	     *value;
 	ydb_buffer_t	      oid_buffer[2];
 	ydb_buffer_t	      pg_proc[5];
 	ydb_buffer_t	      octo_functions[5];
@@ -76,7 +76,7 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	size_t		      literal_len;
 	long unsigned int     copied;
 	int32_t		      arg_type_list_len;
-	char *		      function_name;
+	char		     *function_name;
 	char		      arg_type_list[ARGUMENT_TYPE_LIST_MAX_LEN];
 	char		      proc_oid_str[INT32_TO_STRING_MAX]; /* OIDs are stored as 4-byte unsigned integers:
 								  * https://www.postgresql.org/docs/current/datatype-oid.html

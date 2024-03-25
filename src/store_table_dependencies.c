@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,7 +39,7 @@ int store_table_dependencies(SqlTable *table, char *table_name, ydb_buffer_t *ta
 	YDB_STRING_TO_BUFFER(OCTOLIT_PRIMARY_KEY_NAME, &pkey_subs[1]);
 
 	/* Find the PRIMARY KEY constraint in this table */
-	char *	   primary_key_constraint_name;
+	char	  *primary_key_constraint_name;
 	SqlColumn *start_column, *cur_column;
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;

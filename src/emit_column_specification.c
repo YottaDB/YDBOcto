@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,11 +23,11 @@
  *	 -1 if there was an error
  */
 int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column) {
-	SqlValue *	    value;
+	SqlValue	   *value;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
 	char		    ch, *delim;
-	char **		    buff_ptr, *bufp;
-	char *		    buffer2;
+	char		  **buff_ptr, *bufp;
+	char		   *buffer2;
 	int		    buffer2_size;
 	char		    data_type_string[MAX_USER_VISIBLE_TYPE_STRING_LEN];
 
@@ -142,7 +142,7 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 		case UNIQUE_CONSTRAINT:;
 			int	       status;
 			SqlConstraint *constraint;
-			SqlValue *     value;
+			SqlValue      *value;
 
 			UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 			assert(cur_keyword->keyword == constraint->type);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,7 +36,7 @@ int auto_load_octo_seed(void) {
 	int	     status;
 	size_t	     filename_len;
 	pid_t	     child_id;
-	char *	     ydb_dist;
+	char	    *ydb_dist;
 	ydb_buffer_t variable_buffers[2];
 
 	/* Get value of "ydb_dist" env var first */

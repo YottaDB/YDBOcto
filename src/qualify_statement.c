@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -41,7 +41,7 @@
 #define ISSUE_GROUP_BY_ERROR_AND_RETURN(STMT, GB_ERR)            \
 	{                                                        \
 		SqlStatement *column_name;                       \
-		SqlValue *    value;                             \
+		SqlValue     *value;                             \
 		column_name = find_column_alias_name(STMT);      \
 		assert(NULL != column_name);                     \
 		UNPACK_SQL_STATEMENT(value, column_name, value); \
@@ -87,23 +87,23 @@
  *	1 if query had errors during qualification.
  */
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret) {
-	SqlBinaryOperation *	binary;
+	SqlBinaryOperation     *binary;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlCaseStatement *	cas;
-	SqlColumnAlias *	new_column_alias;
-	SqlColumnList *		start_cl, *cur_cl;
-	SqlColumnListAlias *	start_cla, *cur_cla;
-	SqlFunctionCall *	fc;
-	SqlCoalesceCall *	coalesce_call;
-	SqlGreatest *		greatest_call;
-	SqlLeast *		least_call;
-	SqlNullIf *		null_if;
-	SqlUnaryOperation *	unary;
-	SqlArray *		array;
-	SqlValue *		value;
+	SqlCaseStatement       *cas;
+	SqlColumnAlias	       *new_column_alias;
+	SqlColumnList	       *start_cl, *cur_cl;
+	SqlColumnListAlias     *start_cla, *cur_cla;
+	SqlFunctionCall	       *fc;
+	SqlCoalesceCall	       *coalesce_call;
+	SqlGreatest	       *greatest_call;
+	SqlLeast	       *least_call;
+	SqlNullIf	       *null_if;
+	SqlUnaryOperation      *unary;
+	SqlArray	       *array;
+	SqlValue	       *value;
 	int			result;
-	SqlTableAlias *		column_table_alias, *parent_table_alias, *table_alias;
-	SqlColumnListAlias **	ret_cla;
+	SqlTableAlias	       *column_table_alias, *parent_table_alias, *table_alias;
+	SqlColumnListAlias    **ret_cla;
 	int			save_max_unique_id;
 	int			i;
 
@@ -529,15 +529,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				 * [clang-analyzer-core.NullDereference] but we are sure that its not NULL by above assert.
 				 */
 				SqlTableAlias *aggr_parent_table_alias;
-				SqlStatement * aggr_parent_table_alias_stmt;
-				SqlStatement * aggr_deepest_column_alias_stmt
+				SqlStatement  *aggr_parent_table_alias_stmt;
+				SqlStatement  *aggr_deepest_column_alias_stmt
 				    = ((NULL != ret) && (NULL != ret->deepest_column_alias_stmt)) ? ret->deepest_column_alias_stmt
 												  : NULL;
 				if (NULL != aggr_deepest_column_alias_stmt) {
 					/* Now that we know the deepest column_alias, get the parent table_alias to which the
 					 * aggregate needs to be associated to.
 					 */
-					SqlTableAlias * aggr_table_alias;
+					SqlTableAlias  *aggr_table_alias;
 					SqlColumnAlias *aggr_deepest_column_alias;
 					UNPACK_SQL_STATEMENT(aggr_deepest_column_alias, aggr_deepest_column_alias_stmt,
 							     column_alias);
@@ -695,7 +695,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			    && (!table_alias->do_group_by_checks)) {
 				SqlColumnListAlias *qualified_cla;
 				int		    column_number;
-				char *		    str;
+				char		   *str;
 				boolean_t	    order_by_or_group_by_alias;
 
 				/* `ret_cla` is non-NULL, it can be a member of GROUP BY or ORDER BY.
@@ -754,7 +754,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						 * optionally a '.'. Check if the '.' is present. If so issue error
 						 * as decimal column numbers are disallowed in ORDER BY and GROUP BY.
 						 */
-						char *	 ptr, *ptr_top;
+						char	*ptr, *ptr_top;
 						long int retval;
 
 						for (ptr = str, ptr_top = str + strlen(str); ptr < ptr_top; ptr++) {
@@ -846,7 +846,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						    cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret, result);
 
 						SqlColumnAlias *new_column_alias = NULL;
-						SqlColumnList * tmp_column_list;
+						SqlColumnList  *tmp_column_list;
 						UNPACK_SQL_STATEMENT(tmp_column_list, cur_cla->column_list, column_list);
 						SqlStatement *tmp_stmt = tmp_column_list->value;
 						column_table_alias = NULL;

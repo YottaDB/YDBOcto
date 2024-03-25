@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -50,12 +50,12 @@ unsigned long __wrap_gtm_tls_errno() {
 }
 
 void __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...) {
-	char *	error_string = NULL;
+	char   *error_string = NULL;
 	va_list args;
 	va_start(args, error);
 	int32_t expected_level = mock_type(int);
 	int32_t expected_error = mock_type(int);
-	char *	expected_error_string = mock_type(char *);
+	char   *expected_error_string = mock_type(char *);
 
 	assert_int_equal(level, expected_level);
 	assert_int_equal(error, expected_error);
@@ -67,7 +67,7 @@ void __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVE
 }
 
 static void test_valid_input_no_SSL(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -131,7 +131,7 @@ static void test_invalid_read_size(void **state) {
 }
 
 static void test_recv_interrupted(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -160,7 +160,7 @@ static void test_recv_interrupted(void **state) {
 }
 
 static void test_recv_connection_reset(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -190,7 +190,7 @@ static void test_recv_connection_reset(void **state) {
 }
 
 static void test_recv_broken_pipe(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -220,7 +220,7 @@ static void test_recv_broken_pipe(void **state) {
 }
 
 static void test_recv_timed_out(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -249,7 +249,7 @@ static void test_recv_timed_out(void **state) {
 	free(buffer);
 }
 static void test_socket_closed(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -276,7 +276,7 @@ static void test_socket_closed(void **state) {
 }
 
 static void test_valid_input_with_SSL(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -302,7 +302,7 @@ static void test_valid_input_with_SSL(void **state) {
 }
 
 static void test_SSL_read_interrupted(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -333,7 +333,7 @@ static void test_SSL_read_interrupted(void **state) {
 }
 
 static void test_SSL_ERROR_ZERO_RETURN(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -369,7 +369,7 @@ static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 }
 
 static void test_SSL_ERROR_WANT_READ(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -405,7 +405,7 @@ static void test_SSL_ERROR_WANT_READ(void **state) {
 }
 
 static void test_SSL_ERROR_SYSCALL(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;
@@ -441,7 +441,7 @@ static void test_SSL_ERROR_SYSCALL(void **state) {
 }
 
 static void test_SSL_ERROR_SSL(void **state) {
-	char *	     buffer;
+	char	    *buffer;
 	int32_t	     buffer_size = 0, bytes_to_read = 0;
 	int32_t	     rt = 1;
 	RoctoSession session;

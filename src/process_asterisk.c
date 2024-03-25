@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,10 +24,10 @@
  *	3) Every remaining non-common column from the right table in the order it appears in that table.
  */
 SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE loc) {
-	SqlStatement *	    sql_stmt;
+	SqlStatement	   *sql_stmt;
 	SqlColumnListAlias *cla_common, *t_cla_alias, *cla_alias;
-	SqlJoin *	    cur_join, *start_join;
-	SqlTableAlias *	    table_alias;
+	SqlJoin		   *cur_join, *start_join;
+	SqlTableAlias	   *table_alias;
 	int		    tablejoin_num;
 
 	cur_join = start_join = select_table_list;
@@ -39,7 +39,7 @@ SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE 
 		UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 
 		SqlColumnListAlias *cla_start, *cla_cur;
-		SqlColumnAlias *    column_alias;
+		SqlColumnAlias	   *column_alias;
 		boolean_t	    common_column_seen;
 		assert(NULL != table_alias->column_list);
 		UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,7 @@
 
 static void test_valid_input_all_fields_populated(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
-	char *	 row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
+	char	*row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 
 	row_len = strlen(row);
@@ -44,7 +44,7 @@ static void test_valid_input_all_fields_populated(void **state) {
 
 static void test_valid_input_one_field_populated(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
-	char *	 row = "||||||||||password|";
+	char	*row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 
 	row_len = strlen(row);
@@ -56,7 +56,7 @@ static void test_valid_input_one_field_populated(void **state) {
 
 static void test_valid_input_buffer_too_small(void **state) {
 	char	 buffer[5];
-	char *	 row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
+	char	*row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
 	uint32_t buf_len = 5, row_len = 0, pw_len = 0;
 
 	row_len = strlen(row);
@@ -66,7 +66,7 @@ static void test_valid_input_buffer_too_small(void **state) {
 
 static void test_invalid_input_null_pointers(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
-	char *	 row = "||||||||||password|";
+	char	*row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 	row_len = strlen(row);
 
@@ -81,7 +81,7 @@ static void test_invalid_input_null_pointers(void **state) {
 
 static void test_invalid_input_enum_too_large(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
-	char *	 row = "||||||||||password|";
+	char	*row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 	row_len = strlen(row);
 
@@ -91,7 +91,7 @@ static void test_invalid_input_enum_too_large(void **state) {
 
 static void test_invalid_input_zero_lengths(void **state) {
 	char	 buffer[BUFFER_SIZE + 1]; // Null terminator
-	char *	 row = "||||||||||password|";
+	char	*row = "||||||||||password|";
 	uint32_t buf_len = BUFFER_SIZE, row_len = 0, pw_len = 0;
 	row_len = strlen(row);
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,9 +21,9 @@
 #include "message_formats.h"
 
 Query *read_query(BaseMessage *message) {
-	Query *	 ret;
+	Query	*ret;
 	uint32_t length;
-	char *	 c, *message_end;
+	char	*c, *message_end;
 
 	length = ntohl(message->length);
 	ret = (Query *)malloc(sizeof(Query) + length - sizeof(uint32_t));

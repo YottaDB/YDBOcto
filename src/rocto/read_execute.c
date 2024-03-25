@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
 
 Execute *read_execute(BaseMessage *message) {
 	Execute *ret;
-	char *	 cur_pointer, *last_byte;
+	char	*cur_pointer, *last_byte;
 	uint32_t remaining_length;
 
 	// Create Execute message and initialize ALL bytes

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
 
 /* ---------------- BEGIN : ALL Global variables in Octo ------------------ */
 
-OctoConfig * config;
+OctoConfig  *config;
 MemoryChunk *memory_chunks;
 uint64_t     hash_canonical_query_cycle;     // incremented before every outermost call to "hash_canonical_query"
 uint64_t     qualify_extract_function_cycle; // incremented before every outermost call to "qualify_extract_function"

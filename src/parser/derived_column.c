@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@
 // Function invoked by the rule named "derived_column" in src/parser/select.y
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc) {
 	SqlColumnListAlias *alias;
-	SqlStatement *	    ret;
+	SqlStatement	   *ret;
 
 	SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(alias, ret, column_list_alias);

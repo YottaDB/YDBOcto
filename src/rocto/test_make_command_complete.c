@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,7 +29,7 @@ static void test_select_statement(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
 
-	char *	message = "SELECT 5";
+	char   *message = "SELECT 5";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(select_STATEMENT, 5);
@@ -48,7 +48,7 @@ static void test_set_statement(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
 
-	char *	message = "SET";
+	char   *message = "SET";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(set_STATEMENT, 0);
@@ -67,7 +67,7 @@ static void test_show_statement(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
 
-	char *	message = "SHOW";
+	char   *message = "SHOW";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(show_STATEMENT, 0);

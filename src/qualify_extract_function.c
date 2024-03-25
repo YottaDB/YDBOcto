@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -51,8 +51,8 @@ int qualify_extract_function_column_list(SqlStatement *v, SqlTable *table, SqlVa
 			// SqlValue or SqlColumnAlias
 			if (is_first_pass) {
 				SqlOptionalKeyword *keyword;
-				SqlColumn *	    column;
-				SqlValue *	    col_name;
+				SqlColumn	   *column;
+				SqlValue	   *col_name;
 
 				if (value_STATEMENT == cur_column_list->value->type) {
 					UNPACK_SQL_STATEMENT(col_name, cur_column_list->value, value);

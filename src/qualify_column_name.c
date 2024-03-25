@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,10 +36,10 @@
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
 				    SqlColumnListAlias **ret_cla) {
 	SqlColumnListAlias *start_cla, *cur_cla, *col_cla, *t_col_cla, *group_by_alias_cla;
-	SqlJoin *	    cur_join, *start_join;
-	SqlStatement *	    matching_alias_stmt;
-	SqlValue *	    value;
-	char *		    table_name, *column_name, *c, *first_delim;
+	SqlJoin		   *cur_join, *start_join;
+	SqlStatement	   *matching_alias_stmt;
+	SqlValue	   *value;
+	char		   *table_name, *column_name, *c, *first_delim;
 	int		    table_name_len, column_name_len;
 	boolean_t	    group_by_alias_ambiguous;
 

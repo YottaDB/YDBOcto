@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,16 +26,16 @@
 #include "message_formats.h"
 
 int rocto_main_loop(RoctoSession *session) {
-	BaseMessage *  message = NULL;
-	Bind *	       bind;
-	Describe *     describe;
-	Execute *      execute;
-	Parse *	       parse;
-	Query *	       query;
+	BaseMessage   *message = NULL;
+	Bind	      *bind;
+	Describe      *describe;
+	Execute	      *execute;
+	Parse	      *parse;
+	Query	      *query;
 	ReadyForQuery *ready_for_query;
 	fd_set	       rfds;
 	struct timeval select_timeout;
-	char *	       buffer;
+	char	      *buffer;
 	int32_t	       result;
 	int32_t	       buffer_size = OCTO_INIT_BUFFER_LEN; // Null terminator
 	ydb_long_t     cursorId = -1;			   // Initialize cursorId to -1 to signal there is no cursor in reuse

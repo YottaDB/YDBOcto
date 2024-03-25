@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,8 +30,8 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	int32_t		  cur_arg;
 	va_list		  args;
 	ErrorResponseArg *arg;
-	ErrorResponse *	  ret;
-	char *		  ptr;
+	ErrorResponse	 *ret;
+	char		 *ptr;
 
 	// Go through all the args and count their size
 	new_length = 0;

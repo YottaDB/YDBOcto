@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,7 +14,7 @@
 #include "logical_plan.h"
 
 boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *root_stmt, SqlColumnList *start_columns) {
-	LogicalPlan *  prev, *next;
+	LogicalPlan   *prev, *next;
 	SqlColumnList *cur_cl;
 	boolean_t      error_encountered = FALSE;
 

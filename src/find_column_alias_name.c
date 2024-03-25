@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,15 +23,15 @@
 static SqlStatement *string_literal(char *name);
 
 SqlStatement *find_column_alias_name(SqlStatement *stmt) {
-	SqlColumn *	      column;
-	SqlColumnAlias *      column_alias;
-	SqlColumnListAlias *  column_list_alias;
-	SqlUnaryOperation *   unary;
-	SqlFunctionCall *     function_call;
-	SqlValue *	      value;
+	SqlColumn	     *column;
+	SqlColumnAlias	     *column_alias;
+	SqlColumnListAlias   *column_list_alias;
+	SqlUnaryOperation    *unary;
+	SqlFunctionCall	     *function_call;
+	SqlValue	     *value;
 	SqlAggregateFunction *aggregate_function;
-	SqlStatement *	      ret;
-	char *		      c;
+	SqlStatement	     *ret;
+	char		     *c;
 
 	ret = NULL;
 	if (NULL == stmt)
@@ -151,8 +151,8 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		break;
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT: {
-		SqlTableAlias *	    table_alias;
-		SqlStatement *	    table_alias_stmt;
+		SqlTableAlias	   *table_alias;
+		SqlStatement	   *table_alias_stmt;
 		SqlColumnListAlias *cur_cla;
 
 		table_alias_stmt = drill_to_table_alias(stmt);

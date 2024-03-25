@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,9 +27,9 @@
 
 static void test_valid_input_no_parms(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
@@ -90,7 +90,7 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	// Parameters
 	int16_t num_parms = htons(1);
 	message_length += sizeof(int16_t);
-	char *	  parm_value = "parameter";
+	char	 *parm_value = "parameter";
 	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value) + 1); // count null
 	parm->length = htonl(strlen(parm_value) + 1);
 	memcpy(&parm->value, parm_value, strlen(parm_value) + 1);
@@ -171,7 +171,7 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	// Parameters
 	int16_t num_parms = htons(1);
 	message_length += sizeof(int16_t);
-	char *	  parm_value = "parameter";
+	char	 *parm_value = "parameter";
 	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value) + 1); // count null
 	parm->length = htonl(strlen(parm_value) + 1);
 	memcpy(&parm->value, parm_value, strlen(parm_value) + 1);
@@ -253,13 +253,13 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	int16_t num_parms = htons(2);
 	message_length += sizeof(int16_t);
 	// First parameter
-	char *	  parm1_value = "parameter1";
+	char	 *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
 	parm1->length = htonl(strlen(parm1_value) + 1);
 	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
 	message_length += sizeof(int) + strlen(parm1_value) + 1;
 	// Second parameter
-	char *	  parm2_value = "parameter2";
+	char	 *parm2_value = "parameter2";
 	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
 	parm2->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
@@ -344,13 +344,13 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	int16_t num_parms = htons(2);
 	message_length += sizeof(int16_t);
 	// First parameter
-	char *	  parm1_value = "parameter1";
+	char	 *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
 	parm1->length = htonl(strlen(parm1_value) + 1);
 	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
 	message_length += sizeof(int) + strlen(parm1_value) + 1;
 	// Second parameter
-	char *	  parm2_value = "parameter2";
+	char	 *parm2_value = "parameter2";
 	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
 	parm2->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
@@ -437,13 +437,13 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	int16_t num_parms = htons(2);
 	message_length += sizeof(int16_t);
 	// First parameter
-	char *	  parm1_value = "parameter1";
+	char	 *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
 	parm1->length = htonl(strlen(parm1_value) + 1);
 	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
 	message_length += sizeof(int) + strlen(parm1_value) + 1;
 	// Second parameter
-	char *	  parm2_value = "parameter2";
+	char	 *parm2_value = "parameter2";
 	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
 	parm2->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
@@ -527,19 +527,19 @@ static void test_too_many_parameters(void **state) {
 	int16_t num_parms = htons(2);
 	message_length += sizeof(int16_t);
 	// First parameter
-	char *	  parm1_value = "parameter1";
+	char	 *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
 	parm1->length = htonl(strlen(parm1_value) + 1);
 	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
 	message_length += sizeof(int) + strlen(parm1_value) + 1;
 	// Second parameter
-	char *	  parm2_value = "parameter2";
+	char	 *parm2_value = "parameter2";
 	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
 	parm2->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
 	message_length += sizeof(int) + strlen(parm2_value) + 1;
 	// Third parameter
-	char *	  parm3_value = "parameter3";
+	char	 *parm3_value = "parameter3";
 	BindParm *parm3 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm3_value) + 1); // count null
 	parm3->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm3->value, parm3_value, strlen(parm3_value) + 1);
@@ -602,9 +602,9 @@ static void test_too_many_parameters(void **state) {
 }
 
 static void test_no_parms_with_too_many_num_parm_codes(void **state) {
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(1);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
@@ -655,7 +655,7 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	// Parameters
 	int16_t num_parms = htons(1);
 	message_length += sizeof(int16_t);
-	char *	  parm_value = "parameter";
+	char	 *parm_value = "parameter";
 	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value) + 1); // count null
 	parm->length = htonl(strlen(parm_value) + 1);
 	memcpy(&parm->value, parm_value, strlen(parm_value) + 1);
@@ -726,13 +726,13 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	int16_t num_parms = htons(2);
 	message_length += sizeof(int16_t);
 	// First parameter
-	char *	  parm1_value = "parameter1";
+	char	 *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
 	parm1->length = htonl(strlen(parm1_value) + 1);
 	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
 	message_length += sizeof(int) + strlen(parm1_value) + 1;
 	// Second parameter
-	char *	  parm2_value = "parameter2";
+	char	 *parm2_value = "parameter2";
 	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
 	parm2->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
@@ -806,19 +806,19 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	int16_t num_parms = htons(3);
 	message_length += sizeof(int16_t);
 	// First parameter
-	char *	  parm1_value = "parameter1";
+	char	 *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
 	parm1->length = htonl(strlen(parm1_value) + 1);
 	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
 	message_length += sizeof(int) + strlen(parm1_value) + 1;
 	// Second parameter
-	char *	  parm2_value = "parameter2";
+	char	 *parm2_value = "parameter2";
 	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
 	parm2->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
 	message_length += sizeof(int) + strlen(parm2_value) + 1;
 	// Third parameter
-	char *	  parm3_value = "parameter3";
+	char	 *parm3_value = "parameter3";
 	BindParm *parm3 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm3_value) + 1); // count null
 	parm3->length = htonl(strlen(parm2_value) + 1);
 	memcpy(&parm3->value, parm3_value, strlen(parm3_value) + 1);
@@ -877,9 +877,9 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 
 static void test_input_too_short(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
@@ -913,9 +913,9 @@ static void test_input_too_short(void **state) {
 
 static void test_input_too_long(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
@@ -961,8 +961,8 @@ static void test_input_too_long(void **state) {
 
 static void test_no_null_terminators_on_dest(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
 	int32_t message_length = sizeof(uint32_t) + strlen(dest);
 
 	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -984,9 +984,9 @@ static void test_no_null_terminators_on_dest(void **state) {
 
 static void test_no_null_terminators_on_source(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 1 + strlen(source);
 
 	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -1039,8 +1039,8 @@ static void test_unexpected_null_terminator_on_source(void **state) {
 
 static void test_unexpected_null_terminator_on_dest(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hel\0lo";
+	char   *ptr = NULL;
+	char   *dest = "Hel\0lo";
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 4; // count extra chars and nulls
 
 	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -1061,9 +1061,9 @@ static void test_unexpected_null_terminator_on_dest(void **state) {
 
 static void test_missing_parameter_types(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(10);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 1;
 
@@ -1091,9 +1091,9 @@ static void test_missing_parameter_types(void **state) {
 
 static void test_missing_parameters(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(10);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 2;
@@ -1124,9 +1124,9 @@ static void test_missing_parameters(void **state) {
 
 static void test_missing_result_col_format_codes(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(10);
@@ -1160,9 +1160,9 @@ static void test_missing_result_col_format_codes(void **state) {
 
 static void test_invalid_type(void **state) {
 	// Test a valid, simple, Bind command
-	char *	ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *ptr = NULL;
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
@@ -1196,13 +1196,13 @@ static void test_invalid_type(void **state) {
 
 static void test_invalid_num_parm_format_codes(void **state) {
 	// Test a valid, simple, Bind command char *ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(-1);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	char *	ptr = NULL;
+	char   *ptr = NULL;
 
 	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1232,13 +1232,13 @@ static void test_invalid_num_parm_format_codes(void **state) {
 
 static void test_invalid_num_parms(void **state) {
 	// Test a valid, simple, Bind command char *ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(-1);
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	char *	ptr = NULL;
+	char   *ptr = NULL;
 
 	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1268,13 +1268,13 @@ static void test_invalid_num_parms(void **state) {
 
 static void test_invalid_num_col_format_codes(void **state) {
 	// Test a valid, simple, Bind command char *ptr = NULL;
-	char *	dest = "Hello";
-	char *	source = "SELECT * FROM names;";
+	char   *dest = "Hello";
+	char   *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(-1);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	char *	ptr = NULL;
+	char   *ptr = NULL;
 
 	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;

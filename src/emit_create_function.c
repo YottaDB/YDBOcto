@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,9 +42,9 @@ char *get_type_string_from_sql_data_type(SqlDataType type) {
 // Returns:
 //	0 for success, 1 for error
 int emit_create_function(FILE *output, struct SqlStatement *stmt) {
-	SqlFunction *	      function;
+	SqlFunction	     *function;
 	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
-	SqlValue *	      function_name;
+	SqlValue	     *function_name;
 	SqlDataType	      data_type;
 	int		      defn_len = 0;
 

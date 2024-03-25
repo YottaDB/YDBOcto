@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,7 @@
 #include "memory_chunk.h"
 
 char *m_escape_string(const char *string) {
-	char *	    buf, *e;
+	char	   *buf, *e;
 	const char *c;
 	int	    len = strlen(string);
 	buf = octo_cmalloc(memory_chunks, 2 * len);
@@ -33,7 +33,7 @@ char *m_escape_string(const char *string) {
 }
 
 char *m_unescape_string(const char *string) {
-	char *	    buf, *e;
+	char	   *buf, *e;
 	const char *c;
 	int	    len = strlen(string), quote_count = 0;
 	buf = octo_cmalloc(memory_chunks, 2 * len);

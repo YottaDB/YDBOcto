@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -48,7 +48,7 @@
 char *get_parameter_from_pg_settings(char **variable, ydb_buffer_t *out) {
 	ydb_buffer_t pg_buffers[4];
 	ydb_buffer_t value_buffer;
-	char *	     value_str;
+	char	    *value_str;
 	int	     status;
 	int	     value_len;
 	unsigned int data_ret;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,8 +18,8 @@
 // Function invoked by the rule named "grouping_column_reference" in src/parser/select.y
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause) {
 	SqlColumnListAlias *alias;
-	SqlStatement *	    ret;
-	SqlValue *	    value;
+	SqlStatement	   *ret;
+	SqlValue	   *value;
 	boolean_t	    invalid_syntax;
 
 	assert(NULL == collate_clause); /* below code needs to be fixed to handle collate_clause if/when it becomes non-NULL */

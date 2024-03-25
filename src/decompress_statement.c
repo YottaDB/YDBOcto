@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,11 +40,11 @@ SqlStatement *decompress_statement(char *buffer, int out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length) {
-	SqlTable *	      table;
-	SqlColumn *	      cur_column, *start_column;
-	SqlValue *	      value;
-	SqlOptionalKeyword *  start_keyword, *cur_keyword;
-	SqlFunction *	      function;
+	SqlTable	     *table;
+	SqlColumn	     *cur_column, *start_column;
+	SqlValue	     *value;
+	SqlOptionalKeyword   *start_keyword, *cur_keyword;
+	SqlFunction	     *function;
 	SqlParameterTypeList *cur_parameter_type_list, *start_parameter_type_list;
 
 	assert(((char *)stmt) < out + out_length);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,11 +23,11 @@
  */
 
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id) {
-	SqlStatement * ret, *tableName;
-	SqlValue *     value;
-	SqlJoin *      join;
-	SqlStatement * table_stmt;
-	SqlColumn *    column;
+	SqlStatement  *ret, *tableName;
+	SqlValue      *value;
+	SqlJoin	      *join;
+	SqlStatement  *table_stmt;
+	SqlColumn     *column;
 	SqlTableAlias *table_alias;
 
 	switch (column_name->type) {
@@ -80,10 +80,10 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 			tableName = table->tableName;
 		}
 	} else {
-		SqlStatement * table_value_stmt;
+		SqlStatement  *table_value_stmt;
 		SqlTableValue *table_value;
-		SqlRowValue *  row_value;
-		SqlColumn *    start_column;
+		SqlRowValue   *row_value;
+		SqlColumn     *start_column;
 		int	       i, num_columns;
 
 		table_value_stmt = column_name;
@@ -97,7 +97,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 		start_column = NULL;
 		for (i = 1; i <= num_columns; i++) {
 			SqlStatement *column_name_stmt;
-			SqlValue *    value;
+			SqlValue     *value;
 			int	      column_name_len;
 
 			OCTO_CMALLOC_STRUCT(column, SqlColumn);

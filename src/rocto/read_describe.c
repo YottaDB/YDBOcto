@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
 
 Describe *read_describe(BaseMessage *message) {
 	Describe *ret;
-	char *	  cur_pointer, *last_byte;
+	char	 *cur_pointer, *last_byte;
 	uint32_t  remaining_length;
 
 	// Create Describe struct and initialize ALL bytes to prevent leaks

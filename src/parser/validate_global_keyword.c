@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,8 +20,8 @@
  *    0 otherwise (i.e. success).
  */
 int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key) {
-	char *	  ptr, *ptr_start;
-	char *	  start, *next;
+	char	 *ptr, *ptr_start;
+	char	 *start, *next;
 	int	  next_key_num;
 	SqlValue *value;
 

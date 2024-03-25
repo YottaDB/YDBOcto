@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,7 +16,7 @@
 #include "octo_types.h"
 
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context) {
-	SqlStatement *	 ret;
+	SqlStatement	*ret;
 	SqlSetStatement *set;
 
 	parse_context->command_tag = set_STATEMENT;

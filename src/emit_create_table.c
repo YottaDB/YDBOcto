@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,11 +25,11 @@
 //	0 for success, 1 for error
 int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 	int		    status = 0, buffer_size, defn_len = 0;
-	SqlColumn *	    start_column, *cur_column;
-	SqlTable *	    table;
-	SqlValue *	    value;
+	SqlColumn	   *start_column, *cur_column;
+	SqlTable	   *table;
+	SqlValue	   *value;
 	SqlOptionalKeyword *keyword;
-	char *		    buffer;
+	char		   *buffer;
 
 	if (NULL == stmt) {
 		return 0;

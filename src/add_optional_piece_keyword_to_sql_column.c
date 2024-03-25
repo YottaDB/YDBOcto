@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,8 +20,8 @@
 
 SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number) {
 	SqlOptionalKeyword *keyword;
-	SqlStatement *	    stmt;
-	char *		    malloc_space;
+	SqlStatement	   *stmt;
+	char		   *malloc_space;
 	char		    buffer[32]; // 32 bytes as it is more than enough to store string form of an integer
 	int		    len;
 

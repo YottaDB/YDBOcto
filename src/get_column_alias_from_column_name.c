@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,11 +18,11 @@
  * column alias for that column and returns that.
  */
 SqlColumnAlias *get_column_alias_from_column_name(char *columnName, SqlTableAlias *table_alias) {
-	SqlTable *	    table;
-	SqlColumn *	    tbl_col;
+	SqlTable	   *table;
+	SqlColumn	   *tbl_col;
 	SqlColumnListAlias *cla;
-	SqlColumnList *	    cl;
-	SqlColumnAlias *    ret;
+	SqlColumnList	   *cl;
+	SqlColumnAlias	   *ret;
 
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	tbl_col = find_column(columnName, table);

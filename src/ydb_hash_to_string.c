@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len) {
 	// Converts internal YottaDB hash format (ydb_uint16) to characters to fill buffer.
 	// String is composed of 62 alphanumeric characters for M compatibility.
-	char *	       base62_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	char	      *base62_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	unsigned short next_char = 0;
 	unsigned int   i = 0;
 	ydb_uint8      hashone, hashtwo;

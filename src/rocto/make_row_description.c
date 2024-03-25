@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@
 RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms) {
 	RowDescription *ret;
 	uint32_t	length = 0, data_length, cur_str_length;
-	char *		c;
+	char	       *c;
 	int32_t		i;
 
 	// Get a count of the needed length

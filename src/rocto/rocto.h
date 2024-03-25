@@ -41,7 +41,7 @@
 /* This will serve as a drop-in replacement for the deprecated function of the same name. */
 #define MD5(MESSAGE, LEN, DIGEST)                                                                                                \
 	{                                                                                                                        \
-		EVP_MD_CTX *  evp_context;                                                                                       \
+		EVP_MD_CTX   *evp_context;                                                                                       \
 		const EVP_MD *digest_algorithm;                                                                                  \
 		unsigned int  digest_len;                                                                                        \
                                                                                                                                  \
@@ -95,8 +95,8 @@ typedef struct {
 	int32_t	      data_sent;
 	int32_t	      max_data_to_send;
 	int32_t	      row_count;
-	char *	      parm_name; /* used to store portal name, prepared statement name, variable name in case of SHOW etc. */
-	char *	      command_type;
+	char	     *parm_name; /* used to store portal name, prepared statement name, variable name in case of SHOW etc. */
+	char	     *command_type;
 } QueryResponseParms;
 
 void *rocto_helper_waitpid(void *args);
@@ -128,39 +128,39 @@ void	     free_row_description(RowDescription *rowd);
 // make_* produces a structure for the correct type, taking in arguments specific to that type
 // These should be viewed as helpers for other functions
 // varargs should be of type ErrorResponseArg
-ErrorResponse * make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
-BindComplete *	make_bind_complete(void);
+ErrorResponse  *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
+BindComplete   *make_bind_complete(void);
 BackendKeyData *make_backend_key_data(int32_t secret_key, pid_t pid);
-CloseComplete * make_close_complete(void);
-ReadyForQuery * make_ready_for_query(PSQL_TransactionStatus status);
-EmptyQueryResponse *	   make_empty_query_response(void);
-RowDescription *	   make_row_description(RowDescriptionParm *parms, int16_t num_parms);
-DataRow *		   make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types);
-CommandComplete *	   make_command_complete(SqlStatementType type, int32_t num_rows);
+CloseComplete  *make_close_complete(void);
+ReadyForQuery  *make_ready_for_query(PSQL_TransactionStatus status);
+EmptyQueryResponse	  *make_empty_query_response(void);
+RowDescription		  *make_row_description(RowDescriptionParm *parms, int16_t num_parms);
+DataRow			  *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types);
+CommandComplete		  *make_command_complete(SqlStatementType type, int32_t num_rows);
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
-AuthenticationOk *	   make_authentication_ok(void);
-ParseComplete *		   make_parse_complete(void);
-ParameterStatus *	   make_parameter_status(StartupMessageParm *parm);
-PortalSuspended *	   make_portal_suspended(void);
-NoData *		   make_no_data(void);
-ParameterDescription *	   make_parameter_description(char *statement, RoctoSession *session);
+AuthenticationOk	  *make_authentication_ok(void);
+ParseComplete		  *make_parse_complete(void);
+ParameterStatus		  *make_parameter_status(StartupMessageParm *parm);
+PortalSuspended		  *make_portal_suspended(void);
+NoData			  *make_no_data(void);
+ParameterDescription	  *make_parameter_description(char *statement, RoctoSession *session);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL
-Bind *		 read_bind(BaseMessage *message);
-Close *		 read_close(BaseMessage *message);
-Flush *		 read_flush(BaseMessage *message);
-Query *		 read_query(BaseMessage *message);
-Parse *		 read_parse(BaseMessage *message);
+Bind		*read_bind(BaseMessage *message);
+Close		*read_close(BaseMessage *message);
+Flush		*read_flush(BaseMessage *message);
+Query		*read_query(BaseMessage *message);
+Parse		*read_parse(BaseMessage *message);
 PasswordMessage *read_password_message(BaseMessage *message);
-Execute *	 read_execute(BaseMessage *message);
-Sync *		 read_sync(BaseMessage *message);
-Describe *	 read_describe(BaseMessage *message);
+Execute		*read_execute(BaseMessage *message);
+Sync		*read_sync(BaseMessage *message);
+Describe	*read_describe(BaseMessage *message);
 
 // This is a special case because it must read more from the buffer
 StartupMessage *read_startup_message(RoctoSession *session, char **data, int32_t *data_length);
-SSLRequest *	read_ssl_request(RoctoSession *session, char *data, int32_t data_length);
-CancelRequest * read_cancel_request(RoctoSession *session, char **data, int32_t *data_size);
+SSLRequest     *read_ssl_request(RoctoSession *session, char *data, int32_t data_length);
+CancelRequest  *read_cancel_request(RoctoSession *session, char **data, int32_t *data_size);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
@@ -187,7 +187,7 @@ int get_user_permissions(RoctoSession *session);
 // Helpers to deserialize binary data
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
-char *	byte_to_hex(char c, char *hex);
+char   *byte_to_hex(char c, char *hex);
 int32_t md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len);
 int64_t bin_to_bool(char *bin);
 int64_t bin_to_char(char *bin);
@@ -217,16 +217,16 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename);
 
 // Read functions to simulate client reception of the various make_* response messages. Used for testing.
 // AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message);
-AuthenticationOk *  read_authentication_ok(BaseMessage *message);
-BindComplete *	    read_bind_complete(BaseMessage *message);
-CloseComplete *	    read_close_complete(BaseMessage *message);
-CommandComplete *   read_command_complete(BaseMessage *message);
-DataRow *	    read_data_row(BaseMessage *message);
+AuthenticationOk   *read_authentication_ok(BaseMessage *message);
+BindComplete	   *read_bind_complete(BaseMessage *message);
+CloseComplete	   *read_close_complete(BaseMessage *message);
+CommandComplete	   *read_command_complete(BaseMessage *message);
+DataRow		   *read_data_row(BaseMessage *message);
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message);
-ParameterStatus *   read_parameter_status(BaseMessage *message);
-ParseComplete *	    read_parse_complete(BaseMessage *message);
-PortalSuspended *   read_portal_suspended(BaseMessage *message);
-ReadyForQuery *	    read_ready_for_query(BaseMessage *message);
-RowDescription *    read_row_description(BaseMessage *message);
+ParameterStatus	   *read_parameter_status(BaseMessage *message);
+ParseComplete	   *read_parse_complete(BaseMessage *message);
+PortalSuspended	   *read_portal_suspended(BaseMessage *message);
+ReadyForQuery	   *read_ready_for_query(BaseMessage *message);
+RowDescription	   *read_row_description(BaseMessage *message);
 
 #endif

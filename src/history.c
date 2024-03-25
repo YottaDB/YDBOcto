@@ -1,6 +1,6 @@
 /****************************************************************
  * 								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  * 								*
  * This source code contains the intellectual property		*
@@ -71,7 +71,7 @@ boolean_t ensure_file_exists(void) {
 enum EncodeDecodeEnum { ENCODE, DECODE };
 void encode_decode_history(enum EncodeDecodeEnum ed) {
 	HIST_ENTRY *h;
-	char *	    c;
+	char	   *c;
 
 	history_set_pos(0);
 	for (h = current_history(); NULL != h; h = next_history()) {
@@ -185,9 +185,9 @@ void save_readline_history(void) {
  * back the expanded value. If expansion fails, set it to NULL.
  */
 void set_readline_file(void) {
-	const char * readline_initialfile = NULL;
+	const char  *readline_initialfile = NULL;
 	wordexp_t    wordexp_result;
-	char *	     readline_actualfile;
+	char	    *readline_actualfile;
 	unsigned int readline_actualfile_max_length;
 	int	     wordexp_status;
 
@@ -215,7 +215,7 @@ void set_readline_file(void) {
 
 		offset = 0; // offset into readline_actualfile char array
 		for (unsigned int i = 0; i < wordexp_result.we_wordc; i++) {
-			char *	     token;
+			char	    *token;
 			unsigned int token_length;
 
 			/* Multiple tokens means that there is a space

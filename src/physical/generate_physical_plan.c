@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,12 +28,12 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	SqlOptionalKeyword *keyword;
-	LogicalPlan *	    keys, *table_joins, *select;
-	LogicalPlan *	    project, *select_column_list;
-	LogicalPlan *	    criteria, *select_options, *select_more_options;
-	LogicalPlan *	    where;
-	LogicalPlan *	    set_option, *set_plans, *set_output, *set_key;
-	PhysicalPlan *	    out, *prev = NULL, *pp_from_lp;
+	LogicalPlan	   *keys, *table_joins, *select;
+	LogicalPlan	   *project, *select_column_list;
+	LogicalPlan	   *criteria, *select_options, *select_more_options;
+	LogicalPlan	   *where;
+	LogicalPlan	   *set_option, *set_plans, *set_output, *set_key;
+	PhysicalPlan	   *out, *prev = NULL, *pp_from_lp;
 	LPActionType	    set_oper_type, type;
 	PhysicalPlanOptions plan_options;
 	boolean_t	    is_set_dnf;
@@ -406,9 +406,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			type = table_joins->v.lp_default.operand[0]->type;
 			if ((LP_SELECT_QUERY == type) || (LP_SET_OPERATION == type) || (LP_TABLE_VALUE == type)
 			    || (LP_VIEW == type)) {
-				PhysicalPlan *	    ret;
+				PhysicalPlan	   *ret;
 				PhysicalPlanOptions tmp_options;
-				LogicalPlan *	    select_or_set_or_table_value_or_view;
+				LogicalPlan	   *select_or_set_or_table_value_or_view;
 
 				/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
 				tmp_options = plan_options;
@@ -619,11 +619,11 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 		    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
 	} else {
 		PhysicalPlanOptions plan_options;
-		PhysicalPlan *	    cur, *child_plan;
-		SqlTableAlias *	    table_alias;
-		SqlColumnAlias *    column_alias;
-		PhysicalPlan *	    new_plan;
-		LogicalPlan *	    plan, *oper1;
+		PhysicalPlan	   *cur, *child_plan;
+		SqlTableAlias	   *table_alias;
+		SqlColumnAlias	   *column_alias;
+		PhysicalPlan	   *new_plan;
+		LogicalPlan	   *plan, *oper1;
 		int		    unique_id;
 		boolean_t	    set_deferred_plan;
 

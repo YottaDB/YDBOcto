@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -477,7 +477,7 @@ int get_week(struct tm *tm, unsigned int *year, DayOfWeek first_weekday, WeekRan
  * Out: The maximum possible length of the input string when fully populated
  */
 size_t get_max_date_length(ydb_string_t *time_format) {
-	char * time_format_str;
+	char  *time_format_str;
 	size_t format_len, time_format_len, i;
 
 	format_len = 0;
@@ -593,7 +593,7 @@ size_t get_max_date_length(ydb_string_t *time_format) {
  */
 ydb_string_t *populate_sql_time_format(ydb_string_t *time_format, struct tm *tm, boolean_t *call_strftime) {
 	ydb_string_t *ret;
-	char *	      time_format_str;
+	char	     *time_format_str;
 	size_t	      format_len, time_format_len, i, j, max, copied;
 	unsigned int  year;
 	int	      week;
@@ -938,7 +938,7 @@ ydb_string_t *populate_sql_time_format(ydb_string_t *time_format, struct tm *tm,
  */
 ydb_string_t *ydboctoDateFormatC(int count, ydb_string_t *date, ydb_string_t *format) {
 	ydb_string_t *intermediate_format, *ret;
-	char *	      date_str, *result;
+	char	     *date_str, *result;
 	char	      revised_date[DEFAULT_DATE_LEN];
 	struct tm     tm;
 	int	      status;

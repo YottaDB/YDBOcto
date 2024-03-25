@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
  */
 void move_where_clause_to_on_clause(SqlStatement **stmt_ptr, SqlJoin *start_join) {
 	int	      max_unique_id;
-	SqlJoin *     cur_join, *noted_join;
+	SqlJoin	     *cur_join, *noted_join;
 	boolean_t     outer_join_seen, right_or_full_join_seen;
 	SqlStatement *stmt;
 
@@ -34,7 +34,7 @@ void move_where_clause_to_on_clause(SqlStatement **stmt_ptr, SqlJoin *start_join
 	noted_join = NULL; /* This notes down the JOIN whose ON clause/condition will inherit the WHERE clause portion */
 	do {
 		enum SqlJoinType join_type;
-		SqlJoin *	 next_join;
+		SqlJoin		*next_join;
 
 		next_join = cur_join->next;
 		join_type = cur_join->type;

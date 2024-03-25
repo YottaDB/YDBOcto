@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,9 +24,9 @@
  * @returns the number of characters written
  */
 int generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
-	char *		    buffer_ptr, *columnName;
+	char		   *buffer_ptr, *columnName;
 	int		    written;
-	SqlValue *	    value;
+	SqlValue	   *value;
 	SqlOptionalKeyword *keyword;
 
 	UNUSED(table); // we may eventually need this, and it's already in the code

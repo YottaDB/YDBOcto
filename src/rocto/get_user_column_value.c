@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,7 +29,7 @@ uint32_t get_user_column_value(char *buffer, const uint32_t buf_len, const char 
 	const char *c = NULL, *col_start = NULL;
 	const char *row_end = row + row_len;
 	uint32_t    col_num = 0, value_len = 0;
-	char *	    delimiter = COLUMN_DELIMITER; // Allow access to delimiter as character
+	char	   *delimiter = COLUMN_DELIMITER; // Allow access to delimiter as character
 
 	c = row;
 	// Find start of desired column value

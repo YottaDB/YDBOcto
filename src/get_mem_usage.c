@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,11 +26,11 @@
 
 // Returns the amount of memory used by the current process
 int64_t get_mem_usage(void) {
-	FILE *	fp;
+	FILE   *fp;
 	char	mem_used[INT64_TO_STRING_MAX];
 	int64_t ret;
 	int	save_errno;
-	char *	status;
+	char   *status;
 	char	command[COMMAND_LEN];
 
 	snprintf(command, sizeof(command), COMMAND_STRING, getpid());

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,7 +28,7 @@
 void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalPlan *where) {
 	int	      num_cross_joins, max_unique_id, cur_entries, max_entries, i, j, tmp_id;
 	LogicalPlan **table_join_array; /* a 1-d array of pointers to LP_TABLE_JOIN "LogicalPlan" */
-	boolean_t *   equals_id1_id2;	/* a 2-d array indicating whether the WHERE clause has a condition
+	boolean_t    *equals_id1_id2;	/* a 2-d array indicating whether the WHERE clause has a condition
 					 * of the form TBL1.COL1 = TBL2.COL2 where the indexes into this array
 					 * (id1 and id2) are the "unique_id" values of TBL1 and TBL2.
 					 */
@@ -38,7 +38,7 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 	boolean_t *id_seen_array;	/* a 1-d array storing whether an id has already been added to
 					 * "sorted_array".
 					 */
-	LogicalPlan *	 left, *right, *start_right, *next_left, *next_right, *cur_table_join, *tmp;
+	LogicalPlan	*left, *right, *start_right, *next_left, *next_right, *cur_table_join, *tmp;
 	enum SqlJoinType next_join_type;
 
 	assert(LP_TABLE_JOIN == table_join->type);

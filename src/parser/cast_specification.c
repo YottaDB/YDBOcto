@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@
 // Function invoked by the rule named "table_reference" in src/parser/select.y
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source) {
 	SqlStatement *ret;
-	SqlValue *    value;
+	SqlValue     *value;
 
 	if (NULL == cast_specification) {
 		ret = NULL;
@@ -33,7 +33,7 @@ SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement 
 			SQL_STATEMENT(ret, value_STATEMENT);
 			MALLOC_STATEMENT(ret, value, SqlValue);
 
-			SqlStatement *	 fc_statement;
+			SqlStatement	*fc_statement;
 			SqlFunctionCall *fc;
 			UNPACK_SQL_STATEMENT(value, ret, value);
 			value->type = CALCULATED_VALUE;

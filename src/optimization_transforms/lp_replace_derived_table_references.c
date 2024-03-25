@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -93,8 +93,8 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 
 LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, SqlKey *key) {
 	SqlColumnAlias *alias;
-	LogicalPlan *	ret, *oper1;
-	LogicalPlan *	set_plans;
+	LogicalPlan    *ret, *oper1;
+	LogicalPlan    *set_plans;
 
 	if (NULL == plan)
 		return NULL;

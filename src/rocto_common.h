@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,8 @@
 typedef struct {
 	int32_t	      connection_fd;
 	int32_t	      sending_message;
-	char *	      ip;
-	char *	      port;
+	char	     *ip;
+	char	     *port;
 	ydb_buffer_t *session_id;
 	int32_t	      session_ending;
 	int32_t	      ssl_active;

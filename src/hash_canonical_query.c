@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -172,7 +172,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	assert(stmt->type < invalid_STATEMENT);
 
 	// Below are variables used in multiple "case" blocks below so are declared before the "switch" statement.
-	SqlColumn *    start_column, *cur_column;
+	SqlColumn     *start_column, *cur_column;
 	SqlTableAlias *table_alias;
 
 	/* Note: The below switch statement and the flow mirrors that in populate_data_type.c.
@@ -209,7 +209,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		break;
 	case insert_STATEMENT:; /* semicolon for empty statement so we can declare variables in case block */
 		SqlInsertStatement *insert;
-		SqlTableAlias *	    dst_table_alias;
+		SqlTableAlias	   *dst_table_alias;
 
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		ADD_INT_HASH(state, insert_STATEMENT);

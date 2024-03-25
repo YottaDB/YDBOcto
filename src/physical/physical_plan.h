@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,7 +31,7 @@ typedef enum PPSetOperation { PP_NOT_SET, PP_UNION_SET, PP_EXCEPT_SET, PP_INTERS
 
 typedef struct SetOperType {
 	LPActionType	    set_oper_type;
-	LogicalPlan *	    lp_set_operation; /* used for deferred plan determination and corresponding M code generation */
+	LogicalPlan	   *lp_set_operation; /* used for deferred plan determination and corresponding M code generation */
 	int		    input_id1;
 	int		    input_id2;
 	int		    output_id;
@@ -40,16 +40,16 @@ typedef struct SetOperType {
 } SetOperType;
 
 typedef struct PhysicalPlan {
-	char *		     plan_name, *filename;
+	char		    *plan_name, *filename;
 	struct PhysicalPlan *prev, *next;
-	SqlKey *	     iterKeys[MAX_KEY_COUNT]; /* These represent the keys we used to do the iteration */
-	SqlKey *	     outputKey;
-	LogicalPlan *	     where;		/* WHERE clause */
-	LogicalPlan *	     tablejoin;		/* FROM clause */
-	LogicalPlan *	     aggregate_options; /* GROUP BY and HAVING */
-	SqlOptionalKeyword * keywords;		/* DISTINCT etc. */
-	LogicalPlan *	     order_by;		/* ORDER BY clause */
-	LogicalPlan *	     projection;
+	SqlKey		    *iterKeys[MAX_KEY_COUNT]; /* These represent the keys we used to do the iteration */
+	SqlKey		    *outputKey;
+	LogicalPlan	    *where;		/* WHERE clause */
+	LogicalPlan	    *tablejoin;		/* FROM clause */
+	LogicalPlan	    *aggregate_options; /* GROUP BY and HAVING */
+	SqlOptionalKeyword  *keywords;		/* DISTINCT etc. */
+	LogicalPlan	    *order_by;		/* ORDER BY clause */
+	LogicalPlan	    *projection;
 	unsigned int	     total_iter_keys;
 	boolean_t	     stash_columns_in_keys; /* If set to 1, this plan should emit the columns
 						     * as subscripts of the key, rather than using a row id
@@ -77,11 +77,11 @@ typedef struct PhysicalPlan {
 						 * but "tmpl_group_by" call has not happened.
 						 */
 	int		     aggregate_function_or_group_by_or_having_specified; /* copy of same field from table_alias */
-	SetOperType *	     set_oper_list; /* Linked list of SET OPERATIONS to do on this plan at the end */
+	SetOperType	    *set_oper_list; /* Linked list of SET OPERATIONS to do on this plan at the end */
 	unsigned int	     view_total_iter_keys;
-	SqlKey *	     viewKeys[MAX_KEY_COUNT]; /* These represent the keys that map to this pplan */
+	SqlKey		    *viewKeys[MAX_KEY_COUNT]; /* These represent the keys that map to this pplan */
 	struct PhysicalPlan *dnf_prev, *dnf_next;     /* Linked list of plans that are at the same LP_SET_DNF level */
-	LogicalPlan *	     lp_select_query;	      /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
+	LogicalPlan	    *lp_select_query;	      /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
 						       * or LP_DELETE_FROM or LP_UPDATE logical plan corresponding to this
 						       * physical plan.
 						       */
@@ -136,15 +136,15 @@ typedef struct PhysicalPlanOptions {
 	struct PhysicalPlan *parent;
 	// last_plan will always represent the end of linked list of plans
 	struct PhysicalPlan **last_plan;
-	struct PhysicalPlan * dnf_plan_next;
+	struct PhysicalPlan  *dnf_plan_next;
 	boolean_t	      stash_columns_in_keys;
-	LogicalPlan **	      aggregate; /* Helps maintain a linked list of LP_AGGREGATE_FUNC* plans in each query.
+	LogicalPlan	    **aggregate; /* Helps maintain a linked list of LP_AGGREGATE_FUNC* plans in each query.
 					  * Subqueries inside the query maintain their own linked list.
 					  */
 	LogicalPlan **function;		 /* Helps maintain a linked list of LP_FUNCTION_CALL plans across entire query */
 	LogicalPlan **table;		 /* Helps maintain a linked list of LP_TABLE plans across entire query */
 	LogicalPlan **view;		 /* Helps maintain a linked list of LP_VIEW plans across entire query */
-	LogicalPlan * lp_select_query;	 /* Used by lp_verify_structure() call from generate_physical_plan() to know the
+	LogicalPlan  *lp_select_query;	 /* Used by lp_verify_structure() call from generate_physical_plan() to know the
 					  * LogicalPlan of the select query which invoked the function. The intention here
 					  * is to access the address of pplan associated with this logical plan such that
 					  * after generate_physical_plan() the pplan is initialized and it can be used by
@@ -171,7 +171,7 @@ boolean_t is_unique_id_a_key_of_pplan(PhysicalPlan *pplan, int unique_id);
 
 int	      is_update_keycol_or_xref(PhysicalPlan *pplan);
 int	      get_num_key_cols_in_set_clause(PhysicalPlan *pplan);
-char *	      get_setoper_mlabref(SetOperType *set_oper, PhysicalPlan *pplan);
+char	     *get_setoper_mlabref(SetOperType *set_oper, PhysicalPlan *pplan);
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
 PhysicalPlan *get_physical_plan_and_key_for_unique_id(PhysicalPlan *pplan, int unique_id, SqlKey **matching_key);
 PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename);

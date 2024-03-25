@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 
 DataRow *read_data_row(BaseMessage *message) {
 	DataRow *ret;
-	char *	 cur_pointer, *c;
+	char	*cur_pointer, *c;
 	uint32_t remaining_length = 0;
 
 	remaining_length = ntohl(message->length);

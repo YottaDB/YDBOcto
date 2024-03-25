@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,8 +26,8 @@
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
 	LogicalPlan *root, *keys, *table_join, *lp_table_alias, *lp_output_key;
 	int	     cur_key, max_key, unique_id;
-	SqlColumn *  key_columns[MAX_KEY_COUNT], *column;
-	SqlKey *     output_key;
+	SqlColumn   *key_columns[MAX_KEY_COUNT], *column;
+	SqlKey	    *output_key;
 
 	unique_id = table_alias->unique_id;
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);

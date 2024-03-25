@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,17 +27,17 @@
 int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int		plan_id, len, fd, status;
 	uint64_t	buffer_index, buffer_len;
-	PhysicalPlan *	cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
-	PhysicalPlan *	prev_plan, *next_plan;
-	char *		buffer, plan_name_buffer[MAX_PLAN_NAME_LEN];
+	PhysicalPlan   *cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
+	PhysicalPlan   *prev_plan, *next_plan;
+	char	       *buffer, plan_name_buffer[MAX_PLAN_NAME_LEN];
 	char		filename[OCTO_PATH_MAX];
-	char *		tableName, *columnName;
-	char *		tmp_plan_filename = NULL;
+	char	       *tableName, *columnName;
+	char	       *tmp_plan_filename = NULL;
 	unsigned int	plan_filename_len;
-	SqlValue *	value;
-	SqlKey *	key;
-	FILE *		output_file;
-	char *		linestart, *lineend;
+	SqlValue       *value;
+	SqlKey	       *key;
+	FILE	       *output_file;
+	char	       *linestart, *lineend;
 	hash128_state_t state;
 
 	assert(NULL != cur_plan);
@@ -99,7 +99,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	if (NULL != xrefplan.prev)
 		xrefplan.prev->next = NULL;
 	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next) {
-		char *	     routine_name;
+		char	    *routine_name;
 		ydb_string_t ci_routine_name;
 
 		/* Assert that the logical plan corresponding to the xref physical plan points back to this physical plan.

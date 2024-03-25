@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 
 BaseMessage *read_message(RoctoSession *session, char **buffer, int32_t *buffer_size, int32_t *rocto_err) {
 	BaseMessage *message;
-	char *	     tmp;
+	char	    *tmp;
 	int32_t	     bytes_to_read, tmp_len;
 
 	// Expand buffer if inadequate to hold initial bytes of a PostgreSQL protocol message

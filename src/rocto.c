@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -43,16 +43,16 @@ void handle_sigint(int sig, siginfo_t *info, void *context) {
 
 int main(int argc, char **argv) {
 	AuthenticationMD5Password *md5auth;
-	AuthenticationOk *	   authok;
-	BackendKeyData *	   backend_key_data;
-	BaseMessage *		   base_message;
-	CancelRequest *		   cancel_request;
-	ParameterStatus *	   parameter_status;
-	PasswordMessage *	   password_message;
-	SSLRequest *		   ssl_request;
-	StartupMessage *	   startup_message;
+	AuthenticationOk	  *authok;
+	BackendKeyData		  *backend_key_data;
+	BaseMessage		  *base_message;
+	CancelRequest		  *cancel_request;
+	ParameterStatus		  *parameter_status;
+	PasswordMessage		  *password_message;
+	SSLRequest		  *ssl_request;
+	StartupMessage		  *startup_message;
 	StartupMessageParm	   message_parm;
-	char *			   buffer;
+	char			  *buffer;
 	char			   host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
 	int32_t			   buffer_size = OCTO_INIT_BUFFER_LEN;
 	int32_t			   cur_parm = 0;
@@ -60,13 +60,13 @@ int main(int argc, char **argv) {
 	int64_t			   mem_usage;
 	pid_t			   child_id = 0;
 	struct sigaction	   ctrlc_action;
-	struct sockaddr_in *	   address = NULL;
+	struct sockaddr_in	  *address = NULL;
 	struct sockaddr_in6	   addressv6;
 	ydb_buffer_t		   ydb_buffers[2];
-	ydb_buffer_t *		   session_buffer = &(ydb_buffers[0]), *session_id_buffer;
+	ydb_buffer_t		  *session_buffer = &(ydb_buffers[0]), *session_id_buffer;
 	ydb_buffer_t		   z_interrupt, z_interrupt_handler;
 	ydb_buffer_t		   pid_subs[2], timestamp_buffer;
-	ydb_buffer_t *		   pid_buffer = &pid_subs[0];
+	ydb_buffer_t		  *pid_buffer = &pid_subs[0];
 	ydb_buffer_t		   pg_buffers[4];
 	socklen_t		   addrlen;
 	ydb_buffer_t		   secret_key_list_buffer, secret_key_buffer, value_buffer, variable_buffer;

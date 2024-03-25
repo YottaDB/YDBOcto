@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,7 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 	ydb_buffer_t schema_local, subs_array[4], ret;
 	int	     status, extra_sub = 0;
 	MemoryChunk *save_chunk;
-	void *	     value;
+	void	    *value;
 	char	     retbuff[sizeof(void *)];
 
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &schema_local);

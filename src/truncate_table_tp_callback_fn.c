@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,15 +20,15 @@
 
 int truncate_table_tp_callback_fn(SqlStatement *truncate_stmt) {
 	SqlTruncateTableStatement *truncate_table;
-	SqlColumnList *		   column_list, *cur_table;
+	SqlColumnList		  *column_list, *cur_table;
 
 	// Get the list of tables to truncate
 	UNPACK_SQL_STATEMENT(truncate_table, truncate_stmt, truncate_table);
 	UNPACK_SQL_STATEMENT(column_list, truncate_table->tables, column_list);
 	cur_table = column_list;
 	do {
-		char *	      tablename;
-		SqlTable *    table;
+		char	     *tablename;
+		SqlTable     *table;
 		SqlStatement *table_stmt;
 
 		// Truncate each table in the list, if it exists. If not, let the user know that it doesn't exist.

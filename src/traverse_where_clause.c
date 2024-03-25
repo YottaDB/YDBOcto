@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,7 +15,7 @@
 #include "octo.h"
 
 SqlStatement *traverse_where_clause(SqlStatement *binary_stmt, SqlJoin *start_join) {
-	SqlStatement *	    ret;
+	SqlStatement	   *ret;
 	SqlBinaryOperation *binary;
 	int		    i;
 

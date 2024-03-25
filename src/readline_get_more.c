@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -67,7 +67,7 @@ int readline_get_more(void) {
 		do {
 			// Reset errno to ensure that the loop terminates so long as `EINTR` is not raised by `read()`
 			if (cur_input_index == cur_input_max) {
-				char * tmp;
+				char  *tmp;
 				size_t old_begin_index;
 
 				assert(old_input_line_begin >= input_buffer_combined);

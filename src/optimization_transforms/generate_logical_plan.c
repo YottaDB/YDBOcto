@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,18 +24,18 @@
  */
 LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlSelectStatement *select_stmt;
-	LogicalPlan *	    select_query, *project, *select, *dst;
-	LogicalPlan *	    criteria, *where, *order_by;
-	LogicalPlan *	    select_options, *select_more_options, *aggregate_options;
-	LogicalPlan *	    join_right, *temp;
-	LogicalPlan *	    start_join_condition, *t_join_condition;
-	LogicalPlan *	    keywords, *left;
-	SqlJoin *	    cur_join, *start_join;
+	LogicalPlan	   *select_query, *project, *select, *dst;
+	LogicalPlan	   *criteria, *where, *order_by;
+	LogicalPlan	   *select_options, *select_more_options, *aggregate_options;
+	LogicalPlan	   *join_right, *temp;
+	LogicalPlan	   *start_join_condition, *t_join_condition;
+	LogicalPlan	   *keywords, *left;
+	SqlJoin		   *cur_join, *start_join;
 	SqlColumnListAlias *list;
 	int		    num_outer_joins;
 	enum SqlJoinType    cur_join_type;
 	boolean_t	    error_encountered;
-	SqlTableAlias *	    table_alias;
+	SqlTableAlias	   *table_alias;
 
 	error_encountered = FALSE;
 	if (set_operation_STATEMENT == stmt->type) {
@@ -43,9 +43,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		return lp_generate_set_logical_plan(stmt);
 	} else if (insert_STATEMENT == stmt->type) {
 		SqlInsertStatement *insert;
-		LogicalPlan *	    lp_insert_into, *lp_insert_into_options, *lp_insert_into_more_options;
-		LogicalPlan *	    lp_table;
-		LogicalPlan *	    lp_select_query;
+		LogicalPlan	   *lp_insert_into, *lp_insert_into_options, *lp_insert_into_more_options;
+		LogicalPlan	   *lp_table;
+		LogicalPlan	   *lp_select_query;
 
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		MALLOC_LP_2ARGS(lp_insert_into, LP_INSERT_INTO);
@@ -85,7 +85,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LogicalPlan *lp_delete_from;
 		LogicalPlan *lp_table;
 		LogicalPlan *lp_where;
-		SqlJoin *    join;
+		SqlJoin	    *join;
 
 		UNPACK_SQL_STATEMENT(delete, stmt, delete_from);
 		MALLOC_LP_2ARGS(lp_delete_from, LP_DELETE_FROM);
@@ -122,10 +122,10 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		return (error_encountered ? NULL : lp_delete_from);
 	} else if (update_STATEMENT == stmt->type) {
 		SqlUpdateStatement *update;
-		LogicalPlan *	    lp_update, *lp_update_options;
-		LogicalPlan *	    lp_table;
-		LogicalPlan *	    lp_where;
-		SqlJoin *	    join;
+		LogicalPlan	   *lp_update, *lp_update_options;
+		LogicalPlan	   *lp_table;
+		LogicalPlan	   *lp_where;
+		SqlJoin		   *join;
 
 		MALLOC_LP_2ARGS(lp_update, LP_UPDATE);
 		/* Note: Just like the LP_DELETE_FROM logical plan subtree, LP_UPDATE logical plan subtree
@@ -233,7 +233,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		need_generate_logical_plan = TRUE;
 		if (table_alias_STATEMENT == sql_stmt->type) {
 			SqlStatementType table_type;
-			SqlTableAlias *	 table_alias;
+			SqlTableAlias	*table_alias;
 
 			table_alias = sql_stmt->v.table_alias;
 			table_type = table_alias->table->type;
@@ -452,7 +452,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		       || (LP_TABLE_VALUE == new_plan->type) || (LP_VIEW == new_plan->type));
 		if (LP_TABLE != new_plan->type) {
 			SqlStatement *sql_stmt;
-			LogicalPlan * cur_lp_key;
+			LogicalPlan  *cur_lp_key;
 
 			sql_stmt = cur_join->value;
 			sql_stmt = drill_to_table_alias(sql_stmt);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,9 +38,9 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 	PSQL_TypeSize type_size;
 	int32_t	      length;
 	int32_t	      i;
-	DataRow *     ret;
+	DataRow	     *ret;
 	long	      int4_value;
-	char *	      c;
+	char	     *c;
 	char	      int_buffer[INT32_TO_STRING_MAX];
 
 	// Get the length we need to malloc

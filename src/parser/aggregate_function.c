@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,9 +18,9 @@
 // Function invoked by the rule named "set_function_specification" and "general_set_function" in src/parser.y
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression,
 				 YYLTYPE *loc) {
-	SqlStatement *	      ret, *aggregate_stmt;
+	SqlStatement	     *ret, *aggregate_stmt;
 	SqlAggregateFunction *af;
-	SqlValue *	      value;
+	SqlValue	     *value;
 
 	SQL_STATEMENT(ret, value_STATEMENT);
 	MALLOC_STATEMENT(ret, value, SqlValue);

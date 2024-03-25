@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@
 
 MemoryChunk *alloc_chunk(size_t size) {
 	MemoryChunk *ret;
-	void *	     v;
+	void	    *v;
 
 	ret = (MemoryChunk *)malloc(sizeof(MemoryChunk));
 	memset(ret, 0, sizeof(MemoryChunk));
@@ -35,7 +35,7 @@ MemoryChunk *alloc_chunk(size_t size) {
 
 void *octo_cmalloc(MemoryChunk *root, size_t size) {
 	MemoryChunk *cur, *new;
-	void *	     ret;
+	void	    *ret;
 	size_t	     alloc_size;
 
 	assert(NULL != root);

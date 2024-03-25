@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,11 +32,11 @@
  *
  */
 int describe_table_or_view_name(SqlStatement *table_name) {
-	SqlValue *    value;
-	char *	      tablename;
-	SqlTable *    table;
+	SqlValue     *value;
+	char	     *tablename;
+	SqlTable     *table;
 	SqlStatement *table_or_view_stmt;
-	SqlColumn *   start_column, *cur_column;
+	SqlColumn    *start_column, *cur_column;
 
 	UNPACK_SQL_STATEMENT(value, table_name, value);
 	tablename = value->v.reference;
@@ -178,7 +178,7 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 
 	/* Next output UNIQUE constraints (if any) */
 	boolean_t first_unique_constraint;
-	char *	  buffer, *buffer_orig, **buff_ptr;
+	char	 *buffer, *buffer_orig, **buff_ptr;
 	int	  buffer_size, status;
 
 	buffer_orig = NULL;

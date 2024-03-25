@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,12 +25,12 @@
 
 RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	RowDescriptionParm *parms;
-	RowDescription *    ret;
-	ydb_buffer_t *	    plan_meta, value_buffer;
+	RowDescription	   *ret;
+	ydb_buffer_t	   *plan_meta, value_buffer;
 	int64_t		    tmp_long, i;
 	int32_t		    status;
 	int16_t		    num_columns, cur_column;
-	char *		    column_name = NULL;
+	char		   *column_name = NULL;
 	char		    cur_column_str[INT16_TO_STRING_MAX];
 
 	plan_meta = make_buffers(config->global_names.octo, 5, OCTOLIT_PLAN_METADATA, "", OCTOLIT_OUTPUT_COLUMNS, "", "");

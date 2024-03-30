@@ -349,7 +349,7 @@ int main(int argc, char **argv) {
 				if (0 < tls_errno) {
 					ERROR(ERR_SYSCALL, "gtm_tls_errno()", tls_errno, strerror(tls_errno));
 				} else {
-					ERROR(ERR_ROCTO_TLS_INIT, gtm_tls_get_error());
+					ERROR(ERR_ROCTO_TLS_INIT, GTM_TLS_GET_ERROR(NULL));
 				}
 				break;
 			}
@@ -359,9 +359,9 @@ int main(int argc, char **argv) {
 			if (INVALID_TLS_SOCKET == tls_socket) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {
-					ERROR(ERR_SYSCALL, gtm_tls_get_error(), tls_errno, strerror(tls_errno));
+					ERROR(ERR_SYSCALL, GTM_TLS_GET_ERROR(NULL), tls_errno, strerror(tls_errno));
 				} else {
-					ERROR(ERR_ROCTO_TLS_SOCKET, gtm_tls_get_error());
+					ERROR(ERR_ROCTO_TLS_SOCKET, GTM_TLS_GET_ERROR(NULL));
 				}
 				break;
 			}
@@ -372,7 +372,7 @@ int main(int argc, char **argv) {
 					if (-1 == status) {
 						tls_errno = gtm_tls_errno();
 						if (-1 == tls_errno) {
-							ERROR(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
+							ERROR(ERR_ROCTO_TLS_ACCEPT, GTM_TLS_GET_ERROR(tls_socket));
 						} else {
 							ERROR(ERR_ROCTO_TLS_UNNAMED, strerror(tls_errno), tls_errno);
 						}

@@ -90,6 +90,12 @@
 // Length of the string 'md5', which is prefixed to password hashes per https://www.postgresql.org/docs/11/protocol-flow.html
 #define MD5_PREFIX_LEN sizeof(MD5_PREFIX) - 1
 
+#ifndef GTM_TLS_API_VERSION_GET_ERROR
+#define GTM_TLS_GET_ERROR(TLS_SOCKET) gtm_tls_get_error()
+#else
+#define GTM_TLS_GET_ERROR(TLS_SOCKET) gtm_tls_get_error(TLS_SOCKET)
+#endif
+
 typedef struct {
 	RoctoSession *session;
 	int32_t	      data_sent;

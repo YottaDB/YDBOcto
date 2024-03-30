@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,7 +57,7 @@ int read_bytes(RoctoSession *session, char **buffer, int32_t *buffer_size, int32
 			}
 			if (read_now < 0) {
 				tls_errno = gtm_tls_errno();
-				err_str = gtm_tls_get_error();
+				err_str = GTM_TLS_GET_ERROR(session->tls_socket);
 				if (EINTR == tls_errno) {
 					ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
 							      * EINTR) in a deferred but timely fashion.

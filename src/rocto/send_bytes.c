@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,7 +38,7 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 				if (ECONNRESET == tls_errno || EPIPE == tls_errno) {
 					return 1;
 				} else if (-1 == tls_errno) {
-					err_str = gtm_tls_get_error();
+					err_str = GTM_TLS_GET_ERROR(session->tls_socket);
 					ERROR(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
 				} else {
 					ERROR(ERR_SYSCALL, "ydb_tls_send()", tls_errno, strerror(tls_errno));

@@ -39,10 +39,17 @@ int __wrap_gtm_tls_recv(gtm_tls_socket_t *tls_socket, void *buf, size_t len) {
 	return expected_return;
 }
 
+#ifndef GTM_TLS_API_VERSION_GET_ERROR
 unsigned long __wrap_gtm_tls_get_error() {
 	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
+#else
+unsigned long __wrap_gtm_tls_get_error(gtm_tls_socket_t *tls_socket) {
+	int32_t expected_return = mock_type(int);
+	return expected_return;
+}
+#endif
 
 unsigned long __wrap_gtm_tls_errno() {
 	int32_t expected_return = mock_type(int);

@@ -267,10 +267,19 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 
 	if [ "asan" = $subtaskname ]; then
-	  # Enable ASAN. It's only a 2x slowdown
-	  # Run full test suite
-	  asan="ON"
-	  full_test="ON"
+		# Enable ASAN. It's only a 2x slowdown
+		# Run full test suite
+		asan="ON"
+		full_test="ON"
+		if [[ "make-ubuntu" == $jobname ]]; then
+			# We started seeing "AddressSanitizer:DEADLYSIGNAL" errors in the "asan-ubuntu" pipeline job in Apr 2024.
+			# https://stackoverflow.com/a/77895910 has more details. It mentions "gcc-libs version 13.2.1-4 was just
+			# released and the issue should be fixed now, simply update the package: pacman -S gcc-libs.". But such
+			# a package does not exist in Ubuntu which is where this job runs so not sure how that solution will
+			# work here. It also mentions "You can also try disabling ASLR to work around the issue temporarily"
+			# so that is what we do here and hope we can revert this in a month or so (2024/04/01).
+			sysctl -w kernel.randomize_va_space=0	# Disable ASLR temporarily to avoid AddressSanitizer:DEADLYSIGNAL
+		fi
 	else
 	  asan="OFF"
 	fi

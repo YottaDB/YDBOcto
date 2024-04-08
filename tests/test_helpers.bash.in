@@ -1124,8 +1124,8 @@ run_query_verify() {
 	# Below sed commands add leading zeros into the Octo output in order to match PSQL's output
 	#	Octo Output: .333   PSQL Output: 0.333
 	#	Octo Output: -.333   PSQL Output: -0.333
-	sed 's/|\.\([0-9]*\)/|0.\1/;s/|-\.\([0-9]*\)/|-0.\1/;' $fname.log3 > $fname.log4
-	sed 's/^\.\([0-9]*\)/0.\1/;s/^-\.\([0-9]*\)/-0.\1/;' $fname.log4 > $fname.log5
+	sed 's/|\.\([0-9]*\)/|0.\1/g;s/|-\.\([0-9]*\)/|-0.\1/g;' $fname.log3 > $fname.log4
+	sed 's/^\.\([0-9]*\)/0.\1/g;s/^-\.\([0-9]*\)/-0.\1/g;' $fname.log4 > $fname.log5
 	# Check if query has ORDER BY that is not inside a subquery OR if "--sort-needed-check" is present. If so, do not sort.
 	# Otherwise sort as order is not guaranteed to match between Octo and Postgres.
 	# grep -c can return non-zero status in case of no match hence the need for "|| true"
@@ -1153,8 +1153,8 @@ run_query_verify() {
 			echo "#######################################"
 			echo "# [cat $fname.diff] output follows"
 			cat $fname.diff
-			echo "# [cat $fname.sql] output follows"
-			cat $fname.sql
+			echo "# [cat $query_file] output follows"
+			cat $query_file
 			echo "# [cat $fname.ref] output follows"
 			cat $fname.ref
 			echo "# [cat $fname.log] output follows"

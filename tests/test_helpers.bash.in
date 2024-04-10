@@ -1216,7 +1216,13 @@ run_query_generator() {
 	load_fixture "postgres-$databaseName.sql"
   	databaseSqlFileName="postgres-$databaseName.sql"
   else
-	load_fixture "$databaseName.sql"
+        cp @PROJECT_SOURCE_DIR@/tests/fixtures/$databaseName.sql tmp_$databaseName.sql
+	# Randomly add READONLY to CREATE TABLE commands after the GLOBAL keyword (usually the last);
+	rand=$(( $RANDOM % 2))
+	if [[ $rand -eq 0 ]]; then
+		sed -i 's/\(GLOBAL .*\);/\1 READONLY;/;' tmp_$databaseName.sql
+	fi
+	octo -f tmp_$databaseName.sql
 	load_fixture "$databaseName.zwr"
   	databaseSqlFileName="$databaseName.sql"
   fi

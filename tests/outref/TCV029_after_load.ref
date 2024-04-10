@@ -305,13 +305,13 @@ id0|id1|id2|id3|id4|id5|id6|id7|name
 1|2|3|4|5|6|8|7|Name10
 (10 rows)
 OCTO> drop table octoonerowtable;
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "octoonerowtable" because view "a" depends on it
+[ERROR]: ERR_INVALID_DROP: Dropping "octoonerowtable" is disallowed as it is a system object
 OCTO> select * from v6_1;
 ???
 1
 (1 row)
 OCTO> drop table pg_type;
-[ERROR]: ERR_DROP_TABLE_DEPENDS_ON_VIEW: Cannot Drop table "pg_type" because view "v7_1" depends on it
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_type" is disallowed as it is a system object
 OCTO> select * from v7_1;
 typname|typnamespace|typowner|typlen|typbyval|typtype|typcategory|typispreferred|typisdefined|typdelim|typrelid|typelem|typarray|typinput|typoutput|typreceive|typsend|typmodin|typmodout|typanalyze|typalign|typstorage|typnotnull|typbasetype|typtypmod|typndims|typcollation|typdefaultbin|typdefault|typacl|oid
 bool|11|10|1|1|b|B|1|1|,|0|0|1000|boolin|boolout|boolrecv|boolsend|-|-|-|c|p|0|0|-1|0|0||||16
@@ -327,7 +327,7 @@ unknown|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|
 varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043
 (11 rows)
 OCTO> drop function abs(integer);
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v47" depends on it
+[ERROR]: ERR_INVALID_DROP: Dropping "abs" is disallowed as it is a system object
 OCTO> select * from v8_1;
 abs
 1

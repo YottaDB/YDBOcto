@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -97,3 +97,22 @@ teardown() {
 	verify_output TSQ012 output.txt
 }
 
+@test "TSQ013 : OCTO948 : Ensure tables/functions defined in Octo seed cannot be dropped" {
+	# Determine the list of table/function names from octo-seed.sql
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/octo-seed.sql .
+	grep -r "CREATE TABLE" octo-seed.sql >> input_create_table.sql.log
+	grep -r "CREATE FUNCTION" octo-seed.sql >> input_create_function.sql.log
+	sed 's/(.*/(/' input_create_table.sql.log >> input_create_table.sql.log2
+	sed '/^\//d;' input_create_function.sql.log >> input_create_function.sql.log2
+	sed '/^ \*/d;' input_create_function.sql.log2 >> input_create_function.sql.log3
+	sed 's/\(.*\) \(.*\)\.\(.*\)\((.*\)/\1 \`\2\.\3\`\4/' input_create_function.sql.log3 >> input_create_function.sql.log4
+	# Add drop statements
+	sed 's/CREATE TABLE \(.*\) *(/drop table \1;/' input_create_table.sql.log2 >> input_drop_table.sql
+	grep "drop table .*\..*" input_drop_table.sql | sed 's/drop table .*\.\(.*\)/drop table \1/' >> input_drop_table.sql
+	sed 's/CREATE FUNCTION \(.*\) RETURNS.*/drop function \1;/' input_create_function.sql.log4 >> input_drop_function.sql
+	grep "drop function .*\..*" input_drop_function.sql | sed 's/drop function `.*\.\(.*\)`\(.*\)/drop function \1\2/' >> input_drop_function.sql
+	cat input_*.sql >> input.sql
+	# Validate that all of them generate an error
+	octo -p -f input.sql 2>&1 | tee -a output.txt
+	verify_output TSQ013 output.txt
+}

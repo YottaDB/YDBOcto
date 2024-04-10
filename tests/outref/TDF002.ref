@@ -1,4 +1,4 @@
-# Run 8 queries from TCF023.sql that use ABS and REPLACE functions
+# Run 8 queries from TCF023.sql that use ABSF and REPLACEF functions
 # Verify generated _ydbocto*.m and _ydbocto*.o plan files
 _ydboctoP*.m
 _ydboctoP*.o
@@ -35,18 +35,18 @@ _ydboctoP*.o
 ^%ydboctoocto("tableplans","names","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","names","$PWD/_ydboctoP*.m")=""
 # Verify db nodes correctly represent functions and plans that rely on them
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","replace","%ydboctoFPVePihbHpguYa2YigLy811","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","replace","%ydboctoFPVePihbHpguYa2YigLy811","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","replace","%ydboctoFPVePihbHpguYa2YigLy811","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","replace","%ydboctoFPVePihbHpguYa2YigLy811","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","replace","%ydboctoFPVePihbHpguYa2YigLy811","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","replace","%ydboctoFPVePihbHpguYa2YigLy811","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","replacef","%ydboctoF9A28JSsStJpASPA8ktWJL7","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","replacef","%ydboctoF9A28JSsStJpASPA8ktWJL7","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","replacef","%ydboctoF9A28JSsStJpASPA8ktWJL7","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","replacef","%ydboctoF9A28JSsStJpASPA8ktWJL7","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","replacef","%ydboctoF9A28JSsStJpASPA8ktWJL7","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","replacef","%ydboctoF9A28JSsStJpASPA8ktWJL7","plan_metadata","$PWD/_ydboctoP*.m")=""
 # Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
@@ -68,7 +68,7 @@ _ydboctoP*.o
 ^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
 # Verify currently installed triggers
 
-# Run DROP FUNCTION of REPLACE
+# Run DROP FUNCTION of REPLACEF
 DROP FUNCTION
 # Verify generated _ydbocto*.m and _ydbocto*.o plan files
 _ydboctoP*.m
@@ -86,12 +86,12 @@ _ydboctoP*.o
 ^%ydboctoocto("tableplans","names","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","names","$PWD/_ydboctoP*.m")=""
 # Verify db nodes correctly represent functions and plans that rely on them
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","absf","%ydboctoFp4Bl71cdwVMnOEy435VRD0","plan_metadata","$PWD/_ydboctoP*.m")=""
 # Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"

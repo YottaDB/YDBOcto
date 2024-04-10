@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,8 +10,9 @@
 #								#
 #################################################################
 
-create table test (id integer check(abs(id)<3));
+create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
+create table test (id integer check(absf(id)<3));
 insert into test values(1),(2);
 insert into test values(3); -- ERR_CHECK_CONSTRAINT_VIOLATION
 select * from test;
-drop function abs(integer); -- ERR_CANNOT_DROP_FUNCTION
+drop function absf(integer); -- ERR_CANNOT_DROP_FUNCTION

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,6 +10,8 @@
 #								#
 #################################################################
 
-create view v1 as select CONCAT(firstname, ABS(id-10)::varchar) from names;
-drop function concat(varchar,varchar);
-drop function abs(integer);
+CREATE FUNCTION absf(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION concatf(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
+create view v1 as select CONCATF(firstname, ABSF(id-10)::varchar) from names;
+drop function concatf(varchar,varchar);
+drop function absf(integer);

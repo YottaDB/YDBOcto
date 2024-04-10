@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,9 +23,9 @@ teardown() {
   corecheck
 }
 
-@test "TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)" {
+@test "TDF000 : OCTO345 : DROP FUNCTION doesn't work with octo-seed functions (ABS)" {
 	load_fixture TDF000.sql subtest novv
-	yottadb -r CHECKFUNCDELETE abs 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE abs 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function are not deleted
 	verify_output TDF000 output.txt noinfo nodebug
 }
 
@@ -38,13 +38,14 @@ teardown() {
 @test "TDF002 : OCTO90 : DROP FUNCTION should delete db nodes for plans that relied on the dropped function" {
 	# Note this test is mostly the same as the "test_create_function/TCF023" subtest.
 	# Change to one will need to be done in both places.
-	echo "# Run 8 queries from TCF023.sql that use ABS and REPLACE functions" > output.txt
-	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF023.sql .
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF023{,create}.sql .
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDF002.sql .
+	octo -f TCF023create.sql > run0.out 2>&1
+	echo "# Run 8 queries from TCF023.sql that use ABSF and REPLACEF functions" > output.txt
 	octo -vv -f TCF023.sql > run1.out 2>&1
 	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
 
-	echo "# Run DROP FUNCTION of REPLACE" >> output.txt
+	echo "# Run DROP FUNCTION of REPLACEF" >> output.txt
 	octo -f TDF002.sql > run2.out 2>&1
 	cat run2.out >> output.txt
 	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
@@ -65,7 +66,7 @@ teardown() {
 
 @test "TDF005 : OCTO562 : DROP FUNCTION on overloaded function only deletes targeted definition" {
 	load_fixture TDF005.sql subtest novv
-	yottadb -r CHECKFUNCDELETE abs 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	yottadb -r CHECKFUNCDELETE abstest 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
 	# There should be one remaining ABS function definition
 	verify_output TDF005 output.txt noinfo nodebug
 }

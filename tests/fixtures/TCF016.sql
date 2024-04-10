@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,10 +12,9 @@
 
 -- TCF016 : OCTO345 : CREATE FUNCTION with alternative type names
 
-DROP FUNCTION ABS(INT);
-CREATE FUNCTION ABS(INT) RETURNS DEC AS $$ABS^%ydboctosqlfunctions;
-SELECT ABS(-1) FROM names;
+CREATE FUNCTION ABSF(INT) RETURNS DEC AS $$ABS^%ydboctosqlfunctions;
+SELECT ABSF(-1) FROM names;
 
-DROP FUNCTION ABS(SMALLINT);
-CREATE FUNCTION ABS(SMALLINT) RETURNS DECIMAL AS $$ABS^%ydboctosqlfunctions;
-SELECT ABS(-2) FROM names;
+DROP FUNCTION ABSF(SMALLINT);
+CREATE FUNCTION ABSF(SMALLINT) RETURNS DECIMAL AS $$ABS^%ydboctosqlfunctions;
+SELECT ABSF(-2) FROM names;

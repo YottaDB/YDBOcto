@@ -1,5 +1,5 @@
 
--- TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)
+-- TDF000 : OCTO345 : DROP FUNCTION doesn't work with octo-seed functions (ABS)
 
 SELECT ABS(-1) FROM names;
 DROP FUNCTION ABS (INTEGER);
@@ -19,7 +19,7 @@ abs
 1
 (6 rows)
 OCTO> DROP FUNCTION ABS (INTEGER);
-DROP FUNCTION
+[ERROR]: ERR_INVALID_DROP: Dropping "abs" is disallowed as it is a system object
 OCTO> SELECT ABS(-1) FROM names;
 abs
 1
@@ -39,11 +39,17 @@ abs
 1
 (6 rows)
 OCTO> DROP FUNCTION ABS (NUMERIC);
-DROP FUNCTION
-[ERROR]: ERR_UNKNOWN_FUNCTION: No function abs defined with given parameter types (NUMERIC)
-LINE 9:1: SELECT ABS(-1.0) FROM names;
-                 ^^^
+[ERROR]: ERR_INVALID_DROP: Dropping "abs" is disallowed as it is a system object
 OCTO> SELECT ABS(-1.0) FROM names;
+abs
+1
+1
+1
+1
+1
+1
+(6 rows)
 OCTO> 
 Remaining function definitions (hashes):
-Successfully deleted function "abs" from pg_catalog.pg_proc
+--> Found: ^%ydboctoocto("functions","abs","%ydboctoFCMDmr1RPkcS1QSpZq9WR11")
+--> Found: ^%ydboctoocto("functions","abs","%ydboctoFd8ho2z5XoZT7LbZWVR1J54")

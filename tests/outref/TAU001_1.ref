@@ -1,10 +1,13 @@
 
-create table test (id integer check(abs(id)<3));
+create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
+create table test (id integer check(absf(id)<3));
 insert into test values(1),(2);
 insert into test values(3); -- ERR_CHECK_CONSTRAINT_VIOLATION
 select * from test;
-drop function abs(integer); -- ERR_CANNOT_DROP_FUNCTION
-OCTO> create table test (id integer check(abs(id)<3));
+drop function absf(integer); -- ERR_CANNOT_DROP_FUNCTION
+OCTO> create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION
+OCTO> create table test (id integer check(absf(id)<3));
 CREATE TABLE
 OCTO> insert into test values(1),(2);
 INSERT 0 2
@@ -16,6 +19,6 @@ id
 1
 2
 (2 rows)
-OCTO> drop function abs(integer);
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function abs(INTEGER) because other objects (constraint "test_id_check" on table "test") depend on it
+OCTO> drop function absf(integer);
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function absf(INTEGER) because other objects (constraint "test_id_check" on table "test") depend on it
 OCTO> -- ERR_CANNOT_DROP_FUNCTION

@@ -690,6 +690,14 @@ ERR_INVALID_DATESTYLE_VALUE
 
   Description/Action: This error is issued when the value given to set DATESTYLE is incorrect. See `INPUT AND OUTPUT TEXT FORMAT VALUE <https://docs.yottadb.com/Octo/grammar.html#input-and-output-text-format-value>` for more details. PSQL Error Code: 22023
 
+++++++++++++++++
+ERR_INVALID_DROP
+++++++++++++++++
+
+  Text: Dropping "xxx" is disallowed as it is a system object
+
+  Description/Action: This error is issued when a user attempts to drop a table/function/view which is defined in octo-seed.sql. This is not allowed. PSQL Error Code: 42601
+
 +++++++++++++++++++++++++++
 ERR_INVALID_ESCAPE_PATTERN
 +++++++++++++++++++++++++++

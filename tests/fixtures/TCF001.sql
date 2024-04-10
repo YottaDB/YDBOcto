@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,6 +12,5 @@
 
 -- TCF001 : OCTO345 : Allow specification of type for parameters and return value of user-defined functions
 
-DROP FUNCTION ABS(NUMERIC);	-- to avoid ERR_CANNOT_CREATE_FUNCTION error
-CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
-select ABS(-id)+2 as absid from names;
+CREATE FUNCTION ABSF(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+select ABSF(-id)+2 as absid from names;

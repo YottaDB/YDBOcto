@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,7 +13,8 @@
 create view v1 as select * from names;
 select * from v1;
 
-create view v2 as select abs(id) from names;
+create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
+create view v2 as select absf(id) from names;
 select * from v2;
 
 create view k1 as select 1;

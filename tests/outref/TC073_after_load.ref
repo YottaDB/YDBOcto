@@ -1,11 +1,11 @@
 \d tbl;
-drop function abs(integer);
+drop function absf(integer);
 OCTO> \d tbl;
 Table "tbl" stored in Global: ^%ydboctoD8DOa3WW9naMa37ptmpvi2E : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 Check constraints:
-    "tbl_id_check" CHECK ((abs(id) < 5))
-OCTO> drop function abs(integer);
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function abs(INTEGER) because other objects (constraint "tbl_id_check" on table "tbl") depend on it
+    "tbl_id_check" CHECK ((absf(id) < 5))
+OCTO> drop function absf(integer);
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function absf(INTEGER) because other objects (constraint "tbl_id_check" on table "tbl") depend on it
 OCTO> 

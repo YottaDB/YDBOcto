@@ -53,6 +53,18 @@ int auto_load_octo_seed(void) {
 	UNUSED(status);
 	assert(YDB_OK == status);
 
+	/* ---------------
+	 * Remove seed object list such that a new one can be formed
+	 * ----------------
+	 */
+	// varname
+	ydb_buffer_t varname;
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_SEED_OBJECT_LIST, &varname);
+	// call ydb_delete_s
+	status = ydb_delete_s(&varname, 0, NULL, YDB_DEL_TREE);
+	UNUSED(status);
+	assert(YDB_OK == status);
+
 	/* -----------------------------------------------------------------
 	 * Do the actual load of the "octo-seed.sql" file.
 	 * -----------------------------------------------------------------

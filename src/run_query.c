@@ -206,11 +206,17 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 		return (YDB_OK != status);
 	}
+	status = ensure_seed_objects_are_not_dropped(result);
+	if (0 != status) {
+		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+		return 1;
+	}
 	INFO(INFO_CURSOR, cursor_ydb_buff.buf_addr);
 	free_memory_chunks = TRUE; // By default run "octo_cfree(memory_chunks)" at the end
 
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
 	release_query_lock = TRUE;
+
 	switch (result_type) {
 	case display_relation_STATEMENT:
 		UNPACK_SQL_STATEMENT(display_relation, result, display_relation);

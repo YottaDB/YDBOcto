@@ -1,7 +1,7 @@
 
 select * from test; -- Table created in TC074_before_load.sql exists
 		    -- It has ABS usage for column ID's check constraint
-drop function abs(integer); -- should result in ERR_CANNOT_DROP_FUNCTION
+drop function absf(integer); -- should result in ERR_CANNOT_DROP_FUNCTION
 select * from test;
 insert into test values(3); -- ERR_CHECK_CONSTRAINT_VIOLATION
 OCTO> select * from test;
@@ -11,8 +11,8 @@ id
 (2 rows)
 OCTO> -- Table created in TC074_before_load.sql exists
 		    -- It has ABS usage for column ID's check constraint
-drop function abs(integer);
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function abs(INTEGER) because other objects (constraint "test_id_check" on table "test") depend on it
+drop function absf(integer);
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function absf(INTEGER) because other objects (constraint "test_id_check" on table "test") depend on it
 OCTO> -- should result in ERR_CANNOT_DROP_FUNCTION
 select * from test;
 id

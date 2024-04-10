@@ -130,7 +130,7 @@ octo_region_label|KILL|25
 default_region_label|SET|27
 octo_region_label|TCOM|54
 octo_region_label|TSET|54
-octo_region_label|SET|5475
+octo_region_label|SET|5734
 (17 rows)
 OCTO> SELECT RECTYPE, TBLTYPE FROM YDBJNLFRECTYPE;
 rectype|tbltype

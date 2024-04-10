@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,5 +14,5 @@
 
 -- TDF002 : OCTO90 : DROP FUNCTION should delete db nodes for plans that relied on the dropped function
 
-DROP FUNCTION REPLACE (VARCHAR, VARCHAR, VARCHAR);
+DROP FUNCTION REPLACEF (VARCHAR, VARCHAR, VARCHAR);
 

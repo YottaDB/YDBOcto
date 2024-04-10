@@ -180,6 +180,7 @@ add_library(libocto OBJECT
   emit_create_function.c
   emit_sql_statement.c
   ensure_same_type.c
+  ensure_seed_objects_are_not_dropped.c
   find_column.c
   find_column_alias_name.c
   find_view_or_table.c

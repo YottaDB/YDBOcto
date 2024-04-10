@@ -1,0 +1,521 @@
+OCTO> drop function abs(NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "abs" is disallowed as it is a system object
+OCTO> drop function abs(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "abs" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(DATE, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIME WITH TIME ZONE, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, DATE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, TIME);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, TIME, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, TIMESTAMP);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, TIME WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, TIME WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(VARCHAR, TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function concat(TIMESTAMP WITH TIME ZONE, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "concat" is disallowed as it is a system object
+OCTO> drop function round(NUMERIC, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "round" is disallowed as it is a system object
+OCTO> drop function round(INTEGER, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "round" is disallowed as it is a system object
+OCTO> drop function trunc(NUMERIC, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "trunc" is disallowed as it is a system object
+OCTO> drop function trunc(INTEGER, NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "trunc" is disallowed as it is a system object
+OCTO> drop function trunc(NUMERIC, NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "trunc" is disallowed as it is a system object
+OCTO> drop function trunc(INTEGER, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "trunc" is disallowed as it is a system object
+OCTO> drop function truncate(NUMERIC, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "truncate" is disallowed as it is a system object
+OCTO> drop function truncate(INTEGER, NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "truncate" is disallowed as it is a system object
+OCTO> drop function truncate(NUMERIC, NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "truncate" is disallowed as it is a system object
+OCTO> drop function truncate(INTEGER, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "truncate" is disallowed as it is a system object
+OCTO> drop function now();
+[ERROR]: ERR_INVALID_DROP: Dropping "now" is disallowed as it is a system object
+OCTO> drop function day(DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "day" is disallowed as it is a system object
+OCTO> drop function day(VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "day" is disallowed as it is a system object
+OCTO> drop function localtime();
+[ERROR]: ERR_INVALID_DROP: Dropping "localtime" is disallowed as it is a system object
+OCTO> drop function localtimestamp();
+[ERROR]: ERR_INVALID_DROP: Dropping "localtimestamp" is disallowed as it is a system object
+OCTO> drop function current_timestamp();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_timestamp" is disallowed as it is a system object
+OCTO> drop function current_time();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_time" is disallowed as it is a system object
+OCTO> drop function date_format(TIMESTAMP WITH TIME ZONE, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "date_format" is disallowed as it is a system object
+OCTO> drop function date_format(VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "date_format" is disallowed as it is a system object
+OCTO> drop function date_to_fileman(DATE(FILEMAN));
+[ERROR]: ERR_INVALID_DROP: Dropping "date_to_fileman" is disallowed as it is a system object
+OCTO> drop function timestamp_to_fileman(TIMESTAMP(FILEMAN));
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamp_to_fileman" is disallowed as it is a system object
+OCTO> drop function timestamptz_to_fileman(TIMESTAMP(FILEMAN) WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamptz_to_fileman" is disallowed as it is a system object
+OCTO> drop function date_to_horolog(DATE(HOROLOG));
+[ERROR]: ERR_INVALID_DROP: Dropping "date_to_horolog" is disallowed as it is a system object
+OCTO> drop function time_to_horolog(TIME(HOROLOG));
+[ERROR]: ERR_INVALID_DROP: Dropping "time_to_horolog" is disallowed as it is a system object
+OCTO> drop function timetz_to_horolog(TIME(HOROLOG) WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "timetz_to_horolog" is disallowed as it is a system object
+OCTO> drop function timestamp_to_horolog(TIMESTAMP(HOROLOG));
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamp_to_horolog" is disallowed as it is a system object
+OCTO> drop function timestamptz_to_horolog(TIMESTAMP(HOROLOG) WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamptz_to_horolog" is disallowed as it is a system object
+OCTO> drop function date_to_zhorolog(DATE(ZHOROLOG));
+[ERROR]: ERR_INVALID_DROP: Dropping "date_to_zhorolog" is disallowed as it is a system object
+OCTO> drop function time_to_zhorolog(TIME(ZHOROLOG));
+[ERROR]: ERR_INVALID_DROP: Dropping "time_to_zhorolog" is disallowed as it is a system object
+OCTO> drop function timetz_to_zhorolog(TIME(ZHOROLOG) WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "timetz_to_zhorolog" is disallowed as it is a system object
+OCTO> drop function timestamp_to_zhorolog(TIMESTAMP(ZHOROLOG));
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamp_to_zhorolog" is disallowed as it is a system object
+OCTO> drop function timestamptz_to_zhorolog(TIMESTAMP(ZHOROLOG) WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamptz_to_zhorolog" is disallowed as it is a system object
+OCTO> drop function date_to_zut(DATE(ZUT));
+[ERROR]: ERR_INVALID_DROP: Dropping "date_to_zut" is disallowed as it is a system object
+OCTO> drop function timestamp_to_zut(TIMESTAMP(ZUT));
+[ERROR]: ERR_INVALID_DROP: Dropping "timestamp_to_zut" is disallowed as it is a system object
+OCTO> drop function dayofmonth(DATE);
+[ERROR]: ERR_INVALID_DROP: Dropping "dayofmonth" is disallowed as it is a system object
+OCTO> drop function dayofmonth(VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "dayofmonth" is disallowed as it is a system object
+OCTO> drop function lpad(VARCHAR, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "lpad" is disallowed as it is a system object
+OCTO> drop function lpad(VARCHAR, INTEGER, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "lpad" is disallowed as it is a system object
+OCTO> drop function replace(VARCHAR, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "replace" is disallowed as it is a system object
+OCTO> drop function row_number();
+[ERROR]: ERR_INVALID_DROP: Dropping "row_number" is disallowed as it is a system object
+OCTO> drop function set_config(VARCHAR, VARCHAR, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "set_config" is disallowed as it is a system object
+OCTO> drop function version();
+[ERROR]: ERR_INVALID_DROP: Dropping "version" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_table_is_visible`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_table_is_visible" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_userbyid`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_userbyid" is disallowed as it is a system object
+OCTO> drop function current_schema();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_schema" is disallowed as it is a system object
+OCTO> drop function current_database();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_database" is disallowed as it is a system object
+OCTO> drop function current_catalog();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_catalog" is disallowed as it is a system object
+OCTO> drop function current_role();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_role" is disallowed as it is a system object
+OCTO> drop function current_user();
+[ERROR]: ERR_INVALID_DROP: Dropping "current_user" is disallowed as it is a system object
+OCTO> drop function session_user();
+[ERROR]: ERR_INVALID_DROP: Dropping "session_user" is disallowed as it is a system object
+OCTO> drop function user();
+[ERROR]: ERR_INVALID_DROP: Dropping "user" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.current_schemas`(BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.current_schemas" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.obj_description`(INTEGER, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.obj_description" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_backend_pid`();
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_backend_pid" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_expr`(VARCHAR, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_expr" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_expr`(VARCHAR, INTEGER, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_expr" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_total_relation_size`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_total_relation_size" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_relation_size`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_relation_size" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_constraintdef`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_constraintdef" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_constraintdef`(INTEGER, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_constraintdef" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_ruledef`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_ruledef" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_ruledef`(INTEGER, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_ruledef" is disallowed as it is a system object
+OCTO> drop function pg_encoding_to_char(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_encoding_to_char" is disallowed as it is a system object
+OCTO> drop function pg_is_in_recovery();
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_is_in_recovery" is disallowed as it is a system object
+OCTO> drop function pg_is_xlog_replay_paused();
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_is_xlog_replay_paused" is disallowed as it is a system object
+OCTO> drop function has_database_privilege(INTEGER, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "has_database_privilege" is disallowed as it is a system object
+OCTO> drop function has_database_privilege(VARCHAR, VARCHAR, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "has_database_privilege" is disallowed as it is a system object
+OCTO> drop function array_lower(INTEGER, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_lower" is disallowed as it is a system object
+OCTO> drop function array_lower(NUMERIC, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_lower" is disallowed as it is a system object
+OCTO> drop function array_lower(VARCHAR, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_lower" is disallowed as it is a system object
+OCTO> drop function array_lower(BOOLEAN, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_lower" is disallowed as it is a system object
+OCTO> drop function array_upper(INTEGER, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_upper" is disallowed as it is a system object
+OCTO> drop function array_upper(NUMERIC, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_upper" is disallowed as it is a system object
+OCTO> drop function array_upper(VARCHAR, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_upper" is disallowed as it is a system object
+OCTO> drop function array_upper(BOOLEAN, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "array_upper" is disallowed as it is a system object
+OCTO> drop function generate_series(INT, INT);
+[ERROR]: ERR_INVALID_DROP: Dropping "generate_series" is disallowed as it is a system object
+OCTO> drop function regclass(VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "regclass" is disallowed as it is a system object
+OCTO> drop function regproc(VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "regproc" is disallowed as it is a system object
+OCTO> drop function format_type(INTEGER, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "format_type" is disallowed as it is a system object
+OCTO> drop function substring(VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "substring" is disallowed as it is a system object
+OCTO> drop function substring(VARCHAR, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "substring" is disallowed as it is a system object
+OCTO> drop function substring(VARCHAR, INTEGER, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "substring" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_get_partkeydef`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_get_partkeydef" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_stat_get_numscans`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_stat_get_numscans" is disallowed as it is a system object
+OCTO> drop function `pg_catalog.pg_tablespace_location`(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_tablespace_location" is disallowed as it is a system object
+OCTO> drop function pg_table_is_visible(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_table_is_visible" is disallowed as it is a system object
+OCTO> drop function pg_get_userbyid(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_userbyid" is disallowed as it is a system object
+OCTO> drop function current_schemas(BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "current_schemas" is disallowed as it is a system object
+OCTO> drop function obj_description(INTEGER, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "obj_description" is disallowed as it is a system object
+OCTO> drop function pg_backend_pid();
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_backend_pid" is disallowed as it is a system object
+OCTO> drop function pg_get_expr(VARCHAR, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_expr" is disallowed as it is a system object
+OCTO> drop function pg_get_expr(VARCHAR, INTEGER, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_expr" is disallowed as it is a system object
+OCTO> drop function pg_total_relation_size(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_total_relation_size" is disallowed as it is a system object
+OCTO> drop function pg_relation_size(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_relation_size" is disallowed as it is a system object
+OCTO> drop function pg_get_constraintdef(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_constraintdef" is disallowed as it is a system object
+OCTO> drop function pg_get_constraintdef(INTEGER, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_constraintdef" is disallowed as it is a system object
+OCTO> drop function pg_get_ruledef(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_ruledef" is disallowed as it is a system object
+OCTO> drop function pg_get_ruledef(INTEGER, BOOLEAN);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_ruledef" is disallowed as it is a system object
+OCTO> drop function pg_get_partkeydef(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_get_partkeydef" is disallowed as it is a system object
+OCTO> drop function pg_stat_get_numscans(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_stat_get_numscans" is disallowed as it is a system object
+OCTO> drop function pg_tablespace_location(INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_tablespace_location" is disallowed as it is a system object
+OCTO> drop table octoOneRowTable ;
+[ERROR]: ERR_INVALID_DROP: Dropping "octoonerowtable" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_namespace ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_namespace" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_type ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_type" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_class ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_class" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_description ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_description" is disallowed as it is a system object
+OCTO> drop table information_schema.tables ;
+[ERROR]: ERR_INVALID_DROP: Dropping "information_schema.tables" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_proc ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_proc" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_attribute ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_attribute" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_attrdef ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_attrdef" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_settings ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_settings" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_database ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_database" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_roles ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_roles" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_user ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_user" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_range ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_range" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_enum ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_enum" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_index ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_index" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_constraint ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_constraint" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_am ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_am" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_depend;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_depend" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_trigger;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_trigger" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_tablespace;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_tablespace" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_shdescription;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_shdescription" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_inherits;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_inherits" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_policies;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_policies" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_rewrite;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_rewrite" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_conversion;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_conversion" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_aggregate;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_aggregate" is disallowed as it is a system object
+OCTO> drop table pg_catalog.pg_language;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_catalog.pg_language" is disallowed as it is a system object
+OCTO> drop table pg_namespace ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_namespace" is disallowed as it is a system object
+OCTO> drop table pg_type ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_type" is disallowed as it is a system object
+OCTO> drop table pg_class ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_class" is disallowed as it is a system object
+OCTO> drop table pg_description ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_description" is disallowed as it is a system object
+OCTO> drop table tables ;
+[ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tables" as it does not exist
+OCTO> drop table pg_proc ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_proc" is disallowed as it is a system object
+OCTO> drop table pg_attribute ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_attribute" is disallowed as it is a system object
+OCTO> drop table pg_attrdef ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_attrdef" is disallowed as it is a system object
+OCTO> drop table pg_settings ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_settings" is disallowed as it is a system object
+OCTO> drop table pg_database ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_database" is disallowed as it is a system object
+OCTO> drop table pg_roles ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_roles" is disallowed as it is a system object
+OCTO> drop table pg_user ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_user" is disallowed as it is a system object
+OCTO> drop table pg_range ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_range" is disallowed as it is a system object
+OCTO> drop table pg_enum ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_enum" is disallowed as it is a system object
+OCTO> drop table pg_index ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_index" is disallowed as it is a system object
+OCTO> drop table pg_constraint ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_constraint" is disallowed as it is a system object
+OCTO> drop table pg_am ;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_am" is disallowed as it is a system object
+OCTO> drop table pg_depend;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_depend" is disallowed as it is a system object
+OCTO> drop table pg_trigger;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_trigger" is disallowed as it is a system object
+OCTO> drop table pg_tablespace;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_tablespace" is disallowed as it is a system object
+OCTO> drop table pg_shdescription;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_shdescription" is disallowed as it is a system object
+OCTO> drop table pg_inherits;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_inherits" is disallowed as it is a system object
+OCTO> drop table pg_policies;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_policies" is disallowed as it is a system object
+OCTO> drop table pg_rewrite;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_rewrite" is disallowed as it is a system object
+OCTO> drop table pg_conversion;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_conversion" is disallowed as it is a system object
+OCTO> drop table pg_aggregate;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_aggregate" is disallowed as it is a system object
+OCTO> drop table pg_language;
+[ERROR]: ERR_INVALID_DROP: Dropping "pg_language" is disallowed as it is a system object
+OCTO> 

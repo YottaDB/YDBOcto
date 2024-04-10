@@ -5,19 +5,19 @@
 # Run <CREATE TABLE abcdefgh (id INTEGER PRIMARY KEY);>. Expect this DDL change query to time out due to long running SELECT
 # Spawn an OCTO process to run query : DROP TABLE abcdefgh;
 # Run <DROP TABLE abcdefgh;>. Expect this DDL change query to time out due to long running SELECT
-# Spawn an OCTO process to run query : CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
-# Run <CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;>. Expect this DDL change query to time out due to long running SELECT
-# Spawn an OCTO process to run query : DROP FUNCTION ABS(NUMERIC);
-# Run <DROP FUNCTION ABS(NUMERIC);>. Expect this DDL change query to time out due to long running SELECT
+# Spawn an OCTO process to run query : CREATE FUNCTION ABSF(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+# Run <CREATE FUNCTION ABSF(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;>. Expect this DDL change query to time out due to long running SELECT
+# Spawn an OCTO process to run query : DROP FUNCTION ABSF(NUMERIC);
+# Run <DROP FUNCTION ABSF(NUMERIC);>. Expect this DDL change query to time out due to long running SELECT
 # Spawn an OCTO process to run query : DISCARD ALL;
 # Run <DISCARD ALL;>. Expect this DDL change query to time out due to long running SELECT
 CREATE TABLE abcdefgh (id INTEGER PRIMARY KEY);
 [ERROR]: ERR_YOTTADB: YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.
 OCTO> DROP TABLE abcdefgh;
 [ERROR]: ERR_YOTTADB: YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.
-OCTO> CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+OCTO> CREATE FUNCTION ABSF(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 [ERROR]: ERR_YOTTADB: YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.
-OCTO> DROP FUNCTION ABS(NUMERIC);
+OCTO> DROP FUNCTION ABSF(NUMERIC);
 [ERROR]: ERR_YOTTADB: YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.
 OCTO> DISCARD ALL;
 [ERROR]: ERR_YOTTADB: YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.

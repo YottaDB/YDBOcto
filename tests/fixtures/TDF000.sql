@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)
+-- TDF000 : OCTO345 : DROP FUNCTION doesn't work with octo-seed functions (ABS)
 
 SELECT ABS(-1) FROM names;
 DROP FUNCTION ABS (INTEGER);

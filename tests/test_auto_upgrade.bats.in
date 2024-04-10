@@ -29,7 +29,7 @@ teardown() {
 #   * For this part, the bats test is expected to have a `load_fixture file.sql` and a `verify_output file`. This creates the
 #     necessary tables or functions.
 #       For example:
-#         Table A with its check constraint having a reference to the function abs(). This way, running file.sql will create
+#         Table A with its check constraint having a reference to the function absf(). This way, running file.sql will create
 #         the required dependency nodes in the DB.
 # * Second part to be executed by test-auto-upgrade job
 #   * For this part, the bats test is expected to just copy over the query file and the reference file to the subtest directory.
@@ -37,8 +37,8 @@ teardown() {
 #   * The queries that are expected here are those which validate that the dependencies which were created before upgrade
 #     still exist.
 #       For example:
-#         Since the first part created a table which depends on function abs(), the query file to be executed after the upgrade
-#         can have a drop function query on abs() and an error which says cannot drop as dependency exist in the reference file.
+#         Since the first part created a table which depends on function absf(), the query file to be executed after the upgrade
+#         can have a drop function query on absf() and an error which says cannot drop as dependency exist in the reference file.
 #         This will test that the upgrade didn't remove the dependency between the table and the function.
 #
 # While adding a new subtest to test_auto_upgrade.bats.in ensure that the naming of files are as follows:

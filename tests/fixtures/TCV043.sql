@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,7 +17,7 @@ create view v1 as select abs(1);
 create view v2 as select * from v1;
 drop view v2;
 drop view v1;
-drop table octoonerowtable; -- This should not fail
+drop table octoonerowtable; -- System objects cannot be dropped
 
 -- Function usage
 CREATE VIEW v292 as SELECT * from names where id = ABS(ABS(-1)+2);

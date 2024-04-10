@@ -2,7 +2,8 @@
 create view v1 as select * from names;
 select * from v1;
 
-create view v2 as select abs(id) from names;
+create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
+create view v2 as select absf(id) from names;
 select * from v2;
 
 create view k1 as select 1;
@@ -76,10 +77,12 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
-OCTO> create view v2 as select abs(id) from names;
+OCTO> create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION
+OCTO> create view v2 as select absf(id) from names;
 CREATE VIEW
 OCTO> select * from v2;
-abs
+absf
 0
 1
 2

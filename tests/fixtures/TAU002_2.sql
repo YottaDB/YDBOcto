@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,8 +13,8 @@
 select * from v1; -- View created in TAU002_1.sql exists and it refers to names table
 drop table names; -- should result in ERR_DROP_TABLE_DEPENDS_ON_VIEW
 
-select * from v2; -- View created in TAU002_1.sql exists and it uses abs(integer)
-drop function abs(integer); -- ERR_DROP_FUNCTION_DEPENDS_ON_VIEW
+select * from v2; -- View created in TAU002_1.sql exists and it uses absf(integer)
+drop function absf(integer); -- ERR_DROP_FUNCTION_DEPENDS_ON_VIEW
 
 select * from k1;
 select * from k2;

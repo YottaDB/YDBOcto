@@ -2,7 +2,7 @@ id
 1
 2
 (2 rows)
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function abs(INTEGER) because other objects (constraint "test_id_check" on table "test") depend on it
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS: Cannot DROP function absf(INTEGER) because other objects (constraint "test_id_check" on table "test") depend on it
 id
 1
 2

@@ -6,7 +6,7 @@ create view v1 as select abs(1);
 create view v2 as select * from v1;
 drop view v2;
 drop view v1;
-drop table octoonerowtable; -- This should not fail
+drop table octoonerowtable; -- System objects cannot be dropped
 
 -- Function usage
 CREATE VIEW v292 as SELECT * from names where id = ABS(ABS(-1)+2);
@@ -40,8 +40,8 @@ DROP VIEW
 OCTO> drop view v1;
 DROP VIEW
 OCTO> drop table octoonerowtable;
-DROP TABLE
-OCTO> -- This should not fail
+[ERROR]: ERR_INVALID_DROP: Dropping "octoonerowtable" is disallowed as it is a system object
+OCTO> -- System objects cannot be dropped
 
 CREATE VIEW v292 as SELECT * from names where id = ABS(ABS(-1)+2);
 CREATE VIEW

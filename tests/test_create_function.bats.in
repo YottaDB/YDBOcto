@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -152,17 +152,19 @@ teardown() {
 @test "TCF023 : OCTO90 : Rerunning query after CREATE FUNCTION should recreate plans that relied on the recreated function" {
 	# Note this test is mostly the same as the "test_drop_function/TDF002" subtest.
 	# Change to one will need to be done in both places.
-	echo "# Run 8 queries from TCF023.sql that use ABS and REPLACE functions" > output.txt
-	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF023{,b}.sql .
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF023{,b,create}.sql .
+	octo -f TCF023create.sql > run0.out 2>&1
+	cat run0.out >> output.txt
+	echo "# Run 8 queries from TCF023.sql that use ABSF and REPLACEF functions" >> output.txt
 	octo -vv -f TCF023.sql > run1.out 2>&1
 	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
 
-	echo "# Rerun CREATE FUNCTION of REPLACE" >> output.txt
+	echo "# Rerun CREATE FUNCTION of REPLACEF" >> output.txt
 	octo -f TCF023b.sql > run2.out 2>&1
 	cat run2.out >> output.txt
 	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
 
-	echo "# Rerun 8 queries from TCF023.sql that use ABS and REPLACE functions" >> output.txt
+	echo "# Rerun 8 queries from TCF023.sql that use ABSF and REPLACEF functions" >> output.txt
 	run_octo_allow_error TCF023.sql run3.out -vv
 	verify_plans_xrefs_gvns_triggers run3.out output.txt run3.ext
 
@@ -233,6 +235,7 @@ teardown() {
 }
 
 @test "TCF034 : OCTO884 : Octo supports SQL keywords and parenless function names in CREATE/DROP FUNCTION statements" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF034.m .
 	load_fixture TCF034.sql subtest novv
 	verify_output TCF034 output.txt noinfo nodebug
 }

@@ -165,6 +165,7 @@ ERROR_DEF(ERR_INVALID_DATESTYLE_VALUE, "DATESTYLE value \"%s\" is invalid", PSQL
 ERROR_DEF(ERR_FORMAT_NOT_ALLOWED_WITH_CAST, "Date/time format cannot be specified for cast operation", PSQL_Code_Cannot_Coerce)
 ERROR_DEF(ERR_DATE_TIME_RESULT_OUT_OF_RANGE, "Result of operation exceeds date/time allowed range of values", PSQL_Datetime_field_overflow)
 ERROR_DEF(ERR_PARSE_FAILED, "%s", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_DROP, "Dropping \"%s\" is disallowed as it is a system object", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)

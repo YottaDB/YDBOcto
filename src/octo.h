@@ -269,6 +269,7 @@
 
 #define OCTO929_SQLFILE_NAME "/tmp/ydbocto929_auto_upgrade_XXXXXX"
 
+#define OCTOLIT_SEED_OBJECT_LIST "^%ydboctoseed"
 /* Macros for StartupMessage parameters sent by client that are NOT actual runtime parameters.
  * These strings are used for selective exclusion of such parameters via strncmp checks in rocto.c
  * to prevent ERR_INVALID_RUNTIME_PARAMETER errors at remote connection startup.
@@ -398,9 +399,10 @@
  */
 #define FMT_PLAN_DEFINITION 30
 
-/* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql.
+/* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
+ * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
  */
-#define FMT_SEED_DEFINITION 8
+#define FMT_SEED_DEFINITION 9
 
 #define FMT_SEED_DEFINITION_OCTO929                                                 \
 	7 /* The value of FMT_SEED_DEFINITION when YDBOcto#929 changes were merged. \
@@ -1579,6 +1581,7 @@ int auto_upgrade_binary_table_definition(void);
 int auto_upgrade_binary_view_definition(void);
 int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name, boolean_t is_view);
 int is_auto_upgrade_valid(void);
+int ensure_seed_objects_are_not_dropped(SqlStatement *result);
 
 /* history.c function prototypes */
 void print_history(void);

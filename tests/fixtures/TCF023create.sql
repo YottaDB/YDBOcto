@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,7 +9,6 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-drop table if exists tbl;
-create function absf(integer) returns integer as $$ABS^%ydboctosqlfunctions;
-create table tbl (id integer check (absf(id) < 5));
-\d tbl;
+
+CREATE FUNCTION absf(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION replacef(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$REPLACE^%ydboctosqlfunctions;

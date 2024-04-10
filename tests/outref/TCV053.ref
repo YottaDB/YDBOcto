@@ -1,11 +1,17 @@
 
-create view v1 as select CONCAT(firstname, ABS(id-10)::varchar) from names;
-drop function concat(varchar,varchar);
-drop function abs(integer);
-OCTO> create view v1 as select CONCAT(firstname, ABS(id-10)::varchar) from names;
+CREATE FUNCTION absf(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION concatf(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
+create view v1 as select CONCATF(firstname, ABSF(id-10)::varchar) from names;
+drop function concatf(varchar,varchar);
+drop function absf(integer);
+OCTO> CREATE FUNCTION absf(INTEGER) RETURNS INTEGER AS $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION
+OCTO> CREATE FUNCTION concatf(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofCONCAT;
+CREATE FUNCTION
+OCTO> create view v1 as select CONCATF(firstname, ABSF(id-10)::varchar) from names;
 CREATE VIEW
-OCTO> drop function concat(varchar,varchar);
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function concat(VARCHAR, VARCHAR) because view "v1" depends on it
-OCTO> drop function abs(integer);
-[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function abs(INTEGER) because view "v1" depends on it
+OCTO> drop function concatf(varchar,varchar);
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function concatf(VARCHAR, VARCHAR) because view "v1" depends on it
+OCTO> drop function absf(integer);
+[ERROR]: ERR_DROP_FUNCTION_DEPENDS_ON_VIEW: Cannot DROP function absf(INTEGER) because view "v1" depends on it
 OCTO> 

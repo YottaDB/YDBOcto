@@ -71,6 +71,9 @@ select (case when id > (select 1) then (select 1) else (select 0) end)=1 as idbo
 -- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/803#note_1495376878
 select (case when true then 1 end) = 1;
 
+-- Test "Issue 1" in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040 issue description
+select 1 group by 92729326636806986;
+
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 5:3: select (select *) between 1 and 2;
                          ^
@@ -171,6 +174,10 @@ OCTO> select (case when true then 1 end) = 1;
 ???
 1
 (1 row)
+[ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 92729326636806986 is not in select list
+LINE 43:1: select 1 group by 92729326636806986;
+                             ^^^^^^^^^^^^^^^^^
+OCTO> select 1 group by 92729326636806986;
 OCTO> 
 
 -------------------------------------------------------------------------------

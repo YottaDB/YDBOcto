@@ -792,8 +792,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							 * looking at anything else. We wait for the decimal and integer range
 							 * checks above to mirror the error messages that Postgres does.
 							 */
-							if (!is_negative_numeric_literal) {
-								column_number = (int)retval;
+							column_number = (int)retval;
+							if (!is_negative_numeric_literal && (0 <= column_number)) {
 								qualified_cla = get_column_list_alias_n_from_table_alias(
 								    table_alias, column_number);
 							} else {

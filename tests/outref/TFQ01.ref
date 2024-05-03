@@ -74,6 +74,10 @@ select (case when true then 1 end) = 1;
 -- Test "Issue 1" in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040 issue description
 select 1 group by 92729326636806986;
 
+-- Test "Issue 2" in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040 issue description
+select 1 group by 17777000000000010101;
+\d;
+
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 5:3: select (select *) between 1 and 2;
                          ^
@@ -178,6 +182,71 @@ OCTO> select (case when true then 1 end) = 1;
 LINE 43:1: select 1 group by 92729326636806986;
                              ^^^^^^^^^^^^^^^^^
 OCTO> select 1 group by 92729326636806986;
+[ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 17777000000000010101 in GROUP BY
+LINE 45:1: select 1 group by 17777000000000010101;
+                             ^^^^^^^^^^^^^^^^^^^^
+OCTO> select 1 group by 17777000000000010101;
+OCTO> \d;
+Schema|Name|Type|Owner
+public|c|table|octo
+public|information_schema.tables|table|octo
+public|names|table|octo
+public|nameswithages|table|octo
+public|octoonerowtable|table|octo
+public|pg_aggregate|table|octo
+public|pg_am|table|octo
+public|pg_attrdef|table|octo
+public|pg_attribute|table|octo
+public|pg_catalog.pg_aggregate|table|octo
+public|pg_catalog.pg_am|table|octo
+public|pg_catalog.pg_attrdef|table|octo
+public|pg_catalog.pg_attribute|table|octo
+public|pg_catalog.pg_class|table|octo
+public|pg_catalog.pg_constraint|table|octo
+public|pg_catalog.pg_conversion|table|octo
+public|pg_catalog.pg_database|table|octo
+public|pg_catalog.pg_depend|table|octo
+public|pg_catalog.pg_description|table|octo
+public|pg_catalog.pg_enum|table|octo
+public|pg_catalog.pg_index|table|octo
+public|pg_catalog.pg_inherits|table|octo
+public|pg_catalog.pg_language|table|octo
+public|pg_catalog.pg_namespace|table|octo
+public|pg_catalog.pg_policies|table|octo
+public|pg_catalog.pg_proc|table|octo
+public|pg_catalog.pg_range|table|octo
+public|pg_catalog.pg_rewrite|table|octo
+public|pg_catalog.pg_roles|table|octo
+public|pg_catalog.pg_settings|table|octo
+public|pg_catalog.pg_shdescription|table|octo
+public|pg_catalog.pg_tablespace|table|octo
+public|pg_catalog.pg_trigger|table|octo
+public|pg_catalog.pg_type|table|octo
+public|pg_catalog.pg_user|table|octo
+public|pg_class|table|octo
+public|pg_constraint|table|octo
+public|pg_conversion|table|octo
+public|pg_database|table|octo
+public|pg_depend|table|octo
+public|pg_description|table|octo
+public|pg_enum|table|octo
+public|pg_index|table|octo
+public|pg_inherits|table|octo
+public|pg_language|table|octo
+public|pg_namespace|table|octo
+public|pg_policies|table|octo
+public|pg_proc|table|octo
+public|pg_range|table|octo
+public|pg_rewrite|table|octo
+public|pg_roles|table|octo
+public|pg_settings|table|octo
+public|pg_shdescription|table|octo
+public|pg_tablespace|table|octo
+public|pg_trigger|table|octo
+public|pg_type|table|octo
+public|pg_user|table|octo
+public|tmp|table|octo
+(58 rows)
 OCTO> 
 
 -------------------------------------------------------------------------------

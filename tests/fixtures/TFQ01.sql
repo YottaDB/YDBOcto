@@ -85,3 +85,7 @@ select (case when true then 1 end) = 1;
 -- Test "Issue 1" in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040 issue description
 select 1 group by 92729326636806986;
 
+-- Test "Issue 2" in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040 issue description
+select 1 group by 17777000000000010101;
+\d;
+

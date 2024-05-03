@@ -85,7 +85,8 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 		}
 		parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
 		num_parms_from_str = strtol(parm_type_buf.buf_addr, NULL, 10);
-		if ((ERANGE != errno) && (0 <= num_parms_from_str) && (INT32_MAX >= num_parms_from_str)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(num_parms_from_str) && (0 <= num_parms_from_str)
+		    && (INT32_MAX >= num_parms_from_str)) {
 			((int32_t *)ret->data)[cur_parm_type] = htonl((int32_t)(num_parms_from_str));
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")

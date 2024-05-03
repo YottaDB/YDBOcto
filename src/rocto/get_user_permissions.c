@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -59,7 +59,7 @@ int get_user_permissions(RoctoSession *session) {
 
 	// Convert user permissions integer string to int32_t and store in session->permissions
 	temp_long = strtol(permissions_buf.buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (INT32_MAX >= temp_long)) {
 		session->permissions = (int32_t)temp_long;
 	} else {
 		FATAL(ERR_ROCTO_PERMISSIONS_LOOKUP_FAILED, username);

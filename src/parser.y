@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -1706,7 +1706,7 @@ delim_char_list
 	assert(value_STATEMENT == literal->type);
 
 	delim_int = strtol(str_lit, &end_ptr, 10);
-	if ((ERANGE == errno) || (0 > delim_int) || (DELIM_MAX < delim_int)) {
+	if (STRTOL_VALUE_OUT_OF_RANGE(delim_int) || (0 > delim_int) || (DELIM_MAX < delim_int)) {
 		ERROR(ERR_INVALID_KEYWORD_CHAR, delim_int, "delimiter");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;

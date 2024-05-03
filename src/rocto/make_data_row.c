@@ -98,7 +98,8 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 						/* PostgreSQL protocol specifies a 16-bit integer to store the total
 						 * number of columns. Details linked in message_formats.h.
 						 */
-						if ((ERANGE != errno) && (INT32_MIN <= int4_value) && (INT32_MAX >= int4_value)) {
+						if (!STRTOL_VALUE_OUT_OF_RANGE(int4_value) && (INT32_MIN <= int4_value)
+						    && (INT32_MAX >= int4_value)) {
 							*((int32_t *)c) = htonl((int32_t)int4_value);
 							c += sizeof(int32_t);
 						} else {

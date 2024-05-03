@@ -133,7 +133,7 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 	}
 	function_subs[4].buf_addr[function_subs[4].len_used] = '\0';
 	length_long = strtol(function_subs[4].buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= length_long) && (INT32_MAX >= length_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(length_long) && (0 <= length_long) && (INT32_MAX >= length_long)) {
 		length = (int32_t)length_long;
 	} else {
 		ERROR(ERR_LIBCALL, "strtol");

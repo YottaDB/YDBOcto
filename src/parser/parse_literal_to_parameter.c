@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -64,7 +64,7 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 
 		// Store current parameter count as index for later lookup by physical plan
 		parm_index_long = strtol(parm_count.buf_addr, NULL, 10);
-		if ((ERANGE == errno) && ((0 > parm_index_long) || (INT_MAX < parm_index_long))) {
+		if (STRTOL_VALUE_OUT_OF_RANGE(parm_index_long) || (0 > parm_index_long) || (INT_MAX < parm_index_long)) {
 			ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", parm_count.buf_addr);
 			OCTO_CFREE(memory_chunks);
 			return 1;

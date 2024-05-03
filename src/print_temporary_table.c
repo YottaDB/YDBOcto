@@ -114,7 +114,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 			assert(plan_meta_buffers[4].len_alloc > plan_meta_buffers[4].len_used);
 			plan_meta_buffers[4].buf_addr[plan_meta_buffers[4].len_used] = '\0';
 			tmp_long = strtol(plan_meta_buffers[4].buf_addr, NULL, 10);
-			if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 				num_columns = (int16_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");

@@ -152,7 +152,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	/* Check if the tag corresponds to a SHOW or SET command. If so, copy over a few more lvns from PREPARED to BOUND lvns */
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
 	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (INT32_MAX >= temp_long)
+	    && (invalid_STATEMENT >= temp_long)) {
 		command_tag = (int32_t)temp_long;
 	} else {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
@@ -232,7 +233,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	}
 	// Convert number of bind parameters to an integer for use below
 	num_parms_long = strtol(num_parms_buf.buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= num_parms_long) && (INT16_MAX >= num_parms_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(num_parms_long) && (0 <= num_parms_long) && (INT16_MAX >= num_parms_long)) {
 		num_bind_parms = (int16_t)num_parms_long;
 	} else {
 		ERROR(ERR_LIBCALL, "strtol");
@@ -283,7 +284,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	}
 	// Convert total number of parameters to an integer for use below
 	num_parms_long = strtol(num_parms_buf.buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= num_parms_long) && (INT16_MAX >= num_parms_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(num_parms_long) && (0 <= num_parms_long) && (INT16_MAX >= num_parms_long)) {
 		num_parms = (int16_t)num_parms_long;
 	} else {
 		ERROR(ERR_LIBCALL, "strtol")
@@ -463,7 +464,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
 			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
-			if ((ERANGE != errno) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(offset_long) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
 				assert(NULL != parse_context.parm_start);
 				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
 				if (NULL != parse_context.parm_start) {
@@ -483,7 +484,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
 			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
-			if ((ERANGE != errno) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(offset_long) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
 				assert(NULL != parse_context.parm_end);
 				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
 				if (NULL != parse_context.parm_end) {
@@ -504,7 +505,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			}
 			parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
 			type_long = strtol(parm_type_buf.buf_addr, NULL, 10);
-			if ((ERANGE != errno) && (0 <= type_long) && (INT16_MAX >= type_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(type_long) && (0 <= type_long) && (INT16_MAX >= type_long)) {
 				assert(NULL != parse_context.types);
 				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
 				if (NULL != parse_context.types) {

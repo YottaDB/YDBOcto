@@ -1158,6 +1158,9 @@ typedef enum DDLDependencyType {
 		YDB_STRING_TO_BUFFER(OCTOLIT_VIEWS, &subs_array[0]);                  \
 		STATUS = ydb_delete_s(&ydboctoView, 1, &subs_array[0], YDB_DEL_TREE); \
 	}
+
+#define STRTOL_VALUE_OUT_OF_RANGE(VALUE) (((LONG_MIN == VALUE) || (LONG_MAX == VALUE)) && (ERANGE == errno))
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, ydb_long_t, void *, char *, PSQL_MessageTypeT);
 

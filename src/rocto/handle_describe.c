@@ -76,7 +76,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	}
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
 	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (INT32_MAX >= temp_long)
+	    && (invalid_STATEMENT >= temp_long)) {
 		command_tag = (int32_t)temp_long;
 	} else {
 		return 1;

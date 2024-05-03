@@ -119,8 +119,6 @@
 		}                                                                                                                  \
 	}
 
-#define VALUE_OUT_OF_RANGE(VALUE) (((LONG_MIN == VALUE) || (LONG_MAX == VALUE)) && (ERANGE == errno))
-
 /* MySQL WEEK modes:
  *
  * Mode		First day of week 	Range 	Week 1 is the first week...
@@ -260,7 +258,7 @@ int get_date_from_string(char *in, char *out, ssize_t out_len, struct tm *tm) {
 		assert(sizeof(buffer) > (size_t)i);
 		buffer[i] = '\0';
 		temp_long = strtol(buffer, NULL, 10);
-		if (!VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (MAX_YEAR >= temp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (MAX_YEAR >= temp_long)) {
 			tm->tm_year = (int)temp_long - YEAR_OFFSET;
 		} else {
 			return 1;
@@ -280,7 +278,7 @@ int get_date_from_string(char *in, char *out, ssize_t out_len, struct tm *tm) {
 		assert(sizeof(buffer) > (size_t)i);
 		buffer[i] = '\0';
 		temp_long = strtol(buffer, NULL, 10);
-		if (!VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (MONTHS_IN_YEAR >= temp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (MONTHS_IN_YEAR >= temp_long)) {
 			tm->tm_mon = (int)temp_long;
 			tm->tm_mon--; // Change from 1-indexed to 0-indexed, per `man strptime`
 		} else {
@@ -301,7 +299,7 @@ int get_date_from_string(char *in, char *out, ssize_t out_len, struct tm *tm) {
 		assert(sizeof(buffer) > (size_t)i);
 		buffer[i] = '\0';
 		temp_long = strtol(buffer, NULL, 10);
-		if (!VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (DAYS_IN_MONTH >= temp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (DAYS_IN_MONTH >= temp_long)) {
 			tm->tm_mday = (int)temp_long;
 		} else {
 			return 1;
@@ -327,7 +325,7 @@ int get_date_from_string(char *in, char *out, ssize_t out_len, struct tm *tm) {
 		assert(sizeof(buffer) > (size_t)i);
 		buffer[i] = '\0';
 		temp_long = strtol(buffer, NULL, 10);
-		if (!VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (HOURS_IN_DAY > temp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (HOURS_IN_DAY > temp_long)) {
 			tm->tm_hour = (int)temp_long;
 		} else {
 			return 1;
@@ -350,7 +348,7 @@ int get_date_from_string(char *in, char *out, ssize_t out_len, struct tm *tm) {
 		assert(sizeof(buffer) > (size_t)i);
 		buffer[i] = '\0';
 		temp_long = strtol(buffer, NULL, 10);
-		if (!VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (MINUTES_IN_HOUR > temp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (MINUTES_IN_HOUR > temp_long)) {
 			tm->tm_min = (int)temp_long;
 		} else {
 			return 1;
@@ -372,7 +370,7 @@ int get_date_from_string(char *in, char *out, ssize_t out_len, struct tm *tm) {
 		assert(sizeof(buffer) > (size_t)i);
 		buffer[i] = '\0';
 		temp_long = strtol(buffer, NULL, 10);
-		if (!VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (SECONDS_IN_MINUTE > temp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (SECONDS_IN_MINUTE > temp_long)) {
 			tm->tm_sec = (int)temp_long;
 		} else {
 			return 1;

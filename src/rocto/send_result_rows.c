@@ -42,7 +42,7 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 
 	tmp_long = strtol(value_buffer->buf_addr, NULL, 10);
 	// PostgreSQL protocol specifies a 32-bit integer to store the column data type; details linked in message_formats.h
-	if ((ERANGE != errno) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 		*col_data_type = (int32_t)tmp_long;
 	} else {
 		ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer->buf_addr);
@@ -115,7 +115,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	value_buffer.buf_addr[value_buffer.len_used] = '\0';
 	tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
 	// PostgreSQL protocol specifies a 16-bit integer to store the total number of columns; details linked in message_formats.h
-	if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 		num_columns = (int16_t)tmp_long;
 	} else {
 		ERROR(ERR_LIBCALL, "strtol");
@@ -138,7 +138,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			tmp_long = strtol(total_rows_buffer.buf_addr, NULL, 10);
 			// PostgreSQL protocol specifies a 32-bit integer to store the maximum number of rows to return
 			// Details linked in message_formats.h
-			if ((ERANGE != errno) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 				total_rows = (int32_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");
@@ -182,7 +182,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 		tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
 		// PostgreSQL protocol specifies a 16-bit integer to store the number of column format codes
 		// Details linked in message_formats.h
-		if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 			num_format_codes = (int16_t)tmp_long;
 		} else {
 			ERROR(ERR_LIBCALL, "strtol");
@@ -208,7 +208,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
 			// PostgreSQL protocol specifies a 16-bit integer to store a column format code
 			// Details linked in message_formats.h
-			if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 				global_column_format = (int16_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");
@@ -260,7 +260,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 				tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
 				// PostgreSQL protocol specifies a 16-bit integer to store each column format code
 				// Details linked in message_formats.h
-				if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
+				if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 					col_format_codes[cur_column] = (int16_t)tmp_long;
 				} else {
 					ERROR(ERR_LIBCALL, "strtol");
@@ -298,7 +298,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
 			// PostgreSQL protocol specifies a 32-bit integer to store the maximum number of rows to return
 			// Details linked in message_formats.h
-			if ((ERANGE != errno) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
+			if (!STRTOL_VALUE_OUT_OF_RANGE(tmp_long) && (0 <= tmp_long) && (INT32_MAX >= tmp_long)) {
 				rows_remaining = (int32_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");

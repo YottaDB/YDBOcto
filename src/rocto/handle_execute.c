@@ -81,7 +81,8 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	}
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
 	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
-	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
+	if (!STRTOL_VALUE_OUT_OF_RANGE(temp_long) && (0 <= temp_long) && (INT32_MAX >= temp_long)
+	    && (invalid_STATEMENT >= temp_long)) {
 		command_tag = (int32_t)temp_long;
 	} else {
 		return 1;
@@ -107,7 +108,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		}
 		num_parms_buf.buf_addr[num_parms_buf.len_used] = '\0';
 		result = strtol(num_parms_buf.buf_addr, NULL, 10);
-		if ((ERANGE != errno) && (0 <= result) && (INT16_MAX >= result)) {
+		if (!STRTOL_VALUE_OUT_OF_RANGE(result) && (0 <= result) && (INT16_MAX >= result)) {
 			num_parms = (int16_t)result;
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")

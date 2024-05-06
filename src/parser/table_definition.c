@@ -1421,7 +1421,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				 * columns substituted).
 				 */
 				table_source_gvname = start;
-				options &= ~GLOBAL; /* Forget GLOBAL keyword(s) specified prior to this GLOBAL keyword */
+				options &= ~GLOBAL;   /* Forget GLOBAL keyword(s) specified prior to this GLOBAL keyword */
+				table->source = NULL; /* Clear "table->source" in case it was set by a previous GLOBAL keyword */
 			} else {
 				options |= GLOBAL;
 				SQL_STATEMENT(statement, keyword_STATEMENT);

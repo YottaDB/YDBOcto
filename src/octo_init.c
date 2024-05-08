@@ -762,6 +762,11 @@ int octo_init(int argc, char **argv) {
 
 		// This should always be 1
 		setenv("ydb_lvnullsubs", "1", 1);
+		/* This should always be 0 because we check for YDB_ERR_GVUNDEF and YDB_ERR_LVUNDEF in various places in
+		Octo and having ydb_noundef set to 1 causes these two error codes to never be returned resulting in a very
+		different code flow that can end up in assert failures and/or SIG-11s.
+		See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1026 for more details.*/
+		setenv("ydb_noundef", "0", 1);
 		status = ydb_init();
 		if (YDB_OK != status) {
 			ydb_zstatus(zstatus_message, sizeof(zstatus_message));

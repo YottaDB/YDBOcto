@@ -161,3 +161,13 @@ OCTO
 	load_fixture TDT08.sql subtest novv
 	verify_output TDT08 output.txt
 }
+
+ @test "TDT09 : OCTO1036 : Octo crashes if ydb_noundef is set to 1" {
+	echo "# Setting ydb/gtm_noundef to 1/true and running Octo resulted in crashes" | tee -a output.txt
+	echo "# with assertion error in debug version and killed by a signal 11 in pro version" | tee -a output.txt
+	echo "# when running various SQL statements. (e.g. drop table if exists foo;)" | tee -a output.txt
+	export ydb_noundef=1 
+	load_fixture TDT09.sql subtest novv
+	verify_output TDT09 output.txt
+	unset ydb_noundef
+}

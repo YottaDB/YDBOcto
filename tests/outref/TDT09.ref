@@ -1,0 +1,9 @@
+# Setting ydb/gtm_noundef to 1/true and running Octo resulted in crashes
+# with assertion error in debug version and killed by a signal 11 in pro version
+# when running various SQL statements. (e.g. drop table if exists foo;)
+-- TDT09 : OCTO1036 : Octo crashes if ydb_noundef is set to 1
+
+DROP TABLE IF EXISTS foo;
+OCTO> DROP TABLE IF EXISTS foo;
+DROP TABLE
+OCTO> 

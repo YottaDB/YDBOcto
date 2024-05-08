@@ -406,8 +406,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				fix_type2 = BOOLEAN_VALUE;
 				result |= populate_data_type(delete->where_clause, &child_type[0], NULL, parse_context, &fix_type2);
 				assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
-				assert(fix_type2 == child_type[0]);
-				UNUSED(result); /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 			}
 			if (!IS_BOOLEAN_TYPE(child_type[0])) {
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "boolean operations", &delete->where_clause, result);
@@ -436,8 +435,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				fix_type2 = BOOLEAN_VALUE;
 				result |= populate_data_type(update->where_clause, &child_type[0], NULL, parse_context, &fix_type2);
 				assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
-				assert(fix_type2 == child_type[0]);
-				UNUSED(result); /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 			}
 			if (!IS_BOOLEAN_TYPE(child_type[0])) {
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "boolean operations", &update->where_clause, result);
@@ -533,7 +531,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				    |= populate_data_type(select->where_expression, &child_type[0], v, parse_context, &fix_type2);
 				assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
 				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
-				assert(fix_type2 == child_type[0]);
 			}
 			if (!IS_BOOLEAN_TYPE(child_type[0])) {
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "boolean operations", &select->where_expression,
@@ -563,7 +560,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				    |= populate_data_type(select->having_expression, &child_type[0], v, parse_context, &fix_type2);
 				assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
 				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
-				assert(fix_type2 == child_type[0]);
 			}
 			if (!IS_BOOLEAN_TYPE(child_type[0])) {
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type[0], "boolean operations", &select->having_expression,
@@ -780,7 +776,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 					assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd
 							    call */
 					UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
-					assert(fix_type2 == *type);
 				}
 				if (!IS_BOOLEAN_TYPE(*type)) {
 					ISSUE_TYPE_COMPATIBILITY_ERROR(*type, "boolean operations", &cur_join->condition, result);

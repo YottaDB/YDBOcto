@@ -98,3 +98,12 @@ drop table tmp;
 create table tmp (id integer) global "^date(1)" global "^date2";
 drop table tmp;
 
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040#note_1897959123
+select 1 where (select 't');
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040#note_1898075506
+delete from names where (select 't');
+-- Test https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1040#note_1898221014
+update names set firstname = 'abcd' where (select 't');
+select 1 from names group by firstname having (select 't');
+select 1 from names inner join names n2 on (select 't');
+

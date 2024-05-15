@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -722,6 +722,8 @@ Examples
 
 For more advanced DDL mapping examples, see :ref:`advanced-global-mapping`.
 
+.. _create-table-error:
+
 +++++++++++++
 Error Case
 +++++++++++++
@@ -823,6 +825,8 @@ CREATE FUNCTION
      select oid,typname
      from pg_catalog.pg_type;
 
+.. _create-function-error:
+
 +++++++++++++
 Error Case
 +++++++++++++
@@ -894,6 +898,8 @@ CREATE VIEW
 
   The above example demonstrates that a view can be created with functions.
 
+.. _create-view-error:
+
 +++++++++++++
 Error Case
 +++++++++++++
@@ -933,6 +939,8 @@ DROP TABLE
 
   By default, a :code:`DROP TABLE` statement for a :code:`READWRITE` table drops the table and also kills all underlying global nodes that stored the table data. The optional parameter :code:`KEEPDATA` overrides this behavior, preserving the underlying global nodes regardless of table writability type. :code:`DROP TABLE` statements for :code:`READONLY` tables always preserve the underlying global nodes whether :code:`KEEPDATA` is explicitly specified or not.
 
+.. _drop-table-error:
+
 +++++++++++++
 Error Case
 +++++++++++++
@@ -969,6 +977,8 @@ DROP FUNCTION
 
      DROP FUNCTION userfuncwithargs (VARCHAR, INTEGER);
 
+.. _drop-function-error:
+
 +++++++++++++
 Error Case
 +++++++++++++
@@ -993,6 +1003,8 @@ DROP VIEW
   .. code-block:: SQL
 
      DROP VIEW v1;
+
+.. _drop-view-error:
 
 +++++++++++++
 Error Case
@@ -1056,6 +1068,8 @@ DISTINCT
 ++++++++++
 
   The use of this clause returns only non-duplicate rows (keeping one each from the set of duplicates).
+
+.. _select-star:
 
 +++++++++++++++++
 SELECT *
@@ -1212,6 +1226,8 @@ ORDER BY
   Integers in ORDER BY can be used to refer to SELECT list columns. The starting column in the SELECT list corresponds to 1.
 
   If a column name in ORDER BY matches both SELECT list column name and input column name (FROM list), the former is considered for ordering.
+
+.. _order-by-error:
 
 ~~~~~~~~~~~~~
 Error Case
@@ -2355,6 +2371,8 @@ Variations of LIKE
   #. :code:`NOT ILIKE` : Negated version of case insensitive LIKE
 
   #. :code:`!~~*` : Negated version of case insensitive LIKE
+
+.. _like-error:
 
 ~~~~~~~~~~~~~
 Error Case

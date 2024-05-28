@@ -1095,7 +1095,7 @@ teardown() {
 	testname="TDTT062"
 	run_java $testname $test_port &> output.txt
 	echo "Conversion routines should be used for both values" >> output.txt
-	grep "%Y-%m-%d" _ydbocto* >> output.txt
+	grep "%Y-%m-%d" _ydbocto*.m >> output.txt
 	verify_output $testname output.txt nodatetimefilter psql
 }
 
@@ -1466,7 +1466,7 @@ teardown() {
 	echo "---------Test END-----------" >> output.txt
 	grep ERROR rocto.log >> output.txt
 	echo "Conversion routines should be used for both values" >> output.txt
-	grep "%Y-%m-%d" _ydbocto* >> output.txt
+	grep "%Y-%m-%d" _ydbocto*.m >> output.txt
 	verify_output $testname output.txt nodatetimefilter psql
 }
 

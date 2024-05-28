@@ -30,7 +30,7 @@ No value specified for parameter 2.
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR: LINE 1:1: select $1 + date'2023-01-01'
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME: CUSTOM_ERROR:                       ^^^^^^^^^^^^^^^^
 Conversion routines should be used for both values
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),20,"%Y-%m-%d %H:%M:%S")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")

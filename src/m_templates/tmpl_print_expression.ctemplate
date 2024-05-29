@@ -52,7 +52,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	m_operator = NULL;
 	coerce_to_numeric = FALSE;
 	plan_type = plan->type;
-	first_operand_type = second_operand_type = UNKNOWN_SqlValueType; // Prevents [-Wmaybe-uninitialized] warning
 	// Before trying to print the column reference or an expression see if grouped data can be made use of
 	if ((LP_COLUMN_ALIAS == plan_type) || (LP_DERIVED_COLUMN == plan_type)) {
 		if ((LP_COLUMN_ALIAS == plan_type) && (NULL != plan->extra_detail.lp_column_alias.derived_column)) {
@@ -985,6 +984,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 						// re-use the below variable to prevent repeated search
 						second_operand_needs_timezone_check = FALSE;
 					}
+				} else {
+					second_operand_type = UNKNOWN_SqlValueType; // avoids false [-Wmaybe-uninitialized] warning
 				}
 				value = plan2->v.lp_default.operand[0];
 				if (dot_count) {

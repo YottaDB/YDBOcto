@@ -1148,15 +1148,18 @@ run_query_verify() {
 			echo "#######################################"
 			echo "# [diff $fname.ref $fname.log] failed"
 			echo "#######################################"
-			echo "# [cat $fname.diff] output follows"
-			cat $fname.diff
-			echo "# [cat $query_file] output follows"
-			cat $query_file
-			echo "# [cat $fname.ref] output follows"
-			cat $fname.ref
-			echo "# [cat $fname.log] output follows"
-			cat $fname.log
-			echo "#######################################"
+			for outfile in $fname.diff $query_file $fname.ref $fname.log $fname*psql*.out* $fname*octo*.out*
+			do
+				if [[ ! -f $outfile ]]; then
+					continue
+				fi
+				if [[ ! -s $outfile ]]; then
+					continue
+				fi
+				echo "# [cat $outfile] output follows"
+				cat $outfile
+				echo "#######################################"
+			done
 			run_query_stop_rocto
 			exit 1
 		fi

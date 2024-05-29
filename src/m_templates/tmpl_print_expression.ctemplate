@@ -974,6 +974,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 * this should be okay.
 			 */
 			// Prevent date/time type search if the first operand is not of similar type
+			second_operand_type = UNKNOWN_SqlValueType; // avoids false [-Wmaybe-uninitialized] warning
 			boolean_t second_operand_needs_timezone_check = (IS_DATE_TIME_TYPE(first_operand_type));
 			do {
 				if (second_operand_needs_timezone_check) {
@@ -984,8 +985,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 						// re-use the below variable to prevent repeated search
 						second_operand_needs_timezone_check = FALSE;
 					}
-				} else {
-					second_operand_type = UNKNOWN_SqlValueType; // avoids false [-Wmaybe-uninitialized] warning
 				}
 				value = plan2->v.lp_default.operand[0];
 				if (dot_count) {

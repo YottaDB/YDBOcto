@@ -37,6 +37,10 @@ select timestamp with time zone '1868-03-25 16:22:12-04:56:02' = timestamp(horol
 -- (1 row)
 select timestamp with time zone '1868-03-25 16:22:12-04:56' = timestamp(zhorolog) with time zone '9946,58932,,17760';
 -- ???
+-- 1
+-- (1 row)
+select timestamp with time zone '1868-03-25 16:22:12-04:56' = timestamp(zhorolog) with time zone '9946,58932,,17762';
+-- ???
 -- 0
 -- (1 row)
 select timestamp with time zone '1868-03-25 16:22:12-04:56';

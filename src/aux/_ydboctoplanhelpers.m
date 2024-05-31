@@ -553,11 +553,11 @@ ZHorolog2Text(inputStr,type)
 	ELSE  DO
 	. SET sign=$select(0>timezone:-1,1:1)
 	. SET timezone=sign*timezone ; negative number to positive number
-	. SET timezoneS=(timezone#3600)#60
-	. SET timezone=timezone/60/60 ; -> hours as a floating point number
-	. SET timezoneH=timezone\1 ; -> hours as an integer
-	. SET timezoneM=(timezone#1)*60 ;-> minute part as an integer
-	. SET timezoneM=timezoneM\1 ; -> minute as an integer
+	. ; timezone value is in seconds
+	. SET timezoneS=(timezone#3600)#60 ; `#3600` removes hours then `#60` removes minutes, remaining is timezone seconds
+	. SET timezoneH=(timezone/3600)\1 ; -> hours as an integer
+	. SET timezoneM=((timezone#3600)/60)\1 ;-> minute part as an integer
+	.				       ;   `#3600` removes hours, remaining value `/60` gives minutes
 	. ; Its possible to get 60 with the above rounding in such cases increment hour and SET minute to 0.
 	. ; We will not exceed -12 and 14 in such case as the value recieved is ensured by parser to not exceed
 	. ; this range.

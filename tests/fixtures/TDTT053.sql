@@ -13,13 +13,10 @@
 select date_format(now(),'%m-%d-%Y');
 select CAST(now() as date);
 select CAST(now() as char(17));
-select now() between now() - time'01:01:01' and now() + time'01:01:01';
 
 -- localtimestamp
 select cast(localtimestamp as date);
 select cast(localtimestamp as char(17));
-select localtimestamp between localtimestamp - time'01:01:01' and localtimestamp + time'01:01:01';
 -- current_timestamp
 select cast(current_timestamp as date);
 select cast(current_timestamp as char(17));
-select current_timestamp between current_timestamp - time'01:01:01' and current_timestamp + time'01:01:01';

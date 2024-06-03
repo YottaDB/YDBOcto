@@ -1,0 +1,18 @@
+
+-- Following queries output 0 occasionally with MySQL which is not expected so we cannot use cross check function here
+select current_timestamp between current_timestamp - time'TIME' and current_timestamp + time'TIME';
+select now() between now() - time'TIME' and now() + time'TIME';
+select localtimestamp between localtimestamp - time'TIME' and localtimestamp + time'TIME';
+OCTO> select current_timestamp between current_timestamp - time'TIME' and current_timestamp + time'TIME';
+???
+1
+(1 row)
+OCTO> select now() between now() - time'TIME' and now() + time'TIME';
+???
+1
+(1 row)
+OCTO> select localtimestamp between localtimestamp - time'TIME' and localtimestamp + time'TIME';
+???
+1
+(1 row)
+OCTO> 

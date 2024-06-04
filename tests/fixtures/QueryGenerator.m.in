@@ -1844,24 +1844,22 @@ groupbyClause(queryDepth)
 	. . . zwrite groupByListLVN
 	. . . ; If the queryDepth and j doesn't match then we are processing outer query column and the outer query GROUP BY clause is most
 	. . . ; likely not yet constructed if the inner query GROUP BY is being constructed in the SELECT column list of the outer query.
-	. . . ; Choose the expression in this case as it is safer.
-	. . . if ((1=$random(2))&(j=queryDepth)) do
+	. . . ; Form the column list of the columns in the expression such that it can be added later to the GROUP BY of outer query.
+	. . . set innerHolder="" for  set innerHolder=$order(groupByColumnLVN(j,holder,innerHolder))  quit:innerHolder=""  do
+	. . . . if columnSubExpr="" set columnSubExpr=innerHolder
+	. . . . else  set columnSubExpr=columnSubExpr_", "_innerHolder
+	. . . if (1=$random(2)) do
 	. . . . ; Form the holder using just the columns
 	. . . . ; #FUTURE_TODO: In this case find the columns in select list and form a string having its corresponding
 	. . . . ;   node number list seperated by ',' to be used later when chooseSelectNumber is 1
-	. . . . set innerHolder="" for  set innerHolder=$order(groupByColumnLVN(j,holder,innerHolder))  quit:innerHolder=""  do
-	. . . . . if columnSubExpr="" set columnSubExpr=innerHolder
-	. . . . . else  set columnSubExpr=columnSubExpr_", "_innerHolder
 	. . . . set anotherholder=columnSubExpr
 	. . . . set anotherholderType="column"
 	. . . else  do
 	. . . . ; Form the holder using the entire expression
 	. . . . set innerHolder=holder
-	. . . . ; set innerHolder="" set innerHolder=$order(groupByListLVN(j,innerHolder))
-	. . . . if (innerHolder'="") do
-	. . . . . set anotherholder=innerHolder
-	. . . . . set anotherholderType="expression"
-	. . . . else  quit
+	. . . . set anotherholder=innerHolder
+	. . . . set anotherholderType="expression"
+	. . . set:(j'=queryDepth) selectedExprGroupBy(j,holder,"column")=columnSubExpr ; Used by this function itself
 	. . . set selectedExprGroupBy(j,anotherholder)=anotherholderType
 	. . . set selectedExprGroupBy(j,anotherholder,1)=holder ; Only used in Having clause expression 'column' usage
 	. . . zwr selectedExprGroupBy
@@ -1871,6 +1869,16 @@ groupbyClause(queryDepth)
 	. . set:anotherholder'="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:anotherholder),firstholder=0
 	. . set:anotherholder="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:holder),firstholder=0
 	. . set:chooseSelectNumber chooseSelectNumber=0
+	. . if (j=queryDepth)&($DATA(selectedExprGroupBy(j,holder,"column"))) do
+	. . ; This means some subquery has used expression from this queryDepth, ensure its columns are included in
+	. . ; GroupBY of this level. This ensures following types of queries are not created.
+	. . ; OCTO> select coalesce(alias2.firstname,alias2.firstname), (select alias1.firstname from names alias1 group by
+	. . ; 	    coalesce(alias2.firstname,alias2.firstname),alias1.firstname) from names alias2 group by coalesce(alias2.firstname,alias2.firstname);
+	. . ; [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
+	. . ; LINE 1:1: ...lias1 group by coalesce(alias2.firstname,alias2.firstname),alias...
+	. . ; 				    	   ^^^^^^^^^^^^^^^^
+	. . . set result=result_", "_selectedExprGroupBy(j,holder,"column")
+	. . . kill selectedExprGroupBy(j,holder,"column") ; This ensures we do not repeat this step in every iteration
 	write "groupbyClause() : result = ",result,!
 	quit $select(""=result:" ",1:" GROUP BY "_result)
 

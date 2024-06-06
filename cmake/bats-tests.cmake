@@ -51,6 +51,7 @@ endmacro(ADD_BATS_TEST_WITH_TIME)
 configure_file(
   "${PROJECT_SOURCE_DIR}/tests/test_helpers.bash.in"
   "${PROJECT_BINARY_DIR}/bats_tests/test_helpers.bash"
+  @ONLY
 )
 
 configure_file(

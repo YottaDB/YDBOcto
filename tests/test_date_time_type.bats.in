@@ -992,37 +992,14 @@ teardown() {
 @test "TDTT052 : OCTO382 : Test Postgres emulation and date/time inbuilt functions" {
 	echo "datestyle = \"YMD\"" > octo.conf
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT052.sql "trim_trailing_zeroes"
+	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT052time.sql "postgres"
 }
 
 @test "TDTT053 : OCTO382 : Test MySql emulation and date/time inbuilt functions" {
 	# 1 test
 	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTT053.sql "trim_trailing_zeroes"
 	# 2 test
-	# `localtime` is being tested below. Its execution can sometimes result in seconds field having different values for
-	# Octo and MySql execution. The difference usually is 1 second. To avoid failure in such a case we take MySql output before and
-	# after the cross check function execution. If cross check fails the result is ensured to be one of the two values this
-	# confirms the validity of the result. Refer to first commit description in
-	# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1536 for more details.
-	load_mysql_fixture names TDTT053localtime.sql output1.txt
-	load_mysql_fixture names TDTT053localtime.sql mysql_output.txt
-	octo --emulate=MYSQL -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT053localtime.sql >& octo_output.txt
-	load_mysql_fixture names TDTT053localtime.sql output2.txt
-	verify_no_octo_or_ydb_error
-	mv mysql_output.txt mysql_output.log1
-	mv octo_output.txt octo_output.log1
-	grep ".*:.*:.*" mysql_output.log1 >& mysql_output.txt
-	grep ".*:.*:.*" octo_output.log1 >& octo_output.txt
-	diff mysql_output.txt octo_output.txt >& TDTT053localtime.diff || true
-	if [[ -s TDTT053localtime.diff ]]; then
-		starttimestr=$(tail -1 output1.txt)
-		endtimestr=$(tail -1 output2.txt)
-		nowstr=$(cat octo_output.txt)
-		starttime=$(date --date=$starttimestr +%s)
-		endtime=$(date --date=$endtimestr +%s)
-		now=$(date --date=$nowstr +%s)
-		echo "start time = $starttime($starttimestr), now = $now($nowstr), end time = $endtime($endtimestr)" &> TDTT053_localtime_test_values.txt
-		[[ $now -le $endtime ]] && [[ $now -ge $starttime ]]
-	fi
+	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT053localtime.sql "mysql"
 	# 3 test
 	# Queries tested below fail to produce same result in MySql. But we expect the output of both the queries to be 1.
 	# Hence cross check is avoided here and reference file is used for the result comparison

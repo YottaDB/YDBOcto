@@ -1410,3 +1410,75 @@ corecheck() {
 		ps -ef --forest >& ps_ef_forest.txt
 	fi
 }
+
+# Third argument is required to be either "postgres" or "mysql"
+run_query_and_crosscheck_avoiding_execution_time_delay() {
+	# This function is mainly for testing date/time function whose value can differ slightly depending on the time of execution.
+	# To avoid failure in such a case we take MySql/Postgres output before and
+	# after the cross check. If cross check fails the result is ensured to be between the before and after values, this
+	# confirms the validity of the result. Refer to first commit description in
+	# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1536 for more details on what kind of failure led to this
+	# function creation.
+	db=$1
+	filename=$2
+	if [[ "postgres" = "$3" ]]; then
+		ispostgres=1
+	elif [[ "mysql" = "$3" ]]; then
+		ispostgres=0
+	else
+		exit 1
+	fi
+	testname="${filename%.*}"
+	# Fetch all select statements
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$filename ./
+	grep "select" "$filename" >& "$testname".sql1
+	mv "$testname".sql1 "$testname".sql
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py  "$testname".sql
+	# Execute each query separately
+	for qfile in "$testname"-*.sql
+	do
+		qfile=${qfile%.*}
+		if [[ $ispostgres -eq 1 ]]; then
+			name="$qfile"_psql
+			# test
+			psql names -f "$qfile".sql >& "$name"_output.txt
+			octo -f "$qfile".sql >& "$qfile"_octo_output.txt
+			# post test value
+			psql names -f "$qfile".sql >& "$name"_output2.txt
+		else
+			name="$qfile"_mysql
+			# test
+			run_mysql $db "$qfile".sql >& "$name"_output.txt
+			octo --emulate=MYSQL -f "$qfile".sql >& "$qfile"_octo_output.txt
+			# post test value
+			run_mysql $db "$qfile".sql >& "$name"_output2.txt
+		fi
+		# validate result
+		verify_no_octo_or_ydb_error
+		mv "$name"_output.txt "$name"_output.log1
+		mv "$qfile"_octo_output.txt "$qfile"_octo_output.log1
+		grep ".*:.*:.*" "$name"_output.log1 >& "$name"_output.txt
+		grep ".*:.*:.*" "$qfile"_octo_output.log1 >& "$qfile"_octo_output.txt
+		if [[ $ispostgres ]]; then
+			# Remove an additional space written at the beginning
+			sed -i 's/ \(.*\)/\1/g' "$name"_output.txt
+		fi
+		diff "$name"_output.txt "$qfile"_octo_output.txt >& "$qfile".diff || true
+		if [[ -s "$qfile".diff ]]; then
+			# This can happen if the time of execution was slightly different
+			# Compare with pre-test and post-test result in this case
+			if [[ $ispostgres ]]; then
+				sed -i 's/ \(.*\)/\1/g' "$name"_output2.txt
+			fi
+			starttimestr=$(grep ".*:.*:.*" "$name"_output.txt)
+			endtimestr=$(grep ".*:.*:.*" "$name"_output2.txt)
+			nowstr=$(cat "$qfile"_octo_output.txt)
+			starttime=$(date --date="$starttimestr" +%s)
+			endtime=$(date --date="$endtimestr" +%s)
+			now=$(date --date="$nowstr" +%s)
+			echo "start time = $starttime($starttimestr), now = $now($nowstr), end time = $endtime($endtimestr)" &> "$name"_test_values.txt
+			[[ $now -le $endtime ]] && [[ $now -ge $starttime ]]
+		fi
+	done
+	return
+}

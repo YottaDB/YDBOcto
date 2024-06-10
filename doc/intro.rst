@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -159,9 +159,9 @@ Configure Octo
 
     There is no need to create databases manually if :code:`ydb_env_set` has been sourced.
 
-  Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. The :code:`%ydbAIM` globals are intended to be ephemeral and are not recommended to be journaled; we also recommend that you use a memory mapped region with 2K blocks. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM` global variables to a separate region. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
+  Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM*` global variables to a separate region or regions. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
 
-  The following example creates an OCTO database region with the recommended setting in the :code:`$ydb_dir/$ydb_rel/g` directory and assumes an existing application global directory at :code:`$ydb_dir/$ydb_rel/g/yottadb.gld`. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_, and the `YottaDB Acculturation Guide <https://docs.yottadb.com/AcculturationGuide/>`_ for self-paced exercises on YottaDB DevOps.
+  The following example creates OCTO and AIM database regions with the recommended setting in the :code:`$ydb_dir/$ydb_rel/g` directory and assumes an existing application global directory at :code:`$ydb_dir/$ydb_rel/g/yottadb.gld`. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_, and the `YottaDB Acculturation Guide <https://docs.yottadb.com/AcculturationGuide/>`_ for self-paced exercises on YottaDB DevOps.
 
   .. code-block:: bash
 
@@ -176,8 +176,8 @@ Configure Octo
      GDE> add -segment OCTO -access_method=BG -file_name="$ydb_dir/$ydb_rel/g/octo.dat"
      GDE> add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000 -journal=(before,file="$ydb_dir/$ydb_rel/g/octo.mjl")
      GDE> add -name %ydbocto* -region=OCTO
-     GDE> add -segment AIM -access_method=MM -allocation=20000 -block_size=2048 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
-     GDE> add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008
+     GDE> add -segment AIM -access_method=BG -allocation=20000 -block_size=2048 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
+     GDE> add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008 -journal=(before,file="$ydb_dir/$ydb_rel/g/aim.mjl")
      GDE> add -name %ydbAIM* -region=AIM
      GDE> verify
      %GDE-I-VERIFY, Verification OK
@@ -195,6 +195,9 @@ Configure Octo
      $ $ydb_dist/mupip set -journal=before,enable,on -region OCTO
      %YDB-I-JNLCREATE, Journal file /tmp/test/r1.30_x86_64/g/octo.mjl created for region OCTO with BEFORE_IMAGES
      %YDB-I-JNLSTATE, Journaling state for region OCTO is now ON
+     $ $ydb_dist/mupip set -journal=before,enable,on -region AIM
+     %YDB-I-JNLCREATE, Journal file /tmp/test/r1.30_x86_64/g/aim.mjl created for region AIM with BEFORE_IMAGES
+     %YDB-I-JNLSTATE, Journaling state for region AIM is now ON
      $
 
   The commands in the example above are reproduced below, to facilitate copying and pasting.
@@ -206,14 +209,15 @@ Configure Octo
      add -segment OCTO -access_method=BG -file_name="$ydb_dir/$ydb_rel/g/octo.dat"
      add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000 -journal=(before,file="$ydb_dir/$ydb_rel/g/octo.mjl")
      add -name %ydbocto* -region=OCTO
-     add -segment AIM -access_method=MM -allocation=20000 -block_size=1024 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
-     add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008
+     add -segment AIM -access_method=BG -allocation=20000 -block_size=1024 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
+     add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008 -journal=(before,file="$ydb_dir/$ydb_rel/g/aim.mjl")
      add -name %ydbAIM* -region=AIM
      verify
      exit
      $ydb_dist/mupip create -region=OCTO
      $ydb_dist/mupip create -region=AIM
      $ydb_dist/mupip set -journal=before,enable,on -region OCTO
+     $ydb_dist/mupip set -journal=before,enable,on -region AIM
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   *(Optional)* Test with dummy data using Octo

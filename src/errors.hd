@@ -206,6 +206,7 @@ ERROR_DEF(INFO_READLINE_NOTIFY_HIST_STIFLED, "History stifled to %d entries", PS
 // This next two aren't really fatal errors, as Octo works without it, so that's why it's warning
 ERROR_DEF(WARN_READLINE_LOAD_FAIL, "Failed to load history file %s (check your file name and permissions)", PSQL_Code_Success)
 ERROR_DEF(WARN_READLINE_SAVE_FAIL, "Failed to save history file %s (check your file name and permissions)", PSQL_Code_Success)
+ERROR_DEF(WARN_FEATURE_NOT_IMPLEMENTED, "Feature not implemented: %s", PSQL_Code_Feature_Not_Supported)
 // ROCTO //
 ERROR_DEF(INFO_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)

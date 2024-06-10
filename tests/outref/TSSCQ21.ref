@@ -5,8 +5,8 @@ SQL State: XX000
 ERROR: LINE 1:1: ...rue))[1], 'pg_temp_', 'pg_toast_temp_'))  ORDER BY TABLE_SCHEM]
 
 ----- OCTO -----
-[ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
-[ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 LINE 1:1: ...rue))[1], 'pg_temp_', 'pg_toast_temp_'))  ORDER BY TABLE_SCHEM]
                                                                            ^
 syntax error, unexpected RIGHT_BRACKET, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE

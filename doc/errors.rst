@@ -1106,6 +1106,14 @@ INFO_PROCESSING_MESSAGE_TYPE
 
   Description/Action: This debug message indicates that a PostgreSQL wire protocol message of a particular type is being processed. PSQL Error Code: 00000
 
+++++++++++++++++++++++++++++
+WARN_FEATURE_NOT_IMPLEMENTED
+++++++++++++++++++++++++++++
+
+  Text: Feature not implemented: xxx
+
+  Description/Action: This warning message indicates a feature is used that is yet to be implemented. Some of its usages are being allowed to enable the working of a few clients that is why the query didn't issue an error but instead a warning was logged. Refer to the message or `Grammar <https://docs.yottadb.com/Octo/grammar.html>` section for more details on the usages that are allowed. PSQL Error Code: 0A000
+
 .. _WARN_READLINE_LOAD_FAIL:
 
 ++++++++++++++++++++++++++++++++

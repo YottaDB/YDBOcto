@@ -14,12 +14,12 @@ ORDER BY table_schem
 information_schema|null
 pg_catalog|null
 public|null
-[SOCKET] [ WARN] PATH:LINENUM DATE TIME: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
-[SOCKET] [ WARN] PATH:LINENUM DATE TIME: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 
 ----- OCTO -----
-[ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
-[ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
 table_schem|table_catalog
 information_schema|
 pg_catalog|

@@ -11,7 +11,7 @@ public|customers|state|1043|0|6|-1|7|null||null|0|b
 public|customers|zipcode|1043|0|9|-1|8|null||null|0|b
 
 ----- OCTO -----
-[ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|adsrc|description|typbasetype|typtype
 public|customers|customer_id|23|1|-1|4|1||||0|b
 public|customers|first_name|1043|0|12|-1|2||||0|b

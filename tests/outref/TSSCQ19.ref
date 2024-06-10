@@ -8,7 +8,7 @@ public|nworders|orderdate|1043|0|20|-1|4|null||null|0|b
 public|nworders|shipperid|23|0|-1|4|5|null||null|0|b
 
 ----- OCTO -----
-[ WARN]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|adsrc|description|typbasetype|typtype
 public|nworders|orderid|23|1|-1|4|1||||0|b
 public|nworders|customerid|23|0|-1|4|2||||0|b

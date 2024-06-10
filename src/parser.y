@@ -995,7 +995,7 @@ numeric_value_expression
     }
   | numeric_value_expression OVER partition_by_clause {
       // We use WARNING and not ERROR below because some SquirrelSQL queries fail otherwise
-      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "OVER not implemented, just returning columns");
+      WARNING(WARN_FEATURE_NOT_IMPLEMENTED, "OVER not implemented, just returning columns");
       $$ = $1;
     }
   ;
@@ -1093,7 +1093,7 @@ numeric_primary
    */
   | numeric_primary LEFT_BRACKET value_expression RIGHT_BRACKET {
       // We use WARNING and not ERROR below because we want this to pass for fetching schema information
-      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "arrays");
+      WARNING(WARN_FEATURE_NOT_IMPLEMENTED, "arrays");
       $$ = $1;
     }
   | numeric_primary cast_specification {
@@ -2063,7 +2063,7 @@ constraint_check_time
 // TODO: Implement indexes. For now, create a dummy struct to ignore them in run_query.
 index_definition
 	: INDEX index_name ddl_str_literal_value {
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "INDEX statements");
+		WARNING(WARN_FEATURE_NOT_IMPLEMENTED, "INDEX statements");
 		SQL_STATEMENT($$, index_STATEMENT);
 		MALLOC_STATEMENT($$, index, SqlIndex);
 		}

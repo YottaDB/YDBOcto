@@ -181,11 +181,11 @@ table_cat|table_schem|table_name|table_type|remarks|type_cat|type_schem|type_nam
 OCTO> SELECT NULL AS PROCEDURE_CAT, n.nspname AS PROCEDURE_SCHEM, p.proname AS PROCEDURE_NAME, NULL, NULL, NULL, d.description AS REMARKS, 2 AS PROCEDURE_TYPE,  p.proname || '_' || p.oid AS SPECIFIC_NAME  FROM pg_catalog.pg_namespace n, pg_catalog.pg_proc p  LEFT JOIN pg_catalog.pg_description d ON (p.oid=d.objoid)  LEFT JOIN pg_catalog.pg_class c ON (d.classoid=c.oid AND c.relname='pg_proc')  LEFT JOIN pg_catalog.pg_namespace pn ON (c.relnamespace=pn.oid AND pn.nspname='pg_catalog')  WHERE p.pronamespace=n.oid  AND p.prokind='p' ORDER BY PROCEDURE_SCHEM, PROCEDURE_NAME, p.oid::text;
 procedure_cat|procedure_schem|procedure_name|???|???|???|remarks|procedure_type|specific_name
 (0 rows)
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: OVER not implemented, just returning columns
 OCTO> SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) AS attnotnull,a.atttypmod,a.attlen,t.typtypmod,row_number() OVER (PARTITION BY a.attrelid ORDER BY a.attnum) AS attnum, nullif(a.attidentity, '') as attidentity,nullif(a.attgenerated, '') as attgenerated,pg_catalog.pg_get_expr(def.adbin, def.adrelid) AS adsrc,dsc.description,t.typbasetype,t.typtype  FROM pg_catalog.pg_namespace n  JOIN pg_catalog.pg_class c ON (c.relnamespace = n.oid)  JOIN pg_catalog.pg_attribute a ON (a.attrelid=c.oid)  JOIN pg_catalog.pg_type t ON (a.atttypid = t.oid)  LEFT JOIN pg_catalog.pg_attrdef def ON (a.attrelid=def.adrelid AND a.attnum = def.adnum)  LEFT JOIN pg_catalog.pg_description dsc ON (c.oid=dsc.objoid AND a.attnum = dsc.objsubid)  LEFT JOIN pg_catalog.pg_class dc ON (dc.oid=dsc.classoid AND dc.relname='pg_class')  LEFT JOIN pg_catalog.pg_namespace dn ON (dc.relnamespace=dn.oid AND dn.nspname='pg_catalog')  WHERE c.relkind in ('r','p','v','f','m') and a.attnum > 0 AND NOT a.attisdropped  AND n.nspname LIKE 'public' AND c.relname LIKE 'NAMES') c WHERE true  AND attname LIKE '%' ORDER BY nspname,c.relname,attnum;
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|typtypmod|attnum|attidentity|attgenerated|adsrc|description|typbasetype|typtype
 (0 rows)
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: generate_series
 LINE 40:1: ...                   from generate_series(1, array_upper(current_...
                                       ^^^^^^^^^^^^^^^

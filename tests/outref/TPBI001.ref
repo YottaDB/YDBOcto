@@ -243,7 +243,7 @@ products|public|r
 shippers|public|r
 suppliers|public|r
 (64 rows)
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
 OCTO> select
 	ta.attname,
 	ia.attnum,
@@ -272,8 +272,8 @@ where
 order by ia.attnum;
 attname|attnum|relname|nspname|relname
 (0 rows)
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
 OCTO> select	'octo'::name as "PKTABLE_CAT",
 	n2.nspname as "PKTABLE_SCHEM",
 	c2.relname as "PKTABLE_NAME",

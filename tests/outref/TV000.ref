@@ -8,7 +8,7 @@ select * from names;
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 OCTO> select * from nonexistanttable;
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: INDEX statements
 OCTO> INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 OCTO> select * from names;
 id|firstname|lastname

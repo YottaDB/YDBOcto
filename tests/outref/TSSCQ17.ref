@@ -4,7 +4,7 @@ SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnull OR (
 public|octoonerowtable|id|23|1|-1|4|1|null||null|0|b
 
 ----- OCTO -----
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: OVER not implemented, just returning columns
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|adsrc|description|typbasetype|typtype
 public|octoonerowtable|id|23|1|-1|4|1||||0|b
 (1 row)

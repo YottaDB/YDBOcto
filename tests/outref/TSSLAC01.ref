@@ -57,7 +57,7 @@ AND      attname LIKE '%'
 ORDER BY nspname,
          c.relname,
          attnum
-[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: OVER not implemented, just returning columns
+[ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: OVER not implemented, just returning columns
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|adsrc|description|typbasetype|typtype
 public|names|id|23|1|-1|4|1||||0|b
 public|names|firstname|1043|0|34|-1|2||||0|b

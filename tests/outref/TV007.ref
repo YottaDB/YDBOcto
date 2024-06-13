@@ -144,7 +144,7 @@ Reducing stack by rule rrr (line lll):
    $1 = token INDEX (: )
    $2 = nterm index_name (: )
    $3 = nterm ddl_str_literal_value (: )
-[ WARN] PATH:LINENUM DATE TIME: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented: INDEX statements
+[ WARN] PATH:LINENUM DATE TIME: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: INDEX statements
 -> $$ = nterm index_definition (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):

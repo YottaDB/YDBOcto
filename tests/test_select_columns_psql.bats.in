@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -228,4 +228,22 @@ teardown() {
 @test "TSCP28 : OCTO1015 : Check that COMMAND as a column name without quotes is allowed" {
 	load_fixture TSCP28.sql subtest novv
 	verify_output TSCP28 output.txt noinfo debug
+}
+
+@test "TSCP29 : OCTO1047 : Validate REPLACE function usages" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP29.sql
+	# TSCP29.m has test4 to test9
+	# Skip test6 to test9 if CHSET is M
+	if [[ $ydb_chset == "UTF-8" ]]; then
+		endnum=9
+	else
+		endnum=5
+	fi
+	for i in $(seq 4 "$endnum"); do
+		yottadb -r "test$i^TSCP29" >> "test$i.sql"
+		run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names "test$i.sql"
+	done
+	# Following test validates empty string input. It is treated as NULL so the result is expected to be empty.
+	load_fixture TSCP29_empty_string.sql subtest novv
+	verify_output TSCP29_empty_string output.txt noinfo nodebug
 }

@@ -53,10 +53,10 @@ abs
 0
 (1 row)
 replace
-abcdefgh
+abcdabcd
 (1 row)
 replace
-abc
+abd
 (1 row)
 abs
 0

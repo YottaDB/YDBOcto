@@ -250,6 +250,6 @@ LP_SELECT_QUERY:
     - uses_xref_key: false
 
 replace
-abcdefgh
+abcdabcd
 (1 row)
 OCTO> 

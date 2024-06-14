@@ -1467,8 +1467,8 @@ run_query_and_crosscheck_avoiding_execution_time_delay() {
 		if [[ -s "$qfile".diff ]]; then
 			# This can happen if the time of execution was slightly different
 			# Compare with pre-test and post-test result in this case
-			if [[ $ispostgres ]]; then
-				sed -i 's/ \(.*\)/\1/g' "$name"_output2.txt
+			if [[ $ispostgres -eq 1 ]]; then
+				sed -i 's/^ \(.*\)/\1/g' "$name"_output2.txt
 			fi
 			starttimestr=$(grep ".*:.*:.*" "$name"_output.txt)
 			endtimestr=$(grep ".*:.*:.*" "$name"_output2.txt)

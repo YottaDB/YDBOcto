@@ -12,11 +12,8 @@
 
 select date_format(now(),'%m-%d-%Y');
 select CAST(now() as date);
-select CAST(now() as char(17));
 
 -- localtimestamp
 select cast(localtimestamp as date);
-select cast(localtimestamp as char(17));
 -- current_timestamp
 select cast(current_timestamp as date);
-select cast(current_timestamp as char(17));

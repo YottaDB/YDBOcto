@@ -13,3 +13,6 @@
 -- localtime -- returns timestamp in MYSQL but Octo returns time similar to Postgres, hence the cast below
 select cast(localtime as time);
 -- select localtime between localtime - time'01:01:01' and localtime + time'01:01:01';
+select now();
+select localtimestamp;
+select current_timestamp;

@@ -1459,9 +1459,9 @@ run_query_and_crosscheck_avoiding_execution_time_delay() {
 		mv "$qfile"_octo_output.txt "$qfile"_octo_output.log1
 		grep ".*:.*:.*" "$name"_output.log1 >& "$name"_output.txt
 		grep ".*:.*:.*" "$qfile"_octo_output.log1 >& "$qfile"_octo_output.txt
-		if [[ $ispostgres ]]; then
+		if [[ $ispostgres -eq 1 ]]; then
 			# Remove an additional space written at the beginning
-			sed -i 's/ \(.*\)/\1/g' "$name"_output.txt
+			sed -i 's/^ \(.*\)/\1/g' "$name"_output.txt
 		fi
 		diff "$name"_output.txt "$qfile"_octo_output.txt >& "$qfile".diff || true
 		if [[ -s "$qfile".diff ]]; then

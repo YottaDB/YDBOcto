@@ -7,7 +7,7 @@ select '2391-11-03 06:52:07-05'::timestamp with time zone;
 -- Works
 OCTO> set datestyle="mdy";
 OCTO> select '2391-11-03 06:52:07-05'::timestamp with time zone;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2391-11-03 06:52:07-05" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2391-11-03 06:52:07-05" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, MDY"
 OCTO> set datestyle="ymd";
 OCTO> select '2391-11-03 06:52:07-05'::timestamp with time zone;
 TIMESTAMPTZ

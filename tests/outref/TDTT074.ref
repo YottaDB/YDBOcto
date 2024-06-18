@@ -36,27 +36,27 @@ OCTO> select date(zut) '-27809392000000000';
 1088-10-03
 (1 row)
 OCTO> select date_to_fileman(date(zut) '-27809392000000000');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> select date_to_horolog(date(zut) '-27809392000000000');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-274751" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-274751" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 OCTO> select date_to_zhorolog(date(zut) '-27809392000000000');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-274751,,," is invalid for type DATE and format ZHOROLOG
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "6-12-5950 13:12:66.59647+00:39" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-274751,,," is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "6-12-5950 13:12:66.59647+00:39" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 7:1: ...ect timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - t...
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - time'5:8:0';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",25210,078868,23372299286180000000001" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",25210,078868,23372299286180000000001" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 8:1: ...time(zhorolog) with time zone ',25210,078868,2337229928618000000...
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone ',25210,078868,23372299286180000000001';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .-01-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .-01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 9:1: select date'2023-01-01 .-01-2023';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date'2023-01-01 .-01-2023';
 OCTO> select '2023-01-01 .-01-2023'::date;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .-01-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .-01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select '2023-01-01 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select date'2023-01-01' + 660000001-2-23;
 [ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
 OCTO> select date'2023-01-01' - 660000001;

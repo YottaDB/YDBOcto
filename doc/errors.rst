@@ -670,7 +670,7 @@ ERR_INVALID_CONSTRAINT_EXPRESSION
 ERR_INVALID_DATE_TIME_VALUE
 ++++++++++++++++++++++++++++
 
-  Text: "xxx" is invalid for type xxx and format xxx
+  Text: "xxx" is invalid for type "xxx", format "xxx" and datestyle "xxx"
 
   Description/Action: This error is issued when a date/time value is outside the range of valid values(`RANGE <https://docs.yottadb.com/Octo/grammar.html#range>`) or is syntactically incorrect for the given date/time type and format, or if value doesn't match the format specified in datestyle(`INPUT AND OUTPUT TEXT FORMAT VALUE <https://docs.yottadb.com/Octo/grammar.html#input-and-output-text-format-value>`), or when an in-exact fileman date is having either year as zero or when month is zero and day is non zero(`NOTE <https://docs.yottadb.com/Octo/grammar.html#note>`). PSQL Error Code: 22007
 

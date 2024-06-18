@@ -51,13 +51,13 @@ LINE 10:1: ... date(zut) '-27809392000000000'::time(zhorolog) with time zone;
                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut) '-27809392000000000'::time(zhorolog) with time zone;
 OCTO> (select 'tex.+ EN-;t') union (select date'2023-01-01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.+ EN-;t" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.+ EN-;t" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'tex.3 EN-filem;t') union (select date'2023-01-01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-filem;t" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-filem;t" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'tex.3 EN-sele;t') union (select date'2023-01-01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-sele;t" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-sele;t" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'tex.testtsc3 EN-;t') union (select date'2023-01-01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.testtsc3 EN-;t" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.testtsc3 EN-;t" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select (timestamp(horolog)'66475,3661'::date) ='01.01-2-2\277'::date;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01-2-2\277" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01-2-2\277" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> 

@@ -20,7 +20,7 @@ OCTO> select timestamp(zhorolog) with time zone '2980013,86399,999999,-50400';
 ???
 9999-12-31 04:59:59.999999-05
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2980013,86399,999999,-50401" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2980013,86399,999999,-50401" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 4:1: ...timestamp(zhorolog) with time zone '2980013,86399,999999,-50401'...
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone '2980013,86399,999999,-50401';
@@ -36,7 +36,7 @@ OCTO> select timestamp(zhorolog) with time zone '2980013,86399,999999,-50338';
 ???
 9999-12-31 05:01:01.999999-05
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,0,,43201" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,0,,43201" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 8:1: select timestamp(zhorolog) with time zone '-365,0,,43201';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone '-365,0,,43201';

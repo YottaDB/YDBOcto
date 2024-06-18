@@ -7,22 +7,22 @@ select '2023-01-01 01:01:01'::time;
 select '2023-01-01'::timestamp;
 select '01:01:01'::timestamp;
 OCTO> select '2023-01-01 01:01:01'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> -- works in postgres but not in Octo
 select '2023-01-01'::TIMESTAMP;
 TIMESTAMP
 3230101.000000
 (1 row)
 OCTO> select '01/01/2023'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01/2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01/2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> -- works in postgres but not in Octo as the input format doesn't match with config format
 
 select '2023-01-01 01:01:01'::time;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select '2023-01-01'::timestamp;
 TIMESTAMP
 3230101.000000
 (1 row)
 OCTO> select '01:01:01'::timestamp;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> 

@@ -67,11 +67,11 @@ OCTO> select date(fileman)'3230100';
 ???
 2023-01-01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "3230001" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "3230001" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 4:1: select date(fileman)'3230001'; -- This should result in an error
                  ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'3230001';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "323" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "323" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 5:2: select date(fileman)'323'; -- This should result in an error
                  ^^^^^^^^^^^^^^^^^^
 OCTO> -- This should result in an error
@@ -107,11 +107,11 @@ OCTO> select timestamp(fileman)'2991231.24';
 ???
 2000-01-01 00:00:00
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2991231.25" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2991231.25" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 15:1: select timestamp(fileman)'2991231.25';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'2991231.25';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "323" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "323" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 16:1: select timestamp(fileman)'323';
                   ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'323';
@@ -124,12 +124,12 @@ select timestamp(fileman)'2960124.16265';
 ???
 1996-01-24 16:26:50
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.16266" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.16266" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 19:2: select timestamp(fileman)'2960124.16266'; -- second is having a...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> -- second is having a single digit
 select timestamp(fileman)'2960124.16266';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.16267" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.16267" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 20:2: select timestamp(fileman)'2960124.16267'; -- second is having a...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> -- second is having a single digit error case
@@ -144,12 +144,12 @@ select timestamp(fileman)'2960124.165';
 ???
 1996-01-24 16:50:00
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.166" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.166" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 23:2: select timestamp(fileman)'2960124.166'; -- minute is having a s...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> -- minute is having a single digit
 select timestamp(fileman)'2960124.166';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.167" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.167" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 24:2: select timestamp(fileman)'2960124.167'; -- minute is having a s...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> -- minute is having a single digit error case
@@ -164,16 +164,16 @@ OCTO> select timestamp(fileman)'2960124.2';
 1996-01-24 20:00:00
 (1 row)
 OCTO> select timestamp(fileman)'2960124.3';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> -- hour is having a single digit error case
 select timestamp(fileman)'2960124.9';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.9" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.9" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> -- hour is having a single digit error case
 select timestamp(fileman)'2960124.01';
 ???
 1996-01-24 01:00:00
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.10" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.10" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 30:1: select timestamp(fileman)'2960124.10'; -- error
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'2960124.10';
@@ -194,7 +194,7 @@ OCTO> select timestamp(fileman)'2960124.100000';
 ???
 1996-01-24 10:00:00
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.20" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.20" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 35:1: select timestamp(fileman)'2960124.20'; -- error
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'2960124.20';
@@ -274,11 +274,11 @@ id|dob
 0|
 (1 row)
 OCTO> select * from testtimestamperror5;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.25" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.25" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> select * from testtimestamperror6;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> select * from testtimestamperror7;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.9" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.9" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> select * from testtimestamperror8;
 id|dob
 0|

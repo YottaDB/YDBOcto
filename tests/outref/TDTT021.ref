@@ -307,406 +307,406 @@ select time without time zone'11:00:00 -8:00';
 select timestamp'2023-01-01 11:00:00 -8:00';
 select timestamp without time zone'2023-01-01 11:00:00 -8:00';
 
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 2:1: select date(horolog)'hhh';
                  ^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 3:1: select date(horolog)'hhh.hhh';
                  ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 4:1: select date(horolog)'.';
                  ^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 5:1: select date(horolog)',';
                  ^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 6:1: select date(horolog)'66644,62290';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 7:1: select date(horolog)'-66644,62290';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'-66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 8:1: select date(horolog)'+66644,62290';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'+66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 9:1: select date(horolog)'66+644';
                  ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type DATE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 10:1: select date(horolog)'-';
                   ^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 12:1: select time(horolog)'hhh';
                   ^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 13:1: select time(horolog)'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 14:1: select time(horolog)'.';
                   ^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 15:1: select time(horolog)',';
                   ^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 16:1: select time(horolog)'66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 17:1: select time(horolog)'-66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'-66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 18:1: select time(horolog)'+66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'+66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 19:1: select time(horolog)'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 20:1: select time(horolog)'-';
                   ^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIME and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 21:1: select time(horolog)'+';
                   ^^^^^^^^^^^^^^^^
 OCTO> select time(horolog)'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 23:1: select time(horolog) with time zone'hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 24:1: select time(horolog) with time zone'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 25:1: select time(horolog) with time zone'.';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 26:1: select time(horolog) with time zone',';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 27:1: select time(horolog) with time zone'66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 28:1: select time(horolog) with time zone'-66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'-66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 29:1: select time(horolog) with time zone'+66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'+66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 30:1: select time(horolog) with time zone'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 31:1: select time(horolog) with time zone'-';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIME WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIME WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 32:1: select time(horolog) with time zone'+';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(horolog) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 34:1: select timestamp(horolog)'hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 35:1: select timestamp(horolog)'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 36:1: select timestamp(horolog)'.';
                   ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 37:1: select timestamp(horolog)',';
                   ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 38:1: select timestamp(horolog)'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 39:1: select timestamp(horolog)'66753,-';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'66753,-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 40:1: select timestamp(horolog)'66753,57461,381604,14400';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'66753,57461,381604,14400';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 41:1: select timestamp(horolog)'-';
                   ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 42:1: select timestamp(horolog)'+';
                   ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 44:1: select timestamp(horolog) with time zone'hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 45:1: select timestamp(horolog) with time zone'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 46:1: select timestamp(horolog) with time zone'.';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 47:1: select timestamp(horolog) with time zone',';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 48:1: select timestamp(horolog) with time zone'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 49:1: select timestamp(horolog) with time zone'66753,-';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'66753,-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 50:1: ...ct timestamp(horolog) with time zone'66753,57461,381604,14400';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'66753,57461,381604,14400';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 51:1: select timestamp(horolog) with time zone'-';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP WITH TIME ZONE and format HOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 52:1: select timestamp(horolog) with time zone'+';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 54:1: select date(zhorolog)'hhh';
                   ^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 55:1: select date(zhorolog)'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 56:1: select date(zhorolog)'.';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 57:1: select date(zhorolog)',';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 58:1: select date(zhorolog)'66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 59:1: select date(zhorolog)'-66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'-66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 60:1: select date(zhorolog)'+66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'+66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 61:1: select date(zhorolog)'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type DATE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 62:1: select date(zhorolog)'-';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select date(zhorolog)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 64:1: select time(zhorolog)'hhh';
                   ^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 65:1: select time(zhorolog)'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 66:1: select time(zhorolog)'.';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 67:1: select time(zhorolog)',';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 68:1: select time(zhorolog)'66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 69:1: select time(zhorolog)'-66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'-66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 70:1: select time(zhorolog)'+66644,62290';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'+66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 71:1: select time(zhorolog)'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 72:1: select time(zhorolog)'-';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIME and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 73:1: select time(zhorolog)'+';
                   ^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog)'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 75:1: select time(zhorolog) with time zone'hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 76:1: select time(zhorolog) with time zone'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 77:1: select time(zhorolog) with time zone'.';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 78:1: select time(zhorolog) with time zone',';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 82:4: select time(zhorolog) with time zone'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time(zhorolog) with time zone'66644,62290';
 --select time(zhorolog) with time zone'-66644,62290';
 --select time(zhorolog) with time zone'+66644,62290';
 select time(zhorolog) with time zone'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 83:1: select time(zhorolog) with time zone'-';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 84:1: select time(zhorolog) with time zone'+';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 86:1: select timestamp(zhorolog)'hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 87:1: select timestamp(zhorolog)'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 88:1: select timestamp(zhorolog)'.';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 89:1: select timestamp(zhorolog)',';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 90:1: select timestamp(zhorolog)'66+644';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 91:1: select timestamp(zhorolog)'66753,-';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'66753,-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400,000" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400,000" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 92:1: select timestamp(zhorolog)'66753,57461,381604,14400,000';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'66753,57461,381604,14400,000';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 93:1: select timestamp(zhorolog)'-';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 94:1: select timestamp(zhorolog)'+';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog)'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 96:1: select timestamp(zhorolog) with time zone'hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 97:1: select timestamp(zhorolog) with time zone'hhh.hhh';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 98:1: select timestamp(zhorolog) with time zone'.';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 99:1: select timestamp(zhorolog) with time zone',';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 100:1: select timestamp(zhorolog) with time zone'66+644';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'66+644';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 101:1: select timestamp(zhorolog) with time zone'66753,-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'66753,-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400,000" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66753,57461,381604,14400,000" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 102:1: ...timestamp(zhorolog) with time zone'66753,57461,381604,14400,000'...
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'66753,57461,381604,14400,000';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 103:1: select timestamp(zhorolog) with time zone'-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 104:1: select timestamp(zhorolog) with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zhorolog) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 106:1: select date(fileman)'hhh';
                    ^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 107:1: select date(fileman)'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 108:1: select date(fileman)'.';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 109:1: select date(fileman)',';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 110:1: select date(fileman)'2970919.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'2970919.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-2970919.082701" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-2970919.082701" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 111:1: select date(fileman)'-2970919.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'-2970919.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+2970919.082701" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+2970919.082701" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 112:1: select date(fileman)'+2970919.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'+2970919.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970+919" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970+919" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 113:1: select date(fileman)'2970+919';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'2970+919';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 114:1: select date(fileman)'-';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'-';
@@ -790,99 +790,99 @@ OCTO> select time(fileman) with time zone'-';
 LINE 136:1: select time(fileman) with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(fileman) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 138:1: select timestamp(fileman)'hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 139:1: select timestamp(fileman)'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 140:1: select timestamp(fileman)'.';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 141:1: select timestamp(fileman)',';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "297+0919" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "297+0919" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 142:1: select timestamp(fileman)'297+0919';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'297+0919';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.-" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.-" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 143:1: select timestamp(fileman)'2970919.-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'2970919.-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701.082701" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701.082701" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 144:1: select timestamp(fileman)'2970919.082701.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'2970919.082701.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 145:1: select timestamp(fileman)'-';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 146:1: select timestamp(fileman)'+';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 148:1: select timestamp(fileman) with time zone'hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 149:1: select timestamp(fileman) with time zone'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 150:1: select timestamp(fileman) with time zone'.';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 151:1: select timestamp(fileman) with time zone',';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970+919" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970+919" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 152:1: select timestamp(fileman) with time zone'2970+919';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'2970+919';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.-" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 153:1: select timestamp(fileman) with time zone'2970919.-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'2970919.-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701.082701" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701.082701" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 154:1: select timestamp(fileman) with time zone'2970919.082701.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'2970919.082701.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 155:1: select timestamp(fileman) with time zone'-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP WITH TIME ZONE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 156:1: select timestamp(fileman) with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 159:1: select date(zut)'hhh';
                    ^^^^^^^^^^^^^^
 OCTO> select date(zut)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 160:1: select date(zut)'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 161:1: select date(zut)'.';
                    ^^^^^^^^^^^^
 OCTO> select date(zut)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 162:1: select date(zut)',';
                    ^^^^^^^^^^^^
 OCTO> select date(zut)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 163:1: select date(zut)'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut)'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082" is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 164:1: select date(zut)'-1696623906640197,082';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut)'-1696623906640197,082';
@@ -890,11 +890,11 @@ OCTO> select date(zut)'+1696623906640197';
 ???
 2023-10-06
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 166:1: select date(zut)'1696623906640+197';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut)'1696623906640+197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type DATE and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
 LINE 167:1: select date(zut)'-';
                    ^^^^^^^^^^^^
 OCTO> select date(zut)'-';
@@ -978,39 +978,39 @@ OCTO> select time(zut) with time zone'-';
 LINE 189:1: select time(zut) with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zut) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 191:1: select timestamp(zut)'hhh';
                    ^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 192:1: select timestamp(zut)'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 193:1: select timestamp(zut)'.';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 194:1: select timestamp(zut)',';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 195:1: select timestamp(zut)'1696623906640+197';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'1696623906640+197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.-" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.-" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 196:1: select timestamp(zut)'1696623906640197.-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'1696623906640197.-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 197:1: select timestamp(zut)'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 198:1: select timestamp(zut)'-';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP and format ZUT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
 LINE 199:1: select timestamp(zut)'+';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'+';
@@ -1050,79 +1050,79 @@ OCTO> select timestamp(zut) with time zone'-';
 LINE 209:1: select timestamp(zut) with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut) with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 211:1: select date'hhh';
                    ^^^^^^^^^
 OCTO> select date'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 212:1: select date'hhh.hhh';
                    ^^^^^^^^^^^^^
 OCTO> select date'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 213:1: select date'.';
                    ^^^^^^^
 OCTO> select date'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 214:1: select date',';
                    ^^^^^^^
 OCTO> select date',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 215:1: select date'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 216:1: select date'-1696623906640197,082';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date'-1696623906640197,082';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+1696623906640197" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+1696623906640197" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 217:1: select date'+1696623906640197';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date'+1696623906640197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 218:1: select date'1696623906640+197';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date'1696623906640+197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 219:1: select date'-';
                    ^^^^^^^
 OCTO> select date'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01.2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01.2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 220:1: select date'01.01.2023';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date'01.01.2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 221:1: select date'01/01-2023';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date'01/01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 222:1: select date'01/01-2023';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date'01/01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-23" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-23" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 223:1: select date'01-01-23';
                    ^^^^^^^^^^^^^^
 OCTO> select date'01-01-23';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 224:1: select date'01-01-2023';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date'01-01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 225:1: select date'01/01/2023';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date'01/01/2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0a-01-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0a-01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 226:1: select date'0a-01-2023';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date'0a-01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-a-2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-a-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 227:1: select date'01-a-2023';
                    ^^^^^^^^^^^^^^^
 OCTO> select date'01-a-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01--2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01--2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 228:1: select date'01-01--2023';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select date'01-01--2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 229:1: select date'01-01-';
                    ^^^^^^^^^^^^
 OCTO> select date'01-01-';
@@ -1130,65 +1130,65 @@ LINE 230:1: select date'';
                         ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select date'';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 233:3: select time'hhh';
                    ^^^^^^^^^
 OCTO> --
 
 select time'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 234:1: select time'hhh.hhh';
                    ^^^^^^^^^^^^^
 OCTO> select time'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 235:1: select time'.';
                    ^^^^^^^
 OCTO> select time'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 236:1: select time',';
                    ^^^^^^^
 OCTO> select time',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 237:1: select time'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 238:1: select time'-1696623906640197,082';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time'-1696623906640197,082';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+1696623906640197" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+1696623906640197" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 239:1: select time'+1696623906640197';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time'+1696623906640197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "169662390664+0197" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "169662390664+0197" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 240:1: select time'169662390664+0197';
                    ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time'169662390664+0197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 241:1: select time'-';
                    ^^^^^^^
 OCTO> select time'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 242:1: select time'+';
                    ^^^^^^^
 OCTO> select time'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1:1:a" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1:1:a" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 243:1: select time'1:1:a';
                    ^^^^^^^^^^^
 OCTO> select time'1:1:a';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "24:01:01" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "24:01:01" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 244:1: select time'24:01:01';
                    ^^^^^^^^^^^^^^
 OCTO> select time'24:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "24:0:0" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "24:0:0" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 245:1: select time'24:0:0';
                    ^^^^^^^^^^^^
 OCTO> select time'24:0:0';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:60:0" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:60:0" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 246:1: select time'23:60:0';
                    ^^^^^^^^^^^^^
 OCTO> select time'23:60:0';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/00/00" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/00/00" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 247:1: select time'01/00/00';
                    ^^^^^^^^^^^^^^
 OCTO> select time'01/00/00';
@@ -1196,121 +1196,121 @@ LINE 248:1: select time '';
                          ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time '';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 251:3: select time with time zone'hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --
 
 select time with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 252:1: select time with time zone'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 253:1: select time with time zone'.';
                    ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 254:1: select time with time zone',';
                    ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 255:1: select time with time zone'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082701" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1696623906640197,082701" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 256:1: select time with time zone'-1696623906640197,082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'-1696623906640197,082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+1696623906640197" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+1696623906640197" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 257:1: select time with time zone'+1696623906640197';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'+1696623906640197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 258:1: select time with time zone'1696623906640+197';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'1696623906640+197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 259:1: select time with time zone'-';
                    ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 260:1: select time with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 262:1: select timestamp'hhh';
                    ^^^^^^^^^^^^^^
 OCTO> select timestamp'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 263:1: select timestamp'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 264:1: select timestamp'.';
                    ^^^^^^^^^^^^
 OCTO> select timestamp'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 265:1: select timestamp',';
                    ^^^^^^^^^^^^
 OCTO> select timestamp',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640+197" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 266:1: select timestamp'1696623906640+197';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'1696623906640+197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.-" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.-" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 267:1: select timestamp'1696623906640197.-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'1696623906640197.-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 268:1: select timestamp'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 269:1: select timestamp'-';
                    ^^^^^^^^^^^^
 OCTO> select timestamp'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 270:1: select timestamp'+';
                    ^^^^^^^^^^^^
 OCTO> select timestamp'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01.2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01.2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 271:1: select timestamp'01.01.2023';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01.01.2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 272:1: select timestamp'01/01-2023';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01/01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01-2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 273:1: select timestamp'01/01-2023';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01/01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-23" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-23" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 274:1: select timestamp'01-01-23';
                    ^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-01-23';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 275:1: select timestamp'01-01-2023';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01/2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01/01/2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 276:1: select timestamp'01/01/2023';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01/01/2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0a-01-2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0a-01-2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 277:1: select timestamp'0a-01-2023';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'0a-01-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-a-2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-a-2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 278:1: select timestamp'01-a-2023';
                    ^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-a-2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01--2023" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01--2023" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 279:1: select timestamp'01-01--2023';
                    ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-01--2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 280:1: select timestamp'01-01-';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-01-';
@@ -1318,68 +1318,68 @@ LINE 281:1: select timestamp'';
                              ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp'';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01 -2023 00:00:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01 -2023 00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 282:1: select timestamp'01-01 -2023 00:00:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-01 -2023 00:00:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 284:2: select timestamp with time zone'hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --
 select timestamp with time zone'hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "hhh.hhh" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 285:1: select timestamp with time zone'hhh.hhh';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'hhh.hhh';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "." is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 286:1: select timestamp with time zone'.';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'.';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "," is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 287:1: select timestamp with time zone',';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "169662390664+0197" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "169662390664+0197" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 288:1: select timestamp with time zone'169662390664+0197';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'169662390664+0197';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.-" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 289:1: select timestamp with time zone'1696623906640197.-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'1696623906640197.-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1696623906640197.082701" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 290:1: select timestamp with time zone'1696623906640197.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'1696623906640197.082701';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 291:1: select timestamp with time zone'-';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'-';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 292:1: select timestamp with time zone'+';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'+';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 294:1: select time '2023-01-01 11:00:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time '2023-01-01 11:00:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 295:1: select time without time zone '2023-01-01 11:00:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time without time zone '2023-01-01 11:00:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "11:00:00 -8:00" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "11:00:00 -8:00" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 297:1: select time '11:00:00 -8:00';
                    ^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time '11:00:00 -8:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "11:00:00 -8:00" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "11:00:00 -8:00" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 LINE 298:1: select time without time zone'11:00:00 -8:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time without time zone'11:00:00 -8:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00 -8:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00 -8:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 299:1: select timestamp'2023-01-01 11:00:00 -8:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'2023-01-01 11:00:00 -8:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00 -8:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 11:00:00 -8:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 300:1: select timestamp without time zone'2023-01-01 11:00:00 -8:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp without time zone'2023-01-01 11:00:00 -8:00';

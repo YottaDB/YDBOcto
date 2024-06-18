@@ -13,7 +13,7 @@ CREATE TABLE
 OCTO> insert into TDTT061 values (2, (select '2023-12-31'));
 INSERT 0 1
 OCTO> insert into TDTT061 values (3, '3231231');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "3231231" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "3231231" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> -- This needs to fail
 select * from TDTT061;
 id|dob

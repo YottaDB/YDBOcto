@@ -568,21 +568,21 @@ LINE 161:1: select CAST(3 AS TIMESTAMP WITH TIME ZONE);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(3 AS TIMESTAMP WITH TIME ZONE);
 OCTO> select 'sample string'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select CAST('sample string' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select 'sample string'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select CAST('sample string' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select 'sample string'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select CAST('sample string' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select 'sample string'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select CAST('sample string' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
 LINE 170:1: select 3.3::DATE;
                    ^^^^^^^^^

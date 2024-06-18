@@ -192,13 +192,13 @@ LINE 61:1: select NULLIF(date'2023-01-01',3);
                                           ^
 OCTO> select NULLIF(date'2023-01-01',3);
 OCTO> select COALESCE(date'2023-01-01','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(date'2023-01-01','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(date'2023-01-01','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(date'2023-01-01','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
 LINE 66:1: select COALESCE(date'2023-01-01',3.3);
                            ^^^^^^^^^^^^^^^^
@@ -440,13 +440,13 @@ LINE 109:1: select NULLIF(time'01:01:00',3);
                                          ^
 OCTO> select NULLIF(time'01:01:00',3);
 OCTO> select COALESCE(time'01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(time'01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(time'01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(time'01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
 LINE 114:1: select COALESCE(time'01:01:00',3.3);
                             ^^^^^^^^^^^^^^
@@ -656,13 +656,13 @@ LINE 157:1: select NULLIF(timestamp'2023-01-01 01:01:00',3);
                                                          ^
 OCTO> select NULLIF(timestamp'2023-01-01 01:01:00',3);
 OCTO> select COALESCE(timestamp'2023-01-01 01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(timestamp'2023-01-01 01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(timestamp'2023-01-01 01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(timestamp'2023-01-01 01:01:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
 LINE 162:1: select COALESCE(timestamp'2023-01-01 01:01:00',3.3);
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -872,13 +872,13 @@ LINE 205:1: ... NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',3);
                                                                            ^
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',3);
 OCTO> select COALESCE(timestamp with time zone'2023-01-01 01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(timestamp with time zone'2023-01-01 01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(timestamp with time zone'2023-01-01 01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
 LINE 210:1: ...LESCE(timestamp with time zone'2023-01-01 01:01:00-05:00',3.3);
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1088,13 +1088,13 @@ LINE 253:1: select NULLIF(n1.dob,3) from TDTT011date n1;
                                  ^
 OCTO> select NULLIF(n1.dob,3) from TDTT011date n1;
 OCTO> select COALESCE(n1.dob,'sample string') from TDTT011date n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(n1.dob,'sample string') from TDTT011date n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(n1.dob,'sample string') from TDTT011date n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(n1.dob,'sample string') from TDTT011date n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
 LINE 258:1: select COALESCE(n1.dob,3.3) from TDTT011date n1;
                             ^^^^^^
@@ -1336,13 +1336,13 @@ LINE 301:1: select NULLIF(n1.dob,3) from TDTT011time n1;
                                  ^
 OCTO> select NULLIF(n1.dob,3) from TDTT011time n1;
 OCTO> select COALESCE(n1.dob,'sample string') from TDTT011time n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(n1.dob,'sample string') from TDTT011time n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(n1.dob,'sample string') from TDTT011time n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(n1.dob,'sample string') from TDTT011time n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right NUMERIC
 LINE 306:1: select COALESCE(n1.dob,3.3) from TDTT011time n1;
                             ^^^^^^
@@ -1552,13 +1552,13 @@ LINE 349:1: select NULLIF(n1.dob,3) from TDTT011timestamp n1;
                                  ^
 OCTO> select NULLIF(n1.dob,3) from TDTT011timestamp n1;
 OCTO> select COALESCE(n1.dob,'sample string') from TDTT011timestamp n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(n1.dob,'sample string') from TDTT011timestamp n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(n1.dob,'sample string') from TDTT011timestamp n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(n1.dob,'sample string') from TDTT011timestamp n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
 LINE 354:1: select COALESCE(n1.dob,3.3) from TDTT011timestamp n1;
                             ^^^^^^
@@ -1768,13 +1768,13 @@ LINE 397:1: select NULLIF(n1.dob,3) from TDTT011timestamptz n1;
                                  ^
 OCTO> select NULLIF(n1.dob,3) from TDTT011timestamptz n1;
 OCTO> select COALESCE(n1.dob,'sample string') from TDTT011timestamptz n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(n1.dob,'sample string') from TDTT011timestamptz n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(n1.dob,'sample string') from TDTT011timestamptz n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(n1.dob,'sample string') from TDTT011timestamptz n1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
 LINE 402:1: select COALESCE(n1.dob,3.3) from TDTT011timestamptz n1;
                             ^^^^^^

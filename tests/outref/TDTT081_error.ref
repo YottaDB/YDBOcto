@@ -1396,19 +1396,19 @@ drop table TDTT005timetz;
 drop table TDTT005timestamp;
 drop table TDTT005timestamptz;
 select time with time zone'23:59:59.999999-13816';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00:00:00.000000-16:00" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00:00:00.000000-16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 2:1: select time with time zone'00:00:00.000000-16:00';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'00:00:00.000000-16:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00:00:00.000000+16:00" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00:00:00.000000+16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 3:1: select time with time zone'00:00:00.000000+16:00';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'00:00:00.000000+16:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.999999-16:00" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.999999-16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 4:1: select time with time zone'23:59:59.999999-16:00';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'23:59:59.999999-16:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.999999+16:00" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.999999+16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 5:1: select time with time zone'23:59:59.999999+16:00';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'23:59:59.999999+16:00';
@@ -1416,31 +1416,31 @@ LINE 6:1: select time(horolog) with time zone'';
                                               ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time(horolog) with time zone'';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,,43201" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,,43201" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 7:1: select time(zhorolog) with time zone',0,,43201';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',0,,43201';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",-1,,43200" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",-1,,43200" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 8:1: select time(zhorolog) with time zone',-1,,43200';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',-1,,43200';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,-1,43200" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,-1,43200" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 9:1: select time(zhorolog) with time zone',0,-1,43200';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',0,-1,43200';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",86400,,-50400" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",86400,,-50400" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 10:1: select time(zhorolog) with time zone',86400,,-50400';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',86400,,-50400';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",86399,,-50401" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",86399,,-50401" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 11:1: select time(zhorolog) with time zone',86399,,-50401';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',86399,,-50401';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",86399,1000000,-50400" is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",86399,1000000,-50400" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 12:1: select time(zhorolog) with time zone',86399,1000000,-50400';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',86399,1000000,-50400';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",,," is invalid for type TIME WITH TIME ZONE and format ZHOROLOG
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",,," is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 13:1: select time(zhorolog) with time zone',,,';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone',,,';
@@ -1675,13 +1675,13 @@ LINE 64:1: select NULLIF(time with time zone'01:01:00-05:00',3);
                                                              ^
 OCTO> select NULLIF(time with time zone'01:01:00-05:00',3);
 OCTO> select COALESCE(time with time zone'01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select GREATEST(time with time zone'01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select LEAST(time with time zone'01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select NULLIF(time with time zone'01:01:00-05:00','sample string');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME WITH TIME ZONE, right NUMERIC
 LINE 69:1: select COALESCE(time with time zone'01:01:00-05:00',3.3);
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1842,11 +1842,11 @@ OCTO> select AVG(DISTINCT time with time zone'01:01:00-05:00');
 LINE 102:1: select AVG(ALL time with time zone'01:01:00-05:00');
                    ^^^
 OCTO> select AVG(ALL time with time zone'01:01:00-05:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10:30:00     +05:30" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10:30:00     +05:30" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 103:1: select time with time zone'10:30:00     +05:30';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'10:30:00     +05:30';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-11-07 10:30:00     +05:30" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-11-07 10:30:00     +05:30" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 104:1: select timestamp with time zone'2023-11-07 10:30:00     +05:30';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-11-07 10:30:00     +05:30';
@@ -2011,9 +2011,9 @@ LINE 149:1: select CAST(3 AS TIME WITH TIME ZONE);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(3 AS TIME WITH TIME ZONE);
 OCTO> select 'sample string'::TIME WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> select CAST('sample string' AS TIME WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type TIME WITH TIME ZONE
 LINE 152:1: select 3.3::TIME WITH TIME ZONE;
                    ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4555,7 +4555,7 @@ LINE 625:1: select time with time zone'01:01:00-05:00' IN (select 3);
                                                            ^^^^^^
 OCTO> select time with time zone'01:01:00-05:00' IN (select 3);
 OCTO> select time with time zone'01:01:00-05:00' IN ('sample string',time with time zone'01:01:00-05:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME WITH TIME ZONE, right VARCHAR
 LINE 627:1: select time with time zone'01:01:00-05:00' IN (select 'sample s...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -8851,7 +8851,7 @@ OCTO> drop table TDTT005timestamp;
 DROP TABLE
 OCTO> drop table TDTT005timestamptz;
 DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.999999-13816" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.999999-13816" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 1382:1: select time with time zone'23:59:59.999999-13816';
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'23:59:59.999999-13816';

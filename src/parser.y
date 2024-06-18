@@ -2492,7 +2492,7 @@ literal_value
 		char *format_str;
 		DATE_TIME_FORMAT_STRING(value->date_time_format_type, format_str);
 		ERROR(ERR_INVALID_DATE_TIME_VALUE, value->v.string_literal, get_user_visible_type_string(value->type)
-		      , format_str);
+		      , format_str, config->datestyle);
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}

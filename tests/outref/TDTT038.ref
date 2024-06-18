@@ -4921,11 +4921,11 @@ OCTO> drop table if exists testd;
 DROP TABLE
 OCTO> create table testd (id integer, dob date);
 CREATE TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 6:1: insert into testd values(1,date'2023/10/17');
                                      ^^^^^^^^^^^^^^^^
 OCTO> insert into testd values(1,date'2023/10/17');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 7:1: insert into testd values(2,date'2023/10/16');
                                      ^^^^^^^^^^^^^^^^
 OCTO> insert into testd values(2,date'2023/10/16');
@@ -4949,11 +4949,11 @@ OCTO> drop table if exists testts;
 DROP TABLE
 OCTO> create table testts(id integer, dob timestamp);
 CREATE TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 18:1: insert into testts values(1, timestamp'2023/10/17 01:01:01');
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testts values(1, timestamp'2023/10/17 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 02:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 02:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 19:1: insert into testts values(2, timestamp'2023/10/16 02:01:01');
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testts values(2, timestamp'2023/10/16 02:01:01');
@@ -4992,7 +4992,7 @@ tob|firstname
 OCTO> select dob,firstname from testts,names;
 dob|firstname
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 30:1: select date'2023/10/17',firstname from names limit 1;
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'2023/10/17',firstname from names limit 1;
@@ -5000,7 +5000,7 @@ OCTO> select time'01:01:01',firstname from names limit 1;
 ???|firstname
 01:01:01|Zero
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 02:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 02:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 32:1: select timestamp'2023/10/16 02:01:01',firstname from names limit...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'2023/10/16 02:01:01',firstname from names limit 1;
@@ -5027,50 +5027,50 @@ count
 OCTO> select distinct dob from testd group by dob order by dob limit 1;
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 41:1: select distinct date'2023/10/17' from testd group by 1 order by ...
                            ^^^^^^^^^^^^^^^^
 OCTO> select distinct date'2023/10/17' from testd group by 1 order by 1 limit 1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 42:1: select column1 from (values(date'2023/10/17'));
                                        ^^^^^^^^^^^^^^^^
 OCTO> select column1 from (values(date'2023/10/17'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 43:1: values(date'2023/10/17');
                   ^^^^^^^^^^^^^^^^
 OCTO> values(date'2023/10/17');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 44:1: select * from (select date'2023/10/17' union select date'2023/10...
                                  ^^^^^^^^^^^^^^^^
 OCTO> select * from (select date'2023/10/17' union select date'2023/10/16');
 OCTO> select * from (select dob from testd union select dob from testd);
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 46:1: select date'2023/10/17' union select date'2023/10/16';
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'2023/10/17' union select date'2023/10/16';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 47:1: select date'2023/10/17' union all select date'2023/10/16' union ...
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'2023/10/17' union all select date'2023/10/16' union all select date'2023/10/18';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 48:1: (select date'2023/10/17' union all select date'2023/10/17') unio...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'2023/10/17' union all select date'2023/10/17') union all (select date'2023/10/16' union all select date'2023/10/16');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 49:1: select date'2023/10/17' union select date'2023/10/16' union sele...
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'2023/10/17' union select date'2023/10/16' union select date'2023/10/18';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 50:1: (select date'2023/10/17' union select date'2023/10/17') union (s...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'2023/10/17' union select date'2023/10/17') union (select date'2023/10/16' union select date'2023/10/16');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 51:1: (select date'2023/10/17' intersect select date'2023/10/17') inte...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'2023/10/17' intersect select date'2023/10/17') intersect (select date'2023/10/17' union select date'2023/10/16');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 52:1: (select date'2023/10/17' union select date'2023/10/19' union sel...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'2023/10/17' union select date'2023/10/19' union select date'2023/10/20') except (select date'2023/10/17' union select date'2023/10/16');
@@ -5204,50 +5204,50 @@ count
 OCTO> select distinct dob from testts group by dob order by dob limit 1;
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 86:1: select distinct timestamp'2023/10/17 01:01:01' from testts group...
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select distinct timestamp'2023/10/17 01:01:01' from testts group by 1 order by 1 limit 1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 87:1: select column1 from (values(timestamp'2023/10/17 01:01:01'));
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select column1 from (values(timestamp'2023/10/17 01:01:01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 88:1: values(timestamp'2023/10/17 01:01:01');
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> values(timestamp'2023/10/17 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 89:1: ...t * from (select timestamp'2023/10/17 01:01:01' union select tim...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select * from (select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/16 02:01:01');
 OCTO> select * from (select dob from testts union select dob from testts);
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 91:1: select timestamp'2023/10/17 01:01:01' union select timestamp'202...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/16 02:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 92:1: select timestamp'2023/10/17 01:01:01' union all select timestamp...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'2023/10/17 01:01:01' union all select timestamp'2023/10/16 02:01:01' union all select timestamp'2023/10/18 01:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 93:1: (select timestamp'2023/10/17 01:01:01' union all select timestam...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'2023/10/17 01:01:01' union all select timestamp'2023/10/17 01:01:01') union all (select timestamp'2023/10/16 02:01:01' union all select timestamp'2023/10/16 02:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 94:1: select timestamp'2023/10/17 01:01:01' union select timestamp'202...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/16 02:01:01' union select timestamp'2023/10/18 03:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 95:1: (select timestamp'2023/10/17 01:01:01' union select timestamp'20...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/17 01:01:01') union (select timestamp'2023/10/16 02:01:01' union select timestamp'2023/10/16 02:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 96:1: (select timestamp'2023/10/17 01:01:01' intersect select timestam...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'2023/10/17 01:01:01' intersect select timestamp'2023/10/17 01:01:01') intersect (select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/16 02:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 97:1: (select timestamp'2023/10/17 01:01:01' union select timestamp'20...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/19 03:00:00' union select timestamp'2023/10/20 04:00:00') except (select timestamp'2023/10/17 01:01:01' union select timestamp'2023/10/16 02:01:01');
@@ -5258,7 +5258,7 @@ dob
 OCTO> select testts.* from testts;
 id|dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 101:1: update testd set dob=date'2024/10/17' where dob=date'2023/10/17'...
                                  ^^^^^^^^^^^^^^^^
 OCTO> update testd set dob=date'2024/10/17' where dob=date'2023/10/17';
@@ -5268,7 +5268,7 @@ OCTO> update testt set tob=time'23:59:59' where tob=time'02:01:01';
 UPDATE 1
 OCTO> update testt set tob=tob;
 UPDATE 2
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17 23:59:59" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17 23:59:59" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 107:1: ...e testts set dob=timestamp'2024/10/17 23:59:59' where dob=timest...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> update testts set dob=timestamp'2024/10/17 23:59:59' where dob=timestamp'2023/10/16 02:01:01';
@@ -5285,13 +5285,13 @@ id|tob
 OCTO> select * from testts;
 id|dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 113:1: delete from testd where dob=date'2024/10/17';
                                         ^^^^^^^^^^^^^^^^
 OCTO> delete from testd where dob=date'2024/10/17';
 OCTO> delete from testt where tob=time'23:59:59';
 DELETE 1
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17 23:59:59" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2024/10/17 23:59:59" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 115:1: delete from testts where dob=timestamp'2024/10/17 23:59:59';
                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> delete from testts where dob=timestamp'2024/10/17 23:59:59';
@@ -5307,27 +5307,27 @@ id|dob
 (0 rows)
 OCTO> drop table if exists testdc;
 DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/18" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/18" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 121:1: ...d int, dob date UNIQUE, dod date CHECK(dod > date'2023/10/18'));
                                                             ^^^^^^^^^^^^^^^^
 OCTO> create table testdc (id int, dob date UNIQUE, dod date CHECK(dod > date'2023/10/18'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 122:1: insert into testdc values(1,date'2023/10/17',date'2023/10/18');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'2023/10/17',date'2023/10/18');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 123:1: insert into testdc values(1,date'2023/10/17',date'2023/10/19');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'2023/10/17',date'2023/10/19');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 124:1: insert into testdc values(1,date'2023/10/16',date'2023/10/19');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'2023/10/16',date'2023/10/19');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 125:1: insert into testdc values(1,date'2023/10/16',date'2023/10/19');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'2023/10/16',date'2023/10/19');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 LINE 126:1: update testdc set dod=date'2023/10/17';
                                   ^^^^^^^^^^^^^^^^
 OCTO> update testdc set dod=date'2023/10/17';
@@ -5356,27 +5356,27 @@ id|tob|tod
 (2 rows)
 OCTO> drop table if exists testtsc;
 DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/18 23:00:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/18 23:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 137:1: ...QUE, tod timestamp CHECK(tod < timestamp'2023/10/18 23:00:00'));
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table testtsc (id int, tob timestamp UNIQUE, tod timestamp CHECK(tod < timestamp'2023/10/18 23:00:00'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 138:1: ...testtsc values(1,timestamp'2023/10/17 01:01:01',timestamp'2023/1...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'2023/10/17 01:01:01',timestamp'2023/10/18 23:00:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/17 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 139:1: ...testtsc values(1,timestamp'2023/10/17 01:01:01',timestamp'2023/1...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'2023/10/17 01:01:01',timestamp'2023/10/17 22:00:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 01:02:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 01:02:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 140:1: ...testtsc values(1,timestamp'2023/10/16 01:02:01',timestamp'2023/1...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'2023/10/16 01:02:01',timestamp'2023/10/17 22:00:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 01:02:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/16 01:02:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 141:1: ...testtsc values(1,timestamp'2023/10/16 01:02:01',timestamp'2023/1...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'2023/10/16 01:02:01',timestamp'2023/10/17 22:00:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/18 23:00:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023/10/18 23:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 LINE 142:1: update testtsc set tod=timestamp'2023/10/18 23:00:00';
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> update testtsc set tod=timestamp'2023/10/18 23:00:00';
@@ -7111,11 +7111,11 @@ OCTO> drop table if exists testd;
 DROP TABLE
 OCTO> create table testd (id integer, dob date);
 CREATE TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 6:1: insert into testd values(1,date'17/10/2023');
                                      ^^^^^^^^^^^^^^^^
 OCTO> insert into testd values(1,date'17/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 7:1: insert into testd values(2,date'16/10/2023');
                                      ^^^^^^^^^^^^^^^^
 OCTO> insert into testd values(2,date'16/10/2023');
@@ -7139,11 +7139,11 @@ OCTO> drop table if exists testts;
 DROP TABLE
 OCTO> create table testts(id integer, dob timestamp);
 CREATE TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 18:1: insert into testts values(1, timestamp'17/10/2023 01:01:01');
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testts values(1, timestamp'17/10/2023 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 02:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 02:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 19:1: insert into testts values(2, timestamp'16/10/2023 02:01:01');
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testts values(2, timestamp'16/10/2023 02:01:01');
@@ -7182,7 +7182,7 @@ tob|firstname
 OCTO> select dob,firstname from testts,names;
 dob|firstname
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 30:1: select date'17/10/2023',firstname from names limit 1;
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'17/10/2023',firstname from names limit 1;
@@ -7190,7 +7190,7 @@ OCTO> select time'01:01:01',firstname from names limit 1;
 ???|firstname
 01:01:01|Zero
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 02:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 02:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 32:1: select timestamp'16/10/2023 02:01:01',firstname from names limit...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'16/10/2023 02:01:01',firstname from names limit 1;
@@ -7217,50 +7217,50 @@ count
 OCTO> select distinct dob from testd group by dob order by dob limit 1;
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 41:1: select distinct date'17/10/2023' from testd group by 1 order by ...
                            ^^^^^^^^^^^^^^^^
 OCTO> select distinct date'17/10/2023' from testd group by 1 order by 1 limit 1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 42:1: select column1 from (values(date'17/10/2023'));
                                        ^^^^^^^^^^^^^^^^
 OCTO> select column1 from (values(date'17/10/2023'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 43:1: values(date'17/10/2023');
                   ^^^^^^^^^^^^^^^^
 OCTO> values(date'17/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 44:1: select * from (select date'17/10/2023' union select date'16/10/2...
                                  ^^^^^^^^^^^^^^^^
 OCTO> select * from (select date'17/10/2023' union select date'16/10/2023');
 OCTO> select * from (select dob from testd union select dob from testd);
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 46:1: select date'17/10/2023' union select date'16/10/2023';
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'17/10/2023' union select date'16/10/2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 47:1: select date'17/10/2023' union all select date'16/10/2023' union ...
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'17/10/2023' union all select date'16/10/2023' union all select date'18/10/2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 48:1: (select date'17/10/2023' union all select date'17/10/2023') unio...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'17/10/2023' union all select date'17/10/2023') union all (select date'16/10/2023' union all select date'16/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 49:1: select date'17/10/2023' union select date'16/10/2023' union sele...
                   ^^^^^^^^^^^^^^^^
 OCTO> select date'17/10/2023' union select date'16/10/2023' union select date'18/10/2023';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 50:1: (select date'17/10/2023' union select date'17/10/2023') union (s...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'17/10/2023' union select date'17/10/2023') union (select date'16/10/2023' union select date'16/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 51:1: (select date'17/10/2023' intersect select date'17/10/2023') inte...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'17/10/2023' intersect select date'17/10/2023') intersect (select date'17/10/2023' union select date'16/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 52:1: (select date'17/10/2023' union select date'19/10/2023' union sel...
                    ^^^^^^^^^^^^^^^^
 OCTO> (select date'17/10/2023' union select date'19/10/2023' union select date'20/10/2023') except (select date'17/10/2023' union select date'16/10/2023');
@@ -7394,50 +7394,50 @@ count
 OCTO> select distinct dob from testts group by dob order by dob limit 1;
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 86:1: select distinct timestamp'17/10/2023 01:01:01' from testts group...
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select distinct timestamp'17/10/2023 01:01:01' from testts group by 1 order by 1 limit 1;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 87:1: select column1 from (values(timestamp'17/10/2023 01:01:01'));
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select column1 from (values(timestamp'17/10/2023 01:01:01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 88:1: values(timestamp'17/10/2023 01:01:01');
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> values(timestamp'17/10/2023 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 89:1: ...t * from (select timestamp'17/10/2023 01:01:01' union select tim...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select * from (select timestamp'17/10/2023 01:01:01' union select timestamp'16/10/2023 02:01:01');
 OCTO> select * from (select dob from testts union select dob from testts);
 dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 91:1: select timestamp'17/10/2023 01:01:01' union select timestamp'16/...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'17/10/2023 01:01:01' union select timestamp'16/10/2023 02:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 92:1: select timestamp'17/10/2023 01:01:01' union all select timestamp...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'17/10/2023 01:01:01' union all select timestamp'16/10/2023 02:01:01' union all select timestamp'18/10/2023 01:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 93:1: (select timestamp'17/10/2023 01:01:01' union all select timestam...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'17/10/2023 01:01:01' union all select timestamp'17/10/2023 01:01:01') union all (select timestamp'16/10/2023 02:01:01' union all select timestamp'16/10/2023 02:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 94:1: select timestamp'17/10/2023 01:01:01' union select timestamp'16/...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'17/10/2023 01:01:01' union select timestamp'16/10/2023 02:01:01' union select timestamp'18/10/2023 03:01:01';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 95:1: (select timestamp'17/10/2023 01:01:01' union select timestamp'17...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'17/10/2023 01:01:01' union select timestamp'17/10/2023 01:01:01') union (select timestamp'16/10/2023 02:01:01' union select timestamp'16/10/2023 02:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 96:1: (select timestamp'17/10/2023 01:01:01' intersect select timestam...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'17/10/2023 01:01:01' intersect select timestamp'17/10/2023 01:01:01') intersect (select timestamp'17/10/2023 01:01:01' union select timestamp'16/10/2023 02:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 97:1: (select timestamp'17/10/2023 01:01:01' union select timestamp'19...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> (select timestamp'17/10/2023 01:01:01' union select timestamp'19/10/2023 03:00:00' union select timestamp'20/10/2023 04:00:00') except (select timestamp'17/10/2023 01:01:01' union select timestamp'16/10/2023 02:01:01');
@@ -7448,7 +7448,7 @@ dob
 OCTO> select testts.* from testts;
 id|dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 101:1: update testd set dob=date'17/10/2023' where dob=date'17/10/2023'...
                                  ^^^^^^^^^^^^^^^^
 OCTO> update testd set dob=date'17/10/2023' where dob=date'17/10/2023';
@@ -7458,7 +7458,7 @@ OCTO> update testt set tob=time'23:59:59' where tob=time'02:01:01';
 UPDATE 1
 OCTO> update testt set tob=tob;
 UPDATE 2
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 23:59:59" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 23:59:59" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 107:1: ...e testts set dob=timestamp'17/10/2023 23:59:59' where dob=timest...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> update testts set dob=timestamp'17/10/2023 23:59:59' where dob=timestamp'16/10/2023 02:01:01';
@@ -7475,13 +7475,13 @@ id|tob
 OCTO> select * from testts;
 id|dob
 (0 rows)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 113:1: delete from testd where dob=date'17/10/2023';
                                         ^^^^^^^^^^^^^^^^
 OCTO> delete from testd where dob=date'17/10/2023';
 OCTO> delete from testt where tob=time'23:59:59';
 DELETE 1
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 23:59:59" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 23:59:59" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 115:1: delete from testts where dob=timestamp'17/10/2023 23:59:59';
                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> delete from testts where dob=timestamp'17/10/2023 23:59:59';
@@ -7497,27 +7497,27 @@ id|dob
 (0 rows)
 OCTO> drop table if exists testdc;
 DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "18/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "18/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 121:1: ...d int, dob date UNIQUE, dod date CHECK(dod > date'18/10/2023'));
                                                             ^^^^^^^^^^^^^^^^
 OCTO> create table testdc (id int, dob date UNIQUE, dod date CHECK(dod > date'18/10/2023'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 122:1: insert into testdc values(1,date'17/10/2023',date'18/10/2023');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'17/10/2023',date'18/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 123:1: insert into testdc values(1,date'17/10/2023',date'19/10/2023');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'17/10/2023',date'19/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 124:1: insert into testdc values(1,date'16/10/2023',date'19/10/2023');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'16/10/2023',date'19/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 125:1: insert into testdc values(1,date'16/10/2023',date'19/10/2023');
                                         ^^^^^^^^^^^^^^^^
 OCTO> insert into testdc values(1,date'16/10/2023',date'19/10/2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, DMY"
 LINE 126:1: update testdc set dod=date'17/10/2023';
                                   ^^^^^^^^^^^^^^^^
 OCTO> update testdc set dod=date'17/10/2023';
@@ -7546,27 +7546,27 @@ id|tob|tod
 (2 rows)
 OCTO> drop table if exists testtsc;
 DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "18/10/2023 23:00:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "18/10/2023 23:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 137:1: ...QUE, tod timestamp CHECK(tod < timestamp'18/10/2023 23:00:00'));
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table testtsc (id int, tob timestamp UNIQUE, tod timestamp CHECK(tod < timestamp'18/10/2023 23:00:00'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 138:1: ...testtsc values(1,timestamp'17/10/2023 01:01:01',timestamp'18/10/...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'17/10/2023 01:01:01',timestamp'18/10/2023 23:00:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "17/10/2023 01:01:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 139:1: ...testtsc values(1,timestamp'17/10/2023 01:01:01',timestamp'17/10/...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'17/10/2023 01:01:01',timestamp'17/10/2023 22:00:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 01:02:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 01:02:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 140:1: ...testtsc values(1,timestamp'16/10/2023 01:02:01',timestamp'17/10/...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'16/10/2023 01:02:01',timestamp'17/10/2023 22:00:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 01:02:01" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "16/10/2023 01:02:01" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 141:1: ...testtsc values(1,timestamp'16/10/2023 01:02:01',timestamp'17/10/...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into testtsc values(1,timestamp'16/10/2023 01:02:01',timestamp'17/10/2023 22:00:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "18/10/2023 23:00:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "18/10/2023 23:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, DMY"
 LINE 142:1: update testtsc set tod=timestamp'18/10/2023 23:00:00';
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> update testtsc set tod=timestamp'18/10/2023 23:00:00';

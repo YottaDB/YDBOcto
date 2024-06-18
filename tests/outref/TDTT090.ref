@@ -1,5 +1,5 @@
 OCTO> (select 'text') union (select date'2023-01-01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and VARCHAR cannot be matched
 LINE 2:1: (select date'2023-01-01') union (select 'text');
                   ^^^^^^^^^^^^^^^^
@@ -13,7 +13,7 @@ LINE 3:1: ...3-01-01') union (select date'2023-01-01') union (select 'text');
                                                                      ^^^^^^
 OCTO> (select date'2023-01-01') union (select date'2023-01-01') union (select 'text');
 OCTO> (select 'text') union (select date'2023-01-01') union (select date'2023-01-01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and VARCHAR cannot be matched
 LINE 5:1: ...3-01-01') union (select date'2023-01-01' union (select 'text'));
                                      ^^^^^^^^^^^^^^^^
@@ -21,9 +21,9 @@ LINE 5:1: ...3-01-01') union (select date'2023-01-01' union (select 'text'));
                                                                     ^^^^^^
 OCTO> (select date'2023-01-01') union (select date'2023-01-01' union (select 'text'));
 OCTO> (select 'text') union (select date'2023-01-01' union (select date'2023-01-01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'text') union (select time'01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and VARCHAR cannot be matched
 LINE 8:1: (select time'01:01:01') union (select 'text');
                   ^^^^^^^^^^^^^^
@@ -37,7 +37,7 @@ LINE 9:1: ...'01:01:01') union (select time'01:01:01') union (select 'text');
                                                                      ^^^^^^
 OCTO> (select time'01:01:01') union (select time'01:01:01') union (select 'text');
 OCTO> (select 'text') union (select time'01:01:01') union (select time'01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and VARCHAR cannot be matched
 LINE 11:1: ...'01:01:01') union (select time'01:01:01' union (select 'text'));
                                         ^^^^^^^^^^^^^^
@@ -45,9 +45,9 @@ LINE 11:1: ...'01:01:01') union (select time'01:01:01' union (select 'text'));
                                                                      ^^^^^^
 OCTO> (select time'01:01:01') union (select time'01:01:01' union (select 'text'));
 OCTO> (select 'text') union (select time'01:01:01' union (select time'01:01:01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIME and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'text') union (select timestamp'2023-01-01 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and VARCHAR cannot be matched
 LINE 14:1: (select timestamp'2023-01-01 01:01:01') union (select 'text');
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -61,7 +61,7 @@ LINE 15:1: ...n (select timestamp'2023-01-01 01:01:01') union (select 'text');
                                                                       ^^^^^^
 OCTO> (select timestamp'2023-01-01 01:01:01') union (select timestamp'2023-01-01 01:01:01') union (select 'text');
 OCTO> (select 'text') union (select timestamp'2023-01-01 01:01:01') union (select timestamp'2023-01-01 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and VARCHAR cannot be matched
 LINE 17:1: ...') union (select timestamp'2023-01-01 01:01:01' union (select 't...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -69,9 +69,9 @@ LINE 17:1: ...n (select timestamp'2023-01-01 01:01:01' union (select 'text'));
                                                                      ^^^^^^
 OCTO> (select timestamp'2023-01-01 01:01:01') union (select timestamp'2023-01-01 01:01:01' union (select 'text'));
 OCTO> (select 'text') union (select timestamp'2023-01-01 01:01:01' union (select timestamp'2023-01-01 01:01:01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'text') union (select timestamp with time zone'2023-01-01 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and VARCHAR cannot be matched
 LINE 20:1: (select timestamp with time zone'2023-01-01 01:01:01') union (s...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,7 +85,7 @@ LINE 21:1: ...tamp with time zone'2023-01-01 01:01:01') union (select 'text');
                                                                       ^^^^^^
 OCTO> (select timestamp with time zone'2023-01-01 01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01') union (select 'text');
 OCTO> (select 'text') union (select timestamp with time zone'2023-01-01 01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and VARCHAR cannot be matched
 LINE 23:1: ... (select timestamp with time zone'2023-01-01 01:01:01' union (s...
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -93,9 +93,9 @@ LINE 23:1: ...tamp with time zone'2023-01-01 01:01:01' union (select 'text'));
                                                                      ^^^^^^
 OCTO> (select timestamp with time zone'2023-01-01 01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01' union (select 'text'));
 OCTO> (select 'text') union (select timestamp with time zone'2023-01-01 01:01:01' union (select timestamp with time zone'2023-01-01 01:01:01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> (select 'text') union (select time with time zone'01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and VARCHAR cannot be matched
 LINE 26:1: (select time with time zone'01:01:01') union (select 'text');
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,7 +109,7 @@ LINE 27:1: ...on (select time with time zone'01:01:01') union (select 'text');
                                                                       ^^^^^^
 OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01') union (select 'text');
 OCTO> (select 'text') union (select time with time zone'01:01:01') union (select time with time zone'01:01:01');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and VARCHAR cannot be matched
 LINE 29:1: ...') union (select time with time zone'01:01:01' union (select 't...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -117,7 +117,7 @@ LINE 29:1: ...on (select time with time zone'01:01:01' union (select 'text'));
                                                                      ^^^^^^
 OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01' union (select 'text'));
 OCTO> (select 'text') union (select time with time zone'01:01:01' union (select time with time zone'01:01:01'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "text" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> 
 ==============
 column based test
@@ -127,12 +127,12 @@ create view v as (select firstname from names limit 1) union (select order_date 
 select * from v; -- error
 (select '2023-01-01') union (select order_date from orders limit 1); -- valid
 OCTO> (select firstname from names limit 1) union (select order_date from orders limit 1);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "Zero" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "Zero" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> -- error
 create view v as (select firstname from names limit 1) union (select order_date from orders limit 1);
 CREATE VIEW
 OCTO> select * from v;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "Zero" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "Zero" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> -- error
 (select '2023-01-01') union (select order_date from orders limit 1);
 ???

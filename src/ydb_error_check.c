@@ -434,7 +434,7 @@ void ydb_error_check(int status, char *file, int line) {
 			DATE_TIME_FORMAT_STRING(output_format, output_format_str);
 			assert(YDB_OK == status);
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_DATE_TIME_VALUE, ret_value.buf_addr,
-				 get_user_visible_type_string(type), output_format_str);
+				 get_user_visible_type_string(type), output_format_str, config->datestyle);
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE); /* Now that we have got the value, delete the M node */
 			YDB_FREE_BUFFER(&ret_buff);

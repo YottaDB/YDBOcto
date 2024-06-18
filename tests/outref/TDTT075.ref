@@ -10,7 +10,7 @@ id|dob
 (1 row)
 OCTO> -- 1|1088-10-03
 select date_to_fileman(dob) from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> -- ERR_INVALID_DATE_TIME_VALUE
 OCTO> #################################################################
 #								#
@@ -25,7 +25,7 @@ OCTO> #################################################################
 #################################################################
 
 select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> select date_to_fileman(dob) from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type DATE and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> 

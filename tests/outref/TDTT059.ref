@@ -87,5 +87,5 @@ date_to_fileman
 0010101
 (1 row)
 OCTO> select timestamp_to_fileman(timestamp(zut) '-27809392000000000');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003.005320" is invalid for type TIMESTAMP and format FILEMAN
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-6121003.005320" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> 

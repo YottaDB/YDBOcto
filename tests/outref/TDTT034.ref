@@ -92,11 +92,11 @@ select time'01:01:01'::VARCHAR;
 VARCHAR
 01:01:01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 11:1: select time with time zone'01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 13:2: select time with time zone'01:01:01 -5'::VARCHAR;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
@@ -121,23 +121,23 @@ OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR;
 VARCHAR
 2023-01-01 01:01:01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 21:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 22:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 23:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 24:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 25:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
@@ -166,11 +166,11 @@ select CAST(time'01:01:01' AS VARCHAR);
 VARCHAR
 01:01:01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 36:1: select CAST(time with time zone'01:01:01 -5' AS TIME);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(time with time zone'01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 38:2: select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
@@ -195,23 +195,23 @@ OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 VARCHAR
 2023-01-01 01:01:01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 46:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 47:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 48:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 49:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
@@ -933,11 +933,11 @@ select time'01:01:01'::VARCHAR;
 VARCHAR
 3661
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 11:1: select time with time zone'01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 13:2: select time with time zone'01:01:01 -5'::VARCHAR;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
@@ -962,23 +962,23 @@ OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR;
 VARCHAR
 66475,3661
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 21:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 22:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 23:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 24:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 25:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
@@ -1007,11 +1007,11 @@ select CAST(time'01:01:01' AS VARCHAR);
 VARCHAR
 3661
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 36:1: select CAST(time with time zone'01:01:01 -5' AS TIME);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(time with time zone'01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 38:2: select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
@@ -1036,23 +1036,23 @@ OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 VARCHAR
 66475,3661
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 46:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 47:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 48:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 49:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
@@ -1214,11 +1214,11 @@ select time'01:01:01'::VARCHAR;
 VARCHAR
 
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 11:1: select time with time zone'01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 13:2: select time with time zone'01:01:01 -5'::VARCHAR;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
@@ -1243,23 +1243,23 @@ OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR;
 VARCHAR
 3230101.010101
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 21:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 22:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 23:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 24:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 25:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
@@ -1288,11 +1288,11 @@ select CAST(time'01:01:01' AS VARCHAR);
 VARCHAR
 
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 36:1: select CAST(time with time zone'01:01:01 -5' AS TIME);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(time with time zone'01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type TIME WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 -5" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 38:2: select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
@@ -1317,23 +1317,23 @@ OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 VARCHAR
 3230101.010101
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 46:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 47:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 48:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 49:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);

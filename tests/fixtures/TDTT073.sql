@@ -10,6 +10,6 @@
 #								#
 #################################################################
 
-select timestamp with time zone'1-1-8805 15:14:11+13:56'; -- null result
-select timestamp with time zone'1-1-5989 2:39:22-09:02'; -- null result
+select timestamp with time zone'8805-1-1 15:14:11+13:56'; -- null result
+select timestamp with time zone'5989-1-1 2:39:22-09:02'; -- null result
 select timestamp(zhorolog) with time zone'1515026,83842,,44640'; -- error result

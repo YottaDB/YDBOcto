@@ -56,7 +56,7 @@ teardown() {
 	octo -vv -f TC030.sql > run3.out 2>&1
 	verify_plans_xrefs_gvns_triggers run3.out output.txt run3.ext
 
-	verify_output TC030 output.txt
+	verify_output TC030 output.txt nodatetimefilter
 }
 
 @test "TC031 : OCTO587 : SIG-11 when executing a lot of CREATE TABLE queries" {

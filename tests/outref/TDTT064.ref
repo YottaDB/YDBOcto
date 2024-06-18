@@ -73,17 +73,17 @@ show datestyle;
 set datestyle="dnd";
 show datestyle;
 OCTO> show datestyle;
-ISO, MDY
+ISO, YMD
 OCTO> set datestyle ='';
 OCTO> show datestyle;
-ISO, MDY
+ISO, YMD
 OCTO> set datestyle='asdf';
 [ERROR]: ERR_INVALID_DATESTYLE_VALUE: DATESTYLE value "asdf" is invalid
 OCTO> show datestyle;
-ISO, MDY
+ISO, YMD
 OCTO> set datestyle='ISO';
 OCTO> show datestyle;
-ISO, MDY
+ISO, YMD
 OCTO> set datestyle='MDY,ISO';
 OCTO> show datestyle;
 ISO, MDY
@@ -213,25 +213,25 @@ ISO, YMD
 OCTO> 
  datestyle 
 -----------
- ISO, MDY
+ ISO, YMD
 (1 row)
 
 SET
  datestyle 
 -----------
- ISO, MDY
+ ISO, YMD
 (1 row)
 
 SET
  datestyle 
 -----------
- ISO, MDY
+ ISO, YMD
 (1 row)
 
 SET
  datestyle 
 -----------
- ISO, MDY
+ ISO, YMD
 (1 row)
 
 SET

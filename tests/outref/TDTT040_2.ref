@@ -268,7 +268,7 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob date) global "^datetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00-01-0000" is invalid for type DATE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-00-01" is invalid for type DATE and format TEXT
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time) global "^timetext" readonly;
@@ -286,13 +286,13 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-0000 00:00:00.000000-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01 00:00:00.000000-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp) global "^timestamptext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-10000 00:00:00" is invalid for type TIMESTAMP and format TEXT
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010 00:00:00" is invalid for type TIMESTAMP and format TEXT
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;

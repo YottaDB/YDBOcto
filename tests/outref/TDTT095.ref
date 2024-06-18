@@ -1,17 +1,17 @@
 
-select timestamp with time zone '03-25-1868 08:33:14-12:45' as timestamptz_;
+select timestamp with time zone '1868-03-25 08:33:14-12:45' as timestamptz_;
 -- timestamptz_
 -- 1868-03-25 16:22:12-04:56:02
 -- (1 row)
-select timestamptz_to_fileman(timestamp with time zone '03-25-1868 08:33:14-12:45');
+select timestamptz_to_fileman(timestamp with time zone '1868-03-25 08:33:14-12:45');
 -- timestamptz_to_fileman
 -- 1680325.162212
 -- (1 row)
-select timestamptz_to_horolog(timestamp with time zone '03-25-1868 08:33:14-12:45');
+select timestamptz_to_horolog(timestamp with time zone '1868-03-25 08:33:14-12:45');
 -- timestamptz_to_horolog
 -- 9946,58932
 -- (1 row)
-select timestamptz_to_zhorolog(timestamp with time zone '03-25-1868 08:33:14-12:45');
+select timestamptz_to_zhorolog(timestamp with time zone '1868-03-25 08:33:14-12:45');
 -- timestamptz_to_zhorolog
 -- 9946,58932,,17760
 -- (1 row)
@@ -45,19 +45,19 @@ select timestamp with time zone '1868-03-25 16:22:12-04:56' = timestamp(fileman)
 -- 1
 -- (1 row)
 
-OCTO> select timestamp with time zone '03-25-1868 08:33:14-12:45' as timestamptz_;
+OCTO> select timestamp with time zone '1868-03-25 08:33:14-12:45' as timestamptz_;
 timestamptz_
 1868-03-25 16:22:12-04:56:02
 (1 row)
-OCTO> select timestamptz_to_fileman(timestamp with time zone '03-25-1868 08:33:14-12:45');
+OCTO> select timestamptz_to_fileman(timestamp with time zone '1868-03-25 08:33:14-12:45');
 timestamptz_to_fileman
 1680325.162212
 (1 row)
-OCTO> select timestamptz_to_horolog(timestamp with time zone '03-25-1868 08:33:14-12:45');
+OCTO> select timestamptz_to_horolog(timestamp with time zone '1868-03-25 08:33:14-12:45');
 timestamptz_to_horolog
 9946,58932
 (1 row)
-OCTO> select timestamptz_to_zhorolog(timestamp with time zone '03-25-1868 08:33:14-12:45');
+OCTO> select timestamptz_to_zhorolog(timestamp with time zone '1868-03-25 08:33:14-12:45');
 timestamptz_to_zhorolog
 9946,58932,,17762
 (1 row)

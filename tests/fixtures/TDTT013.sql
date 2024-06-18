@@ -14,11 +14,12 @@
 -- type value in text format the value is expected to be in output form set in datestyle (ISO - "YMD").
 create function samevalue(date) returns date as $$samevalue^functions;
 -- Because the return value is not in YMD format following selects result in ERROR
+set datestyle='mdy';
 select samevalue(date'01-01-2023');
 select samevalue(samevalue(date'01-01-2023'));
-set datestyle='ymd';
 -- As the implementation returns the input passed as is following selects work fine as the input
 -- is also in YMD format.
+set datestyle='ymd';
 select samevalue(samevalue(date'2023-01-01'));
 select samevalue(samevalue(samevalue(date'2023-01-01')));
 drop function samevalue(date);
@@ -27,8 +28,8 @@ create function samevalue(timestamp) returns timestamp as $$samevalue^functions;
 -- ERROR because of the reason explained for date type
 select samevalue(timestamp'01-01-2023 01:01:00');
 select samevalue(samevalue(timestamp'01-01-2023 01:01:00'));
-set datestyle='ymd';
 -- Valid because of the same reason explained for date type
+set datestyle='ymd';
 select samevalue(samevalue(timestamp'2023-01-01 01:01:00'));
 select samevalue(samevalue(samevalue(timestamp'2023-01-01 01:01:00')));
 drop function samevalue(timestamp);

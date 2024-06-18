@@ -42,9 +42,9 @@ select CAST(timestamp(horolog)'66475,3661'AS VARCHAR);
 
 -- More detailed tests
 select timestamp(horolog)'66475,3661'::time < time'01:02:01'; -- Should return `true`
-select timestamp(horolog)'66475,3661'::date < date'01-02-2023'; -- Should return `true`
+select timestamp(horolog)'66475,3661'::date < date'2023-01-02'; -- Should return `true`
 select (timestamp(horolog)'66475,3661'::date)::varchar ='2023-01-01'; -- Should return `true`
-select (timestamp(horolog)'66475,3661'::date) ='01-01-2023'::date; -- Should return `true`
+select (timestamp(horolog)'66475,3661'::date) ='2023-01-01'::date; -- Should return `true`
 
 select date(horolog)'66475'::VARCHAR(2);
 select date(horolog)'66475'::VARCHAR(3);

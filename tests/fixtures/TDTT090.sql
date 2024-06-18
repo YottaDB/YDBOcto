@@ -12,4 +12,4 @@
 (select firstname from names limit 1) union (select order_date from orders limit 1); -- error
 create view v as (select firstname from names limit 1) union (select order_date from orders limit 1);
 select * from v; -- error
-(select '01-01-2023') union (select order_date from orders limit 1); -- valid
+(select '2023-01-01') union (select order_date from orders limit 1); -- valid

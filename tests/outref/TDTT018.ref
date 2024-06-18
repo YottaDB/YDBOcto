@@ -1,12 +1,12 @@
 
-select date'01-01-2023' IS TRUE;
-select date'01-01-2023' IS FALSE;
-select date'01-01-2023' IS NULL;
-select date'01-01-2023' IS UNKNOWN;
-select date'01-01-2023' IS NOT TRUE;
-select date'01-01-2023' IS NOT FALSE;
-select date'01-01-2023' IS NOT NULL;
-select date'01-01-2023' IS NOT UNKNOWN;
+select date'2023-01-01' IS TRUE;
+select date'2023-01-01' IS FALSE;
+select date'2023-01-01' IS NULL;
+select date'2023-01-01' IS UNKNOWN;
+select date'2023-01-01' IS NOT TRUE;
+select date'2023-01-01' IS NOT FALSE;
+select date'2023-01-01' IS NOT NULL;
+select date'2023-01-01' IS NOT UNKNOWN;
 
 select time'01:01:01' IS TRUE;
 select time'01:01:01' IS FALSE;
@@ -26,67 +26,67 @@ select time with time zone'01:01:01 +1' IS NOT FALSE;
 select time with time zone'01:01:01 +1' IS NOT NULL;
 select time with time zone'01:01:01 +1' IS NOT UNKNOWN;
 
-select timestamp'01-01-2023 01:01:01' IS TRUE;
-select timestamp'01-01-2023 01:01:01' IS FALSE;
-select timestamp'01-01-2023 01:01:01' IS NULL;
-select timestamp'01-01-2023 01:01:01' IS UNKNOWN;
-select timestamp'01-01-2023 01:01:01' IS NOT TRUE;
-select timestamp'01-01-2023 01:01:01' IS NOT FALSE;
-select timestamp'01-01-2023 01:01:01' IS NOT NULL;
-select timestamp'01-01-2023 01:01:01' IS NOT UNKNOWN;
+select timestamp'2023-01-01 01:01:01' IS TRUE;
+select timestamp'2023-01-01 01:01:01' IS FALSE;
+select timestamp'2023-01-01 01:01:01' IS NULL;
+select timestamp'2023-01-01 01:01:01' IS UNKNOWN;
+select timestamp'2023-01-01 01:01:01' IS NOT TRUE;
+select timestamp'2023-01-01 01:01:01' IS NOT FALSE;
+select timestamp'2023-01-01 01:01:01' IS NOT NULL;
+select timestamp'2023-01-01 01:01:01' IS NOT UNKNOWN;
 
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS TRUE;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS FALSE;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS NULL;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS UNKNOWN;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT TRUE;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT FALSE;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT NULL;
-select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT UNKNOWN;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS TRUE;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS FALSE;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS NULL;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS UNKNOWN;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT TRUE;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT FALSE;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT NULL;
+select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right BOOLEAN
-LINE 2:1: select date'01-01-2023' IS TRUE;
+LINE 2:1: select date'2023-01-01' IS TRUE;
                  ^^^^^^^^^^^^^^^^
-LINE 2:1: select date'01-01-2023' IS TRUE;
+LINE 2:1: select date'2023-01-01' IS TRUE;
                                      ^^^^
-OCTO> select date'01-01-2023' IS TRUE;
+OCTO> select date'2023-01-01' IS TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right BOOLEAN
-LINE 3:1: select date'01-01-2023' IS FALSE;
+LINE 3:1: select date'2023-01-01' IS FALSE;
                  ^^^^^^^^^^^^^^^^
-LINE 3:1: select date'01-01-2023' IS FALSE;
+LINE 3:1: select date'2023-01-01' IS FALSE;
                                      ^^^^^
-OCTO> select date'01-01-2023' IS FALSE;
-OCTO> select date'01-01-2023' IS NULL;
+OCTO> select date'2023-01-01' IS FALSE;
+OCTO> select date'2023-01-01' IS NULL;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right BOOLEAN
-LINE 5:1: select date'01-01-2023' IS UNKNOWN;
+LINE 5:1: select date'2023-01-01' IS UNKNOWN;
                  ^^^^^^^^^^^^^^^^
-LINE 5:1: select date'01-01-2023' IS UNKNOWN;
+LINE 5:1: select date'2023-01-01' IS UNKNOWN;
                                      ^^^^^^^
-OCTO> select date'01-01-2023' IS UNKNOWN;
+OCTO> select date'2023-01-01' IS UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right BOOLEAN
-LINE 6:1: select date'01-01-2023' IS NOT TRUE;
+LINE 6:1: select date'2023-01-01' IS NOT TRUE;
                  ^^^^^^^^^^^^^^^^
-LINE 6:1: select date'01-01-2023' IS NOT TRUE;
+LINE 6:1: select date'2023-01-01' IS NOT TRUE;
                                          ^^^^
-OCTO> select date'01-01-2023' IS NOT TRUE;
+OCTO> select date'2023-01-01' IS NOT TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right BOOLEAN
-LINE 7:1: select date'01-01-2023' IS NOT FALSE;
+LINE 7:1: select date'2023-01-01' IS NOT FALSE;
                  ^^^^^^^^^^^^^^^^
-LINE 7:1: select date'01-01-2023' IS NOT FALSE;
+LINE 7:1: select date'2023-01-01' IS NOT FALSE;
                                          ^^^^^
-OCTO> select date'01-01-2023' IS NOT FALSE;
-OCTO> select date'01-01-2023' IS NOT NULL;
+OCTO> select date'2023-01-01' IS NOT FALSE;
+OCTO> select date'2023-01-01' IS NOT NULL;
 ???
 1
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right BOOLEAN
-LINE 9:1: select date'01-01-2023' IS NOT UNKNOWN;
+LINE 9:1: select date'2023-01-01' IS NOT UNKNOWN;
                  ^^^^^^^^^^^^^^^^
-LINE 9:1: select date'01-01-2023' IS NOT UNKNOWN;
+LINE 9:1: select date'2023-01-01' IS NOT UNKNOWN;
                                          ^^^^^^^
-OCTO> select date'01-01-2023' IS NOT UNKNOWN;
+OCTO> select date'2023-01-01' IS NOT UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right BOOLEAN
 LINE 11:1: select time'01:01:01' IS TRUE;
                   ^^^^^^^^^^^^^^
@@ -164,79 +164,79 @@ LINE 27:1: select time with time zone'01:01:01 +1' IS NOT UNKNOWN;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'01:01:01 +1' IS NOT UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right BOOLEAN
-LINE 29:1: select timestamp'01-01-2023 01:01:01' IS TRUE;
+LINE 29:1: select timestamp'2023-01-01 01:01:01' IS TRUE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 29:1: select timestamp'01-01-2023 01:01:01' IS TRUE;
+LINE 29:1: select timestamp'2023-01-01 01:01:01' IS TRUE;
                                                     ^^^^
-OCTO> select timestamp'01-01-2023 01:01:01' IS TRUE;
+OCTO> select timestamp'2023-01-01 01:01:01' IS TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right BOOLEAN
-LINE 30:1: select timestamp'01-01-2023 01:01:01' IS FALSE;
+LINE 30:1: select timestamp'2023-01-01 01:01:01' IS FALSE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 30:1: select timestamp'01-01-2023 01:01:01' IS FALSE;
+LINE 30:1: select timestamp'2023-01-01 01:01:01' IS FALSE;
                                                     ^^^^^
-OCTO> select timestamp'01-01-2023 01:01:01' IS FALSE;
-OCTO> select timestamp'01-01-2023 01:01:01' IS NULL;
+OCTO> select timestamp'2023-01-01 01:01:01' IS FALSE;
+OCTO> select timestamp'2023-01-01 01:01:01' IS NULL;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right BOOLEAN
-LINE 32:1: select timestamp'01-01-2023 01:01:01' IS UNKNOWN;
+LINE 32:1: select timestamp'2023-01-01 01:01:01' IS UNKNOWN;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 32:1: select timestamp'01-01-2023 01:01:01' IS UNKNOWN;
+LINE 32:1: select timestamp'2023-01-01 01:01:01' IS UNKNOWN;
                                                     ^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:01' IS UNKNOWN;
+OCTO> select timestamp'2023-01-01 01:01:01' IS UNKNOWN;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right BOOLEAN
-LINE 33:1: select timestamp'01-01-2023 01:01:01' IS NOT TRUE;
+LINE 33:1: select timestamp'2023-01-01 01:01:01' IS NOT TRUE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 33:1: select timestamp'01-01-2023 01:01:01' IS NOT TRUE;
+LINE 33:1: select timestamp'2023-01-01 01:01:01' IS NOT TRUE;
                                                         ^^^^
-OCTO> select timestamp'01-01-2023 01:01:01' IS NOT TRUE;
+OCTO> select timestamp'2023-01-01 01:01:01' IS NOT TRUE;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right BOOLEAN
-LINE 34:1: select timestamp'01-01-2023 01:01:01' IS NOT FALSE;
+LINE 34:1: select timestamp'2023-01-01 01:01:01' IS NOT FALSE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 34:1: select timestamp'01-01-2023 01:01:01' IS NOT FALSE;
+LINE 34:1: select timestamp'2023-01-01 01:01:01' IS NOT FALSE;
                                                         ^^^^^
-OCTO> select timestamp'01-01-2023 01:01:01' IS NOT FALSE;
-OCTO> select timestamp'01-01-2023 01:01:01' IS NOT NULL;
+OCTO> select timestamp'2023-01-01 01:01:01' IS NOT FALSE;
+OCTO> select timestamp'2023-01-01 01:01:01' IS NOT NULL;
 ???
 1
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right BOOLEAN
-LINE 36:1: select timestamp'01-01-2023 01:01:01' IS NOT UNKNOWN;
+LINE 36:1: select timestamp'2023-01-01 01:01:01' IS NOT UNKNOWN;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 36:1: select timestamp'01-01-2023 01:01:01' IS NOT UNKNOWN;
+LINE 36:1: select timestamp'2023-01-01 01:01:01' IS NOT UNKNOWN;
                                                         ^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:01' IS NOT UNKNOWN;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 38:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS TRUE;
+OCTO> select timestamp'2023-01-01 01:01:01' IS NOT UNKNOWN;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 38:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS TRUE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS TRUE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 39:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS FALSE...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS TRUE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 39:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS FALSE...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS FALSE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 40:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS NULL;
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS FALSE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 40:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS NULL;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS NULL;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 41:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS UNKNO...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS NULL;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 41:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS UNKNO...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS UNKNOWN;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 42:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT T...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS UNKNOWN;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 42:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT T...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT TRUE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 43:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT F...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT TRUE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 43:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT F...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT FALSE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 44:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT N...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT FALSE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 44:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT N...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT NULL;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 45:1: select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT U...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT NULL;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 45:1: select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT U...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 +1' IS NOT UNKNOWN;
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 +1' IS NOT UNKNOWN;
 OCTO> 

@@ -21,15 +21,15 @@ select (select distinct firstname from names group by firstname order by firstna
 
 -- Creating a dummy test table with date type column
 create table test (dob date);
-insert into test values(date'01-01-2023');
+insert into test values(date'2023-01-01');
 -- Following queries are expected to have internal to output format conversion routines
 select dob from test;
 select distinct dob from test group by dob limit 1;
 select distinct dob from test group by dob order by dob limit 1;
-select date'01-01-2023';
-select date'01-01-2023' group by 1;
-select date'01-01-2023' group by 1 order by 1;
+select date'2023-01-01';
+select date'2023-01-01' group by 1;
+select date'2023-01-01' group by 1 order by 1;
 select (select n2.dob from test n1 limit 1) from test n2;
-select date'01-01-2023'+1;
+select date'2023-01-01'+1;
 select dob,firstname from test,names;
 

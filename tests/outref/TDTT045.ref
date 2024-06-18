@@ -1,8 +1,8 @@
 
 create table test (id int primary key, dob date) global "^datetime(keys(""id""))" readonly;
 select dob from test limit 4;
-select dob from test where dob between date'01-01-2000' and date'01-01-3000';
-select dob from test where dob > date'01-01-2000' and dob < date'01-01-2500';
+select dob from test where dob between date'2000-01-01' and date'3000-01-01';
+select dob from test where dob > date'2000-01-01' and dob < date'2500-01-01';
 OCTO> create table test (id int primary key, dob date) global "^datetime(keys(""id""))" readonly;
 CREATE TABLE
 OCTO> select dob from test limit 4;
@@ -12,7 +12,7 @@ dob
 2002-03-03
 2003-04-04
 (4 rows)
-OCTO> select dob from test where dob between date'01-01-2000' and date'01-01-3000';
+OCTO> select dob from test where dob between date'2000-01-01' and date'3000-01-01';
 dob
 2000-01-01
 2001-02-02
@@ -5016,7 +5016,7 @@ dob
 2999-12-09
 2000-05-11
 (5001 rows)
-OCTO> select dob from test where dob > date'01-01-2000' and dob < date'01-01-2500';
+OCTO> select dob from test where dob > date'2000-01-01' and dob < date'2500-01-01';
 dob
 2001-02-02
 2002-03-03

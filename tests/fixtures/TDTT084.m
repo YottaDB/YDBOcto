@@ -263,11 +263,11 @@ genRandTimestampWithTimeZone();
 	quit
 
 genDate();
-	; 01-01-1840 to 12-31-2699
+	; 1840-01-01 to 2699-12-31
 	set month=$$genNum($random(12)+1,2)
 	set day=$$genNum($random(31)+1,2)
 	set year=1840+$$genNum($random(859+1),4)
-	set date=month_"-"_day_"-"_year
+	set date=year_"-"_month_"-"_day
 	quit date
 genTime();
 	; 00:00:00.000000 to 23:59:59.999999
@@ -281,10 +281,10 @@ genTimeWithTimeZone();
 	; 00:00:00.000000-15:59 to 23:59:59.999999+15:59
 	quit $$genTime_$$genTimeZone
 genTimestamp();
-	; 01-01-0000 00:00:00.000000 to 12-31-9999 23:59:59.999999
+	; 0000-01-01 00:00:00.000000 to 9999-12-31 23:59:59.999999
 	quit $$genDate_" "_$$genTime
 genTimestampWithTimeZone();
-	; 01-01-0000 00:00:00.000000-15:59 to 12-31-9999 23:59:59.999999+15:59 (01-JAN-0000 00:00:00.000000-15:59 to 31-DEC-9999 23:59:59.999999+15:59)
+	; 0000-01-01 00:00:00.000000-15:59 to 9999-12-31 23:59:59.999999+15:59 (01-JAN-0000 00:00:00.000000-15:59 to 31-DEC-9999 23:59:59.999999+15:59)
 	quit $$genTimestamp_$$genTimeZone
 
 genDateHorolog();
@@ -322,10 +322,10 @@ genTimestampWithTimeZoneZHorolog();
 	quit $$genDateOnlyZHorolog_","_$$genSecondOnlyZHorolog_","_$$genZHorologMicroSecond_","_$$genTimeZoneOnlyZHorolog
 
 genDateZUT();
-	; -4102444800000000 (01-01-1840) to 23036486400000000 (12-31-2699)
+	; -4102444800000000 (1840-01-01) to 23036486400000000 (2699-12-31)
 	quit $$genDateOnlyZUT_"00000000"
 genTimestampZUT();
-	; -4102444800000000 (01-01-1840 00:00:00.000000) to 253402300799999999(12-31-2699 23:59:59.999999)
+	; -4102444800000000 (1840-01-01 00:00:00.000000) to 253402300799999999(2699-12-31 23:59:59.999999)
 	quit $$genDateOnlyZUT_$$genNum($random(100000000),8)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

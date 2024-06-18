@@ -10,6 +10,7 @@
 #								#
 #################################################################
 
+set datestyle='MDY';
 create table testr(id int primary key, dob date(fileman)) GLOBAL "^date" readonly;
 select * from testr;
 select * from testr where dob > date'02-01-2023';
@@ -36,7 +37,7 @@ select t.id as t_id,f.id as f_id,t.dateofbirth,f.dateofbirth from txt t, flmn f 
 
 drop table if exists orders;
 create table orders (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders" READONLY;
-set datestyle="mdy";
+set datestyle='mdy';
 select * from orders where orders.order_date = DATE '03-14-1760';
 select * from orders where orders.order_date IN (DATE '03-14-1760');
 

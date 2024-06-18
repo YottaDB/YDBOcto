@@ -32,7 +32,6 @@ teardown() {
 }
 
 @test "TCTC003 : OCTO772 : Test various errors in CONSTRAINTS" {
-	echo "datestyle = \"ymd\"" > octo.conf
 	load_fixture TCTC003.sql subtest novv
 	verify_output TCTC003 output.txt
 }

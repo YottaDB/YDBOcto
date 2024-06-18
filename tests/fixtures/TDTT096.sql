@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
-select timestamp with time zone'01-01-0222 01:01:01';
-select timestamp with time zone'01-01-0222 01:01:01' || 'same ple';
-select 'sameple asd' || timestamp with time zone'01-01-0222 01:01:01' || 'samep pl';
-select timestamp with time zone'1-2-0830 3:19:2.74562-05:37';
+select timestamp with time zone'0222-01-01 01:01:01';
+select timestamp with time zone'0222-01-01 01:01:01' || 'same ple';
+select 'sameple asd' || timestamp with time zone'0222-01-01 01:01:01' || 'samep pl';
+select timestamp with time zone'0830-1-2 3:19:2.74562-05:37';

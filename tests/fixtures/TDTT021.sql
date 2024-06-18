@@ -235,7 +235,7 @@ select date'01.01.2023';
 select date'01/01-2023';
 select date'01/01-2023';
 select date'01-01-23';
-select date'2023-01-01';
+select date'01-01-2023';
 select date'01/01/2023';
 select date'0a-01-2023';
 select date'01-a-2023';
@@ -288,7 +288,7 @@ select timestamp'01.01.2023';
 select timestamp'01/01-2023';
 select timestamp'01/01-2023';
 select timestamp'01-01-23';
-select timestamp'2023-01-01';
+select timestamp'01-01-2023';
 select timestamp'01/01/2023';
 select timestamp'0a-01-2023';
 select timestamp'01-a-2023';
@@ -309,12 +309,12 @@ select timestamp with time zone'+';
 
 -- Valid syntax but value is having additional data not expected by the type
 -- Date should not be present
-select time '01-01-2023 11:00:00';
-select time without time zone '01-01-2023 11:00:00';
+select time '2023-01-01 11:00:00';
+select time without time zone '2023-01-01 11:00:00';
 
 -- Time zone information given to type not expecting time zone
 select time '11:00:00 -8:00';
 select time without time zone'11:00:00 -8:00';
-select timestamp'01-01-2023 11:00:00 -8:00';
-select timestamp without time zone'01-01-2023 11:00:00 -8:00';
+select timestamp'2023-01-01 11:00:00 -8:00';
+select timestamp without time zone'2023-01-01 11:00:00 -8:00';
 

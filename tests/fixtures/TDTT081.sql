@@ -12,36 +12,36 @@
 -- TDTT054
 select concat(time with time zone'01:01:01-05:00', 'sample text');
 select concat('sample text', time with time zone'01:01:01-05:00');
-select concat('sample text', date'01-01-2023', time with time zone'01:01:01-05:00');
-select concat(date'01-01-2023', 'sample text', time with time zone'01:01:01-05:00');
-select concat(date'01-01-2023', time with time zone'01:01:01-05:00', 'sample text');
+select concat('sample text', date'2023-01-01', time with time zone'01:01:01-05:00');
+select concat(date'2023-01-01', 'sample text', time with time zone'01:01:01-05:00');
+select concat(date'2023-01-01', time with time zone'01:01:01-05:00', 'sample text');
 select concat('sample text', time'01:01:01', time with time zone'01:01:01-05:00');
 select concat(time'01:01:01', 'sample text', time with time zone'01:01:01-05:00');
 select concat(time'01:01:01', time with time zone'01:01:01-05:00', 'sample text');
-select concat('sample text', timestamp'01-01-2023 01:01:01', time with time zone'01:01:01-05:00');
-select concat(timestamp'01-01-2023 01:01:01', 'sample text', time with time zone'01:01:01-05:00');
-select concat(timestamp'01-01-2023 01:01:01', time with time zone'01:01:01-05:00', 'sample text');
-select concat('sample text', time with time zone'01:01:01-05:00', date'01-01-2023');
-select concat(time with time zone'01:01:01-05:00', 'sample text', date'01-01-2023');
-select concat(time with time zone'01:01:01-05:00', date'01-01-2023', 'sample text');
+select concat('sample text', timestamp'2023-01-01 01:01:01', time with time zone'01:01:01-05:00');
+select concat(timestamp'2023-01-01 01:01:01', 'sample text', time with time zone'01:01:01-05:00');
+select concat(timestamp'2023-01-01 01:01:01', time with time zone'01:01:01-05:00', 'sample text');
+select concat('sample text', time with time zone'01:01:01-05:00', date'2023-01-01');
+select concat(time with time zone'01:01:01-05:00', 'sample text', date'2023-01-01');
+select concat(time with time zone'01:01:01-05:00', date'2023-01-01', 'sample text');
 select concat('sample text', time with time zone'01:01:01-05:00', time'01:01:01');
 select concat(time with time zone'01:01:01-05:00', 'sample text', time'01:01:01');
 select concat(time with time zone'01:01:01-05:00', time'01:01:01', 'sample text');
-select concat('sample text', time with time zone'01:01:01-05:00', timestamp'01-01-2023 01:01:01');
-select concat(time with time zone'01:01:01-05:00', 'sample text', timestamp'01-01-2023 01:01:01');
-select concat(time with time zone'01:01:01-05:00', timestamp'01-01-2023 01:01:01', 'sample text');
+select concat('sample text', time with time zone'01:01:01-05:00', timestamp'2023-01-01 01:01:01');
+select concat(time with time zone'01:01:01-05:00', 'sample text', timestamp'2023-01-01 01:01:01');
+select concat(time with time zone'01:01:01-05:00', timestamp'2023-01-01 01:01:01', 'sample text');
 select concat('sample text', time with time zone'01:01:01-05:00', time with time zone'01:01:01-05:00');
 select concat(time with time zone'01:01:01-05:00', 'sample text', time with time zone'01:01:01-05:00');
 select concat(time with time zone'01:01:01-05:00', time with time zone'01:01:01-05:00', 'sample text');
-select concat('sample text', time with time zone'01:01:01-05:00', timestamp with time zone'01-01-2023 01:01:01-05:00');
-select concat(time with time zone'01:01:01-05:00', 'sample text', timestamp with time zone'01-01-2023 01:01:01-05:00');
-select concat(time with time zone'01:01:01-05:00', timestamp with time zone'01-01-2023 01:01:01-05:00', 'sample text');
+select concat('sample text', time with time zone'01:01:01-05:00', timestamp with time zone'2023-01-01 01:01:01-05:00');
+select concat(time with time zone'01:01:01-05:00', 'sample text', timestamp with time zone'2023-01-01 01:01:01-05:00');
+select concat(time with time zone'01:01:01-05:00', timestamp with time zone'2023-01-01 01:01:01-05:00', 'sample text');
 select concat('sample text', time with time zone'01:01:01-05:00', 'sample text');
 select concat(time with time zone'01:01:01-05:00', 'sample text', 'sample text');
 select concat(time with time zone'01:01:01-05:00', 'sample text', 'sample text');
-select concat('sample text', timestamp with time zone'01-01-2023 01:01:01-05:00', time with time zone'01:01:01-05:00');
-select concat(timestamp with time zone'01-01-2023 01:01:01-05:00', 'sample text', time with time zone'01:01:01-05:00');
-select concat(timestamp with time zone'01-01-2023 01:01:01-05:00', time with time zone'01:01:01-05:00', 'sample text');
+select concat('sample text', timestamp with time zone'2023-01-01 01:01:01-05:00', time with time zone'01:01:01-05:00');
+select concat(timestamp with time zone'2023-01-01 01:01:01-05:00', 'sample text', time with time zone'01:01:01-05:00');
+select concat(timestamp with time zone'2023-01-01 01:01:01-05:00', time with time zone'01:01:01-05:00', 'sample text');
 -- TDTT053
 -- mysql test
 --select current_time; -- hh:mm:ss no micro second or time zone
@@ -247,7 +247,7 @@ select time'01:01:00'::TIME WITH TIME ZONE;
 select CAST(time'01:01:00' AS TIME WITH TIME ZONE);
 -- type:date format:
 create table TDTT005date (id integer, dob date );
-insert into TDTT005date values(1,date'01-01-2023');
+insert into TDTT005date values(1,date'2023-01-01');
 -- type:time format:
 create table TDTT005time (id integer, dob time );
 insert into TDTT005time values(1,time'01:01:01');
@@ -256,10 +256,10 @@ create table TDTT005timetz (id integer, dob time with time zone );
 insert into TDTT005timetz values(1,time with time zone'01:01:01+05:00');
 -- type:timestamp format:
 create table TDTT005timestamp (id integer, dob timestamp );
-insert into TDTT005timestamp values(1,timestamp'01-01-2023 01:01:01');
+insert into TDTT005timestamp values(1,timestamp'2023-01-01 01:01:01');
 -- type:timestamp with time zone format:
 create table TDTT005timestamptz (id integer, dob timestamp with time zone );
-insert into TDTT005timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+insert into TDTT005timestamptz values(1,timestamp with time zone'2023-01-01 01:01:01+05:00');
 select dob::TIME WITH TIME ZONE from TDTT005time n1;
 select CAST(dob AS TIME WITH TIME ZONE) from TDTT005time n1;
 select dob::TIME WITH TIME ZONE from TDTT005timetz n1;
@@ -276,16 +276,16 @@ drop table TDTT005timestamptz;
 -- TDTT008
 -- type:date format:
 create table TDTT008date (id integer, dob date );
-insert into TDTT008date values(1,date'01-01-2023');
+insert into TDTT008date values(1,date'2023-01-01');
 -- type:time format:
 create table TDTT008time (id integer, dob time );
 insert into TDTT008time values(1,time'01:01:01');
 -- type:timestamp format:
 create table TDTT008timestamp (id integer, dob timestamp );
-insert into TDTT008timestamp values(1,timestamp'01-01-2023 01:01:01');
+insert into TDTT008timestamp values(1,timestamp'2023-01-01 01:01:01');
 -- type:timestamp with time zone format:
 create table TDTT008timestamptz (id integer, dob timestamp with time zone );
-insert into TDTT008timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+insert into TDTT008timestamptz values(1,timestamp with time zone'2023-01-01 01:01:01+05:00');
 create table TDTT008timetz (id integer, dob time with time zone);
 insert into TDTT008timetz values (1,time with time zone'01:01:01-05');
 select CASE time with time zone'01:01:00-05:00' WHEN n1.dob THEN time with time zone'01:01:00-05:00' ELSE n1.dob END from TDTT008timetz n1;
@@ -303,16 +303,16 @@ drop table TDTT008timetz;
 drop table TDTT008timestamp;
 drop table TDTT008timestamptz;
 create table TDTT005date (id integer, dob date );
-insert into TDTT005date values(1,date'01-01-2023');
+insert into TDTT005date values(1,date'2023-01-01');
 create table TDTT005time (id integer, dob time );
 insert into TDTT005time values(1,time'01:01:01');
 -- type:time with time zone format:
 create table TDTT005timetz (id integer, dob time with time zone );
 insert into TDTT005timetz values(1,time with time zone'01:01:01+05:00');
 create table TDTT005timestamp (id integer, dob timestamp );
-insert into TDTT005timestamp values(1,timestamp'01-01-2023 01:01:01');
+insert into TDTT005timestamp values(1,timestamp'2023-01-01 01:01:01');
 create table TDTT005timestamptz (id integer, dob timestamp with time zone );
-insert into TDTT005timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+insert into TDTT005timestamptz values(1,timestamp with time zone'2023-01-01 01:01:01+05:00');
 select time with time zone'01:01:00-05:00' + n1.dob from TDTT005date n1;
 select time with time zone'01:01:00-05:00' + n1.dob from TDTT005time n1;
 select n1.dob + time with time zone'01:01:00-05:00' from TDTT005date n1;
@@ -357,9 +357,9 @@ select n1.dob <= ALL(select time with time zone'01:01:00-05:00') from TDTT005tim
 select n1.dob >= time with time zone'01:01:00-05:00' from TDTT005time n1;
 select n1.dob >= ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 select n1.dob >= ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
-select date'01-01-2023' + time with time zone'01:01:00-05:00';
+select date'2023-01-01' + time with time zone'01:01:00-05:00';
 select time'01:01:00' + time with time zone'01:01:00-05:00';
-select time with time zone'01:01:00-05:00' + date'01-01-2023';
+select time with time zone'01:01:00-05:00' + date'2023-01-01';
 select time with time zone'01:01:00-05:00' + time'01:01:00';
 select time'01:01:00' BETWEEN time with time zone'01:01:00-05:00' AND time'01:01:00';
 select time with time zone'01:01:00-05:00' BETWEEN time'01:01:00' AND time with time zone'01:01:00-05:00';
@@ -484,11 +484,11 @@ select n1.dob NOT IN (select time with time zone'01:01:00-05:00') from TDTT005ti
 select n1.dob NOT IN (time with time zone'01:01:00-05:00',n1.dob) from TDTT005timetz n1;
 select n1.dob NOT IN (select time with time zone'01:01:00-05:00') from TDTT005timetz n1;
 select time with time zone'01:01:00-05:00' - NULL;
-select date'01-01-2023' + n1.dob from TDTT005timetz n1;
+select date'2023-01-01' + n1.dob from TDTT005timetz n1;
 select time'01:01:00' + n1.dob from TDTT005timetz n1;
 select n1.dob + n2.dob from TDTT005date n1, TDTT005timetz n2;
 select n1.dob + n2.dob from TDTT005time n1, TDTT005timetz n2;
-select n1.dob + date'01-01-2023' from TDTT005timetz n1;
+select n1.dob + date'2023-01-01' from TDTT005timetz n1;
 select n1.dob + time'01:01:00' from TDTT005timetz n1;
 select n1.dob + n2.dob from TDTT005timetz n1, TDTT005date n2;
 select n1.dob + n2.dob from TDTT005timetz n1, TDTT005time n2;

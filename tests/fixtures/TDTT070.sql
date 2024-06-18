@@ -10,6 +10,6 @@
 #								#
 #################################################################
 
-select column1 from (values(date(horolog)'66764')); -- expected 10-17-2023
-select column1 from (values(date'10-17-2023')); -- expected 10-17-2023
+select column1 from (values(date(horolog)'66764')); -- expected 2023-10-17
+select column1 from (values(date'2023-10-17')); -- expected 2023-10-17
 

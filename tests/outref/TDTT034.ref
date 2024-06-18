@@ -1,8 +1,8 @@
 
-select date'01-01-2023'::DATE;
-select date'01-01-2023'::TIMESTAMP;
-select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
-select date'01-01-2023'::VARCHAR;
+select date'2023-01-01'::DATE;
+select date'2023-01-01'::TIMESTAMP;
+select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
+select date'2023-01-01'::VARCHAR;
 
 select time'01:01:01'::TIME;
 --select time'01:01:01'::TIME WITH TIME ZONE;
@@ -12,22 +12,22 @@ select time with time zone'01:01:01 -5'::TIME;
 --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
 select time with time zone'01:01:01 -5'::VARCHAR;
 
-select timestamp'01-01-2023 01:01:01'::DATE;
-select timestamp'01-01-2023 01:01:01'::TIME;
-select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
-select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
-select timestamp'01-01-2023 01:01:01'::VARCHAR;
+select timestamp'2023-01-01 01:01:01'::DATE;
+select timestamp'2023-01-01 01:01:01'::TIME;
+select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
+select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
+select timestamp'2023-01-01 01:01:01'::VARCHAR;
 
-select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
 
-select CAST(date'01-01-2023' AS DATE);
-select CAST(date'01-01-2023' AS TIMESTAMP);
-select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
-select CAST(date'01-01-2023' AS VARCHAR);
+select CAST(date'2023-01-01' AS DATE);
+select CAST(date'2023-01-01' AS TIMESTAMP);
+select CAST(date'2023-01-01' AS TIMESTAMP WITH TIME ZONE);
+select CAST(date'2023-01-01' AS VARCHAR);
 
 select CAST(time'01:01:01' AS TIME);
 --select CAST(time'01:01:01' AS TIME WITH TIME ZONE);
@@ -37,49 +37,49 @@ select CAST(time with time zone'01:01:01 -5' AS TIME);
 --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
 select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
 
-select CAST(timestamp'01-01-2023 01:01:01' AS DATE);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIME);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP WITH TIME ZONE);
-select CAST(timestamp'01-01-2023 01:01:01' AS VARCHAR);
+select CAST(timestamp'2023-01-01 01:01:01' AS DATE);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIME);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARCHAR);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
 
 -- More detailed tests
-select timestamp'01-01-2023 01:01:01'::time < time'01:02:01'; -- Should return `true`
-select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023'; -- Should return `true`
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023'; -- Should return `true` for text output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='66475'; -- Should return `true` for horolog output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='3230101'; -- Should return `true` for fileman output format
-select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date; -- Should return `true`
+select timestamp'2023-01-01 01:01:01'::time < time'01:02:01'; -- Should return `true`
+select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02'; -- Should return `true`
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01'; -- Should return `true` for text output format
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475'; -- Should return `true` for horolog output format
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101'; -- Should return `true` for fileman output format
+select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date; -- Should return `true`
 
-select '01-01-2023'::date;
-select '01-01-2023 01:01:01'::date;
+select '2023-01-01'::date;
+select '2023-01-01 01:01:01'::date;
 select '01:01:01'::time;
-select '01-01-2023 01:01:01'::timestamp;
+select '2023-01-01 01:01:01'::timestamp;
 
-select date'01-01-2023'::VARCHAR(2);
-select date'01-01-2023'::VARCHAR(3);
+select date'2023-01-01'::VARCHAR(2);
+select date'2023-01-01'::VARCHAR(3);
 select time'01:01:01'::VARCHAR(3);
-select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
+select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
 
-OCTO> select date'01-01-2023'::DATE;
+OCTO> select date'2023-01-01'::DATE;
 DATE
 2023-01-01
 (1 row)
-OCTO> select date'01-01-2023'::TIMESTAMP;
+OCTO> select date'2023-01-01'::TIMESTAMP;
 TIMESTAMP
 2023-01-01 00:00:00
 (1 row)
-OCTO> select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
+OCTO> select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
 TIMESTAMPTZ
 2023-01-01 00:00:00-05
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR;
+OCTO> select date'2023-01-01'::VARCHAR;
 VARCHAR
 2023-01-01
 (1 row)
@@ -101,59 +101,59 @@ LINE 13:2: select time with time zone'01:01:01 -5'::VARCHAR;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
 select time with time zone'01:01:01 -5'::VARCHAR;
-OCTO> select timestamp'01-01-2023 01:01:01'::DATE;
+OCTO> select timestamp'2023-01-01 01:01:01'::DATE;
 DATE
 2023-01-01
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIME;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIME;
 TIME
 01:01:01
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
 TIMESTAMP
 2023-01-01 01:01:01
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
 TIMESTAMPTZ
 2023-01-01 01:01:01-05
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::VARCHAR;
+OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR;
 VARCHAR
 2023-01-01 01:01:01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 21:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 21:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 22:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 22:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 23:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTA...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 23:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 24:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTA...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 24:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 25:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 25:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR;
-OCTO> select CAST(date'01-01-2023' AS DATE);
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
+OCTO> select CAST(date'2023-01-01' AS DATE);
 DATE
 2023-01-01
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS TIMESTAMP);
+OCTO> select CAST(date'2023-01-01' AS TIMESTAMP);
 TIMESTAMP
 2023-01-01 00:00:00
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
+OCTO> select CAST(date'2023-01-01' AS TIMESTAMP WITH TIME ZONE);
 TIMESTAMPTZ
 2023-01-01 00:00:00-05
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS VARCHAR);
+OCTO> select CAST(date'2023-01-01' AS VARCHAR);
 VARCHAR
 2023-01-01
 (1 row)
@@ -175,82 +175,82 @@ LINE 38:2: select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
 select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS DATE);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS DATE);
 DATE
 2023-01-01
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIME);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIME);
 TIME
 01:01:01
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP);
 TIMESTAMP
 2023-01-01 01:01:01
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP WITH TIME ZONE);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP WITH TIME ZONE);
 TIMESTAMPTZ
 2023-01-01 01:01:01-05
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS VARCHAR);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 VARCHAR
 2023-01-01 01:01:01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 46:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE...
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 46:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 47:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 47:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 48:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 48:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 49:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 49:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 50:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARC...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARCHAR);
-OCTO> select timestamp'01-01-2023 01:01:01'::time < time'01:02:01';
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
+OCTO> select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
-select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023';
+select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
 ???
-0
+1
 (1 row)
 OCTO> -- Should return `true` for text output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='66475';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475';
 ???
 0
 (1 row)
 OCTO> -- Should return `true` for horolog output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='3230101';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101';
 ???
 0
 (1 row)
 OCTO> -- Should return `true` for fileman output format
-select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date;
+select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
 
-select '01-01-2023'::date;
+select '2023-01-01'::date;
 DATE
 2023-01-01
 (1 row)
-OCTO> select '01-01-2023 01:01:01'::date;
+OCTO> select '2023-01-01 01:01:01'::date;
 DATE
 2023-01-01
 (1 row)
@@ -258,15 +258,15 @@ OCTO> select '01:01:01'::time;
 TIME
 01:01:01
 (1 row)
-OCTO> select '01-01-2023 01:01:01'::timestamp;
+OCTO> select '2023-01-01 01:01:01'::timestamp;
 TIMESTAMP
 2023-01-01 01:01:01
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR(2);
+OCTO> select date'2023-01-01'::VARCHAR(2);
 VARCHAR
 20
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR(3);
+OCTO> select date'2023-01-01'::VARCHAR(3);
 VARCHAR
 202
 (1 row)
@@ -274,7 +274,7 @@ OCTO> select time'01:01:01'::VARCHAR(3);
 VARCHAR
 01:
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
+OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
 VARCHAR
 202
 (1 row)
@@ -284,7 +284,7 @@ OCTO>
 # ----------------------------------------------------------------------------
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select date'01-01-2023'::DATE;
+;  select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -301,7 +301,302 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%m-%d-%Y")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,10)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date'2023-01-01'::TIMESTAMP;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true` for fileman output format
+;  select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
+    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d",6)
+    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select time'01:01:01'::VARCHAR(3);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),18,%ydboctodatetimeoutputformat,"%H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select time'01:01:01'::TIME;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),18,7)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date'2023-01-01'::VARCHAR;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select '2023-01-01 01:01:01'::timestamp;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
+    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d %H:%M:%S",9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
+    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date'2023-01-01'::DATE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,6)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -310,8 +605,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  -- Should return `true`
-;  select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023';
+;  select timestamp'2023-01-01 01:01:01'::VARCHAR;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -328,10 +622,61 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,10)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%m-%d-%Y")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,"%H:%M:%S")
     . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
@@ -339,7 +684,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select date'01-01-2023'::VARCHAR(2);
+;  select date'2023-01-01'::VARCHAR(2);
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -356,7 +701,7 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%m-%d-%Y")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d"),$GET(%ydboctocursor(cursorId,"parameters",2)))
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
@@ -390,63 +735,6 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::TIME;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  -- Should return `true` for fileman output format
-;  select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
-    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%m-%d-%Y",6)
-    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  --select time'01:01:01'::TIME WITH TIME ZONE;
 ;  select time'01:01:01'::VARCHAR;
 ;; ---------------------------------------------------------
@@ -473,7 +761,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::VARCHAR;
+;  select timestamp'2023-01-01 01:01:01'::TIME;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -490,194 +778,9 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select time'01:01:01'::VARCHAR(3);
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18,"%H:%M:%S")
-    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),18,%ydboctodatetimeoutputformat,"%H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::time < time'01:02:01';
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
-    . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,"%H:%M:%S")
-    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select '01-01-2023 01:01:01'::timestamp;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%m-%d-%Y %H:%M:%S",9)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,10)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  -- Should return `true`
-;  select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023';
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::DATE;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -686,7 +789,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 ;  -- Should return `true`
 ;  
-;  select '01-01-2023'::date;
+;  select '2023-01-01'::date;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -704,7 +807,7 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%m-%d-%Y",6)
+    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d",6)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
@@ -712,7 +815,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select date'01-01-2023'::VARCHAR;
+;  select timestamp'2023-01-01 01:01:01'::DATE;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -729,121 +832,18 @@ octoPlan1(cursorId)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%m-%d-%Y")
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,9)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%m-%d-%Y")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,10)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select date'01-01-2023'::TIMESTAMP;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%m-%d-%Y")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,9)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select time'01:01:01'::TIME;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),18,"%H:%M:%S")
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),18,7)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
 
-select date'01-01-2023'::DATE;
-select date'01-01-2023'::TIMESTAMP;
-select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
-select date'01-01-2023'::VARCHAR;
+select date'2023-01-01'::DATE;
+select date'2023-01-01'::TIMESTAMP;
+select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
+select date'2023-01-01'::VARCHAR;
 
 select time'01:01:01'::TIME;
 --select time'01:01:01'::TIME WITH TIME ZONE;
@@ -853,22 +853,22 @@ select time with time zone'01:01:01 -5'::TIME;
 --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
 select time with time zone'01:01:01 -5'::VARCHAR;
 
-select timestamp'01-01-2023 01:01:01'::DATE;
-select timestamp'01-01-2023 01:01:01'::TIME;
-select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
-select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
-select timestamp'01-01-2023 01:01:01'::VARCHAR;
+select timestamp'2023-01-01 01:01:01'::DATE;
+select timestamp'2023-01-01 01:01:01'::TIME;
+select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
+select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
+select timestamp'2023-01-01 01:01:01'::VARCHAR;
 
-select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
 
-select CAST(date'01-01-2023' AS DATE);
-select CAST(date'01-01-2023' AS TIMESTAMP);
-select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
-select CAST(date'01-01-2023' AS VARCHAR);
+select CAST(date'2023-01-01' AS DATE);
+select CAST(date'2023-01-01' AS TIMESTAMP);
+select CAST(date'2023-01-01' AS TIMESTAMP WITH TIME ZONE);
+select CAST(date'2023-01-01' AS VARCHAR);
 
 select CAST(time'01:01:01' AS TIME);
 --select CAST(time'01:01:01' AS TIME WITH TIME ZONE);
@@ -878,49 +878,49 @@ select CAST(time with time zone'01:01:01 -5' AS TIME);
 --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
 select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
 
-select CAST(timestamp'01-01-2023 01:01:01' AS DATE);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIME);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP WITH TIME ZONE);
-select CAST(timestamp'01-01-2023 01:01:01' AS VARCHAR);
+select CAST(timestamp'2023-01-01 01:01:01' AS DATE);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIME);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARCHAR);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
 
 -- More detailed tests
-select timestamp'01-01-2023 01:01:01'::time < time'01:02:01'; -- Should return `true`
-select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023'; -- Should return `true`
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023'; -- Should return `true` for text output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='66475'; -- Should return `true` for horolog output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='3230101'; -- Should return `true` for fileman output format
-select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date; -- Should return `true`
+select timestamp'2023-01-01 01:01:01'::time < time'01:02:01'; -- Should return `true`
+select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02'; -- Should return `true`
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01'; -- Should return `true` for text output format
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475'; -- Should return `true` for horolog output format
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101'; -- Should return `true` for fileman output format
+select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date; -- Should return `true`
 
-select '01-01-2023'::date;
-select '01-01-2023 01:01:01'::date;
+select '2023-01-01'::date;
+select '2023-01-01 01:01:01'::date;
 select '01:01:01'::time;
-select '01-01-2023 01:01:01'::timestamp;
+select '2023-01-01 01:01:01'::timestamp;
 
-select date'01-01-2023'::VARCHAR(2);
-select date'01-01-2023'::VARCHAR(3);
+select date'2023-01-01'::VARCHAR(2);
+select date'2023-01-01'::VARCHAR(3);
 select time'01:01:01'::VARCHAR(3);
-select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
+select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
 
-OCTO> select date'01-01-2023'::DATE;
+OCTO> select date'2023-01-01'::DATE;
 DATE
 66475
 (1 row)
-OCTO> select date'01-01-2023'::TIMESTAMP;
+OCTO> select date'2023-01-01'::TIMESTAMP;
 TIMESTAMP
 66475,0
 (1 row)
-OCTO> select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
+OCTO> select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
 TIMESTAMPTZ
 66475,0
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR;
+OCTO> select date'2023-01-01'::VARCHAR;
 VARCHAR
 66475
 (1 row)
@@ -942,59 +942,59 @@ LINE 13:2: select time with time zone'01:01:01 -5'::VARCHAR;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
 select time with time zone'01:01:01 -5'::VARCHAR;
-OCTO> select timestamp'01-01-2023 01:01:01'::DATE;
+OCTO> select timestamp'2023-01-01 01:01:01'::DATE;
 DATE
 66475
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIME;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIME;
 TIME
 3661
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
 TIMESTAMP
 66475,3661
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
 TIMESTAMPTZ
 66475,3661
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::VARCHAR;
+OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR;
 VARCHAR
 66475,3661
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 21:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 21:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 22:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 22:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 23:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTA...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 23:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 24:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTA...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 24:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 25:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 25:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR;
-OCTO> select CAST(date'01-01-2023' AS DATE);
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
+OCTO> select CAST(date'2023-01-01' AS DATE);
 DATE
 66475
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS TIMESTAMP);
+OCTO> select CAST(date'2023-01-01' AS TIMESTAMP);
 TIMESTAMP
 66475,0
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
+OCTO> select CAST(date'2023-01-01' AS TIMESTAMP WITH TIME ZONE);
 TIMESTAMPTZ
 66475,0
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS VARCHAR);
+OCTO> select CAST(date'2023-01-01' AS VARCHAR);
 VARCHAR
 66475
 (1 row)
@@ -1016,82 +1016,82 @@ LINE 38:2: select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
 select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS DATE);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS DATE);
 DATE
 66475
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIME);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIME);
 TIME
 3661
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP);
 TIMESTAMP
 66475,3661
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP WITH TIME ZONE);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP WITH TIME ZONE);
 TIMESTAMPTZ
 66475,3661
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS VARCHAR);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 VARCHAR
 66475,3661
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 46:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE...
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 46:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 47:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 47:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 48:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 48:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 49:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 49:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 50:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARC...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARCHAR);
-OCTO> select timestamp'01-01-2023 01:01:01'::time < time'01:02:01';
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
+OCTO> select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
-select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023';
+select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
 ???
 0
 (1 row)
 OCTO> -- Should return `true` for text output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='66475';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475';
 ???
 1
 (1 row)
 OCTO> -- Should return `true` for horolog output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='3230101';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101';
 ???
 0
 (1 row)
 OCTO> -- Should return `true` for fileman output format
-select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date;
+select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
 
-select '01-01-2023'::date;
+select '2023-01-01'::date;
 DATE
 66475
 (1 row)
-OCTO> select '01-01-2023 01:01:01'::date;
+OCTO> select '2023-01-01 01:01:01'::date;
 DATE
 66475
 (1 row)
@@ -1099,15 +1099,15 @@ OCTO> select '01:01:01'::time;
 TIME
 3661
 (1 row)
-OCTO> select '01-01-2023 01:01:01'::timestamp;
+OCTO> select '2023-01-01 01:01:01'::timestamp;
 TIMESTAMP
 66475,3661
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR(2);
+OCTO> select date'2023-01-01'::VARCHAR(2);
 VARCHAR
 66
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR(3);
+OCTO> select date'2023-01-01'::VARCHAR(3);
 VARCHAR
 664
 (1 row)
@@ -1115,16 +1115,16 @@ OCTO> select time'01:01:01'::VARCHAR(3);
 VARCHAR
 366
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
+OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
 VARCHAR
 664
 (1 row)
 OCTO> 
 
-select date'01-01-2023'::DATE;
-select date'01-01-2023'::TIMESTAMP;
-select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
-select date'01-01-2023'::VARCHAR;
+select date'2023-01-01'::DATE;
+select date'2023-01-01'::TIMESTAMP;
+select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
+select date'2023-01-01'::VARCHAR;
 
 select time'01:01:01'::TIME;
 --select time'01:01:01'::TIME WITH TIME ZONE;
@@ -1134,22 +1134,22 @@ select time with time zone'01:01:01 -5'::TIME;
 --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
 select time with time zone'01:01:01 -5'::VARCHAR;
 
-select timestamp'01-01-2023 01:01:01'::DATE;
-select timestamp'01-01-2023 01:01:01'::TIME;
-select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
-select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
-select timestamp'01-01-2023 01:01:01'::VARCHAR;
+select timestamp'2023-01-01 01:01:01'::DATE;
+select timestamp'2023-01-01 01:01:01'::TIME;
+select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
+select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
+select timestamp'2023-01-01 01:01:01'::VARCHAR;
 
-select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
+select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
 
-select CAST(date'01-01-2023' AS DATE);
-select CAST(date'01-01-2023' AS TIMESTAMP);
-select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
-select CAST(date'01-01-2023' AS VARCHAR);
+select CAST(date'2023-01-01' AS DATE);
+select CAST(date'2023-01-01' AS TIMESTAMP);
+select CAST(date'2023-01-01' AS TIMESTAMP WITH TIME ZONE);
+select CAST(date'2023-01-01' AS VARCHAR);
 
 select CAST(time'01:01:01' AS TIME);
 --select CAST(time'01:01:01' AS TIME WITH TIME ZONE);
@@ -1159,49 +1159,49 @@ select CAST(time with time zone'01:01:01 -5' AS TIME);
 --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
 select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
 
-select CAST(timestamp'01-01-2023 01:01:01' AS DATE);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIME);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP);
-select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP WITH TIME ZONE);
-select CAST(timestamp'01-01-2023 01:01:01' AS VARCHAR);
+select CAST(timestamp'2023-01-01 01:01:01' AS DATE);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIME);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP);
+select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARCHAR);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
+select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
 
 -- More detailed tests
-select timestamp'01-01-2023 01:01:01'::time < time'01:02:01'; -- Should return `true`
-select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023'; -- Should return `true`
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023'; -- Should return `true` for text output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='66475'; -- Should return `true` for horolog output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='3230101'; -- Should return `true` for fileman output format
-select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date; -- Should return `true`
+select timestamp'2023-01-01 01:01:01'::time < time'01:02:01'; -- Should return `true`
+select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02'; -- Should return `true`
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01'; -- Should return `true` for text output format
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475'; -- Should return `true` for horolog output format
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101'; -- Should return `true` for fileman output format
+select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date; -- Should return `true`
 
-select '01-01-2023'::date;
-select '01-01-2023 01:01:01'::date;
+select '2023-01-01'::date;
+select '2023-01-01 01:01:01'::date;
 select '01:01:01'::time;
-select '01-01-2023 01:01:01'::timestamp;
+select '2023-01-01 01:01:01'::timestamp;
 
-select date'01-01-2023'::VARCHAR(2);
-select date'01-01-2023'::VARCHAR(3);
+select date'2023-01-01'::VARCHAR(2);
+select date'2023-01-01'::VARCHAR(3);
 select time'01:01:01'::VARCHAR(3);
-select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
+select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
 
-OCTO> select date'01-01-2023'::DATE;
+OCTO> select date'2023-01-01'::DATE;
 DATE
 3230101
 (1 row)
-OCTO> select date'01-01-2023'::TIMESTAMP;
+OCTO> select date'2023-01-01'::TIMESTAMP;
 TIMESTAMP
 3230101.000000
 (1 row)
-OCTO> select date'01-01-2023'::TIMESTAMP WITH TIME ZONE;
+OCTO> select date'2023-01-01'::TIMESTAMP WITH TIME ZONE;
 TIMESTAMPTZ
 3230101.000000
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR;
+OCTO> select date'2023-01-01'::VARCHAR;
 VARCHAR
 3230101
 (1 row)
@@ -1223,59 +1223,59 @@ LINE 13:2: select time with time zone'01:01:01 -5'::VARCHAR;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select time with time zone'01:01:01 -5'::TIME WITH TIME ZONE;
 select time with time zone'01:01:01 -5'::VARCHAR;
-OCTO> select timestamp'01-01-2023 01:01:01'::DATE;
+OCTO> select timestamp'2023-01-01 01:01:01'::DATE;
 DATE
 3230101
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIME;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIME;
 TIME
 
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIMESTAMP;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIMESTAMP;
 TIMESTAMP
 3230101.010101
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::TIMESTAMP WITH TIME ZONE;
+OCTO> select timestamp'2023-01-01 01:01:01'::TIMESTAMP WITH TIME ZONE;
 TIMESTAMPTZ
 3230101.010101
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::VARCHAR;
+OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR;
 VARCHAR
 3230101.010101
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 21:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 21:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::DATE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 22:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::DATE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 22:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIME;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 23:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTA...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIME;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 23:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 24:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTA...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 24:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTA...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 25:1: select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR...
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::TIMESTAMP WITH TIME ZONE;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 25:1: select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:01 -5'::VARCHAR;
-OCTO> select CAST(date'01-01-2023' AS DATE);
+OCTO> select timestamp with time zone'2023-01-01 01:01:01 -5'::VARCHAR;
+OCTO> select CAST(date'2023-01-01' AS DATE);
 DATE
 3230101
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS TIMESTAMP);
+OCTO> select CAST(date'2023-01-01' AS TIMESTAMP);
 TIMESTAMP
 3230101.000000
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS TIMESTAMP WITH TIME ZONE);
+OCTO> select CAST(date'2023-01-01' AS TIMESTAMP WITH TIME ZONE);
 TIMESTAMPTZ
 3230101.000000
 (1 row)
-OCTO> select CAST(date'01-01-2023' AS VARCHAR);
+OCTO> select CAST(date'2023-01-01' AS VARCHAR);
 VARCHAR
 3230101
 (1 row)
@@ -1297,82 +1297,82 @@ LINE 38:2: select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> --select CAST(time with time zone'01:01:01 -5' AS TIME WITH TIME ZONE);
 select CAST(time with time zone'01:01:01 -5' AS VARCHAR);
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS DATE);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS DATE);
 DATE
 3230101
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIME);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIME);
 TIME
 
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP);
 TIMESTAMP
 3230101.010101
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS TIMESTAMP WITH TIME ZONE);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS TIMESTAMP WITH TIME ZONE);
 TIMESTAMPTZ
 3230101.010101
 (1 row)
-OCTO> select CAST(timestamp'01-01-2023 01:01:01' AS VARCHAR);
+OCTO> select CAST(timestamp'2023-01-01 01:01:01' AS VARCHAR);
 VARCHAR
 3230101.010101
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 46:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE...
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 46:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS DATE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 47:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS DATE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 47:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 48:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 48:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 49:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIME...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 49:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIME...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 50:1: ...ct CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARC...
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS TIMESTAMP WITH TIME ZONE);
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 -5" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC...
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select CAST(timestamp with time zone'01-01-2023 01:01:01 -5' AS VARCHAR);
-OCTO> select timestamp'01-01-2023 01:01:01'::time < time'01:02:01';
+OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
+OCTO> select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
-select timestamp'01-01-2023 01:01:01'::date < date'01-02-2023';
+select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='01-01-2023';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
 ???
 0
 (1 row)
 OCTO> -- Should return `true` for text output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='66475';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475';
 ???
 0
 (1 row)
 OCTO> -- Should return `true` for horolog output format
-select (timestamp'01-01-2023 01:01:01'::date)::varchar ='3230101';
+select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101';
 ???
 1
 (1 row)
 OCTO> -- Should return `true` for fileman output format
-select (timestamp'01-01-2023 01:01:01'::date) ='01-01-2023'::date;
+select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
 ???
 1
 (1 row)
 OCTO> -- Should return `true`
 
-select '01-01-2023'::date;
+select '2023-01-01'::date;
 DATE
 3230101
 (1 row)
-OCTO> select '01-01-2023 01:01:01'::date;
+OCTO> select '2023-01-01 01:01:01'::date;
 DATE
 3230101
 (1 row)
@@ -1380,15 +1380,15 @@ OCTO> select '01:01:01'::time;
 TIME
 
 (1 row)
-OCTO> select '01-01-2023 01:01:01'::timestamp;
+OCTO> select '2023-01-01 01:01:01'::timestamp;
 TIMESTAMP
 3230101.010101
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR(2);
+OCTO> select date'2023-01-01'::VARCHAR(2);
 VARCHAR
 32
 (1 row)
-OCTO> select date'01-01-2023'::VARCHAR(3);
+OCTO> select date'2023-01-01'::VARCHAR(3);
 VARCHAR
 323
 (1 row)
@@ -1396,7 +1396,7 @@ OCTO> select time'01:01:01'::VARCHAR(3);
 VARCHAR
 
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:01'::VARCHAR(3);
+OCTO> select timestamp'2023-01-01 01:01:01'::VARCHAR(3);
 VARCHAR
 323
 (1 row)

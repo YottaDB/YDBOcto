@@ -1,7 +1,7 @@
 
-select timestamp'01-01-2023';
-select timestamp with time zone'01-01-2023 01:01:01';
-select timestamp with time zone'01-01-2023';
+select timestamp'2023-01-01';
+select timestamp with time zone'2023-01-01 01:01:01';
+select timestamp with time zone'2023-01-01';
 
 select timestamp(fileman)'3230101';
 select timestamp(fileman)'3230101.';
@@ -32,15 +32,15 @@ create table TDTT071tzzho (id integer primary key, dob timestamp(zhorolog) with 
 select * from TDTT071tzzho;
 
 
-OCTO> select timestamp'01-01-2023';
+OCTO> select timestamp'2023-01-01';
 ???
 2023-01-01 00:00:00
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:01';
+OCTO> select timestamp with time zone'2023-01-01 01:01:01';
 ???
 2023-01-01 01:01:01-05
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023';
+OCTO> select timestamp with time zone'2023-01-01';
 ???
 2023-01-01 00:00:00-05
 (1 row)

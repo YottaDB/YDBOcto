@@ -9,10 +9,10 @@ select date(zut) '-27809392000000000'::timestamp(fileman);
 select date(zut) '-27809392000000000'::timestamp(zhorolog) with time zone;
 select date(zut) '-27809392000000000'::time(zhorolog);
 select date(zut) '-27809392000000000'::time(zhorolog) with time zone;
-(select 'tex.+ EN-;t') union (select date'01-01-2023');
-(select 'tex.3 EN-filem;t') union (select date'01-01-2023');
-(select 'tex.3 EN-sele;t') union (select date'01-01-2023');
-(select 'tex.testtsc3 EN-;t') union (select date'01-01-2023');
+(select 'tex.+ EN-;t') union (select date'2023-01-01');
+(select 'tex.3 EN-filem;t') union (select date'2023-01-01');
+(select 'tex.3 EN-sele;t') union (select date'2023-01-01');
+(select 'tex.testtsc3 EN-;t') union (select date'2023-01-01');
 select (timestamp(horolog)'66475,3661'::date) ='01.01-2-2\277'::date;
 [ERROR]: ERR_TYPE_CAST: Cannot cast type NUMERIC to type DATE
 LINE 2:1: select 1.0::date;
@@ -50,13 +50,13 @@ OCTO> select date(zut) '-27809392000000000'::time(zhorolog);
 LINE 10:1: ... date(zut) '-27809392000000000'::time(zhorolog) with time zone;
                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut) '-27809392000000000'::time(zhorolog) with time zone;
-OCTO> (select 'tex.+ EN-;t') union (select date'01-01-2023');
+OCTO> (select 'tex.+ EN-;t') union (select date'2023-01-01');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.+ EN-;t" is invalid for type DATE and format TEXT
-OCTO> (select 'tex.3 EN-filem;t') union (select date'01-01-2023');
+OCTO> (select 'tex.3 EN-filem;t') union (select date'2023-01-01');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-filem;t" is invalid for type DATE and format TEXT
-OCTO> (select 'tex.3 EN-sele;t') union (select date'01-01-2023');
+OCTO> (select 'tex.3 EN-sele;t') union (select date'2023-01-01');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.3 EN-sele;t" is invalid for type DATE and format TEXT
-OCTO> (select 'tex.testtsc3 EN-;t') union (select date'01-01-2023');
+OCTO> (select 'tex.testtsc3 EN-;t') union (select date'2023-01-01');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "tex.testtsc3 EN-;t" is invalid for type DATE and format TEXT
 OCTO> select (timestamp(horolog)'66475,3661'::date) ='01.01-2-2\277'::date;
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01.01-2-2\277" is invalid for type DATE and format TEXT

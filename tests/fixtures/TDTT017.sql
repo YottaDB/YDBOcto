@@ -10,12 +10,12 @@
 #								#
 #################################################################
 
-select -time'01:01:00'+date'01-01-2023';
+select -time'01:01:00'+date'2023-01-01';
 select -time'01:01:00';
 select -time with time zone'01:01:01 +1';
 
-select EXISTS(select date'01-01-2023');
+select EXISTS(select date'2023-01-01');
 select EXISTS(select time'01:01:01');
 select EXISTS(select time with time zone'01:01:01 +1');
-select EXISTS(select timestamp'01-01-2023 01:01:01');
-select EXISTS(select timestamp with time zone'01-01-2023 01:01:01 +1');
+select EXISTS(select timestamp'2023-01-01 01:01:01');
+select EXISTS(select timestamp with time zone'2023-01-01 01:01:01 +1');

@@ -1,19 +1,19 @@
 
--- datestyle is MDY
-show datestyle;
-select concat(date'01-01-2023', 'sample text');
-select concat(date(fileman)'3230101', 'sample text');
-set datestyle="YMD";
+-- datestyle is YMD
 show datestyle;
 select concat(date'2023-01-01', 'sample text');
+select concat(date(fileman)'3230101', 'sample text');
+set datestyle="MDY";
+show datestyle;
+select concat(date'01-01-2023', 'sample text');
 select concat(date(fileman)'3230101', 'sample text');
 set datestyle="DMY";
 show datestyle;
 select concat(date'14-01-2023', 'sample text');
 select concat(date(fileman)'3230114', 'sample text');
 OCTO> show datestyle;
-ISO, MDY
-OCTO> select concat(date'01-01-2023', 'sample text');
+ISO, YMD
+OCTO> select concat(date'2023-01-01', 'sample text');
 concat
 2023-01-01sample text
 (1 row)
@@ -21,10 +21,10 @@ OCTO> select concat(date(fileman)'3230101', 'sample text');
 concat
 2023-01-01sample text
 (1 row)
-OCTO> set datestyle="YMD";
+OCTO> set datestyle="MDY";
 OCTO> show datestyle;
-ISO, YMD
-OCTO> select concat(date'2023-01-01', 'sample text');
+ISO, MDY
+OCTO> select concat(date'01-01-2023', 'sample text');
 concat
 2023-01-01sample text
 (1 row)

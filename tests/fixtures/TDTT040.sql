@@ -149,14 +149,14 @@ select timestamp with time zone'0';
 select timestamp with time zone'';
 
 -- text
-select date '01-01-0000';
-select date '00-01-0000';
-select date '01-00-0000';
-select date '01-01-10000';
-select date '12-31-9999';
-select date'01-01-0100';
-select date'01-01-0010';
-select date'01-01-0001';
+select date '0000-01-01';
+select date '0000-00-01';
+select date '0000-01-00';
+select date '1000-01-010';
+select date '9999-12-31';
+select date'0100-01-01';
+select date'0010-01-01';
+select date'0001-01-01';
 select date'';
 
 select time'00:00:00.000000';
@@ -181,36 +181,36 @@ select time'';
 -- select time with time zone'23:59:59.999999+16:00';
 -- select time with time zone'';
 
-select timestamp'01-01-0000';
-select timestamp'01-01-0100';
-select timestamp'01-01-0010';
-select timestamp'01-01-0001';
-select timestamp'01-01-0000 00:00:00';
-select timestamp'01-01-0100 00:00:00';
-select timestamp'01-01-0010 00:00:00';
-select timestamp'01-01-0001 00:00:00';
-select timestamp'01-01-10000 00:00:00';
-select timestamp'01-01-0000 00:00:00.000000';
-select timestamp '12-31-9999 23:59:59.999999';
-select timestamp '12-31-9999 23:59:59';
-select timestamp '12-31-9999 23:59:60';
-select timestamp '01-01-0000 23:60:59';
-select timestamp '12-31-9999 23:59:59.1000000';
+select timestamp'0000-01-01';
+select timestamp'0100-01-01';
+select timestamp'0010-01-01';
+select timestamp'0001-01-01';
+select timestamp'0000-01-01 00:00:00';
+select timestamp'0100-01-01 00:00:00';
+select timestamp'0010-01-01 00:00:00';
+select timestamp'0001-01-01 00:00:00';
+select timestamp'1000-01-010 00:00:00';
+select timestamp'0000-01-01 00:00:00.000000';
+select timestamp '9999-12-31 23:59:59.999999';
+select timestamp '9999-12-31 23:59:59';
+select timestamp '9999-12-31 23:59:60';
+select timestamp '0000-01-01 23:60:59';
+select timestamp '9999-12-31 23:59:59.1000000';
 select timestamp '';
 
-select timestamp with time zone'01-01-0000 00:00:00.000000-16:00';
-select timestamp with time zone'01-01-0000 00:00:00.000000-15:59';
-select timestamp with time zone'01-01-0000 00:00:00.000000+15:59';
-select timestamp with time zone'01-01-0000 00:00:00.000000+16:00';
-select timestamp with time zone'12-31-9999 23:59:59.999999-16:00';
-select timestamp with time zone'12-31-9999 23:59:59.999999-15:59';
-select timestamp with time zone'12-31-9999 23:59:59.999999+15:59';
-select timestamp with time zone'12-31-9999 23:59:59.999999+16:00';
+select timestamp with time zone'0000-01-01 00:00:00.000000-16:00';
+select timestamp with time zone'0000-01-01 00:00:00.000000-15:59';
+select timestamp with time zone'0000-01-01 00:00:00.000000+15:59';
+select timestamp with time zone'0000-01-01 00:00:00.000000+16:00';
+select timestamp with time zone'9999-12-31 23:59:59.999999-16:00';
+select timestamp with time zone'9999-12-31 23:59:59.999999-15:59';
+select timestamp with time zone'9999-12-31 23:59:59.999999+15:59';
+select timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
 select timestamp with time zone'';
 
 
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1404#note_1670617393
-select date(horolog)'66475'; -- 01-01-2023
+select date(horolog)'66475'; -- 2023-01-01
 select date(horolog)'-66475'; -- ERR_INVALID_DATE_TIME_FORMAT
 select date(zut)'66475';
 select date(zut)'-66475';
@@ -227,7 +227,7 @@ select timestamp(zut)'-1999999';
 
 -- Some more edge cases
 -- Non of the following should generate an error
-select timestamp with time zone'01-01-2024 01:01:01.7323';
-select timestamp with time zone'01-01-2024 01:01:01.732300-05:00';
-select timestamp with time zone'01-01-2024 01:01:01.73230-05:00';
-select timestamp with time zone'01-01-2024 01:01:01.7323-05:00';
+select timestamp with time zone'2024-01-01 01:01:01.7323';
+select timestamp with time zone'2024-01-01 01:01:01.732300-05:00';
+select timestamp with time zone'2024-01-01 01:01:01.73230-05:00';
+select timestamp with time zone'2024-01-01 01:01:01.7323-05:00';

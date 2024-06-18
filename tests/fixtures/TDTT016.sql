@@ -10,11 +10,11 @@
 #								#
 #################################################################
 
-select CASE date'01-01-2023' WHEN date'01-01-2023' THEN date'01-02-2023' ELSE date'01-03-2023' END;
-select CASE WHEN date'01-01-2023' = date'01-01-2023' THEN date'01-02-2023' ELSE date'01-03-2023' END;
+select CASE date'2023-01-01' WHEN date'2023-01-01' THEN date'2023-01-02' ELSE date'2023-01-03' END;
+select CASE WHEN date'2023-01-01' = date'2023-01-01' THEN date'2023-01-02' ELSE date'2023-01-03' END;
 
 select CASE time'01:01:20' WHEN time'01:01:20' THEN time'01:02:20' ELSE time'01:03:20' END;
 select CASE WHEN time'01:01:20' = time'01:01:20' THEN time'01:02:20' ELSE time'01:03:20' END;
 
-select CASE timestamp'01-01-2023 00:00:00' WHEN timestamp'01-01-2023 00:00:00' THEN timestamp'01-02-2023 00:00:00' ELSE timestamp'01-03-2023 00:00:00' END;
-select CASE WHEN timestamp'01-01-2023 00:00:00' = timestamp'01-01-2023 00:00:00' THEN timestamp'01-02-2023 00:00:00' ELSE timestamp'01-03-2023 00:00:00' END;
+select CASE timestamp'2023-01-01 00:00:00' WHEN timestamp'2023-01-01 00:00:00' THEN timestamp'2023-01-02 00:00:00' ELSE timestamp'2023-01-03 00:00:00' END;
+select CASE WHEN timestamp'2023-01-01 00:00:00' = timestamp'2023-01-01 00:00:00' THEN timestamp'2023-01-02 00:00:00' ELSE timestamp'2023-01-03 00:00:00' END;

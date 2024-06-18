@@ -11,18 +11,18 @@
 #################################################################
 
 -- IN
-select date'01-01-2023' IN (date'01-02-2023', date'01-03-2023', date'01-01-2023');
+select date'2023-01-01' IN (date'2023-01-02', date'2023-01-03', date'2023-01-01');
 select time'01:01:01' IN (time'01:01:20', time'01:03:23', time'01:01:01');
-select timestamp'01-01-2023 01:01:01' IN (timestamp'01-02-2023 01:01:01', timestamp'01-01-2023 01:02:01',timestamp'01-01-2023 01:01:01');
+select timestamp'2023-01-01 01:01:01' IN (timestamp'2023-01-02 01:01:01', timestamp'2023-01-01 01:02:01',timestamp'2023-01-01 01:01:01');
 -- -- subquery result based
-select date'01-01-2023' IN (select date'01-02-2023');
+select date'2023-01-01' IN (select date'2023-01-02');
 select time'01:01:01' IN (select time'01:01:20');
-select timestamp'01-01-2023 01:01:01' IN (select timestamp'01-02-2023 01:01:01');
+select timestamp'2023-01-01 01:01:01' IN (select timestamp'2023-01-02 01:01:01');
 -- NOT IN
-select date'01-01-2023' NOT IN (date'01-02-2023', date'01-03-2023', date'01-01-2023');
+select date'2023-01-01' NOT IN (date'2023-01-02', date'2023-01-03', date'2023-01-01');
 select time'01:01:01' NOT IN (time'01:01:20', time'01:03:23', time'01:01:01');
-select timestamp'01-01-2023 01:01:01' NOT IN (timestamp'01-02-2023 01:01:01', timestamp'01-01-2023 01:02:01',timestamp'01-01-2023 01:01:01');
+select timestamp'2023-01-01 01:01:01' NOT IN (timestamp'2023-01-02 01:01:01', timestamp'2023-01-01 01:02:01',timestamp'2023-01-01 01:01:01');
 -- -- subquery result based
-select date'01-01-2023' NOT IN (select date'01-01-2023');
+select date'2023-01-01' NOT IN (select date'2023-01-01');
 select time'01:01:01' NOT IN (select time'01:01:20');
-select timestamp'01-01-2023 01:01:01' NOT IN (select timestamp'01-02-2023 01:01:01');
+select timestamp'2023-01-01 01:01:01' NOT IN (select timestamp'2023-01-02 01:01:01');

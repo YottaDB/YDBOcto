@@ -3,40 +3,40 @@
 drop table if exists test;
 create table test (id integer, dob date );
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:fileman
 drop table if exists test;
 create table test (id integer, dob date(fileman));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:horolog
 drop table if exists test;
 create table test (id integer, dob date(horolog));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:zhorolog
 drop table if exists test;
 create table test (id integer, dob date(zhorolog));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:zut
 drop table if exists test;
 create table test (id integer, dob date(zut));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 
@@ -84,40 +84,40 @@ select * from test;
 drop table if exists test;
 create table test (id integer, dob timestamp );
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:fileman
 drop table if exists test;
 create table test (id integer, dob timestamp(fileman));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:horolog
 drop table if exists test;
 create table test (id integer, dob timestamp(horolog));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:zhorolog
 drop table if exists test;
 create table test (id integer, dob timestamp(zhorolog));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:zut
 drop table if exists test;
 create table test (id integer, dob timestamp(zut));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 
@@ -125,40 +125,40 @@ select * from test;
 drop table if exists test;
 create table test (id integer, dob timestamp with time zone );
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:fileman
 drop table if exists test;
 create table test (id integer, dob timestamp(fileman) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:horolog
 drop table if exists test;
 create table test (id integer, dob timestamp(horolog) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:zhorolog
 drop table if exists test;
 create table test (id integer, dob timestamp(zhorolog) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:zut
 drop table if exists test;
 create table test (id integer, dob timestamp(zut) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 
@@ -171,9 +171,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|DATE|||
-OCTO> insert into test values(1,date'01-01-2023');
+OCTO> insert into test values(1,date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test values(2,date'01-02-2023');
+OCTO> insert into test values(2,date'2023-01-02');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -189,9 +189,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|DATE(FILEMAN)|||
-OCTO> insert into test values(1,date'01-01-2023');
+OCTO> insert into test values(1,date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test values(2,date'01-02-2023');
+OCTO> insert into test values(2,date'2023-01-02');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -207,9 +207,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|DATE(HOROLOG)|||
-OCTO> insert into test values(1,date'01-01-2023');
+OCTO> insert into test values(1,date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test values(2,date'01-02-2023');
+OCTO> insert into test values(2,date'2023-01-02');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -225,9 +225,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|DATE(ZHOROLOG)|||
-OCTO> insert into test values(1,date'01-01-2023');
+OCTO> insert into test values(1,date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test values(2,date'01-02-2023');
+OCTO> insert into test values(2,date'2023-01-02');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -243,9 +243,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|DATE(ZUT)|||
-OCTO> insert into test values(1,date'01-01-2023');
+OCTO> insert into test values(1,date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test values(2,date'01-02-2023');
+OCTO> insert into test values(2,date'2023-01-02');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -355,9 +355,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP|||
-OCTO> insert into test values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into test values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp'01-02-2023 01:01:01');
+OCTO> insert into test values(2,timestamp'2023-01-02 01:01:01');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -373,9 +373,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(FILEMAN)|||
-OCTO> insert into test values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into test values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp'01-02-2023 01:01:01');
+OCTO> insert into test values(2,timestamp'2023-01-02 01:01:01');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -391,9 +391,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(HOROLOG)|||
-OCTO> insert into test values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into test values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp'01-02-2023 01:01:01');
+OCTO> insert into test values(2,timestamp'2023-01-02 01:01:01');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -409,9 +409,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(ZHOROLOG)|||
-OCTO> insert into test values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into test values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp'01-02-2023 01:01:01');
+OCTO> insert into test values(2,timestamp'2023-01-02 01:01:01');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -427,9 +427,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(ZUT)|||
-OCTO> insert into test values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into test values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp'01-02-2023 01:01:01');
+OCTO> insert into test values(2,timestamp'2023-01-02 01:01:01');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -445,9 +445,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP WITH TIME ZONE|||
-OCTO> insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
+OCTO> insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+OCTO> insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -463,9 +463,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(FILEMAN) WITH TIME ZONE|||
-OCTO> insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
+OCTO> insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+OCTO> insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -481,9 +481,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(HOROLOG) WITH TIME ZONE|||
-OCTO> insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
+OCTO> insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+OCTO> insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -499,9 +499,9 @@ Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRI
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
 dob|TIMESTAMP(ZHOROLOG) WITH TIME ZONE|||
-OCTO> insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
+OCTO> insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
 INSERT 0 1
-OCTO> insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+OCTO> insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 INSERT 0 1
 OCTO> select * from test;
 id|dob
@@ -517,13 +517,13 @@ OCTO> create table test (id integer, dob timestamp(zut) with time zone);
 OCTO> \d test;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-LINE 140:1: insert into test values(1,timestamp with time zone'01-01-2023 01...
+LINE 140:1: insert into test values(1,timestamp with time zone'2023-01-01 01...
                         ^^^^
-OCTO> insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
+OCTO> insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-LINE 141:1: insert into test values(2,timestamp with time zone'01-02-2023 01...
+LINE 141:1: insert into test values(2,timestamp with time zone'2023-01-02 01...
                         ^^^^
-OCTO> insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+OCTO> insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 LINE 142:1: select * from test;
                           ^^^^

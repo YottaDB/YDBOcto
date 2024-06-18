@@ -1,83 +1,83 @@
-OCTO> select date'01-01-2023' NOT BETWEEN date'01-01-2023' AND date'01-01-2023';
+OCTO> select date'2023-01-01' NOT BETWEEN date'2023-01-01' AND date'2023-01-01';
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
-LINE 2:1: select date'01-01-2023' NOT BETWEEN time'01:01:00' AND date'01-0...
+LINE 2:1: select date'2023-01-01' NOT BETWEEN time'01:01:00' AND date'2023...
                  ^^^^^^^^^^^^^^^^
-LINE 2:1: ...ate'01-01-2023' NOT BETWEEN time'01:01:00' AND date'01-01-2023';
+LINE 2:1: ...ate'2023-01-01' NOT BETWEEN time'01:01:00' AND date'2023-01-01';
                                          ^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' NOT BETWEEN time'01:01:00' AND date'01-01-2023';
-OCTO> select date'01-01-2023' NOT BETWEEN timestamp'01-01-2023 01:01:00' AND date'01-01-2023';
+OCTO> select date'2023-01-01' NOT BETWEEN time'01:01:00' AND date'2023-01-01';
+OCTO> select date'2023-01-01' NOT BETWEEN timestamp'2023-01-01 01:01:00' AND date'2023-01-01';
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND date'01-01-2023';
+OCTO> select date'2023-01-01' NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND date'2023-01-01';
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' NOT BETWEEN n1.dob AND date'01-01-2023' from TDTT005date n1;
+OCTO> select date'2023-01-01' NOT BETWEEN n1.dob AND date'2023-01-01' from TDTT005date n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
-LINE 6:1: select date'01-01-2023' NOT BETWEEN n1.dob AND date'01-01-2023' ...
+LINE 6:1: select date'2023-01-01' NOT BETWEEN n1.dob AND date'2023-01-01' ...
                  ^^^^^^^^^^^^^^^^
-LINE 6:1: ...date'01-01-2023' NOT BETWEEN n1.dob AND date'01-01-2023' from TD...
+LINE 6:1: ...date'2023-01-01' NOT BETWEEN n1.dob AND date'2023-01-01' from TD...
                                           ^^^^^^
-OCTO> select date'01-01-2023' NOT BETWEEN n1.dob AND date'01-01-2023' from TDTT005time n1;
-OCTO> select date'01-01-2023' NOT BETWEEN n1.dob AND date'01-01-2023' from TDTT005timestamp n1;
+OCTO> select date'2023-01-01' NOT BETWEEN n1.dob AND date'2023-01-01' from TDTT005time n1;
+OCTO> select date'2023-01-01' NOT BETWEEN n1.dob AND date'2023-01-01' from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' NOT BETWEEN n1.dob AND date'01-01-2023' from TDTT005timestamptz n1;
+OCTO> select date'2023-01-01' NOT BETWEEN n1.dob AND date'2023-01-01' from TDTT005timestamptz n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
-LINE 9:1: select date'01-01-2023' NOT BETWEEN 3 AND date'01-01-2023';
+LINE 9:1: select date'2023-01-01' NOT BETWEEN 3 AND date'2023-01-01';
                  ^^^^^^^^^^^^^^^^
-LINE 9:1: select date'01-01-2023' NOT BETWEEN 3 AND date'01-01-2023';
+LINE 9:1: select date'2023-01-01' NOT BETWEEN 3 AND date'2023-01-01';
                                               ^
-OCTO> select date'01-01-2023' NOT BETWEEN 3 AND date'01-01-2023';
+OCTO> select date'2023-01-01' NOT BETWEEN 3 AND date'2023-01-01';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right VARCHAR
-LINE 10:1: select date'01-01-2023' NOT BETWEEN 'sample string' AND date'01-...
+LINE 10:1: select date'2023-01-01' NOT BETWEEN 'sample string' AND date'202...
                   ^^^^^^^^^^^^^^^^
-LINE 10:1: ...e'01-01-2023' NOT BETWEEN 'sample string' AND date'01-01-2023';
+LINE 10:1: ...e'2023-01-01' NOT BETWEEN 'sample string' AND date'2023-01-01';
                                         ^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' NOT BETWEEN 'sample string' AND date'01-01-2023';
+OCTO> select date'2023-01-01' NOT BETWEEN 'sample string' AND date'2023-01-01';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
-LINE 11:1: select date'01-01-2023' NOT BETWEEN 3.3 AND date'01-01-2023';
+LINE 11:1: select date'2023-01-01' NOT BETWEEN 3.3 AND date'2023-01-01';
                   ^^^^^^^^^^^^^^^^
-LINE 11:1: select date'01-01-2023' NOT BETWEEN 3.3 AND date'01-01-2023';
+LINE 11:1: select date'2023-01-01' NOT BETWEEN 3.3 AND date'2023-01-01';
                                                ^^^
-OCTO> select date'01-01-2023' NOT BETWEEN 3.3 AND date'01-01-2023';
-OCTO> select date'01-01-2023' NOT BETWEEN NULL AND date'01-01-2023';
+OCTO> select date'2023-01-01' NOT BETWEEN 3.3 AND date'2023-01-01';
+OCTO> select date'2023-01-01' NOT BETWEEN NULL AND date'2023-01-01';
 ???
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
-LINE 13:1: select time'01:01:00' NOT BETWEEN date'01-01-2023' AND time'01:0...
+LINE 13:1: select time'01:01:00' NOT BETWEEN date'2023-01-01' AND time'01:0...
                   ^^^^^^^^^^^^^^
-LINE 13:1: ... time'01:01:00' NOT BETWEEN date'01-01-2023' AND time'01:01:00';
+LINE 13:1: ... time'01:01:00' NOT BETWEEN date'2023-01-01' AND time'01:01:00';
                                           ^^^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' NOT BETWEEN date'01-01-2023' AND time'01:01:00';
+OCTO> select time'01:01:00' NOT BETWEEN date'2023-01-01' AND time'01:01:00';
 OCTO> select time'01:01:00' NOT BETWEEN time'01:01:00' AND time'01:01:00';
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
-LINE 15:1: select time'01:01:00' NOT BETWEEN timestamp'01-01-2023 01:01:00'...
+LINE 15:1: select time'01:01:00' NOT BETWEEN timestamp'2023-01-01 01:01:00'...
                   ^^^^^^^^^^^^^^
-LINE 15:1: ...:00' NOT BETWEEN timestamp'01-01-2023 01:01:00' AND time'01:01:0...
+LINE 15:1: ...:00' NOT BETWEEN timestamp'2023-01-01 01:01:00' AND time'01:01:0...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' NOT BETWEEN timestamp'01-01-2023 01:01:00' AND time'01:01:00';
+OCTO> select time'01:01:00' NOT BETWEEN timestamp'2023-01-01 01:01:00' AND time'01:01:00';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
-LINE 16:1: select time'01:01:00' NOT BETWEEN timestamp with time zone'01-01...
+LINE 16:1: select time'01:01:00' NOT BETWEEN timestamp with time zone'2023-...
                   ^^^^^^^^^^^^^^
-LINE 16:1: ...TWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND t...
+LINE 16:1: ...TWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND t...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND time'01:01:00';
+OCTO> select time'01:01:00' NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND time'01:01:00';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
 LINE 17:1: select time'01:01:00' NOT BETWEEN n1.dob AND time'01:01:00' from...
                   ^^^^^^^^^^^^^^
@@ -122,123 +122,123 @@ OCTO> select time'01:01:00' NOT BETWEEN NULL AND time'01:01:00';
 ???
 
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN date'01-01-2023' AND timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN date'2023-01-01' AND timestamp'2023-01-01 01:01:00';
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
-LINE 26:1: select timestamp'01-01-2023 01:01:00' NOT BETWEEN time'01:01:00'...
+LINE 26:1: select timestamp'2023-01-01 01:01:00' NOT BETWEEN time'01:01:00'...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 26:1: ...23 01:01:00' NOT BETWEEN time'01:01:00' AND timestamp'01-01-2023...
+LINE 26:1: ...01 01:01:00' NOT BETWEEN time'01:01:00' AND timestamp'2023-01-01...
                                        ^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN time'01:01:00' AND timestamp'01-01-2023 01:01:00';
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN timestamp'01-01-2023 01:01:00' AND timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN time'01:01:00' AND timestamp'2023-01-01 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN timestamp'2023-01-01 01:01:00' AND timestamp'2023-01-01 01:01:00';
 ???
 0
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND timestamp'2023-01-01 01:01:00';
 ???
 0
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN n1.dob AND timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
-LINE 30:1: select timestamp'01-01-2023 01:01:00' NOT BETWEEN n1.dob AND tim...
+LINE 30:1: select timestamp'2023-01-01 01:01:00' NOT BETWEEN n1.dob AND tim...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 30:1: ...1-2023 01:01:00' NOT BETWEEN n1.dob AND timestamp'01-01-2023 01:...
+LINE 30:1: ...-01-01 01:01:00' NOT BETWEEN n1.dob AND timestamp'2023-01-01 01:...
                                            ^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005time n1;
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN n1.dob AND timestamp'2023-01-01 01:01:00' from TDTT005time n1;
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN n1.dob AND timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN n1.dob AND timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN n1.dob AND timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
-LINE 33:1: select timestamp'01-01-2023 01:01:00' NOT BETWEEN 3 AND timestam...
+LINE 33:1: select timestamp'2023-01-01 01:01:00' NOT BETWEEN 3 AND timestam...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 33:1: ...-01-2023 01:01:00' NOT BETWEEN 3 AND timestamp'01-01-2023 01:01...
+LINE 33:1: ...23-01-01 01:01:00' NOT BETWEEN 3 AND timestamp'2023-01-01 01:01...
                                              ^
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN 3 AND timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN 3 AND timestamp'2023-01-01 01:01:00';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right VARCHAR
-LINE 34:1: select timestamp'01-01-2023 01:01:00' NOT BETWEEN 'sample string...
+LINE 34:1: select timestamp'2023-01-01 01:01:00' NOT BETWEEN 'sample string...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 34:1: ...3 01:01:00' NOT BETWEEN 'sample string' AND timestamp'01-01-202...
+LINE 34:1: ...1 01:01:00' NOT BETWEEN 'sample string' AND timestamp'2023-01-0...
                                       ^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN 'sample string' AND timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN 'sample string' AND timestamp'2023-01-01 01:01:00';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
-LINE 35:1: select timestamp'01-01-2023 01:01:00' NOT BETWEEN 3.3 AND timest...
+LINE 35:1: select timestamp'2023-01-01 01:01:00' NOT BETWEEN 3.3 AND timest...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 35:1: ...01-2023 01:01:00' NOT BETWEEN 3.3 AND timestamp'01-01-2023 01:0...
+LINE 35:1: ...3-01-01 01:01:00' NOT BETWEEN 3.3 AND timestamp'2023-01-01 01:0...
                                             ^^^
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN 3.3 AND timestamp'01-01-2023 01:01:00';
-OCTO> select timestamp'01-01-2023 01:01:00' NOT BETWEEN NULL AND timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN 3.3 AND timestamp'2023-01-01 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' NOT BETWEEN NULL AND timestamp'2023-01-01 01:01:00';
 ???
 
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN date'01-01-2023' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN date'2023-01-01' AND timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
-LINE 38:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' NOT B...
+LINE 38:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' NOT B...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 38:1: ...01:00-05:00' NOT BETWEEN time'01:01:00' AND timestamp with time ...
                                        ^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN time'01:01:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN timestamp'01-01-2023 01:01:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN time'01:01:00' AND timestamp with time zone'2023-01-01 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN timestamp'2023-01-01 01:01:00' AND timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
 0
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
 0
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
-LINE 42:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' NOT B...
+LINE 42:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' NOT B...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 42:1: ... 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone...
                                            ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005time n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN n1.dob AND timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
-LINE 45:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' NOT B...
+LINE 45:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' NOT B...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 45:1: ...23 01:01:00-05:00' NOT BETWEEN 3 AND timestamp with time zone'0...
+LINE 45:1: ...01 01:01:00-05:00' NOT BETWEEN 3 AND timestamp with time zone'2...
                                              ^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN 3 AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN 3 AND timestamp with time zone'2023-01-01 01:01:00-05:00';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right VARCHAR
-LINE 46:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' NOT B...
+LINE 46:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' NOT B...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 46:1: ...1:00-05:00' NOT BETWEEN 'sample string' AND timestamp with time...
                                       ^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN 'sample string' AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN 'sample string' AND timestamp with time zone'2023-01-01 01:01:00-05:00';
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
-LINE 47:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' NOT B...
+LINE 47:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' NOT B...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 47:1: ...3 01:01:00-05:00' NOT BETWEEN 3.3 AND timestamp with time zone'...
+LINE 47:1: ...1 01:01:00-05:00' NOT BETWEEN 3.3 AND timestamp with time zone'...
                                             ^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN 3.3 AND timestamp with time zone'01-01-2023 01:01:00-05:00';
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' NOT BETWEEN NULL AND timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN 3.3 AND timestamp with time zone'2023-01-01 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' NOT BETWEEN NULL AND timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
 
 (1 row)
-OCTO> select n1.dob NOT BETWEEN date'01-01-2023' AND n1.dob from TDTT005date n1;
+OCTO> select n1.dob NOT BETWEEN date'2023-01-01' AND n1.dob from TDTT005date n1;
 ???
 0
 (1 row)
@@ -248,11 +248,11 @@ LINE 50:1: select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005...
 LINE 50:1: ...elect n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005d...
                                        ^^^^^^^^^^^^^^
 OCTO> select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005date n1;
-OCTO> select n1.dob NOT BETWEEN timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005date n1;
+OCTO> select n1.dob NOT BETWEEN timestamp'2023-01-01 01:01:00' AND n1.dob from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005date n1;
+OCTO> select n1.dob NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND n1.dob from TDTT005date n1;
 ???
 1
 (1 row)
@@ -297,27 +297,27 @@ OCTO> select n1.dob NOT BETWEEN NULL AND n1.dob from TDTT005date n1;
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
-LINE 61:1: select n1.dob NOT BETWEEN date'01-01-2023' AND n1.dob from TDTT0...
+LINE 61:1: select n1.dob NOT BETWEEN date'2023-01-01' AND n1.dob from TDTT0...
                   ^^^^^^
-LINE 61:1: ...lect n1.dob NOT BETWEEN date'01-01-2023' AND n1.dob from TDTT005...
+LINE 61:1: ...lect n1.dob NOT BETWEEN date'2023-01-01' AND n1.dob from TDTT005...
                                       ^^^^^^^^^^^^^^^^
-OCTO> select n1.dob NOT BETWEEN date'01-01-2023' AND n1.dob from TDTT005time n1;
+OCTO> select n1.dob NOT BETWEEN date'2023-01-01' AND n1.dob from TDTT005time n1;
 OCTO> select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005time n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
-LINE 63:1: select n1.dob NOT BETWEEN timestamp'01-01-2023 01:01:00' AND n1....
+LINE 63:1: select n1.dob NOT BETWEEN timestamp'2023-01-01 01:01:00' AND n1....
                   ^^^^^^
-LINE 63:1: ....dob NOT BETWEEN timestamp'01-01-2023 01:01:00' AND n1.dob from ...
+LINE 63:1: ....dob NOT BETWEEN timestamp'2023-01-01 01:01:00' AND n1.dob from ...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select n1.dob NOT BETWEEN timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005time n1;
+OCTO> select n1.dob NOT BETWEEN timestamp'2023-01-01 01:01:00' AND n1.dob from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
-LINE 64:1: select n1.dob NOT BETWEEN timestamp with time zone'01-01-2023 01...
+LINE 64:1: select n1.dob NOT BETWEEN timestamp with time zone'2023-01-01 01...
                   ^^^^^^
-LINE 64:1: ...TWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND n...
+LINE 64:1: ...TWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND n...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select n1.dob NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005time n1;
+OCTO> select n1.dob NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND n1.dob from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
 LINE 65:1: select n1.dob NOT BETWEEN n2.dob AND n1.dob from TDTT005time n1,...
                   ^^^^^^
@@ -362,7 +362,7 @@ OCTO> select n1.dob NOT BETWEEN NULL AND n1.dob from TDTT005time n1;
 ???
 
 (1 row)
-OCTO> select n1.dob NOT BETWEEN date'01-01-2023' AND n1.dob from TDTT005timestamp n1;
+OCTO> select n1.dob NOT BETWEEN date'2023-01-01' AND n1.dob from TDTT005timestamp n1;
 ???
 0
 (1 row)
@@ -372,11 +372,11 @@ LINE 74:1: select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005...
 LINE 74:1: ...elect n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005t...
                                        ^^^^^^^^^^^^^^
 OCTO> select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005timestamp n1;
-OCTO> select n1.dob NOT BETWEEN timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005timestamp n1;
+OCTO> select n1.dob NOT BETWEEN timestamp'2023-01-01 01:01:00' AND n1.dob from TDTT005timestamp n1;
 ???
 0
 (1 row)
-OCTO> select n1.dob NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005timestamp n1;
+OCTO> select n1.dob NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND n1.dob from TDTT005timestamp n1;
 ???
 0
 (1 row)
@@ -420,7 +420,7 @@ OCTO> select n1.dob NOT BETWEEN NULL AND n1.dob from TDTT005timestamp n1;
 ???
 
 (1 row)
-OCTO> select n1.dob NOT BETWEEN date'01-01-2023' AND n1.dob from TDTT005timestamptz n1;
+OCTO> select n1.dob NOT BETWEEN date'2023-01-01' AND n1.dob from TDTT005timestamptz n1;
 ???
 1
 (1 row)
@@ -430,11 +430,11 @@ LINE 86:1: select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005...
 LINE 86:1: ...elect n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005t...
                                        ^^^^^^^^^^^^^^
 OCTO> select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005timestamptz n1;
-OCTO> select n1.dob NOT BETWEEN timestamp'01-01-2023 01:01:00' AND n1.dob from TDTT005timestamptz n1;
+OCTO> select n1.dob NOT BETWEEN timestamp'2023-01-01 01:01:00' AND n1.dob from TDTT005timestamptz n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob NOT BETWEEN timestamp with time zone'01-01-2023 01:01:00-05:00' AND n1.dob from TDTT005timestamptz n1;
+OCTO> select n1.dob NOT BETWEEN timestamp with time zone'2023-01-01 01:01:00-05:00' AND n1.dob from TDTT005timestamptz n1;
 ???
 1
 (1 row)

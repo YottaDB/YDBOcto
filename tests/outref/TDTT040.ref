@@ -138,14 +138,14 @@ select timestamp with time zone'0';
 select timestamp with time zone'';
 
 -- text
-select date '01-01-0000';
-select date '00-01-0000';
-select date '01-00-0000';
-select date '01-01-10000';
-select date '12-31-9999';
-select date'01-01-0100';
-select date'01-01-0010';
-select date'01-01-0001';
+select date '0000-01-01';
+select date '0000-00-01';
+select date '0000-01-00';
+select date '1000-01-010';
+select date '9999-12-31';
+select date'0100-01-01';
+select date'0010-01-01';
+select date'0001-01-01';
 select date'';
 
 select time'00:00:00.000000';
@@ -170,36 +170,36 @@ select time'';
 -- select time with time zone'23:59:59.999999+16:00';
 -- select time with time zone'';
 
-select timestamp'01-01-0000';
-select timestamp'01-01-0100';
-select timestamp'01-01-0010';
-select timestamp'01-01-0001';
-select timestamp'01-01-0000 00:00:00';
-select timestamp'01-01-0100 00:00:00';
-select timestamp'01-01-0010 00:00:00';
-select timestamp'01-01-0001 00:00:00';
-select timestamp'01-01-10000 00:00:00';
-select timestamp'01-01-0000 00:00:00.000000';
-select timestamp '12-31-9999 23:59:59.999999';
-select timestamp '12-31-9999 23:59:59';
-select timestamp '12-31-9999 23:59:60';
-select timestamp '01-01-0000 23:60:59';
-select timestamp '12-31-9999 23:59:59.1000000';
+select timestamp'0000-01-01';
+select timestamp'0100-01-01';
+select timestamp'0010-01-01';
+select timestamp'0001-01-01';
+select timestamp'0000-01-01 00:00:00';
+select timestamp'0100-01-01 00:00:00';
+select timestamp'0010-01-01 00:00:00';
+select timestamp'0001-01-01 00:00:00';
+select timestamp'1000-01-010 00:00:00';
+select timestamp'0000-01-01 00:00:00.000000';
+select timestamp '9999-12-31 23:59:59.999999';
+select timestamp '9999-12-31 23:59:59';
+select timestamp '9999-12-31 23:59:60';
+select timestamp '0000-01-01 23:60:59';
+select timestamp '9999-12-31 23:59:59.1000000';
 select timestamp '';
 
-select timestamp with time zone'01-01-0000 00:00:00.000000-16:00';
-select timestamp with time zone'01-01-0000 00:00:00.000000-15:59';
-select timestamp with time zone'01-01-0000 00:00:00.000000+15:59';
-select timestamp with time zone'01-01-0000 00:00:00.000000+16:00';
-select timestamp with time zone'12-31-9999 23:59:59.999999-16:00';
-select timestamp with time zone'12-31-9999 23:59:59.999999-15:59';
-select timestamp with time zone'12-31-9999 23:59:59.999999+15:59';
-select timestamp with time zone'12-31-9999 23:59:59.999999+16:00';
+select timestamp with time zone'0000-01-01 00:00:00.000000-16:00';
+select timestamp with time zone'0000-01-01 00:00:00.000000-15:59';
+select timestamp with time zone'0000-01-01 00:00:00.000000+15:59';
+select timestamp with time zone'0000-01-01 00:00:00.000000+16:00';
+select timestamp with time zone'9999-12-31 23:59:59.999999-16:00';
+select timestamp with time zone'9999-12-31 23:59:59.999999-15:59';
+select timestamp with time zone'9999-12-31 23:59:59.999999+15:59';
+select timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
 select timestamp with time zone'';
 
 
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1404#note_1670617393
-select date(horolog)'66475'; -- 01-01-2023
+select date(horolog)'66475'; -- 2023-01-01
 select date(horolog)'-66475'; -- ERR_INVALID_DATE_TIME_FORMAT
 select date(zut)'66475';
 select date(zut)'-66475';
@@ -216,10 +216,10 @@ select timestamp(zut)'-1999999';
 
 -- Some more edge cases
 -- Non of the following should generate an error
-select timestamp with time zone'01-01-2024 01:01:01.7323';
-select timestamp with time zone'01-01-2024 01:01:01.732300-05:00';
-select timestamp with time zone'01-01-2024 01:01:01.73230-05:00';
-select timestamp with time zone'01-01-2024 01:01:01.7323-05:00';
+select timestamp with time zone'2024-01-01 01:01:01.7323';
+select timestamp with time zone'2024-01-01 01:01:01.732300-05:00';
+select timestamp with time zone'2024-01-01 01:01:01.73230-05:00';
+select timestamp with time zone'2024-01-01 01:01:01.7323-05:00';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366" is invalid for type DATE and format HOROLOG
 LINE 2:1: select date(horolog)'-366';
                  ^^^^^^^^^^^^^^^^^^^
@@ -656,35 +656,35 @@ LINE 119:1: select timestamp with time zone'';
                                             ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp with time zone'';
-OCTO> select date '01-01-0000';
+OCTO> select date '0000-01-01';
 ???
 0000-01-01
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00-01-0000" is invalid for type DATE and format TEXT
-LINE 122:1: select date '00-01-0000';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-00-01" is invalid for type DATE and format TEXT
+LINE 122:1: select date '0000-00-01';
                    ^^^^^^^^^^^^^^^^^
-OCTO> select date '00-01-0000';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-00-0000" is invalid for type DATE and format TEXT
-LINE 123:1: select date '01-00-0000';
+OCTO> select date '0000-00-01';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-00" is invalid for type DATE and format TEXT
+LINE 123:1: select date '0000-01-00';
                    ^^^^^^^^^^^^^^^^^
-OCTO> select date '01-00-0000';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-10000" is invalid for type DATE and format TEXT
-LINE 124:1: select date '01-01-10000';
+OCTO> select date '0000-01-00';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010" is invalid for type DATE and format TEXT
+LINE 124:1: select date '1000-01-010';
                    ^^^^^^^^^^^^^^^^^^
-OCTO> select date '01-01-10000';
-OCTO> select date '12-31-9999';
+OCTO> select date '1000-01-010';
+OCTO> select date '9999-12-31';
 ???
 9999-12-31
 (1 row)
-OCTO> select date'01-01-0100';
+OCTO> select date'0100-01-01';
 ???
 0100-01-01
 (1 row)
-OCTO> select date'01-01-0010';
+OCTO> select date'0010-01-01';
 ???
 0010-01-01
 (1 row)
-OCTO> select date'01-01-0001';
+OCTO> select date'0001-01-01';
 ???
 0001-01-01
 (1 row)
@@ -736,96 +736,96 @@ LINE 141:1: select time'';
                         ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time'';
-OCTO> select timestamp'01-01-0000';
+OCTO> select timestamp'0000-01-01';
 ???
 0000-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0100';
+OCTO> select timestamp'0100-01-01';
 ???
 0100-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0010';
+OCTO> select timestamp'0010-01-01';
 ???
 0010-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0001';
+OCTO> select timestamp'0001-01-01';
 ???
 0001-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0000 00:00:00';
+OCTO> select timestamp'0000-01-01 00:00:00';
 ???
 0000-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0100 00:00:00';
+OCTO> select timestamp'0100-01-01 00:00:00';
 ???
 0100-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0010 00:00:00';
+OCTO> select timestamp'0010-01-01 00:00:00';
 ???
 0010-01-01 00:00:00
 (1 row)
-OCTO> select timestamp'01-01-0001 00:00:00';
+OCTO> select timestamp'0001-01-01 00:00:00';
 ???
 0001-01-01 00:00:00
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-10000 00:00:00" is invalid for type TIMESTAMP and format TEXT
-LINE 152:1: select timestamp'01-01-10000 00:00:00';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010 00:00:00" is invalid for type TIMESTAMP and format TEXT
+LINE 152:1: select timestamp'1000-01-010 00:00:00';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-10000 00:00:00';
-OCTO> select timestamp'01-01-0000 00:00:00.000000';
+OCTO> select timestamp'1000-01-010 00:00:00';
+OCTO> select timestamp'0000-01-01 00:00:00.000000';
 ???
 0000-01-01 00:00:00
 (1 row)
-OCTO> select timestamp '12-31-9999 23:59:59.999999';
+OCTO> select timestamp '9999-12-31 23:59:59.999999';
 ???
 9999-12-31 23:59:59.999999
 (1 row)
-OCTO> select timestamp '12-31-9999 23:59:59';
+OCTO> select timestamp '9999-12-31 23:59:59';
 ???
 9999-12-31 23:59:59
 (1 row)
-OCTO> select timestamp '12-31-9999 23:59:60';
+OCTO> select timestamp '9999-12-31 23:59:60';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10000-01-01 00:00:00" is invalid for type TIMESTAMP and format TEXT
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-0000 23:60:59" is invalid for type TIMESTAMP and format TEXT
-LINE 157:1: select timestamp '01-01-0000 23:60:59';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01 23:60:59" is invalid for type TIMESTAMP and format TEXT
+LINE 157:1: select timestamp '0000-01-01 23:60:59';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp '01-01-0000 23:60:59';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "12-31-9999 23:59:59.1000000" is invalid for type TIMESTAMP and format TEXT
-LINE 158:1: select timestamp '12-31-9999 23:59:59.1000000';
+OCTO> select timestamp '0000-01-01 23:60:59';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "9999-12-31 23:59:59.1000000" is invalid for type TIMESTAMP and format TEXT
+LINE 158:1: select timestamp '9999-12-31 23:59:59.1000000';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp '12-31-9999 23:59:59.1000000';
+OCTO> select timestamp '9999-12-31 23:59:59.1000000';
 LINE 159:1: select timestamp '';
                               ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp '';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-0000 00:00:00.000000-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 161:1: ...lect timestamp with time zone'01-01-0000 00:00:00.000000-16:00';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01 00:00:00.000000-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 161:1: ...lect timestamp with time zone'0000-01-01 00:00:00.000000-16:00';
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-0000 00:00:00.000000-16:00';
-OCTO> select timestamp with time zone'01-01-0000 00:00:00.000000-15:59';
+OCTO> select timestamp with time zone'0000-01-01 00:00:00.000000-16:00';
+OCTO> select timestamp with time zone'0000-01-01 00:00:00.000000-15:59';
 ???
 0000-01-01 11:02:58-04:56:02
 (1 row)
-OCTO> select timestamp with time zone'01-01-0000 00:00:00.000000+15:59';
+OCTO> select timestamp with time zone'0000-01-01 00:00:00.000000+15:59';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-001-12-31 03:04:58-04:56:02" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-0000 00:00:00.000000+16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 164:1: ...lect timestamp with time zone'01-01-0000 00:00:00.000000+16:00';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01 00:00:00.000000+16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 164:1: ...lect timestamp with time zone'0000-01-01 00:00:00.000000+16:00';
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-0000 00:00:00.000000+16:00';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "12-31-9999 23:59:59.999999-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 165:1: ...lect timestamp with time zone'12-31-9999 23:59:59.999999-16:00';
+OCTO> select timestamp with time zone'0000-01-01 00:00:00.000000+16:00';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "9999-12-31 23:59:59.999999-16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 165:1: ...lect timestamp with time zone'9999-12-31 23:59:59.999999-16:00';
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'12-31-9999 23:59:59.999999-16:00';
-OCTO> select timestamp with time zone'12-31-9999 23:59:59.999999-15:59';
+OCTO> select timestamp with time zone'9999-12-31 23:59:59.999999-16:00';
+OCTO> select timestamp with time zone'9999-12-31 23:59:59.999999-15:59';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10000-01-01 10:58:59.999999-05" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-OCTO> select timestamp with time zone'12-31-9999 23:59:59.999999+15:59';
+OCTO> select timestamp with time zone'9999-12-31 23:59:59.999999+15:59';
 ???
 9999-12-31 03:00:59.999999-05
 (1 row)
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "12-31-9999 23:59:59.999999+16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
-LINE 168:1: ...lect timestamp with time zone'12-31-9999 23:59:59.999999+16:00';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "9999-12-31 23:59:59.999999+16:00" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
+LINE 168:1: ...lect timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'12-31-9999 23:59:59.999999+16:00';
+OCTO> select timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
 LINE 169:1: select timestamp with time zone'';
                                             ^
 syntax error, unexpected EMPTY_STRING, expecting LITERAL
@@ -837,7 +837,7 @@ OCTO> select date(horolog)'66475';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66475" is invalid for type DATE and format HOROLOG
 LINE 173:2: select date(horolog)'-66475'; -- ERR_INVALID_DATE_TIME_FORMAT
                    ^^^^^^^^^^^^^^^^^^^^^
-OCTO> -- 01-01-2023
+OCTO> -- 2023-01-01
 select date(horolog)'-66475';
 OCTO> -- ERR_INVALID_DATE_TIME_FORMAT
 select date(zut)'66475';
@@ -888,19 +888,19 @@ OCTO> select timestamp(zut)'-1999999';
 ???
 1969-12-31 23:59:58.000001
 (1 row)
-OCTO> select timestamp with time zone'01-01-2024 01:01:01.7323';
+OCTO> select timestamp with time zone'2024-01-01 01:01:01.7323';
 ???
 2024-01-01 01:01:01.7323-05
 (1 row)
-OCTO> select timestamp with time zone'01-01-2024 01:01:01.732300-05:00';
+OCTO> select timestamp with time zone'2024-01-01 01:01:01.732300-05:00';
 ???
 2024-01-01 01:01:01.7323-05
 (1 row)
-OCTO> select timestamp with time zone'01-01-2024 01:01:01.73230-05:00';
+OCTO> select timestamp with time zone'2024-01-01 01:01:01.73230-05:00';
 ???
 2024-01-01 01:01:01.7323-05
 (1 row)
-OCTO> select timestamp with time zone'01-01-2024 01:01:01.7323-05:00';
+OCTO> select timestamp with time zone'2024-01-01 01:01:01.7323-05:00';
 ???
 2024-01-01 01:01:01.7323-05
 (1 row)

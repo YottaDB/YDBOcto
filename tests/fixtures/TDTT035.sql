@@ -11,8 +11,8 @@
 #################################################################
 
 create table test (id int,dob date);
-insert into test values(1,date'01-01-2023');
-insert into test values(1,date'01-01-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(1,date'2023-01-01');
 select n1.* from test n1;
 select 1 from test n1 group by n1.*;
 select 1 from test n1 group by 1 order by n1.*;

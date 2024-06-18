@@ -24,7 +24,6 @@ teardown() {
 }
 
 @test "TCC01 : Ensure cross-references are not computed for computed columns" {
-  echo "datestyle = \"Ymd\"" >> octo.conf
   curtime=`$ydb_dist/yottadb -run %XCMD 'write $ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")'`
   sleep 1	# sleep so we are guaranteed the "time = $curtime" check below will not match any records
   		# (since "time" below will reflect the current time then and hence will be at least one second after $curtime

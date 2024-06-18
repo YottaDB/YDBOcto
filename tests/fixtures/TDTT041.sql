@@ -31,7 +31,7 @@ select * from test5;
 create table test6 (dob date primary key) global "^datetimedatekey(keys(""dob""))" readonly;
 select * from test6;
 
-create table test7 (dob date primary key START "01-01-2023" ENDPOINT "01-02-2023",id int) global "^datetimedatekey(keys(""dob""))"; -- This should be considered read-only because of START and ENDPOINT
+create table test7 (dob date primary key START "2023-01-01" ENDPOINT "2023-01-02",id int) global "^datetimedatekey(keys(""dob""))"; -- This should be considered read-only because of START and ENDPOINT
 select * from test7;
 
 create table test8 (dob date primary key, id integer) global "^datetimedatekey" readonly;

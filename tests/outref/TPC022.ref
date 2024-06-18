@@ -7,7 +7,7 @@ SET
 
  datestyle 
 -----------
- ISO, MDY
+ ISO, YMD
 (1 row)
 
  extra_float_digits 

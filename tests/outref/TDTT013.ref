@@ -2,7 +2,7 @@
 OCTO> -- type:date format:
 create table TDTT013date (id integer, dob date );
 CREATE TABLE
-OCTO> insert into TDTT013date values(1,date'01-01-2023');
+OCTO> insert into TDTT013date values(1,date'2023-01-01');
 INSERT 0 1
 OCTO> -- type:time format:
 create table TDTT013time (id integer, dob time );
@@ -17,16 +17,16 @@ INSERT 0 1
 OCTO> -- type:timestamp format:
 create table TDTT013timestamp (id integer, dob timestamp );
 CREATE TABLE
-OCTO> insert into TDTT013timestamp values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into TDTT013timestamp values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
 OCTO> -- type:timestamp with time zone format:
 create table TDTT013timestamptz (id integer, dob timestamp with time zone );
 CREATE TABLE
-OCTO> insert into TDTT013timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+OCTO> insert into TDTT013timestamptz values(1,timestamp with time zone'2023-01-01 01:01:01+05:00');
 INSERT 0 1
-OCTO> create function samevalue(date) returns date as $$samevaluemdy^functions;
+OCTO> create function samevalue(date) returns date as $$samevalue^functions;
 CREATE FUNCTION
-OCTO> select samevalue(date'01-01-2023');
+OCTO> select samevalue(date'2023-01-01');
 samevalue
 2023-01-01
 (1 row)
@@ -35,13 +35,13 @@ LINE 28:1: select samevalue(time'01:01:00');
                   ^^^^^^^^^
 OCTO> select samevalue(time'01:01:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP)
-LINE 29:1: select samevalue(timestamp'01-01-2023 01:01:00');
+LINE 29:1: select samevalue(timestamp'2023-01-01 01:01:00');
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp'01-01-2023 01:01:00');
+OCTO> select samevalue(timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP WITH TIME ZONE)
-LINE 30:1: select samevalue(timestamp with time zone'01-01-2023 01:01:00-0...
+LINE 30:1: select samevalue(timestamp with time zone'2023-01-01 01:01:00-0...
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select samevalue(timestamp with time zone'2023-01-01 01:01:00-05:00');
 OCTO> select samevalue(dob) from TDTT013date n1;
 samevalue
 2023-01-01
@@ -83,21 +83,21 @@ DROP FUNCTION
 OCTO> create function samevalue(time) returns time as $$samevalue^functions;
 CREATE FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
-LINE 42:1: select samevalue(date'01-01-2023');
+LINE 42:1: select samevalue(date'2023-01-01');
                   ^^^^^^^^^
-OCTO> select samevalue(date'01-01-2023');
+OCTO> select samevalue(date'2023-01-01');
 OCTO> select samevalue(time'01:01:00');
 samevalue
 01:01:00
 (1 row)
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP)
-LINE 44:1: select samevalue(timestamp'01-01-2023 01:01:00');
+LINE 44:1: select samevalue(timestamp'2023-01-01 01:01:00');
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp'01-01-2023 01:01:00');
+OCTO> select samevalue(timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP WITH TIME ZONE)
-LINE 45:1: select samevalue(timestamp with time zone'01-01-2023 01:01:00-0...
+LINE 45:1: select samevalue(timestamp with time zone'2023-01-01 01:01:00-0...
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select samevalue(timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
 LINE 46:1: select samevalue(dob) from TDTT013date n1;
                   ^^^^^^^^^
@@ -139,21 +139,21 @@ DROP FUNCTION
 OCTO> create function samevalue(time with time zone) returns time with time zone as $$samevalue^functions;
 CREATE FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
-LINE 57:1: select samevalue(date'01-01-2023');
+LINE 57:1: select samevalue(date'2023-01-01');
                   ^^^^^^^^^
-OCTO> select samevalue(date'01-01-2023');
+OCTO> select samevalue(date'2023-01-01');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIME)
 LINE 58:1: select samevalue(time'01:01:00');
                   ^^^^^^^^^
 OCTO> select samevalue(time'01:01:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP)
-LINE 59:1: select samevalue(timestamp'01-01-2023 01:01:00');
+LINE 59:1: select samevalue(timestamp'2023-01-01 01:01:00');
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp'01-01-2023 01:01:00');
+OCTO> select samevalue(timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP WITH TIME ZONE)
-LINE 60:1: select samevalue(timestamp with time zone'01-01-2023 01:01:00-0...
+LINE 60:1: select samevalue(timestamp with time zone'2023-01-01 01:01:00-0...
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select samevalue(timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
 LINE 61:1: select samevalue(dob) from TDTT013date n1;
                   ^^^^^^^^^
@@ -192,24 +192,24 @@ LINE 69:1: select samevalue(true);
 OCTO> select samevalue(true);
 OCTO> drop function samevalue(time with time zone);
 DROP FUNCTION
-OCTO> create function samevalue(timestamp) returns timestamp as $$samevaluemdy^functions;
+OCTO> create function samevalue(timestamp) returns timestamp as $$samevalue^functions;
 CREATE FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
-LINE 72:1: select samevalue(date'01-01-2023');
+LINE 72:1: select samevalue(date'2023-01-01');
                   ^^^^^^^^^
-OCTO> select samevalue(date'01-01-2023');
+OCTO> select samevalue(date'2023-01-01');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIME)
 LINE 73:1: select samevalue(time'01:01:00');
                   ^^^^^^^^^
 OCTO> select samevalue(time'01:01:00');
-OCTO> select samevalue(timestamp'01-01-2023 01:01:00');
+OCTO> select samevalue(timestamp'2023-01-01 01:01:00');
 samevalue
 2023-01-01 01:01:00
 (1 row)
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP WITH TIME ZONE)
-LINE 75:1: select samevalue(timestamp with time zone'01-01-2023 01:01:00-0...
+LINE 75:1: select samevalue(timestamp with time zone'2023-01-01 01:01:00-0...
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select samevalue(timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
 LINE 76:1: select samevalue(dob) from TDTT013date n1;
                   ^^^^^^^^^
@@ -248,21 +248,21 @@ LINE 84:1: select samevalue(true);
 OCTO> select samevalue(true);
 OCTO> drop function samevalue(timestamp);
 DROP FUNCTION
-OCTO> create function samevalue(timestamp with time zone) returns timestamp with time zone as $$samevaluemdy^functions;
+OCTO> create function samevalue(timestamp with time zone) returns timestamp with time zone as $$samevalue^functions;
 CREATE FUNCTION
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (DATE)
-LINE 87:1: select samevalue(date'01-01-2023');
+LINE 87:1: select samevalue(date'2023-01-01');
                   ^^^^^^^^^
-OCTO> select samevalue(date'01-01-2023');
+OCTO> select samevalue(date'2023-01-01');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIME)
 LINE 88:1: select samevalue(time'01:01:00');
                   ^^^^^^^^^
 OCTO> select samevalue(time'01:01:00');
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function samevalue defined with given parameter types (TIMESTAMP)
-LINE 89:1: select samevalue(timestamp'01-01-2023 01:01:00');
+LINE 89:1: select samevalue(timestamp'2023-01-01 01:01:00');
                   ^^^^^^^^^
-OCTO> select samevalue(timestamp'01-01-2023 01:01:00');
-OCTO> select samevalue(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select samevalue(timestamp'2023-01-01 01:01:00');
+OCTO> select samevalue(timestamp with time zone'2023-01-01 01:01:00-05:00');
 samevalue
 2023-01-01 01:01:00-05
 (1 row)
@@ -323,11 +323,12 @@ OCTO>
 -- type value in text format the value is expected to be in output form set in datestyle (ISO - "YMD").
 create function samevalue(date) returns date as $$samevalue^functions;
 -- Because the return value is not in YMD format following selects result in ERROR
+set datestyle='mdy';
 select samevalue(date'01-01-2023');
 select samevalue(samevalue(date'01-01-2023'));
-set datestyle='ymd';
 -- As the implementation returns the input passed as is following selects work fine as the input
 -- is also in YMD format.
+set datestyle='ymd';
 select samevalue(samevalue(date'2023-01-01'));
 select samevalue(samevalue(samevalue(date'2023-01-01')));
 drop function samevalue(date);
@@ -336,8 +337,8 @@ create function samevalue(timestamp) returns timestamp as $$samevalue^functions;
 -- ERROR because of the reason explained for date type
 select samevalue(timestamp'01-01-2023 01:01:00');
 select samevalue(samevalue(timestamp'01-01-2023 01:01:00'));
-set datestyle='ymd';
 -- Valid because of the same reason explained for date type
+set datestyle='ymd';
 select samevalue(samevalue(timestamp'2023-01-01 01:01:00'));
 select samevalue(samevalue(samevalue(timestamp'2023-01-01 01:01:00')));
 drop function samevalue(timestamp);
@@ -357,6 +358,7 @@ select date_to_fileman(now()::date)=date_to_fileman(now()::date);
 select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
 OCTO> create function samevalue(date) returns date as $$samevalue^functions;
 CREATE FUNCTION
+OCTO> set datestyle='mdy';
 OCTO> select samevalue(date'01-01-2023');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type DATE and format TEXT
 OCTO> select samevalue(samevalue(date'01-01-2023'));

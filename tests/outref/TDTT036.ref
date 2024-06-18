@@ -1,19 +1,19 @@
 
-select * from names order by date'01-01-2023';
-select * from names order by timestamp'01-01-2023 01:01:01';
+select * from names order by date'2023-01-01';
+select * from names order by timestamp'2023-01-01 01:01:01';
 select * from names order by time'01:01:01';
 select * from names order by time with time zone'01:01:01';
-select * from names order by timestamp with time zone'01-01-2023 01:01:01';
+select * from names order by timestamp with time zone'2023-01-01 01:01:01';
 
-select 1 from names group by date'01-01-2023';
-select 1 from names group by timestamp'01-01-2023 01:01:01';
+select 1 from names group by date'2023-01-01';
+select 1 from names group by timestamp'2023-01-01 01:01:01';
 select 1 from names group by time'01:01:01';
 select 1 from names group by time with time zone'01:01:01';
-select 1 from names group by timestamp with time zone'01-01-2023 01:01:01';
+select 1 from names group by timestamp with time zone'2023-01-01 01:01:01';
 
-create table test1 (id int, dob date check(dob<date'01-01-2023'), tob time check(tob<time'01:01:01'),tos timestamp check(tos<timestamp'01-01-2023 01:01:01')
+create table test1 (id int, dob date check(dob<date'2023-01-01'), tob time check(tob<time'01:01:01'),tos timestamp check(tos<timestamp'2023-01-01 01:01:01')
 								, tobs time with time zone check (tobs<time with time zone'01:01:01')
-								, toss timestamp with time zone check (toss< timestamp with time zone'01-01-2023 01:01:01'));
+								, toss timestamp with time zone check (toss< timestamp with time zone'2023-01-01 01:01:01'));
 \d test1;
 create table test2 (id int, dob date check(dob<date(fileman)'3230101'), tob time check(tob<time(horolog)'3661'));
 \d test2;
@@ -23,7 +23,7 @@ create table t (id int,dob date(fileman));
 \d t;
 create table ta(tob time(horolog));
 \d ta;
-OCTO> select * from names order by date'01-01-2023';
+OCTO> select * from names order by date'2023-01-01';
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -32,7 +32,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
-OCTO> select * from names order by timestamp'01-01-2023 01:01:01';
+OCTO> select * from names order by timestamp'2023-01-01 01:01:01';
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -59,7 +59,7 @@ id|firstname|lastname
 4|Joey|
 5|Zero|Cool
 (6 rows)
-OCTO> select * from names order by timestamp with time zone'01-01-2023 01:01:01';
+OCTO> select * from names order by timestamp with time zone'2023-01-01 01:01:01';
 id|firstname|lastname
 0|Zero|Cool
 1|Acid|Burn
@@ -69,13 +69,13 @@ id|firstname|lastname
 5|Zero|Cool
 (6 rows)
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 8:1: select 1 from names group by date'01-01-2023';
+LINE 8:1: select 1 from names group by date'2023-01-01';
                                        ^^^^^^^^^^^^^^^^
-OCTO> select 1 from names group by date'01-01-2023';
+OCTO> select 1 from names group by date'2023-01-01';
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 9:1: select 1 from names group by timestamp'01-01-2023 01:01:01';
+LINE 9:1: select 1 from names group by timestamp'2023-01-01 01:01:01';
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select 1 from names group by timestamp'01-01-2023 01:01:01';
+OCTO> select 1 from names group by timestamp'2023-01-01 01:01:01';
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
 LINE 10:1: select 1 from names group by time'01:01:01';
                                         ^^^^^^^^^^^^^^
@@ -85,12 +85,12 @@ LINE 11:1: select 1 from names group by time with time zone'01:01:01';
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select 1 from names group by time with time zone'01:01:01';
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
-LINE 12:1: ...m names group by timestamp with time zone'01-01-2023 01:01:01';
+LINE 12:1: ...m names group by timestamp with time zone'2023-01-01 01:01:01';
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select 1 from names group by timestamp with time zone'01-01-2023 01:01:01';
-OCTO> create table test1 (id int, dob date check(dob<date'01-01-2023'), tob time check(tob<time'01:01:01'),tos timestamp check(tos<timestamp'01-01-2023 01:01:01')
+OCTO> select 1 from names group by timestamp with time zone'2023-01-01 01:01:01';
+OCTO> create table test1 (id int, dob date check(dob<date'2023-01-01'), tob time check(tob<time'01:01:01'),tos timestamp check(tos<timestamp'2023-01-01 01:01:01')
 								, tobs time with time zone check (tobs<time with time zone'01:01:01')
-								, toss timestamp with time zone check (toss< timestamp with time zone'01-01-2023 01:01:01'));
+								, toss timestamp with time zone check (toss< timestamp with time zone'2023-01-01 01:01:01'));
 CREATE TABLE
 OCTO> \d test1;
 Table "test1" stored in Global: ^%ydboctoD9v6rOxeGFomfLyCC1YKW0B : Type = READWRITE
@@ -102,11 +102,11 @@ tos|TIMESTAMP|||
 tobs|TIMEWITH TIME ZONE|||
 toss|TIMESTAMP WITH TIME ZONE|||
 Check constraints:
-    "test1_dob_check" CHECK ((dob < DATE'01-01-2023'))
+    "test1_dob_check" CHECK ((dob < DATE'2023-01-01'))
     "test1_tob_check" CHECK ((tob < TIME'01:01:01'))
-    "test1_tos_check" CHECK ((tos < TIMESTAMP'01-01-2023 01:01:01'))
+    "test1_tos_check" CHECK ((tos < TIMESTAMP'2023-01-01 01:01:01'))
     "test1_tobs_check" CHECK ((tobs < TIME WITH TIME ZONE'01:01:01'))
-    "test1_toss_check" CHECK ((toss < TIMESTAMP WITH TIME ZONE'01-01-2023 01:01:01'))
+    "test1_toss_check" CHECK ((toss < TIMESTAMP WITH TIME ZONE'2023-01-01 01:01:01'))
 OCTO> create table test2 (id int, dob date check(dob<date(fileman)'3230101'), tob time check(tob<time(horolog)'3661'));
 CREATE TABLE
 OCTO> \d test2;
@@ -143,45 +143,6 @@ OCTO>
 # ----------------------------------------------------------------------------
 # Include generated M code in reference file to verify all optimizations there
 # ----------------------------------------------------------------------------
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select * from names order by time with time zone'01:01:01';
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","id")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),19,"%H:%M:%S%z")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
-    NEW %ydboctoi  SET %ydboctoi(0)=1
-    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
-    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))
-    . . IF $INCREMENT(%ydboctoi(0))
-    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
-    QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from names order by time'01:01:01';
@@ -223,7 +184,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select * from names order by date'01-01-2023';
+;  select * from names order by time with time zone'01:01:01';
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -250,7 +211,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%m-%d-%Y")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),19,"%H:%M:%S%z")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     NEW %ydboctoi  SET %ydboctoi(0)=1
     SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
@@ -262,7 +223,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select * from names order by timestamp with time zone'01-01-2023 01:01:01';
+;  select * from names order by timestamp'2023-01-01 01:01:01';
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -289,7 +250,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),21,"%m-%d-%Y %H:%M:%S%z")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%Y-%m-%d %H:%M:%S")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     NEW %ydboctoi  SET %ydboctoi(0)=1
     SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
@@ -301,7 +262,7 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select * from names order by timestamp'01-01-2023 01:01:01';
+;  select * from names order by timestamp with time zone'2023-01-01 01:01:01';
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -328,7 +289,46 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,"%m-%d-%Y %H:%M:%S")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),21,"%Y-%m-%d %H:%M:%S%z")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
+    NEW %ydboctoi  SET %ydboctoi(0)=1
+    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))
+    . . IF $INCREMENT(%ydboctoi(0))
+    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select * from names order by date'2023-01-01';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"names","id")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . SET %ydboctoexpr(0)=%ydboctoexpr
+    . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,"%Y-%m-%d")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     NEW %ydboctoi  SET %ydboctoi(0)=1
     SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")

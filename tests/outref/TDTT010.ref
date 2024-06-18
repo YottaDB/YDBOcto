@@ -1,7 +1,7 @@
 OCTO> -- type:date format:
 create table TDTT010date (id integer, dob date );
 CREATE TABLE
-OCTO> insert into TDTT010date values(1,date'01-01-2023');
+OCTO> insert into TDTT010date values(1,date'2023-01-01');
 INSERT 0 1
 OCTO> -- type:time format:
 create table TDTT010time (id integer, dob time );
@@ -16,70 +16,70 @@ INSERT 0 1
 OCTO> -- type:timestamp format:
 create table TDTT010timestamp (id integer, dob timestamp );
 CREATE TABLE
-OCTO> insert into TDTT010timestamp values(1,timestamp'01-01-2023 01:01:01');
+OCTO> insert into TDTT010timestamp values(1,timestamp'2023-01-01 01:01:01');
 INSERT 0 1
 OCTO> -- type:timestamp with time zone format:
 create table TDTT010timestamptz (id integer, dob timestamp with time zone );
 CREATE TABLE
-OCTO> insert into TDTT010timestamptz values(1,timestamp with time zone'01-01-2023 01:01:01+05:00');
+OCTO> insert into TDTT010timestamptz values(1,timestamp with time zone'2023-01-01 01:01:01+05:00');
 INSERT 0 1
-OCTO> select COUNT(date'01-01-2023');
+OCTO> select COUNT(date'2023-01-01');
 count
 1
 (1 row)
-OCTO> select COUNT(DISTINCT date'01-01-2023');
+OCTO> select COUNT(DISTINCT date'2023-01-01');
 count
 1
 (1 row)
-OCTO> select COUNT(ALL date'01-01-2023');
+OCTO> select COUNT(ALL date'2023-01-01');
 count
 1
 (1 row)
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
-LINE 29:1: select SUM(date'01-01-2023');
+LINE 29:1: select SUM(date'2023-01-01');
                   ^^^
-OCTO> select SUM(date'01-01-2023');
+OCTO> select SUM(date'2023-01-01');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
-LINE 30:1: select SUM(DISTINCT date'01-01-2023');
+LINE 30:1: select SUM(DISTINCT date'2023-01-01');
                   ^^^
-OCTO> select SUM(DISTINCT date'01-01-2023');
+OCTO> select SUM(DISTINCT date'2023-01-01');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type DATE
-LINE 31:1: select SUM(ALL date'01-01-2023');
+LINE 31:1: select SUM(ALL date'2023-01-01');
                   ^^^
-OCTO> select SUM(ALL date'01-01-2023');
+OCTO> select SUM(ALL date'2023-01-01');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
-LINE 32:1: select AVG(date'01-01-2023');
+LINE 32:1: select AVG(date'2023-01-01');
                   ^^^
-OCTO> select AVG(date'01-01-2023');
+OCTO> select AVG(date'2023-01-01');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
-LINE 33:1: select AVG(DISTINCT date'01-01-2023');
+LINE 33:1: select AVG(DISTINCT date'2023-01-01');
                   ^^^
-OCTO> select AVG(DISTINCT date'01-01-2023');
+OCTO> select AVG(DISTINCT date'2023-01-01');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type DATE
-LINE 34:1: select AVG(ALL date'01-01-2023');
+LINE 34:1: select AVG(ALL date'2023-01-01');
                   ^^^
-OCTO> select AVG(ALL date'01-01-2023');
-OCTO> select MIN(date'01-01-2023');
+OCTO> select AVG(ALL date'2023-01-01');
+OCTO> select MIN(date'2023-01-01');
 min
 2023-01-01
 (1 row)
-OCTO> select MIN(DISTINCT date'01-01-2023');
+OCTO> select MIN(DISTINCT date'2023-01-01');
 min
 2023-01-01
 (1 row)
-OCTO> select MIN(ALL date'01-01-2023');
+OCTO> select MIN(ALL date'2023-01-01');
 min
 2023-01-01
 (1 row)
-OCTO> select MAX(date'01-01-2023');
+OCTO> select MAX(date'2023-01-01');
 max
 2023-01-01
 (1 row)
-OCTO> select MAX(DISTINCT date'01-01-2023');
+OCTO> select MAX(DISTINCT date'2023-01-01');
 max
 2023-01-01
 (1 row)
-OCTO> select MAX(ALL date'01-01-2023');
+OCTO> select MAX(ALL date'2023-01-01');
 max
 2023-01-01
 (1 row)
@@ -143,123 +143,123 @@ OCTO> select MAX(ALL time'01:01:00');
 max
 01:01:00
 (1 row)
-OCTO> select COUNT(timestamp'01-01-2023 01:01:00');
+OCTO> select COUNT(timestamp'2023-01-01 01:01:00');
 count
 1
 (1 row)
-OCTO> select COUNT(DISTINCT timestamp'01-01-2023 01:01:00');
+OCTO> select COUNT(DISTINCT timestamp'2023-01-01 01:01:00');
 count
 1
 (1 row)
-OCTO> select COUNT(ALL timestamp'01-01-2023 01:01:00');
+OCTO> select COUNT(ALL timestamp'2023-01-01 01:01:00');
 count
 1
 (1 row)
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
-LINE 59:1: select SUM(timestamp'01-01-2023 01:01:00');
+LINE 59:1: select SUM(timestamp'2023-01-01 01:01:00');
                   ^^^
-OCTO> select SUM(timestamp'01-01-2023 01:01:00');
+OCTO> select SUM(timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
-LINE 60:1: select SUM(DISTINCT timestamp'01-01-2023 01:01:00');
+LINE 60:1: select SUM(DISTINCT timestamp'2023-01-01 01:01:00');
                   ^^^
-OCTO> select SUM(DISTINCT timestamp'01-01-2023 01:01:00');
+OCTO> select SUM(DISTINCT timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP
-LINE 61:1: select SUM(ALL timestamp'01-01-2023 01:01:00');
+LINE 61:1: select SUM(ALL timestamp'2023-01-01 01:01:00');
                   ^^^
-OCTO> select SUM(ALL timestamp'01-01-2023 01:01:00');
+OCTO> select SUM(ALL timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
-LINE 62:1: select AVG(timestamp'01-01-2023 01:01:00');
+LINE 62:1: select AVG(timestamp'2023-01-01 01:01:00');
                   ^^^
-OCTO> select AVG(timestamp'01-01-2023 01:01:00');
+OCTO> select AVG(timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
-LINE 63:1: select AVG(DISTINCT timestamp'01-01-2023 01:01:00');
+LINE 63:1: select AVG(DISTINCT timestamp'2023-01-01 01:01:00');
                   ^^^
-OCTO> select AVG(DISTINCT timestamp'01-01-2023 01:01:00');
+OCTO> select AVG(DISTINCT timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP
-LINE 64:1: select AVG(ALL timestamp'01-01-2023 01:01:00');
+LINE 64:1: select AVG(ALL timestamp'2023-01-01 01:01:00');
                   ^^^
-OCTO> select AVG(ALL timestamp'01-01-2023 01:01:00');
-OCTO> select MIN(timestamp'01-01-2023 01:01:00');
+OCTO> select AVG(ALL timestamp'2023-01-01 01:01:00');
+OCTO> select MIN(timestamp'2023-01-01 01:01:00');
 min
 2023-01-01 01:01:00
 (1 row)
-OCTO> select MIN(DISTINCT timestamp'01-01-2023 01:01:00');
+OCTO> select MIN(DISTINCT timestamp'2023-01-01 01:01:00');
 min
 2023-01-01 01:01:00
 (1 row)
-OCTO> select MIN(ALL timestamp'01-01-2023 01:01:00');
+OCTO> select MIN(ALL timestamp'2023-01-01 01:01:00');
 min
 2023-01-01 01:01:00
 (1 row)
-OCTO> select MAX(timestamp'01-01-2023 01:01:00');
+OCTO> select MAX(timestamp'2023-01-01 01:01:00');
 max
 2023-01-01 01:01:00
 (1 row)
-OCTO> select MAX(DISTINCT timestamp'01-01-2023 01:01:00');
+OCTO> select MAX(DISTINCT timestamp'2023-01-01 01:01:00');
 max
 2023-01-01 01:01:00
 (1 row)
-OCTO> select MAX(ALL timestamp'01-01-2023 01:01:00');
+OCTO> select MAX(ALL timestamp'2023-01-01 01:01:00');
 max
 2023-01-01 01:01:00
 (1 row)
-OCTO> select COUNT(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select COUNT(timestamp with time zone'2023-01-01 01:01:00-05:00');
 count
 1
 (1 row)
-OCTO> select COUNT(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select COUNT(DISTINCT timestamp with time zone'2023-01-01 01:01:00-05:00');
 count
 1
 (1 row)
-OCTO> select COUNT(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select COUNT(ALL timestamp with time zone'2023-01-01 01:01:00-05:00');
 count
 1
 (1 row)
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
-LINE 74:1: select SUM(timestamp with time zone'01-01-2023 01:01:00-05:00');
+LINE 74:1: select SUM(timestamp with time zone'2023-01-01 01:01:00-05:00');
                   ^^^
-OCTO> select SUM(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select SUM(timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
-LINE 75:1: select SUM(DISTINCT timestamp with time zone'01-01-2023 01:01:0...
+LINE 75:1: select SUM(DISTINCT timestamp with time zone'2023-01-01 01:01:0...
                   ^^^
-OCTO> select SUM(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select SUM(DISTINCT timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function sum cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
-LINE 76:1: select SUM(ALL timestamp with time zone'01-01-2023 01:01:00-05:...
+LINE 76:1: select SUM(ALL timestamp with time zone'2023-01-01 01:01:00-05:...
                   ^^^
-OCTO> select SUM(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select SUM(ALL timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
-LINE 77:1: select AVG(timestamp with time zone'01-01-2023 01:01:00-05:00');
+LINE 77:1: select AVG(timestamp with time zone'2023-01-01 01:01:00-05:00');
                   ^^^
-OCTO> select AVG(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select AVG(timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
-LINE 78:1: select AVG(DISTINCT timestamp with time zone'01-01-2023 01:01:0...
+LINE 78:1: select AVG(DISTINCT timestamp with time zone'2023-01-01 01:01:0...
                   ^^^
-OCTO> select AVG(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select AVG(DISTINCT timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_MISTYPED_FUNCTION: Function avg cannot be invoked with a parameter of type TIMESTAMP WITH TIME ZONE
-LINE 79:1: select AVG(ALL timestamp with time zone'01-01-2023 01:01:00-05:...
+LINE 79:1: select AVG(ALL timestamp with time zone'2023-01-01 01:01:00-05:...
                   ^^^
-OCTO> select AVG(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
-OCTO> select MIN(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select AVG(ALL timestamp with time zone'2023-01-01 01:01:00-05:00');
+OCTO> select MIN(timestamp with time zone'2023-01-01 01:01:00-05:00');
 min
 2023-01-01 01:01:00-05
 (1 row)
-OCTO> select MIN(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select MIN(DISTINCT timestamp with time zone'2023-01-01 01:01:00-05:00');
 min
 2023-01-01 01:01:00-05
 (1 row)
-OCTO> select MIN(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select MIN(ALL timestamp with time zone'2023-01-01 01:01:00-05:00');
 min
 2023-01-01 01:01:00-05
 (1 row)
-OCTO> select MAX(timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select MAX(timestamp with time zone'2023-01-01 01:01:00-05:00');
 max
 2023-01-01 01:01:00-05
 (1 row)
-OCTO> select MAX(DISTINCT timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select MAX(DISTINCT timestamp with time zone'2023-01-01 01:01:00-05:00');
 max
 2023-01-01 01:01:00-05
 (1 row)
-OCTO> select MAX(ALL timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select MAX(ALL timestamp with time zone'2023-01-01 01:01:00-05:00');
 max
 2023-01-01 01:01:00-05
 (1 row)

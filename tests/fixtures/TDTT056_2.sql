@@ -14,7 +14,7 @@
 drop table if exists TDTT0562;
 create table TDTT0562 (id int,dob timestamp with time zone);
 insert into TDTT0562 values(1,NULL);
-insert into TDTT0562 values(0,timestamp with time zone'01-01-2023 01:01:01-05:00');
+insert into TDTT0562 values(0,timestamp with time zone'2023-01-01 01:01:01-05:00');
 select * from TDTT0562;
 
 drop table if exists TDTT0562;

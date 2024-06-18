@@ -39,13 +39,13 @@ id|dob
 (2 rows)
 OCTO> 
 
-insert into testd values(3,date'10-17-2025');
+insert into testd values(3,date'2025-10-17');
 select * from testd;
 
-insert into testts values(3, timestamp'10-17-2025 12:00:00');
+insert into testts values(3, timestamp'2025-10-17 12:00:00');
 select * from testts;
 
-OCTO> insert into testd values(3,date'10-17-2025');
+OCTO> insert into testd values(3,date'2025-10-17');
 INSERT 0 1
 OCTO> select * from testd;
 id|dob
@@ -53,7 +53,7 @@ id|dob
 2|2023-10-16
 3|2025-10-17
 (3 rows)
-OCTO> insert into testts values(3, timestamp'10-17-2025 12:00:00');
+OCTO> insert into testts values(3, timestamp'2025-10-17 12:00:00');
 INSERT 0 1
 OCTO> select * from testts;
 id|dob

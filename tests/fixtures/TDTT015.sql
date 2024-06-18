@@ -10,12 +10,12 @@
 #								#
 #################################################################
 
-select date'01-01-2023'||'test';
-select date'01-01-2023'||NULL;
+select date'2023-01-01'||'test';
+select date'2023-01-01'||NULL;
 select time'01:01:01'||'test';
 select time'01:01:01'||NULL;
-select timestamp'01-01-2023 01:01:01' || NULL;
-select timestamp'01-01-2023 01:01:01' || 'test';
+select timestamp'2023-01-01 01:01:01' || NULL;
+select timestamp'2023-01-01 01:01:01' || 'test';
 
 create table test (dob date(horolog), dot time(horolog), dots timestamp(horolog));
 insert into test values(date(horolog)'66749',time(horolog)'50531',timestamp(horolog)'66749,50531');

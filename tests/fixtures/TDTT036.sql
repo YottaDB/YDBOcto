@@ -10,21 +10,21 @@
 #								#
 #################################################################
 
-select * from names order by date'01-01-2023';
-select * from names order by timestamp'01-01-2023 01:01:01';
+select * from names order by date'2023-01-01';
+select * from names order by timestamp'2023-01-01 01:01:01';
 select * from names order by time'01:01:01';
 select * from names order by time with time zone'01:01:01';
-select * from names order by timestamp with time zone'01-01-2023 01:01:01';
+select * from names order by timestamp with time zone'2023-01-01 01:01:01';
 
-select 1 from names group by date'01-01-2023';
-select 1 from names group by timestamp'01-01-2023 01:01:01';
+select 1 from names group by date'2023-01-01';
+select 1 from names group by timestamp'2023-01-01 01:01:01';
 select 1 from names group by time'01:01:01';
 select 1 from names group by time with time zone'01:01:01';
-select 1 from names group by timestamp with time zone'01-01-2023 01:01:01';
+select 1 from names group by timestamp with time zone'2023-01-01 01:01:01';
 
-create table test1 (id int, dob date check(dob<date'01-01-2023'), tob time check(tob<time'01:01:01'),tos timestamp check(tos<timestamp'01-01-2023 01:01:01')
+create table test1 (id int, dob date check(dob<date'2023-01-01'), tob time check(tob<time'01:01:01'),tos timestamp check(tos<timestamp'2023-01-01 01:01:01')
 								, tobs time with time zone check (tobs<time with time zone'01:01:01')
-								, toss timestamp with time zone check (toss< timestamp with time zone'01-01-2023 01:01:01'));
+								, toss timestamp with time zone check (toss< timestamp with time zone'2023-01-01 01:01:01'));
 \d test1;
 create table test2 (id int, dob date check(dob<date(fileman)'3230101'), tob time check(tob<time(horolog)'3661'));
 \d test2;

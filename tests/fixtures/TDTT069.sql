@@ -12,9 +12,9 @@
 
 create table testfileman(id int primary key, dob date(fileman)) global "^testfileman(keys(""id""))" readonly;
 -- original query from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1404#note_1672408831 is
--- `select start_date,stop_date from order1 where start_date = timestamp'12-31-2015 00:00:00';`
-select * from testfileman where dob = timestamp '06-17-2023 00:00:00';
+-- `select start_date,stop_date from order1 where start_date = timestamp'2015-12-31 00:00:00';`
+select * from testfileman where dob = timestamp '2023-06-17 00:00:00';
 -- original query from https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1404#note_1672411664 is
--- `select start_date,stop_date from order1 where start_date between date'01-01-2015' and date'01-01-2016';`
-select * from testfileman where dob between date'01-01-2023' and date'01-01-2024';
+-- `select start_date,stop_date from order1 where start_date between date'2015-01-01' and date'2016-01-01';`
+select * from testfileman where dob between date'2023-01-01' and date'2024-01-01';
 

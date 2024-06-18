@@ -10,9 +10,9 @@
 #								#
 #################################################################
 
-insert into testd values(3,date'10-17-2025');
+insert into testd values(3,date'2025-10-17');
 select * from testd;
 
-insert into testts values(3, timestamp'10-17-2025 12:00:00');
+insert into testts values(3, timestamp'2025-10-17 12:00:00');
 select * from testts;
 

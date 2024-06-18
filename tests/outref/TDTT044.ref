@@ -1,4 +1,5 @@
 
+set datestyle='MDY';
 create table testr(id int primary key, dob date(fileman)) GLOBAL "^date" readonly;
 select * from testr;
 select * from testr where dob > date'02-01-2023';
@@ -25,7 +26,7 @@ select t.id as t_id,f.id as f_id,t.dateofbirth,f.dateofbirth from txt t, flmn f 
 
 drop table if exists orders;
 create table orders (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders" READONLY;
-set datestyle="mdy";
+set datestyle='mdy';
 select * from orders where orders.order_date = DATE '03-14-1760';
 select * from orders where orders.order_date IN (DATE '03-14-1760');
 
@@ -37,6 +38,7 @@ create table timestamp_fileman_tbl (order_id integer primary key, order_timestam
 select order_timestamp from timestamp_zut_tbl order by order_timestamp;
 select order_timestamp from timestamp_fileman_tbl order by order_timestamp;
 select * from timestamp_zut_tbl t1 inner join timestamp_fileman_tbl t2 on t1.order_timestamp = t2.order_timestamp order by t1.order_timestamp;
+OCTO> set datestyle='MDY';
 OCTO> create table testr(id int primary key, dob date(fileman)) GLOBAL "^date" readonly;
 CREATE TABLE
 OCTO> select * from testr;
@@ -131,7 +133,7 @@ OCTO> drop table if exists orders;
 DROP TABLE
 OCTO> create table orders (order_id INTEGER PRIMARY KEY, order_date DATE, order_amount VARCHAR(7), customer_id INTEGER) GLOBAL "^orders" READONLY;
 CREATE TABLE
-OCTO> set datestyle="mdy";
+OCTO> set datestyle='mdy';
 OCTO> select * from orders where orders.order_date = DATE '03-14-1760';
 order_id|order_date|order_amount|customer_id
 1|1760-03-14|$234.56|1
@@ -905,6 +907,7 @@ octoPlan1(cursorId)
     ZKILL %ydboctocursor(cursorId,"keys",1,"testr","id")
     QUIT
 
+set datestyle='MDY';
 create table testrw (id int,dob date);
 insert into testrw values(1,date'01-01-2023');
 insert into testrw values(1,date(fileman)'3230201');
@@ -931,6 +934,7 @@ insert into flmn values (5, 'a9', 'b9', '7180309');
 select t.id as t_id, t.dateofbirth as t_dateofbirth from txt t order by dateofbirth;
 select f.id as f_id, f.dateofbirth as f_dateofbirth from flmn f order by dateofbirth;
 select t.id as t_id,f.id as f_id,t.dateofbirth,f.dateofbirth from txt t, flmn f where t.dateofbirth = f.dateofbirth;
+OCTO> set datestyle='MDY';
 OCTO> create table testrw (id int,dob date);
 CREATE TABLE
 OCTO> insert into testrw values(1,date'01-01-2023');

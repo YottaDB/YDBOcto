@@ -1,5 +1,5 @@
 -- ERR_TYPE_NOT_COMPATIBLE
-select (date '11-29-2023' + date '11-28-2023' - date '11-28-2023');
+select (date '2023-11-29' + date '2023-11-28' - date '2023-11-28');
 
 -- ERR_INVALID_DATE_TIME_VALUE
 select date(zut) '-27809392000000000';
@@ -8,15 +8,15 @@ select date_to_horolog(date(zut) '-27809392000000000');
 select date_to_zhorolog(date(zut) '-27809392000000000');
 select timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - time'5:8:0';
 select time(zhorolog) with time zone ',25210,078868,23372299286180000000001';
-select date'01-01-2023 .-01-2023';
-select '01-01-2023 .-01-2023'::date;
-select '01-01-2023 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
+select date'2023-01-01 .-01-2023';
+select '2023-01-01 .-01-2023'::date;
+select '2023-01-01 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
 
 -- ERR_DATE_TIME_RESULT_OUT_OF_RANGE
-select date'01-01-2023' + 660000001-2-23;
-select date'01-01-2023' - 660000001;
-select date'01-01-2024'-date'01-02-2024'; -- This should not error. This ensure a -1 return doesn't flag an error
-select date'01-01-2023' + 3230101784-2023;
+select date'2023-01-01' + 660000001-2-23;
+select date'2023-01-01' - 660000001;
+select date'2024-01-01'-date'2024-01-02'; -- This should not error. This ensure a -1 return doesn't flag an error
+select date'2023-01-01' + 3230101784-2023;
 
 -- Size cannot be specified for date/time type
 create table tmpd (id integer primary key, o_date date(1));
@@ -25,12 +25,12 @@ create table tmpd (id integer primary key, o_date timestamp(1));
 create table tmpd (id integer primary key, o_date timestamp with time zone(1));
 create table tmpd (id integer primary key, o_date time with time zone(1));
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
-LINE 1:1: select (date '11-29-2023' + date '11-28-2023' - date '11-28-202...
+LINE 1:1: select (date '2023-11-29' + date '2023-11-28' - date '2023-11-2...
                   ^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for addition operation
-LINE 1:1: ...ct (date '11-29-2023' + date '11-28-2023' - date '11-28-2023');
+LINE 1:1: ...ct (date '2023-11-29' + date '2023-11-28' - date '2023-11-28');
                                      ^^^^^^^^^^^^^^^^^
-OCTO> select (date '11-29-2023' + date '11-28-2023' - date '11-28-2023');
+OCTO> select (date '2023-11-29' + date '2023-11-28' - date '2023-11-28');
 OCTO> select date(zut) '-27809392000000000';
 ???
 1088-10-03
@@ -49,24 +49,24 @@ OCTO> select timestamp with time zone'6-12-5950 13:12:66.59647+00:39' - time'5:8
 LINE 8:1: ...time(zhorolog) with time zone ',25210,078868,2337229928618000000...
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time(zhorolog) with time zone ',25210,078868,23372299286180000000001';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 .-01-2023" is invalid for type DATE and format TEXT
-LINE 9:1: select date'01-01-2023 .-01-2023';
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .-01-2023" is invalid for type DATE and format TEXT
+LINE 9:1: select date'2023-01-01 .-01-2023';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023 .-01-2023';
-OCTO> select '01-01-2023 .-01-2023'::date;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 .-01-2023" is invalid for type DATE and format TEXT
-OCTO> select '01-01-2023 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01" is invalid for type DATE and format TEXT
-OCTO> select date'01-01-2023' + 660000001-2-23;
+OCTO> select date'2023-01-01 .-01-2023';
+OCTO> select '2023-01-01 .-01-2023'::date;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .-01-2023" is invalid for type DATE and format TEXT
+OCTO> select '2023-01-01 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01'::date;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 .1:0final,first,float,floor,following,forrespondjng,count,covar_pop,cova1:01" is invalid for type DATE and format TEXT
+OCTO> select date'2023-01-01' + 660000001-2-23;
 [ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
-OCTO> select date'01-01-2023' - 660000001;
+OCTO> select date'2023-01-01' - 660000001;
 [ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
-OCTO> select date'01-01-2024'-date'01-02-2024';
+OCTO> select date'2024-01-01'-date'2024-01-02';
 ???
 -1
 (1 row)
 OCTO> -- This should not error. This ensure a -1 return doesn't flag an error
-select date'01-01-2023' + 3230101784-2023;
+select date'2023-01-01' + 3230101784-2023;
 [ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
 LINE 18:1: create table tmpd (id integer primary key, o_date date(1));
                                                                   ^

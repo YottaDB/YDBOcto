@@ -1,217 +1,217 @@
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and DATE cannot be matched
-LINE 1:1: (select time'01:01:01') union (select date'01-01-2023');
+LINE 1:1: (select time'01:01:01') union (select date'2023-01-01');
                   ^^^^^^^^^^^^^^
-LINE 1:1: (select time'01:01:01') union (select date'01-01-2023');
+LINE 1:1: (select time'01:01:01') union (select date'2023-01-01');
                                                 ^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select date'01-01-2023');
+OCTO> (select time'01:01:01') union (select date'2023-01-01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and TIME cannot be matched
-LINE 2:1: (select date'01-01-2023') union (select time'01:01:01');
+LINE 2:1: (select date'2023-01-01') union (select time'01:01:01');
                   ^^^^^^^^^^^^^^^^
-LINE 2:1: (select date'01-01-2023') union (select time'01:01:01');
+LINE 2:1: (select date'2023-01-01') union (select time'01:01:01');
                                                   ^^^^^^^^^^^^^^
-OCTO> (select date'01-01-2023') union (select time'01:01:01');
+OCTO> (select date'2023-01-01') union (select time'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and TIME cannot be matched
-LINE 3:1: (select date'01-01-2023') union (select date'01-01-2023') union ...
+LINE 3:1: (select date'2023-01-01') union (select date'2023-01-01') union ...
                   ^^^^^^^^^^^^^^^^
-LINE 3:1: ...) union (select date'01-01-2023') union (select time'01:01:01');
+LINE 3:1: ...) union (select date'2023-01-01') union (select time'01:01:01');
                                                              ^^^^^^^^^^^^^^
-OCTO> (select date'01-01-2023') union (select date'01-01-2023') union (select time'01:01:01');
+OCTO> (select date'2023-01-01') union (select date'2023-01-01') union (select time'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and DATE cannot be matched
-LINE 4:1: (select time'01:01:01') union (select date'01-01-2023') union (s...
+LINE 4:1: (select time'01:01:01') union (select date'2023-01-01') union (s...
                   ^^^^^^^^^^^^^^
-LINE 4:1: ...1:01:01') union (select date'01-01-2023') union (select date'01-...
+LINE 4:1: ...1:01:01') union (select date'2023-01-01') union (select date'202...
                                      ^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select date'01-01-2023') union (select date'01-01-2023');
+OCTO> (select time'01:01:01') union (select date'2023-01-01') union (select date'2023-01-01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and TIME cannot be matched
-LINE 5:1: ...01-2023') union (select date'01-01-2023' union (select time'01:0...
+LINE 5:1: ...3-01-01') union (select date'2023-01-01' union (select time'01:0...
                                      ^^^^^^^^^^^^^^^^
-LINE 5:1: ...) union (select date'01-01-2023' union (select time'01:01:01'));
+LINE 5:1: ...) union (select date'2023-01-01' union (select time'01:01:01'));
                                                             ^^^^^^^^^^^^^^
-OCTO> (select date'01-01-2023') union (select date'01-01-2023' union (select time'01:01:01'));
+OCTO> (select date'2023-01-01') union (select date'2023-01-01' union (select time'01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and DATE cannot be matched
-LINE 6:1: (select time'01:01:01') union (select date'01-01-2023' union (se...
+LINE 6:1: (select time'01:01:01') union (select date'2023-01-01' union (se...
                   ^^^^^^^^^^^^^^
-LINE 6:1: ...1:01:01') union (select date'01-01-2023' union (select date'01-0...
+LINE 6:1: ...1:01:01') union (select date'2023-01-01' union (select date'2023...
                                      ^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select date'01-01-2023' union (select date'01-01-2023'));
+OCTO> (select time'01:01:01') union (select date'2023-01-01' union (select date'2023-01-01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and TIME cannot be matched
-LINE 7:1: (select timestamp with time zone'01-01-2023 01:01:01-05') union ...
+LINE 7:1: (select timestamp with time zone'2023-01-01 01:01:01-05') union ...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 7:1: ...ime zone'01-01-2023 01:01:01-05') union (select time'01:01:01');
+LINE 7:1: ...ime zone'2023-01-01 01:01:01-05') union (select time'01:01:01');
                                                              ^^^^^^^^^^^^^^
-OCTO> (select timestamp with time zone'01-01-2023 01:01:01-05') union (select time'01:01:01');
+OCTO> (select timestamp with time zone'2023-01-01 01:01:01-05') union (select time'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and TIMESTAMP WITH TIME ZONE cannot be matched
-LINE 8:1: (select time'01:01:01') union (select timestamp with time zone'0...
+LINE 8:1: (select time'01:01:01') union (select timestamp with time zone'2...
                   ^^^^^^^^^^^^^^
-LINE 8:1: ...union (select timestamp with time zone'01-01-2023 01:01:01-05');
+LINE 8:1: ...union (select timestamp with time zone'2023-01-01 01:01:01-05');
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select timestamp with time zone'01-01-2023 01:01:01-05');
+OCTO> (select time'01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01-05');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and TIMESTAMP WITH TIME ZONE cannot be matched
 LINE 9:1: (select time'01:01:01') union (select time'01:01:01') union (sel...
                   ^^^^^^^^^^^^^^
-LINE 9:1: ...union (select timestamp with time zone'01-01-2023 01:01:01-05');
+LINE 9:1: ...union (select timestamp with time zone'2023-01-01 01:01:01-05');
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select time'01:01:01') union (select timestamp with time zone'01-01-2023 01:01:01-05');
+OCTO> (select time'01:01:01') union (select time'01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01-05');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and TIME cannot be matched
-LINE 10:1: (select timestamp with time zone'01-01-2023 01:01:01-05') union ...
+LINE 10:1: (select timestamp with time zone'2023-01-01 01:01:01-05') union ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 10:1: ...01:01-05') union (select time'01:01:01') union (select time'01:0...
                                        ^^^^^^^^^^^^^^
-OCTO> (select timestamp with time zone'01-01-2023 01:01:01-05') union (select time'01:01:01') union (select time'01:01:01');
+OCTO> (select timestamp with time zone'2023-01-01 01:01:01-05') union (select time'01:01:01') union (select time'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and TIMESTAMP WITH TIME ZONE cannot be matched
 LINE 11:1: ...01:01:01') union (select time'01:01:01' union (select timestamp ...
                                        ^^^^^^^^^^^^^^
-LINE 11:1: ...nion (select timestamp with time zone'01-01-2023 01:01:01-05'));
+LINE 11:1: ...nion (select timestamp with time zone'2023-01-01 01:01:01-05'));
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select time'01:01:01' union (select timestamp with time zone'01-01-2023 01:01:01-05'));
+OCTO> (select time'01:01:01') union (select time'01:01:01' union (select timestamp with time zone'2023-01-01 01:01:01-05'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and TIME cannot be matched
-LINE 12:1: (select timestamp with time zone'01-01-2023 01:01:01-05') union ...
+LINE 12:1: (select timestamp with time zone'2023-01-01 01:01:01-05') union ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 12:1: ...01:01-05') union (select time'01:01:01' union (select time'01:01...
                                        ^^^^^^^^^^^^^^
-OCTO> (select timestamp with time zone'01-01-2023 01:01:01-05') union (select time'01:01:01' union (select time'01:01:01'));
+OCTO> (select timestamp with time zone'2023-01-01 01:01:01-05') union (select time'01:01:01' union (select time'01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and TIME WITH TIME ZONE cannot be matched
-LINE 13:1: (select timestamp with time zone'01-01-2023 01:01:01-05') union ...
+LINE 13:1: (select timestamp with time zone'2023-01-01 01:01:01-05') union ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 13:1: ...023 01:01:01-05') union (select time with time zone'01:01:01');
+LINE 13:1: ...-01 01:01:01-05') union (select time with time zone'01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select timestamp with time zone'01-01-2023 01:01:01-05') union (select time with time zone'01:01:01');
+OCTO> (select timestamp with time zone'2023-01-01 01:01:01-05') union (select time with time zone'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE cannot be matched
 LINE 14:1: (select time with time zone'01:01:01') union (select timestamp ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 14:1: ...union (select timestamp with time zone'01-01-2023 01:01:01-05');
+LINE 14:1: ...union (select timestamp with time zone'2023-01-01 01:01:01-05');
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select timestamp with time zone'01-01-2023 01:01:01-05');
+OCTO> (select time with time zone'01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01-05');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE cannot be matched
 LINE 15:1: (select time with time zone'01:01:01') union (select time with ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 15:1: ...union (select timestamp with time zone'01-01-2023 01:01:01-05');
+LINE 15:1: ...union (select timestamp with time zone'2023-01-01 01:01:01-05');
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01') union (select timestamp with time zone'01-01-2023 01:01:01-05');
+OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01') union (select timestamp with time zone'2023-01-01 01:01:01-05');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and TIME WITH TIME ZONE cannot be matched
-LINE 16:1: (select timestamp with time zone'01-01-2023 01:01:01-05') union ...
+LINE 16:1: (select timestamp with time zone'2023-01-01 01:01:01-05') union ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 16:1: ...') union (select time with time zone'01:01:01') union (select t...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select timestamp with time zone'01-01-2023 01:01:01-05') union (select time with time zone'01:01:01') union (select time with time zone'01:01:01');
+OCTO> (select timestamp with time zone'2023-01-01 01:01:01-05') union (select time with time zone'01:01:01') union (select time with time zone'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE cannot be matched
 LINE 17:1: ...') union (select time with time zone'01:01:01' union (select ti...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 17:1: ...nion (select timestamp with time zone'01-01-2023 01:01:01-05'));
+LINE 17:1: ...nion (select timestamp with time zone'2023-01-01 01:01:01-05'));
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01' union (select timestamp with time zone'01-01-2023 01:01:01-05'));
+OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01' union (select timestamp with time zone'2023-01-01 01:01:01-05'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP WITH TIME ZONE and TIME WITH TIME ZONE cannot be matched
-LINE 18:1: (select timestamp with time zone'01-01-2023 01:01:01-05') union ...
+LINE 18:1: (select timestamp with time zone'2023-01-01 01:01:01-05') union ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 18:1: ...') union (select time with time zone'01:01:01' union (select ti...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select timestamp with time zone'01-01-2023 01:01:01-05') union (select time with time zone'01:01:01' union (select time with time zone'01:01:01'));
+OCTO> (select timestamp with time zone'2023-01-01 01:01:01-05') union (select time with time zone'01:01:01' union (select time with time zone'01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and DATE cannot be matched
-LINE 19:1: (select time with time zone'01:01:01') union (select date'01-01...
+LINE 19:1: (select time with time zone'01:01:01') union (select date'2023-...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 19:1: ... time with time zone'01:01:01') union (select date'01-01-2023');
+LINE 19:1: ... time with time zone'01:01:01') union (select date'2023-01-01');
                                                             ^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select date'01-01-2023');
+OCTO> (select time with time zone'01:01:01') union (select date'2023-01-01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and TIME WITH TIME ZONE cannot be matched
-LINE 20:1: (select date'01-01-2023') union (select time with time zone'01:0...
+LINE 20:1: (select date'2023-01-01') union (select time with time zone'01:0...
                    ^^^^^^^^^^^^^^^^
-LINE 20:1: ...date'01-01-2023') union (select time with time zone'01:01:01');
+LINE 20:1: ...date'2023-01-01') union (select time with time zone'01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select date'01-01-2023') union (select time with time zone'01:01:01');
+OCTO> (select date'2023-01-01') union (select time with time zone'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and TIME WITH TIME ZONE cannot be matched
-LINE 21:1: (select date'01-01-2023') union (select date'01-01-2023') union ...
+LINE 21:1: (select date'2023-01-01') union (select date'2023-01-01') union ...
                    ^^^^^^^^^^^^^^^^
-LINE 21:1: ...date'01-01-2023') union (select time with time zone'01:01:01');
+LINE 21:1: ...date'2023-01-01') union (select time with time zone'01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select date'01-01-2023') union (select date'01-01-2023') union (select time with time zone'01:01:01');
+OCTO> (select date'2023-01-01') union (select date'2023-01-01') union (select time with time zone'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and DATE cannot be matched
-LINE 22:1: (select time with time zone'01:01:01') union (select date'01-01...
+LINE 22:1: (select time with time zone'01:01:01') union (select date'2023-...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 22:1: ...1:01:01') union (select date'01-01-2023') union (select date'01-...
+LINE 22:1: ...1:01:01') union (select date'2023-01-01') union (select date'202...
                                       ^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select date'01-01-2023') union (select date'01-01-2023');
+OCTO> (select time with time zone'01:01:01') union (select date'2023-01-01') union (select date'2023-01-01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types DATE and TIME WITH TIME ZONE cannot be matched
-LINE 23:1: ...01-2023') union (select date'01-01-2023' union (select time with...
+LINE 23:1: ...3-01-01') union (select date'2023-01-01' union (select time with...
                                       ^^^^^^^^^^^^^^^^
-LINE 23:1: ...date'01-01-2023' union (select time with time zone'01:01:01'));
+LINE 23:1: ...date'2023-01-01' union (select time with time zone'01:01:01'));
                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select date'01-01-2023') union (select date'01-01-2023' union (select time with time zone'01:01:01'));
+OCTO> (select date'2023-01-01') union (select date'2023-01-01' union (select time with time zone'01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and DATE cannot be matched
-LINE 24:1: (select time with time zone'01:01:01') union (select date'01-01...
+LINE 24:1: (select time with time zone'01:01:01') union (select date'2023-...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 24:1: ...1:01:01') union (select date'01-01-2023' union (select date'01-0...
+LINE 24:1: ...1:01:01') union (select date'2023-01-01' union (select date'2023...
                                       ^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select date'01-01-2023' union (select date'01-01-2023'));
+OCTO> (select time with time zone'01:01:01') union (select date'2023-01-01' union (select date'2023-01-01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and TIME cannot be matched
-LINE 25:1: (select timestamp'01-01-2023 01:01:01') union (select time'01:01...
+LINE 25:1: (select timestamp'2023-01-01 01:01:01') union (select time'01:01...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 25:1: ...t timestamp'01-01-2023 01:01:01') union (select time'01:01:01');
+LINE 25:1: ...t timestamp'2023-01-01 01:01:01') union (select time'01:01:01');
                                                               ^^^^^^^^^^^^^^
-OCTO> (select timestamp'01-01-2023 01:01:01') union (select time'01:01:01');
+OCTO> (select timestamp'2023-01-01 01:01:01') union (select time'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and TIMESTAMP cannot be matched
-LINE 26:1: (select time'01:01:01') union (select timestamp'01-01-2023 01:01...
+LINE 26:1: (select time'01:01:01') union (select timestamp'2023-01-01 01:01...
                    ^^^^^^^^^^^^^^
-LINE 26:1: ...t time'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+LINE 26:1: ...t time'01:01:01') union (select timestamp'2023-01-01 01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+OCTO> (select time'01:01:01') union (select timestamp'2023-01-01 01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and TIMESTAMP cannot be matched
 LINE 27:1: (select time'01:01:01') union (select time'01:01:01') union (sel...
                    ^^^^^^^^^^^^^^
-LINE 27:1: ...t time'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+LINE 27:1: ...t time'01:01:01') union (select timestamp'2023-01-01 01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select time'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+OCTO> (select time'01:01:01') union (select time'01:01:01') union (select timestamp'2023-01-01 01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and TIME cannot be matched
-LINE 28:1: (select timestamp'01-01-2023 01:01:01') union (select time'01:01...
+LINE 28:1: (select timestamp'2023-01-01 01:01:01') union (select time'01:01...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 28:1: ...01:01:01') union (select time'01:01:01') union (select time'01:0...
                                        ^^^^^^^^^^^^^^
-OCTO> (select timestamp'01-01-2023 01:01:01') union (select time'01:01:01') union (select time'01:01:01');
+OCTO> (select timestamp'2023-01-01 01:01:01') union (select time'01:01:01') union (select time'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME and TIMESTAMP cannot be matched
 LINE 29:1: ...01:01:01') union (select time'01:01:01' union (select timestamp'...
                                        ^^^^^^^^^^^^^^
-LINE 29:1: ...t time'01:01:01' union (select timestamp'01-01-2023 01:01:01'));
+LINE 29:1: ...t time'01:01:01' union (select timestamp'2023-01-01 01:01:01'));
                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time'01:01:01') union (select time'01:01:01' union (select timestamp'01-01-2023 01:01:01'));
+OCTO> (select time'01:01:01') union (select time'01:01:01' union (select timestamp'2023-01-01 01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and TIME cannot be matched
-LINE 30:1: (select timestamp'01-01-2023 01:01:01') union (select time'01:01...
+LINE 30:1: (select timestamp'2023-01-01 01:01:01') union (select time'01:01...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 30:1: ...01:01:01') union (select time'01:01:01' union (select time'01:01...
                                        ^^^^^^^^^^^^^^
-OCTO> (select timestamp'01-01-2023 01:01:01') union (select time'01:01:01' union (select time'01:01:01'));
+OCTO> (select timestamp'2023-01-01 01:01:01') union (select time'01:01:01' union (select time'01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and TIME WITH TIME ZONE cannot be matched
-LINE 31:1: (select timestamp'01-01-2023 01:01:01') union (select time with ...
+LINE 31:1: (select timestamp'2023-01-01 01:01:01') union (select time with ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 31:1: ...1-2023 01:01:01') union (select time with time zone'01:01:01');
+LINE 31:1: ...-01-01 01:01:01') union (select time with time zone'01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select timestamp'01-01-2023 01:01:01') union (select time with time zone'01:01:01');
+OCTO> (select timestamp'2023-01-01 01:01:01') union (select time with time zone'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and TIMESTAMP cannot be matched
 LINE 32:1: (select time with time zone'01:01:01') union (select timestamp'...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 32:1: ...e zone'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+LINE 32:1: ...e zone'01:01:01') union (select timestamp'2023-01-01 01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+OCTO> (select time with time zone'01:01:01') union (select timestamp'2023-01-01 01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and TIMESTAMP cannot be matched
 LINE 33:1: (select time with time zone'01:01:01') union (select time with ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 33:1: ...e zone'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+LINE 33:1: ...e zone'01:01:01') union (select timestamp'2023-01-01 01:01:01');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01') union (select timestamp'01-01-2023 01:01:01');
+OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01') union (select timestamp'2023-01-01 01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and TIME WITH TIME ZONE cannot be matched
-LINE 34:1: (select timestamp'01-01-2023 01:01:01') union (select time with ...
+LINE 34:1: (select timestamp'2023-01-01 01:01:01') union (select time with ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 34:1: ...') union (select time with time zone'01:01:01') union (select t...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select timestamp'01-01-2023 01:01:01') union (select time with time zone'01:01:01') union (select time with time zone'01:01:01');
+OCTO> (select timestamp'2023-01-01 01:01:01') union (select time with time zone'01:01:01') union (select time with time zone'01:01:01');
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIME WITH TIME ZONE and TIMESTAMP cannot be matched
 LINE 35:1: ...') union (select time with time zone'01:01:01' union (select ti...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 35:1: ...e zone'01:01:01' union (select timestamp'01-01-2023 01:01:01'));
+LINE 35:1: ...e zone'01:01:01' union (select timestamp'2023-01-01 01:01:01'));
                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01' union (select timestamp'01-01-2023 01:01:01'));
+OCTO> (select time with time zone'01:01:01') union (select time with time zone'01:01:01' union (select timestamp'2023-01-01 01:01:01'));
 [ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types TIMESTAMP and TIME WITH TIME ZONE cannot be matched
-LINE 36:1: (select timestamp'01-01-2023 01:01:01') union (select time with ...
+LINE 36:1: (select timestamp'2023-01-01 01:01:01') union (select time with ...
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 LINE 36:1: ...') union (select time with time zone'01:01:01' union (select ti...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> (select timestamp'01-01-2023 01:01:01') union (select time with time zone'01:01:01' union (select time with time zone'01:01:01'));
+OCTO> (select timestamp'2023-01-01 01:01:01') union (select time with time zone'01:01:01' union (select time with time zone'01:01:01'));
 OCTO> 

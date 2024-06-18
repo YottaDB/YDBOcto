@@ -10,8 +10,8 @@
 #								#
 #################################################################
 
-select date'01-01-2023'+time'01:01:01';
-select date'01-01-2023'+1;
+select date'2023-01-01'+time'01:01:01';
+select date'2023-01-01'+1;
 select date(fileman)'3230101'+time'01:01:01';
-select timestamp'01-01-2023 01:01:01'+time'01:01:01';
-select timestamp'01-01-2023 01:01:01'+time'23:59:59';
+select timestamp'2023-01-01 01:01:01'+time'01:01:01';
+select timestamp'2023-01-01 01:01:01'+time'23:59:59';

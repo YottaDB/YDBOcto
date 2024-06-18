@@ -42,9 +42,9 @@ select CAST(timestamp(fileman)'3230101.010101'AS VARCHAR);
 
 -- More detailed tests
 select timestamp(fileman)'3230101.010101'::time < time'01:02:01'; -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023'; -- Should return `true`
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02'; -- Should return `true`
 select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01'; -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date; -- Should return `true`
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date; -- Should return `true`
 
 select date(fileman)'3230101'::VARCHAR(2);
 select date(fileman)'3230101'::VARCHAR(3);

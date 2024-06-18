@@ -10,6 +10,7 @@
 #								#
 #################################################################
 
+set datestyle='MDY';
 create table testrw (id int,dob date);
 insert into testrw values(1,date'01-01-2023');
 insert into testrw values(1,date(fileman)'3230201');

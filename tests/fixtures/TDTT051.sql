@@ -20,5 +20,5 @@ select timestamp'2024-02-28 01:00:00' + time'23:00:00';
 -- Leap Second
 select timestamp with time zone'2016-12-31 18:59:60-05:00';
 
--- select date'02-30-2024'; -- Invalid date
--- select date '02-29-2023'; -- Invalid leap year
+-- select date'2024-02-30'; -- Invalid date
+-- select date '2023-02-29'; -- Invalid leap year

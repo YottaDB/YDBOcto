@@ -27,7 +27,6 @@ teardown() {
 }
 
 @test "TDTT002 : OCTO382 : Validate that date and time text format input to a date/time column in a readwrite table works" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	test_port=$(start_rocto 1400 -aw)
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT002.sql
 }
@@ -481,12 +480,12 @@ teardown() {
 }
 
 @test "TDTT041 : OCTO382 : Validate date and time working with different keywords in CREATE TABLE" {
-	yottadb -run %XCMD 'SET ^datetimedate(0)="01-01-2023"'
-	yottadb -run %XCMD 'SET ^datetimedate(1)="01-02-2023"'
-	yottadb -run %XCMD 'SET ^datetimedatekey("12-31-2022")="-1"'
-	yottadb -run %XCMD 'SET ^datetimedatekey("01-01-2023")="0"'
-	yottadb -run %XCMD 'SET ^datetimedatekey("01-02-2023")="1"'
-	yottadb -run %XCMD 'SET ^datetimedatekey("01-03-2023")="2"'
+	yottadb -run %XCMD 'SET ^datetimedate(0)="2023-01-01"'
+	yottadb -run %XCMD 'SET ^datetimedate(1)="2023-01-02"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2022-12-31")="-1"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2023-01-01")="0"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2023-01-02")="1"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2023-01-03")="2"'
 	load_fixture TDTT041.sql subtest novv
 	verify_output TDTT041 output.txt nodatetimefilter noinfo nodebug
 }
@@ -985,12 +984,10 @@ teardown() {
 }
 
 @test "TDTT051 : OCTO382 : Test leap year and leap second date/time values" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT051.sql "trim_trailing_zeroes"
 }
 
 @test "TDTT052 : OCTO382 : Test Postgres emulation and date/time inbuilt functions" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT052.sql "trim_trailing_zeroes"
 	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT052time.sql "postgres"
 }
@@ -1008,13 +1005,11 @@ teardown() {
 }
 
 @test "TDTT054 : OCTO382 : Test concat functions with 2 and 3 parameters" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	$ydb_dist/yottadb -r createconcatfunctiontest^datetime "TDTT054.sql"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT054.sql
 }
 
 @test "TDTT055 : OCTO382 : Test insert with mismatching type and value" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	test_port=$(start_rocto 1400 -aw)
 	load_fixture TDTT055_errors.sql subtest novv
 	verify_output TDTT055_errors output.txt nodatetimefilter noinfo nodebug
@@ -1033,7 +1028,7 @@ teardown() {
 	yottadb -run %XCMD 'SET ^datetimehorolog(1)=""'
 	yottadb -run %XCMD 'SET ^datetimefileman(0)="3230101.010101"'
 	yottadb -run %XCMD 'SET ^datetimefileman(1)=""'
-	yottadb -run %XCMD 'SET ^datetimetext(0)="01-01-2023"'
+	yottadb -run %XCMD 'SET ^datetimetext(0)="2023-01-01"'
 	yottadb -run %XCMD 'SET ^datetimetext(1)=""'
 	load_fixture TDTT056_2.sql subtest novv
 	verify_output TDTT056_2 output.txt nodatetimefilter noinfo nodebug
@@ -1060,9 +1055,9 @@ teardown() {
 @test "TDTT060 : OCTO382 : Validate date/time value auto upgrade in table, view and function" {
 	# Auto upgrade test
 	# Add gvns for readonly table
-	yottadb -run %XCMD 'SET ^tdtt060(1)="01-01-2023|01:01:01|01-01-2023 01:01:01|01-01-2023 01:01:01-05"'
-	yottadb -run %XCMD 'SET ^tdtt060(2)="01-01-2023|01:01:01|01-01-2023 01:01:01|04-01-2023 01:01:01-04"'
-	yottadb -run %XCMD 'SET ^tdtt060(3)="01-01-2023||01-01-2023 01:01:01|01-01-2023 04:01:01-05"'
+	yottadb -run %XCMD 'SET ^tdtt060(1)="2023-01-01|01:01:01|2023-01-01 01:01:01|2023-01-01 01:01:01-05"'
+	yottadb -run %XCMD 'SET ^tdtt060(2)="2023-01-01|01:01:01|2023-01-01 01:01:01|2023-04-01 01:01:01-04"'
+	yottadb -run %XCMD 'SET ^tdtt060(3)="2023-01-01||2023-01-01 01:01:01|2023-01-01 04:01:01-05"'
 	yottadb -run %XCMD 'SET ^tdtt060extract(1)="test"'
 	load_fixture TDTT060_before_upgrade.sql subtest novv
 	mv output.txt output_before_upgrade.txt
@@ -1082,7 +1077,6 @@ teardown() {
 }
 
 @test "TDTT061 : OCTO382 : Validate that literals without date/time type prefix can be inserted to date/time columns if the table column is defined as date/time type" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	test_port=$(start_rocto 1400 -aw)
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT061.sql
 	load_fixture TDTT061_octo.sql subtest novv
@@ -1092,7 +1086,6 @@ teardown() {
 @test "TDTT062 : Validate parameter value to date/time cast works fine as its used by powerbi report builder" {
 	# Include testing of all cast operation
 	stop_rocto
-	echo "datestyle = \"YMD\"" > octo.conf
 	test_port=$(start_rocto 1344 verbose)
 	testname="TDTT062"
 	run_java $testname $test_port &> output.txt
@@ -1155,7 +1148,6 @@ teardown() {
 }
 
 @test "TDTT065 : Validate specific cases of binary operation with date/time operands" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT065.sql
 }
 
@@ -1185,9 +1177,9 @@ teardown() {
 }
 
 @test "TDTT071 : Validate timestamp literal and global values working without time information" {
-	yottadb -run %XCMD 'SET ^TDTT071t(1)="01-01-2023"'
-	yottadb -run %XCMD 'SET ^TDTT071tz(1)="01-01-2023 01:01:01"'
-	yottadb -run %XCMD 'SET ^TDTT071tz(2)="01-01-2023"'
+	yottadb -run %XCMD 'SET ^TDTT071t(1)="2023-01-01"'
+	yottadb -run %XCMD 'SET ^TDTT071tz(1)="2023-01-01 01:01:01"'
+	yottadb -run %XCMD 'SET ^TDTT071tz(2)="2023-01-01"'
 	yottadb -run %XCMD 'SET ^TDTT071tf(1)="3230101"'
 	yottadb -run %XCMD 'SET ^TDTT071tf(2)="3230101."'
 	yottadb -run %XCMD 'SET ^TDTT071tzf(1)="3230101"'
@@ -1289,12 +1281,12 @@ teardown() {
 	load_fixture customers.sql
 	load_fixture customers.zwr
 	yottadb -run %XCMD 'kill ^orders'
-	yottadb -run %XCMD 'set ^orders(1)="07-04-1776|$234.56|1"'
-	yottadb -run %XCMD 'set ^orders(2)="03-14-1760|$78.50|3"'
-	yottadb -run %XCMD 'set ^orders(3)="05-23-1784|$124.00|2"'
-	yottadb -run %XCMD 'set ^orders(4)="09-03-1790|$65.50|3"'
-	yottadb -run %XCMD 'set ^orders(5)="07-21-1795|$25.50|10"'
-	yottadb -run %XCMD 'set ^orders(6)="11-27-1787|$14.40|9"'
+	yottadb -run %XCMD 'set ^orders(1)="1776-07-04|$234.56|1"'
+	yottadb -run %XCMD 'set ^orders(2)="1760-03-14|$78.50|3"'
+	yottadb -run %XCMD 'set ^orders(3)="1784-05-23|$124.00|2"'
+	yottadb -run %XCMD 'set ^orders(4)="1790-09-03|$65.50|3"'
+	yottadb -run %XCMD 'set ^orders(5)="1795-07-21|$25.50|10"'
+	yottadb -run %XCMD 'set ^orders(6)="1787-11-27|$14.40|9"'
 	load_fixture TDTT082.sql subtest novv
 	verify_output TDTT082 output.txt nodatetimefilter noinfo nodebug
 }
@@ -1460,7 +1452,6 @@ teardown() {
 @test "TDTT098 : Validate parameter value to date/time cast works fine as its used by powerbi report builder" {
 	# Include testing of all cast operation
 	stop_rocto
-	echo "datestyle = \"YMD\"" > octo.conf
 	test_port=$(start_rocto 1344 verbose)
 	testname="TDTT098"
 	run_java $testname $test_port &> output.txt || true

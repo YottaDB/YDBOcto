@@ -112,7 +112,6 @@ CAT
 }
 
 @test "TERR011 : queries ensure each table has a unique alias" {
-  echo "datestyle = \"YMD\"" >> octo.conf
   cat <<CAT >> input.sql
 select * from names natural join names;
 select * from names as n1 natural join names as n1;

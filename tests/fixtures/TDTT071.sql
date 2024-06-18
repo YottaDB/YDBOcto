@@ -10,9 +10,9 @@
 #								#
 #################################################################
 
-select timestamp'01-01-2023';
-select timestamp with time zone'01-01-2023 01:01:01';
-select timestamp with time zone'01-01-2023';
+select timestamp'2023-01-01';
+select timestamp with time zone'2023-01-01 01:01:01';
+select timestamp with time zone'2023-01-01';
 
 select timestamp(fileman)'3230101';
 select timestamp(fileman)'3230101.';

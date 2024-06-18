@@ -11,19 +11,19 @@
 #################################################################
 
 create table test (dob date);
-insert into test values(date'01-01-2023');
-insert into test values(date'01-02-2023');
-insert into test values(date'01-02-2023');
-insert into test values(date'01-03-2023');
+insert into test values(date'2023-01-01');
+insert into test values(date'2023-01-02');
+insert into test values(date'2023-01-02');
+insert into test values(date'2023-01-03');
 select * from test;
 select count(test.*) from test;
 select count(distinct test.*) from test;
 
 create table test1 (id int, dob date);
-insert into test1 values(1, date'01-01-2023');
-insert into test1 values(2, date'01-02-2023');
-insert into test1 values(2, date'01-02-2023');
-insert into test1 values(3, date'01-03-2023');
+insert into test1 values(1, date'2023-01-01');
+insert into test1 values(2, date'2023-01-02');
+insert into test1 values(2, date'2023-01-02');
+insert into test1 values(3, date'2023-01-03');
 select * from test1;
 select count(test1.*) from test1;
 select count(distinct test1.*) from test1;

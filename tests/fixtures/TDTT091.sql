@@ -10,13 +10,13 @@
 #								#
 #################################################################
 
--- datestyle is MDY
-show datestyle;
-select concat(date'01-01-2023', 'sample text');
-select concat(date(fileman)'3230101', 'sample text');
-set datestyle="YMD";
+-- datestyle is YMD
 show datestyle;
 select concat(date'2023-01-01', 'sample text');
+select concat(date(fileman)'3230101', 'sample text');
+set datestyle="MDY";
+show datestyle;
+select concat(date'01-01-2023', 'sample text');
 select concat(date(fileman)'3230101', 'sample text');
 set datestyle="DMY";
 show datestyle;

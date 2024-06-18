@@ -14,40 +14,40 @@
 drop table if exists test;
 create table test (id integer, dob date );
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:fileman
 drop table if exists test;
 create table test (id integer, dob date(fileman));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:horolog
 drop table if exists test;
 create table test (id integer, dob date(horolog));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:zhorolog
 drop table if exists test;
 create table test (id integer, dob date(zhorolog));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 -- type:date format:zut
 drop table if exists test;
 create table test (id integer, dob date(zut));
 \d test;
-insert into test values(1,date'01-01-2023');
-insert into test values(2,date'01-02-2023');
+insert into test values(1,date'2023-01-01');
+insert into test values(2,date'2023-01-02');
 select * from test;
 
 
@@ -95,40 +95,40 @@ select * from test;
 drop table if exists test;
 create table test (id integer, dob timestamp );
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:fileman
 drop table if exists test;
 create table test (id integer, dob timestamp(fileman));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:horolog
 drop table if exists test;
 create table test (id integer, dob timestamp(horolog));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:zhorolog
 drop table if exists test;
 create table test (id integer, dob timestamp(zhorolog));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 -- type:timestamp format:zut
 drop table if exists test;
 create table test (id integer, dob timestamp(zut));
 \d test;
-insert into test values(1,timestamp'01-01-2023 01:01:01');
-insert into test values(2,timestamp'01-02-2023 01:01:01');
+insert into test values(1,timestamp'2023-01-01 01:01:01');
+insert into test values(2,timestamp'2023-01-02 01:01:01');
 select * from test;
 
 
@@ -136,40 +136,40 @@ select * from test;
 drop table if exists test;
 create table test (id integer, dob timestamp with time zone );
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:fileman
 drop table if exists test;
 create table test (id integer, dob timestamp(fileman) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:horolog
 drop table if exists test;
 create table test (id integer, dob timestamp(horolog) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:zhorolog
 drop table if exists test;
 create table test (id integer, dob timestamp(zhorolog) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 -- type:timestamp with time zone format:zut
 drop table if exists test;
 create table test (id integer, dob timestamp(zut) with time zone);
 \d test;
-insert into test values(1,timestamp with time zone'01-01-2023 01:01:01-05:00');
-insert into test values(2,timestamp with time zone'01-02-2023 01:01:01-05:00');
+insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:00');
+insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
 select * from test;
 
 

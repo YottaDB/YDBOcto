@@ -1,127 +1,127 @@
-OCTO> select date'01-01-2023' IN (date'01-01-2023',date'01-01-2023');
+OCTO> select date'2023-01-01' IN (date'2023-01-01',date'2023-01-01');
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select date'01-01-2023');
+OCTO> select date'2023-01-01' IN (select date'2023-01-01');
 ???
 1
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
-LINE 3:1: select date'01-01-2023' IN (time'01:01:00',date'01-01-2023');
+LINE 3:1: select date'2023-01-01' IN (time'01:01:00',date'2023-01-01');
                                       ^^^^^^^^^^^^^^
-LINE 3:1: select date'01-01-2023' IN (time'01:01:00',date'01-01-2023');
+LINE 3:1: select date'2023-01-01' IN (time'01:01:00',date'2023-01-01');
                                                      ^^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' IN (time'01:01:00',date'01-01-2023');
+OCTO> select date'2023-01-01' IN (time'01:01:00',date'2023-01-01');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
-LINE 4:1: select date'01-01-2023' IN (select time'01:01:00');
+LINE 4:1: select date'2023-01-01' IN (select time'01:01:00');
                  ^^^^^^^^^^^^^^^^
-LINE 4:1: select date'01-01-2023' IN (select time'01:01:00');
+LINE 4:1: select date'2023-01-01' IN (select time'01:01:00');
                                       ^^^^^^
-OCTO> select date'01-01-2023' IN (select time'01:01:00');
-OCTO> select date'01-01-2023' IN (timestamp'01-01-2023 01:01:00',date'01-01-2023');
+OCTO> select date'2023-01-01' IN (select time'01:01:00');
+OCTO> select date'2023-01-01' IN (timestamp'2023-01-01 01:01:00',date'2023-01-01');
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select timestamp'01-01-2023 01:01:00');
+OCTO> select date'2023-01-01' IN (select timestamp'2023-01-01 01:01:00');
 ???
 0
 (1 row)
-OCTO> select date'01-01-2023' IN (timestamp with time zone'01-01-2023 01:01:00-05:00',date'01-01-2023');
+OCTO> select date'2023-01-01' IN (timestamp with time zone'2023-01-01 01:01:00-05:00',date'2023-01-01');
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select date'2023-01-01' IN (select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 0
 (1 row)
-OCTO> select date'01-01-2023' IN (n1.dob,date'01-01-2023') from TDTT005date n1;
+OCTO> select date'2023-01-01' IN (n1.dob,date'2023-01-01') from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select n1.dob) from TDTT005date n1;
+OCTO> select date'2023-01-01' IN (select n1.dob) from TDTT005date n1;
 ???
 1
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
-LINE 11:1: select date'01-01-2023' IN (n1.dob,date'01-01-2023') from TDTT00...
+LINE 11:1: select date'2023-01-01' IN (n1.dob,date'2023-01-01') from TDTT00...
                                        ^^^^^^
-LINE 11:1: ...te'01-01-2023' IN (n1.dob,date'01-01-2023') from TDTT005time n1;
+LINE 11:1: ...te'2023-01-01' IN (n1.dob,date'2023-01-01') from TDTT005time n1;
                                         ^^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' IN (n1.dob,date'01-01-2023') from TDTT005time n1;
+OCTO> select date'2023-01-01' IN (n1.dob,date'2023-01-01') from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
-LINE 12:1: select date'01-01-2023' IN (select n1.dob) from TDTT005time n1;
+LINE 12:1: select date'2023-01-01' IN (select n1.dob) from TDTT005time n1;
                   ^^^^^^^^^^^^^^^^
-LINE 12:1: select date'01-01-2023' IN (select n1.dob) from TDTT005time n1;
+LINE 12:1: select date'2023-01-01' IN (select n1.dob) from TDTT005time n1;
                                        ^^^^^^
-OCTO> select date'01-01-2023' IN (select n1.dob) from TDTT005time n1;
-OCTO> select date'01-01-2023' IN (n1.dob,date'01-01-2023') from TDTT005timestamp n1;
+OCTO> select date'2023-01-01' IN (select n1.dob) from TDTT005time n1;
+OCTO> select date'2023-01-01' IN (n1.dob,date'2023-01-01') from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select n1.dob) from TDTT005timestamp n1;
+OCTO> select date'2023-01-01' IN (select n1.dob) from TDTT005timestamp n1;
 ???
 0
 (1 row)
-OCTO> select date'01-01-2023' IN (n1.dob,date'01-01-2023') from TDTT005timestamptz n1;
+OCTO> select date'2023-01-01' IN (n1.dob,date'2023-01-01') from TDTT005timestamptz n1;
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select n1.dob) from TDTT005timestamptz n1;
+OCTO> select date'2023-01-01' IN (select n1.dob) from TDTT005timestamptz n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right DATE
-LINE 17:1: select date'01-01-2023' IN (3,date'01-01-2023');
+LINE 17:1: select date'2023-01-01' IN (3,date'2023-01-01');
                                        ^
-LINE 17:1: select date'01-01-2023' IN (3,date'01-01-2023');
+LINE 17:1: select date'2023-01-01' IN (3,date'2023-01-01');
                                          ^^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' IN (3,date'01-01-2023');
+OCTO> select date'2023-01-01' IN (3,date'2023-01-01');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
-LINE 18:1: select date'01-01-2023' IN (select 3);
+LINE 18:1: select date'2023-01-01' IN (select 3);
                   ^^^^^^^^^^^^^^^^
-LINE 18:1: select date'01-01-2023' IN (select 3);
+LINE 18:1: select date'2023-01-01' IN (select 3);
                                        ^^^^^^
-OCTO> select date'01-01-2023' IN (select 3);
-OCTO> select date'01-01-2023' IN ('sample string',date'01-01-2023');
+OCTO> select date'2023-01-01' IN (select 3);
+OCTO> select date'2023-01-01' IN ('sample string',date'2023-01-01');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type DATE and format TEXT
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right VARCHAR
-LINE 20:1: select date'01-01-2023' IN (select 'sample string');
+LINE 20:1: select date'2023-01-01' IN (select 'sample string');
                   ^^^^^^^^^^^^^^^^
-LINE 20:1: select date'01-01-2023' IN (select 'sample string');
+LINE 20:1: select date'2023-01-01' IN (select 'sample string');
                                        ^^^^^^
-OCTO> select date'01-01-2023' IN (select 'sample string');
+OCTO> select date'2023-01-01' IN (select 'sample string');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right DATE
-LINE 21:1: select date'01-01-2023' IN (3.3,date'01-01-2023');
+LINE 21:1: select date'2023-01-01' IN (3.3,date'2023-01-01');
                                        ^^^
-LINE 21:1: select date'01-01-2023' IN (3.3,date'01-01-2023');
+LINE 21:1: select date'2023-01-01' IN (3.3,date'2023-01-01');
                                            ^^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' IN (3.3,date'01-01-2023');
+OCTO> select date'2023-01-01' IN (3.3,date'2023-01-01');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right NUMERIC
-LINE 22:1: select date'01-01-2023' IN (select 3.3);
+LINE 22:1: select date'2023-01-01' IN (select 3.3);
                   ^^^^^^^^^^^^^^^^
-LINE 22:1: select date'01-01-2023' IN (select 3.3);
+LINE 22:1: select date'2023-01-01' IN (select 3.3);
                                        ^^^^^^
-OCTO> select date'01-01-2023' IN (select 3.3);
-OCTO> select date'01-01-2023' IN (NULL,date'01-01-2023');
+OCTO> select date'2023-01-01' IN (select 3.3);
+OCTO> select date'2023-01-01' IN (NULL,date'2023-01-01');
 ???
 1
 (1 row)
-OCTO> select date'01-01-2023' IN (select NULL);
+OCTO> select date'2023-01-01' IN (select NULL);
 ???
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
-LINE 25:1: select time'01:01:00' IN (date'01-01-2023',time'01:01:00');
+LINE 25:1: select time'01:01:00' IN (date'2023-01-01',time'01:01:00');
                                      ^^^^^^^^^^^^^^^^
-LINE 25:1: select time'01:01:00' IN (date'01-01-2023',time'01:01:00');
+LINE 25:1: select time'01:01:00' IN (date'2023-01-01',time'01:01:00');
                                                       ^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' IN (date'01-01-2023',time'01:01:00');
+OCTO> select time'01:01:00' IN (date'2023-01-01',time'01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
-LINE 26:1: select time'01:01:00' IN (select date'01-01-2023');
+LINE 26:1: select time'01:01:00' IN (select date'2023-01-01');
                   ^^^^^^^^^^^^^^
-LINE 26:1: select time'01:01:00' IN (select date'01-01-2023');
+LINE 26:1: select time'01:01:00' IN (select date'2023-01-01');
                                      ^^^^^^
-OCTO> select time'01:01:00' IN (select date'01-01-2023');
+OCTO> select time'01:01:00' IN (select date'2023-01-01');
 OCTO> select time'01:01:00' IN (time'01:01:00',time'01:01:00');
 ???
 1
@@ -131,29 +131,29 @@ OCTO> select time'01:01:00' IN (select time'01:01:00');
 1
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
-LINE 29:1: ...me'01:01:00' IN (timestamp'01-01-2023 01:01:00',time'01:01:00');
+LINE 29:1: ...me'01:01:00' IN (timestamp'2023-01-01 01:01:00',time'01:01:00');
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 29:1: ...me'01:01:00' IN (timestamp'01-01-2023 01:01:00',time'01:01:00');
+LINE 29:1: ...me'01:01:00' IN (timestamp'2023-01-01 01:01:00',time'01:01:00');
                                                               ^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' IN (timestamp'01-01-2023 01:01:00',time'01:01:00');
+OCTO> select time'01:01:00' IN (timestamp'2023-01-01 01:01:00',time'01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
-LINE 30:1: select time'01:01:00' IN (select timestamp'01-01-2023 01:01:00')...
+LINE 30:1: select time'01:01:00' IN (select timestamp'2023-01-01 01:01:00')...
                   ^^^^^^^^^^^^^^
-LINE 30:1: select time'01:01:00' IN (select timestamp'01-01-2023 01:01:00')...
+LINE 30:1: select time'01:01:00' IN (select timestamp'2023-01-01 01:01:00')...
                                      ^^^^^^
-OCTO> select time'01:01:00' IN (select timestamp'01-01-2023 01:01:00');
+OCTO> select time'01:01:00' IN (select timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
-LINE 31:1: ...' IN (timestamp with time zone'01-01-2023 01:01:00-05:00',time'...
+LINE 31:1: ...' IN (timestamp with time zone'2023-01-01 01:01:00-05:00',time'...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 31:1: ...stamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+LINE 31:1: ...stamp with time zone'2023-01-01 01:01:00-05:00',time'01:01:00');
                                                               ^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' IN (timestamp with time zone'01-01-2023 01:01:00-05:00',time'01:01:00');
+OCTO> select time'01:01:00' IN (timestamp with time zone'2023-01-01 01:01:00-05:00',time'01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
-LINE 32:1: select time'01:01:00' IN (select timestamp with time zone'01-01-...
+LINE 32:1: select time'01:01:00' IN (select timestamp with time zone'2023-0...
                   ^^^^^^^^^^^^^^
-LINE 32:1: select time'01:01:00' IN (select timestamp with time zone'01-01-...
+LINE 32:1: select time'01:01:00' IN (select timestamp with time zone'2023-0...
                                      ^^^^^^
-OCTO> select time'01:01:00' IN (select timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select time'01:01:00' IN (select timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
 LINE 33:1: select time'01:01:00' IN (n1.dob,time'01:01:00') from TDTT005dat...
                                      ^^^^^^
@@ -238,235 +238,235 @@ OCTO> select time'01:01:00' IN (select NULL);
 ???
 
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (date'01-01-2023',timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (date'2023-01-01',timestamp'2023-01-01 01:01:00');
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select date'01-01-2023');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select date'2023-01-01');
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
-LINE 51:1: ...01-01-2023 01:01:00' IN (time'01:01:00',timestamp'01-01-2023 01:...
+LINE 51:1: ...2023-01-01 01:01:00' IN (time'01:01:00',timestamp'2023-01-01 01:...
                                        ^^^^^^^^^^^^^^
-LINE 51:1: ...23 01:01:00' IN (time'01:01:00',timestamp'01-01-2023 01:01:00');
+LINE 51:1: ...01 01:01:00' IN (time'01:01:00',timestamp'2023-01-01 01:01:00');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (time'01:01:00',timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (time'01:01:00',timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
-LINE 52:1: select timestamp'01-01-2023 01:01:00' IN (select time'01:01:00')...
+LINE 52:1: select timestamp'2023-01-01 01:01:00' IN (select time'01:01:00')...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 52:1: ...elect timestamp'01-01-2023 01:01:00' IN (select time'01:01:00');
+LINE 52:1: ...elect timestamp'2023-01-01 01:01:00' IN (select time'01:01:00');
                                                        ^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select time'01:01:00');
-OCTO> select timestamp'01-01-2023 01:01:00' IN (timestamp'01-01-2023 01:01:00',timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select time'01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (timestamp'2023-01-01 01:01:00',timestamp'2023-01-01 01:01:00');
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select timestamp'2023-01-01 01:01:00');
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp'2023-01-01 01:01:00');
 ???
 0
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (n1.dob,timestamp'01-01-2023 01:01:00') from TDTT005date n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (n1.dob,timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select n1.dob) from TDTT005date n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select n1.dob) from TDTT005date n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
-LINE 59:1: ...amp'01-01-2023 01:01:00' IN (n1.dob,timestamp'01-01-2023 01:01:0...
+LINE 59:1: ...amp'2023-01-01 01:01:00' IN (n1.dob,timestamp'2023-01-01 01:01:0...
                                            ^^^^^^
-LINE 59:1: ...1:00' IN (n1.dob,timestamp'01-01-2023 01:01:00') from TDTT005tim...
+LINE 59:1: ...1:00' IN (n1.dob,timestamp'2023-01-01 01:01:00') from TDTT005tim...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (n1.dob,timestamp'01-01-2023 01:01:00') from TDTT005time n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (n1.dob,timestamp'2023-01-01 01:01:00') from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
-LINE 60:1: select timestamp'01-01-2023 01:01:00' IN (select n1.dob) from TD...
+LINE 60:1: select timestamp'2023-01-01 01:01:00' IN (select n1.dob) from TD...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 60:1: ...amp'01-01-2023 01:01:00' IN (select n1.dob) from TDTT005time n1;
+LINE 60:1: ...amp'2023-01-01 01:01:00' IN (select n1.dob) from TDTT005time n1;
                                            ^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select n1.dob) from TDTT005time n1;
-OCTO> select timestamp'01-01-2023 01:01:00' IN (n1.dob,timestamp'01-01-2023 01:01:00') from TDTT005timestamp n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select n1.dob) from TDTT005time n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (n1.dob,timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select n1.dob) from TDTT005timestamp n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select n1.dob) from TDTT005timestamp n1;
 ???
 0
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (n1.dob,timestamp'01-01-2023 01:01:00') from TDTT005timestamptz n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (n1.dob,timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
 0
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select n1.dob) from TDTT005timestamptz n1;
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select n1.dob) from TDTT005timestamptz n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIMESTAMP
-LINE 65:1: ...stamp'01-01-2023 01:01:00' IN (3,timestamp'01-01-2023 01:01:00'...
+LINE 65:1: ...stamp'2023-01-01 01:01:00' IN (3,timestamp'2023-01-01 01:01:00'...
                                              ^
-LINE 65:1: ...tamp'01-01-2023 01:01:00' IN (3,timestamp'01-01-2023 01:01:00');
+LINE 65:1: ...tamp'2023-01-01 01:01:00' IN (3,timestamp'2023-01-01 01:01:00');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (3,timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (3,timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
-LINE 66:1: select timestamp'01-01-2023 01:01:00' IN (select 3);
+LINE 66:1: select timestamp'2023-01-01 01:01:00' IN (select 3);
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 66:1: select timestamp'01-01-2023 01:01:00' IN (select 3);
+LINE 66:1: select timestamp'2023-01-01 01:01:00' IN (select 3);
                                                      ^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select 3);
-OCTO> select timestamp'01-01-2023 01:01:00' IN ('sample string',timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select 3);
+OCTO> select timestamp'2023-01-01 01:01:00' IN ('sample string',timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP and format TEXT
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right VARCHAR
-LINE 68:1: select timestamp'01-01-2023 01:01:00' IN (select 'sample string'...
+LINE 68:1: select timestamp'2023-01-01 01:01:00' IN (select 'sample string'...
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 68:1: ...lect timestamp'01-01-2023 01:01:00' IN (select 'sample string');
+LINE 68:1: ...lect timestamp'2023-01-01 01:01:00' IN (select 'sample string');
                                                       ^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select 'sample string');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select 'sample string');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIMESTAMP
-LINE 69:1: ...tamp'01-01-2023 01:01:00' IN (3.3,timestamp'01-01-2023 01:01:00...
+LINE 69:1: ...tamp'2023-01-01 01:01:00' IN (3.3,timestamp'2023-01-01 01:01:00...
                                             ^^^
-LINE 69:1: ...mp'01-01-2023 01:01:00' IN (3.3,timestamp'01-01-2023 01:01:00');
+LINE 69:1: ...mp'2023-01-01 01:01:00' IN (3.3,timestamp'2023-01-01 01:01:00');
                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (3.3,timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (3.3,timestamp'2023-01-01 01:01:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right NUMERIC
-LINE 70:1: select timestamp'01-01-2023 01:01:00' IN (select 3.3);
+LINE 70:1: select timestamp'2023-01-01 01:01:00' IN (select 3.3);
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 70:1: select timestamp'01-01-2023 01:01:00' IN (select 3.3);
+LINE 70:1: select timestamp'2023-01-01 01:01:00' IN (select 3.3);
                                                      ^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select 3.3);
-OCTO> select timestamp'01-01-2023 01:01:00' IN (NULL,timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select 3.3);
+OCTO> select timestamp'2023-01-01 01:01:00' IN (NULL,timestamp'2023-01-01 01:01:00');
 ???
 1
 (1 row)
-OCTO> select timestamp'01-01-2023 01:01:00' IN (select NULL);
+OCTO> select timestamp'2023-01-01 01:01:00' IN (select NULL);
 ???
 
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (date'01-01-2023',timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (date'2023-01-01',timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select date'01-01-2023');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select date'2023-01-01');
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
-LINE 75:1: ...2023 01:01:00-05:00' IN (time'01:01:00',timestamp with time zone...
+LINE 75:1: ...1-01 01:01:00-05:00' IN (time'01:01:00',timestamp with time zone...
                                        ^^^^^^^^^^^^^^
-LINE 75:1: ...01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+LINE 75:1: ...01:01:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (time'01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (time'01:01:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
-LINE 76:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' IN (s...
+LINE 76:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' IN (s...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 76:1: ...time zone'01-01-2023 01:01:00-05:00' IN (select time'01:01:00');
+LINE 76:1: ...time zone'2023-01-01 01:01:00-05:00' IN (select time'01:01:00');
                                                        ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select time'01:01:00');
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (timestamp'01-01-2023 01:01:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select time'01:01:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (timestamp'2023-01-01 01:01:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select timestamp'01-01-2023 01:01:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select timestamp'2023-01-01 01:01:00');
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (timestamp with time zone'01-01-2023 01:01:00-05:00',timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005date n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (n1.dob,timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select n1.dob) from TDTT005date n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select n1.dob) from TDTT005date n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
-LINE 83:1: ...-01-2023 01:01:00-05:00' IN (n1.dob,timestamp with time zone'01-...
+LINE 83:1: ...23-01-01 01:01:00-05:00' IN (n1.dob,timestamp with time zone'202...
                                            ^^^^^^
-LINE 83:1: ...1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from...
+LINE 83:1: ...1.dob,timestamp with time zone'2023-01-01 01:01:00-05:00') from...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005time n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (n1.dob,timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
-LINE 84:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' IN (s...
+LINE 84:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' IN (s...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 84:1: ...-01-2023 01:01:00-05:00' IN (select n1.dob) from TDTT005time n1;
+LINE 84:1: ...23-01-01 01:01:00-05:00' IN (select n1.dob) from TDTT005time n1;
                                            ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select n1.dob) from TDTT005time n1;
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005timestamp n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select n1.dob) from TDTT005time n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (n1.dob,timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select n1.dob) from TDTT005timestamp n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select n1.dob) from TDTT005timestamp n1;
 ???
 0
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (n1.dob,timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005timestamptz n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (n1.dob,timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select n1.dob) from TDTT005timestamptz n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select n1.dob) from TDTT005timestamptz n1;
 ???
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left INTEGER, right TIMESTAMP WITH TIME ZONE
-LINE 89:1: ...01-01-2023 01:01:00-05:00' IN (3,timestamp with time zone'01-01...
+LINE 89:1: ...2023-01-01 01:01:00-05:00' IN (3,timestamp with time zone'2023-...
                                              ^
-LINE 89:1: ...00' IN (3,timestamp with time zone'01-01-2023 01:01:00-05:00');
+LINE 89:1: ...00' IN (3,timestamp with time zone'2023-01-01 01:01:00-05:00');
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (3,timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (3,timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
-LINE 90:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' IN (s...
+LINE 90:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' IN (s...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 90:1: ...mestamp with time zone'01-01-2023 01:01:00-05:00' IN (select 3);
+LINE 90:1: ...mestamp with time zone'2023-01-01 01:01:00-05:00' IN (select 3);
                                                                     ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select 3);
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN ('sample string',timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select 3);
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN ('sample string',timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "sample string" is invalid for type TIMESTAMP WITH TIME ZONE and format TEXT
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right VARCHAR
-LINE 92:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' IN (s...
+LINE 92:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' IN (s...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 92:1: ...ime zone'01-01-2023 01:01:00-05:00' IN (select 'sample string');
+LINE 92:1: ...ime zone'2023-01-01 01:01:00-05:00' IN (select 'sample string');
                                                       ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select 'sample string');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select 'sample string');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left NUMERIC, right TIMESTAMP WITH TIME ZONE
-LINE 93:1: ...1-01-2023 01:01:00-05:00' IN (3.3,timestamp with time zone'01-0...
+LINE 93:1: ...023-01-01 01:01:00-05:00' IN (3.3,timestamp with time zone'2023...
                                             ^^^
-LINE 93:1: ...' IN (3.3,timestamp with time zone'01-01-2023 01:01:00-05:00');
+LINE 93:1: ...' IN (3.3,timestamp with time zone'2023-01-01 01:01:00-05:00');
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (3.3,timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (3.3,timestamp with time zone'2023-01-01 01:01:00-05:00');
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right NUMERIC
-LINE 94:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' IN (s...
+LINE 94:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' IN (s...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 94:1: ...stamp with time zone'01-01-2023 01:01:00-05:00' IN (select 3.3);
+LINE 94:1: ...stamp with time zone'2023-01-01 01:01:00-05:00' IN (select 3.3);
                                                                   ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select 3.3);
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (NULL,timestamp with time zone'01-01-2023 01:01:00-05:00');
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select 3.3);
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (NULL,timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
 1
 (1 row)
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' IN (select NULL);
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' IN (select NULL);
 ???
 
 (1 row)
-OCTO> select n1.dob IN (date'01-01-2023',n1.dob) from TDTT005date n1;
+OCTO> select n1.dob IN (date'2023-01-01',n1.dob) from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select date'01-01-2023') from TDTT005date n1;
+OCTO> select n1.dob IN (select date'2023-01-01') from TDTT005date n1;
 ???
 1
 (1 row)
@@ -482,19 +482,19 @@ LINE 100:1: select n1.dob IN (select time'01:01:00') from TDTT005date n1;
 LINE 100:1: select n1.dob IN (select time'01:01:00') from TDTT005date n1;
                               ^^^^^^
 OCTO> select n1.dob IN (select time'01:01:00') from TDTT005date n1;
-OCTO> select n1.dob IN (timestamp'01-01-2023 01:01:00',n1.dob) from TDTT005date n1;
+OCTO> select n1.dob IN (timestamp'2023-01-01 01:01:00',n1.dob) from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select timestamp'01-01-2023 01:01:00') from TDTT005date n1;
+OCTO> select n1.dob IN (select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
 0
 (1 row)
-OCTO> select n1.dob IN (timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT005date n1;
+OCTO> select n1.dob IN (timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT005date n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005date n1;
+OCTO> select n1.dob IN (select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
 0
 (1 row)
@@ -575,17 +575,17 @@ OCTO> select n1.dob IN (select NULL) from TDTT005date n1;
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
-LINE 121:1: select n1.dob IN (date'01-01-2023',n1.dob) from TDTT005time n1;
+LINE 121:1: select n1.dob IN (date'2023-01-01',n1.dob) from TDTT005time n1;
                               ^^^^^^^^^^^^^^^^
-LINE 121:1: select n1.dob IN (date'01-01-2023',n1.dob) from TDTT005time n1;
+LINE 121:1: select n1.dob IN (date'2023-01-01',n1.dob) from TDTT005time n1;
                                                ^^^^^^
-OCTO> select n1.dob IN (date'01-01-2023',n1.dob) from TDTT005time n1;
+OCTO> select n1.dob IN (date'2023-01-01',n1.dob) from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right DATE
-LINE 122:1: select n1.dob IN (select date'01-01-2023') from TDTT005time n1;
+LINE 122:1: select n1.dob IN (select date'2023-01-01') from TDTT005time n1;
                    ^^^^^^
-LINE 122:1: select n1.dob IN (select date'01-01-2023') from TDTT005time n1;
+LINE 122:1: select n1.dob IN (select date'2023-01-01') from TDTT005time n1;
                               ^^^^^^
-OCTO> select n1.dob IN (select date'01-01-2023') from TDTT005time n1;
+OCTO> select n1.dob IN (select date'2023-01-01') from TDTT005time n1;
 OCTO> select n1.dob IN (time'01:01:00',n1.dob) from TDTT005time n1;
 ???
 1
@@ -595,29 +595,29 @@ OCTO> select n1.dob IN (select time'01:01:00') from TDTT005time n1;
 0
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
-LINE 125:1: ...elect n1.dob IN (timestamp'01-01-2023 01:01:00',n1.dob) from TDT...
+LINE 125:1: ...elect n1.dob IN (timestamp'2023-01-01 01:01:00',n1.dob) from TDT...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 125:1: ... IN (timestamp'01-01-2023 01:01:00',n1.dob) from TDTT005time n1;
+LINE 125:1: ... IN (timestamp'2023-01-01 01:01:00',n1.dob) from TDTT005time n1;
                                                    ^^^^^^
-OCTO> select n1.dob IN (timestamp'01-01-2023 01:01:00',n1.dob) from TDTT005time n1;
+OCTO> select n1.dob IN (timestamp'2023-01-01 01:01:00',n1.dob) from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
-LINE 126:1: select n1.dob IN (select timestamp'01-01-2023 01:01:00') from TD...
+LINE 126:1: select n1.dob IN (select timestamp'2023-01-01 01:01:00') from TD...
                    ^^^^^^
-LINE 126:1: select n1.dob IN (select timestamp'01-01-2023 01:01:00') from TD...
+LINE 126:1: select n1.dob IN (select timestamp'2023-01-01 01:01:00') from TD...
                               ^^^^^^
-OCTO> select n1.dob IN (select timestamp'01-01-2023 01:01:00') from TDTT005time n1;
+OCTO> select n1.dob IN (select timestamp'2023-01-01 01:01:00') from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
-LINE 127:1: ...b IN (timestamp with time zone'01-01-2023 01:01:00-05:00',n1.do...
+LINE 127:1: ...b IN (timestamp with time zone'2023-01-01 01:01:00-05:00',n1.do...
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-LINE 127:1: ...ime zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT005time n1;
+LINE 127:1: ...ime zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT005time n1;
                                                    ^^^^^^
-OCTO> select n1.dob IN (timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT005time n1;
+OCTO> select n1.dob IN (timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP WITH TIME ZONE
-LINE 128:1: select n1.dob IN (select timestamp with time zone'01-01-2023 01:...
+LINE 128:1: select n1.dob IN (select timestamp with time zone'2023-01-01 01:...
                    ^^^^^^
-LINE 128:1: select n1.dob IN (select timestamp with time zone'01-01-2023 01:...
+LINE 128:1: select n1.dob IN (select timestamp with time zone'2023-01-01 01:...
                               ^^^^^^
-OCTO> select n1.dob IN (select timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005time n1;
+OCTO> select n1.dob IN (select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005time n1;
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
 LINE 129:1: select n1.dob IN (n2.dob,n1.dob) from TDTT005time n1, TDTT005dat...
                               ^^^^^^
@@ -702,11 +702,11 @@ OCTO> select n1.dob IN (select NULL) from TDTT005time n1;
 ???
 
 (1 row)
-OCTO> select n1.dob IN (date'01-01-2023',n1.dob) from TDTT005timestamp n1;
+OCTO> select n1.dob IN (date'2023-01-01',n1.dob) from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select date'01-01-2023') from TDTT005timestamp n1;
+OCTO> select n1.dob IN (select date'2023-01-01') from TDTT005timestamp n1;
 ???
 0
 (1 row)
@@ -722,19 +722,19 @@ LINE 148:1: select n1.dob IN (select time'01:01:00') from TDTT005timestamp n...
 LINE 148:1: select n1.dob IN (select time'01:01:00') from TDTT005timestamp n...
                               ^^^^^^
 OCTO> select n1.dob IN (select time'01:01:00') from TDTT005timestamp n1;
-OCTO> select n1.dob IN (timestamp'01-01-2023 01:01:00',n1.dob) from TDTT005timestamp n1;
+OCTO> select n1.dob IN (timestamp'2023-01-01 01:01:00',n1.dob) from TDTT005timestamp n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select timestamp'01-01-2023 01:01:00') from TDTT005timestamp n1;
+OCTO> select n1.dob IN (select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
 0
 (1 row)
-OCTO> select n1.dob IN (timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT005timestamp n1;
+OCTO> select n1.dob IN (timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT005timestamp n1;
 ???
 0
 (1 row)
-OCTO> select n1.dob IN (select timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005timestamp n1;
+OCTO> select n1.dob IN (select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
 0
 (1 row)
@@ -814,11 +814,11 @@ OCTO> select n1.dob IN (select NULL) from TDTT005timestamp n1;
 ???
 
 (1 row)
-OCTO> select n1.dob IN (date'01-01-2023',n1.dob) from TDTT005timestamptz n1;
+OCTO> select n1.dob IN (date'2023-01-01',n1.dob) from TDTT005timestamptz n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select date'01-01-2023') from TDTT005timestamptz n1;
+OCTO> select n1.dob IN (select date'2023-01-01') from TDTT005timestamptz n1;
 ???
 0
 (1 row)
@@ -834,19 +834,19 @@ LINE 172:1: select n1.dob IN (select time'01:01:00') from TDTT005timestamptz...
 LINE 172:1: select n1.dob IN (select time'01:01:00') from TDTT005timestamptz...
                               ^^^^^^
 OCTO> select n1.dob IN (select time'01:01:00') from TDTT005timestamptz n1;
-OCTO> select n1.dob IN (timestamp'01-01-2023 01:01:00',n1.dob) from TDTT005timestamptz n1;
+OCTO> select n1.dob IN (timestamp'2023-01-01 01:01:00',n1.dob) from TDTT005timestamptz n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select timestamp'01-01-2023 01:01:00') from TDTT005timestamptz n1;
+OCTO> select n1.dob IN (select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
 0
 (1 row)
-OCTO> select n1.dob IN (timestamp with time zone'01-01-2023 01:01:00-05:00',n1.dob) from TDTT005timestamptz n1;
+OCTO> select n1.dob IN (timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT005timestamptz n1;
 ???
 1
 (1 row)
-OCTO> select n1.dob IN (select timestamp with time zone'01-01-2023 01:01:00-05:00') from TDTT005timestamptz n1;
+OCTO> select n1.dob IN (select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
 0
 (1 row)

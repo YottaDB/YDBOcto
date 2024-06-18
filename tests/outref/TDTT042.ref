@@ -1,18 +1,18 @@
 
 create table test (dob date);
-insert into test values(date'01-01-2023');
-insert into test values(date'01-02-2023');
-insert into test values(date'01-02-2023');
-insert into test values(date'01-03-2023');
+insert into test values(date'2023-01-01');
+insert into test values(date'2023-01-02');
+insert into test values(date'2023-01-02');
+insert into test values(date'2023-01-03');
 select * from test;
 select count(test.*) from test;
 select count(distinct test.*) from test;
 
 create table test1 (id int, dob date);
-insert into test1 values(1, date'01-01-2023');
-insert into test1 values(2, date'01-02-2023');
-insert into test1 values(2, date'01-02-2023');
-insert into test1 values(3, date'01-03-2023');
+insert into test1 values(1, date'2023-01-01');
+insert into test1 values(2, date'2023-01-02');
+insert into test1 values(2, date'2023-01-02');
+insert into test1 values(3, date'2023-01-03');
 select * from test1;
 select count(test1.*) from test1;
 select count(distinct test1.*) from test1;
@@ -27,13 +27,13 @@ select count(test2.*) from test2;
 select count(distinct test2.*) from test2;
 OCTO> create table test (dob date);
 CREATE TABLE
-OCTO> insert into test values(date'01-01-2023');
+OCTO> insert into test values(date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test values(date'01-02-2023');
+OCTO> insert into test values(date'2023-01-02');
 INSERT 0 1
-OCTO> insert into test values(date'01-02-2023');
+OCTO> insert into test values(date'2023-01-02');
 INSERT 0 1
-OCTO> insert into test values(date'01-03-2023');
+OCTO> insert into test values(date'2023-01-03');
 INSERT 0 1
 OCTO> select * from test;
 dob
@@ -52,13 +52,13 @@ count
 (1 row)
 OCTO> create table test1 (id int, dob date);
 CREATE TABLE
-OCTO> insert into test1 values(1, date'01-01-2023');
+OCTO> insert into test1 values(1, date'2023-01-01');
 INSERT 0 1
-OCTO> insert into test1 values(2, date'01-02-2023');
+OCTO> insert into test1 values(2, date'2023-01-02');
 INSERT 0 1
-OCTO> insert into test1 values(2, date'01-02-2023');
+OCTO> insert into test1 values(2, date'2023-01-02');
 INSERT 0 1
-OCTO> insert into test1 values(3, date'01-03-2023');
+OCTO> insert into test1 values(3, date'2023-01-03');
 INSERT 0 1
 OCTO> select * from test1;
 id|dob

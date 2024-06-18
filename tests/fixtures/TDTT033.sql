@@ -10,10 +10,10 @@
 #								#
 #################################################################
 
-select date'01-01-2024'-1;
-select date'01-01-2024'-date'01-02-2024';
-select date'01-01-2023'-date'01-02-2024';
-select date'01-01-2024'-366;
-select date'01-01-2024'-time'01:01:01';
-select timestamp'01-01-2023 01:01:01' - time'01:01:01';
-select timestamp'01-01-2023 01:01:01' - time'23:59:59';
+select date'2024-01-01'-1;
+select date'2024-01-01'-date'2024-01-02';
+select date'2023-01-01'-date'2024-01-02';
+select date'2024-01-01'-366;
+select date'2024-01-01'-time'01:01:01';
+select timestamp'2023-01-01 01:01:01' - time'01:01:01';
+select timestamp'2023-01-01 01:01:01' - time'23:59:59';

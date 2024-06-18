@@ -31,9 +31,9 @@ select CAST(timestamp(fileman)'3230101.010101'AS VARCHAR);
 
 -- More detailed tests
 select timestamp(fileman)'3230101.010101'::time < time'01:02:01'; -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023'; -- Should return `true`
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02'; -- Should return `true`
 select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01'; -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date; -- Should return `true`
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date; -- Should return `true`
 
 select date(fileman)'3230101'::VARCHAR(2);
 select date(fileman)'3230101'::VARCHAR(3);
@@ -141,7 +141,7 @@ OCTO> select timestamp(fileman)'3230101.010101'::time < time'01:02:01';
 1
 (1 row)
 OCTO> -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023';
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02';
 ???
 1
 (1 row)
@@ -151,7 +151,7 @@ select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01';
 1
 (1 row)
 OCTO> -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date;
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date;
 ???
 1
 (1 row)
@@ -179,7 +179,7 @@ OCTO>
 # ----------------------------------------------------------------------------
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select timestamp(fileman)'3230101.010101'::VARCHAR(3);
+;  select timestamp(fileman)'3230101.010101'::time < time'01:02:01';
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -197,14 +197,19 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
-    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,"%H:%M:%S")
+    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select date(fileman)'3230101'::TIMESTAMP WITH TIME ZONE;
+;  -- Should return `true`
+;  
+;  select date(fileman)'3230101'::VARCHAR(2);
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -222,8 +227,7 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,10)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d"),$GET(%ydboctocursor(cursorId,"parameters",2)))
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -256,6 +260,89 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
+;  select date(fileman)'3230101'::TIMESTAMP WITH TIME ZONE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,10)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  -- Should return `true`
+;  select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
+    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
+    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d",6)
+    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(fileman)'3230101.010101'::TIMESTAMP;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
 ;  select timestamp(fileman)'3230101.010101'::DATE;
 ;; ---------------------------------------------------------
 
@@ -282,8 +369,33 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  -- Should return `true`
-;  select timestamp(fileman)'3230101.010101'::date < date'01-02-2023';
+;  select date(fileman)'3230101'::DATE;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,6)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(fileman)'3230101.010101'::VARCHAR;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -301,10 +413,7 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
-    . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%m-%d-%Y")
-    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -331,6 +440,82 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,10)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select timestamp(fileman)'3230101.010101'::VARCHAR(3);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date(fileman)'3230101'::TIMESTAMP;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,9)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select date(fileman)'3230101'::VARCHAR;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -367,114 +552,8 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select timestamp(fileman)'3230101.010101'::time < time'01:02:01';
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
-    . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,"%H:%M:%S")
-    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp(fileman)'3230101.010101'::TIMESTAMP;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,9)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select date(fileman)'3230101'::TIMESTAMP;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,9)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select date(fileman)'3230101'::DATE;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
-    . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,6)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  -- Should return `true`
-;  select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date;
+;  select timestamp(fileman)'3230101.010101'::date < date'2023-01-02';
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
@@ -493,88 +572,9 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
-    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
-    . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%m-%d-%Y",6)
-    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select timestamp(fileman)'3230101.010101'::VARCHAR;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  -- Should return `true`
-;  
-;  select date(fileman)'3230101'::VARCHAR(2);
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
-    . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d"),$GET(%ydboctocursor(cursorId,"parameters",2)))
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select date(fileman)'3230101'::VARCHAR;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . SET %ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -612,9 +612,9 @@ select CAST(timestamp(fileman)'3230101.010101'AS VARCHAR);
 
 -- More detailed tests
 select timestamp(fileman)'3230101.010101'::time < time'01:02:01'; -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023'; -- Should return `true`
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02'; -- Should return `true`
 select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01'; -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date; -- Should return `true`
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date; -- Should return `true`
 
 select date(fileman)'3230101'::VARCHAR(2);
 select date(fileman)'3230101'::VARCHAR(3);
@@ -722,7 +722,7 @@ OCTO> select timestamp(fileman)'3230101.010101'::time < time'01:02:01';
 1
 (1 row)
 OCTO> -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023';
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02';
 ???
 1
 (1 row)
@@ -732,7 +732,7 @@ select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01';
 0
 (1 row)
 OCTO> -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date;
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date;
 ???
 1
 (1 row)
@@ -788,9 +788,9 @@ select CAST(timestamp(fileman)'3230101.010101'AS VARCHAR);
 
 -- More detailed tests
 select timestamp(fileman)'3230101.010101'::time < time'01:02:01'; -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023'; -- Should return `true`
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02'; -- Should return `true`
 select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01'; -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date; -- Should return `true`
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date; -- Should return `true`
 
 select date(fileman)'3230101'::VARCHAR(2);
 select date(fileman)'3230101'::VARCHAR(3);
@@ -898,7 +898,7 @@ OCTO> select timestamp(fileman)'3230101.010101'::time < time'01:02:01';
 1
 (1 row)
 OCTO> -- Should return `true`
-select timestamp(fileman)'3230101.010101'::date < date'01-02-2023';
+select timestamp(fileman)'3230101.010101'::date < date'2023-01-02';
 ???
 1
 (1 row)
@@ -908,7 +908,7 @@ select (timestamp(fileman)'3230101.010101'::date)::varchar ='2023-01-01';
 0
 (1 row)
 OCTO> -- Should return `true`
-select (timestamp(fileman)'3230101.010101'::date) ='01-01-2023'::date;
+select (timestamp(fileman)'3230101.010101'::date) ='2023-01-01'::date;
 ???
 1
 (1 row)

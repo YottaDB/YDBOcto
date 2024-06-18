@@ -91,7 +91,7 @@ OCTO
 	cat run2.out >> output.txt
 	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
 
-	verify_output TDT04 output.txt
+	verify_output TDT04 output.txt nodatetimefilter
 }
 
 @test "TDT05 : OCTO502 : DROP TABLE on READWRITE table does a KILL of the underlying GVN storing the table data" {
@@ -166,7 +166,7 @@ OCTO
 	echo "# Setting ydb/gtm_noundef to 1/true and running Octo resulted in crashes" | tee -a output.txt
 	echo "# with assertion error in debug version and killed by a signal 11 in pro version" | tee -a output.txt
 	echo "# when running various SQL statements. (e.g. drop table if exists foo;)" | tee -a output.txt
-	export ydb_noundef=1 
+	export ydb_noundef=1
 	load_fixture TDT09.sql subtest novv
 	verify_output TDT09 output.txt
 	unset ydb_noundef

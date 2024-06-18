@@ -40,7 +40,7 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
     . . SET %ydboctoexpr(1,0)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($$samevalue^datetime($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr(1,0),17,34,"%m-%d-%Y")),17,"%Y-%m-%d")
+    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($$samevalue^datetime($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr(1,0),17,34,"%Y-%m-%d")),17,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
@@ -87,7 +87,7 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Horolog2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17)
     . . SET %ydboctoexpr(1,0)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($$samevalue^datetime($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr(1,0),17,32,"%m-%d-%Y")),17)
+    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($$samevalue^datetime($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr(1,0),17,32,"%Y-%m-%d")),17)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr

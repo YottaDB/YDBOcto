@@ -84,7 +84,7 @@ octoLeftJoin2;
     . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . SET %ydboctoexpr(0)=%ydboctoexpr
-    . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders","order_id")):$ZYSQLNULL,1:$GET(^orders(%ydboctocursor(cursorId,"keys",1,"orders","order_id")))),"|",1),17,"%m-%d-%Y") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders","order_id")):$ZYSQLNULL,1:$GET(^orders(%ydboctocursor(cursorId,"keys",1,"orders","order_id")))),"|",1),17,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
     . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr

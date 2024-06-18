@@ -137,7 +137,6 @@ OCTO
 }
 
 @test "TC010 : OCTO381 : Allow DATE and TIME types to be specified in the Octo DDL but treated as strings internally" {
-	echo "datestyle = \"YMD\"" > octo.conf
 	yottadb -run TC010	# load ^datetime global
 	load_fixture TC010.sql subtest novv
 	# Do not use `verify_output` here as we do not want DATE/TIME substitutions to happen

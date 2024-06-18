@@ -62,7 +62,7 @@ largedb()
 	. set year=(i#2000)+2000
 	. set month=(i#12)+1
 	. set day=(i#27)+1
-	. set ^datetime(i)=month_"-"_day_"-"_year
+	. set ^datetime(i)=year_"-"_month_"-"_day
 	QUIT
 
 
@@ -226,14 +226,14 @@ datetimeerrorglobal
 	set ^timestampwithtimezonezut(1)=""
 
 	; text
-	set ^datetext(0)="01-01-0000"
-	set ^datetext(1)="00-01-0000"
-	set ^datetext(2)="01-00-0000"
-	set ^datetext(3)="01-01-10000"
-	set ^datetext(4)="12-31-9999"
-	set ^datetext(5)="01-01-0100"
-	set ^datetext(6)="01-01-0010"
-	set ^datetext(7)="01-01-0001"
+	set ^datetext(0)="0000-01-01"
+	set ^datetext(1)="0000-00-01"
+	set ^datetext(2)="0000-01-00"
+	set ^datetext(3)="1000-01-010"
+	set ^datetext(4)="9999-12-31"
+	set ^datetext(5)="0100-01-01"
+	set ^datetext(6)="0010-01-01"
+	set ^datetext(7)="0001-01-01"
 	set ^datetext(8)=""
 
 	set ^timetext(0)="00:00:00.000000"
@@ -259,52 +259,52 @@ datetimeerrorglobal
 	set ^timewithtimezonetext(7)="23:59:59.999999+16:00"
 	set ^timewithtimezonetext(8)=""
 
-	set ^timestamptext(0)="01-01-0000"
-	set ^timestamptext(1)="01-01-0100"
-	set ^timestamptext(2)="01-01-0010"
-	set ^timestamptext(3)="01-01-0001"
-	set ^timestamptext(4)="01-01-0000 00:00:00"
-	set ^timestamptext(5)="01-01-0100 00:00:00"
-	set ^timestamptext(6)="01-01-0010 00:00:00"
-	set ^timestamptext(7)="01-01-0001 00:00:00"
-	set ^timestamptext(8)="01-01-10000 00:00:00"
-	set ^timestamptext(9)="01-01-0000 00:00:00.000000"
-	set ^timestamptext(10)="12-31-9999 23:59:59.999999"
-	set ^timestamptext(11)="12-31-9999 23:59:59"
-	set ^timestamptext(12)="12-31-9999 23:59:60"
-	set ^timestamptext(13)="01-01-0000 23:60:59"
-	set ^timestamptext(14)="12-31-9999 23:59:59.1000000"
+	set ^timestamptext(0)="0000-01-01"
+	set ^timestamptext(1)="0100-01-01"
+	set ^timestamptext(2)="0010-01-01"
+	set ^timestamptext(3)="0001-01-01"
+	set ^timestamptext(4)="0000-01-01 00:00:00"
+	set ^timestamptext(5)="0100-01-01 00:00:00"
+	set ^timestamptext(6)="0010-01-01 00:00:00"
+	set ^timestamptext(7)="0001-01-01 00:00:00"
+	set ^timestamptext(8)="1000-01-010 00:00:00"
+	set ^timestamptext(9)="0000-01-01 00:00:00.000000"
+	set ^timestamptext(10)="9999-12-31 23:59:59.999999"
+	set ^timestamptext(11)="9999-12-31 23:59:59"
+	set ^timestamptext(12)="9999-12-31 23:59:60"
+	set ^timestamptext(13)="0000-01-01 23:60:59"
+	set ^timestamptext(14)="9999-12-31 23:59:59.1000000"
 	set ^timestamptext(14)=""
 
-	set ^timestampwithtimezonetext(0)="01-01-0000 00:00:00.000000-16:00"
-	set ^timestampwithtimezonetext(1)="01-01-0000 00:00:00.000000-15:59"
-	set ^timestampwithtimezonetext(2)="01-01-0000 00:00:00.000000+15:59"
-	set ^timestampwithtimezonetext(3)="01-01-0000 00:00:00.000000+16:00"
-	set ^timestampwithtimezonetext(4)="12-31-9999 23:59:59.999999-16:00"
-	set ^timestampwithtimezonetext(5)="12-31-9999 23:59:59.999999-15:59"
-	set ^timestampwithtimezonetext(6)="12-31-9999 23:59:59.999999+15:59"
-	set ^timestampwithtimezonetext(7)="12-31-9999 23:59:59.999999+16:00"
+	set ^timestampwithtimezonetext(0)="0000-01-01 00:00:00.000000-16:00"
+	set ^timestampwithtimezonetext(1)="0000-01-01 00:00:00.000000-15:59"
+	set ^timestampwithtimezonetext(2)="0000-01-01 00:00:00.000000+15:59"
+	set ^timestampwithtimezonetext(3)="0000-01-01 00:00:00.000000+16:00"
+	set ^timestampwithtimezonetext(4)="9999-12-31 23:59:59.999999-16:00"
+	set ^timestampwithtimezonetext(5)="9999-12-31 23:59:59.999999-15:59"
+	set ^timestampwithtimezonetext(6)="9999-12-31 23:59:59.999999+15:59"
+	set ^timestampwithtimezonetext(7)="9999-12-31 23:59:59.999999+16:00"
 	set ^timestampwithtimezonetext(8)=""
 
 	; edge cases
-	set ^edgecase(0)="01-01-2024 01:01:01.7323"
-	set ^edgecase(1)="01-01-2024 01:01:01.732300-05:00"
-	set ^edgecase(2)="01-01-2024 01:01:01.73230-05:00"
-	set ^edgecase(3)="01-01-2024 01:01:01.7323-05:00"
+	set ^edgecase(0)="2024-01-01 01:01:01.7323"
+	set ^edgecase(1)="2024-01-01 01:01:01.732300-05:00"
+	set ^edgecase(2)="2024-01-01 01:01:01.73230-05:00"
+	set ^edgecase(3)="2024-01-01 01:01:01.7323-05:00"
 	QUIT
 
 datetimemglobal
 	new map
-	set map("date","",0)="01-01-2023";
-	set map("date","",1)="01-02-2023";
+	set map("date","",0)="2023-01-01";
+	set map("date","",1)="2023-01-02";
 	set map("time","",0)="01:01:01";
 	set map("time","",1)="01:02:01";
 	set map("timetz","",0)="01:01:01-05:00"
 	set map("timetz","",1)="01:01:01-06:00"
-	set map("timestamp","",0)="01-01-2023 01:01:01"
-	set map("timestamp","",1)="01-02-2023 01:02:01"
-	set map("timestamptz","",0)="01-01-2023 01:01:01-05:00"
-	set map("timestamptz","",1)="01-01-2023 01:01:01-06:00"
+	set map("timestamp","",0)="2023-01-01 01:01:01"
+	set map("timestamp","",1)="2023-01-02 01:02:01"
+	set map("timestamptz","",0)="2023-01-01 01:01:01-05:00"
+	set map("timestamptz","",1)="2023-01-01 01:01:01-06:00"
 	set map("date","fileman",0)="3230101"
 	set map("date","fileman",1)="3230102"
 	set map("time","fileman",0)="010101"
@@ -357,11 +357,11 @@ datetimemglobal
 ; should be done to the other function also
 datetimecreate(subtest)
 	new val
-	set val("date")="'01-01-2023'"
+	set val("date")="'2023-01-01'"
 	set val("time")="'01:01:01'"
-	set val("timestamp")="'01-01-2023 01:01:01'"
+	set val("timestamp")="'2023-01-01 01:01:01'"
 	set val("time with time zone")="'01:01:01+05:00'"
-	set val("timestamp with time zone")="'01-01-2023 01:01:01+05:00'"
+	set val("timestamp with time zone")="'2023-01-01 01:01:01+05:00'"
 	for type="date","time","time with time zone","timestamp","timestamp with time zone" do
 	. for format="" do
 	. . write "-- type:"_type_" format:"_format,!
@@ -473,11 +473,11 @@ binaryoperationstatements
 	close file
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -552,11 +552,11 @@ unaryoperationstatements
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -596,11 +596,11 @@ castoperationstatements
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -670,11 +670,11 @@ caseoperationstatements
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -723,11 +723,11 @@ arrayoperationstatements
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -763,11 +763,11 @@ aggregatefunctionstatements
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -805,11 +805,11 @@ cogtltnifunctionstatements
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -854,11 +854,11 @@ userdefinedfunctionstatements(subtest)
 	DO datetimecreate(subtest) ; creates datetimecreate.sql
 	; Setup literal and reference map
 	new map
-	set map("date_literal","text")="date'01-01-2023'"
+	set map("date_literal","text")="date'2023-01-01'"
 	set map("time_literal","text")="time'01:01:00'"
 	; set map("timetz_literal","text")="time with time zone'01:01:00-05:00'"
-	set map("timestamp_literal","text")="timestamp'01-01-2023 01:01:00'"
-	set map("timestamptz_literal","text")="timestamp with time zone'01-01-2023 01:01:00-05:00'"
+	set map("timestamp_literal","text")="timestamp'2023-01-01 01:01:00'"
+	set map("timestamptz_literal","text")="timestamp with time zone'2023-01-01 01:01:00-05:00'"
 	set map("date_reference","text")="dob"
 	set map("time_reference","text")="dob"
 	; set map("timetz_reference","text")="dob"
@@ -880,7 +880,7 @@ userdefinedfunctionstatements(subtest)
 	set map("boolean","type")="BOOLEAN"
 	for type="date","time","time with time zone","timestamp","timestamp with time zone" do
 	. new str
-	. set str="create function samevalue("_type_") returns "_type_" as "_$select(("time"=type)!("time with time zone"=type):"$$samevalue",1:"$$samevaluemdy")_"^functions;"
+	. set str="create function samevalue("_type_") returns "_type_" as $$samevalue^functions;"
 	. do printquery("",str)
 	. FOR tmp="text" DO
 	. . ; FOR type1="date_literal","time_literal","timetz_literal","timestamp_literal","timestamptz_literal","date_reference","time_reference","timetz_reference","timestamp_reference","timestamptz_reference","integer","string","numeric","NULL","boolean" DO
@@ -909,8 +909,8 @@ basic(subtest)
 	; "%m/%d/%Y","%m-%d-%Y","%Y/%m/%d","%Y-%m-%d","%d-%m-%Y","%d/%m/%Y"
 	; "%H:%M:%S"
 	new map
-	set map("date_literal","text",1)="10-17-2023"
-	set map("date_literal","text",2)="10-16-2023"
+	set map("date_literal","text",1)="2023-10-17"
+	set map("date_literal","text",2)="2023-10-16"
 	QUIT
 
 ; 00:00 23:59
@@ -921,7 +921,7 @@ basic(subtest)
 ; 2. input2.sql with create table and select of all the rows of the table
 generateDateTimeValues
 	; Timestamp With Time zone
-	; Date                     : 01-01-0000 to 12-31-9999
+	; Date                     : 0000-01-01 to 9999-12-31
 	; Following code skips year 0000 as Postgres doesn't seem to recognize this year even though sql standard specifies
 	; it to be valid.
 	; Postgres treats 1 as 2001 (https://dba.stackexchange.com/questions/235295/why-does-year-0-become-year-2000)
@@ -1011,7 +1011,7 @@ generateDateTimeValues
 	. . . . . set lclyear="0"_lclyear
 	. . . . new lclstr
 	. . . . if (doNotIncludeDate) set lclstr=""
-	. . . . else  set lclstr=month_"-"_lclD_"-"_lclyear
+	. . . . else  set lclstr=lclyear_"-"_month_"-"_lclD
 	. . . . write "select "_type_"'"; query begin
 	. . . . ; Add time if type is timestamp or time
 	. . . . ; HH:MM:SS.uuuuuu
@@ -1185,7 +1185,7 @@ genCreateInsertSelectDateTimeValues
 	. . . . . set lclyear="0"_lclyear
 	. . . . new lclstr
 	. . . . if (doNotIncludeDate) set lclstr=""
-	. . . . else  set lclstr=month_"-"_lclD_"-"_lclyear
+	. . . . else  set lclstr=lclyear_"-"_month_"-"_lclD
 	. . . . write "insert into test1 values("_queries_","_type_"'"; query begin
 	. . . . ; Add time if type is timestamp or time
 	. . . . ; HH:MM:SS.uuuuuu
@@ -1309,7 +1309,7 @@ getDate()
 	if (31=lclD) do
 	. set lclD=$select(4=month:30,6=month:30,9=month:30,11=month:30,1:30)
 	set day=lclD
-	set result=month_"-"_day_"-"_year
+	set result=year_"-"_month_"-"_day
 	set result="date'"_result_"'"
 	quit result
 
@@ -1611,12 +1611,12 @@ unionQueries(val1,val2)
 	set val(0)=val1
 	set val(0,1)=val2
 	; Generate the following type of statements for the above values
-	; (select time'01:01:01') union (select date'01-01-2023');
-	; select date'01-01-2023') union (select time'01:01:01');
-	; select date'01-01-2023') union (select date'01-01-2023') union (select time'01:01:01');
-	; select time'01:01:01') union (select date'01-01-2023') union (select date'01-01-2023');
-	; select date'01-01-2023') union (select date'01-01-2023' union (select time'01:01:01'));
-	; select time'01:01:01') union (select date'01-01-2023' union (select date'01-01-2023'));
+	; (select time'01:01:01') union (select date'2023-01-01');
+	; select date'2023-01-01') union (select time'01:01:01');
+	; select date'2023-01-01') union (select date'2023-01-01') union (select time'01:01:01');
+	; select time'01:01:01') union (select date'2023-01-01') union (select date'2023-01-01');
+	; select date'2023-01-01') union (select date'2023-01-01' union (select time'01:01:01'));
+	; select time'01:01:01') union (select date'2023-01-01' union (select date'2023-01-01'));
 	write "(select "_val(0)_") union (select "_val(0,1)_");",!
 	write "(select "_val(0,1)_") union (select "_val(0)_");",!
 	write "(select "_val(0,1)_") union (select "_val(0,1)_") union (select "_val(0)_");",!
@@ -1630,21 +1630,21 @@ tdtt089()
 	new val
 	; time, date
 	set val(0)="time'01:01:01'"
-	set val(0,1)="date'01-01-2023'"
+	set val(0,1)="date'2023-01-01'"
 	; timestamp with time zone, time
-	set val(1)="timestamp with time zone'01-01-2023 01:01:01-05'"
+	set val(1)="timestamp with time zone'2023-01-01 01:01:01-05'"
 	set val(1,1)="time'01:01:01'"
 	; timestam with time zone, time with time zone
-	set val(2)="timestamp with time zone'01-01-2023 01:01:01-05'"
+	set val(2)="timestamp with time zone'2023-01-01 01:01:01-05'"
 	set val(2,1)="time with time zone'01:01:01'"
 	; time with time zone, date
 	set val(3)="time with time zone'01:01:01'"
-	set val(3,1)="date'01-01-2023'"
+	set val(3,1)="date'2023-01-01'"
 	; timestamp, time
-	set val(4)="timestamp'01-01-2023 01:01:01'"
+	set val(4)="timestamp'2023-01-01 01:01:01'"
 	set val(4,1)="time'01:01:01'"
 	; timestamp, time with time zone
-	set val(5)="timestamp'01-01-2023 01:01:01'"
+	set val(5)="timestamp'2023-01-01 01:01:01'"
 	set val(5,1)="time with time zone'01:01:01'"
 	for i=0:1:5 do unionQueries(val(i),val(i,1))
 	quit
@@ -1658,10 +1658,10 @@ tdtt090()
 	; string, timestamp
 	; string, timestamp with time zone
 	set val(6)="'text'"
-	set val(6,0)="date'01-01-2023'"
+	set val(6,0)="date'2023-01-01'"
 	set val(6,1)="time'01:01:01'"
-	set val(6,2)="timestamp'01-01-2023 01:01:01'"
-	set val(6,3)="timestamp with time zone'01-01-2023 01:01:01'"
+	set val(6,2)="timestamp'2023-01-01 01:01:01'"
+	set val(6,3)="timestamp with time zone'2023-01-01 01:01:01'"
 	set val(6,4)="time with time zone'01:01:01'"
 	for i=0:1:4 do unionQueries(val(6),val(6,i))
 	quit

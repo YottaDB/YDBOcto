@@ -1,69 +1,69 @@
-OCTO> select date'01-01-2023' - date'01-01-2023';
+OCTO> select date'2023-01-01' - date'2023-01-01';
 ???
 0
 (1 row)
-OCTO> select date'01-01-2023' - time'01:01:00';
+OCTO> select date'2023-01-01' - time'01:01:00';
 ???
 2022-12-31 22:59:00
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select date'01-01-2023' - timestamp'01-01-2023 01:01:00';
+OCTO> select date'2023-01-01' - timestamp'2023-01-01 01:01:00';
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select date'01-01-2023' - timestamp with time zone'01-01-2023 01:01:00-05:00';
-OCTO> select date'01-01-2023' - n1.dob from TDTT005date n1;
+OCTO> select date'2023-01-01' - timestamp with time zone'2023-01-01 01:01:00-05:00';
+OCTO> select date'2023-01-01' - n1.dob from TDTT005date n1;
 ???
 0
 (1 row)
-OCTO> select date'01-01-2023' - n1.dob from TDTT005time n1;
+OCTO> select date'2023-01-01' - n1.dob from TDTT005time n1;
 ???
 2022-12-31 22:58:59
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select date'01-01-2023' - n1.dob from TDTT005timestamp n1;
+OCTO> select date'2023-01-01' - n1.dob from TDTT005timestamp n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select date'01-01-2023' - n1.dob from TDTT005timestamptz n1;
-OCTO> select date'01-01-2023' - 3;
+OCTO> select date'2023-01-01' - n1.dob from TDTT005timestamptz n1;
+OCTO> select date'2023-01-01' - 3;
 ???
 2022-12-29
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 10:1: select date'01-01-2023' - 'sample string';
+LINE 10:1: select date'2023-01-01' - 'sample string';
                                      ^^^^^^^^^^^^^^^
-OCTO> select date'01-01-2023' - 'sample string';
+OCTO> select date'2023-01-01' - 'sample string';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for subtraction operation
-LINE 11:1: select date'01-01-2023' - 3.3;
+LINE 11:1: select date'2023-01-01' - 3.3;
                   ^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for subtraction operation
-LINE 11:1: select date'01-01-2023' - 3.3;
+LINE 11:1: select date'2023-01-01' - 3.3;
                                      ^^^
-OCTO> select date'01-01-2023' - 3.3;
-OCTO> select date'01-01-2023' - NULL;
+OCTO> select date'2023-01-01' - 3.3;
+OCTO> select date'2023-01-01' - NULL;
 ???
 
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
-LINE 13:1: select time'01:01:00' - date'01-01-2023';
+LINE 13:1: select time'01:01:00' - date'2023-01-01';
                   ^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for subtraction operation
-LINE 13:1: select time'01:01:00' - date'01-01-2023';
+LINE 13:1: select time'01:01:00' - date'2023-01-01';
                                    ^^^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' - date'01-01-2023';
+OCTO> select time'01:01:00' - date'2023-01-01';
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
 OCTO> select time'01:01:00' - time'01:01:00';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
-LINE 15:1: select time'01:01:00' - timestamp'01-01-2023 01:01:00';
+LINE 15:1: select time'01:01:00' - timestamp'2023-01-01 01:01:00';
                   ^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for subtraction operation
-LINE 15:1: select time'01:01:00' - timestamp'01-01-2023 01:01:00';
+LINE 15:1: select time'01:01:00' - timestamp'2023-01-01 01:01:00';
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' - timestamp'01-01-2023 01:01:00';
+OCTO> select time'01:01:00' - timestamp'2023-01-01 01:01:00';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
-LINE 16:1: select time'01:01:00' - timestamp with time zone'01-01-2023 01:0...
+LINE 16:1: select time'01:01:00' - timestamp with time zone'2023-01-01 01:0...
                   ^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 16:1: ...1:01:00' - timestamp with time zone'01-01-2023 01:01:00-05:00';
+LINE 16:1: ...1:01:00' - timestamp with time zone'2023-01-01 01:01:00-05:00';
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select time'01:01:00' - timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select time'01:01:00' - timestamp with time zone'2023-01-01 01:01:00-05:00';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
 LINE 17:1: select time'01:01:00' - n1.dob from TDTT005date n1;
                   ^^^^^^^^^^^^^^
@@ -108,100 +108,100 @@ OCTO> select time'01:01:00' - 3.3;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
 OCTO> select time'01:01:00' - NULL;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp'01-01-2023 01:01:00' - date'01-01-2023';
-OCTO> select timestamp'01-01-2023 01:01:00' - time'01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' - date'2023-01-01';
+OCTO> select timestamp'2023-01-01 01:01:00' - time'01:01:00';
 ???
 2023-01-01 00:00:00
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp'01-01-2023 01:01:00' - timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp'2023-01-01 01:01:00' - timestamp'2023-01-01 01:01:00';
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp'01-01-2023 01:01:00' - timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp'2023-01-01 01:01:00' - timestamp with time zone'2023-01-01 01:01:00-05:00';
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp'01-01-2023 01:01:00' - n1.dob from TDTT005date n1;
-OCTO> select timestamp'01-01-2023 01:01:00' - n1.dob from TDTT005time n1;
+OCTO> select timestamp'2023-01-01 01:01:00' - n1.dob from TDTT005date n1;
+OCTO> select timestamp'2023-01-01 01:01:00' - n1.dob from TDTT005time n1;
 ???
 2022-12-31 23:59:59
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp'01-01-2023 01:01:00' - n1.dob from TDTT005timestamp n1;
+OCTO> select timestamp'2023-01-01 01:01:00' - n1.dob from TDTT005timestamp n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp'01-01-2023 01:01:00' - n1.dob from TDTT005timestamptz n1;
+OCTO> select timestamp'2023-01-01 01:01:00' - n1.dob from TDTT005timestamptz n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for subtraction operation
-LINE 33:1: select timestamp'01-01-2023 01:01:00' - 3;
+LINE 33:1: select timestamp'2023-01-01 01:01:00' - 3;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for subtraction operation
-LINE 33:1: select timestamp'01-01-2023 01:01:00' - 3;
+LINE 33:1: select timestamp'2023-01-01 01:01:00' - 3;
                                                    ^
-OCTO> select timestamp'01-01-2023 01:01:00' - 3;
+OCTO> select timestamp'2023-01-01 01:01:00' - 3;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 34:1: select timestamp'01-01-2023 01:01:00' - 'sample string';
+LINE 34:1: select timestamp'2023-01-01 01:01:00' - 'sample string';
                                                    ^^^^^^^^^^^^^^^
-OCTO> select timestamp'01-01-2023 01:01:00' - 'sample string';
+OCTO> select timestamp'2023-01-01 01:01:00' - 'sample string';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for subtraction operation
-LINE 35:1: select timestamp'01-01-2023 01:01:00' - 3.3;
+LINE 35:1: select timestamp'2023-01-01 01:01:00' - 3.3;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for subtraction operation
-LINE 35:1: select timestamp'01-01-2023 01:01:00' - 3.3;
+LINE 35:1: select timestamp'2023-01-01 01:01:00' - 3.3;
                                                    ^^^
-OCTO> select timestamp'01-01-2023 01:01:00' - 3.3;
-OCTO> select timestamp'01-01-2023 01:01:00' - NULL;
+OCTO> select timestamp'2023-01-01 01:01:00' - 3.3;
+OCTO> select timestamp'2023-01-01 01:01:00' - NULL;
 ???
 
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 37:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' - dat...
+LINE 37:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' - dat...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for subtraction operation
-LINE 37:1: ...mp with time zone'01-01-2023 01:01:00-05:00' - date'01-01-2023';
+LINE 37:1: ...mp with time zone'2023-01-01 01:01:00-05:00' - date'2023-01-01';
                                                              ^^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - date'01-01-2023';
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - time'01:01:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - date'2023-01-01';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - time'01:01:00';
 ???
 2023-01-01 00:00:00-05
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - timestamp'01-01-2023 01:01:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - timestamp'2023-01-01 01:01:00';
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - timestamp with time zone'01-01-2023 01:01:00-05:00';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - timestamp with time zone'2023-01-01 01:01:00-05:00';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 41:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' - n1....
+LINE 41:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' - n1....
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for subtraction operation
-LINE 41:1: ...me zone'01-01-2023 01:01:00-05:00' - n1.dob from TDTT005date n1;
+LINE 41:1: ...me zone'2023-01-01 01:01:00-05:00' - n1.dob from TDTT005date n1;
                                                    ^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - n1.dob from TDTT005date n1;
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - n1.dob from TDTT005time n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - n1.dob from TDTT005date n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - n1.dob from TDTT005time n1;
 ???
 2022-12-31 23:59:59-05
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - n1.dob from TDTT005timestamp n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - n1.dob from TDTT005timestamp n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - n1.dob from TDTT005timestamptz n1;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - n1.dob from TDTT005timestamptz n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 45:1: select timestamp with time zone'01-01-2023 01:01:00-05:00' - 3;
+LINE 45:1: select timestamp with time zone'2023-01-01 01:01:00-05:00' - 3;
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type INTEGER not compatible for subtraction operation
-LINE 45:1: select timestamp with time zone'01-01-2023 01:01:00-05:00' - 3;
+LINE 45:1: select timestamp with time zone'2023-01-01 01:01:00-05:00' - 3;
                                                                         ^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - 3;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - 3;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for arithmetic operations
-LINE 46:1: ...mp with time zone'01-01-2023 01:01:00-05:00' - 'sample string';
+LINE 46:1: ...mp with time zone'2023-01-01 01:01:00-05:00' - 'sample string';
                                                              ^^^^^^^^^^^^^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - 'sample string';
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - 'sample string';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 47:1: ...elect timestamp with time zone'01-01-2023 01:01:00-05:00' - 3.3...
+LINE 47:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' - 3.3...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type NUMERIC not compatible for subtraction operation
-LINE 47:1: ...lect timestamp with time zone'01-01-2023 01:01:00-05:00' - 3.3;
+LINE 47:1: ...lect timestamp with time zone'2023-01-01 01:01:00-05:00' - 3.3;
                                                                          ^^^
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - 3.3;
-OCTO> select timestamp with time zone'01-01-2023 01:01:00-05:00' - NULL;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - 3.3;
+OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' - NULL;
 ???
 
 (1 row)
-OCTO> select n1.dob - date'01-01-2023' from TDTT005date n1;
+OCTO> select n1.dob - date'2023-01-01' from TDTT005date n1;
 ???
 0
 (1 row)
@@ -210,9 +210,9 @@ OCTO> select n1.dob - time'01:01:00' from TDTT005date n1;
 2022-12-31 22:59:00
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - timestamp'01-01-2023 01:01:00' from TDTT005date n1;
+OCTO> select n1.dob - timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005date n1;
+OCTO> select n1.dob - timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 OCTO> select n1.dob - n2.dob from TDTT005date n1, TDTT005date n2;
 ???
 0
@@ -245,28 +245,28 @@ OCTO> select n1.dob - NULL from TDTT005date n1;
 
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
-LINE 61:1: select n1.dob - date'01-01-2023' from TDTT005time n1;
+LINE 61:1: select n1.dob - date'2023-01-01' from TDTT005time n1;
                   ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for subtraction operation
-LINE 61:1: select n1.dob - date'01-01-2023' from TDTT005time n1;
+LINE 61:1: select n1.dob - date'2023-01-01' from TDTT005time n1;
                            ^^^^^^^^^^^^^^^^
-OCTO> select n1.dob - date'01-01-2023' from TDTT005time n1;
+OCTO> select n1.dob - date'2023-01-01' from TDTT005time n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
 OCTO> select n1.dob - time'01:01:00' from TDTT005time n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
-LINE 63:1: select n1.dob - timestamp'01-01-2023 01:01:00' from TDTT005time ...
+LINE 63:1: select n1.dob - timestamp'2023-01-01 01:01:00' from TDTT005time ...
                   ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP not compatible for subtraction operation
-LINE 63:1: select n1.dob - timestamp'01-01-2023 01:01:00' from TDTT005time ...
+LINE 63:1: select n1.dob - timestamp'2023-01-01 01:01:00' from TDTT005time ...
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select n1.dob - timestamp'01-01-2023 01:01:00' from TDTT005time n1;
+OCTO> select n1.dob - timestamp'2023-01-01 01:01:00' from TDTT005time n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
-LINE 64:1: select n1.dob - timestamp with time zone'01-01-2023 01:01:00-05:...
+LINE 64:1: select n1.dob - timestamp with time zone'2023-01-01 01:01:00-05:...
                   ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 64:1: ...dob - timestamp with time zone'01-01-2023 01:01:00-05:00' from ...
+LINE 64:1: ...dob - timestamp with time zone'2023-01-01 01:01:00-05:00' from ...
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> select n1.dob - timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005time n1;
+OCTO> select n1.dob - timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005time n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIME not compatible for subtraction operation
 LINE 65:1: select n1.dob - n2.dob from TDTT005time n1, TDTT005date n2;
                   ^^^^^^
@@ -311,15 +311,15 @@ OCTO> select n1.dob - 3.3 from TDTT005time n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
 OCTO> select n1.dob - NULL from TDTT005time n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - date'01-01-2023' from TDTT005timestamp n1;
+OCTO> select n1.dob - date'2023-01-01' from TDTT005timestamp n1;
 OCTO> select n1.dob - time'01:01:00' from TDTT005timestamp n1;
 ???
 2023-01-01 00:00:01
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - timestamp'01-01-2023 01:01:00' from TDTT005timestamp n1;
+OCTO> select n1.dob - timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamp n1;
+OCTO> select n1.dob - timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
 OCTO> select n1.dob - n2.dob from TDTT005timestamp n1, TDTT005date n2;
 OCTO> select n1.dob - n2.dob from TDTT005timestamp n1, TDTT005time n2;
@@ -353,20 +353,20 @@ OCTO> select n1.dob - NULL from TDTT005timestamp n1;
 
 (1 row)
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
-LINE 85:1: select n1.dob - date'01-01-2023' from TDTT005timestamptz n1;
+LINE 85:1: select n1.dob - date'2023-01-01' from TDTT005timestamptz n1;
                   ^^^^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type DATE not compatible for subtraction operation
-LINE 85:1: select n1.dob - date'01-01-2023' from TDTT005timestamptz n1;
+LINE 85:1: select n1.dob - date'2023-01-01' from TDTT005timestamptz n1;
                            ^^^^^^^^^^^^^^^^
-OCTO> select n1.dob - date'01-01-2023' from TDTT005timestamptz n1;
+OCTO> select n1.dob - date'2023-01-01' from TDTT005timestamptz n1;
 OCTO> select n1.dob - time'01:01:00' from TDTT005timestamptz n1;
 ???
 2022-12-31 14:00:01-05
 (1 row)
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - timestamp'01-01-2023 01:01:00' from TDTT005timestamptz n1;
+OCTO> select n1.dob - timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 [ERROR]: ERR_FEATURE_NOT_IMPLEMENTED: Feature not implemented: Operation result is INTERVAL
-OCTO> select n1.dob - timestamp with time zone'01-01-2023 01:01:00-05:00' from TDTT005timestamptz n1;
+OCTO> select n1.dob - timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TIMESTAMP WITH TIME ZONE not compatible for subtraction operation
 LINE 89:1: select n1.dob - n2.dob from TDTT005timestamptz n1, TDTT005date n...
                   ^^^^^^

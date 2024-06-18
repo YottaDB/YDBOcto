@@ -1,12 +1,12 @@
    name    | setting  
 -----------+----------
- datestyle | ISO, MDY
+ datestyle | ISO, YMD
 (1 row)
 
 SET
    name    | setting  
 -----------+----------
- datestyle | ISO, MDY
+ datestyle | ISO, YMD
 (1 row)
 
  name | setting 

@@ -1,15 +1,15 @@
 
-select column1 from (values(date(horolog)'66764')); -- expected 10-17-2023
-select column1 from (values(date'10-17-2023')); -- expected 10-17-2023
+select column1 from (values(date(horolog)'66764')); -- expected 2023-10-17
+select column1 from (values(date'2023-10-17')); -- expected 2023-10-17
 
 OCTO> select column1 from (values(date(horolog)'66764'));
 column1
 2023-10-17
 (1 row)
-OCTO> -- expected 10-17-2023
-select column1 from (values(date'10-17-2023'));
+OCTO> -- expected 2023-10-17
+select column1 from (values(date'2023-10-17'));
 column1
 2023-10-17
 (1 row)
-OCTO> -- expected 10-17-2023
+OCTO> -- expected 2023-10-17
 

@@ -479,7 +479,7 @@ int is_date_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	char year[4], month[3], day[3];
 	if (('-' == literal[length]) || ('+' == literal[length])) {
 		// Do not expect any symbols
-		return 1;
+		ERROR_RETURN(is_parser_call);
 	}
 	while (('.' != literal[length]) && ('\0' != literal[length])) {
 		length++;
@@ -490,8 +490,9 @@ int is_date_in_fileman_range(char *literal, boolean_t is_parser_call) {
 		if ((3 == length) && ('\0' == literal[length])) {
 			// This is YYY
 			ERROR_RETURN(is_parser_call);
+		} else {
+			ERROR_RETURN(is_parser_call);
 		}
-		return 1;
 	}
 	if ('.' == literal[length]) {
 		memcpy(year, literal, 3);
@@ -519,7 +520,7 @@ int is_date_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	assert((0 <= year_int) && (999 >= year_int));
 	assert((0 <= mon_int) && (0 <= day_int));
 	if ((12 < mon_int) || (31 < day_int)) {
-		return 1;
+		ERROR_RETURN(is_parser_call);
 	}
 	// Validate in-exact dates
 	if (0 == year_int) {
@@ -547,7 +548,7 @@ int is_time_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	if (6 < time_len) {
 		// time part too long
 		// HHMMSS
-		return 1;
+		ERROR_RETURN(is_parser_call);
 	}
 	char hour[3], min[3], sec[3];
 	hour[0] = sec[0] = min[0] = '0';
@@ -588,11 +589,11 @@ int is_time_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	}
 
 	if (24 < hour_int) {
-		return 1;
+		ERROR_RETURN(is_parser_call);
 	}
 	if (24 == hour_int) {
 		if ((0 != min_int) || (0 != sec_int)) {
-			return 1;
+			ERROR_RETURN(is_parser_call);
 		} // else 240000
 	} else {
 		if (59 < min_int) {
@@ -811,7 +812,10 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			// Check that only decimal digits exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 0);
 			if (0 != ret) {
-				return ret;
+				ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 1);
+				if (0 != ret) {
+					return ret;
+				}
 			}
 			ret = is_date_in_horolog_range(literal);
 		} else if (TIME_LITERAL == date_time_type) {
@@ -911,7 +915,11 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			// Check that only decimal digits exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 0);
 			if (0 != ret) {
-				return ret;
+				ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 1); // no time info
+				if (0 != ret) {
+					assert(1 == ret);
+					ERROR_RETURN(is_parser_call);
+				}
 			}
 			ret = is_date_in_fileman_range(literal, is_parser_call);
 		} else if (TIME_LITERAL == date_time_type) {
@@ -922,7 +930,8 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			if (0 != ret) {
 				ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 0); // no time info
 				if (0 != ret) {
-					return ret;
+					assert(1 == ret);
+					ERROR_RETURN(is_parser_call);
 				}
 			}
 			ret = is_date_in_fileman_range(literal, is_parser_call);
@@ -938,7 +947,8 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			if (0 != ret) {
 				ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 0); // no time info
 				if (0 != ret) {
-					return ret;
+					assert(1 == ret);
+					ERROR_RETURN(is_parser_call);
 				}
 			}
 			ret = is_date_in_fileman_range(literal, is_parser_call);

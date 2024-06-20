@@ -61,7 +61,9 @@ OCTO> -- Will remove the fileman specific function
 create function samevalue(date(horolog)) returns date(fileman) as $$samevalue^datetime;
 CREATE FUNCTION
 OCTO> select samevalue(date(horolog)'-365');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1664-5-" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
+samevalue
+
+(1 row)
 OCTO> -- result will be garbage as we did not redefine samevalue
 # ----------------------------------------------------------------------------
 # Include generated M code in reference file to verify all optimizations there

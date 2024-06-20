@@ -667,7 +667,6 @@ Note
     Also, a 2 digit HH without MM and SS having ``10`` or ``20`` is invalid.
     If time field is 3 digits then the value is treated as HHMM where MM is 1 digit and its value cannot exceed 5. If time field is 5 digits then it is considered as HHMMSS where SS is
     single digit and its value cannot exceed 5. A valid single digit MM (in 3 digit HHMM value) and SS (in 5 digit HHMMSS value) is appended with a trailing 0.
-    All of the invalid cases generate an ERROR or return NULL based on whether the value is a literal of a column value.
     For example:
 
     .. code-block::
@@ -679,6 +678,10 @@ Note
     FILEMAN values with only year without any other fields are not allowed as literals and are treated as NULL values when
     present in globals.
     For example: :code:`date(fileman)'323'` generates an error. If similar value is in a global and :code:`date(fileman)` column is mapped to it then a select on the column will give a NULL value.
+
+    All FILEMAN literals that are invalid generate an ERROR. FILEMAN values in globals or those formed during conversion from other format values to FILEMAN are treated as NULL if they are found to be invalid.
+
+    When a FILEMAN value having time information is assigned to a DATE(FILEMAN) type, the value is validated by considering only the DATE portion. Time portion is ignored.
 
     ZUT formatted DATE or TIMESTAMP refers to UTC time and not the present timezone time.
 

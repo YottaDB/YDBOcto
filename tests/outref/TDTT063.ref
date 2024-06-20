@@ -274,7 +274,9 @@ id|dob
 0|
 (1 row)
 OCTO> select * from testtimestamperror5;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.25" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
+id|dob
+0|
+(1 row)
 OCTO> select * from testtimestamperror6;
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2960124.3" is invalid for type "TIMESTAMP", format "FILEMAN" and datestyle "ISO, YMD"
 OCTO> select * from testtimestamperror7;

@@ -186,7 +186,15 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob date(fileman)) global "^datefileman" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10001231" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
+id|dob
+0|
+1|
+2|2699-12-31
+3|
+4|
+5|
+6|
+(7 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 [ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
@@ -212,7 +220,11 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp(fileman) with time zone) global "^timestampwithtimezonefileman" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0.0" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
+id|dob
+0|
+1|
+2|
+(3 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp(fileman)) global "^timestampfileman" readonly;

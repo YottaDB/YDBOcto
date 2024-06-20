@@ -1483,3 +1483,17 @@ teardown() {
 	sed -i 's/[0-9]\{2\}-[0-9]\{2\}-[0-9]\{4\}/DATE TIME/g' output.txt
 	verify_output TDTT100_1 output.txt noinfo nodebug
 }
+
+@test "TDTT101 : Ensure time is allowed to specified in DATE type value and invalid edge case readonly table value for fileman date returns null and not error" {
+	yottadb -run %XCMD 'SET ^datef(0)="3230201"'
+	yottadb -run %XCMD 'SET ^datef(1)="01"'
+	yottadb -run %XCMD 'SET ^datef(2)="3230201.010101"'
+	yottadb -run %XCMD 'SET ^datef(3)="3020730.11164601"'
+	yottadb -run %XCMD 'SET ^datef(4)="TESTING THE ROUTINE OUT"'
+	yottadb -run %XCMD 'SET ^dateh(0)="67011,41907"'
+	yottadb -run %XCMD 'SET ^dateh(1)="67011"'
+	yottadb -run %XCMD 'SET ^datet(0)="2023-01-01 01:01:01"'
+	yottadb -run %XCMD 'SET ^datet(1)="2023-01-01"'
+	load_fixture TDTT101.sql subtest novv
+	verify_output TDTT101 output.txt nodatetimefilter noinfo nodebug
+}

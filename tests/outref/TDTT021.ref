@@ -323,18 +323,18 @@ OCTO> select date(horolog)'.';
 LINE 5:1: select date(horolog)',';
                  ^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66644,62290" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
-LINE 6:1: select date(horolog)'66644,62290';
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'66644,62290';
+???
+2023-06-19
+(1 row)
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-66644,62290" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 7:1: select date(horolog)'-66644,62290';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'-66644,62290';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "+66644,62290" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
-LINE 8:1: select date(horolog)'+66644,62290';
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(horolog)'+66644,62290';
+???
+2023-06-19
+(1 row)
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66+644" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 9:1: select date(horolog)'66+644';
                  ^^^^^^^^^^^^^^^^^^^^^
@@ -690,10 +690,10 @@ OCTO> select date(fileman)'.';
 LINE 109:1: select date(fileman)',';
                    ^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)',';
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2970919.082701" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
-LINE 110:1: select date(fileman)'2970919.082701';
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'2970919.082701';
+???
+1997-09-19
+(1 row)
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-2970919.082701" is invalid for type "DATE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 111:1: select date(fileman)'-2970919.082701';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

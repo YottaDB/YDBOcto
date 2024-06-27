@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -44,7 +44,7 @@ RUN apt-get update && \
 RUN cd /tmp/ && \
     wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh && \
     chmod +x ./ydbinstall.sh && \
-    ./ydbinstall.sh --plugins-only --posix --aim && \
+    ./ydbinstall.sh --overwrite-existing --plugins-only --posix --aim && \
     rm ./ydbinstall.sh
 
 # Download, build, and install Octo

@@ -132,7 +132,7 @@ if [[ $(( RANDOM % 2)) -eq 0 || ("test-auto-upgrade" == $jobname) ]]; then
 	pushd /tmp/
 	wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
 	chmod +x ydbinstall.sh
-	./ydbinstall.sh --plugins-only --aim --posix
+	./ydbinstall.sh --overwrite-existing --plugins-only --aim --posix
 	popd
 fi
 

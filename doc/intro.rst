@@ -139,7 +139,6 @@ Configure Octo
       * :code:`ydb_gbldir`
       * :code:`ydb_routines`
       * :code:`ydb_xc_ydbposix`
-      * :code:`ydb_xc_octo`
 
 
   The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, :code:`ydb_routines`, and :code:`ydb_xc_ydbposix` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory.
@@ -149,7 +148,6 @@ Configure Octo
   .. code-block:: bash
 
      source /usr/local/lib/yottadb/r1.34/ydb_env_set
-     export ydb_xc_octo=$ydb_dist/plugin/octo/ydbocto.xc  # Allow usage of some SQL functions, e.g. DATE_FORMAT()
 
 ~~~~~~~~~~~~~~~~
   Setup Database

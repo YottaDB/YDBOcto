@@ -9,6 +9,4 @@ With free / open source software, the question arises from time to time as to wh
  (b) If you distribute software that uses, or is built on, a modified version of YottaDB software, your modified version of YottaDB software is a covered work, and the source code to your modified version must be made available per the terms of the license. However that part of the software not required to build the modified version of YottaDB software can be part of an aggregate with the modified version of YottaDB software and made available under a different, unrelated license.
  (c) Distributing software that is covered and software is not covered in separate directories or folders suffices to create an aggregate with separable licenses.
 
-This clarification is the same as that which also has been made on multiple occasions (e.g., https://groups.google.com/d/msg/hardhats/A4qV-L4ZCjk/xf4fBWm2iisJ) by the upstream GT.M project.
-
 If you submit source code you would like YottaDB to include, please ensure that you understand and agree with the above clarification.

@@ -367,6 +367,10 @@ void print_yyloc(YYLTYPE *llocp) {
 
 	// Underline the issue
 	c = excerpt_begin;
+	// Add spaces for `LINE %d:%d: ...` part of the error message
+	int left_ellipsis_len = (int)strlen(left_ellipsis);
+	SNPRINTF_ERR_BUFF(err_ptr, err_out_len, err_out, "%*s", prefix_len + left_ellipsis_len, "");
+	// Add spaces for query characters that are not being highlighted
 	while (cur_column < (highlight_begin - excerpt_begin) + prev_query_len) {
 		if ('\0' != *c) {
 			if ('\t' == *c) {
@@ -380,13 +384,7 @@ void print_yyloc(YYLTYPE *llocp) {
 		}
 		cur_column++;
 	}
-	while (cur_column < ((highlight_begin - excerpt_begin) + prefix_len + (int)strlen(left_ellipsis)) + prev_query_len) {
-		SNPRINTF_ERR_BUFF(err_ptr, err_out_len, err_out, " ");
-		if ('\0' != *c) {
-			c++;
-		}
-		cur_column++;
-	}
+	// Add highlighting characters
 	for (i = 0; i < highlight_len; i++) {
 		SNPRINTF_ERR_BUFF(err_ptr, err_out_len, err_out, "^");
 	}

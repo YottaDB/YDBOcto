@@ -23,7 +23,7 @@ LINE 4:1: ...ELECT firstname, lastname, middlename from names as extralongnam...
 OCTO> SELECT firstname, lastname, middlename from names as extralongnamealias;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: multilinequery
 LINE 7:3: 	multilinequery,
-	          ^^^^^^^^^^^^^^
+          	^^^^^^^^^^^^^^
 OCTO> SELECT
 	firstname,
 	multilinequery,

@@ -1,10 +1,20 @@
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
 [ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing
 LINE 2:2: 	notathing  	  from
-	          ^^^^^^^^^
+          	^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select
 	notathing  	  from
 			names
 	;]
+[ INFO] PATH:LINENUM DATE TIME: INFO_RETURNING_FAILURE: Returning failure from run_query
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 5:1: select	* from test;
+                	       ^^^^
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select	* from test;]
+[ INFO] PATH:LINENUM DATE TIME: INFO_RETURNING_FAILURE: Returning failure from run_query
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: test
+LINE 6:1: select * from	 test;
+                       	 ^^^^
+[ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from	 test;]
 [ INFO] PATH:LINENUM DATE TIME: INFO_RETURNING_FAILURE: Returning failure from run_query
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command []

@@ -87,6 +87,8 @@ OCTO
 	notathing  	  from
 			names
 	;
+select	* from test;
+select * from	 test;
 OCTO
   verify_output TERR008 output.txt
 }

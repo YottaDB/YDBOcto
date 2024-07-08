@@ -240,9 +240,9 @@ OCTO> select date(horolog)'2980013';
 ???
 9999-12-31
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 7:1: select date(horolog)'';
                                ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select date(horolog)'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 9:1: select time(horolog)'-1';
@@ -260,9 +260,9 @@ OCTO> select time(horolog)'86399';
 ???
 23:59:59
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 13:1: select time(horolog)'';
                                 ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time(horolog)'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,-1" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 15:1: select timestamp(horolog)'-365,-1';
@@ -296,9 +296,9 @@ OCTO> select timestamp(horolog) with time zone'2980013,86399';
 ???
 9999-12-31 23:59:59-05
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 23:1: select timestamp(horolog)'';
                                      ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp(horolog)'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0," is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
 LINE 24:1: select timestamp(horolog)'0,';
@@ -308,9 +308,9 @@ OCTO> select timestamp(horolog)'0,';
 LINE 25:1: select timestamp(horolog)',0';
                   ^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(horolog)',0';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 26:1: select timestamp(horolog) with time zone'';
                                                     ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp(horolog) with time zone'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366,,," is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 29:2: select date(zhorolog)'-366,,,';
@@ -495,9 +495,9 @@ select date(fileman)'-9991231';
 LINE 75:1: select date(fileman)'+9991231';
                   ^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(fileman)'+9991231';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 76:1: select date(fileman)'';
                                 ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select date(fileman)'';
 [ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
 LINE 77:1: select time(fileman)'0';
@@ -535,9 +535,9 @@ OCTO> select timestamp(fileman)'+9991231.000000';
 LINE 87:1: select timestamp(fileman)'0000000';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman)'0000000';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 88:1: select timestamp(fileman)'';
                                      ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp(fileman)'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0.0" is invalid for type "TIMESTAMP WITH TIME ZONE", format "FILEMAN" and datestyle "ISO, YMD"
 LINE 89:1: select timestamp(fileman) with time zone'0.0';
@@ -547,9 +547,9 @@ OCTO> select timestamp(fileman) with time zone'0.0';
 LINE 90:1: select timestamp(fileman) with time zone'0.';
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(fileman) with time zone'0.';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 91:1: select timestamp(fileman) with time zone'';
                                                     ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp(fileman) with time zone'';
 OCTO> --zut
 select date(zut)'-62167201439000000';
@@ -584,9 +584,9 @@ OCTO> select date(zut)'253402214400000000';
 LINE 101:1: select date(zut)'253402214500000000';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut)'253402214500000000';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 102:1: select date(zut)'';
                              ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select date(zut)'';
 [ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
 LINE 103:1: select time(zut)'-2209057300000000';
@@ -640,21 +640,21 @@ OCTO> select timestamp(zut)'253402300799999999';
 LINE 115:1: select timestamp(zut)'253402300800000000';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp(zut)'253402300800000000';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 116:1: select timestamp(zut)'';
                                   ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp(zut)'';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 117:1: select time with time zone'';
                                        ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time with time zone'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 118:1: select timestamp with time zone'0';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'0';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 119:1: select timestamp with time zone'';
                                             ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp with time zone'';
 OCTO> select date '0000-01-01';
 ???
@@ -688,9 +688,9 @@ OCTO> select date'0001-01-01';
 ???
 0001-01-01
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 129:1: select date'';
                         ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select date'';
 OCTO> select time'00:00:00.000000';
 ???
@@ -732,9 +732,9 @@ OCTO> select time'00:00:60';
 ???
 00:01:00
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 141:1: select time'';
                         ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time'';
 OCTO> select timestamp'0000-01-01';
 ???
@@ -794,9 +794,9 @@ OCTO> select timestamp '0000-01-01 23:60:59';
 LINE 158:1: select timestamp '9999-12-31 23:59:59.1000000';
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp '9999-12-31 23:59:59.1000000';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 159:1: select timestamp '';
                               ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp '';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01 00:00:00.000000-16:00" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 161:1: ...lect timestamp with time zone'0000-01-01 00:00:00.000000-16:00';
@@ -826,9 +826,9 @@ OCTO> select timestamp with time zone'9999-12-31 23:59:59.999999+15:59';
 LINE 168:1: ...lect timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 169:1: select timestamp with time zone'';
                                             ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select timestamp with time zone'';
 OCTO> select date(horolog)'66475';
 ???

@@ -8,8 +8,8 @@ CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
 LINE 3:1: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
                                                        ^^^^^^^^^^
 OCTO> CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERCENT, expecting SEMICOLON or ENDOFFILE
 LINE 4:1: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
                                                                ^
-syntax error, unexpected PERCENT, expecting SEMICOLON or ENDOFFILE
 OCTO> CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
 OCTO> 

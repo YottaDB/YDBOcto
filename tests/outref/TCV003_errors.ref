@@ -51,17 +51,17 @@ create view TCV003v1(id1,id2) as select t1.id, t1.id, t1.id id2 from t1;
 -- remaining columns in the underlying SELECT column list. Should issue a ERR_DUPLICATE_COLUMN error.
 create view TCV003v1(id1,id2) as select t1.id, t1.id, t1.id id3, t1.id id3 from t1;
 
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected NULL_TOKEN
 LINE 2:1: ...te view TCV003v1 (TCV003v1_id,NULL,TCV003v1_lastname) as select ...
                                            ^^^^
-syntax error, unexpected NULL_TOKEN
 OCTO> create view TCV003v1 (TCV003v1_id,NULL,TCV003v1_lastname) as select names.* from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING
 LINE 3:1: ...te view TCV003v1 (TCV003v1_id,'',TCV003v1_lastname) as select n...
                                             ^
-syntax error, unexpected EMPTY_STRING
 OCTO> create view TCV003v1 (TCV003v1_id,'',TCV003v1_lastname) as select names.* from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 4:1: ...e view TCV003v1 (TCV003v1_id,'asdf',TCV003v1_lastname) as select...
                                           ^^^^^^
-syntax error, unexpected LITERAL
 OCTO> create view TCV003v1 (TCV003v1_id,'asdf',TCV003v1_lastname) as select names.* from names;
 OCTO> --create view TCV003v1 (TCV003v1_id,"asd",TCV003v1_lastname) as select names.* from names; -- double quotes
 create view TCV003v1 (TCV003v1_id,TCV003v1_id,TCV003v1_lastname) as select names.* from names;
@@ -96,9 +96,9 @@ create view TCV003v1 (TCV003v1_col1,TCV003v1_col2,TCV003v1_col3) as select (valu
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 12:2: ...v1_col3) as select (values(1,'Zero','Cool')) from names; -- ERR...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected VALUES
 LINE 13:2: ...ol2,TCV003v1_col3) as select values(1,'Zero','Cool') from names;...
                                            ^^^^^^
-syntax error, unexpected VALUES
 OCTO> -- ERROR:  subquery must return only one column
 create view TCV003v1 (TCV003v1_col1,TCV003v1_col2,TCV003v1_col3) as select values(1,'Zero','Cool') from names;
 OCTO> -- ERROR:  syntax error at or near "("
@@ -125,9 +125,9 @@ create view TCV003v1 as select 1 as n1_id,'Zero' as n1_firstname, 'Cool' as n1_f
 [ERROR]: ERR_DUPLICATE_COLUMN: Column "n1_firstname" specified more than once
 LINE 19:2: ...s n1_firstname, 'Cool' as n1_firstname; -- ERROR:  column "n1_fi...
                                         ^^^^^^^^^^^^
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting RIGHT_PAREN
 LINE 20:2: ...eate view TCV003v1 as values((1,'Zero','Cool'),(1,'Z','C')); --...
                                              ^
-syntax error, unexpected COMMA, expecting RIGHT_PAREN
 OCTO> -- ERROR:  column "n1_firstname" specified more than once
 create view TCV003v1 as values((1,'Zero','Cool'),(1,'Z','C'));
 OCTO> -- column "column1" has pseudo-type record (this one is more of values implementation error)
@@ -135,9 +135,9 @@ create view TCV003v1 as select(values(1,'Zero','Cool')) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 21:2: ... TCV003v1 as select(values(1,'Zero','Cool')) from names; -- ERR...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected VALUES
 LINE 22:2: ...eate view TCV003v1 as select values(1,'Zero','Cool') from names;...
                                            ^^^^^^
-syntax error, unexpected VALUES
 OCTO> -- ERROR:  subquery must return only one column
 create view TCV003v1 as select values(1,'Zero','Cool') from names;
 OCTO> -- ERROR:  syntax error at or near "("

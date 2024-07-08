@@ -54,22 +54,22 @@ create table tmp (id varchar primary key, fullname1 varchar extract concat(id, i
 select * from tmp;
 OCTO> DROP TABLE IF EXISTS extractnames;
 DROP TABLE
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected SUM
 LINE 7:3:     fullname VARCHAR EXTRACT SUM(id)
                                        ^^^
-syntax error, unexpected SUM
 OCTO> CREATE TABLE extractnames (
     id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
     fullname VARCHAR EXTRACT SUM(id)
 ) GLOBAL "^names(keys(""ID""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN
 LINE 12:3:     fullname VARCHAR EXTRACT (select * from names;)
                                         ^
-syntax error, unexpected LEFT_PAREN
 OCTO> CREATE TABLE extractnames (
     id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
     fullname VARCHAR EXTRACT (select * from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected RIGHT_PAREN
 LINE 12:1: )
             ^
-syntax error, unexpected RIGHT_PAREN
 OCTO> )
 ) GLOBAL "^names(keys(""ID""))";
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : names
@@ -86,9 +86,9 @@ OCTO> CREATE TABLE extractnames (
     id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
     fullname VARCHAR EXTRACT CONCAT(firstname, noname)
 ) GLOBAL "^names(keys(""ID""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 27:3:     fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
                                                             ^
-syntax error, unexpected ASTERISK
 OCTO> CREATE TABLE extractnames (
     id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30),  age INTEGER,
     fullname VARCHAR EXTRACT CONCAT(extractnames.*, lastname)
@@ -121,9 +121,9 @@ OCTO> -- Error: table `tmp` doesn't exist
 
 drop table if exists tmp;
 DROP TABLE
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PIPE, expecting RIGHT_PAREN
 LINE 44:1: ...imary key, fullname1 varchar extract concat(id, id || 'abcd'));
                                                                  ^
-syntax error, unexpected PIPE, expecting RIGHT_PAREN
 OCTO> create table tmp (id varchar primary key, fullname1 varchar extract concat(id, id || 'abcd'));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
 LINE 45:1: select * from tmp;

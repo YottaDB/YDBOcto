@@ -87,10 +87,13 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 		}
 	}
 	if (llocp->first_line || llocp->first_column || llocp->last_column) {
-		print_yyloc(llocp);
+		// At the time of this writing `s` is only set to non-NULL value when the bison calls yyerror() directly to notify a
+		// parse failure
 		if (NULL != s) {
-			PRINT_YYERROR("%s", s);
+			// This will log locally as well as propagate it to the client
+			ERROR(ERR_PARSE_FAILED, s);
 		}
+		print_yyloc(llocp);
 	} else {
 		assert(NULL == s);
 	}

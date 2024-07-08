@@ -10,12 +10,13 @@ ERROR:                                             ^^^^
 ERROR:  Invalid literal in DDL specification: only integer literals accepted for this keyword.
 ERROR:  LINE 1:1: ...AR(1), age INTEGER) DELIM (9, 3.14) GLOBAL "^delimnames(keys(""I...
 ERROR:                                             ^^^^
+ERROR:  syntax error, unexpected TRUE_TOKEN, expecting LITERAL
 ERROR:  LINE 1:1: ...RCHAR(1), age INTEGER) DELIM (true) GLOBAL "^delimnames(keys(""I...
 ERROR:                                             ^^^^
 ERROR:  syntax error, unexpected TRUE_TOKEN, expecting LITERAL
 ERROR:  LINE 1:1: ...AR(1), age INTEGER) DELIM (9, true) GLOBAL "^delimnames(keys(""I...
 ERROR:                                             ^^^^
-ERROR:  syntax error, unexpected TRUE_TOKEN, expecting LITERAL
+ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 ERROR:  LINE 1:1: ...CHAR(1), age INTEGER) DELIM (hello) GLOBAL "^delimnames(keys(""...
 ERROR:                                            ^^^^^
 ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
@@ -27,4 +28,3 @@ ERROR:                                             ^^^
 ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 ERROR:  LINE 1:1: ...AR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys...
 ERROR:                                             ^^^
-ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL

@@ -91,13 +91,13 @@ OCTO> UPDATE x.y SET id = 7, firstname = 'Sunny' WHERE lastname = 'Cool';
 UPDATE 0
 OCTO> TRUNCATE x.y;
 TRUNCATE TABLE
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 18:1: ....z from octoonerowtable as n1(x.y.z); -- Error: x.y.z format no...
                                              ^
-syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 OCTO> select x.y.z from octoonerowtable as n1(x.y.z);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 19:2: ....y from octoonerowtable as n1(x.y); -- Error: x.y format not ac...
                                              ^
-syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 OCTO> -- Error: x.y.z format not accepted for aliases
 select x.y from octoonerowtable as n1(x.y);
 OCTO> -- Error: x.y format not accepted for aliases
@@ -105,37 +105,37 @@ select x from octoonerowtable as n1(x);
 x
 1
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting LEFT_PAREN
 LINE 22:1: create table a.b.c (id integer);
                            ^
-syntax error, unexpected PERIOD, expecting LEFT_PAREN
 OCTO> create table a.b.c (id integer);
 OCTO> \d a.b.
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: a.b
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE
 LINE 23:1: c;
            ^
-syntax error, unexpected IDENTIFIER_ALONE
 OCTO> c;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting SEMICOLON or ENDOFFILE
 LINE 25:1: truncate x.y.z; -- Error: x.y.z format not accepted for TRUNCATE
                        ^
-syntax error, unexpected PERIOD, expecting SEMICOLON or ENDOFFILE
 OCTO> truncate x.y.z;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD
 LINE 26:2: ...le x (id integer constraint x.y.z primary key);  -- Error: x.y....
                                              ^
-syntax error, unexpected PERIOD
 OCTO> -- Error: x.y.z format not accepted for TRUNCATE
 create table x (id integer constraint x.y.z primary key);
 OCTO> -- Error: x.y.z format not accepted for CONSTRAINTs
 create table x (id integer constraint x.y primary key);
 CREATE TABLE
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 29:3: insert into tmp (tmp.id) values (1); -- Error: x.y format not a...
                                ^
-syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 OCTO> -- Error: x.y format not accepted for CONSTRAINTs
 
 insert into tmp (tmp.id) values (1);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EQUALS
 LINE 30:2: update tmp set tmp.id = 1; -- Error: x.y format not accepted in...
                              ^
-syntax error, unexpected PERIOD, expecting EQUALS
 OCTO> -- Error: x.y format not accepted for aliases
 update tmp set tmp.id = 1;
 OCTO> -- Error: x.y format not accepted in UPDATE columns

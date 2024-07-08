@@ -482,16 +482,16 @@ OCTO> SELECT '-- Test of syntax error for qualified column names (i.e. `x.y` syn
 ???
 -- Test of syntax error for qualified column names (i.e. `x.y` syntax) in select list
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 137:1: INSERT INTO names(names.id,names.firstname,names.lastname) SELE...
                                    ^
-syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 OCTO> INSERT INTO names(names.id,names.firstname,names.lastname) SELECT * FROM names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 138:1: INSERT INTO names(id,names.firstname,names.lastname) SELECT * F...
                                       ^
-syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 OCTO> INSERT INTO names(id,names.firstname,names.lastname) SELECT * FROM names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 LINE 139:1: ...RT INTO names(id,firstname,names.lastname) SELECT * FROM names;
                                                ^
-syntax error, unexpected PERIOD, expecting RIGHT_PAREN
 OCTO> INSERT INTO names(id,firstname,names.lastname) SELECT * FROM names;
 OCTO> 

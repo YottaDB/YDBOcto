@@ -1084,20 +1084,20 @@ LINE 66:3: ...AVING TRUE!=FALSE ORDER BY firstname; -- errors out saying firs...
 OCTO> -- errors out saying firstname in ORDER BY must be in GROUP BY
 
 SELECT TRUE FROM names GROUP BY 1 HAVING TRUE!=FALSE ORDER BY firstname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting RIGHT_PAREN
 LINE 68:3: SELECT nullif('soml','test','hello') FROM names; -- Postgres ER...
                                       ^
-syntax error, unexpected COMMA, expecting RIGHT_PAREN
 OCTO> -- errors out saying firstname in ORDER BY must be in GROUP BY
 
 SELECT nullif('soml','test','hello') FROM names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected RIGHT_PAREN, expecting COMMA
 LINE 69:2: SELECT nullif('soml') FROM names;       -- Postgres ERROR
                                ^
-syntax error, unexpected RIGHT_PAREN, expecting COMMA
 OCTO> -- Postgres ERROR
 SELECT nullif('soml') FROM names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting RIGHT_PAREN
 LINE 70:2: SELECT nullif(NULL,'soml','loms') FROM names GROUP BY 1; -- Pos...
                                     ^
-syntax error, unexpected COMMA, expecting RIGHT_PAREN
 OCTO> -- Postgres ERROR
 SELECT nullif(NULL,'soml','loms') FROM names GROUP BY 1;
 [ERROR]: ERR_GROUP_BY_POSITION_INVALID: GROUP BY position 12 is not in select list
@@ -1131,15 +1131,15 @@ LINE 77:2: ...BY 1 HAVING 12=12 ORDER BY firstname; -- errors out saying firs...
                                          ^^^^^^^^^
 OCTO> -- loc error
 SELECT 12 FROM names GROUP BY 1 HAVING 12=12 ORDER BY firstname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected RIGHT_PAREN, expecting COMMA
 LINE 79:3: SELECT nullif(1) FROM names; -- Postgres error
                           ^
-syntax error, unexpected RIGHT_PAREN, expecting COMMA
 OCTO> -- errors out saying firstname in ORDER BY must be in GROUP BY
 
 SELECT nullif(1) FROM names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting RIGHT_PAREN
 LINE 80:2: SELECT nullif(NULL,5,4) FROM names GROUP BY 1; -- Postgres error
                                ^
-syntax error, unexpected COMMA, expecting RIGHT_PAREN
 OCTO> -- Postgres error
 SELECT nullif(NULL,5,4) FROM names GROUP BY 1;
 [ERROR]: ERR_GROUP_BY_POSITION_NOT_INTEGER: Non integer constant 1.2 in GROUP BY
@@ -3119,9 +3119,9 @@ LINE 509:2: ...mes group by (select firstname from names limit 1),lastname hav..
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> -- Octo invalid usage error -- ERROR as lastname not in GROUP BY
 select (select firstname from names limit 1) from names group by (select firstname from names limit 1),lastname having (select lastname from names limit 1)=lastname order by lastname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE
 LINE 510:2: e
             ^
-syntax error, unexpected IDENTIFIER_ALONE
 OCTO> -- Octo error invalid usag
 e
 SELECT (select firstname from names limit 1) FROM names GROUP BY 1;
@@ -3347,9 +3347,9 @@ LINE 557:2: ...M names GROUP BY 'Zero'!=ANY(select firstname from names limit 1.
                                             ^^^^^^
 OCTO> -- octo subquery error -- Postgres error lastname not in GroupBy
 SELECT 'Zero'!=ANY(select firstname from names limit 1) FROM names GROUP BY 'Zero'!=ANY(select firstname from names limit 1) HAVING 'Zero'!=ANY(select firstname from names limit 1);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EQUALS, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 558:2: ...t firstname from names limit 1)='Zero'!=ANY(select lastname fro...
                                               ^
-syntax error, unexpected EQUALS, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> -- octo subquery error
 SELECT 'Zero'!=ANY(select firstname from names limit 1) FROM names GROUP BY 'Zero'!=ANY(select firstname from names limit 1) HAVING 'Zero'!=ANY(select firstname from names limit 1)='Zero'!=ANY(select lastname from names limit 1);
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
@@ -3382,9 +3382,9 @@ LINE 564:2: SELECT 'Zero'!=ANY(select firstname from names limit 1) FROM nam...
                                ^^^^^^
 OCTO> -- octo subquery error
 SELECT 'Zero'!=ANY(select firstname from names limit 1) FROM names GROUP BY 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected FROM, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 565:2: ...firstname from names limit 1) from names limit 1); -- octo subqu...
                                              ^^^^
-syntax error, unexpected FROM, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> -- octo subquery error
 SELECT 'Zero'!=ANY(select firstname from names limit 1) FROM names GROUP BY 1 HAVING 'Zero'!=ANY(select firstname from names limit 1) from names limit 1);
 [ERROR]: ERR_GROUP_BY_SUB_QUERY: Subqueries are not supported in GROUP BY
@@ -4252,9 +4252,9 @@ LINE 752:2: ...elect 1 from names group by count(*) having 1!=1 order by 1+1; -.
                                            ^^^^^^^^
 OCTO> -- Postgres error saying aggregate functions are not allowed in GroupBy
 select 1 from names group by count(*) having 1!=1 order by 1+1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 753:2: select count(1+*); -- error case which is supposed to error out...
                            ^
-syntax error, unexpected ASTERISK
 OCTO> -- Postgres error saying aggregate functions are not allowed in GroupBy
 select count(1+*);
 [ERROR]: ERR_GROUP_BY_INVALID_USAGE: Invalid GROUP BY. Only column number, column name and expressions are valid in GROUP BY (not constants or references to subqueries or aggregate function)
@@ -4271,23 +4271,23 @@ select 1+count(*) from names group by 1;
 OCTO> -- Postgres error saying aggregate functions are not allowed in GroupBy
 
 select * from names group by 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 758:1: SELECT * FROM names GROUP BY *; -- Postgres generates a syntax ...
                                          ^
-syntax error, unexpected ASTERISK
 OCTO> SELECT * FROM names GROUP BY *;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 759:2: SELECT 1 FROM names GROUP BY *; -- Postgres generates a syntax ...
                                          ^
-syntax error, unexpected ASTERISK
 OCTO> -- Postgres generates a syntax error
 SELECT 1 FROM names GROUP BY *;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 760:2: SELECT * FROM names ORDER BY *; -- Postgres generates a syntax ...
                                          ^
-syntax error, unexpected ASTERISK
 OCTO> -- Postgres generates a syntax error
 SELECT * FROM names ORDER BY *;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 761:2: SELECT * FROM names GROUP BY * ORDER BY 1;
                                          ^
-syntax error, unexpected ASTERISK
 OCTO> -- Postgres generates a syntax error at GROUP BY *
 SELECT * FROM names GROUP BY * ORDER BY 1;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
@@ -4298,13 +4298,13 @@ OCTO> SELECT * FROM names GROUP BY 1 ORDER BY firstname;
 OCTO> SELECT * FROM names GROUP BY 1 ORDER BY lastname;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 OCTO> SELECT * FROM names GROUP BY 1 ORDER BY 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 766:1: ...* FROM names GROUP BY 1 HAVING * is not null; -- Postgres synta...
                                               ^
-syntax error, unexpected ASTERISK
 OCTO> SELECT * FROM names GROUP BY 1 HAVING * is not null;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 767:2: ...1 FROM names GROUP BY 1 HAVING * is not null; -- Postgres synta...
                                               ^
-syntax error, unexpected ASTERISK
 OCTO> -- Postgres syntax error at HAVING clause *
 SELECT 1 FROM names GROUP BY 1 HAVING * is not null;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
@@ -4314,9 +4314,9 @@ SELECT * FROM names GROUP BY 1 HAVING lastname is not null;
 OCTO> SELECT * FROM names GROUP BY 1 HAVING firstname is not null;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 OCTO> SELECT * FROM names GROUP BY 1 HAVING id is not null;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 771:1: ... lastname is not null ORDER BY *; -- Postgres syntax error at H...
                                               ^
-syntax error, unexpected ASTERISK
 OCTO> SELECT * FROM names GROUP BY 1 HAVING lastname is not null ORDER BY *;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'firstname' must appear in the GROUP BY clause or be used in an aggregate function
 OCTO> -- Postgres syntax error at HAVING clause *

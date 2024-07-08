@@ -35,14 +35,14 @@ LINE 5:2: select count(v1.lastname) from v1 group by 1; -- ERROR
                  ^^^^^
 OCTO> -- ERROR
 select count(v1.lastname) from v1 group by 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected GROUP
 LINE 6:2: select v1.lastname,v1.firstname from group by 1; -- ERROR
                                                ^^^^^
-syntax error, unexpected GROUP
 OCTO> -- ERROR
 select v1.lastname,v1.firstname from group by 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected GROUP
 LINE 7:2: ... v1.lastname as test, v1.firstname from group by test; -- ERROR
                                                      ^^^^^
-syntax error, unexpected GROUP
 OCTO> -- ERROR
 select v1.lastname as test, v1.firstname from group by test;
 OCTO> -- ERROR
@@ -52,9 +52,9 @@ OCTO> create view c1 as select * from customers;
 CREATE VIEW
 OCTO> create view o1 as select * from orders;
 CREATE VIEW
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 12:1: select (select lastname) fron v group by firstname; -- ERROR
                                          ^
-syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select (select lastname) fron v group by firstname;
 OCTO> -- ERROR
 drop view c1;

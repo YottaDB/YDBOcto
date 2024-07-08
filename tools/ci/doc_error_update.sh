@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -29,10 +29,14 @@ if [[ $topleveldir != "$cwd" ]]; then
 	exit 1
 fi
 
+# If "check" is passed to this script as an argument then only missing_mnemonics and missing_messages checks are done
+# else missing_mnemonics, missing_text, duplicated_text and duplicated_xxx_text checks are done and missing text is added to
+# doc/errors.rst
 missing_mnemonics=""
 missing_messages=""
 missing_text=""
 duplicated_text=""
+duplicated_xxx_text=""
 while read -r line; do
 	mnemonic=$(echo "$line" | sed 's/ERROR_DEF(\(ERR_.*\|INFO_.*\|WARN_.*\),/\1/' | cut -f 1 -d ',')
 	if [[ $(grep -cn "^$mnemonic$" doc/errors.rst || true) -eq 0 ]]; then
@@ -60,7 +64,16 @@ while read -r line; do
 						exit 1
 					fi
 				else
-					duplicated_text="$mnemonic\n$duplicated_text"
+					if [[ "$format_string" == "xxx" ]]; then
+						if [[ "$mnemonic" != "ERR_PARSE_FAILED" ]] && [[ "$mnemonic" != "INFO_TEXT_REPRESENTATION" ]]; then
+							# ERR_PARSE_FAILED and INFO_TEXT_REPRESENTATION have xxx as the format_string.
+							# Others are not expected to have the same. Refer to the following comment for more
+							# details: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/980#note_1990491478
+							duplicated_xxx_text="$mnemonic\n$duplicated_xxx_text"
+						fi
+					else
+						duplicated_text="$mnemonic\n$duplicated_text"
+					fi
 				fi
 			fi
 		fi
@@ -88,16 +101,23 @@ if [[ $1 == "check" ]]; then
 	fi
 	exit $result
 else
-	if [[ $result -eq 1 ]]; then
-		# Error already message issued for this case, so just exit
-		exit 1
-	elif [[ "" != "$missing_text" ]]; then
+	if [[ "" != "$duplicated_xxx_text" ]]; then
+		echo "-> Error message specified for the following mnemonics is only allowed for ERR_PARSE_FAILED and INFO_TEXT_REPRESENTATION. Please change the message."
+		echo -e "$duplicated_xxx_text"
+		result=1
+	fi
+	if [[ "" != "$missing_text" ]]; then
 		echo "-> The following error message mnemonics were found in errors.rst, but lacking error message text. This text has been automatically added for the following errors:"
 		echo -e "$missing_text"
-		exit 1
-	elif [[ "" != "$duplicated_text" ]]; then
+		result=1
+	fi
+	if [[ "" != "$duplicated_text" ]]; then
 		echo "-> The following error message mnemonics are duplicated in errors.rst. Please remove the duplicate instance(s) of each error along with its message text, error code, and description from doc/errors.rst:"
 		echo -e "$duplicated_text"
+		result=1
+	fi
+	if [[ $result -eq 1 ]]; then
+		# Error already message issued for this case, so just exit
 		exit 1
 	fi
 fi

@@ -284,20 +284,20 @@ OCTO> select id as _ from names group by _ having _ > 1;
 LINE 71:1: ...elect id as __ from names group by __ having __ > 1 order by __;
                                                            ^^
 OCTO> select id as __ from names group by __ having __ > 1 order by __;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
 LINE 73:1: create function x(int) returns int as $$_samevalue^functions;
                                                  ^
-syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
 OCTO> create function x(int) returns int as $$_samevalue^functions;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
 LINE 74:1: create function x(int) returns int as $$_samevalue^functions;
                                                  ^
-syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
 OCTO> create function x(int) returns int as $$_samevalue^functions;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 LINE 75:1: create function x(int) returns int as $$^%_ydboctofCONCAT;
                                                      ^^^^^^^^^^^^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 OCTO> create function x(int) returns int as $$^%_ydboctofCONCAT;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
 LINE 76:1: create function x(int) returns int as $$^_%ydboctofCONCAT;
                                                  ^
-syntax error, unexpected INVALID_TOKEN, expecting EXTRINSIC_FUNCTION or INTRINSIC_FUNCTION
 OCTO> create function x(int) returns int as $$^_%ydboctofCONCAT;
 OCTO> 

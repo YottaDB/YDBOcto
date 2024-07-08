@@ -8,8 +8,8 @@ id|firstname|lastname
 5|Zero|Cool
 (6 rows)
 OCTO> create
-OCTO> LINE 1:1: create
+OCTO> [ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE or VIEW
+LINE 1:1: create
            
-syntax error, unexpected ENDOFFILE, expecting FUNCTION or TABLE or VIEW
 
 OCTO> 

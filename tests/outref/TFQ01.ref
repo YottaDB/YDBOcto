@@ -112,9 +112,9 @@ OCTO> select (select 1 is null) between false and true;
 ???
 1
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected RIGHT_PAREN
 LINE 15:4: ...rstname varchar, fullname1 varchar extract concat(firstname,));
                                                                           ^
-syntax error, unexpected RIGHT_PAREN
 OCTO> -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 

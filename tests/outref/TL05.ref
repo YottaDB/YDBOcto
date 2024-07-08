@@ -32,20 +32,20 @@ OCTO> select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.fir
 id|firstname|lastname|id|firstname|lastname
 4|Joey||4|Joey|
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting DATE or TIME or TIMESTAMP or LITERAL
 LINE 10:1: select * from names limit .;
                                      ^
-syntax error, unexpected PERIOD, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> select * from names limit .;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected SEMICOLON, expecting DATE or TIME or TIMESTAMP or LITERAL
 LINE 11:1: select * from names limit;
                                     ^
-syntax error, unexpected SEMICOLON, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> select * from names limit;
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 LINE 12:1: select * from names limit 'abcd';
                                      ^^^^^^
 OCTO> select * from names limit 'abcd';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 LINE 13:1: select * from names limit -3;
                                      ^
-syntax error, unexpected MINUS, expecting DATE or TIME or TIMESTAMP or LITERAL
 OCTO> select * from names limit -3;
 OCTO> 

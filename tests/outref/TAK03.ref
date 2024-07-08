@@ -70,13 +70,13 @@ select n2.id from names n1;
 select idb from (select 8 "ida");
 select idb from (select 8 'ida');
 select idb from (select 8 ida);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 2:1: select id as 123 from names;
                        ^^^
-syntax error, unexpected LITERAL
 OCTO> select id as 123 from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 3:1: select id as $1 from names;
                        ^^
-syntax error, unexpected LITERAL
 OCTO> select id as $1 from names;
 OCTO> select id as `backtick` from names;
 backtick
@@ -87,41 +87,41 @@ backtick
 4
 5
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 6:1: select id as lit.lit from names;
                           ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id as lit.lit from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 7:1: select id as 'quote'.'quote' from names;
                        ^^^^^^^
-syntax error, unexpected LITERAL
 OCTO> select id as 'quote'.'quote' from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 8:1: select id as "quote"."quote" from names;
                               ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id as "quote"."quote" from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 9:1: select id as $$dummyextrinsicfunction^something from names;
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> select id as $$dummyextrinsicfunction^something from names;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 11:1: select idb from (select 8 as "ida");
                   ^^^
 OCTO> select idb from (select 8 as "ida");
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 12:1: select idb from (select 8 as 'ida');
                                         ^^^^^
-syntax error, unexpected LITERAL
 OCTO> select idb from (select 8 as 'ida');
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 13:1: select idb from (select 8 as ida);
                   ^^^
 OCTO> select idb from (select 8 as ida);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 15:1: select id from names as 123;
                                    ^^^
-syntax error, unexpected LITERAL
 OCTO> select id from names as 123;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 16:1: select id from names as $1;
                                    ^^
-syntax error, unexpected LITERAL
 OCTO> select id from names as $1;
 OCTO> select id from names as `backtick`;
 id
@@ -132,21 +132,21 @@ id
 4
 5
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 19:1: select id from names as lit.lit;
                                       ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names as lit.lit;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 20:1: select id from names as 'quote'.'quote';
                                    ^^^^^^^
-syntax error, unexpected LITERAL
 OCTO> select id from names as 'quote'.'quote';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 21:1: select id from names as "quote"."quote";
                                           ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names as "quote"."quote";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 22:1: select id from names as $$dummyextrinsicfunction^something;
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> select id from names as $$dummyextrinsicfunction^something;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 24:1: select n2.id from names as "n1";
@@ -156,13 +156,13 @@ OCTO> select n2.id from names as "n1";
 LINE 25:1: select n2.id from names as n1;
                   ^^^^^
 OCTO> select n2.id from names as n1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 27:1: select id 123 from names;
                      ^^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id 123 from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 28:1: select id $1 from names;
                      ^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id $1 from names;
 OCTO> select id `backtick` from names;
 backtick
@@ -173,41 +173,41 @@ backtick
 4
 5
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 31:1: select id lit.lit from names;
                         ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id lit.lit from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 32:1: select id 'quote'.'quote' from names;
                      ^^^^^^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id 'quote'.'quote' from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 33:1: select id "quote"."quote" from names;
                             ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id "quote"."quote" from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 34:1: select id $$dummyextrinsicfunction^something from names;
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id $$dummyextrinsicfunction^something from names;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 36:1: select idb from (select 8 "ida") n1;
                   ^^^
 OCTO> select idb from (select 8 "ida") n1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
 LINE 37:1: select idb from (select 8 'ida') n1;
                                      ^^^^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
 OCTO> select idb from (select 8 'ida') n1;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 38:1: select idb from (select 8 ida) n1;
                   ^^^
 OCTO> select idb from (select 8 ida) n1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 40:1: select id from names 123;
                                 ^^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names 123;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 41:1: select id from names $1;
                                 ^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names $1;
 OCTO> select id from names `backtick`;
 id
@@ -218,21 +218,21 @@ id
 4
 5
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 44:1: select id from names lit.lit;
                                    ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names lit.lit;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 45:1: select id from names 'quote'.'quote';
                                 ^^^^^^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names 'quote'.'quote';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 46:1: select id from names "quote"."quote";
                                        ^
-syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names "quote"."quote";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 47:1: select id from names $$dummyextrinsicfunction^something;
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select id from names $$dummyextrinsicfunction^something;
 [ERROR]: ERR_MISSING_FROM_ENTRY: Missing FROM-clause entry for table : n2
 LINE 49:1: select n2.id from names "n1";
@@ -246,9 +246,9 @@ OCTO> select n2.id from names n1;
 LINE 52:1: select idb from (select 8 "ida");
                   ^^^
 OCTO> select idb from (select 8 "ida");
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
 LINE 53:1: select idb from (select 8 'ida');
                                      ^^^^^
-syntax error, unexpected LITERAL, expecting EXCEPT or UNION or RIGHT_PAREN
 OCTO> select idb from (select 8 'ida');
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: idb
 LINE 54:1: select idb from (select 8 ida);

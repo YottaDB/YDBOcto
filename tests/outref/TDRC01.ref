@@ -172,9 +172,9 @@ public|pg_trigger|table|octo
 public|pg_type|table|octo
 public|pg_user|table|octo
 (56 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 16:1: 1;
             ^
-syntax error, unexpected LITERAL
 OCTO> 1;
 OCTO> \d
 Schema|Name|Type|Owner

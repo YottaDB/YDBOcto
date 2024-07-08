@@ -10,9 +10,9 @@ OCTO> create view v1 as select CONCAT(firstname, ABS(id-10)::varchar) from names
 CREATE VIEW
 OCTO> drop view if exists v1;
 DROP VIEW
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
 LINE 5:1: create view v1 as (values (1), ABS(-2));
                                          ^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting LEFT_PAREN
 OCTO> create view v1 as (values (1), ABS(-2));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
 LINE 6:1: select * from v1;

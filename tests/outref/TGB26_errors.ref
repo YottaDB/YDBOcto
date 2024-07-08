@@ -325,9 +325,9 @@ LINE 50:2: ...(NOT 'test'=lastname) order by id; -- Postgres error id in order..
                                              ^^
 OCTO> -- Postgres error id in having not in GroupBy
 select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by id;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected NOT
 LINE 51:2: ...test'=lastname) having FALSE!=NOT 'test'=lastname; -- Postgres ...
                                             ^^^
-syntax error, unexpected NOT
 OCTO> -- Postgres error id in order by not in GroupBy
 select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=NOT 'test'=lastname;
 [ERROR]: ERR_GROUP_BY_OR_AGGREGATE_FUNCTION: Column 'id' must appear in the GROUP BY clause or be used in an aggregate function

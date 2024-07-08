@@ -77,9 +77,9 @@ OCTO> select * from v2;
 ???
 1
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 LINE 13:1: drop view v1, v2;
                        ^
-syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 OCTO> drop view v1, v2;
 OCTO> select * from v1;
 ???
@@ -95,17 +95,17 @@ OCTO> select * from v1;
 ???
 1
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 LINE 19:1: drop view v1,v2;
                        ^
-syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 OCTO> drop view v1,v2;
 OCTO> select * from v1;
 ???
 1
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 LINE 21:1: drop view v2,v1;
                        ^
-syntax error, unexpected COMMA, expecting SEMICOLON or ENDOFFILE
 OCTO> drop view v2,v1;
 OCTO> select * from v1;
 ???

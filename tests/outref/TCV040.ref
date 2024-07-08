@@ -11,37 +11,37 @@ create view v6 as select 1,*;
 -- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1380450299
 create view v4172 as select id "quote"."quote" from names;
 select 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 LINE 2:1: create view v as select 1,*Zero;
                                      ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v as select 1,*Zero;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting SEMICOLON or ENDOFFILE
 LINE 3:1: ...elect 1 as n1_id,'Zero' as n1_firstname,*'Cool' as n1_firstname;
                                                       ^^^^^^
-syntax error, unexpected LITERAL, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v1 as select 1 as n1_id,'Zero' as n1_firstname,*'Cool' as n1_firstname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting SEMICOLON or ENDOFFILE
 LINE 4:1: ...iew v2 as select 1 as n1_id,*'Zero' as n1_firstname, 'Cool' as n...
                                           ^^^^^^
-syntax error, unexpected LITERAL, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v2 as select 1 as n1_id,*'Zero' as n1_firstname, 'Cool' as n1_firstname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 LINE 5:1: create view v3 as select 1,'Zero',*Cool;
                                              ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v3 as select 1,'Zero',*Cool;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 LINE 6:1: create view v4 as select 1,*Zero,'Cool';
                                       ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v4 as select 1,*Zero,'Cool';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 LINE 7:1: create view v5 as select 1,*Zero,'Cool' from names;
                                       ^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v5 as select 1,*Zero,'Cool' from names;
 OCTO> create view v6 as select 1,*;
 [ERROR]: ERR_SELECT_STAR_NO_TABLES: SELECT * with no tables specified is not valid
 LINE 8:1: create view v6 as select 1,*;
                                      ^
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected PERIOD, expecting SEMICOLON or ENDOFFILE
 LINE 10:1: create view v4172 as select id "quote"."quote" from names;
                                                  ^
-syntax error, unexpected PERIOD, expecting SEMICOLON or ENDOFFILE
 OCTO> create view v4172 as select id "quote"."quote" from names;
 OCTO> select 1;
 ???

@@ -1412,9 +1412,9 @@ OCTO> select time with time zone'23:59:59.999999-16:00';
 LINE 5:1: select time with time zone'23:59:59.999999+16:00';
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select time with time zone'23:59:59.999999+16:00';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
 LINE 6:1: select time(horolog) with time zone'';
                                               ^
-syntax error, unexpected EMPTY_STRING, expecting LITERAL
 OCTO> select time(horolog) with time zone'';
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,,43201" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
 LINE 7:1: select time(zhorolog) with time zone',0,,43201';

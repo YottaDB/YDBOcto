@@ -146,9 +146,9 @@ OCTO> SELECT SUM(Country) FROM nwCustomers;
 LINE 14:1: SELECT AVG(Country) FROM nwCustomers;
                   ^^^
 OCTO> SELECT AVG(Country) FROM nwCustomers;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK
 LINE 17:2: SELECT COUNT(DISTINCT *) FROM nwCustomers c LEFT JOIN nwOrders ...
                                  ^
-syntax error, unexpected ASTERISK
 OCTO> --> Below should issue error since COUNT(DISTINCT *) is not a valid usage
 SELECT COUNT(DISTINCT *) FROM nwCustomers c LEFT JOIN nwOrders o ON c.CustomerID = o.CustomerID;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: abcd

@@ -68,24 +68,24 @@ OCTO> select date'2024-01-01'-date'2024-01-02';
 OCTO> -- This should not error. This ensure a -1 return doesn't flag an error
 select date'2023-01-01' + 3230101784-2023;
 [ERROR]: ERR_DATE_TIME_RESULT_OUT_OF_RANGE: Result of operation exceeds date/time allowed range of values
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
 LINE 18:1: create table tmpd (id integer primary key, o_date date(1));
                                                                   ^
-syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
 OCTO> create table tmpd (id integer primary key, o_date date(1));
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
 LINE 19:1: create table tmpd (id integer primary key, o_date time(1));
                                                                   ^
-syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
 OCTO> create table tmpd (id integer primary key, o_date time(1));
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
 LINE 20:1: create table tmpd (id integer primary key, o_date timestamp(1));
                                                                        ^
-syntax error, unexpected LITERAL, expecting DATE_TIME_FILEMAN or DATE_TIME_HOROLOG or DATE_TIME_ZHOROLOG or DATE_TIME_ZUT
 OCTO> create table tmpd (id integer primary key, o_date timestamp(1));
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN
 LINE 21:1: ...d (id integer primary key, o_date timestamp with time zone(1));
                                                                         ^
-syntax error, unexpected LEFT_PAREN
 OCTO> create table tmpd (id integer primary key, o_date timestamp with time zone(1));
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN
 LINE 22:1: ...e tmpd (id integer primary key, o_date time with time zone(1));
                                                                         ^
-syntax error, unexpected LEFT_PAREN
 OCTO> create table tmpd (id integer primary key, o_date time with time zone(1));
 OCTO> 

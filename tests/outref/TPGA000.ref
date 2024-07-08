@@ -40,9 +40,9 @@ db.oid=descr.objoid AND descr.classoid='pg_database'::regclass
 )
 WHERE db.oid > 0::OID
 ORDER BY datname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected RIGHT_BRACKET
 LINE 11:9: SELECT array_to_string(defaclacl::text[], ', ')
                                                   ^
-syntax error, unexpected RIGHT_BRACKET
 OCTO> SELECT
 db.oid AS did, db.oid, db.datname AS name, db.dattablespace AS spcoid,
 spcname, datallowconn, pg_encoding_to_char(encoding) AS encoding,

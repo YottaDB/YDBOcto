@@ -1,12 +1,12 @@
 SELECT nspname AS TABLE_SCHEM, NULL AS TABLE_CATALOG FROM pg_catalog.pg_namespace  WHERE nspname <> 'pg_toast' AND (nspname !~ '^pg_temp_'  OR nspname = (pg_catalog.current_schemas(true))[1]) AND (nspname !~ '^pg_toast_temp_'  OR nspname = replace((pg_catalog.current_schemas(true))[1], 'pg_temp_', 'pg_toast_temp_'))  ORDER BY TABLE_SCHEM]
 
 ----- ROCTO/JDBC -----
-SQL State: XX000
-ERROR: LINE 1:1: ...rue))[1], 'pg_temp_', 'pg_toast_temp_'))  ORDER BY TABLE_SCHEM]
+SQL State: 42601
+ERROR: syntax error, unexpected RIGHT_BRACKET, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 
 ----- OCTO -----
 [ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
 [ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected RIGHT_BRACKET, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 1:1: ...rue))[1], 'pg_temp_', 'pg_toast_temp_'))  ORDER BY TABLE_SCHEM]
                                                                            ^
-syntax error, unexpected RIGHT_BRACKET, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE

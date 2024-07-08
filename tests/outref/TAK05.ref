@@ -21,12 +21,12 @@ id
 4
 5
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 4:1: select id from names as 'lmo';
                                   ^^^^^
-syntax error, unexpected LITERAL
 OCTO> select id from names as 'lmo';
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 5:1: select id from names as 'klm';
                                   ^^^^^
-syntax error, unexpected LITERAL
 OCTO> select id from names as 'klm';
 OCTO> 

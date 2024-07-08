@@ -3,8 +3,8 @@
 
 select * asdfasdfsdf;
 
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 3:1: select * asdfasdfsdf;
                    ^^^^^^^^^^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select * asdfasdfsdf;
 OCTO> 

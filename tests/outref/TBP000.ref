@@ -1,12 +1,12 @@
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected DOUBLE_QUOTE_LITERAL, expecting LITERAL
 LINE 13:1: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
                                                           ^^^^^^^^^
-syntax error, unexpected DOUBLE_QUOTE_LITERAL, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected DOUBLE_QUOTE_LITERAL, expecting LITERAL
 LINE 14:1: ... INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(key...
                                          ^^^^^^^^^
-syntax error, unexpected DOUBLE_QUOTE_LITERAL, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected DOUBLE_QUOTE_LITERAL, expecting LITERAL
 LINE 18:4:   PIECE "0"
                    ^^^
-syntax error, unexpected DOUBLE_QUOTE_LITERAL, expecting LITERAL
 [ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
 LINE 23:1: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE 'keys(0)');
                                                           ^^^^^^^^^

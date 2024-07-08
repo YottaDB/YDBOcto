@@ -70,13 +70,13 @@ OCTO> SELECT a, b FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) ) AS MyTa
 LINE 13:1: SELECT col1 FROM (VALUES (1)) as MyTable;
                   ^^^^
 OCTO> SELECT col1 FROM (VALUES (1)) as MyTable;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected VALUES
 LINE 15:1: VALUES (VALUES (1));
                    ^^^^^^
-syntax error, unexpected VALUES
 OCTO> VALUES (VALUES (1));
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected SELECT
 LINE 16:1: SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
                                      ^^^^^^
-syntax error, unexpected SELECT
 OCTO> SELECT * FROM (VALUES (1, SELECT 1)) AS abcd;
 OCTO> VALUES((SELECT id FROM names));
 [ERROR]: ERR_SUBQUERY_MULTIPLE_ROWS: More than one row returned by a subquery used as an expression

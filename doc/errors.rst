@@ -739,6 +739,14 @@ ERR_INVALID_NUMBER
   Description/Action: This error indicates that there is an invalid number of items of the given type. PSQL Error Code: 22003
 
 +++++++++++++++++++++++++++
+ERR_PARSE_FAILED
++++++++++++++++++++++++++++
+
+  Text: xxx
+
+  Description/Action: This error indicates that the parser reached an invalid state when parsing the given query. The printed text specifies which token specifically caused the failure. Fix the query syntax and try again. PSQL Error Code: 42601
+
++++++++++++++++++++++++++++
 ERR_INVALID_READ_SIZE
 +++++++++++++++++++++++++++
 

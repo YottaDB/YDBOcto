@@ -21,12 +21,12 @@ cba
 4
 5
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 4:1: select id as 'lmo' from names;
                        ^^^^^
-syntax error, unexpected LITERAL
 OCTO> select id as 'lmo' from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 5:1: select id as 'klm' from names;
                        ^^^^^
-syntax error, unexpected LITERAL
 OCTO> select id as 'klm' from names;
 OCTO> 

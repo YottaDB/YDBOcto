@@ -3,20 +3,20 @@ select lastname from names order by lastname limit 1, firstname limit 1;
 select lastname from names order by lastname limit 1, firstname, id limit 1;
 select lastname from names order by lastname, firstname limit 1, id limit 1;
 select * from names order by lastname limit 1, firstname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 2:1: ...stname from names order by lastname limit 1, firstname limit 1;
                                                         ^
-syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select lastname from names order by lastname limit 1, firstname limit 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 3:1: ...me from names order by lastname limit 1, firstname, id limit 1;
                                                     ^
-syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select lastname from names order by lastname limit 1, firstname, id limit 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 4:1: ...me from names order by lastname, firstname limit 1, id limit 1;
                                                                ^
-syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select lastname from names order by lastname, firstname limit 1, id limit 1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 5:1: select * from names order by lastname limit 1, firstname;
                                                        ^
-syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 OCTO> select * from names order by lastname limit 1, firstname;
 OCTO> 

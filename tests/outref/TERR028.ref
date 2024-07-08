@@ -25,44 +25,44 @@ SELECT id FROM names GROUP BY id HAVING $$a(id);
 
 -- Attempt to use inline extrinsic function in alias name
 select id as $$dummyextrinsicfunction^something from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 3:1: SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT * FROM names WHERE id = $$ABS^%ydboctosqlfunctions(-2);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected INTRINSIC_FUNCTION
 LINE 5:1: SELECT $ZWRITE(firstname) FROM names;
                  ^^^^^^^
-syntax error, unexpected INTRINSIC_FUNCTION
 OCTO> SELECT $ZWRITE(firstname) FROM names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 7:1: SELECT * FROM names WHERE id = $$^%("some value");
                                          ^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT * FROM names WHERE id = $$^%("some value");
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 8:1: SELECT * FROM names WHERE id = $$%^%("some value");
                                          ^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT * FROM names WHERE id = $$%^%("some value");
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 9:1: SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
                                          ^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT * FROM names WHERE id = $$%ABS^someroutine(-2);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 10:1: SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
                                           ^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT * FROM names WHERE id = $$ABS^%someroutine(-2);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 12:1: SELECT $$a('b');
                   ^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT $$a('b');
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 14:1: SELECT * FROM names WHERE $$a('b');
                                      ^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT * FROM names WHERE $$a('b');
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 16:1: SELECT id FROM names GROUP BY id HAVING $$a(id);
                                                    ^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> SELECT id FROM names GROUP BY id HAVING $$a(id);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EXTRINSIC_FUNCTION
 LINE 18:1: select id as $$dummyextrinsicfunction^something from names;
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-syntax error, unexpected EXTRINSIC_FUNCTION
 OCTO> select id as $$dummyextrinsicfunction^something from names;
 OCTO> 

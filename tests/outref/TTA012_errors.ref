@@ -214,17 +214,17 @@ OCTO> select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::VARCHAR)) n
 0
 0
 (6 rows)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
 LINE 23:1: select n1.* is not n1.* from names n1;
                               ^^
-syntax error, unexpected IDENTIFIER_ALONE, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
 OCTO> select n1.* is not n1.* from names n1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE
 LINE 24:1: select n1.* is n1.* from names n1;
                           ^^
-syntax error, unexpected IDENTIFIER_ALONE
 OCTO> select n1.* is n1.* from names n1;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE
 LINE 25:1: select NULL is n1.* from names n1;
                           ^^
-syntax error, unexpected IDENTIFIER_ALONE
 OCTO> select NULL is n1.* from names n1;
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type TABLENAME.* not compatible for regex operations
 LINE 26:1: select n1.* like 'test' from names n1;

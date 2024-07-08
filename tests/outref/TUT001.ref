@@ -306,25 +306,25 @@ OCTO> select '-- Test of various syntax errors (SET clause not specified etc.)';
 ???
 -- Test of various syntax errors (SET clause not specified etc.)
 (1 row)
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected WHERE
 LINE 56:1: update names where lastname = firstname;
                         ^^^^^
-syntax error, unexpected WHERE
 OCTO> update names where lastname = firstname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected NOT_EQUALS, expecting EQUALS
 LINE 57:1: update names set firstname != 'abcd' ;
                                       ^^
-syntax error, unexpected NOT_EQUALS, expecting EQUALS
 OCTO> update names set firstname != 'abcd' ;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected ASTERISK, expecting EQUALS
 LINE 58:1: update names set id * 2 = 3;
                                ^
-syntax error, unexpected ASTERISK, expecting EQUALS
 OCTO> update names set id * 2 = 3;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected WHERE
 LINE 59:1: update names set where firstname = lastname;
                             ^^^^^
-syntax error, unexpected WHERE
 OCTO> update names set where firstname = lastname;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected WHERE
 LINE 60:1: update names set id = id + where firstname = lastname;
                                       ^^^^^
-syntax error, unexpected WHERE
 OCTO> update names set id = id + where firstname = lastname;
 OCTO> select '-- Test of ERR_UNKNOWN_TABLE error';
 ???

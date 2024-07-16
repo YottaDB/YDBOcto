@@ -2088,11 +2088,11 @@ havingClause(queryDepth,clauseType)
 	. . set rightTable=$$extractTableFromClause(rightSide,i+1)
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
-	. for i=1:1:15  do  quit:(leftType=rightType)&(("COUNT"'=isAggrFuncColumn)!(("VARCHAR"'=leftType)&("BOOLEAN"'=leftType)))
+	. for i=1:1:15  do  quit:(leftType=rightType)&(("COUNT"'=isAggrFuncColumn)!(("VARCHAR"'=leftType)&("BOOLEAN"'=leftType)&("DATE"'=leftType)))
 	. . set leftSide=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
 	. . set leftType=$$returnColumnType(table,leftSide)
 	. . set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,leftSide)
-	. zwrite i,leftType,rightType,leftSide,tblcol,table,rightSide
+	. zwrite i,leftType,rightType,leftSide,tblcol,table,rightSide,isAggrFuncColumn
 	. if (i'=15) set result=result_$$comparisonOperators(tblcol,word_" "_rightSide)
 	. else  set result=""
 

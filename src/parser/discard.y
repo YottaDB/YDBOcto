@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,6 +13,12 @@
 discard_all_statement
   : DISCARD ALL {
       SQL_STATEMENT($$, discard_all_STATEMENT);
+    }
+  ;
+
+discard_xrefs_statement
+  : DISCARD XREFS {
+      SQL_STATEMENT($$, discard_xrefs_STATEMENT);
     }
   ;
 

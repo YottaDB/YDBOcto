@@ -221,6 +221,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	case commit_STATEMENT:
 	case dynamic_sql_STATEMENT:
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 		/* Queries are of type SET, SHOW, CREATE TABLE, DISCARD ALL etc. They don't have any plans. Just return. */
 		response = make_parse_complete();
 		send_message(session, (BaseMessage *)(&response->type));

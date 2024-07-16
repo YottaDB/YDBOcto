@@ -1458,6 +1458,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 	case data_type_struct_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 	case row_value_STATEMENT:
 	case history_STATEMENT:
 	case display_relation_STATEMENT:

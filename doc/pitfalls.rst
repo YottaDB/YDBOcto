@@ -35,7 +35,15 @@ Fixing out of sync cross reference
 
      $ $ydb_dist/yottadb -run %XCMD 'DO UNXREFDATA^%YDBAIM($QSUBSCRIPT(^%ydbAIMOctoCache("names","firstname","location"),0)) KILL ^%ydbAIMOctoCache("names","firstname")'
 
+  To invalidate all cross references either run the above commands for all table and column pairs for which cross references are created or make use of the following Octo command. This invalidates all the cross references.
+
+  .. code-block:: bash
+
+     $ OCTO> DISCARD XREFS;
+
   Run your original query, in Octo, to rebuild the cross reference.
 
 .. note::
    When running the YDBAIM specific command above if Octo is executing SELECT queries concurrently, it is possible a SELECT sneaks in between the UNXREFDATA and the KILL commands. This can result in SELECT query to return incorrect results.
+
+   DISCARD XREFS does not have this issue as it gets the needed locks to ensure no other query can sneak in between.

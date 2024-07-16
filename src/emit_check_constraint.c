@@ -383,6 +383,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 	case index_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 	case row_value_STATEMENT:
 	case table_value_STATEMENT:
 	case array_STATEMENT:

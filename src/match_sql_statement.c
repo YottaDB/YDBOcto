@@ -102,6 +102,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 			break;
 		break;
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 		ret = TRUE;
 		break;
 	case drop_table_STATEMENT:

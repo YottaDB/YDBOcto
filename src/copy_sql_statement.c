@@ -82,6 +82,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		// ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
 		break;
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 		break;
 	case drop_table_STATEMENT:
 		drop_table = stmt->v.drop_table;

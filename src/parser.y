@@ -283,6 +283,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token HISTORY
 %token DISPLAY
 %token DISPLAY_VIEW
+%token XREFS
 
 %left PREC1
 %left CROSS FULL INNER JOIN LEFT NATURAL RIGHT
@@ -1525,6 +1526,7 @@ sql_schema_manipulation_statement
   | drop_view_statement { $$ = $drop_view_statement; parse_context->command_tag = drop_view_STATEMENT; }
   | drop_function_statement { $$ = $drop_function_statement; parse_context->command_tag = drop_function_STATEMENT; }
   | discard_all_statement { $$ = $discard_all_statement; parse_context->command_tag = discard_all_STATEMENT; }
+  | discard_xrefs_statement { $$ = $discard_xrefs_statement; parse_context->command_tag = discard_xrefs_STATEMENT; }
   ;
 
 sql_schema_definition_statement

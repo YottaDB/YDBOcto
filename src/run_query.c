@@ -329,7 +329,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		// row descriptions hence the decision to not free the memory_chunk below.
 		free_memory_chunks = FALSE;
 		break;
-	case discard_all_STATEMENT: /* DISCARD ALL */
+	case discard_xrefs_STATEMENT: /* DISCARD XREFS */
+	case discard_all_STATEMENT:   /* DISCARD ALL */
 		/* Initialize a few variables to NULL at the start. They are used in the CLEANUP_AND_RETURN_WITH_ERROR and
 		 * CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro as parameters (we cannot use NULL literal there due to compile errors).
 		 */
@@ -342,10 +343,15 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		/* Wait 10 seconds for the exclusive DDL change lock */
 		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock, &cursor_ydb_buff);
-		/* Call an M routine to discard all plans, xrefs and triggers associated with all tables in Octo.
-		 * Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for all the steps.
-		 */
-		status = ydb_ci("_ydboctoDiscardAll");
+		if (result_type == discard_all_STATEMENT) {
+			/* Call an M routine to discard all plans, xrefs and triggers associated with all tables in Octo.
+			 * Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for all the steps.
+			 */
+			status = ydb_ci("_ydboctoDiscardAll");
+		} else {
+			assert(result_type == discard_xrefs_STATEMENT);
+			status = ydb_ci("_ydboctoDiscardXREFS");
+		}
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
 		if (YDB_OK != status) {

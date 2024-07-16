@@ -209,6 +209,7 @@ typedef enum SqlStatementType {
 	create_view_STATEMENT,
 	drop_view_STATEMENT,
 	dynamic_sql_STATEMENT,
+	discard_xrefs_STATEMENT,
 	invalid_STATEMENT, // Keep invalid_STATEMENT at the end
 } SqlStatementType;
 
@@ -1179,6 +1180,7 @@ typedef struct SqlStatement {
 		enum SqlJoinType		  join_type;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	discard_all_STATEMENT
+		 *	discard_xrefs_STATEMENT
 		 */
 		struct SqlRowValue   *row_value;   /* corresponding to row_value_STATEMENT */
 		struct SqlTableValue *table_value; /* corresponding to table_value_STATEMENT */

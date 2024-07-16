@@ -87,6 +87,9 @@ static void test_no_command_tag_statement(void **state) {
 
 	response = make_command_complete(discard_all_STATEMENT, 0);
 	assert_null(response);
+	response = NULL;
+	response = make_command_complete(discard_xrefs_STATEMENT, 0);
+	assert_null(response);
 }
 
 int main(void) {

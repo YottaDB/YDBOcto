@@ -718,6 +718,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, 
 	case index_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 	case history_STATEMENT:
 	case delete_from_STATEMENT:
 	case update_STATEMENT:

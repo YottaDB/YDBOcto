@@ -159,3 +159,59 @@ OCTO
 	load_fixture TX09.sql subtest novv
 	verify_output TX09 output.txt
  }
+
+@test "TX10 : OCTO961 : Verify xref invalidation and re-generation" {
+  echo "# 1st test which validates instructions in doc/pitfalls.rst to re-sync cross refs"
+  echo "# 1. Run SQL query that generates xref" >> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE firstName = 'Zero';
+OCTO
+  echo "# 2. Verify xref is generated (i.e. cross reference ^%ydbAIMDERzGTIrQTVBoOhdanoKcC7 nodes for names table column firstname is present)" >> output.txt
+  echo " --> ZWRITE ^names,^%ydbAIMD* before UNXREFDATA call" >> output.txt
+  yottadb -run %XCMD 'zwrite ^names'  2>&1 | tee -a output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  $ydb_dist/yottadb -run %XCMD 'zwr ^%ydbAIMOctoCache' >> output.txt
+  $ydb_dist/yottadb -run %XCMD 'DO UNXREFDATA^%YDBAIM($QSUBSCRIPT(^%ydbAIMOctoCache("names","firstname","location"),0)) KILL ^%ydbAIMOctoCache("names","firstname")'
+  echo " --> ZWRITE ^%ydbAIMD* after UNXREFDATA call. Verify that no output is recorded for this step. " >> output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  echo "# 3. Re-Run SQL query to re-generate xref" >> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names WHERE firstName = 'Zero';
+OCTO
+  echo "# 4. Verify xref (i.e. cross reference ^%ydbAIMDERzGTIrQTVBoOhdanoKcC7 nodes for names table column firstname) are re-generated" >> output.txt
+  echo " --> ZWRITE ^%ydbAIMD* xref regeneration" >> output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  $ydb_dist/yottadb -run %XCMD "zwr ^%ydbAIMOctoCache" >> output.txt || true
+  verify_output TX10_1 output.txt
+  mv output.txt output1.txt
+  mv clean_output.txt clean_output1.txt
+  echo "# 2nd test which validates DISCARD XREFS" >> output.txt
+  echo "# 1. Add more xrefs (i.e. cross reference ^%ydbAIMDERzGTIrQTVBoOhdanoKcC7 nodes for names table column lastname)" >> output.txt
+  echo "--> Adding lastname xref by running a query which makes use of the column" >> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names WHERE lastname = 'Cool';
+OCTO
+  echo "# 2. Verify xref exists (i.e. cross reference ^%ydbAIMDERzGTIrQTVBoOhdanoKcC7 nodes for names table and columns firstname and lastname" >> output.txt
+  echo " --> ZWRITE ^names,^%ydbAIMD* before DISCARD" >> output.txt
+  yottadb -run %XCMD 'zwrite ^names'  2>&1 | tee -a output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  $ydb_dist/yottadb -run %XCMD 'zwr ^%ydbAIMOctoCache' >> output.txt
+  echo "# 3. Discard xrefs using Octo command" >> output.txt
+  echo " --> DISCARD all xrefs" >> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
+DISCARD XREFS;
+OCTO
+  echo "# 4. Verify all xrefs are deleted (i.e. no cross references are seen)" >> output.txt
+  echo " --> ZWRITE ^%ydbAIMD* after DISCARD" >> output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  echo "# 5. Re-Run SQL query to re-generate xrefs" >> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names WHERE firstName = 'Zero';
+SELECT * FROM names WHERE lastName = 'Cool';
+OCTO
+  echo "# 6. Verify xrefs (i.e. cross reference ^%ydbAIMDERzGTIrQTVBoOhdanoKcC7 nodes for names table and columns firstname and lastname) are re-generated" >> output.txt
+  yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+  $ydb_dist/yottadb -run %XCMD "zwr ^%ydbAIMOctoCache" >> output.txt || true
+  verify_output TX10_2 output.txt
+
+}

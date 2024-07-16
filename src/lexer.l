@@ -242,6 +242,7 @@ int copied_so_far;
 (?i:WITHOUT[ \t\n]+TIME[ \t\n]+ZONE) { return WITHOUT_TIME_ZONE; }
 (?i:EXIT) { return EXIT; }
 (?i:QUIT) { return QUIT; }
+(?i:XREFS) { return XREFS; }
 (?i:ZHOROLOG) { return DATE_TIME_ZHOROLOG; }
 (?i:ZUT) { return DATE_TIME_ZUT; }
 

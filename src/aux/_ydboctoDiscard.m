@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -42,27 +42,17 @@ discardALL	;
 
 discardPLANS	;
 	; Not currently implemented
+	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
+	. DO discardXREF(tableOrViewName)
 	QUIT
 
 discardXREFS	;
-	; Not currently implemented
+	; Remove AIM data (xref and triggers) stored in the AIM global
+	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
+	. DO discardXREF(tableOrViewName) ;  For each table/view discard xref & triggers
 	QUIT
 
-discardTable(tableName,tableGVNAME)	;
-	; ----------------------------------------------------------------------------
-	; Discards all generated xrefs, plans and triggers associated with a table.
-	; Also KILLs the M global name associated with a table in case "tableGVNAME" parameter is set to a non-empty string.
-	; ----------------------------------------------------------------------------
-	; The second parameter "tableGVNAME ", if defined, indicates this is a call from DROP TABLE. Whereas if it is a
-	; call from DISCARD TABLE or DISCARD ALL, the second parameter would be undefined.
-	; ----------------------------------------------------------------------------
-	; Delete all _ydboctoP*.m and _ydboctoX*.m plans associated with "tableName".
-	; Also delete those database nodes that correspond to the plan metadata of these deleted plans.
-	;
-	NEW planName
-	SET planName="" FOR  SET planName=$ORDER(^%ydboctoocto("tableplans",tableName,planName))  QUIT:""=planName  DO
-	.  DO discardPlan(planName)
-	KILL ^%ydboctoocto("tableplans",tableName)
+discardXREF(tableName)
 	; Delete all generated cross references associated with columns in "tableName".
 	KILL ^%ydboctoxref(tableName)
 	; Delete all generated triggers associated with columns in the table being created/deleted.
@@ -81,6 +71,24 @@ discardTable(tableName,tableGVNAME)	;
 	. .  SET aimgbl=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0)
 	. .  DO UNXREFDATA^%YDBAIM(aimgbl)
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)
+	QUIT
+
+discardTable(tableName,tableGVNAME)	;
+	; ----------------------------------------------------------------------------
+	; Discards all generated xrefs, plans and triggers associated with a table.
+	; Also KILLs the M global name associated with a table in case "tableGVNAME" parameter is set to a non-empty string.
+	; ----------------------------------------------------------------------------
+	; The second parameter "tableGVNAME ", if defined, indicates this is a call from DROP TABLE. Whereas if it is a
+	; call from DISCARD TABLE or DISCARD ALL, the second parameter would be undefined.
+	; ----------------------------------------------------------------------------
+	; Delete all _ydboctoP*.m and _ydboctoX*.m plans associated with "tableName".
+	; Also delete those database nodes that correspond to the plan metadata of these deleted plans.
+	;
+	NEW planName
+	SET planName="" FOR  SET planName=$ORDER(^%ydboctoocto("tableplans",tableName,planName))  QUIT:""=planName  DO
+	.  DO discardPlan(planName)
+	KILL ^%ydboctoocto("tableplans",tableName)
+	DO discardXREF(tableName)
 	DO:$DATA(tableGVNAME)
 	. ; ----------------------
 	. ; tableGVNAME is defined. This means it is a call from DROP TABLE. Do additional cleanup.

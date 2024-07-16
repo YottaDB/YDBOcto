@@ -390,6 +390,7 @@ int qualify_extract_function(SqlStatement *stmt, SqlTable *table, SqlValueType *
 	case data_type_struct_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 	case row_value_STATEMENT:
 	case history_STATEMENT:
 	case display_relation_STATEMENT:

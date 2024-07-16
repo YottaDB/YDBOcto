@@ -300,6 +300,7 @@ int qualify_view_dependency(SqlStatement *stmt, SqlView *view) {
 	case data_type_struct_STATEMENT:
 	case join_type_STATEMENT:
 	case discard_all_STATEMENT:
+	case discard_xrefs_STATEMENT:
 	case history_STATEMENT:
 	case display_relation_STATEMENT:
 	case invalid_STATEMENT:

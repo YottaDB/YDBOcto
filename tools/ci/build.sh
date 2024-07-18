@@ -885,6 +885,26 @@ else
 		# Re-enable "set -e" now that "git merge-base" invocation is done.
 		set -e
 
+		# Note down if older commit is prior to YDBOcto#382 default datestyle change and after YDBOcto#382 first commit.
+		# This will be used to add datestyle config to match old default datestyle i.e. MDY
+		pre_octo382_default_datestyle_change_commit="0c8cd1851184c1d374aeff98782212eb677051d2" # one commit before ccc5a855
+		pre_octo382_impl_commit="75545c2d3d8f1692326206a0a2c3ddb8ff145d51" # one commit before 41f13366
+		# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+		set +e
+		# Is chosen old commit prior to $pre_octo382_default_datestyle_change_commit. 0 means older commit comes before.
+		needs_datestyle_config_addition=0
+		git merge-base --is-ancestor $commitsha $pre_octo382_default_datestyle_change_commit
+		ret_result=$?
+		if [[ 0 -eq $ret_result ]]; then
+			# Is chosen old commit after $pre_octo382_impl_commit
+			git merge-base --is-ancestor $commitsha $pre_octo382_impl_commit
+			# If so then set needs_datestyle_config_addition to 1. This adds datestyle="MDY" to config during TQG01
+			# upgrade test.
+			needs_datestyle_config_addition=$?
+		fi
+		# Re-enable "set -e" now that "git merge-base" invocation is done.
+		set -e
+
 		# When ydb_chset=UTF-8 is randomly chosen by the test framework, replaying the TLL* subtests in the
 		# test_long_lines test requires more stack space than the default of 8Mb. "tests/test_long_lines.bats.in"
 		# already has code in the "setup()" function to take this into account. Duplicate that logic here so
@@ -1028,6 +1048,9 @@ else
 				tabledefsqlfile=""
 				if [[ ($subtest =~ ^"TQG") ]]; then
 					qgquery=1
+					if [[ ((1 -eq $needs_datestyle_config_addition) && ($subtest =~ ^"TQG01")) ]]; then
+						echo "datestyle =\"mdy\"" >> octo.conf
+					fi
 					# Disable the "set -e" setting temporarily as below command can return exit status 0 or 1
 					set +e
 					tabledefsqlfile=$(compgen -G "tabledefinition-TQG[0-9][0-9]\.sql")

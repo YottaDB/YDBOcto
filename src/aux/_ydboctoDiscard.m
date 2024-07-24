@@ -43,16 +43,16 @@ discardALL	;
 discardPLANS	;
 	; Not currently implemented
 	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
-	. DO discardXREF(tableOrViewName)
+	. DO discardXREFTable(tableOrViewName)
 	QUIT
 
 discardXREFS	;
 	; Remove AIM data (xref and triggers) stored in the AIM global
 	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
-	. DO discardXREF(tableOrViewName) ;  For each table/view discard xref & triggers
+	. DO discardXREFTable(tableOrViewName) ;  For each table/view discard xref & triggers
 	QUIT
 
-discardXREF(tableName)
+discardXREFTable(tableName)
 	; Delete all generated cross references associated with columns in "tableName".
 	KILL ^%ydboctoxref(tableName)
 	; Delete all generated triggers associated with columns in the table being created/deleted.
@@ -88,7 +88,7 @@ discardTable(tableName,tableGVNAME)	;
 	SET planName="" FOR  SET planName=$ORDER(^%ydboctoocto("tableplans",tableName,planName))  QUIT:""=planName  DO
 	.  DO discardPlan(planName)
 	KILL ^%ydboctoocto("tableplans",tableName)
-	DO discardXREF(tableName)
+	DO discardXREFTable(tableName)
 	DO:$DATA(tableGVNAME)
 	. ; ----------------------
 	. ; tableGVNAME is defined. This means it is a call from DROP TABLE. Do additional cleanup.

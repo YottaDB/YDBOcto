@@ -9,3 +9,4 @@ _ydboctoxrefupdate      :void        handleSetKill^%ydboctoxrefupdate(I:ydb_stri
 _ydboctoxrefMetadata    :void        xrefMetadata^%ydboctoselect(I:ydb_string_t*)
 _ydboctoCreateViewsUpgradeNamesList :void        ydboctoCreateViewsUpgradeNamesList^%ydboctoViewsUpgrade()
 _ydboctoDiscardXREFS	:void	     discardXREFS^%ydboctoDiscard()
+_ydboctoDiscardXREFTable      :void        discardXREFTable^%ydboctoDiscard(I:ydb_string_t*)

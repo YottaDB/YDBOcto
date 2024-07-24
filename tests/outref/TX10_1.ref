@@ -1,3 +1,5 @@
+# 1st test which validates YDB instructions to re-sync cross refs
+# 1. Run SQL query that generates xref
 id|firstname|lastname
 0|Zero|Cool
 5|Zero|Cool

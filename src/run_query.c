@@ -350,7 +350,62 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			status = ydb_ci("_ydboctoDiscardAll");
 		} else {
 			assert(result_type == discard_xrefs_STATEMENT);
-			status = ydb_ci("_ydboctoDiscardXREFS");
+			SqlDiscardXrefs *discard_xrefs;
+			UNPACK_SQL_STATEMENT(discard_xrefs, result, discard_xrefs);
+			if (DISCARD_XREFS_ALL == discard_xrefs->type) {
+				status = ydb_ci("_ydboctoDiscardXREFS");
+			} else {
+				assert(DISCARD_XREFS_TABLE == discard_xrefs->type);
+				tablename = discard_xrefs->table_name->v.value->v.string_literal;
+				/* Determine if a node with the given name exists in ^%ydboctoschema.
+				 * If it does check if its a view by looking at the value stored.
+				 * If it is a view the node will be of the following form:
+				 * A view will have ^%ydboctoschema(view_name)=OCTOLIT_VIEWS
+				 */
+				ydb_buffer_t schema_global;
+				YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
+
+				ydb_buffer_t sub;
+				YDB_STRING_TO_BUFFER(tablename, &sub);
+
+				ydb_buffer_t node_value;
+				char	     node_value_buff[OCTO_MAX_IDENT + 1];
+				node_value.buf_addr = node_value_buff;
+				node_value.len_alloc = sizeof(node_value_buff) - 1; /* reserve 1 byte for null terminator */
+				status = ydb_get_s(&schema_global, 1, &sub, &node_value);
+
+				boolean_t node_found = TRUE, is_view = FALSE;
+				switch (status) {
+				case YDB_OK:
+					// A node of the given name exists in ^%ydboctoschema
+					// Check if the value stored is a view by looking at its value.
+					assert(node_value.len_alloc > node_value.len_used); /* Ensure space for null terminator */
+					node_value.buf_addr[node_value.len_used] = '\0';    /* Null terminate string */
+					is_view = (0 == strcmp(node_value.buf_addr, OCTOLIT_VIEW)) ? TRUE : FALSE;
+					assert(is_view || (0 == strcmp(node_value.buf_addr, OCTOLIT_TABLE)));
+					break;
+				case YDB_ERR_GVUNDEF:
+					// No nodes of the given name exist
+					node_found = FALSE;
+					break;
+				default:
+					YDB_ERROR_CHECK(status);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+					break;
+				}
+				if ((!node_found) || is_view) {
+					/* Table does not exist. */
+					ERROR(ERR_UNKNOWN_TABLE, tablename);
+					CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock,
+								      &cursor_ydb_buff);
+				}
+				ydb_buffer_t dxref_table_name_buffer;
+				YDB_STRING_TO_BUFFER(tablename, &dxref_table_name_buffer);
+				ci_param1.address = dxref_table_name_buffer.buf_addr;
+				ci_param1.length = dxref_table_name_buffer.len_used;
+				status = ydb_ci("_ydboctoDiscardXREFTable", &ci_param1);
+			}
 		}
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */

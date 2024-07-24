@@ -957,6 +957,16 @@ typedef struct SqlDropFunctionStatement {
 	boolean_t	     if_exists_specified;
 } SqlDropFunctionStatement;
 
+typedef enum SqlDiscardXrefsType {
+	DISCARD_XREFS_ALL,
+	DISCARD_XREFS_TABLE,
+} SqlDiscardXrefsType;
+
+typedef struct SqlDiscardXrefs {
+	enum SqlDiscardXrefsType type;
+	struct SqlStatement	*table_name; // SqlValue
+} SqlDiscardXrefs;
+
 typedef struct SqlParameterTypeList {
 	struct SqlStatement *data_type_struct; // SqlDataTypeStruct
 	dqcreate(SqlParameterTypeList);
@@ -1180,7 +1190,6 @@ typedef struct SqlStatement {
 		enum SqlJoinType		  join_type;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	discard_all_STATEMENT
-		 *	discard_xrefs_STATEMENT
 		 */
 		struct SqlRowValue   *row_value;   /* corresponding to row_value_STATEMENT */
 		struct SqlTableValue *table_value; /* corresponding to table_value_STATEMENT */
@@ -1190,6 +1199,7 @@ typedef struct SqlStatement {
 		 */
 		struct SqlDeleteFromStatement *delete_from;
 		struct SqlUpdateStatement     *update;
+		struct SqlDiscardXrefs	      *discard_xrefs;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	invalid_STATEMENT
 		 */

@@ -1465,8 +1465,9 @@ DISCARD XREFS
   .. code-block:: SQL
 
      DISCARD XREFS;
+     DISCARD XREFS table_name;
 
-  The DISCARD XREFS command removes cross references and statistics, reducing the size of a database, or removing metadata that is no longer in sync with the data for any reason. Octo automatically recreates this metadata as needed. Note however, that recreating metadata causes the first query that needs it to run more slowly.
+  The :code:`DISCARD XREFS` command removes all metadata (cross references and statistics) where as :code:`DISCARD XREFS table_name` does the same but for a specific table. Octo automatically recreates the metadata as needed. Note however, that recreating metadata causes the first query that needs it to run more slowly.
 
 -----------------
 DROP TABLE

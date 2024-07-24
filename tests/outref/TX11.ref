@@ -1,0 +1,28 @@
+
+-- TX11 : OCTO961 : Verify DISCARD XREFS table_name error cases
+-- Verify DISCARD XREFS table_name fails with ERR_UNKNOWN_TABLE error if table_name is not known
+DISCARD XREFS mynames;
+-- Verify DISCARD XREFS table_name fails with ERR_IDENT_LENGTH error if table_name is too long
+DISCARD XREFS abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl;
+
+-- Command only works on tables, expect ERR_UNKNOWN_TABLE for the DISCARD below
+CREATE VIEW v AS SELECT 1;
+DISCARD XREFS v;
+
+-- sql keyword specification in place of table name returns ERR_PARSE_FAILED
+DISCARD XREFS unknown;
+OCTO> DISCARD XREFS mynames;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: mynames
+[ERROR]: ERR_IDENT_LENGTH: Identifier length 64 exceeds max (63)
+LINE 3:1: ...abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl...
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> DISCARD XREFS abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl;
+OCTO> CREATE VIEW v AS SELECT 1;
+CREATE VIEW
+OCTO> DISCARD XREFS v;
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN, expecting SEMICOLON or ENDOFFILE
+LINE 8:1: DISCARD XREFS unknown;
+                        ^^^^^^^
+OCTO> DISCARD XREFS unknown;
+OCTO> 

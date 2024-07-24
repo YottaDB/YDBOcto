@@ -21,29 +21,18 @@ Pitfalls
 Fixing out of sync cross reference
 -----------------------------------
 
-  To speed up query execution, Octo automatically builds cross references as needed. It has been observed that in rare cases (see `YottaDB/DB/YDB/#659 <https://gitlab.com/YottaDB/DB/YDB/-/issues/659>`_ for details) the cross references can get out of sync. If you encounter such a situation, run the following command to rebuild the cross reference.
+  To accelerate query execution, Octo automatically builds and maintains cross references (metadata). In the unlikely event that the data and metadata get out of sync (e.g., as a consequence of operational issues), run the below command to delete metadata. You can also delete metadata to shrink a database to reduce the amount of data to be copied, at the cost of having to recreate the metadata when queries are run subsequently.
 
-  If an Octo version before 84de9324 is used (Octo maintained its own reference before this commit) then for a tablename :code:`names` and column name :code:`firstname` run the following
-
-  .. code-block:: bash
-
-     $ $ydb_dist/yottadb -run %XCMD 'KILL ^%ydboctoocto("xref_status","names","firstname")'
-
-  If Octo version is or after 84de9324 (YDBAIM maintains the cross reference for Octo) then for a tablename :code:`names` and column name :code:`firstname` run the following
-
-  .. code-block:: bash
-
-     $ $ydb_dist/yottadb -run %XCMD 'DO UNXREFDATA^%YDBAIM($QSUBSCRIPT(^%ydbAIMOctoCache("names","firstname","location"),0)) KILL ^%ydbAIMOctoCache("names","firstname")'
-
-  To invalidate all cross references either run the above commands for all table and column pairs for which cross references are created or make use of the following Octo command. This invalidates all the cross references.
+  To delete all cross references (i.e. for all table and columns) run the following
 
   .. code-block:: bash
 
      $ OCTO> DISCARD XREFS;
 
-  Run your original query, in Octo, to rebuild the cross reference.
+  To delete cross references for a particular table for example :code:`names` run the following
 
-.. note::
-   When running the YDBAIM specific command above if Octo is executing SELECT queries concurrently, it is possible a SELECT sneaks in between the UNXREFDATA and the KILL commands. This can result in SELECT query to return incorrect results.
+  .. code-block:: bash
 
-   DISCARD XREFS does not have this issue as it gets the needed locks to ensure no other query can sneak in between.
+     $ OCTO> DISCARD XREFS names;
+
+  After cross reference is deleted run your original query, in Octo, to rebuild the cross reference.

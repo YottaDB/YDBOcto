@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,6 +17,6 @@ SELECT EmployeeID,alias3.BirthDate FROM Employees INNER JOIN (SELECT alias3.Birt
 SELECT EmployeeID,alias3.BirthDate FROM Employees INNER JOIN (SELECT alias3.Notes, alias3.BirthDate FROM Employees alias3) AS alias3 ON Employees.BirthDate = alias3.BirthDate;
 SELECT EmployeeID,alias3.BirthDate FROM Employees INNER JOIN (SELECT MAX(alias3.Notes), alias3.BirthDate FROM Employees alias3 GROUP BY alias3.BirthDate) AS alias3 ON (((Employees.BirthDate = alias3.BirthDate)));
 SELECT EmployeeID,alias3.BirthDate FROM Employees INNER JOIN (SELECT MAX(DISTINCT alias3.Notes), alias3.BirthDate FROM Employees alias3 GROUP BY alias3.BirthDate) AS alias3 ON (((Employees.BirthDate = alias3.BirthDate)));
-SELECT EmployeeID,alias3.BirthDate FROM Employees INNER JOIN (SELECT MAX(DISTINCT alias3.Notes), alias3.BirthDate FROM Employees alias3 GROUP BY alias3.BirthDate HAVING alias3.BirthDate BETWEEN '1968-12-08' AND '1969-07-02') AS alias3 ON (((Employees.BirthDate = alias3.BirthDate)));
-SELECT DISTINCT * FROM Employees INNER JOIN (SELECT MAX(DISTINCT alias3.Notes), alias3.BirthDate FROM Employees alias3 GROUP BY alias3.BirthDate HAVING alias3.BirthDate BETWEEN '1968-12-08' AND '1969-07-02') AS alias3 ON (((Employees.BirthDate = alias3.BirthDate)));
+SELECT EmployeeID,alias3.BirthDate FROM Employees INNER JOIN (SELECT MAX(DISTINCT alias3.Notes), alias3.BirthDate FROM Employees alias3 GROUP BY alias3.BirthDate HAVING alias3.BirthDate BETWEEN DATE'1968-12-08' AND DATE'1969-07-02') AS alias3 ON (((Employees.BirthDate = alias3.BirthDate)));
+SELECT DISTINCT * FROM Employees INNER JOIN (SELECT MAX(DISTINCT alias3.Notes), alias3.BirthDate FROM Employees alias3 GROUP BY alias3.BirthDate HAVING alias3.BirthDate BETWEEN DATE'1968-12-08' AND DATE'1969-07-02') AS alias3 ON (((Employees.BirthDate = alias3.BirthDate)));
 

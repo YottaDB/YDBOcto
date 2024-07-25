@@ -7,7 +7,7 @@
 &{employeeid false false false false 0 INT4 0 0 HEX}
 &{lastname false true false false -5 VARCHAR 0 0 HEX}
 &{firstname false true false false -5 VARCHAR 0 0 HEX}
-&{birthdate false true false false -5 VARCHAR 0 0 HEX}
+&{birthdate false false false false 0 DATE 0 0 HEX}
 &{photo false true false false -5 VARCHAR 0 0 HEX}
 &{notes false true false false -5 VARCHAR 0 0 HEX}
 

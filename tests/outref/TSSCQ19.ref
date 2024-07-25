@@ -4,7 +4,7 @@ SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnull OR (
 public|nworders|orderid|23|1|-1|4|1|null||null|0|b
 public|nworders|customerid|23|0|-1|4|2|null||null|0|b
 public|nworders|employeeid|23|0|-1|4|3|null||null|0|b
-public|nworders|orderdate|1043|0|20|-1|4|null||null|0|b
+public|nworders|orderdate|1082|0|-1|4|4|null||null|0|b
 public|nworders|shipperid|23|0|-1|4|5|null||null|0|b
 
 ----- OCTO -----
@@ -13,6 +13,6 @@ nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|
 public|nworders|orderid|23|1|-1|4|1||||0|b
 public|nworders|customerid|23|0|-1|4|2||||0|b
 public|nworders|employeeid|23|0|-1|4|3||||0|b
-public|nworders|orderdate|1043|0|20|-1|4||||0|b
+public|nworders|orderdate|1082|0|-1|4|4||||0|b
 public|nworders|shipperid|23|0|-1|4|5||||0|b
 (5 rows)

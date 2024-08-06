@@ -1,0 +1,5 @@
+-------------------------------------------------------------------------
+ --> Running query : select $1::varchar <--
+-------------------------------------------------------------------------
+SQL State: 22003
+ERROR: handle_bind: invalid number of parameters: expected 1 got 0

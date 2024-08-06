@@ -255,7 +255,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		switch(coerce_data_type) {
 		case BOOLEAN_TYPE:
 			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
-				|| (STRING_LITERAL == pre_coerce_type) || IS_NUL_VALUE(pre_coerce_type));
+				|| (STRING_LITERAL == pre_coerce_type) || IS_NUL_VALUE(pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type));
 			switch(pre_coerce_type) {
 			case BOOLEAN_VALUE:
 				break;
@@ -265,6 +265,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			case NUMERIC_LITERAL:
 				%{}$$Integer2Boolean^%%ydboctoplanhelpers({}%
 				break;
+			case PARAMETER_VALUE:
 			case STRING_LITERAL:
 				%{}$$String2Boolean^%%ydboctoplanhelpers({}%
 				break;
@@ -279,13 +280,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case INTEGER_TYPE:
 			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
 				|| (NUMERIC_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)
-				|| IS_NUL_VALUE(pre_coerce_type));
+				|| IS_NUL_VALUE(pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type));
 			/* Note: We ignore "precision" (if specified).
 			 * See comment under "integer_type_tail" rule in "src/parser.y" for more context.
 			 */
 			if (NUMERIC_LITERAL == pre_coerce_type) {
 				%{}($$ROUND^%%ydboctosqlfunctions({}%
-			} else if (STRING_LITERAL == pre_coerce_type) {
+			} else if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
 				%{}($$String2Integer^%%ydboctoplanhelpers{}%
 			} else {
 				%{}({}%
@@ -293,15 +294,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			break;
 		case NUMERIC_TYPE:
 			assert((INTEGER_LITERAL == pre_coerce_type) || (NUMERIC_LITERAL == pre_coerce_type)
-				|| (STRING_LITERAL == pre_coerce_type) || IS_NUL_VALUE(pre_coerce_type));
+				|| (STRING_LITERAL == pre_coerce_type) || IS_NUL_VALUE(pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type));
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
-				if (STRING_LITERAL == pre_coerce_type) {
+				if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
 					%{}$$String2NUMERIC^%%ydboctoplanhelpers({}%
 				} else {
 					%{}$$Cast2NUMERICWithPrecision^%%ydboctoplanhelpers({}%
 				}
 			} else {
-				if (STRING_LITERAL == pre_coerce_type) {
+				if ((STRING_LITERAL == pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type)){
 					%{}($$String2NUMERIC^%%ydboctoplanhelpers{}%
 				} else {
 					%{}($$Cast2NUMERICWithoutPrecision^%%ydboctoplanhelpers{}%
@@ -311,7 +312,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case STRING_TYPE:
 			assert((BOOLEAN_VALUE == pre_coerce_type) || (INTEGER_LITERAL == pre_coerce_type)
 				|| (NUMERIC_LITERAL == pre_coerce_type) || (STRING_LITERAL == pre_coerce_type)
-				|| IS_NUL_VALUE(pre_coerce_type) || IS_DATE_TIME_TYPE(pre_coerce_type));
+				|| IS_NUL_VALUE(pre_coerce_type) || IS_DATE_TIME_TYPE(pre_coerce_type) || (PARAMETER_VALUE == pre_coerce_type));
 			if (SIZE_OR_PRECISION_UNSPECIFIED != plan->extra_detail.lp_coerce_type.coerce_type.size_or_precision) {
 				%{}$$Cast2VARCHAR^%%ydboctoplanhelpers({}%
 			}

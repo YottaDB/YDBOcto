@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -234,3 +234,18 @@ teardown() {
 	verify_output TJC021 output.txt
 }
 
+@test "TJC022 : OCTO1041 : Bind parameter test" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC022 $test_port > output.txt 2>&1 || true
+	echo "--Rocto log--"
+	tail rocto.log >> output.txt
+	verify_output TJC022 output.txt nodebug noinfo
+}
+
+@test "TJC023 : OCTO1041 : Bind parameter test with mismatching value and coerce type" {
+	run_java TJC023 $test_port > output.txt 2>&1 || true
+	verify_output TJC023 output.txt nodebug noinfo
+}

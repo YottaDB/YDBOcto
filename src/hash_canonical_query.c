@@ -449,8 +449,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 */
 			assert(IS_LITERAL_PARAMETER(value->u.coerce_type.pre_coerced_type)
 			       || IS_NUL_VALUE(value->u.coerce_type.pre_coerced_type)
-			       || ((IS_DATE_TIME_DATA_TYPE(coerced_type->data_type))
-				   && (PARAMETER_VALUE == value->u.coerce_type.pre_coerced_type)));
+			       || (PARAMETER_VALUE == value->u.coerce_type.pre_coerced_type));
 
 			ADD_INT_HASH(state, value->u.coerce_type.pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);

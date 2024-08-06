@@ -1782,7 +1782,7 @@ ERR_ROCTO_INVALID_MESSAGE_TYPE
 ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS
 ++++++++++++++++++++++++++++++++++++++++
 
-  Text: xxx: invalid number of parameters: expected xxx got xxx)
+  Text: xxx: invalid number of parameters: expected xxx got xxx
 
   Description/Action: This error indicates that an invalid number of parameters have been provided for a Bind message. PSQL Error Code: 22003
 

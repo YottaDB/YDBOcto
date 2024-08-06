@@ -88,6 +88,8 @@ if("${FULL_TEST_SUITE}")
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC018.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC019.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC020.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC022.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC023.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multi_query.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multiple_query_files.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_query.java

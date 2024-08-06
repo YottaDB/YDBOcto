@@ -156,7 +156,7 @@ Date and Time Data Types
 
   Date and Time types can be specified in the following formats:
 
-  * TEXT     (refers to values like '01-01-2023' and '01:01:01')
+  * TEXT     (refers to values like '2023-01-01' and '01:01:01')
   * HOROLOG  (refers to values equivalent to output of `$HOROLOG <https://docs.yottadb.com/ProgrammersGuide/isv.html#horolog>`_)
   * ZHOROLOG (refers to values equivalent to output of `$ZHOROLOG <https://docs.yottadb.com/ProgrammersGuide/isv.html#zhorolog>`_)
   * ZUT      (refers to values equivalent to output of `$ZUT <https://docs.yottadb.com/ProgrammersGuide/isv.html#zut>`_)
@@ -210,17 +210,17 @@ Literals
 
     .. code-block:: SQL
 
-       date '01-01-2023'
+       date '2023-01-01'
        date(horolog)'66475'
        date(zhorolog)'66475,,,'
        date(fileman)'2320101'
        date(zut)'1701123704344883'
-       timestamp '01-01-2023 01:01:01'
+       timestamp '2023-01-01 01:01:01'
        timestamp(horolog)'66475,3661'
        timestamp(fileman)'3230101.010101'
-       timestamp with time zone '01-01-2023 01:01:01.567555-05:00'
-       timestamp with time zone '01-01-2023 01:01:01.567555-08:30'
-       timestamp with time zone '01-01-2023 01:01:01-08:30'
+       timestamp with time zone '2023-01-01 01:01:01.567555-05:00'
+       timestamp with time zone '2023-01-01 01:01:01.567555-08:30'
+       timestamp with time zone '2023-01-01 01:01:01-08:30'
        timestamp(zhorolog) with time zone '66885,44246,905676,18000'
        time '01:01:01.567555'
 
@@ -280,21 +280,21 @@ Input and Output text format value
 
   .. code-block::
 
-    ISO, MDY
+    ISO, YMD
 
-  Where the output form of date and time value is ``ISO`` and the input form is ``MDY``.
+  Where the output form of date and time value is ``ISO`` and the input form is ``YMD``.
 
   The output form corresponds to date/time values following the ISO 8601 (SQL) standard:``YYYY-MM-DD HH:MM:SS``.
   Since this is the only form of output supported by Octo it is not mandatory to include ``ISO`` while setting ``datestyle``.
 
   The input form determines how a date value needs to be formed .i.e. in which order day, month and year can be specified in a literal
-  or global value. In ``MDY``, ``M`` represents month, ``D`` the date and ``Y`` the year. They can be specified in any order and in upper or lower case.
+  or global value. In ``YMD``, ``Y`` the year, ``M`` represents month and ``D`` the date. They can be specified in any order and in upper or lower case.
 
   Following are some examples of datestyle values:
 
   .. code-block::
 
-     ISO, MDY
+     ISO, YMD
      MDY
      YMD
      DMY
@@ -329,7 +329,7 @@ Input and Output text format value
      -- when datestyle is 'mdy'
      date'01-01-2023'
 
-  When ``MYSQL`` emulation is being done ``datestyle`` default value is ``ISO, YMD`` instead of ``ISO, MDY``.
+  ``datestyle`` default value when ``MYSQL`` emulation is being done is also ``ISO, YMD``.
 
 ~~~~~~~~~~~~~~~~
 Readonly Table
@@ -341,7 +341,7 @@ Readonly Table
 
   .. code-block::
 
-     TEXT     - value has to be in the format MM-DD-YYYY where MM is month, DD is date, YYYY is year. Ordering has to match ``datestyle``.
+     TEXT     - value has to be in the format YYYY-MM-DD where YYYY is year, MM is month, DD is date. Ordering has to match ``datestyle``.
      FILEMAN  - YYYMMDD
      HOROLOG  - 1st part of $HOROLOG, example: 66475
      ZHOROLOG - value has to be in $ZHOROLOG format. Empty values are accepted. Example: "66787,43301,," or  "66787,,,"
@@ -408,11 +408,11 @@ Range
 
   .. code-block::
 
-     Date                     : 01-01-0000 to 12-31-9999
+     Date                     : 0000-01-01 to 9999-12-31
      Time                     : 00:00:00.000000 to 23:59:59.999999
      Time with time zone      : 00:00:00.000000-15:59:59 to 23:59:59.999999+15:59:59
-     Timestamp                : 01-01-0000 00:00:00.000000 to 12-31-9999 23:59:59.999999
-     Timestamp with time zone : 01-01-0000 00:00:00.000000-15:59:59 to 12-31-9999 23:59:59.999999+15:59:59 (01-JAN-0000 00:00:00.000000-15:59:59 to 31-DEC-9999 23:59:59.999999+15:59:59)
+     Timestamp                : 0000-01-01 00:00:00.000000 to 9999-12-31 23:59:59.999999
+     Timestamp with time zone : 0000-01-01 00:00:00.000000-15:59:59 to 9999-12-31 23:59:59.999999+15:59:59 (01-JAN-0000 00:00:00.000000-15:59:59 to 31-DEC-9999 23:59:59.999999+15:59:59)
 
   Range for Horolog format input:
 
@@ -443,8 +443,8 @@ Range
 
   .. code-block::
 
-     Date: -62167219200000000 (01-01-0000) to 253402214400000000 (12-31-9999)
-     Timestamp: -62167219200000000 (01-01-0000 00:00:00.000000) to 253402300799999999(12-31-9999 23:59:59.999999)
+     Date: -62167219200000000 (0000-01-01) to 253402214400000000 (9999-12-31)
+     Timestamp: -62167219200000000 (0000-01-01 00:00:00.000000) to 253402300799999999(9999-12-31 23:59:59.999999)
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Operations and allowed operand types
@@ -520,7 +520,7 @@ Operations and allowed operand types
       .. code-block::
 
 	 Example:
-	 OCTO> select date'01-01-2023'::date(fileman);
+	 OCTO> select date'2023-01-01'::date(fileman);
 	 DATE
 	 3230101
 	 (1 row)
@@ -628,7 +628,7 @@ Note
 
       OCTO> create table test (id int, t time);
       CREATE TABLE
-      OCTO> insert into test values(1, date'01-01-2023');
+      OCTO> insert into test values(1, date'2023-01-01');
       [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME but expression is of type DATE
 
       OCTO> create table test (id int, t timestamp);
@@ -640,11 +640,11 @@ Note
 
       OCTO> create table test (id int, t time with time zone);
       CREATE TABLE
-      OCTO> insert into test values(1, date'01-01-2023');
+      OCTO> insert into test values(1, date'2023-01-01');
       [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME WITH TIME ZONE but expression is of type DATE
-      OCTO> insert into test values(1, timestamp'01-01-2023 01:01:01');
+      OCTO> insert into test values(1, timestamp'2023-01-01 01:01:01');
       [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME WITH TIME ZONE but expression is of type TIMESTAMP
-      OCTO> insert into test values(1, timestamp with time zone'01-01-2023 01:01:01-05');
+      OCTO> insert into test values(1, timestamp with time zone'2023-01-01 01:01:01-05');
       [ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "t" is of type TIME WITH TIME ZONE but expression is of type TIMESTAMP WITH TIME ZONE
 
       OCTO> create table test (id int, t timestamp with time zone);
@@ -2141,7 +2141,7 @@ CONCAT
 
   .. code-block:: SQL
 
-    OCTO> SELECT CONCAT(DATE'01-01-2023', 'sample text');
+    OCTO> SELECT CONCAT(DATE'2023-01-01', 'sample text');
     concat
     2023-01-01sample text
     (1 row)

@@ -99,7 +99,7 @@ id|INTEGER|||
 dob|DATE|||
 tob|TIME|||
 tos|TIMESTAMP|||
-tobs|TIMEWITH TIME ZONE|||
+tobs|TIME WITH TIME ZONE|||
 toss|TIMESTAMP WITH TIME ZONE|||
 Check constraints:
     "test1_dob_check" CHECK ((dob < DATE'2023-01-01'))

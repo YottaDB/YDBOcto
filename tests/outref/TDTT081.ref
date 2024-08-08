@@ -1030,7 +1030,7 @@ OCTO> \d test;
 Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
-dob|TIMEWITH TIME ZONE|||
+dob|TIME WITH TIME ZONE|||
 OCTO> insert into test values(1,time with time zone'01:01:01-05:00');
 INSERT 0 1
 OCTO> insert into test values(2,time with time zone'01:02:01-05:00');
@@ -1050,7 +1050,7 @@ OCTO> \d test;
 Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
-dob|TIME(HOROLOG)WITH TIME ZONE|||
+dob|TIME(HOROLOG) WITH TIME ZONE|||
 OCTO> insert into test values(1,time with time zone'01:01:01-05:00');
 INSERT 0 1
 OCTO> insert into test values(2,time with time zone'01:02:01-05:00');
@@ -1068,7 +1068,7 @@ OCTO> \d test;
 Table "test" stored in Global: ^%ydboctoD5wMIlvjjFxqqShZd97oEED : Type = READWRITE
 Column|Type|Collation|Nullable|Default
 id|INTEGER|||
-dob|TIME(ZHOROLOG)WITH TIME ZONE|||
+dob|TIME(ZHOROLOG) WITH TIME ZONE|||
 OCTO> insert into test values(1,time with time zone'01:01:01-05:00');
 INSERT 0 1
 OCTO> insert into test values(2,time with time zone'01:02:01-05:00');
@@ -1088,7 +1088,7 @@ OCTO> \d test;
 Table "test" stored in Global: ^datetimetimetz(id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
-dob|TIMEWITH TIME ZONE|||
+dob|TIME WITH TIME ZONE|||
 Indexes:
     "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimetz(id)
 OCTO> select * from test;
@@ -1104,7 +1104,7 @@ OCTO> \d test;
 Table "test" stored in Global: ^datetimetimetzhorolog(id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
-dob|TIME(HOROLOG)WITH TIME ZONE|||
+dob|TIME(HOROLOG) WITH TIME ZONE|||
 Indexes:
     "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimetzhorolog(id)
 OCTO> select * from test;
@@ -1118,7 +1118,7 @@ OCTO> \d test;
 Table "test" stored in Global: ^datetimetimetzzhorolog(id) : Type = READONLY
 Column|Type|Collation|Nullable|Default
 id|INTEGER||NOT NULL|
-dob|TIME(ZHOROLOG)WITH TIME ZONE|||
+dob|TIME(ZHOROLOG) WITH TIME ZONE|||
 Indexes:
     "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimetzzhorolog(id)
 OCTO> select * from test;

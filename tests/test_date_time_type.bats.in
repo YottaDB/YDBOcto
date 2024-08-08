@@ -1275,6 +1275,28 @@ teardown() {
 	mv clean_output.txt clean_output1.txt
 	load_fixture TDTT081.sql subtest novv
 	verify_output TDTT081 output.txt nodatetimefilter noinfo nodebug
+	mv clean_output.txt TDTT081_clean_output.txt
+	mv output.txt TDTT081_output.txt
+	# Auto upgrade test
+	# Add gvns for readonly table
+	yottadb -run %XCMD 'SET ^tdtt081(1)="01:01:01|01:01:01-05"'
+	# Run before upgrade test
+	load_fixture TDTT081_before_upgrade.sql subtest novv
+	mv output.txt output_before_upgrade.txt
+	# Initiate auto-upgrade
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Run after upgrade test
+	load_fixture TDTT081_after_upgrade.sql subtest novv
+	mv output.txt output_after_upgrade.txt
+	cat output_before_upgrade.txt >> output.txt
+	cat output_after_upgrade.txt >> output.txt
+	# Validate results
+	sed '/^\[ERROR/d;/^--/d;/^CREATE/d;/^OCTO/d;/^INSERT/d;/^select/d;/^create/d;/^insert/d;/^$/d' output_before_upgrade.txt >> clean_output_before_upgrade.txt
+	sed '/^OCTO/d;/^insert/d;/^--/d;/^\[ERROR/d;/^OCTO/d;/^select/d;/^$/d' output_after_upgrade.txt >> clean_output_after_upgrade.txt
+	echo "Diff between before and after upgrade" >> output.txt
+	diff clean_output_before_upgrade.txt clean_output_after_upgrade.txt >> output.txt || true
+	verify_output TDTT081_upgrade output.txt nodatetimefilter noinfo nodebug
+
 }
 
 @test "TDTT082 : Validate greater than equal to operation issue is fixed and views process date/time values with boolean expansion expression correctly" {

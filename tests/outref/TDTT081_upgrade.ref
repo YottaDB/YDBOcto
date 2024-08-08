@@ -1,0 +1,107 @@
+
+-- create readonly table definition with date/time types in it and constraints
+create table tdtt081 (id int primary key, dot1 time with time zone, dot2 time with time zone) global "^tdtt081" readonly;
+-- Perform select on it
+select * from tdtt081;
+-- create table definition with date/time types in it and constraints
+create table tdtt081_1 (id int, dot1 time with time zone, dot2 time with time zone);
+-- Perform select on it
+select * from tdtt081_1;
+-- Add values to it
+insert into tdtt081_1 values(1,time with time zone'01:01:01',time with time zone'01:01:01-05');
+-- Perform select on it
+select * from tdtt081_1;
+-- create view definition with date/time types in it
+create view tdtt081v as select time with time zone'01:01:01-05';
+-- Perform select on it
+select * from tdtt081v;
+-- create function definition with date/time types as parameters and return types
+create function tdtt081fd(time with time zone) returns time with time zone as $$samevalue^functions;
+-- Perform select on it
+select tdtt081fd(time with time zone'01:01:01-05');
+-- constraint
+create table tdtt081constraint(id integer primary key, dob time with time zone check(dob > time with time zone'02:00:00-05'));
+insert into tdtt081constraint values(1,time with time zone'01:01:01-05');
+insert into tdtt081constraint values(2,time with time zone'04:01:01-05');
+select * from tdtt081constraint;
+OCTO> create table tdtt081 (id int primary key, dot1 time with time zone, dot2 time with time zone) global "^tdtt081" readonly;
+CREATE TABLE
+OCTO> select * from tdtt081;
+id|dot1|dot2
+1|01:01:01-04|02:01:01-04
+(1 row)
+OCTO> create table tdtt081_1 (id int, dot1 time with time zone, dot2 time with time zone);
+CREATE TABLE
+OCTO> select * from tdtt081_1;
+id|dot1|dot2
+(0 rows)
+OCTO> insert into tdtt081_1 values(1,time with time zone'01:01:01',time with time zone'01:01:01-05');
+INSERT 0 1
+OCTO> select * from tdtt081_1;
+id|dot1|dot2
+1|01:01:01-04|02:01:01-04
+(1 row)
+OCTO> create view tdtt081v as select time with time zone'01:01:01-05';
+CREATE VIEW
+OCTO> select * from tdtt081v;
+???
+02:01:01-04
+(1 row)
+OCTO> create function tdtt081fd(time with time zone) returns time with time zone as $$samevalue^functions;
+CREATE FUNCTION
+OCTO> select tdtt081fd(time with time zone'01:01:01-05');
+tdtt081fd
+02:01:01-04
+(1 row)
+OCTO> create table tdtt081constraint(id integer primary key, dob time with time zone check(dob > time with time zone'02:00:00-05'));
+CREATE TABLE
+OCTO> insert into tdtt081constraint values(1,time with time zone'01:01:01-05');
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tdtt081constraint violates CHECK constraint tdtt081constraint_dob_check : Failing row contains (1, 02:01:01-04)
+OCTO> insert into tdtt081constraint values(2,time with time zone'04:01:01-05');
+INSERT 0 1
+OCTO> select * from tdtt081constraint;
+id|dob
+2|05:01:01-04
+(1 row)
+OCTO> 
+
+select * from tdtt081;
+select * from tdtt081_1;
+select * from tdtt081_1;
+select * from tdtt081v;
+select tdtt081fd(time with time zone'01:01:01-05');
+insert into tdtt081constraint values(2,time with time zone'07:01:01-05');
+select * from tdtt081constraint;
+OCTO> select * from tdtt081;
+id|dot1|dot2
+1|01:01:01-04|02:01:01-04
+(1 row)
+OCTO> select * from tdtt081_1;
+id|dot1|dot2
+1|01:01:01-04|02:01:01-04
+(1 row)
+OCTO> select * from tdtt081_1;
+id|dot1|dot2
+1|01:01:01-04|02:01:01-04
+(1 row)
+OCTO> select * from tdtt081v;
+???
+02:01:01-04
+(1 row)
+OCTO> select tdtt081fd(time with time zone'01:01:01-05');
+tdtt081fd
+02:01:01-04
+(1 row)
+OCTO> insert into tdtt081constraint values(2,time with time zone'07:01:01-05');
+[ERROR]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint "tdtt081constraint_pkey" : Key (id)=(2) already exists
+OCTO> select * from tdtt081constraint;
+id|dob
+2|05:01:01-04
+(1 row)
+OCTO> 
+Diff between before and after upgrade
+5c5,6
+< (0 rows)
+---
+> 1|01:01:01-04|02:01:01-04
+> (1 row)

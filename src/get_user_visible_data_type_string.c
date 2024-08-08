@@ -155,7 +155,7 @@ int get_user_visible_data_type_string(SqlDataTypeStruct *data_type_ptr, char *re
 		PRINT_DATE_TIME_FORMAT(data_type_ptr->format, ptr, avail, len);
 		ptr += len;
 		avail -= len;
-		len = snprintf(ptr, avail, "%s", "WITH TIME ZONE");
+		len = snprintf(ptr, avail, "%s", " WITH TIME ZONE");
 		if ((0 > len) || (len >= avail)) {
 			assert(FALSE);
 			return -1;

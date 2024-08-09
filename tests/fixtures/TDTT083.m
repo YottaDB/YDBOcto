@@ -286,14 +286,15 @@ genTime();
 	set minute=$$genMinute
 	set second=$$genSecond
 	set microsecond=$$genMicroSecond
-	set time=hour_":"_minute_":"_second_microsecond
+	set time=$$getSeparator_hour_":"_minute_":"_second_microsecond
 	quit time
 genTimeWithTimeZone();
 	; 00:00:00.000000-15:59 to 23:59:59.999999+15:59
 	quit $$genTime_$$genTimeZone
 genTimestamp();
 	; 0000-01-01 00:00:00.000000 to 9999-12-31 23:59:59.999999
-	quit $$genDate_" "_$$genTime
+	; Randomly T is used as the separator between date and time
+	quit $$genDate_$$genTime
 genTimestampWithTimeZone();
 	; 0000-01-01 00:00:00.000000-15:59 to 9999-12-31 23:59:59.999999+15:59 (01-JAN-0000 00:00:00.000000-15:59 to 31-DEC-9999 23:59:59.999999+15:59)
 	quit $$genTimestamp_$$genTimeZone
@@ -341,6 +342,10 @@ genTimestampZUT();
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Helper functions
+getSeparator()
+	set randInt=$random(3)
+	quit $select(randInt=2:"t",randInt=1:"T",1:" ")
+
 genTimeZone();
 	; -15:59 to +15:59
 	set sign=$select($random(2):"+",1:"-")

@@ -114,6 +114,7 @@ localtime|0|1083|null|null|null|null
 localtimestamp|0|1114|null|null|null|null
 current_timestamp|0|1184|null|null|null|null
 current_time|0|1266|null|null|null|null
+date_format|2|1043|1114 1043|null|null|null
 date_format|2|1043|1184 1043|null|null|null
 date_format|2|1043|1043 1043|null|null|null
 date_to_fileman|1|1700|1082|null|null|null

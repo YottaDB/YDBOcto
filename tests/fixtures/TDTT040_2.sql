@@ -119,8 +119,29 @@ select * from test;
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp) global "^timestamptext" readonly;
 select * from test;
+-- ISO 8601
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time) global "^timetextiso" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetextiso" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetextiso" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp) global "^timestamptextiso" readonly;
+select * from test;
 
 -- Edge cases they are not suppose to generate an error
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;
+select * from test;
+-- ISO 8601
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone) global "^edgecaseiso" readonly;
 select * from test;

@@ -216,15 +216,18 @@ Literals
        date(fileman)'2320101'
        date(zut)'1701123704344883'
        timestamp '2023-01-01 01:01:01'
+       timestamp '2023-01-01T01:01:01'
        timestamp(horolog)'66475,3661'
        timestamp(fileman)'3230101.010101'
        timestamp with time zone '2023-01-01 01:01:01.567555-05:00'
        timestamp with time zone '2023-01-01 01:01:01.567555-08:30'
+       timestamp with time zone '2023-01-01T01:01:01.567555-08:30'
        timestamp with time zone '2023-01-01 01:01:01-08:30'
        timestamp(zhorolog) with time zone '66885,44246,905676,18000'
        time '01:01:01.567555'
+       time 'T01:01:01.567555'
 
-  * Subsecond information is specified after the second with a period as shown in examples above. 1-6 digits can be used to specify the value.
+  * Subsecond information is specified after the second with a period as shown in examples above. Subseconds after microsecond precision are ignored.
   * Time zone information is specified after seconds without space and can be a value in the range ``-15:59:59`` to ``+15:59:59``. ``:`` is required between hours, minutes and seconds.
     Time zone fields have to be specified with 2 digits. Minutes and seconds are optional. ``+00:00`` or ``+00`` should be used for UTC.
 
@@ -351,7 +354,7 @@ Readonly Table
 
   .. code-block::
 
-     TEXT     - value has to be in HH:MM:SS.UUUUUU format where HH is hours, MM is minutes, SS is seconds and UUUUUU is subsecond
+     TEXT     - value has to be in HH:MM:SS.UUUUUU format where HH is hours, MM is minutes, SS is seconds and UUUUUU is subsecond. ``THH`` instead of ``HH`` is allowed as well.
      FILEMAN  - not allowed
      HOROLOG  - 2nd part of $HOROLOG, example: 3661
      ZHOROLOG - value has to be in $ZHOROLOG format. Empty values are accepted. Example: "66787,3661,," or  ",3661,,"
@@ -361,7 +364,7 @@ Readonly Table
 
   .. code-block::
 
-     TEXT     - value has to follow the syntax:``"DATE TIME"``. Date and Time itself are specified as shown in ``DATE`` and ``TIME`` sections above
+     TEXT     - value has to follow the syntax:``"DATE TIME"`` or ``"DATEtTIME"``. Date and Time itself are specified as shown in ``DATE`` and ``TIME`` sections above
      FILEMAN  - YYYMMDD.HHMMSS
      HOROLOG  - value equivalent to $HOROLOG, example: "66475,3661"
      ZHOROLOG - value equivalent to $ZHOROLOG, example: "66795,53635,237558,"
@@ -381,7 +384,7 @@ Readonly Table
 
   .. code-block::
 
-     TEXT     - value has to follow the syntax:``"DATE TIME+/-TIMEZONE"``. Refer to previous ``DATE``,``TIME`` and ``TIME WITH TIME ZONE`` sections for the syntax of each field
+     TEXT     - value has to follow the syntax:``"DATE TIME+/-TIMEZONE"`` or ``"DATEtTIME+/-TIMEZONE. Refer to previous ``DATE``,``TIME`` and ``TIME WITH TIME ZONE`` sections for the syntax of each field
      FILEMAN  - YYYMMDD.HHMMSS
      HOROLOG  - value equivalent to $HOROLOG, example: "66475,3661"
      ZHOROLOG - value equivalent to $ZHOROLOG, example: "66795,53635,237558,18000"
@@ -554,7 +557,7 @@ Date/time Functions
     * CURRENT_TIMESTAMP -> returns :code:`TIMESTAMP WITH TIME ZONE`
     * DAY(DATE) -> returns :code:`VARCHAR`
     * DAYOFMONTH(DATE) -> returns :code:`VARCHAR`
-    * DATE_FORMAT(DATE,VARCHAR) -> returns :code:`VARCHAR`
+    * DATE_FORMAT(TIMESTAMP,VARCHAR) -> returns :code:`VARCHAR`
     * date_to_fileman(DATE) -> returns :code:`NUMERIC`
     * timestamp_to_fileman(TIMESTAMP) -> returns :code:`NUMERIC`
     * timestamptz_to_fileman(TIMESTAMP WITH TIME ZONE) -> returns :code:`NUMERIC`

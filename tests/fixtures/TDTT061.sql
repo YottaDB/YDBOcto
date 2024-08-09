@@ -12,5 +12,7 @@
 
 create table TDTT061 (id integer primary key, dob date);
 insert into TDTT061 values (1, '2023-12-31');
+insert into TDTT061 values(2, '2023-12-31 01:01:01');
+insert into TDTT061 values(3, '2023-12-31T01:01:01');
 select * from TDTT061;
 drop table TDTT061;

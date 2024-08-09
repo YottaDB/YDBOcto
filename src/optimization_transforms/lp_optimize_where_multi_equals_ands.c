@@ -140,14 +140,48 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		/* Fall through */
 	case LP_BOOLEAN_IS:
 	case LP_BOOLEAN_EQUALS:
+		// We only check whether optimization can be done when the left or right value is a column alias
+		if ((LP_COLUMN_ALIAS == left->type) || (LP_COLUMN_ALIAS == right->type)) {
+			SqlValueType left_type, right_type;
+			left_type = lp_get_plan_value_type(left);
+			right_type = lp_get_plan_value_type(right);
+			if ((!IS_DATE(left_type)) || (!IS_DATE(right_type))) {
+				/*
+				 * TIMESTAMP readonly table values in TEXT format can have T or space as the beginning of a time
+				 * value, similarly TIME can begin with T, cannot fix value in this case as its not possible to know
+				 * which character to use while forming the subscript to match aim data.
+				 *
+				 * DATE values in TEXT format is okay as it can only be yyyy-mm-dd (or the order set by datestyle).
+				 */
+				boolean_t do_not_optimize = FALSE;
+				if (LP_COLUMN_ALIAS == left->type) {
+					SqlColumnAlias *ca = left->v.lp_column_alias.column_alias;
+					if ((!IS_DATE(left_type))
+					    && (OPTIONAL_DATE_TIME_TEXT == ca->column->v.column->data_type_struct.format)) {
+						IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+					}
+				}
+				if (!do_not_optimize && (LP_COLUMN_ALIAS == right->type)) {
+					SqlColumnAlias *ca = right->v.lp_column_alias.column_alias;
+					if ((!IS_DATE(right_type))
+					    && (OPTIONAL_DATE_TIME_TEXT == ca->column->v.column->data_type_struct.format)) {
+						IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+					}
+				}
+				if (do_not_optimize) {
+					return where;
+					break;
+				}
+			}
+		}
 		break;
 	case LP_BOOLEAN_LESS_THAN:
 	case LP_BOOLEAN_GREATER_THAN:
 	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 		if ((IS_DATE_TIME_TYPE(lp_get_plan_value_type(left))) || (IS_DATE_TIME_TYPE(lp_get_plan_value_type(right)))) {
-			/* Readonly table optimization leads to wrong results as cross reference of date/time values will have
-			 * ordering based on string format.
+			/* Readonly table optimization leads to wrong results as cross reference of date/time values will
+			 * have ordering based on string format.
 			 */
 			boolean_t do_not_optimize = FALSE;
 			if (LP_COLUMN_ALIAS == left->type) {

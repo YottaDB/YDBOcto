@@ -240,6 +240,8 @@ OCTO> drop function current_timestamp();
 [ERROR]: ERR_INVALID_DROP: Dropping "current_timestamp" is disallowed as it is a system object
 OCTO> drop function current_time();
 [ERROR]: ERR_INVALID_DROP: Dropping "current_time" is disallowed as it is a system object
+OCTO> drop function date_format(TIMESTAMP, VARCHAR);
+[ERROR]: ERR_INVALID_DROP: Dropping "date_format" is disallowed as it is a system object
 OCTO> drop function date_format(TIMESTAMP WITH TIME ZONE, VARCHAR);
 [ERROR]: ERR_INVALID_DROP: Dropping "date_format" is disallowed as it is a system object
 OCTO> drop function date_format(VARCHAR, VARCHAR);

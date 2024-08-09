@@ -55,7 +55,7 @@
 			for (i = 0; i < 8; i++) {                                                     \
 				/* HH or HH:MM or HH:MM:SS */                                         \
 				if ((2 == i) || (5 == i)) {                                           \
-					if (IS_END(LIT_C)) {                                          \
+					if (IS_END(LIT_C) || (' ' == *LIT_C)) {                       \
 						break;                                                \
 					} else if (':' == *(LIT_C)) {                                 \
 						/* Valid */                                           \
@@ -93,9 +93,6 @@
 					}                                                             \
 				}                                                                     \
 				LIT_C++;                                                              \
-			}                                                                             \
-			if (!IS_END(LIT_C)) {                                                         \
-				return 1;                                                             \
 			}                                                                             \
 		} else {                                                                              \
 			return 1;                                                                     \
@@ -227,7 +224,14 @@
 #define IS_HOUR_VALID(LIT_C)                                                                                                      \
 	{                                                                                                                         \
 		/* 00 - 23 */                                                                                                     \
+		/* or */                                                                                                          \
+		/* T00-T23*/                                                                                                      \
 		const char *c = LIT_C;                                                                                            \
+		if (('t' == *LIT_C) || ('T' == *LIT_C)) {                                                                         \
+			/* ISO 8601 allows time to begin with a T */                                                              \
+			LIT_C++;                                                                                                  \
+			c++;                                                                                                      \
+		}                                                                                                                 \
 		if (!IS_END(c) && IS_NUMBER(c)) {                                                                                 \
 			if (!IS_END(c) && IS_NUMBER(c + 1)) {                                                                     \
 				/* 2 digit time */                                                                                \
@@ -288,36 +292,39 @@
 		}                                                                                                                \
 	}
 
-#define IS_MICROSECOND_VALID(LIT_C)                                                                                     \
-	{                                                                                                               \
-		const char *c = LIT_C;                                                                                  \
-		if (!IS_END(c)) {                                                                                       \
-			if ('.' == *c) {                                                                                \
-				LIT_C++;                                                                                \
-				const char *mc = LIT_C;                                                                 \
-				if (IS_END(mc)) {                                                                       \
-					/* micro second part is empty */                                                \
-					return 1;                                                                       \
-				}                                                                                       \
-				for (int i = 1; i <= 6; i++) {                                                          \
-					if (IS_END(mc) || IS_GMT_OFFSET(mc)) {                                          \
-						/* has less number of digits than 6 */                                  \
-						break;                                                                  \
-					}                                                                               \
-					if (IS_NUMBER(mc)) {                                                            \
-						mc++;                                                                   \
-						LIT_C++;                                                                \
-					} else {                                                                        \
-						/* non numeric */                                                       \
-						return 1;                                                               \
-					}                                                                               \
-				}                                                                                       \
-			} else {                                                                                        \
-				/* Something is not right or time zone is present Let caller decide exit as there is no \
-				 * microsecond */                                                                       \
-				/*return 1; */                                                                          \
-			}                                                                                               \
-		}                                                                                                       \
+#define IS_MICROSECOND_VALID(LIT_C)                                                      \
+	{                                                                                \
+		const char *c = LIT_C;                                                   \
+		if (!IS_END(c)) {                                                        \
+			if ('.' == *c) {                                                 \
+				LIT_C++;                                                 \
+				const char *mc = LIT_C;                                  \
+				if (IS_END(mc)) {                                        \
+					/* micro second part is empty */                 \
+					return 1;                                        \
+				}                                                        \
+				for (int i = 1; i <= 6; i++) {                           \
+					if (IS_END(mc) || IS_GMT_OFFSET(mc)) {           \
+						/* has less number of digits than 6 */   \
+						break;                                   \
+					}                                                \
+					if (IS_NUMBER(mc)) {                             \
+						mc++;                                    \
+						LIT_C++;                                 \
+					} else {                                         \
+						/* non numeric */                        \
+						return 1;                                \
+					}                                                \
+				}                                                        \
+				/* Ignore higher precision values*/                      \
+				while (IS_NUMBER(LIT_C)) {                               \
+					LIT_C++;                                         \
+				}                                                        \
+			} else {                                                         \
+				/* Something is not right or time zone is present.*/     \
+				/* Let caller decide, exit as there is no microsecond */ \
+			}                                                                \
+		}                                                                        \
 	}
 
 #define IS_SEC_VALID(LIT_C)                                                                                                      \
@@ -639,6 +646,12 @@ int is_date_time_literal_in_valid_format(SqlValueType date_time_type, char *lite
 	boolean_t   is_month_parsed = FALSE;
 	boolean_t   is_day_parsed = FALSE;
 	boolean_t   is_year_parsed = FALSE;
+	/* Skip arbitrary spaces before the actual value. strptime allows this but is not documented so it is removed later on in
+	 * ydboctoText2InternalFormatC.
+	 */
+	while (' ' == *lit_c) {
+		lit_c++;
+	}
 	while ('\0' != *fmt_c) {
 		switch (*fmt_c) {
 		case '%':
@@ -682,7 +695,19 @@ int is_date_time_literal_in_valid_format(SqlValueType date_time_type, char *lite
 				return 1;
 			}
 			if (*lit_c != *fmt_c) {
-				if ((' ' == *fmt_c) && IS_END(lit_c)) {
+				if ((' ' == *fmt_c) && (('T' == *lit_c) || ('t' == *lit_c))) {
+					if ((TIMESTAMP_LITERAL == date_time_type)
+					    || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type)) {
+						// This is valid, ISO 8601 allows time to begin with a T
+						lit_c++;
+						fmt_c++;
+						// Check if there are more T's this is allowed in Postgres so we allow that here too
+						while (('T' == *lit_c) || ('t' == *lit_c)) {
+							lit_c++;
+						}
+						continue;
+					}
+				} else if ((' ' == *fmt_c) && IS_END(lit_c)) {
 					if ((TIMESTAMP_LITERAL == date_time_type)
 					    || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type)) {
 						// This is a timestamp without time information. Consider this as valid.
@@ -692,7 +717,17 @@ int is_date_time_literal_in_valid_format(SqlValueType date_time_type, char *lite
 				// Literal doesn't match expected format
 				return 1;
 			} else {
-				lit_c++;
+				if (' ' == *lit_c) {
+					/* Allow arbitrary number of spaces between date and time. `strptime` accepts this. */
+					assert((' ' == *fmt_c)
+					       && ((TIMESTAMP_LITERAL == date_time_type)
+						   || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type)));
+					while (' ' == *lit_c) {
+						lit_c++;
+					}
+				} else {
+					lit_c++;
+				}
 			}
 			break;
 		default:
@@ -702,31 +737,64 @@ int is_date_time_literal_in_valid_format(SqlValueType date_time_type, char *lite
 		}
 		fmt_c++;
 	}
-	if ('\0' != *lit_c) {
+	if (!IS_END(lit_c)) {
 		// The input has more characters than what the format allows. This is in-valid
 		if (is_time_zone_allowed) {
+			if (' ' == *lit_c) {
+				while (' ' == *lit_c) {
+					// Skip white spaces
+					lit_c++;
+				}
+				if (!IS_END(lit_c)) {
+					return 1;
+				}
+			}
 			IS_TIME_ZONE(lit_c);
 		} else {
-			if ((' ' == *lit_c) && (DATE_LITERAL == date_time_type) && is_year_parsed && is_month_parsed
-			    && is_day_parsed) {
+			if (((' ' == *lit_c) || ('T' == *lit_c) || ('t' == *lit_c)) && (DATE_LITERAL == date_time_type)
+			    && is_year_parsed && is_month_parsed && is_day_parsed) {
 				// '01-01-2023 01:01:01 is a valid date
 				// Do ensure remaining string is also valid
 				lit_c++;
-				IS_HOUR_VALID(lit_c);
-				if (':' == *lit_c) {
+				while (' ' == *lit_c) {
+					// Skip white spaces
 					lit_c++;
-				} else {
-					return 1;
 				}
-				IS_MIN_VALID(lit_c);
-				if (':' == *lit_c) {
-					lit_c++;
-				} else {
-					return 1;
+				if (!IS_END(lit_c)) {
+					IS_HOUR_VALID(lit_c);
+					if (':' == *lit_c) {
+						lit_c++;
+					} else {
+						return 1;
+					}
+					IS_MIN_VALID(lit_c);
+					if (':' == *lit_c) {
+						lit_c++;
+					} else {
+						return 1;
+					}
+					IS_SEC_VALID(lit_c);
+					if (' ' == *lit_c) {
+						while (' ' == *lit_c) {
+							// Skip white spaces
+							lit_c++;
+						}
+						if (!IS_END(lit_c)) {
+							return 1;
+						}
+					}
+					IS_TIME_ZONE(lit_c);
 				}
-				IS_SEC_VALID(lit_c);
-				IS_TIME_ZONE(lit_c);
 			} else {
+				if (' ' == *lit_c) {
+					while (' ' == *lit_c) {
+						// Skip white spaces
+						lit_c++;
+					}
+					if (!IS_END(lit_c)) {
+						return 1;
+					}
+				}
 				IS_TIME_ZONE(lit_c);
 			}
 		}
@@ -1017,6 +1085,66 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 		}                                           \
 		RET = lcl_micro;                            \
 	}
+
+/* This function converts a given date/time value to the date/time value expected by ydboctoText2InternalFormatC().
+ *
+ * Changes done:
+ *   1) `T` is replaced with a space. If `T` appears as the first character (can happen if value belongs to TIME type) it is
+ * ignored. 2) Sub-seconds greater than 6 precision is removed 3) Return value is NULL terminated as its needed by
+ * ydboctoText2InternalFormatC()
+ *
+ * For ex:
+ *   1) 2024-02-21T13:31:48.05098021+07:00 -> 2024-02-21 13:31:48.050980+07:00
+ *   2) `T01:01:01` -> `01:01:01`
+ *
+ * Input:
+ * `length` is the size of `time_str`
+ *
+ * Output:
+ * `new_str` is return value
+ */
+void convert_to_std_time_lit(char *time_str, int length, char *new_str) {
+	assert(NULL != new_str);
+	int	  iter = 0, new_iter = 0;
+	int	  sub_second_count = 1;
+	boolean_t is_sub_second = FALSE;
+	while (iter < length) {
+		if (('T' == time_str[iter]) || ('t' == time_str[iter])) {
+			// Handle T separator
+			if (0 == iter) {
+				// The beginning character is a T, this can happen if the value is of time type, ignore it
+			} else {
+				/* Arbitrary number of T's can exist between date and time and this is replaced by spaces here.
+				 * Space in the format string passed to strptime() matches 0 or more spaces so we expect
+				 * the spaces added here to be processed correctly by later code that makes use of strptime().
+				 */
+				new_str[new_iter++] = ' ';
+			}
+		} else if ('.' == time_str[iter]) {
+			// Begin sub-second handling
+			is_sub_second = TRUE;
+			new_str[new_iter++] = time_str[iter];
+		} else if (is_sub_second) {
+			if (('+' == time_str[iter]) || ('-' == time_str[iter])) {
+				// End sub-second handling
+				is_sub_second = FALSE;
+				new_str[new_iter++] = time_str[iter];
+			} else if (sub_second_count <= 6) {
+				// Add to return array as precision is still less than 6
+				new_str[new_iter++] = time_str[iter];
+				sub_second_count++;
+			} else {
+				// This is a sub-second but we ignore these as its greater than 6 precision
+			}
+		} else {
+			// Add to return array as this is not a T or a sub-second
+			new_str[new_iter++] = time_str[iter];
+		}
+		iter++;
+	}
+	// Null terminate the result
+	new_str[new_iter] = '\0';
+}
 
 ydb_long_t utc_mktime(struct tm *tm1) {
 	ydb_long_t ret;
@@ -1363,13 +1491,12 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 	struct tm tm1;
 	// 0-initialize fields of tm struct
 	memset(&tm1, 0, sizeof(struct tm));
-	/* Null terminate date string for use in strptime. This is needed
-	 * since ydb_string_ts are not guaranteed to be null terminated.
+	/* A TEXT format input can have literals of different kinds (2024-02-21T13:31:48.05098021+07:00,
+	 * 2024-02-21 13:31:48.05098021+07:00). Convert them to Y-M-D H:M:S.UUUUUU+/-timezone and NULL terminate the string
+	 * as it is needed by strptime and a ydb_string_t is not guaranteed to be null terminated.
 	 */
-	char *time_str;
-	time_str = ydb_malloc(op1->length + 1); // Null terminator
-	memcpy(time_str, op1->address, op1->length);
-	time_str[op1->length] = '\0';
+	char *time_str = ydb_malloc(op1->length + 1);
+	convert_to_std_time_lit(op1->address, op1->length, time_str);
 
 	boolean_t include_time_zone = FALSE;
 	// If time is not included then micro_second and timezone will not be used so don't bother processing them

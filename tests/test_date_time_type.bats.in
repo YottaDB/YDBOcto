@@ -27,6 +27,8 @@ teardown() {
 }
 
 @test "TDTT002 : OCTO382 : Validate that date and time text format input to a date/time column in a readwrite table works" {
+	# TDTT002 uses cross check function to validate date/time functionality
+	# TDTT003 is used to validate the same but with formats which cannot be used with cross check
 	test_port=$(start_rocto 1400 -aw)
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT002.sql
 }
@@ -521,6 +523,11 @@ teardown() {
 	yottadb -run %XCMD 'SET ^tstexttz(2)="04-01-2023 01:01:01-05:00"'
 	yottadb -run %XCMD 'SET ^tstexttz(3)="02-01-2023 00:00:00+00:00"'
 	yottadb -run %XCMD 'SET ^tstexttz(4)="02-01-2023 00:00:00-06:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(0)="02-01-2023T01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(1)="03-01-2023T01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(2)="04-01-2023T01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(3)="02-01-2023T00:00:00+00:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(4)="02-01-2023T00:00:00-06:00"'
 	yottadb -run %XCMD 'set ^fileman(1)="a5|b5|9830811"'
 	yottadb -run %XCMD 'set ^fileman(2)="a6|b6|0740528"'
 	yottadb -run %XCMD 'set ^fileman(3)="a7|b7|4950816"'
@@ -558,7 +565,7 @@ teardown() {
 	echo "# ----------------------------------------------------------------------------" >> output.txt
 	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
 	echo "# ----------------------------------------------------------------------------" >> output.txt
-	cat _ydboctoP*.m >> output.txt
+	grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
 	rm _ydbocto*.m
 	yottadb -run %XCMD 'kill ^text'
 	yottadb -run %XCMD 'kill ^fileman'
@@ -566,7 +573,7 @@ teardown() {
 	echo "# ----------------------------------------------------------------------------" >> output.txt
 	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
 	echo "# ----------------------------------------------------------------------------" >> output.txt
-	cat _ydboctoP*.m >> output.txt
+	grep -r "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
 	verify_output TDTT044 output.txt nodatetimefilter noinfo nodebug
 }
 
@@ -1163,6 +1170,12 @@ teardown() {
 
 @test "TDTT068 : Validate edge case with microseconds" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT068.sql
+	# Max precision is 6, values greater than that are ignored
+	yottadb -run %XCMD 'SET ^TDTT068(1)="2024-02-21T13:31:48.05098021111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"'
+	yottadb -run %XCMD 'SET ^TDTT068(2)="2024-02-21T13:31:48.05098021111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111+07:00"'
+	yottadb -run %XCMD 'SET ^TDTT068(3)="2024-02-21T13:31:48.0509802111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111+07:00"'
+	load_fixture TDTT068_2.sql subtest novv
+	verify_output TDTT068 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT069 : Validate that fileman readonly table queries comparison operation works fine" {
@@ -1518,4 +1531,14 @@ teardown() {
 	yottadb -run %XCMD 'SET ^datet(1)="2023-01-01"'
 	load_fixture TDTT101.sql subtest novv
 	verify_output TDTT101 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT102 : Validate that arbitrary spaces are allowed at the beginning and end, and between date and time; Validated arbitrary T's allowed between date and time" {
+	stop_rocto
+	test_port=$(start_rocto 1400 -aw)
+	# Following routine creates queries and creates the global for readonly table used in TDTT102_octo.sql
+	$ydb_dist/yottadb -r tdtt102^datetime >> input.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names input.sql
+	load_fixture TDTT102_octo.sql subtest novv
+	verify_output TDTT102_octo output.txt nodatetimefilter noinfo nodebug
 }

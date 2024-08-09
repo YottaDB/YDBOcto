@@ -1,0 +1,18 @@
+
+create table tdtt102timestamp(id int primary key, dob timestamp) global "^tdtt102timestamp(keys(""id""))" readonly;
+select * from tdtt102timestamp;
+create table tdtt102timestamptz(id int primary key, dob timestamp with time zone) global "^tdtt102timestamptz(keys(""id""))" readonly;
+select * from tdtt102timestamptz;
+OCTO> create table tdtt102timestamp(id int primary key, dob timestamp) global "^tdtt102timestamp(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from tdtt102timestamp;
+id|dob
+1|2023-01-01 01:01:01
+(1 row)
+OCTO> create table tdtt102timestamptz(id int primary key, dob timestamp with time zone) global "^tdtt102timestamptz(keys(""id""))" readonly;
+CREATE TABLE
+OCTO> select * from tdtt102timestamptz;
+id|dob
+1|2023-01-01 01:01:01-05
+(1 row)
+OCTO> 

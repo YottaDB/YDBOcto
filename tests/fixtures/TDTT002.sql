@@ -43,3 +43,35 @@ create table test2wt (id int, dob timestamp with time zone);
 insert into test2wt values(1,timestamp with time zone'2023-01-01 11:00:00-08:30');
 insert into test2wt values(2,timestamp with time zone'2023-01-01 11:00:00-08:00');
 select * from test2wt;
+
+-- ISO 8601 format
+-- Timestamp
+-- YYYY-MM-DDTHH:MM:SS.uuuuuu
+-- without timezone
+drop table if exists test;
+create table test (id int, dob timestamp);
+insert into test values(1,timestamp'2023-01-01T11:00:00.111111');
+insert into test values(2,timestamp'2023-01-01T11:00:00.111111111111');
+insert into test values(3,timestamp without time zone'2023-01-02T11:22:00');
+insert into test values(4,timestamp'2023-01-01 11:00:00.111111');
+select * from test;
+
+-- Time
+-- THH:MM:SS
+-- without timezone
+drop table if exists test;
+create table test (id int, tob time);
+insert into test values(1, time 'T11:00:00');
+insert into test values(2, time without time zone 'T15:00:00');
+insert into test values(3, time '11:00:00');
+select * from test;
+
+-- Timestamp with time zone
+-- YYYY-MM-DDTHH:MM:SS.uuuuuu-/+HHMM
+-- with timezone
+drop table if exists test2wt;
+create table test2wt (id int, dob timestamp with time zone);
+insert into test2wt values(1,timestamp with time zone'2023-01-01T11:00:00.111111-08:30');
+insert into test2wt values(2,timestamp with time zone'2023-01-01T11:00:00.1111111111111-08:00');
+insert into test2wt values(3,timestamp with time zone'2023-01-01 11:00:00.111111-08:30');
+select * from test2wt;

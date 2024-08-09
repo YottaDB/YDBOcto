@@ -37,3 +37,17 @@ insert into flmn values (5, 'a9', 'b9', '7180309');
 select t.id as t_id, t.dateofbirth as t_dateofbirth from txt t order by dateofbirth;
 select f.id as f_id, f.dateofbirth as f_dateofbirth from flmn f order by dateofbirth;
 select t.id as t_id,f.id as f_id,t.dateofbirth,f.dateofbirth from txt t, flmn f where t.dateofbirth = f.dateofbirth;
+
+create table testrwtexttziso(id int primary key, dob timestamp with time zone);
+insert into testrwtexttziso values(0, timestamp with time zone'2023-02-01T01:01:01-05:00');
+insert into testrwtexttziso values(1, timestamp with time zone'2023-03-01T01:01:01-05:00');
+insert into testrwtexttziso values(2, timestamp with time zone'2023-04-01T01:01:01-05:00');
+insert into testrwtexttziso values(3, timestamp with time zone'2023-02-01T00:00:00+00:00');
+insert into testrwtexttziso values(4, timestamp with time zone'2023-02-01T00:00:00-06:00');
+select * from testrwtexttziso;
+select * from testrwtexttziso where dob > date'2023-02-01';
+select * from testrwtexttziso where dob between date'2023-02-01' and date(fileman)'3230301';
+select * from testrwtexttziso where dob > timestamp with time zone'2023-03-01T01:01:01-05';
+select * from testrwtexttziso where dob = timestamp with time zone'2023-03-01T01:01:01-05';
+select * from testrwtexttziso where dob > timestamp with time zone'2023-03-01 01:01:01-05';
+select * from testrwtexttziso where dob = timestamp with time zone'2023-03-01 01:01:01-05';

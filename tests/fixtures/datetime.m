@@ -285,12 +285,108 @@ datetimeerrorglobal
 	set ^timestampwithtimezonetext(6)="9999-12-31 23:59:59.999999+15:59"
 	set ^timestampwithtimezonetext(7)="9999-12-31 23:59:59.999999+16:00"
 	set ^timestampwithtimezonetext(8)=""
+	; ISO 8601
+	set ^timetextiso(0)="T00:00:00.000000"
+	set ^timetextiso(1)="T00:00:00"
+	set ^timetextiso(2)="T23:59:59.999999"
+	set ^timetextiso(3)="T23:59:59"
+	set ^timetextiso(4)="T23:59:59.1000000"
+	set ^timetextiso(5)="T24:00:00.000000"
+	set ^timetextiso(6)="-T01:00:00"
+	set ^timetextiso(7)="T01:-01:00"
+	set ^timetextiso(8)="T00:60:00"
+	set ^timetextiso(9)="T00:00:60"
+	set ^timetextiso(10)=""
+	set ^timetextiso(11)="t00:00:00.000000"
+	set ^timetextiso(12)="t00:00:00"
+	set ^timetextiso(13)="t23:59:59.999999"
+	set ^timetextiso(14)="t23:59:59"
+	set ^timetextiso(15)="t23:59:59.1000000"
+	set ^timetextiso(16)="t24:00:00.000000"
+	set ^timetextiso(17)="-t01:00:00"
+	set ^timetextiso(18)="t01:-01:00"
+	set ^timetextiso(19)="t00:60:00"
+	set ^timetextiso(20)="t00:00:60"
+
+
+	set ^timewithtimezonetextiso(0)="T00:00:00.000000-16:00"
+	set ^timewithtimezonetextiso(1)="T00:00:00.000000-15:59"
+	set ^timewithtimezonetextiso(2)="T00:00:00.000000+15:59"
+	set ^timewithtimezonetextiso(3)="T00:00:00.000000+16:00"
+	set ^timewithtimezonetextiso(4)="T23:59:59.999999-16:00"
+	set ^timewithtimezonetextiso(5)="T23:59:59.999999-15:59"
+	set ^timewithtimezonetextiso(6)="T23:59:59.999999+15:59"
+	set ^timewithtimezonetextiso(7)="T23:59:59.999999+16:00"
+	set ^timewithtimezonetextiso(8)=""
+	set ^timewithtimezonetextiso(9)="t00:00:00.000000-16:00"
+	set ^timewithtimezonetextiso(10)="t00:00:00.000000-15:59"
+	set ^timewithtimezonetextiso(11)="t00:00:00.000000+15:59"
+	set ^timewithtimezonetextiso(12)="t00:00:00.000000+16:00"
+	set ^timewithtimezonetextiso(13)="t23:59:59.999999-16:00"
+	set ^timewithtimezonetextiso(14)="t23:59:59.999999-15:59"
+	set ^timewithtimezonetextiso(15)="t23:59:59.999999+15:59"
+	set ^timewithtimezonetextiso(16)="t23:59:59.999999+16:00"
+
+	set ^timestamptextiso(0)="0000-01-01"
+	set ^timestamptextiso(1)="0100-01-01"
+	set ^timestamptextiso(2)="0010-01-01"
+	set ^timestamptextiso(3)="0001-01-01"
+	set ^timestamptextiso(4)="0000-01-01T00:00:00"
+	set ^timestamptextiso(5)="0100-01-01T00:00:00"
+	set ^timestamptextiso(6)="0010-01-01T00:00:00"
+	set ^timestamptextiso(7)="0001-01-01T00:00:00"
+	set ^timestamptextiso(8)="1000-01-010T00:00:00"
+	set ^timestamptextiso(9)="0000-01-01T00:00:00.000000"
+	set ^timestamptextiso(10)="9999-12-31T23:59:59.999999"
+	set ^timestamptextiso(11)="9999-12-31T23:59:59"
+	set ^timestamptextiso(12)="9999-12-31T23:59:60"
+	set ^timestamptextiso(13)="0000-01-01T23:60:59"
+	set ^timestamptextiso(14)="9999-12-31T23:59:59.1000000"
+	set ^timestamptextiso(15)=""
+	set ^timestamptextiso(16)="0000-01-01t00:00:00"
+	set ^timestamptextiso(17)="0100-01-01t00:00:00"
+	set ^timestamptextiso(18)="0010-01-01t00:00:00"
+	set ^timestamptextiso(19)="0001-01-01t00:00:00"
+	set ^timestamptextiso(20)="1000-01-010t00:00:00"
+	set ^timestamptextiso(21)="0000-01-01t00:00:00.000000"
+	set ^timestamptextiso(22)="9999-12-31t23:59:59.999999"
+	set ^timestamptextiso(23)="9999-12-31t23:59:59"
+	set ^timestamptextiso(24)="9999-12-31t23:59:60"
+	set ^timestamptextiso(25)="0000-01-01t23:60:59"
+	set ^timestamptextiso(26)="9999-12-31t23:59:59.1000000"
+
+	set ^timestampwithtimezonetextiso(0)="0000-01-01T00:00:00.000000-16:00"
+	set ^timestampwithtimezonetextiso(1)="0000-01-01T00:00:00.000000-15:59"
+	set ^timestampwithtimezonetextiso(2)="0000-01-01T00:00:00.000000+15:59"
+	set ^timestampwithtimezonetextiso(3)="0000-01-01T00:00:00.000000+16:00"
+	set ^timestampwithtimezonetextiso(4)="9999-12-31T23:59:59.999999-16:00"
+	set ^timestampwithtimezonetextiso(5)="9999-12-31T23:59:59.999999-15:59"
+	set ^timestampwithtimezonetextiso(6)="9999-12-31T23:59:59.999999+15:59"
+	set ^timestampwithtimezonetextiso(7)="9999-12-31T23:59:59.999999+16:00"
+	set ^timestampwithtimezonetextiso(8)=""
+	set ^timestampwithtimezonetextiso(9)="0000-01-01t00:00:00.000000-16:00"
+	set ^timestampwithtimezonetextiso(10)="0000-01-01t00:00:00.000000-15:59"
+	set ^timestampwithtimezonetextiso(11)="0000-01-01t00:00:00.000000+15:59"
+	set ^timestampwithtimezonetextiso(12)="0000-01-01t00:00:00.000000+16:00"
+	set ^timestampwithtimezonetextiso(13)="9999-12-31t23:59:59.999999-16:00"
+	set ^timestampwithtimezonetextiso(14)="9999-12-31t23:59:59.999999-15:59"
+	set ^timestampwithtimezonetextiso(15)="9999-12-31t23:59:59.999999+15:59"
+	set ^timestampwithtimezonetextiso(16)="9999-12-31t23:59:59.999999+16:00"
 
 	; edge cases
 	set ^edgecase(0)="2024-01-01 01:01:01.7323"
 	set ^edgecase(1)="2024-01-01 01:01:01.732300-05:00"
 	set ^edgecase(2)="2024-01-01 01:01:01.73230-05:00"
 	set ^edgecase(3)="2024-01-01 01:01:01.7323-05:00"
+	; ISO 8601
+	set ^edgecaseiso(0)="2024-01-01T01:01:01.7323"
+	set ^edgecaseiso(1)="2024-01-01T01:01:01.732300-05:00"
+	set ^edgecaseiso(2)="2024-01-01T01:01:01.73230-05:00"
+	set ^edgecaseiso(3)="2024-01-01T01:01:01.7323-05:00"
+	set ^edgecaseiso(4)="2024-01-01t01:01:01.7323"
+	set ^edgecaseiso(5)="2024-01-01t01:01:01.732300-05:00"
+	set ^edgecaseiso(6)="2024-01-01t01:01:01.73230-05:00"
+	set ^edgecaseiso(7)="2024-01-01t01:01:01.7323-05:00"
 	QUIT
 
 datetimemglobal
@@ -1196,7 +1292,8 @@ genCreateInsertSelectDateTimeValues
 	. . . . . set second=$random(60) ; 0-59
 	. . . . . set time=hour_":"_minute_":"_second
 	. . . . . set:(0=$random(3)) time=time_"."_$random(1000000) ; add microseconds 0-999999
-	. . . . . set:('doNotIncludeDate) lclstr=lclstr_" "
+	. . . . . set:('doNotIncludeDate) lclstr=lclstr_$select(1=$random(2):" ",1:"T")
+	. . . . . set:(doNotIncludeDate&(1=$random(2))) time="T"_time
 	. . . . . set lclstr=lclstr_time
 	. . . . if includeTimezone do
 	. . . . . ; include time zone information as this is a timestamp with time zone
@@ -1664,4 +1761,52 @@ tdtt090()
 	set val(6,3)="timestamp with time zone'2023-01-01 01:01:01'"
 	set val(6,4)="time with time zone'01:01:01'"
 	for i=0:1:4 do unionQueries(val(6),val(6,i))
+	quit
+
+; Return queries with arbitrary number of spaces between date and time of a timestamp, also towards the start and end of a literal
+tdtt102()
+	new randInt
+	set randInt=$random(10)+1 ; 1-11
+	set spaceStr=""
+	for i=1:1:randInt set spaceStr=spaceStr_" "
+	; date
+	write "select date'"_spaceStr_"2023-01-01';",!
+	write "select date'2023-01-01"_spaceStr_"';",!
+	write "select date'2023-01-01"_spaceStr_"01:01:01';",!
+	write "select date'2023-01-01 01:01:01"_spaceStr_"';",!
+	write "select date'"_spaceStr_"2023-01-01 01:01:01';",!
+	; timestamp
+	write "select timestamp'"_spaceStr_"2023-01-01';",!
+	write "select timestamp'2023-01-01 01:01:01"_spaceStr_"';",!
+	write "select timestamp'2023-01-01"_spaceStr_"01:01:01';",!
+	write "select timestamp'2023-01-01 01:01:01"_spaceStr_"';",!
+	write "select timestamp'"_spaceStr_"2023-01-01 01:01:01';",!
+	; timestamp with time zone
+	write "select timestamp with time zone'"_spaceStr_"2023-01-01';",!
+	write "select timestamp with time zone'2023-01-01 01:01:01-05:00"_spaceStr_"';",!
+	write "select timestamp with time zone'2023-01-01"_spaceStr_"01:01:01-05:00';",!
+	write "select timestamp with time zone'2023-01-01 01:01:01-05:00"_spaceStr_"';",!
+	write "select timestamp with time zone'"_spaceStr_"2023-01-01 01:01:01-05:00';",!
+	; time
+	write "select time'"_spaceStr_"01:01:01';",!
+	write "select time'01:01:01-05:00"_spaceStr_"';",!
+	write "select time'01:01:01"_spaceStr_"';",!
+	write "select time'"_spaceStr_"01:01:01-05:00';",!
+	write "select time'"_spaceStr_"01:01:01';",!
+	; timestamp and timestamp with timezone with arbitrary number of T's inbetween date and time
+	set tStr=""
+	for i=1:1:randInt set tStr=tStr_" "
+	write "select timestamp'2023-01-01"_tStr_"01:01:01';",!
+	write "select timestamp with time zone'2023-01-01"_tStr_"01:01:01-05:00';",!
+	write "drop table if exists timestamptdtt102rw;",!
+	write "create table timestamptdtt102rw (id int, dob timestamp);",!
+	write "insert into timestamptdtt102rw values(1,timestamp'2023-01-01"_tStr_"01:01:01');",!
+	write "select * from timestamptdtt102rw;",!
+	write "drop table if exists timestamptztdtt102rw;",!
+	write "create table timestamptztdtt102rw (id int, dob timestamp with time zone);",!
+	write "insert into timestamptztdtt102rw values(1,timestamp with time zone'2023-01-01"_tStr_"01:01:01-05');",!
+	write "select * from timestamptztdtt102rw;",!
+	set ^tdtt102timestamp(1)="2023-01-01"_tStr_"01:01:01"
+	set ^tdtt102timestamptz(1)="2023-01-01"_tStr_"01:01:01-05"
+
 	quit

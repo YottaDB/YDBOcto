@@ -26,6 +26,15 @@ select * from testrtexttz;
 select * from testrtexttz where dob > date'02-01-2023';
 select * from testrtexttz where dob between date'02-01-2023' and date(fileman)'3230301';
 
+create table testrtexttziso(id int primary key, dob timestamp with time zone) GLOBAL "^tstexttziso" readonly;
+select * from testrtexttziso;
+select * from testrtexttziso where dob > date'02-01-2023';
+select * from testrtexttziso where dob between date'02-01-2023' and date(fileman)'3230301';
+select * from testrtexttziso where dob > timestamp with time zone'03-01-2023T01:01:01-05';
+select * from testrtexttziso where dob = timestamp with time zone'03-01-2023T01:01:01-05';
+select * from testrtexttziso where dob > timestamp with time zone'03-01-2023 01:01:01-05';
+select * from testrtexttziso where dob = timestamp with time zone'03-01-2023 01:01:01-05';
+
 set datestyle='YMD';
 drop table if exists txt;
 create table txt (id integer primary key, firstname varchar, lastname varchar, dateofbirth date) GLOBAL "^text" READONLY;

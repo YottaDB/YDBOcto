@@ -402,7 +402,7 @@
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
  */
-#define FMT_SEED_DEFINITION 9
+#define FMT_SEED_DEFINITION 10
 
 #define FMT_SEED_DEFINITION_OCTO929                                                 \
 	7 /* The value of FMT_SEED_DEFINITION when YDBOcto#929 changes were merged. \

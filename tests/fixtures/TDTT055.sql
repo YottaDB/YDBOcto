@@ -27,17 +27,21 @@ drop table if exists tdtt055;
 create table tdtt055 (id int, dob date);
 insert into tdtt055 values(1,timestamp'2023-01-01 01:01:01');
 insert into tdtt055 values(1,timestamp with time zone'2023-01-01 01:01:01');
+insert into tdtt055 values(1,timestamp'2023-01-01T01:01:01');
+insert into tdtt055 values(1,timestamp with time zone'2023-01-01T01:01:01');
 insert into TDTT055 values(1,date'2023-01-01');
 
 drop table if exists tdtt055;
 create table tdtt055 (id int, dob timestamp);
 insert into tdtt055 values(1,date'2023-01-01');
 insert into tdtt055 values(1,timestamp with time zone'2023-01-01 01:01:01');
+insert into tdtt055 values(1,timestamp with time zone'2023-01-01T01:01:01');
 insert into tdtt055 values(1,timestamp'2023-01-01 01:01:01');
 
 drop table if exists tdtt055;
 create table tdtt055 (id int, tob time with time zone);
 insert into tdtt055 values(1,time'01:01:01');
+insert into tdtt055 values(1,time'T01:01:01');
 insert into tdtt055 values(1,time with time zone'01:01:01');
 
 drop table if exists dt;

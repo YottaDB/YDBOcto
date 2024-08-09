@@ -108,10 +108,31 @@ select * from test;
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp) global "^timestamptext" readonly;
 select * from test;
+-- ISO 8601
+-- type:time
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time) global "^timetextiso" readonly;
+select * from test;
+-- type:time with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetextiso" readonly;
+select * from test;
+-- type:timestamp with time zone
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetextiso" readonly;
+select * from test;
+-- type:timestamp
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp) global "^timestamptextiso" readonly;
+select * from test;
 
 -- Edge cases they are not suppose to generate an error
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;
+select * from test;
+-- ISO 8601
+drop table if exists test keepdata;
+create table test (id integer primary key, dob timestamp with time zone) global "^edgecaseiso" readonly;
 select * from test;
 OCTO> --(horolog)
 drop table if exists test keepdata;
@@ -286,7 +307,7 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob time) global "^timetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "23:59:59.1000000" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "24:00:00.000000" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetext" readonly;
@@ -307,6 +328,30 @@ OCTO> select * from test;
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010 00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> drop table if exists test keepdata;
 DROP TABLE
+OCTO> create table test (id integer primary key, dob time) global "^timetextiso" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "T24:00:00.000000" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetextiso" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "T00:00:00.000000-16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetextiso" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01T00:00:00.000000-16:00" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp) global "^timestamptextiso" readonly;
+CREATE TABLE
+OCTO> select * from test;
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010T00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
+OCTO> drop table if exists test keepdata;
+DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;
 CREATE TABLE
 OCTO> select * from test;
@@ -316,4 +361,19 @@ id|dob
 2|2024-01-01 01:01:01.7323-05
 3|2024-01-01 01:01:01.7323-05
 (4 rows)
+OCTO> drop table if exists test keepdata;
+DROP TABLE
+OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^edgecaseiso" readonly;
+CREATE TABLE
+OCTO> select * from test;
+id|dob
+0|2024-01-01 01:01:01.7323-05
+1|2024-01-01 01:01:01.7323-05
+2|2024-01-01 01:01:01.7323-05
+3|2024-01-01 01:01:01.7323-05
+4|2024-01-01 01:01:01.7323-05
+5|2024-01-01 01:01:01.7323-05
+6|2024-01-01 01:01:01.7323-05
+7|2024-01-01 01:01:01.7323-05
+(8 rows)
 OCTO> 

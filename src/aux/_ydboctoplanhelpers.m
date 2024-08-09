@@ -365,6 +365,8 @@ Text2UnixTime(inputStr,type,format)
 	QUIT:""=inputStr $ZYSQLNULL
 	NEW result
 	DO initDateTimeTypes
+	; Trim the value as this makes further processing difficult
+	SET inputStr=$$FUNC^%TRIM(inputStr)
 	IF (date=type)  ; no modifications here
 	ELSE  IF (time=type) DO
 	. SET:(format["%z") format=$PIECE(format,"%z")
@@ -383,8 +385,9 @@ Text2UnixTime(inputStr,type,format)
 	. ; Add additional 00 to match %z
 	. NEW timezone SET timezone=""
 	. IF (inputStr["+") SET timezone=$piece(inputStr,"+",2)
-	. ELSE  IF (inputStr["-") DO
-	. . SET timezone=$piece(inputStr," ",2)
+	. ELSE  IF (inputStr[":") DO
+	. . ; We check for `:` because `-` can match date's delimiter too
+	. . SET timezone=$extract(inputStr,$find(inputStr,":"),$length(inputStr))
 	. . SET timezone=$piece(timezone,"-",2)
 	. IF (2=$length(timezone)) DO
 	. . SET inputStr=inputStr_":00"

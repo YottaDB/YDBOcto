@@ -124,6 +124,7 @@ CREATE TABLE
 ^%ydboctoocto("functions","current_timestamp","%ydboctoFDQ6JGUH09PC6hkixWBkrFA","text",0)="CREATE FUNCTION `current_timestamp`() RETURNS TIMESTAMP WITH TIME ZONE AS $$^%ydboctofCURRENTTIMESTAMP;"
 ^%ydboctoocto("functions","current_user","%ydboctoFcNpldiKXji26WJGw1Tp3JC","text",0)="CREATE FUNCTION `current_user`() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;"
 ^%ydboctoocto("functions","date_format","%ydboctoF9P0pmaJ3w4gayviYZe5eLC","text",0)="CREATE FUNCTION `date_format`( TIMESTAMP WITH TIME ZONE,  VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT;"
+^%ydboctoocto("functions","date_format","%ydboctoFRg2S7J7tx7pJSINAi7gZJJ","text",0)="CREATE FUNCTION `date_format`( TIMESTAMP,  VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT;"
 ^%ydboctoocto("functions","date_format","%ydboctoFSYmo7FkIv5w2DyFc3Uf1A7","text",0)="CREATE FUNCTION `date_format`( VARCHAR,  VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT;"
 ^%ydboctoocto("functions","date_to_fileman","%ydboctoF2u7LK2ZNqO3zRlDOzjh272","text",0)="CREATE FUNCTION `date_to_fileman`( DATE(FILEMAN)) RETURNS NUMERIC AS $$FILEMAN^%ydboctofTODTFORMAT;"
 ^%ydboctoocto("functions","date_to_horolog","%ydboctoFWD6SBWWmpAZEKps9ZJ8h26","text",0)="CREATE FUNCTION `date_to_horolog`( DATE(HOROLOG)) RETURNS VARCHAR AS $$HOROLOG^%ydboctofTODTFORMAT;"

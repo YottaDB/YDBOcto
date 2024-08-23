@@ -33,6 +33,11 @@ initDateTimeTypes
 	SET filemanFormat=34			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_FILEMAN
 	SET zutFormat=35			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_ZUT
 	SET textFormat=36			; Refers to OptionalKeyword.OPTIONAL_DATE_TIME_TEXT
+	; Additionally check if env ydb_xc_octo is set
+	; If not set, set it to $ydb_dist/plugin/octo/ydbocto.xc
+	IF (""=$ZTRNLNM("ydb_xc_octo")) DO
+	. IF (""'=$GET(^%ydboctoocto("xc_path"),"")) VIEW "SETENV":"ydb_xc_octo":^%ydboctoocto("xc_path"); DISABLE_INSTALL ON
+	. ELSE  VIEW "SETENV":"ydb_xc_octo":$ZTRNLNM("ydb_dist")_"/plugin/octo/ydbocto.xc"; DISABLE_INSTALL OFF
 	QUIT
 
 ; Convert the given unix time value to local time zone value
@@ -360,11 +365,48 @@ Text2FilemanTime(inputStr)
 	SET result=hour_minute_second
 	QUIT result
 
-Text2UnixTime(inputStr,type,format)
+; Following routine transforms date/time input of a format specified to internal format value
+; Input:
+;	inputStr - date/time input value
+;	type - date/time SqlValueType
+;	dtformat - date/time SqlDataType
+;	textFormatSpecifier - format specifier for date/time values of TEXT format
+; 	isReadWrite - 1 if user wants error to be thrown for invalid input otherwise "" is returned
+; Output:
+;	INVALIDDATETIMEVALUE error for invalid input
+;	"" for invalid input
+;	internal format value when input is valid
+Transform2UnixTime(inputStr,type,dtformat,textFormatSpecifier,isReadWrite)
+	; Handle exception cases in input
 	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
-	QUIT:""=inputStr $ZYSQLNULL
-	NEW result
+	QUIT:""=inputStr ""
 	DO initDateTimeTypes
+	; Do the actual transformation
+	NEW result
+	if (textFormat=dtformat) set result=$$Text2UnixTime(inputStr,type,textFormatSpecifier)
+	else  if (horologFormat=dtformat) set result=$$Horolog2UnixTime(inputStr,type)
+	else  if (filemanFormat=dtformat) set result=$$Fileman2UnixTime(inputStr,type)
+	else  if (zhorologFormat=dtformat) set result=$$ZHorolog2UnixTime(inputStr,type)
+	else  if (zutFormat=dtformat) set result=$$ZUT2UnixTime(inputStr,type)
+	else  QUIT "" ; unexpected format
+	; Handle error return by throwing an error
+	; If input is invalid (result="") and isReadWrite is 1 throw an error
+	IF ((""=result)&(1=$GET(isReadWrite,0))) DO
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
+	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=textFormat
+	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	; Handling error return without throwing an error
+	;  If result is invalid and above code did not process it, return result which is "", Octo will treat this as ZYSQLNULL.
+	;  Also, this call could have been from a TRIGGER, returning "" allows the trigger processing to proceed in
+	;   addition to allowing Octo to treat such values as ZYSQLNULL.
+	; Handling valid case
+	;  If result is valid then internal format value will be stored in `result` return it.
+	QUIT result
+
+; Returns "" for invalid input else internal format data
+Text2UnixTime(inputStr,type,format)
+	NEW result
 	; Trim the value as this makes further processing difficult
 	SET inputStr=$$FUNC^%TRIM(inputStr)
 	IF (date=type)  ; no modifications here
@@ -392,26 +434,16 @@ Text2UnixTime(inputStr,type,format)
 	. IF (2=$length(timezone)) DO
 	. . SET inputStr=inputStr_":00"
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,textFormat,format)
-	IF (result) DO
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=textFormat
-	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	QUIT:result ""; return "" if inputStr is invalid
 	IF (date=type)!(time=type)!(timeWithTimeZone=type)!(timestamp=type)!(timestampWithTimeZone=type) DO
 	. SET result=$&octo.ydboctoText2InternalFormatM(inputStr,format)
 	QUIT result
 
+; Returns "" for invalid input else internal format data
 Horolog2UnixTime(inputStr,type)
-	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
-	QUIT:""=inputStr $ZYSQLNULL
 	NEW result
-	DO initDateTimeTypes
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,horologFormat)
-	IF (result) DO
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=horologFormat
-	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	QUIT:result ""; return "" if inputStr is invalid
 	SET inputStr=$$Horolog2Text(inputStr,type)
 	IF (date=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y")
 	ELSE  IF (time=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%H:%M:%S")
@@ -420,19 +452,11 @@ Horolog2UnixTime(inputStr,type)
 	ELSE  IF (timestampWithTimeZone=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y %H:%M:%S%z")
 	QUIT result
 
+; Returns "" for invalid input else internal format data
 Fileman2UnixTime(inputStr,type)
-	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
-	QUIT:""=inputStr $ZYSQLNULL
 	NEW result
-	DO initDateTimeTypes
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,filemanFormat)
-	IF (1=result) DO
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=filemanFormat
-	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
-	ELSE  IF (2=result) QUIT $ZYSQLNULL ; This is the case where a column value is being processed,
-				            ; just return ZYSQLNULL.
+	QUIT:result ""; return "" if inputStr is invalid
 	SET inputStr=$$Fileman2Text(inputStr,type)
 	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
 	IF (date=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y")
@@ -440,17 +464,11 @@ Fileman2UnixTime(inputStr,type)
 	ELSE  IF (timestampWithTimeZone=type) SET result=$&octo.ydboctoText2InternalFormatM(inputStr,"%m/%d/%Y %H:%M:%S%z")
 	QUIT result
 
+; Returns "" for invalid input else internal format data
 ZHorolog2UnixTime(inputStr,type)
-	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
-	QUIT:""=inputStr $ZYSQLNULL
 	NEW result
-	DO initDateTimeTypes
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,zhorologFormat)
-	IF (result) DO
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=zhorologFormat
-	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	QUIT:result ""; return "" if inputStr is invalid
 	SET inputStr=$$ZHorolog2Text(inputStr,type)
 	IF (date=type) DO
 	. SET format="%m/%d/%Y"
@@ -465,18 +483,12 @@ ZHorolog2UnixTime(inputStr,type)
 	SET result=$&octo.ydboctoText2InternalFormatM(inputStr,format)
 	QUIT result
 
+; Returns "" for invalid input else internal format data
 ZUT2UnixTime(inputStr,type)
-	QUIT:$ZYISSQLNULL(inputStr) $ZYSQLNULL
-	QUIT:""=inputStr $ZYSQLNULL
 	; validate input
 	NEW result
-	DO initDateTimeTypes
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,zutFormat)
-	IF (result) DO
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",1)=inputStr  ; pass parameter to `src/ydb_error_check.c`
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",2)=type
-	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=zutFormat
-	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
+	QUIT:result ""; return "" if inputStr is invalid
 	; Extract seconds and microseconds. Following code determines whether input is +ve or -ve then based on the number of
 	; digits present seconds and micro seconds are extracted.
 	NEW input SET input=inputStr

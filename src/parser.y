@@ -2573,7 +2573,7 @@ literal_value
 	const char *text_format;
 	GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(value->type, text_format);
 	if (1 == validate_date_time_value(&value->v.string_literal,
-			value->type, value->date_time_format_type, (char *)text_format,TRUE)) {
+			value->type, value->date_time_format_type, (char *)text_format)) {
 		char *format_str;
 		DATE_TIME_FORMAT_STRING(value->date_time_format_type, format_str);
 		ERROR(ERR_INVALID_DATE_TIME_VALUE, value->v.string_literal, get_user_visible_type_string(value->type)

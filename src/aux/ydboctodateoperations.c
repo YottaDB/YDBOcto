@@ -469,24 +469,14 @@ int is_time_zone_in_zhorolog_range(char *literal) {
 	}
 	return 0;
 }
-#define ERROR_RETURN(IS_PARSER_CALL)                                                                                              \
-	{                                                                                                                         \
-		if (!IS_PARSER_CALL) {                                                                                            \
-			/* Allow it so that its treated as $ZYSQLNULL */                                                          \
-			/* Only used during fileman value validation call from src/aux/_ydboctoplanhelpers.m -> Fileman2Unix() */ \
-			return 2;                                                                                                 \
-		} else {                                                                                                          \
-			return 1;                                                                                                 \
-		}                                                                                                                 \
-	}
 
-int is_date_in_fileman_range(char *literal, boolean_t is_parser_call) {
+int is_date_in_fileman_range(char *literal) {
 	// Expect `.` in the literal
 	int  length = 0;
 	char year[4], month[3], day[3];
 	if (('-' == literal[length]) || ('+' == literal[length])) {
 		// Do not expect any symbols
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 	while (('.' != literal[length]) && ('\0' != literal[length])) {
 		length++;
@@ -496,9 +486,9 @@ int is_date_in_fileman_range(char *literal, boolean_t is_parser_call) {
 		// YYYMMDD. OR YYYMMDD
 		if ((3 == length) && ('\0' == literal[length])) {
 			// This is YYY
-			ERROR_RETURN(is_parser_call);
+			return 1;
 		} else {
-			ERROR_RETURN(is_parser_call);
+			return 1;
 		}
 	}
 	if ('.' == literal[length]) {
@@ -527,20 +517,20 @@ int is_date_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	assert((0 <= year_int) && (999 >= year_int));
 	assert((0 <= mon_int) && (0 <= day_int));
 	if ((12 < mon_int) || (31 < day_int)) {
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 	// Validate in-exact dates
 	if (0 == year_int) {
 		// error
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	} else if ((0 == mon_int) && (0 != day_int)) {
 		// error
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 	return 0;
 }
 
-int is_time_in_fileman_range(char *literal, boolean_t is_parser_call) {
+int is_time_in_fileman_range(char *literal) {
 	// Expect `.` in the literal
 	int length = 0, time_len;
 	while (('.' != literal[length]) && ('\0' != literal[length])) {
@@ -555,7 +545,7 @@ int is_time_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	if (6 < time_len) {
 		// time part too long
 		// HHMMSS
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 	char hour[3], min[3], sec[3];
 	hour[0] = sec[0] = min[0] = '0';
@@ -575,39 +565,39 @@ int is_time_in_fileman_range(char *literal, boolean_t is_parser_call) {
 	ATOI(hour, hour_int);
 	if ((2 == time_len) && ((10 == hour_int) || (20 == hour_int))) {
 		// 10 or 20 for hour is invalid when minute and second is absent
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	} else if ((1 == time_len) && (3 <= hour_int)) {
 		// A single digit hour should not be greater than 2 (2960124.3)
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 
 	int min_int;
 	ATOI(min, min_int);
 	if ((3 == time_len) && (6 <= min_int)) {
 		// A single digit minute should not be greater than 5 (2960124.166)
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 
 	int sec_int;
 	ATOI(sec, sec_int);
 	if ((5 == time_len) && (6 <= sec_int)) {
 		// A single digit second should not be greater than 5 (2960124.16266)
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 
 	if (24 < hour_int) {
-		ERROR_RETURN(is_parser_call);
+		return 1;
 	}
 	if (24 == hour_int) {
 		if ((0 != min_int) || (0 != sec_int)) {
-			ERROR_RETURN(is_parser_call);
+			return 1;
 		} // else 240000
 	} else {
 		if (59 < min_int) {
-			ERROR_RETURN(is_parser_call);
+			return 1;
 		}
 		if (59 < sec_int) {
-			ERROR_RETURN(is_parser_call);
+			return 1;
 		}
 	}
 	return 0;
@@ -869,8 +859,7 @@ int is_date_time_value_in_zut_range(char *value, SqlValueType type) {
 
 /* This function validates the given literal to be a valid date_time_type and internal_format value.
  */
-int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, OptionalKeyword internal_format, char *text_format,
-			     boolean_t is_parser_call) {
+int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, OptionalKeyword internal_format, char *text_format) {
 	int   ret = 0;
 	char *literal = *literal_ptr;
 	switch (internal_format) {
@@ -882,7 +871,7 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			if (0 != ret) {
 				ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 1);
 				if (0 != ret) {
-					return ret;
+					break;
 				}
 			}
 			ret = is_date_in_horolog_range(literal);
@@ -890,36 +879,36 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			// Check that only decimal digits exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 0);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 		} else if (TIMESTAMP_LITERAL == date_time_type) {
 			// Check that only decimal digits and 1 `,` exists
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 1);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_date_in_horolog_range(literal);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 		} else if (TIME_WITH_TIME_ZONE_LITERAL == date_time_type) {
 			// Check that only decimal digits exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 0);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 		} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type) {
 			// Check that only decimal digits and 1 `,` exists
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 1);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_date_in_horolog_range(literal);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 		}
@@ -929,51 +918,51 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			// Check that only decimal digits exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 3);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_date_in_horolog_range(literal);
 		} else if (TIME_LITERAL == date_time_type) {
 			// Check that only decimal digits exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 3);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 		} else if (TIMESTAMP_LITERAL == date_time_type) {
 			// Check that only decimal digits and 1 `,` exists
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 3);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_date_in_horolog_range(literal);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 		} else if (TIME_WITH_TIME_ZONE_LITERAL == date_time_type) {
 			// Check that only decimal digits and max 4 `,` exists
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 3);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_zone_in_zhorolog_range(literal);
 		} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type) {
 			// Check that only decimal digits and max 4 `,` exists
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, ',', 3);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_date_in_horolog_range(literal);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_in_horolog_range(literal);
 			if (0 != ret) {
-				return ret;
+				break;
 			}
 			ret = is_time_zone_in_zhorolog_range(literal);
 		}
@@ -986,12 +975,12 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 				ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 1); // no time info
 				if (0 != ret) {
 					assert(1 == ret);
-					ERROR_RETURN(is_parser_call);
+					return ret;
 				}
 			}
-			ret = is_date_in_fileman_range(literal, is_parser_call);
+			ret = is_date_in_fileman_range(literal);
 		} else if (TIME_LITERAL == date_time_type) {
-			ret = -1;
+			return -1; // This is strictly not allowed
 		} else if (TIMESTAMP_LITERAL == date_time_type) {
 			// Check that only decimal digits and a period exist
 			ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 1);
@@ -999,14 +988,15 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 				ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 0); // no time info
 				if (0 != ret) {
 					assert(1 == ret);
-					ERROR_RETURN(is_parser_call);
+					return ret;
 				}
 			}
-			ret = is_date_in_fileman_range(literal, is_parser_call);
+			ret = is_date_in_fileman_range(literal);
 			if (0 != ret) {
+				assert(1 == ret);
 				return ret;
 			}
-			ret = is_time_in_fileman_range(literal, is_parser_call);
+			ret = is_time_in_fileman_range(literal);
 		} else if (TIME_WITH_TIME_ZONE_LITERAL == date_time_type) {
 			ret = -1;
 		} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type) {
@@ -1016,14 +1006,15 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 				ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 0); // no time info
 				if (0 != ret) {
 					assert(1 == ret);
-					ERROR_RETURN(is_parser_call);
+					return ret;
 				}
 			}
-			ret = is_date_in_fileman_range(literal, is_parser_call);
+			ret = is_date_in_fileman_range(literal);
 			if (0 != ret) {
+				assert(1 == ret);
 				return ret;
 			}
-			ret = is_time_in_fileman_range(literal, is_parser_call);
+			ret = is_time_in_fileman_range(literal);
 		}
 		break;
 	case OPTIONAL_DATE_TIME_ZUT:
@@ -1031,6 +1022,7 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 		// Check that only decimal digits exist
 		ret = is_all_numbers_and_has_specified_num_of_delims(literal, '.', 0);
 		if (0 != ret) {
+			assert(1 == ret);
 			return ret;
 		}
 		ret = is_date_time_value_in_zut_range(literal, date_time_type);
@@ -1042,6 +1034,7 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 		assert(FALSE);
 		break;
 	}
+	assert((0 == ret) || (1 == ret));
 	return ret;
 }
 
@@ -1848,7 +1841,6 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
  * Returns:
  * 	0 on success
  *	1 on error
- *	2 when a fileman date/time value is invalid.
  */
 ydb_int_t ydboctoValidateDateTimeValueC(int count, ydb_string_t *value, ydb_int_t value_type, ydb_int_t value_format,
 					ydb_string_t *text_format) {
@@ -1866,7 +1858,7 @@ ydb_int_t ydboctoValidateDateTimeValueC(int count, ydb_string_t *value, ydb_int_
 		memcpy(text_format_str, text_format->address, text_format->length);
 		text_format_str[text_format->length] = '\0';
 	}
-	int ret = validate_date_time_value(&value_str, vt, vf, text_format_str, FALSE);
+	int ret = validate_date_time_value(&value_str, vt, vf, text_format_str);
 	ydb_free(orig_value_str);
 	if (NULL != text_format_str) {
 		ydb_free(text_format_str);

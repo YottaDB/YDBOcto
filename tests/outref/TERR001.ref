@@ -1,1 +1,1 @@
-[ERROR]: ERR_YOTTADB: YottaDB error: 418809578,%ydboctoInit+49^%ydboctoInit,%YDB-E-ZGBLDIRACC, Cannot access global directory $PWD/does_not_exist.gld.  Cannot continue.,%SYSTEM-E-ENO2, No such file or directory
+[ERROR]: ERR_YOTTADB: YottaDB error: 418809578,(SimpleAPI),%YDB-E-ZGBLDIRACC, Cannot access global directory $PWD/does_not_exist.gld.  Cannot continue.,%SYSTEM-E-ENO2, No such file or directory

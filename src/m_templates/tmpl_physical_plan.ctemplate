@@ -141,10 +141,35 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 				%{},{{piece}}{}%
 			}
-			%{},0,0,1,2,{{aim_type|%d}},{}%
 
 			boolean_t	is_column_string_type = IS_COLUMN_STRING_TYPE(column);
-			%{}{{ is_column_string_type|%d }}){}%
+			// Enable optimization with tranformation functions after AIM supports type descibed in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1565#note_2100745009
+			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type) && (OPTIONAL_DATE_TIME_FILEMAN != column->data_type_struct.format)) {
+				%{},0,0,1,2,2,{}%
+				%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
+				// First argument will be added by AIM so nothing to add
+				// Add rest of the arguments
+				TMPL(tmpl_print_date_time_to_unix_time_args,
+				     get_sqlvaluetype_from_sqldatatype(
+							column->data_type_struct.data_type,
+							FALSE),
+				     column->data_type_struct.format, FALSE,TRUE);
+				// Close conversion routine
+				%{})"{}%
+				// Close XREF call
+				%{}){}%
+			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
+				%{},0,0,1,2,2,{}%
+				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
+				// Argument will be added by AIM so nothing to add here
+				// Close conversion routine
+				%{})"{}%
+				// Close XREF call
+				%{}){}%
+			} else {
+				%{},0,0,1,2,{{aim_type|%d}},{}%
+				%{}{{ is_column_string_type|%d }}){}%
+			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -203,8 +228,33 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 			%{},{{piece}}{}%
 			}
-			%{},1,0,1,2,{{aim_type|%d}},{}%
-			%{}{{ is_column_string_type|%d }}){}%
+			// Enable optimization with tranformation functions after AIM supports type descibed in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1565#note_2100745009
+			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type) && (OPTIONAL_DATE_TIME_FILEMAN != column->data_type_struct.format)) {
+				%{},1,0,1,2,2,{}%
+				%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
+				// First argument will be added by AIM so nothing to add
+				// Add rest of the arguments
+				TMPL(tmpl_print_date_time_to_unix_time_args,
+				     get_sqlvaluetype_from_sqldatatype(
+							column->data_type_struct.data_type,
+							FALSE),
+				     column->data_type_struct.format, FALSE,TRUE);
+				// Close conversion routine
+				%{})"{}%
+				// Close XREF call
+				%{}){}%
+			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
+				%{},0,0,1,2,2,{}%
+				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
+				// Argument will be added by AIM so nothing to add here
+				// Close conversion routine
+				%{})"{}%
+				// Close XREF call
+				%{}){}%
+			} else {
+				%{},1,0,1,2,{{aim_type|%d}},{}%
+				%{}{{ is_column_string_type|%d }}){}%
+			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%

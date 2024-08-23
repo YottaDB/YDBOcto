@@ -216,6 +216,8 @@ TEMPLATE(tmpl_print_date_time_addition, LogicalPlan *firstOperand, LogicalPlan *
 	 int depth, boolean_t *done);
 TEMPLATE(tmpl_print_date_time_subtraction, LogicalPlan *firstOperand, LogicalPlan *secondOperand, PhysicalPlan *pplan,
 	 int dot_count, int depth, boolean_t *done);
+TEMPLATE(tmpl_print_date_time_to_unix_time_args, SqlValueType date_time_value_type, OptionalKeyword date_time_format,
+	 boolean_t is_insert_query_call, boolean_t is_string);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count,
 	 int depth, int unique_id, boolean_t *done);
@@ -241,5 +243,5 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 	 int dot_count, UniqueConstraintLoopType loop_type);
 TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count);
 TEMPLATE(tmpl_identity_column, SqlColumn *column);
-TEMPLATE(tmpl_convert_to_unix_time, OptionalKeyword date_time_format);
+TEMPLATE(tmpl_convert_to_unix_time);
 #endif

@@ -263,6 +263,7 @@
 #define OCTOLIT_AIM_SUB_COMPLETED     "completed?"
 #define OCTOLIT_AIM_SUB_LOCATION      "location"
 #define OCTOLIT_AIM_SUB_CANCELXREF    "aimXref"
+#define OCTOLIT_XC_PATH		      "xc_path"
 
 /* YDBOcto#929 related macros */
 #define OCTOLIT_YDBOCTO929 "%ydbocto929"
@@ -1547,8 +1548,7 @@ int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlVal
 					      ParseContext *parse_context);
 int  validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key);
 int  validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table);
-int  validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, OptionalKeyword internal_format, char *text_format,
-			      boolean_t is_parser_call);
+int  validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, OptionalKeyword internal_format, char *text_format);
 int  set_date_time_format_from_datestyle(char *date_style_value);
 
 boolean_t table_has_hidden_column(SqlTable *table);

@@ -81,17 +81,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				 */
 				GET_LP(value, list, 0, LP_VALUE);
 				TMPL(tmpl_print_expression_assignment, value, pplan, dot_count, 0, key);
+				/* Remove the following IF block after https://gitlab.com/YottaDB/Util/YDBAIM/-/issues/78 is implemented
+				 * and Octo makes use of it to do key fixing of FILEMAN readonly table columns
+				 */
 				if (!key->table->readwrite) {
 					if (IS_DATE_TIME_DATA_TYPE(key->column->data_type_struct.data_type)) {
 						enum OptionalKeyword keyword = key->column->data_type_struct.format;
-						SqlValueType date_time_operand_type = get_sqlvaluetype_from_sqldatatype(key->column->data_type_struct.data_type, FALSE);
-						const char *datetime_text_format_specifier;
-						// Input format is used here as the global is expected to have input format
-						GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type, datetime_text_format_specifier);
-						TMPL(tmpl_print_dots, dot_count);
-						%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ date_time_operand_type|%d }},{{ keyword|%d }},"{{ datetime_text_format_specifier }}"){}%
-						%{}`n{{ PLAN_LINE_START }}{}%
 						if (OPTIONAL_DATE_TIME_FILEMAN == keyword) {
+							SqlValueType date_time_operand_type = get_sqlvaluetype_from_sqldatatype(key->column->data_type_struct.data_type, FALSE);
+							const char *datetime_text_format_specifier;
+							// Input format is used here as the global is expected to have input format
+							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type, datetime_text_format_specifier);
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ date_time_operand_type|%d }},{{ keyword|%d }},"{{ datetime_text_format_specifier }}"){}%
+							%{}`n{{ PLAN_LINE_START }}{}%
 							TMPL(tmpl_print_dots, dot_count);
 							%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 							/* AIM will store fileman dates starting and ending with a `0` as a string.
@@ -198,17 +201,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					%{}`n{{ PLAN_LINE_START }}{}%
 				} else {
 					TMPL(tmpl_print_expression_assignment, fixed_to_value, pplan, dot_count, 0, key);
+					/* Remove the following IF block after https://gitlab.com/YottaDB/Util/YDBAIM/-/issues/78 is implemented
+					 * and Octo makes use of it to do key fixing of FILEMAN readonly table columns
+					 */
 					if (!key->table->readwrite) {
 						if (IS_DATE_TIME_DATA_TYPE(key->column->data_type_struct.data_type)) {
 							enum OptionalKeyword keyword = key->column->data_type_struct.format;
-							SqlValueType date_time_operand_type = get_sqlvaluetype_from_sqldatatype(key->column->data_type_struct.data_type, FALSE);
-							const char *datetime_text_format_specifier;
-							// Input format is used here as the global is expected to have input format
-							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type, datetime_text_format_specifier);
-							TMPL(tmpl_print_dots, dot_count);
-							%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ date_time_operand_type|%d }},{{ keyword|%d }},"{{ datetime_text_format_specifier }}"){}%
-							%{}`n{{ PLAN_LINE_START }}{}%
 							if (OPTIONAL_DATE_TIME_FILEMAN == keyword) {
+								SqlValueType date_time_operand_type = get_sqlvaluetype_from_sqldatatype(key->column->data_type_struct.data_type, FALSE);
+								const char *datetime_text_format_specifier;
+								// Input format is used here as the global is expected to have input format
+								GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type, datetime_text_format_specifier);
+								TMPL(tmpl_print_dots, dot_count);
+								%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ date_time_operand_type|%d }},{{ keyword|%d }},"{{ datetime_text_format_specifier }}"){}%
+								%{}`n{{ PLAN_LINE_START }}{}%
 								TMPL(tmpl_print_dots, dot_count);
 								%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 								/* AIM will store fileman dates starting with a `0` as a string.

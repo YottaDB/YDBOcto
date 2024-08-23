@@ -1,0 +1,615 @@
+#################################################################
+#								#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TDTT049 : OCTO382 : Validate that the date/time values stored to db in one time zone is processed correctly when retrieved from another time zone" {
+	# This test needs the user who runs this test to haved CREATEDB permission to create
+	# a new database and alter its timezone.
+	# This test first writes date/time values to a table in one time zone and retrieves the stored data in another time zone
+	# Output from both text formatted input and other format input are compared and are expected to be same
+	# The validation happens first at the time zone in which date/time values are inserted and then again at the time zone in which stored date/time values
+	# are accessed.
+
+	# Generate test queries with date/time values in text format
+	# The test queries should contain create table, insert and select
+	$ydb_dist/yottadb -r genCreateInsertSelectDateTimeValues^datetime "0.1"
+
+	# Pick a time zone to start the test with
+	startVal=-$((($RANDOM%12)+1))
+	endVal=$(($RANDOM%15))
+	echo "startVal=$startVal, endVal=$endVal" >> timezone.txt
+	if [[ 1 -eq $(($RANDOM%2)) ]]; then
+		timezonehr=$startVal
+		echo "startVal selected" >> timezone.txt
+	else
+		timezonehr=$endVal
+		echo "endVal selected" >> timezone.txt
+		if [[ -f "zhorolog.range" ]] && [[ $timezonehr -gt 11 ]]; then
+			# Ensure timezone is not out of range of zhorolog if the time zone selected exceeds its range
+			timezonehr="12"
+			echo "value changed to 12 to be in zhorolog timezone range" >> timezone.txt
+		fi
+		timezonehr="+$timezonehr"
+	fi
+	if [[ 1 -eq $(($RANDOM%2)) ]]; then
+		# include timezone minutes
+		if [[ -12 -eq $timezonehr ]]; then
+			timezone="$timezonehr:00"
+		elif [[ 14 -eq $timezone ]]; then
+			timezone="$timezonehr:00"
+		else
+			if [[ -f "zhorolog.range" ]] && [[ $timezonehr -eq 12 ]]; then
+				# Ensure timezone is not out of range of zhorolog if the time zone selected exceeds its range
+				timezonemin="00"
+			else
+				timezonemin=$((($RANDOM%59)+1))
+				if [[ 10 -gt $timezonemin ]]; then
+					timezonemin="0$timezonemin"
+				fi
+			fi
+			timezone="$timezonehr:$timezonemin"
+		fi
+	else
+		timezone="$timezonehr"
+	fi
+	echo "timezone=$timezone" >> timezone.txt
+	export TZ=UTC$timezone # sets time zone for Octo
+	echo "TZ=$TZ" >> timezone.txt
+	databasename="tdtt049namestimezone"
+	create_postgres_database $databasename
+
+	# Modify the database to have the selected time zone
+	psql postgres -c "ALTER DATABASE $databasename SET timezone TO 'UTC$timezone'";
+	psql $databasename -c "show time zone" >> timezone.txt
+	echo "select time with time zone'01:01:01';" >> octo_timezone.txt
+	octo -f octo_timezone.txt >> octo_timezone_output.txt
+
+	# Extract only the select query out
+	grep -r "select" input.sql >> input_select.sql
+	# Remove select from input.sql
+	mv input.sql input_orig.sql
+	sed 's/select.*//g' input_orig.sql >> input.sql
+
+	# Its easy to start rocto before modifying TZ so ensure rocto is started right before its use so that we do not have to bother about its location everytime code related to TZ is changed.
+	stop_rocto
+	test_port=$(start_rocto 1400 -aw)
+	# Run the create and insert queries and validate the output
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databasename input.sql
+
+	# Run the select query and validate output
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databasename input_select.sql
+
+	# Consolidate Octo's output from execution of run_query_in_octo_and_postgres_and_crosscheck_multiple_queries().
+	# This test depends on all driver executions of cross check interface having Octo's results in files matching the pattern `input*.octo.out`.
+	cat input_select*.octo.out >> octo_text_select_output.txt
+	# Remove all but result values from date/time select query output
+	sed 's/???//g;s/(100 rows)//g;/^$/d' octo_text_select_output.txt >> octo_text_select_output_only_values.txt
+
+	for filename in fileman horolog zhorolog zut; do
+		if [[ -f "$filename.range" ]]; then
+			# $filename input format validation
+			echo "datetimeoutputformat = \"$filename\"" > octo.conf
+			# Get $filename output formatted values from text formatted input
+			octo -p -f input_select.sql 2>&1 | tee -a output.txt
+			mv output.txt "octo_text_to_""$filename""_select_output.txt"
+			sed 's/id|dob//g;s/OCTO>.*//g;s/???//g;s/(100 rows)//g;/^$/d' "octo_text_to_""$filename""_select_output.txt" >> "octo_text_to_""$filename""_select_output_only_values.txt"
+			# Form $filename insert values
+			if [[ -f date.type ]]; then
+				cmd="BEGIN{FS=\"|\";}{printf \"insert into test2 values(%d,date($filename)\047%s\047);\n\", \$1, \$2;}"
+			elif [[ -f timestamp.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesnt't allow microseconds
+					mv octo_text_select_output_only_values.txt octo_text_select_output_only_values_orig.txt
+					sed 's/\..*//g' octo_text_select_output_only_values_orig.txt >> octo_text_select_output_only_values.txt
+				fi
+				cmd="BEGIN{FS=\"|\";}{printf \"insert into test2 values(%d,timestamp($filename)\047%s\047);\n\", \$1, \$2;}"
+			elif [[ -f time.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesn't allow microseconds
+					mv octo_text_select_output_only_values.txt octo_text_select_output_only_values_orig.txt
+					sed 's/\..*//g' octo_text_select_output_only_values_orig.txt >> octo_text_select_output_only_values.txt
+				fi
+				cmd="BEGIN{FS=\"|\";}{printf \"insert into test2 values(%d,time($filename)\047%s\047);\n\", \$1, \$2;}"
+			elif [[ -f timestamp_with_time_zone.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesnt't allow microseconds
+					mv octo_text_select_output_only_values.txt octo_text_select_output_only_values_orig.txt
+					# Following sed will remove only the micro seconds
+					sed 's/\.[0-9]*\([-+]*.*\)/\1/g' octo_text_select_output_only_values_orig.txt >> octo_text_select_output_only_values.txt
+				fi
+				cmd="BEGIN{FS=\"|\";}{printf \"insert into test2 values(%d,timestamp($filename) with time zone\047%s\047);\n\", \$1, \$2;}"
+			else
+				# An unsupported type is seen
+				exit 1
+			fi
+			grep -r "select" input_format.sql >> input_select2.sql
+			# Remove select from input.sql
+			mv input_format.sql input_format_orig.sql
+			sed 's/select.*//g' input_format_orig.sql >> input_format.sql
+			cat input_format.sql >> "octo_""$filename""_insert_test.sql"
+			echo $cmd >> "test1.awk"
+			awk -f test1.awk "octo_text_to_""$filename""_select_output_only_values.txt" >> awk_output.txt
+			cat awk_output.txt >> "octo_""$filename""_insert_test.sql"
+			# Get text output formatted values from $filename formatted input
+			rm octo.conf
+			octo -p -f "octo_""$filename""_insert_test.sql" 2>&1 | tee -a "octo_""$filename""_insert_test_output.txt"
+			octo -p -f input_select2.sql 2>&1 | tee -a "octo_""$filename""_select_test_output.txt"
+			sed 's/id|dob//g;s/OCTO>.*//g;s/???//g;s/(100 rows)//g;/^$/d' "octo_""$filename""_select_test_output.txt" >> "octo_""$filename""_select_test_output_only_values.txt"
+			diff octo_text_select_output_only_values.txt "octo_""$filename""_select_test_output_only_values.txt"
+		fi
+	done
+
+	# Change the time zone
+	startVal=-$((($RANDOM%12)+1))
+	endVal=$(($RANDOM%15))
+	echo "startVal=$startVal, endVal=$endVal" >> timezone.txt
+	if [[ 1 -eq $(($RANDOM%2)) ]]; then
+		timezonehr=$startVal
+		echo "startVal selected" >> timezone.txt
+	else
+		timezonehr=$endVal
+		echo "endVal selected" >> timezone.txt
+		timezonehr="+$timezonehr"
+	fi
+	if [[ 1 -eq $(($RANDOM%2)) ]]; then
+		# include timezone minutes
+		if [[ -12 -eq $timezonehr ]]; then
+			timezone="$timezonehr:00"
+		elif [[ 14 -eq $timezonehr ]]; then
+			timezone="$timezonehr:00"
+		else
+			timezonemin=$((($RANDOM%59)+1))
+			if [[ 10 -gt $timezonemin ]]; then
+				timezonemin="0$timezonemin"
+			fi
+			timezone="$timezonehr:$timezonemin"
+		fi
+	else
+		timezone="$timezonehr"
+	fi
+	echo "timezone=$timezone" >> timezone.txt
+	export TZ=UTC$timezone # sets time zone for Octo
+	echo "TZ=$TZ" >> timezone.txt
+	psql $databasename -c "ALTER DATABASE $databasename SET timezone TO 'UTC$timezone'";
+	psql $databasename -c "show time zone" >> timezone.txt
+	octo -f octo_timezone.txt >> octo_timezone_output.txt
+
+	# Run select queries again and validate the output
+	cp input_select.sql input_select_after_tz_change.sql
+	# Its easy to start rocto before modifying TZ so ensure rocto is started right before its use so that we do not have to bother about its location everytime code related to TZ is changed.
+	stop_rocto
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databasename input_select_after_tz_change.sql
+
+	# Consolidate Octo's output from execution of run_query_in_octo_and_postgres_and_crosscheck_multiple_queries().
+	# This test depends on all driver executions of cross check interface having Octo's results in files matching the pattern `input*.octo.out`.
+	cat input_select_after_tz_change*.octo.out >> octo_text_select_output2.txt
+	# Remove all but result values from date/time select query output
+	sed 's/???//g;s/(100 rows)//g;/^$/d' octo_text_select_output2.txt >> octo_text_select_output_only_values2.txt
+
+	for filename in fileman horolog zhorolog zut; do
+		if [[ -f "$filename.range" ]]; then
+			cp input_select2.sql input_select2_after_tz_change.sql
+			octo -p -f input_select2_after_tz_change.sql 2>&1 | tee -a "octo_""$filename""_tzchange_select_test_output.txt"
+			sed 's/id|dob//g;s/OCTO>.*//g;s/???//g;s/(100 rows)//g;/^$/d' "octo_""$filename""_tzchange_select_test_output.txt" >> "octo_""$filename""_tzchange_select_test_output_only_values.txt"
+			if [[ ! -f date.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesnt't allow microseconds
+					mv octo_text_select_output_only_values2.txt octo_text_select_output_only_values2_orig.txt
+					sed 's/\.[0-9]*\([-+]*.*\)/\1/g' octo_text_select_output_only_values2_orig.txt >> octo_text_select_output_only_values2.txt
+				fi
+			fi
+			diff octo_text_select_output_only_values2.txt "octo_""$filename""_tzchange_select_test_output_only_values.txt"
+		fi
+	done
+
+	# Remove the database in Postgres created by the test
+	drop_postgres_database $databasename
+}
+
+@test "TDTT050 : OCTO382 : Test Timezone related edge case in different time zones" {
+	# This test needs the user who runs this test to haved CREATEDB permission to create
+	# a new database and alter its timezone
+	startVal=-$((($RANDOM%12)+1))
+	endVal=$(($RANDOM%15))
+	echo "startVal=$startVal, endVal=$endVal" >> output.txt
+	databasename="tdtt050namesutc"
+	create_postgres_database $databasename
+	if [[ 1 -eq $(($RANDOM%2)) ]]; then
+		timezone=$startVal
+	else
+		timezone=$endVal
+	fi
+	if [[ timezone -gt 0 ]]; then
+		timezone="+$timezone"
+	fi
+	echo "timezone=$timezone" >> output.txt
+	export TZ=UTC$timezone # sets time zone for Octo
+	echo "TZ=$TZ" >> timezone.txt
+	echo "timezone=$timezone" >> output.txt
+	psql $databasename -c "ALTER DATABASE $databasename SET timezone TO 'UTC$timezone'";
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databasename TDTT001.sql
+	drop_postgres_database $databasename
+}
+
+@test "TDTT051 : OCTO382 : Test leap year and leap second date/time values" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT051.sql "trim_trailing_zeroes"
+}
+
+@test "TDTT052 : OCTO382 : Test Postgres emulation and date/time inbuilt functions" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT052.sql "trim_trailing_zeroes"
+	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT052time.sql "postgres"
+}
+
+@test "TDTT053 : OCTO382 : Test MySql emulation and date/time inbuilt functions" {
+	# 1 test
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTT053.sql "trim_trailing_zeroes"
+	# 2 test
+	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT053localtime.sql "mysql"
+	# 3 test
+	# Queries tested below fail to produce same result in MySql. But we expect the output of both the queries to be 1.
+	# Hence cross check is avoided here and reference file is used for the result comparison
+	load_fixture TDTT053between.sql subtest novv
+	verify_output TDTT053between output.txt noinfo nodebug
+}
+
+@test "TDTT054 : OCTO382 : Test concat functions with 2 and 3 parameters" {
+	$ydb_dist/yottadb -r createconcatfunctiontest^datetime "TDTT054.sql"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT054.sql
+}
+
+@test "TDTT055 : OCTO382 : Test insert with mismatching type and value" {
+	test_port=$(start_rocto 1400 -aw)
+	load_fixture TDTT055_errors.sql subtest novv
+	verify_output TDTT055_errors output.txt nodatetimefilter noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT055.sql
+}
+
+@test "TDTT056 : OCTO382 : Test NULL values in date/time columns" {
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT056_1.sql
+
+	yottadb -run %XCMD 'SET ^datetimezut(0)="1700255690324907"'
+	yottadb -run %XCMD 'SET ^datetimezut(1)=""'
+	yottadb -run %XCMD 'SET ^datetimezhorolog(0)="66795,58565,521473,18000"'
+	yottadb -run %XCMD 'SET ^datetimezhorolog(1)=""'
+	yottadb -run %XCMD 'SET ^datetimehorolog(0)="66795,58565"'
+	yottadb -run %XCMD 'SET ^datetimehorolog(1)=""'
+	yottadb -run %XCMD 'SET ^datetimefileman(0)="3230101.010101"'
+	yottadb -run %XCMD 'SET ^datetimefileman(1)=""'
+	yottadb -run %XCMD 'SET ^datetimetext(0)="2023-01-01"'
+	yottadb -run %XCMD 'SET ^datetimetext(1)=""'
+	load_fixture TDTT056_2.sql subtest novv
+	verify_output TDTT056_2 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT057 : OCTO382 : Check date/time type column and literal format specification error cases for column definition in CREATE TABLE/CREATE FUNCTION and literal specification" {
+	# ZUT and ZHOROLOG is tested here all other formats are expected to work similarly
+	load_fixture TDTT057.sql subtest novv
+	verify_output TDTT057 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT058 : OCTO382 : Validate behavior of group by date/time literals" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture TDTT058.sql subtest
+	verify_output TDTT058 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT059 : OCTO382 : Validate cast date/time value to a different date/time format" {
+	load_fixture TDTT059.sql subtest novv
+	verify_output TDTT059 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT060 : OCTO382 : Validate date/time value auto upgrade in table, view and function" {
+	# Auto upgrade test
+	# Add gvns for readonly table
+	yottadb -run %XCMD 'SET ^tdtt060(1)="2023-01-01|01:01:01|2023-01-01 01:01:01|2023-01-01 01:01:01-05"'
+	yottadb -run %XCMD 'SET ^tdtt060(2)="2023-01-01|01:01:01|2023-01-01 01:01:01|2023-04-01 01:01:01-04"'
+	yottadb -run %XCMD 'SET ^tdtt060(3)="2023-01-01||2023-01-01 01:01:01|2023-01-01 04:01:01-05"'
+	yottadb -run %XCMD 'SET ^tdtt060extract(1)="test"'
+	load_fixture TDTT060_before_upgrade.sql subtest novv
+	mv output.txt output_before_upgrade.txt
+	# Initiate auto-upgrade
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Run after upgrade queries
+	load_fixture TDTT060_after_upgrade.sql subtest novv
+	mv output.txt output_after_upgrade.txt
+	cat output_before_upgrade.txt >> output.txt
+	cat output_after_upgrade.txt >> output.txt
+	# Validate results
+	sed '/^\[ERROR/d;/^--/d;/^CREATE/d;/^OCTO/d;/^INSERT/d;/^select/d;/^create/d;/^insert/d;/^$/d' output_before_upgrade.txt >> clean_output_before_upgrade.txt
+	sed '/^OCTO/d;/^insert/d;/^--/d;/^\[ERROR/d;/^OCTO/d;/^select/d;/^$/d' output_after_upgrade.txt >> clean_output_after_upgrade.txt
+	echo "Diff between before and after upgrade" >> output.txt
+	diff clean_output_before_upgrade.txt clean_output_after_upgrade.txt >> output.txt || true
+	verify_output TDTT060 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT061 : OCTO382 : Validate that literals without date/time type prefix can be inserted to date/time columns if the table column is defined as date/time type" {
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT061.sql
+	load_fixture TDTT061_octo.sql subtest novv
+	verify_output TDTT061_octo output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT062 : Validate parameter value to date/time cast works fine as its used by powerbi report builder" {
+	# Include testing of all cast operation
+	stop_rocto
+	test_port=$(start_rocto 1344 verbose)
+	testname="TDTT062"
+	run_java $testname $test_port &> output.txt
+	echo "Conversion routines should be used for both values" >> output.txt
+	grep "%Y-%m-%d" _ydbocto*.m >> output.txt
+	verify_output $testname output.txt nodatetimefilter psql
+}
+
+
+@test "TDTT063 : Validate fileman in-exact date and edge case timestamp working" {
+	# In-exact dates
+	yottadb -run %XCMD 'SET ^datefileman(0)="3230000"'
+	yottadb -run %XCMD 'SET ^datefileman(1)="3230100"'
+	yottadb -run %XCMD 'SET ^datefileman(2)="323"'
+	yottadb -run %XCMD 'SET ^datefilemanerror(0)="3230001"'
+	# Edge case timestamp
+	yottadb -run %XCMD 'SET ^timestampfileman(0)="2960714.24"'
+	yottadb -run %XCMD 'SET ^timestampfileman(1)="2960714.23"'
+	yottadb -run %XCMD 'SET ^timestampfileman(2)="2960731.24"'
+	yottadb -run %XCMD 'SET ^timestampfileman(3)="2991231.24"'
+	yottadb -run %XCMD 'SET ^timestampfileman(4)="323"'
+	yottadb -run %XCMD 'SET ^timestampfileman(5)="2960124.16263"'
+	yottadb -run %XCMD 'SET ^timestampfileman(6)="2960124.16265"'
+	yottadb -run %XCMD 'SET ^timestampfileman(7)="2960124.165"'
+	yottadb -run %XCMD 'SET ^timestampfileman(8)="2960124.1"'
+	yottadb -run %XCMD 'SET ^timestampfileman(9)="2960124.2"'
+	yottadb -run %XCMD 'SET ^timestampfileman(10)="2960124.01"'
+	yottadb -run %XCMD 'SET ^timestampfileman(11)="2960124.100000"'
+	yottadb -run %XCMD 'SET ^timestampfileman(12)="2960124.1000"'
+	yottadb -run %XCMD 'SET ^timestampfileman(13)="2960124.100"'
+	yottadb -run %XCMD 'SET ^timestampfileman(14)="2960124.200"'
+	yottadb -run %XCMD 'SET ^timestampfileman(15)="2960124.2000"'
+	yottadb -run %XCMD 'SET ^timestampfileman(16)="2960124.20000"'
+	yottadb -run %XCMD 'SET ^timestampfileman(17)="2960124.200000"'
+	yottadb -run %XCMD 'SET ^timestampfileman(18)="2960124.10000"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror1(0)="2960124.16266"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror2(0)="2960124.16267"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror3(0)="2960124.166"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror4(0)="2960124.167"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror5(0)="2960124.25"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror6(0)="2960124.3"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror7(0)="2960124.9"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror8(0)="2960124.10"'
+	yottadb -run %XCMD 'SET ^timestampfilemanerror9(0)="2960124.20"'
+	load_fixture TDTT063.sql subtest novv
+	verify_output TDTT063 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT064 : Validate datestyle parameter values" {
+	load_fixture TDTT064.sql subtest novv
+	mv output.txt output1.txt
+	stop_rocto
+	create_default_user
+	test_port=$(start_rocto 1339 --allowschemachanges)
+	run_psql $test_port TDTT064.sql > output.txt 2> err_output.txt
+	# Postgres 15.6 generates error statements where as lower versions don't. Only
+	# validate the stdout output as that is what we care about in this case.
+	mv output.txt output2.txt
+	cat output*.txt >> output.txt
+	verify_output TDTT064 output.txt noinfo nodebug
+}
+
+@test "TDTT065 : Validate specific cases of binary operation with date/time operands" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT065.sql
+}
+
+@test "TDTT066 : Validate zut input specific cases" {
+	load_fixture TDTT066.sql subtest novv
+	verify_output TDTT066 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT067 : Validate the working of queries which are sent by clients when date/time operation is involved" {
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT067.sql
+}
+
+@test "TDTT068 : Validate edge case with microseconds" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT068.sql
+	# Max precision is 6, values greater than that are ignored
+	yottadb -run %XCMD 'SET ^TDTT068(1)="2024-02-21T13:31:48.05098021111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"'
+	yottadb -run %XCMD 'SET ^TDTT068(2)="2024-02-21T13:31:48.05098021111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111+07:00"'
+	yottadb -run %XCMD 'SET ^TDTT068(3)="2024-02-21T13:31:48.0509802111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111+07:00"'
+	load_fixture TDTT068_2.sql subtest novv
+	verify_output TDTT068 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT069 : Validate that fileman readonly table queries comparison operation works fine" {
+	yottadb -run %XCMD 'SET ^testfileman(0)="3230617"'
+	load_fixture TDTT069.sql subtest novv
+	verify_output TDTT069 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT070 : Validate that VALUES clause as join works fine with date/time types" {
+	load_fixture TDTT070.sql subtest novv
+	verify_output TDTT070 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT071 : Validate timestamp literal and global values working without time information" {
+	yottadb -run %XCMD 'SET ^TDTT071t(1)="2023-01-01"'
+	yottadb -run %XCMD 'SET ^TDTT071tz(1)="2023-01-01 01:01:01"'
+	yottadb -run %XCMD 'SET ^TDTT071tz(2)="2023-01-01"'
+	yottadb -run %XCMD 'SET ^TDTT071tf(1)="3230101"'
+	yottadb -run %XCMD 'SET ^TDTT071tf(2)="3230101."'
+	yottadb -run %XCMD 'SET ^TDTT071tzf(1)="3230101"'
+	yottadb -run %XCMD 'SET ^TDTT071tzf(2)="3230101."'
+	yottadb -run %XCMD 'SET ^TDTT071th(1)="66840"'
+	yottadb -run %XCMD 'SET ^TDTT071tzh(1)="66840"'
+	yottadb -run %XCMD 'SET ^TDTT071tzho(1)="66840,,,"'
+	yottadb -run %XCMD 'SET ^TDTT071tzzho(1)="66840,38891,920149,"'
+	load_fixture TDTT071.sql subtest novv
+	verify_output TDTT071 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT072 : Validate that single digit year in fileman appears with leading 0's" {
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT072.sql subtest novv
+	verify_output TDTT072 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT073 : Validate values exceeding timezone range of zhorolog format results in NULL output" {
+	echo "datetimeoutputformat = \"zhorolog\"" > octo.conf
+	export TZ=UTC+12:15
+	load_fixture TDTT073.sql subtest novv
+	verify_output TDTT073 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT074 : Misc error case validations" {
+	load_fixture TDTT074.sql subtest novv
+	verify_output TDTT074 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT075 : Validate date_to_fileman to return error result if the value given to it is out of fileman range" {
+	yottadb -run %XCMD 'SET ^test(1)="-27809392000000000"'
+	load_fixture TDTT075.sql subtest novv
+	mv output.txt output1.txt
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT075_fileman.sql .
+	octo -p -f TDTT075_fileman.sql 2>&1 | tee output.txt
+	mv output.txt output2.txt
+	cat output*.txt >> output.txt
+	verify_output TDTT075 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT076 : zhorolog timezone boundary values should not generate an assert failure" {
+	load_fixture TDTT076.sql subtest novv
+	verify_output TDTT076 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT077 : Test add expression with random date/time values" {
+	$ydb_dist/yottadb -r getAddQueries^datetime >> input.sql
+	psql names -f input.sql > postgres_output.txt 2>&1
+	cat postgres_output.txt | sed '/?column?/d;/--/d;/^$/d;s/^ *//g' >> postgres_output.log
+	octo -f input.sql > octo_output.txt 2>&1
+	cat octo_output.txt | sed '/???/d;/--/d;' >> octo_output.ref
+	[[ $(grep -c ERROR octo_output.txt) -eq 0 ]]
+	[[ $(grep -c ERROR postgres_output.txt) -eq 0 ]]
+	diff postgres_output.log octo_output.ref
+}
+
+@test "TDTT078 : Test sub expression with random date/time values" {
+	$ydb_dist/yottadb -r getSubQueries^datetime >> input.sql
+	psql names -f input.sql > postgres_output.txt 2>&1
+	cat postgres_output.txt | sed '/?column?/d;/--/d;/^$/d;s/^ *//g' >> postgres_output.log
+	octo -f input.sql > octo_output.txt 2>&1
+	cat octo_output.txt | sed '/???/d;/--/d;' >> octo_output.ref
+	[[ $(grep -c ERROR octo_output.txt) -eq 0 ]]
+	[[ $(grep -c ERROR postgres_output.txt) -eq 0 ]]
+	diff postgres_output.log octo_output.ref
+}
+
+@test "TDTT079 : Test daylight savings case" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT079.sql
+}
+
+@test "TDTT080 : Test comparison expression with random date/time values" {
+	$ydb_dist/yottadb -r getCompQueries^datetime >> input.sql
+	psql names -f input.sql > postgres_output.txt 2>&1
+	cat postgres_output.txt | sed '/?column?/d;/(1 row)/d;/--/d;/^$/d;s/^ *//g' >> postgres_output.log
+	octo -f input.sql > octo_output.txt 2>&1
+	cat octo_output.txt | sed '/???/d;/(1 row)/d;/--/d;s/1/t/g;s/0/f/g' >> octo_output.ref
+	[[ $(grep -c ERROR octo_output.txt) -eq 0 ]]
+	[[ $(grep -c ERROR postgres_output.txt) -eq 0 ]]
+	diff postgres_output.log octo_output.ref
+}
+
+@test "TDTT081 : Test time with time zone" {
+	# This test case consolidates all time with time zone test queries
+	# Need to re-visit after time with time zone is supported well
+	# TODO: There needs to be two seperate reference files representing output
+	# 	with and without daylight savings
+	load_fixture TDTT081_error.sql subtest novv
+	verify_output TDTT081_error output.txt nodatetimefilter noinfo nodebug
+	mv output.txt output1.txt
+	mv clean_output.txt clean_output1.txt
+	yottadb -run %XCMD 'SET ^testttz("01:01:01-05")=""'
+	yottadb -run %XCMD 'SET ^testttz("01:01:02-05")=""'
+	load_fixture TDTT081.sql subtest novv
+	verify_output TDTT081 output.txt nodatetimefilter noinfo nodebug
+	mv clean_output.txt TDTT081_clean_output.txt
+	mv output.txt TDTT081_output.txt
+	# Auto upgrade test
+	# Add gvns for readonly table
+	yottadb -run %XCMD 'SET ^tdtt081(1)="01:01:01|01:01:01-05"'
+	# Run before upgrade test
+	load_fixture TDTT081_before_upgrade.sql subtest novv
+	mv output.txt output_before_upgrade.txt
+	# Initiate auto-upgrade
+	echo 'seedreload = "TRUE"' > octo.conf
+	# Run after upgrade test
+	load_fixture TDTT081_after_upgrade.sql subtest novv
+	mv output.txt output_after_upgrade.txt
+	cat output_before_upgrade.txt >> output.txt
+	cat output_after_upgrade.txt >> output.txt
+	# Validate results
+	sed '/^\[ERROR/d;/^--/d;/^CREATE/d;/^OCTO/d;/^INSERT/d;/^select/d;/^create/d;/^insert/d;/^$/d' output_before_upgrade.txt >> clean_output_before_upgrade.txt
+	sed '/^OCTO/d;/^insert/d;/^--/d;/^\[ERROR/d;/^OCTO/d;/^select/d;/^$/d' output_after_upgrade.txt >> clean_output_after_upgrade.txt
+	echo "Diff between before and after upgrade" >> output.txt
+	diff clean_output_before_upgrade.txt clean_output_after_upgrade.txt >> output.txt || true
+	verify_output TDTT081_upgrade output.txt nodatetimefilter noinfo nodebug
+
+}
+
+@test "TDTT082 : Validate greater than equal to operation issue is fixed and views process date/time values with boolean expansion expression correctly" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	yottadb -run %XCMD 'kill ^orders'
+	yottadb -run %XCMD 'set ^orders(1)="1776-07-04|$234.56|1"'
+	yottadb -run %XCMD 'set ^orders(2)="1760-03-14|$78.50|3"'
+	yottadb -run %XCMD 'set ^orders(3)="1784-05-23|$124.00|2"'
+	yottadb -run %XCMD 'set ^orders(4)="1790-09-03|$65.50|3"'
+	yottadb -run %XCMD 'set ^orders(5)="1795-07-21|$25.50|10"'
+	yottadb -run %XCMD 'set ^orders(6)="1787-11-27|$14.40|9"'
+	load_fixture TDTT082.sql subtest novv
+	verify_output TDTT082 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT083 : Test all valid ranges of randomly generated date/time literals" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	yottadb -run TDTT083 > gen.sql
+	# gen.sql can contain invalid queries (for example, a date valid in TEXT format might not be valid in
+	# FILEMAN format). Therefore, allow for any errors. Hence the "|| true" below.
+	octo -p -f gen.sql > octo.out 2>&1 || true
+	# But we expect no fatal errors. The "corecheck" invocation (as part of the "teardown()" when the subtest
+	# is done) takes care of checking for core files. Therefore, no other check is done here.
+	# Note that TDTT083.m is mostly similar to TDTT084.m except that the former generates literals in a much
+	# wider range of dates/times (the entire range described in `doc/grammar.rst`).
+}
+
+@test "TDTT084 : Test various operations/typecast on randomly generated date/time literals" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	yottadb -run TDTT084 > gen.sql
+	octo -p -f gen.sql > octo.out 2>&1
+	# gen.sql should contain valid queries (even though they are randomly generated). Hence the check for "ERROR" below.
+	[[ $(grep -c ERROR octo.out) -eq 0 ]]
+}
+

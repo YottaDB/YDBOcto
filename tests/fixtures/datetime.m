@@ -389,8 +389,7 @@ datetimeerrorglobal
 	set ^edgecaseiso(7)="2024-01-01t01:01:01.7323-05:00"
 	QUIT
 
-datetimemglobal
-	new map
+datetimemglobal(needPrimaryKey)
 	set map("date","",0)="2023-01-01";
 	set map("date","",1)="2023-01-02";
 	set map("time","",0)="01:01:01";
@@ -444,9 +443,16 @@ datetimemglobal
 
 	for type="date","time","timetz","timestamp","timestamptz" do
 	. for format="","fileman","horolog","zhorolog","zut" do
-	. . set global="^datetime"_type_format
-	. . set @global@(0)=map(type,format,0)
-	. . set @global@(1)=map(type,format,1)
+	. . if $data(needPrimaryKey) do
+	. . . ; date/time column as primary key
+	. . . set global="^datetimep"_type_format
+	. . . set @global@(map(type,format,0))="0"
+	. . . set @global@(map(type,format,1))="1"
+	. . else  do
+	. . . set global="^datetime"_type_format
+	. . . set @global@(0)=map(type,format,0)
+	. . . set @global@(1)=map(type,format,1)
+	zwr @global
 	QUIT
 
 ; datetimedrop() copies the naming convention followed here. Both complement each other so any change to name here
@@ -1869,3 +1875,67 @@ tdtt102()
 	set ^tdtt102timestamptz(1)="2023-01-01"_tStr_"01:01:01-05"
 
 	quit
+
+tdtt104
+	set subtest=$zcmdline
+	zwr subtest
+	set isPrimaryKey=$select(""=subtest:0,1:1)
+	if (isPrimaryKey) do datetimemglobal(1) set inputStr="inputprim" write "hello",!
+	else  do datetimemglobal set inputStr="input" write "hellowso",!
+	set cnt=0
+	for tp="date","time","timetz","timestamp","timestamptz" do
+	. for fmt="","fileman","horolog","zhorolog","zut" do
+	. . set filename=inputStr_cnt_".sql"
+	. . open filename:(append)
+	. . use filename
+	. . set tname=tp_fmt_"r"
+	. . set dtcolumn="dob "
+	. . ; Type
+	. . set type=""
+	. . if (tp["tz") do
+	. . . set tp1=$select(tp["timestamp":"timestamp",1:"time") ; Time, Timestamp
+	. . . set tp2="with time zone"
+	. . . if (""=fmt) do
+	. . . . set type=tp1_" "_tp2
+	. . . . set dtcolumn=dtcolumn_type
+	. . . else  do
+	. . . . set type=tp1_"("_fmt_")"_tp2
+	. . . . set dtcolumn=dtcolumn_type
+	. . else  do
+	. . . set type=tp_$select(""=fmt:"",1:"("_fmt_")")
+	. . . set dtcolumn=dtcolumn_type
+	. . write "drop table if exists "_tname_";",!
+	. . if (isPrimaryKey) do
+	. . . write "create table "_tname_" ("_dtcolumn_" primary key, "
+	. . . write "id integer"
+	. . else  do
+	. . . write "create table "_tname_" (id integer primary key, "
+	. . . write dtcolumn
+	. . if (isPrimaryKey) set globalName="^datetimep"_tp_fmt
+	. . else  set globalName="^datetime"_tp_fmt
+	. . write ") global """_globalName_""" readonly;",!
+	. . write "select * from "_tname_";",!
+	. . if (isPrimaryKey) do
+	. . . write "select * from "_tname_" where dob = "_type_"'"_map(tp,fmt,1)_"';",!
+	. . else  do
+	. . . write "select * from "_tname_" where dob = "_type_"'"_@globalName@(1)_"';",!
+	. . write !
+	. . close filename
+	. . set filename=inputStr_cnt_".sh"
+	. . open filename:(append)
+	. . use filename
+	. . write "yottadb -run %XCMD '"
+	. . if (isPrimaryKey) do
+	. . . write "kill "_globalName_"("""_map(tp,fmt,1)_""")"
+        . . . write " set "_globalName_"("""_map(tp,fmt,1)_""")=3"
+	. . else  do
+	. . . write "kill "_globalName_"(1)"
+	. . . write " set "_globalName_"(3)="""_@globalName@(1)_""""
+	. . write "'",!
+	. . close filename
+	. . ;
+	. . set filename=inputStr_cnt_".sql"
+	. . ;
+	. . set cnt=cnt+1
+	quit
+

@@ -227,11 +227,15 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_pg_functions)
 	ADD_BATS_TEST_DML(test_dbeaver_connect_queries)
 	ADD_BATS_TEST_DML(test_type_cast)
-	ADD_BATS_TEST_DML(test_date_time_type)
 	ADD_BATS_TEST_DML(test_begin_commit_rollback)
 
-	# The following test requires MySQL and PostgreSQL
+	# The following tests requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)
+	ADD_BATS_TEST_DML(test_date_time_type)
+	ADD_BATS_TEST_DML(test_date_time_type2)
+	ADD_BATS_TEST_DML(test_date_time_type3)
+	ADD_BATS_TEST_DML(test_date_time_type4)
+	ADD_BATS_TEST_DML(test_date_time_type5)
 
 	find_program(go NAMES go)
 	if(go)

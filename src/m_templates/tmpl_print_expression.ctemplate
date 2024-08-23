@@ -132,11 +132,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case TIMESTAMP_WITH_TIME_ZONE_LITERAL:;
 			// If the value is of type Date/Time then add the conversion routine based on internal format here
 			boolean_t close_date_time_function_paren = FALSE;
-			boolean_t text_format = FALSE;
 			if (IS_DATE_TIME_TYPE(value->type)) {
 				close_date_time_function_paren = TRUE;
-				text_format = (OPTIONAL_DATE_TIME_TEXT == value->date_time_format_type);
-				TMPL(tmpl_convert_to_unix_time, value->date_time_format_type);
+				// Place conversion routine
+				TMPL(tmpl_convert_to_unix_time);
 			}
 			/* Note that "value->parameter_index" is guaranteed to be non-zero in most cases.
 			 * The only exception that we know of currently is CHECK constraints where literals in the
@@ -176,12 +175,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				free(zwr.buf_addr);
 			}
 			if (close_date_time_function_paren) {
-				%{},{{ value->type|%d }}{}%
-				if (text_format) {
-					const char *format_specifier;
-					GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(value->type, format_specifier);
-					%{},"{{ format_specifier }}"{}%
-				}
+				// Add rest of the arguments
+				TMPL(tmpl_print_date_time_to_unix_time_args, value->type, value->date_time_format_type, FALSE, FALSE);
 				%{}){}%
 			}
 			break;
@@ -1545,14 +1540,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
 		}
-		boolean_t text_format = FALSE;
 		if (BOOLEAN_VALUE == return_type) {
 			%{}$$String2Boolean^%%ydboctoplanhelpers({}%
 		} else if (IS_DATE_TIME_TYPE(return_type)) {
 			// Output processing
-			// See the format in which it is return and add appropriate conversion
-			text_format = (OPTIONAL_DATE_TIME_TEXT == format_type);
-			TMPL(tmpl_convert_to_unix_time, format_type);
+			// Add conversion routine
+			TMPL(tmpl_convert_to_unix_time);
 		}
 		/* Below is function name which should not be a leaf level expression so okay to pass "0" as "dot_count"
 		 * (last but one parameter) even if "dot_count" is non-zero. Passing a non-zero "dot_count" would cause
@@ -1619,8 +1612,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		} else if (IS_DATE_TIME_TYPE(return_type)) {
 			// Output processing
 			// Close the function
+			// Cannot use tmpl_print_date_time_to_unix_time_args as the arguments need more processing here
 			%{},{{ return_type|%d }}{}%
-			if (text_format) {
+			%{},{{ format_type|%d }}{}%
+			if (OPTIONAL_DATE_TIME_TEXT == format_type) {
 				/* Check whether the specified function is internal to Octo or is user-defined
 				 * by checking whether the routine name for the function includes the prefix
 				 * used for Octo's internal SQL functions, i.e. OCTOLIT_YDBOCTO. Note that this

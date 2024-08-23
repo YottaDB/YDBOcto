@@ -1,0 +1,47 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+TEMPLATE(tmpl_print_date_time_to_unix_time_args, SqlValueType date_time_value_type, OptionalKeyword date_time_format, boolean_t is_insert_query_call, boolean_t is_string) {
+	// 1. Value to transform added by caller
+
+	// 2. Add type
+	%{},{{ date_time_value_type|%d }}{}%
+
+	// 3. Add format
+	%{},{{ date_time_format|%d }}{}%
+
+	// 4. Add TEXT format specifier
+	if (OPTIONAL_DATE_TIME_TEXT == date_time_format) {
+		const char *format_specifier;
+		GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_value_type, format_specifier);
+		if (is_string) {
+			%{},""{{ format_specifier }}""{}%
+		} else {
+			%{},"{{ format_specifier }}"{}%
+		}
+	} else {
+		%{},""""{}%
+	}
+
+	// 5. Add isReadWrite argument
+	if (is_insert_query_call) {
+		%{},1{}%
+	} else {
+		// No need add anything
+	}
+}
+%{}

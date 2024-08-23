@@ -12,5 +12,5 @@
 
 create table test (id int primary key, dob date) global "^datetime(keys(""id""))" readonly;
 select dob from test limit 4;
-select dob from test where dob between date'2000-01-01' and date'3000-01-01';
-select dob from test where dob > date'2000-01-01' and dob < date'2500-01-01';
+select dob from test where dob between date'2000-01-01' and date'2100-01-01';
+select dob from test where dob > date'2000-01-01' and dob < date'2100-01-01';

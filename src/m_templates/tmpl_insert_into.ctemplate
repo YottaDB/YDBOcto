@@ -247,24 +247,18 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 								%{}`n{{ PLAN_LINE_START }}{}%
 								TMPL(tmpl_print_dots, dot_count);
 								%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
-								%{}+{}%
-								// Get format of cur_column->data_type_struct
-								OptionalKeyword date_time_format = cur_column->data_type_struct.format;
-
-								// place conversion routine
-								boolean_t text_format;
-								text_format = (OPTIONAL_DATE_TIME_TEXT == date_time_format);
-								TMPL(tmpl_convert_to_unix_time, date_time_format);
-								// place parameters along with PP_COL(col_num)
+								// Place conversion routine
+								TMPL(tmpl_convert_to_unix_time);
+								// Add arguments along with PP_COL(col_num)
+								// 1. Add value to tranform : inputStr
 								%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
-								SqlValueType date_time_value_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);
-								%{},{{ date_time_value_type|%d }}{}%
-								if (text_format) {
-									const char *format_specifier;
-									GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_value_type, format_specifier);
-									%{},"{{ format_specifier }}"{}%
-								}
-								// close conversion routine
+								// Add rest of the arguments
+								TMPL(tmpl_print_date_time_to_unix_time_args,
+								     get_sqlvaluetype_from_sqldatatype(
+								     			cur_column->data_type_struct.data_type,
+											FALSE),
+								     cur_column->data_type_struct.format, TRUE, FALSE);
+								// Close conversion routine
 								%{}){}%
 							}
 						default:

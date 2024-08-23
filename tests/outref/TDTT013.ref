@@ -360,9 +360,13 @@ OCTO> create function samevalue(date) returns date as $$samevalue^functions;
 CREATE FUNCTION
 OCTO> set datestyle='mdy';
 OCTO> select samevalue(date'01-01-2023');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, MDY"
+samevalue
+
+(1 row)
 OCTO> select samevalue(samevalue(date'01-01-2023'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023" is invalid for type "DATE", format "TEXT" and datestyle "ISO, MDY"
+samevalue
+
+(1 row)
 OCTO> set datestyle='ymd';
 OCTO> select samevalue(samevalue(date'2023-01-01'));
 samevalue
@@ -378,9 +382,13 @@ OCTO> set datestyle='mdy';
 OCTO> create function samevalue(timestamp) returns timestamp as $$samevalue^functions;
 CREATE FUNCTION
 OCTO> select samevalue(timestamp'01-01-2023 01:01:00');
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, MDY"
+samevalue
+
+(1 row)
 OCTO> select samevalue(samevalue(timestamp'01-01-2023 01:01:00'));
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01-01-2023 01:01:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, MDY"
+samevalue
+
+(1 row)
 OCTO> set datestyle='ymd';
 OCTO> select samevalue(samevalue(timestamp'2023-01-01 01:01:00'));
 samevalue

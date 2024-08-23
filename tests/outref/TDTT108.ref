@@ -1,0 +1,72 @@
+
+create table dater (id integer primary key , dob date) global "^datetimedate" readonly;
+select * from dater;
+select * from dater where dob is null;
+select * from dater where dob=NULL;
+select * from dater where dob=date'2023-01-01';
+OCTO> create table dater (id integer primary key , dob date) global "^datetimedate" readonly;
+CREATE TABLE
+OCTO> select * from dater;
+id|dob
+0|2023-01-02
+(1 row)
+OCTO> select * from dater where dob is null;
+id|dob
+(0 rows)
+OCTO> select * from dater where dob=NULL;
+id|dob
+(0 rows)
+OCTO> select * from dater where dob=date'2023-01-01';
+id|dob
+(0 rows)
+OCTO> 
+_ydboctoP*.m:;  select * from dater where dob is null;
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,"",%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from dater where dob=NULL;
+_ydboctoP*.m:    ; as it is not straightforward to skip generating the M code that follows
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,%ydboctocursor(cursorId,"keys",1,"dater","dob"),%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from dater where dob=date'2023-01-01';
+_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,%ydboctocursor(cursorId,"keys",1,"dater","dob"),%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from dater;
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"))),17,36,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoX*.m:;; Generated M code maintains cross reference for dob column in dater table
+_ydboctoX*.m:    ;   stat (always 2), AIM Metadata Type (depending if the table has it specified or not);   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,2,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")")
+_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
+_ydboctoX*.m:    ; Put the comment in again, in case it's deleted after the metadata is created but before the xref is built
+_ydboctoX*.m:    NEW comment SET comment="xref for table dater column dob"
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,2,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")")
+_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
+_ydboctoX*.m:    NEW comment SET comment="xref for table dater column dob"
+_ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
+_ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
+OCTO> select * from dater;
+id|dob
+0|2023-01-02
+1|
+(2 rows)
+OCTO> select * from dater where dob is null;
+id|dob
+1|
+(1 row)
+OCTO> select * from dater where dob=NULL;
+id|dob
+(0 rows)
+OCTO> select * from dater where dob=date'2023-01-01';
+id|dob
+(0 rows)
+OCTO> 

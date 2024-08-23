@@ -1,0 +1,425 @@
+#################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+@test "TDTT020 : OCTO382 : Validate date/time input and output format specification through configuration file" {
+	# Date/time/timestamp
+	for format in {"mdY","mdY","Ymd","Ymd","dmY","dmY","asdf","mmm","yyy","ddd","ymm","dmm","dyy",",mdy",",,","ymdiso","mdyiso",",isomdy","isomdy,","ind","ynd"}; do
+		echo "datestyle = \"$format\"" > octo.conf
+		cat octo.conf >> output.txt
+		octo -f /dev/null 2>&1 | tee -a output.txt
+	done
+	# Output format
+	for format in {"horolog","zhorolog","zut","fileman","text","asdf"}; do
+		echo "datetimeoutputformat = \"$format\"" > octo.conf
+		cat octo.conf >> output.txt
+		octo -f /dev/null 2>&1 | tee -a output.txt
+	done
+	verify_output TDTT020 output.txt
+}
+
+@test "TDTT021 : OCTO382 : Check that error is issued when invalid literals are specified as values for date/time types and formats" {
+	load_fixture TDTT021.sql subtest novv
+	verify_output TDTT021 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT022 : OCTO382 : Check that the internal to output format conversion routines are placed at correct locations in an m plan for different clauses in a query" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TDTT022.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT022 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT023 : OCTO382 : Validate select, DDL and DML queries when input is of type horolog and output is of type text" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TDTT023.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT023 output.txt nodatetimefilter noinfo nodebug
+
+}
+
+@test "TDTT024 : OCTO382 : Validate select, DDL and DML queries when input is of type text and output is of type text" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TDTT024.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT024 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT025 : OCTO382 : Validate select, DDL and DML queries when input is of type fileman and output is of type text" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TDTT025.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT025 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT026 : OCTO382 : Validate select, DDL and DML queries when input is of type text and output is of type horolog" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "datetimeoutputformat = \"horolog\"" > octo.conf
+	load_fixture TDTT024.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT026 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT027 : OCTO382 : Validate select, DDL and DML queries when input is of type text and output is of type fileman" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT024.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT027 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT028 : OCTO382 : Validate select, DDL and DML queries when input is of type horolog and output is of type horolog" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "datetimeoutputformat = \"horolog\"" > octo.conf
+	load_fixture TDTT023.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT028 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT029 : OCTO382 : Validate select, DDL and DML queries when input is of type horolog and output is of type fileman" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT023.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT029 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT030 : OCTO382 : Validate select, DDL and DML queries when input is of type fileman and output is of type horolog" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "datetimeoutputformat = \"horolog\"" > octo.conf
+	load_fixture TDTT025.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT030 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT031 : OCTO382 : Validate select, DDL and DML queries when input is of type fileman and output is of type fileman" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT025.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT031 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT032 : OCTO382 : Validate addition expression involving date and time type values" {
+	load_fixture TDTT032.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT032 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT033 : OCTO382 : Validate subtraction expression involving date and time type values" {
+	load_fixture TDTT033.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT033 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT034_1 : OCTO382 : Validate cast expression involving date and time type values in text format" {
+	load_fixture TDTT034.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	mv output.txt output_1.txt
+	echo "datetimeoutputformat = \"horolog\"" > octo.conf
+	load_fixture TDTT034.sql subtest novv
+	mv output.txt output_2.txt
+	rm octo.conf
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT034.sql subtest novv
+	mv output.txt output_3.txt
+	cat output_*.txt >> output.txt
+	verify_output TDTT034 output.txt nodatetimefilter noinfo nodebug
+	mv clean_output.txt TDTT034_clean_output.txt
+	mv output.txt TDTT034_output.txt
+	load_fixture TDTT034_errors.sql subtest novv
+	verify_output TDTT034_errors output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT034_2 : OCTO382 : Validate cast expression involving date and time type values horolog format" {
+	load_fixture TDTT034_2.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	mv output.txt output_1.txt
+	echo "datetimeoutputformat = \"horolog\"" > octo.conf
+	load_fixture TDTT034_2.sql subtest novv
+	mv output.txt output_2.txt
+	rm octo.conf
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT034_2.sql subtest novv
+	mv output.txt output_3.txt
+	cat output_*.txt >> output.txt
+	verify_output TDTT034_2 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT034_3 : OCTO382 : Validate cast expression involving date and time type values fileman format" {
+	load_fixture TDTT034_3.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	mv output.txt output_1.txt
+	echo "datetimeoutputformat = \"horolog\"" > octo.conf
+	load_fixture TDTT034_3.sql subtest novv
+	mv output.txt output_2.txt
+	rm octo.conf
+	echo "datetimeoutputformat = \"fileman\"" > octo.conf
+	load_fixture TDTT034_3.sql subtest novv
+	mv output.txt output_3.txt
+	cat output_*.txt >> output.txt
+	verify_output TDTT034_3 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT035 : OCTO382 : Validate table.* usages with date and time type columns" {
+	load_fixture TDTT035.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT035 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT036 : OCTO382 : Validate date/time literal usage in different clauses and its definition in \d output" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TDTT036.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT036 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT037 : OCTO382 : Validate precision specification in time and timestamp types" {
+	skip
+	# enable this after implementing precision
+	load_fixture TDTT037.sql subtest novv
+	verify_output TDTT037 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT038 : OCTO382 : Validate different input literal formats for date/time values in text format" {
+	load_fixture names.sql
+	load_fixture names.zwr
+
+	# - delim is used here
+	echo "datestyle =\"mdy\"" >> octo.conf
+	load_fixture TDTT038_1.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+
+	mv output.txt output_1.txt
+	rm octo.conf
+	# / delim is used here
+	echo "datestyle =\"ymd\"" >> octo.conf
+	load_fixture TDTT038_2.sql subtest novv
+
+	mv output.txt output_2.txt
+	rm octo.conf
+	# - delim is used here
+	echo "datestyle =\"ymd\"" >> octo.conf
+	load_fixture TDTT038_3.sql subtest novv
+
+	mv output.txt output_3.txt
+	rm octo.conf
+	# - delim is used here
+	echo "datestyle =\"dmy\"" >> octo.conf
+	load_fixture TDTT038_4.sql subtest novv
+
+	mv output.txt output_4.txt
+	rm octo.conf
+	# / delim is used here
+	echo "datestyle =\"dmy\"" >> octo.conf
+	load_fixture TDTT038_5.sql subtest novv
+	mv output.txt output_5.txt
+
+	cat output_*.txt >> output.txt
+	verify_output TDTT038 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT039 : OCTO382 : Validate usecase where date/time type values are stored in a session using one text format and retrieved in a session with different text format" {
+	echo "datestyle =\"ymd\"" >> octo.conf
+	load_fixture TDTT039_1.sql subtest novv
+
+	mv output.txt output_1.txt
+	rm octo.conf
+	# let the config have default format
+	load_fixture TDTT039_2.sql subtest novv
+	mv output.txt output_2.txt
+
+	cat output_*.txt >> output.txt
+	# Expect the output to be in default format
+	verify_output TDTT039 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT040 : OCTO382 : Validate date and time value range for all formats" {
+	load_fixture TDTT040.sql subtest novv
+	verify_output TDTT040 output.txt nodatetimefilter noinfo nodebug
+	mv clean_output.txt TDTT040_clean_output.txt
+	mv output.txt TDTT040_output.txt
+	$ydb_dist/yottadb -r datetimeerrorglobal^datetime
+	load_fixture TDTT040_2.sql subtest novv
+	verify_output TDTT040_2 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT041 : OCTO382 : Validate date and time working with different keywords in CREATE TABLE" {
+	yottadb -run %XCMD 'SET ^datetimedate(0)="2023-01-01"'
+	yottadb -run %XCMD 'SET ^datetimedate(1)="2023-01-02"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2022-12-31")="-1"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2023-01-01")="0"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2023-01-02")="1"'
+	yottadb -run %XCMD 'SET ^datetimedatekey("2023-01-03")="2"'
+	load_fixture TDTT041.sql subtest novv
+	verify_output TDTT041 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT042 : OCTO382 : Validate table asterisk and aggregate function usage with date and time types" {
+	load_fixture TDTT042.sql subtest novv
+	verify_output TDTT042 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT043 : OCTO0382 : Validate specific cases of user definied functions with date and time types" {
+	load_fixture TDTT043_1.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	load_fixture TDTT043_2.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TDTT043 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT044 : OCTO382 : Validate key fixing optimization working in readwrite and readonly table" {
+	yottadb -run %XCMD 'SET ^date(0)="3230201"'
+	yottadb -run %XCMD 'SET ^date(1)="3230301"'
+	yottadb -run %XCMD 'SET ^date(2)="3230401"'
+	yottadb -run %XCMD 'SET ^datetext(0)="02-01-2023"'
+	yottadb -run %XCMD 'SET ^datetext(1)="03-01-2023"'
+	yottadb -run %XCMD 'SET ^datetext(2)="04-01-2023"'
+	yottadb -run %XCMD 'SET ^tstexttz(0)="02-01-2023 01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttz(1)="03-01-2023 01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttz(2)="04-01-2023 01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttz(3)="02-01-2023 00:00:00+00:00"'
+	yottadb -run %XCMD 'SET ^tstexttz(4)="02-01-2023 00:00:00-06:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(0)="02-01-2023T01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(1)="03-01-2023T01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(2)="04-01-2023T01:01:01-05:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(3)="02-01-2023T00:00:00+00:00"'
+	yottadb -run %XCMD 'SET ^tstexttziso(4)="02-01-2023T00:00:00-06:00"'
+	yottadb -run %XCMD 'set ^fileman(1)="a5|b5|9830811"'
+	yottadb -run %XCMD 'set ^fileman(2)="a6|b6|0740528"'
+	yottadb -run %XCMD 'set ^fileman(3)="a7|b7|4950816"'
+	yottadb -run %XCMD 'set ^fileman(4)="a8|b8|0291124"'
+	yottadb -run %XCMD 'set ^fileman(5)="a9|b9|7180309"'
+	yottadb -run %XCMD 'set ^text(1)="a8|b8|1729-11-24"'
+	yottadb -run %XCMD 'set ^text(2)="a9|b9|1774-05-28"'
+	yottadb -run %XCMD 'set ^text(3)="a5|b5|2195-08-16"'
+	yottadb -run %XCMD 'set ^text(4)="a6|b6|2299-06-28"'
+	yottadb -run %XCMD 'set ^text(5)="a7|b7|2418-03-09"'
+	yottadb -run %XCMD 'kill ^orders  set ^orders(1)="03-14-1760|$234.56|1"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(1)="18621315390000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(2)="1323364719000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(3)="11872038850000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(4)="3653242879000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(5)="14787761362000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(6)="1901957097000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(7)="20488367953000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(8)="19543841614000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(9)="3539133768000000"'
+	yottadb -run %XCMD 'set ^timestampzuttbl(10)="9372766858000000"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(1)="8600201.113630"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(2)="3111208.171839"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(3)="6460318.203410"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(4)="3851006.214119"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(5)="7380809.152922"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(6)="3300409.092457"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(7)="9190402.211913"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(8)="8890426.205334"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(9)="3820224.044248"'
+	yottadb -run %XCMD 'set ^timestampfilemantbl(10)="5670105.022058"'
+
+
+	load_fixture TDTT044_1.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	rm _ydbocto*.m
+	yottadb -run %XCMD 'kill ^text'
+	yottadb -run %XCMD 'kill ^fileman'
+	load_fixture TDTT044_2.sql subtest novv
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	echo "# ----------------------------------------------------------------------------" >> output.txt
+	grep -r "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	verify_output TDTT044 output.txt nodatetimefilter noinfo nodebug
+}

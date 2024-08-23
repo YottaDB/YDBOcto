@@ -1,0 +1,105 @@
+Trigger test
+------------------------------------
+Create table and query it to create cross references
+------------------------------------
+create table timestamp_fileman_tbl (order_id integer primary key, order_timestamp timestamp(fileman)) GLOBAL "^timestampfilemantbl" READONLY;
+select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+select * from timestamp_fileman_tbl;
+OCTO> create table timestamp_fileman_tbl (order_id integer primary key, order_timestamp timestamp(fileman)) GLOBAL "^timestampfilemantbl" READONLY;
+CREATE TABLE
+OCTO> select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+order_timestamp
+2011-12-08 17:18:39
+2011-12-08 17:18:39
+(2 rows)
+OCTO> select * from timestamp_fileman_tbl;
+order_id|order_timestamp
+1|2560-02-01 11:36:30
+2|2011-12-08 17:18:39
+3|2011-12-08 17:18:39
+(3 rows)
+OCTO> 
+Confirm cross reference are created
+------------------------------------
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G="^timestampfilemantbl"
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("")=2
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("",1323364719000000)=2
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("",18621315390000000)=1
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0)="*YottaDB*"
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,1323364719000000,2)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,1323364719000000,3)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,18621315390000000,1)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(1)=1
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(2)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(3)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(4)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(5)=""
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(6)="+^timestampfilemantbl(sub1=*) -command=set -name=%ydbmVGSavhPiSB55S7kTo9u0GS -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" set tmp=$$Fileman2UnixTime^%ydboctoplanhelpers($ztoldval,20) if $data(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,tmp,sub1))#10 zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("""",tmp),-1) zkill ^(tmp) zkill:1>$increment(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(""""),-1) ^("""")"_$C(10)_" set tmp=$$Fileman2UnixTime^%ydboctoplanhelpers($ztvalue,20) if '$data(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,tmp,sub1)) set ^(sub1)="""" set inccnt=inccnt+1 if (1=$increment(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("""",tmp))),$increment(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(""""))"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(7)="+^timestampfilemantbl(sub1=*) -command=kill -name=%ydbmVGSavhPiSB55S7kTo9u0GK -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDmVGSavhPiSB55S7kTo9u0G"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(8)="+^timestampfilemantbl(sub1=*) -command=zkill -name=%ydbmVGSavhPiSB55S7kTo9u0GZ -xecute=<<"_$C(10)_" set inccnt=0"_$C(10)_" set tmp=$$Fileman2UnixTime^%ydboctoplanhelpers($ztoldva,20) if $data(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,tmp,sub1))#10 zkill ^(sub1) set inccnt=inccnt-1 if 1>$increment(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("""",tmp),-1) zkill ^(tmp) if 1>$increment(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(""""),-1) zkill ^("""")"_$C(10)_" if inccnt set inccnt=inccnt+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(11),^(11)=$select(1>inccnt:0,1:inccnt)"_$C(10)
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(9)=1
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(10)=2
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(11)=3
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(12)="+^timestampfilemantbl -command=kill -name=%ydbmVGSavhPiSB55S7kTo9u0G0 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDmVGSavhPiSB55S7kTo9u0G"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDmVGSavhPiSB55S7kTo9u0G("comment-0")="xref for table timestamp_fileman_tbl column order_timestamp"
+Update gvns to invoke triggers
+------------------------------------
+Kill an existing node
+Kill a non-existant node
+Update (SET) an existing node
+Create a new node (SET)
+Ensure '(2|3111208.171839) is removed, (3|3111208.171839) is changed to (3|3111208.181839) and (4|3111208.171839) is added'
+------------------------------------
+
+select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+select * from timestamp_fileman_tbl;
+OCTO> select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+order_timestamp
+2011-12-08 17:18:39
+(1 row)
+OCTO> select * from timestamp_fileman_tbl;
+order_id|order_timestamp
+1|2560-02-01 11:36:30
+3|2011-12-08 18:18:39
+4|2011-12-08 17:18:39
+(3 rows)
+OCTO> 
+# ----------------------------------------------------------------------------
+# Include generated M code in reference file to verify all optimizations there
+# ----------------------------------------------------------------------------
+_ydboctoP*.m:;  select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+_ydboctoP*.m:    . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")=$ORDER(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_timestamp"),%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from timestamp_fileman_tbl;
+_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")=$ORDER(^timestampfilemantbl(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")="")  DO
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(^timestampfilemantbl(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id"))),20) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+_ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoX*.m:;; Generated M code maintains cross reference for order_timestamp column in timestamp_fileman_tbl table
+_ydboctoX*.m:    ;   stat (always 2), AIM Metadata Type (depending if the table has it specified or not);   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,2,2,"$$Fileman2UnixTime^%ydboctoplanhelpers(,20)")
+_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
+_ydboctoX*.m:    ; Put the comment in again, in case it's deleted after the metadata is created but before the xref is built
+_ydboctoX*.m:    NEW comment SET comment="xref for table timestamp_fileman_tbl column order_timestamp"
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,2,2,"$$Fileman2UnixTime^%ydboctoplanhelpers(,20)")
+_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
+_ydboctoX*.m:    NEW comment SET comment="xref for table timestamp_fileman_tbl column order_timestamp"
+_ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
+_ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
+Verify that KILL on the entire node works fine with the trigger invocation
+# ----------------------------------------------------------------------------
+Verify select on the table returns zero rows
+# ----------------------------------------------------------------------------
+
+select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+select * from timestamp_fileman_tbl;
+OCTO> select order_timestamp from timestamp_fileman_tbl where order_timestamp=timestamp(fileman)'3111208.171839';
+order_timestamp
+(0 rows)
+OCTO> select * from timestamp_fileman_tbl;
+order_id|order_timestamp
+(0 rows)
+OCTO> 

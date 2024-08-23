@@ -1,0 +1,352 @@
+#################################################################
+#								#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+@test "TDTT085 : Check that zut format values consider time portion only when the type needs it" {
+	load_fixture TDTT085.sql subtest novv
+	verify_output TDTT085 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT086 : Validate that join with where clause works fine" {
+	load_fixture TDTT086.sql subtest novv
+	verify_output TDTT086 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT087 : Test INNER JOIN on various DATE/TIME/TIMESTAMP format columns in READONLY tables" {
+	echo "# -----------------------------------------------------------------" >> output.txt
+	echo "# This test takes a randomly generated date/time/timestamp literal." >> output.txt
+	echo "# Finds its equivalent in different formats (fileman/horolog etc.)." >> output.txt
+	echo "# Sets these literals as node values in different globals." >> output.txt
+	echo "# Does this 10 times so each global has 10 nodes." >> output.txt
+	echo "# Maps these globals to different READONLY tables." >> output.txt
+	echo "# Each table defines the column as date, date(fileman), date(horolog) etc. type." >> output.txt
+	echo "# It then generates queries to do JOIN on those tables with an ON condition that checks for the timestamp column values to be equal across the tables." >> output.txt
+	echo "# Since it is possible the randomly generated date/time/timestamp values can in rare cases match, the test expects at least as many (cannot be equal to) rows of values returned as the rows in the tables (i.e. >= 10)." >> output.txt
+	echo "# And because the select column list of the query is the condition count(joined rows) >= 10, we expect a value of 1 to show up in each of the 4 randomly generated JOIN queries." >> output.txt
+	echo "# And that is part of the reference file." >> output.txt
+	echo "# -----------------------------------------------------------------" >> output.txt
+
+	echo "# Load M data for READONLY tables that will be created in next step" >> output.txt
+	echo "# Use randomly generated date/time/timestamp literals for this purpose" >> output.txt
+	yottadb -run TDTT087 > TDTT087base.sql
+	octo -f TDTT087base.sql | grep -B 1 'row' | grep -vE "row|^--" | awk -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT087.awk > TDTT087gen.m
+	yottadb -run TDTT087gen
+
+	echo "# Generate CREATE TABLE commands for READONLY tables and SELECT queries that do JOINs on those READONLY tables" >> output.txt
+	yottadb -run genOctoqueries^TDTT087 > TDTT087_queries.sql
+	echo "# Run CREATE TABLE commands for READONLY tables" >> output.txt
+	grep -E 'create table | datestyle=' TDTT087_queries.sql | octo -p > TDTT087_queries_create.out
+	echo "# Run SELECT commands for READONLY tables involving JOINs" >> output.txt
+	grep -E 'select | datestyle=' TDTT087_queries.sql | octo -p > TDTT087_queries_select.out
+	echo "# Verify output of 4 SELECT commands involving JOINs" >> output.txt
+	echo "# Expect output of all 4 SELECT commands to be 1" >> output.txt
+	grep -B 1 "row" TDTT087_queries_select.out >> output.txt
+	verify_output TDTT087 output.txt
+}
+
+@test "TDTT088 : Test INNER JOIN on various DATE/TIME/TIMESTAMP format columns in READWRITE tables" {
+	echo "# This subtest is like TDTT087 but for READWRITE tables (instead of READONLY tables)" >> output.txt
+	echo "# See that subtest for test flow details" >> output.txt
+	echo "" >> output.txt
+	echo "# Run CREATE TABLE commands for READWRITE tables" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT087.m TDTT088.m
+	sed -i 's/ READONLY/ READWRITE/;' TDTT088.m
+	yottadb -run genOctoqueries^TDTT088 > TDTT088_queries.sql
+	grep -E 'create table | datestyle=' TDTT088_queries.sql | octo -p >& TDTT088_queries_create.out
+
+	echo "# Load table with data for READWRITE tables" >> output.txt
+	yottadb -run TDTT088 > TDTT088base.sql
+	octo -f TDTT088base.sql | grep -B 1 'row' | grep -vE "row|^--" | awk -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT088.awk > TDTT088gen.sql
+	octo -p -f TDTT088gen.sql > TDTT088gen.out
+
+	echo "# Run SELECT commands for READWRITE tables involving JOINs" >> output.txt
+	grep -E 'select | datestyle=' TDTT088_queries.sql | octo -p > TDTT088_queries_select.out
+	echo "# Verify output of 4 SELECT commands involving JOINs" >> output.txt
+	echo "# Expect output of all 4 SELECT commands to be 1" >> output.txt
+	grep -B 1 "row" TDTT088_queries_select.out >> output.txt
+	verify_output TDTT088 output.txt
+}
+
+@test "TDTT089 : Validate union operation of different date/time types" {
+	$ydb_dist/yottadb -r tdtt089^datetime >> input.sql
+	octo -p -f input.sql 2>&1 | tee -a output.txt
+	verify_output TDTT089 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT090 : Validate union operation of string and date/time type" {
+	$ydb_dist/yottadb -r tdtt090^datetime >> input.sql
+	octo -p -f input.sql 2>&1 | tee -a output1.txt
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture TDTT090.sql subtest novv
+	mv output.txt output2.txt
+	mv output1.txt output.txt
+	echo "==============" >> output.txt
+	echo "column based test" >> output.txt
+	echo "==============" >> output.txt
+	cat output2.txt >> output.txt
+	verify_output TDTT090 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT091 : Validate that concat returns date in YMD format" {
+	load_fixture TDTT091.sql subtest novv
+	verify_output TDTT091 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT092 : Validate that change in datestyle is taken into account while doing a cast operation" {
+	load_fixture TDTT092.sql subtest novv
+	verify_output TDTT092 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT093 : Ensure config->date_time_output_format is only hashed if outer select column has date/time columns" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT093.sql .
+	sed '/^#/d' TDTT093.sql >> input.sql
+	octo -f /dev/null
+	for format in {"horolog","zhorolog","zut","fileman","text"}; do
+		rm octo.conf || true
+		echo "datetimeoutputformat = \"$format\"" > octo.conf
+		octo -f input.sql >> output.txt 2>&1
+	done
+	[[ 1 -eq $(grep -c "select.*;" _ydbocto*.m) ]]
+	verify_output TDTT093 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT094 : Validate queries found to fail by fuzz testing works" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT094.sql
+}
+
+@test "TDTT095 : Validate timezone with seconds information works as expected" {
+	load_fixture TDTT095.sql subtest novv
+	verify_output TDTT095 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT096 : Validate that timezone seconds is generated and cross check function validates this output" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT096.sql
+}
+
+@test "TDTT097 : Validate that change in date/time output format doesn't create new plan (not hash'd)" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT097.sql .
+	sed 's/^#.*//g;/^$/d' TDTT097.sql >> input.sql
+	for format in {"horolog","zhorolog","zut","fileman","text"}; do
+		echo "datetimeoutputformat = \"$format\"" > octo.conf
+		cat octo.conf >> output.txt
+		octo -f input.sql >> output.txt
+	done
+	verify_output TDTT097 output.txt nodatetimefilter noinfo nodebug
+	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+}
+
+@test "TDTT098 : Validate parameter value to date/time cast works fine as its used by powerbi report builder" {
+	# Include testing of all cast operation
+	stop_rocto
+	test_port=$(start_rocto 1344 verbose)
+	testname="TDTT098"
+	run_java $testname $test_port &> output.txt || true
+	echo "" >> output.txt
+	echo "---------Test END-----------" >> output.txt
+	grep ERROR rocto.log >> output.txt
+	echo "Conversion routines should be used for both values" >> output.txt
+	grep "%Y-%m-%d" _ydbocto*.m >> output.txt
+	verify_output $testname output.txt nodatetimefilter psql
+}
+
+@test "TDTT099 : Misc valid cases" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT099.sql
+}
+
+@test "TDTT100 : Check datestyle set when MYSQL is being emulated" {
+	if [[ $(mysql --version) == *"MariaDB"* ]]; then
+		mysql_is_mariadb="true"
+	else
+		mysql_is_mariadb="false"
+	fi
+	# Following runs by using --emulate
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTT100.sql
+	# Following runs by taking emulate information from config file
+	echo 'emulate = "'MYSQL'"' > octo.conf
+	load_fixture TDTT100_1.sql subtest novv
+	sed -i 's/[0-9]\{2\}-[0-9]\{2\}-[0-9]\{4\}/DATE TIME/g' output.txt
+	verify_output TDTT100_1 output.txt noinfo nodebug
+}
+
+@test "TDTT101 : Ensure time is allowed to specified in DATE type value and invalid edge case readonly table value for fileman date returns null and not error" {
+	yottadb -run %XCMD 'SET ^datef(0)="3230201"'
+	yottadb -run %XCMD 'SET ^datef(1)="01"'
+	yottadb -run %XCMD 'SET ^datef(2)="3230201.010101"'
+	yottadb -run %XCMD 'SET ^datef(3)="3020730.11164601"'
+	yottadb -run %XCMD 'SET ^datef(4)="TESTING THE ROUTINE OUT"'
+	yottadb -run %XCMD 'SET ^dateh(0)="67011,41907"'
+	yottadb -run %XCMD 'SET ^dateh(1)="67011"'
+	yottadb -run %XCMD 'SET ^datet(0)="2023-01-01 01:01:01"'
+	yottadb -run %XCMD 'SET ^datet(1)="2023-01-01"'
+	load_fixture TDTT101.sql subtest novv
+	verify_output TDTT101 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT102 : Validate that arbitrary spaces are allowed at the beginning and end, and between date and time; Validated arbitrary T's allowed between date and time" {
+	stop_rocto
+	test_port=$(start_rocto 1400 -aw)
+	# Following routine creates queries and creates the global for readonly table used in TDTT102_octo.sql
+	$ydb_dist/yottadb -r tdtt102^datetime >> input.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names input.sql
+	load_fixture TDTT102_octo.sql subtest novv
+	verify_output TDTT102_octo output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT103 : Ensure key fixing optimization works with readonly tables also" {
+	# TDTT044 also tests for key fix optimization. Here we are trying to make sure certain aspects are as we want it to be.
+	# Check that a query with key fix optimization and a query without key fix optimization works fine
+	# select * from orders where order_date>timestamp'1776-07-04' and order_date<timestamp'1795-07-21';
+	# select * from orders;
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TDTT103.sql
+	# Enable following test after AIM supports new type and Octo makes use
+	# of it to do key fixing of FILEMAN columns
+	# rm _ydbocto*.m
+	#echo "Trigger test" >> output.txt
+	#echo "------------------------------------" >> output.txt
+	#yottadb -run %XCMD 'set ^timestampfilemantbl(1)="8600201.113630"'
+	#yottadb -run %XCMD 'set ^timestampfilemantbl(2)="3111208.171839"'
+	#yottadb -run %XCMD 'set ^timestampfilemantbl(3)="3111208.171839"'
+	#echo "Create table and query it to create cross references" >> output.txt
+	#echo "------------------------------------" >> output.txt
+	#load_fixture TDTT103_trig_1.sql subtest novv
+	#echo "Confirm cross reference are created" >> output.txt
+	#echo "------------------------------------" >> output.txt
+	#yottadb -run %XCMD 'zwr ^%ydbAIMDmVGSavhPiSB55S7kTo9u0G' >> output.txt
+	#mv output.txt TDTT103_trig_1_output.txt
+	## Update nodes to invoke triggers
+	#echo "Update gvns to invoke triggers" >> output.txt
+	#echo "------------------------------------" >> output.txt
+	#echo "Kill an existing node" >> output.txt
+	#yottadb -run %XCMD 'kill ^timestampfilemantbl(2)'
+	#echo "Kill a non-existant node" >> output.txt
+	#yottadb -run %XCMD 'kill ^timestampfilemantbl(5)'
+	#echo "Update (SET) an existing node" >> output.txt
+	#yottadb -run %XCMD 'set ^timestampfilemantbl(3)="3111208.181839"'
+	#echo "Create a new node (SET)" >> output.txt
+	#yottadb -run %XCMD 'set ^timestampfilemantbl(4)="3111208.171839"'
+	#echo "Ensure '(2|3111208.171839) is removed, (3|3111208.171839) is changed to (3|3111208.181839) and (4|3111208.171839) is added'" >> output.txt
+	#echo "------------------------------------" >> output.txt
+	#load_fixture TDTT103_trig_2.sql subtest novv
+	#mv output.txt TDTT103_trig_2_output.txt
+	#cat TDTT103_trig_*_output.txt >> output.txt
+	#echo "# ----------------------------------------------------------------------------" >> output.txt
+	#echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+	#echo "# ----------------------------------------------------------------------------" >> output.txt
+	#grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	#echo "Verify that KILL on the entire node works fine with the trigger invocation" >> output.txt
+	#echo "# ----------------------------------------------------------------------------" >> output.txt
+	#yottadb -run %XCMD 'kill ^timestampfilemantbl'
+	#echo "Verify select on the table returns zero rows" >> output.txt
+	#echo "# ----------------------------------------------------------------------------" >> output.txt
+	#mv output.txt tmp.txt
+	#load_fixture TDTT103_trig_2.sql subtest novv
+	#cat output.txt >> tmp.txt
+	#mv tmp.txt output.txt
+	#verify_output TDTT103_trig output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT104: OCTO1052 : Validate triggers working with all readonly table date/time type columns" {
+	# Test 1 with non-primary key date/time column
+	$ydb_dist/yottadb -r tdtt104^datetime
+	for filename in input*.sql; do
+		filename2=${filename%.sql}
+		echo "-- Testing $filename2" >> output.txt
+		echo "-- Run create and select with key fix optimization -- " >> output.txt
+		octo -pf $filename >> output.txt 2>&1 || true
+		echo "-- Run the yottadb command which modifies the globals that were mapped to a table above --" >> output.txt
+		chmod +x "$filename2".sh
+		./"$filename2".sh
+		echo "-- Run select on the table to see the modifications done to the global --" >> output.txt
+		grep -r 'select' $filename >> tmp.sql
+		octo -pf tmp.sql >> output.txt 2>&1 || true
+		rm tmp.sql
+	done
+	verify_output TDTT104_non_primary_key output.txt nodatetimefilter noinfo nodebug
+	mv clean_output.txt clean_output1.txt
+	mv output.txt output1.txt
+	# Test 2 with primary key date/time column
+	$ydb_dist/yottadb -r tdtt104^datetime 1
+	for filename in inputprim*.sql; do
+		filename2=${filename%.sql}
+		echo "-- Testing $filename2" >> output.txt
+		echo "-- Run create and select with key fix optimization -- " >> output.txt
+		octo -pf $filename >> output.txt 2>&1 || true
+		echo "-- Run the yottadb command which modifies the globals that were mapped to a table above --" >> output.txt
+		chmod +x "$filename2".sh
+		./"$filename2".sh
+		echo "-- Run select on the table to see the modifications done to the global --" >> output.txt
+		grep -r 'select' $filename >> tmp.sql
+		octo -pf tmp.sql >> output.txt 2>&1 || true
+		rm tmp.sql
+	done
+	verify_output TDTT104_primary_key output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT105: OCTO1052 : Validate the working of primary and non primary date/time columns" {
+	yottadb -run %XCMD 'set ^datetimepdate("2023-01-01")=0'
+	yottadb -run %XCMD 'set ^datetimepdate("2023-01-02")=1'
+	yottadb -run %XCMD 'set ^datetimedate(0)="2023-01-01"'
+	yottadb -run %XCMD 'set ^datetimedate(1)="2023-01-02"'
+	load_fixture TDTT105.sql subtest novv
+	grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	verify_output TDTT105 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT106: OCTO1052 : Validate the working of date/time columns with KEY NUM" {
+	# This test also includes similar queries with non-date/time columns to give an idea of the difference in handling
+	# Key fixing and cross referencing doesn't happen for date/time values if they are qualified as primary key or with key num
+	yottadb -run %XCMD 'set ^datetimedate(0,"2023-01-02")="2023-04-02"'
+	yottadb -run %XCMD 'set ^datetimedate(0,"2023-01-03")="2023-05-02"'
+
+	# Key fixing happens for date/time values if they are qualified as primary key or with key num
+	yottadb -run %XCMD 'set ^test(0,"first")="second"'
+	yottadb -run %XCMD 'set ^test(0,"first1")="second2"'
+	load_fixture TDTT106.sql subtest novv
+	head -q --lines=25 _ydbocto*.m >> output.txt
+	verify_output TDTT106 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT107: OCTO1052 : Validate the working of empty strings as date/time column values" {
+	yottadb -run %XCMD 'set ^datetimedate(0)="2023-01-02"'
+	yottadb -run %XCMD 'set ^datetimedate(1)=""'
+	load_fixture TDTT107.sql subtest novv
+	grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	verify_output TDTT107 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT108: OCTO1052 : Validate the working of empty strings as date/time column values" {
+	yottadb -run %XCMD 'set ^datetimedate(0)="2023-01-02"'
+	# Re-use TDTT107.sql as it serves our purpose here
+	load_fixture TDTT107.sql subtest novv
+	grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	yottadb -run %XCMD 'set ^datetimedate(1)="xy"'
+	grep -r "select" TDTT107.sql >> post_trigger_input.sql
+	octo -pf post_trigger_input.sql >> output.txt 2>&1 || true
+	verify_output TDTT108 output.txt nodatetimefilter noinfo nodebug
+}

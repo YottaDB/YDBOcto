@@ -960,6 +960,16 @@ int octo_init(int argc, char **argv) {
 				status = 1;
 				break;
 			}
+			/* DELETE ^%ydboctoocto("xc_path") */
+			ydb_buffer_t octo_global, sub;
+			YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
+			YDB_STRING_TO_BUFFER(OCTOLIT_XC_PATH, &sub);
+			status = ydb_delete_s(&octo_global, 1, &sub, YDB_DEL_NODE);
+			if (YDB_OK != status) {
+				YDB_ERROR_CHECK(status);
+				status = 1;
+				break;
+			}
 		} else {
 			/* Octo was built but not installed. So derive the path of ydbocto.xc from the path of the
 			 * octo/rocto binary that is currently running.
@@ -982,6 +992,48 @@ int octo_init(int argc, char **argv) {
 				}
 			} else {
 				ERROR(ERR_LIBCALL_WITH_ARG, "readlink()", "/proc/self/exe");
+				status = 1;
+				break;
+			}
+			/* Set gvn with xc_path so that aux/_ydboctoplanhelpers.m -> transformation functions can set ydb_xc_octo
+			 * when DISABLE_INSTALL is set to OFF
+			 */
+			// $get(gvn)
+			ydb_buffer_t octo_global, sub, path;
+			char	     path_buff[OCTO_PATH_MAX];
+			path.buf_addr = &path_buff[0];
+			path.len_alloc = sizeof(path_buff);
+			YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
+			YDB_STRING_TO_BUFFER(OCTOLIT_XC_PATH, &sub);
+			status = ydb_get_s(&octo_global, 1, &sub, &path);
+			if ((YDB_OK == status) || (YDB_ERR_GVUNDEF == status)) {
+				boolean_t set_path = FALSE;
+				if (YDB_OK == status) {
+					path.buf_addr[path.len_used] = '\0';
+					// If set, check that ydbocto.xc exists in the path given by gvn value if not set it to
+					// xc_path
+					FILE *fp;
+					fp = fopen(path_buff, "r");
+					if (NULL == fp) {
+						set_path = TRUE;
+					}
+				} else {
+					assert(YDB_ERR_GVUNDEF == status);
+					set_path = TRUE;
+				}
+				if (set_path) {
+					YDB_STRING_TO_BUFFER(xc_path, &path)
+					status = ydb_set_s(&octo_global, 1, &sub, &path);
+					if (YDB_OK != status) {
+						// ERROR
+						YDB_ERROR_CHECK(status);
+						status = 1;
+						break;
+					}
+				}
+			} else {
+				// ERROR
+				YDB_ERROR_CHECK(status);
 				status = 1;
 				break;
 			}

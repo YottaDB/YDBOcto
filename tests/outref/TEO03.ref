@@ -616,7 +616,7 @@ octoPlan2(cursorId)
     . . SET %ydboctoexpr=$PIECE($GET(^nwOrders(%ydboctocursor(cursorId,"keys",8,"nworders","orderid"))),"|",4) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($PIECE($GET(^nwOrders(%ydboctocursor(cursorId,"keys",8,"nworders","orderid"))),"|",3),17,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($PIECE($GET(^nwOrders(%ydboctocursor(cursorId,"keys",8,"nworders","orderid"))),"|",3),17,36,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",13,"","",%ydboctocursor(cursorId,"keys",13,"",""))=%ydboctoexpr

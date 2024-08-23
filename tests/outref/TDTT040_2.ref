@@ -140,13 +140,25 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob date(horolog)) global "^datehorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366" is invalid for type "DATE", format "HOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|1840-01-01
+2|
+3|9999-12-31
+4|
+(5 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time(horolog)) global "^timehorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-1" is invalid for type "TIME", format "HOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|00:00:00
+2|
+3|23:59:59
+4|
+(5 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time(horolog)with time zone) global "^timewithtimezonehorolog" readonly;
@@ -170,38 +182,105 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp(horolog)) global "^timestamphorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,-1" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|
+2|
+3|
+4|1840-01-01 00:00:00
+5|9999-12-31 23:59:59
+6|
+7|
+8|
+(9 rows)
 OCTO> --zhorolog
 drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob date(zhorolog)) global "^datezhorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366,,," is invalid for type "DATE", format "ZHOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|1840-01-01
+2|9999-12-31
+3|
+4|
+(5 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time(zhorolog)) global "^timezhorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",-1,," is invalid for type "TIME", format "ZHOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|00:00:00
+2|
+3|00:00:00
+4|23:59:59
+5|
+6|23:59:59.999999
+7|23:59:59.1
+8|
+9|
+(10 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time(zhorolog)with time zone) global "^timewithtimezonezhorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: ",0,,43201" is invalid for type "TIME WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|
+2|08:00:00-04
+3|
+4|08:00:00-04
+5|05:59:59-04
+6|
+7|
+8|05:59:59.999999-04
+9|
+10|
+(11 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp(zhorolog) with time zone) global "^timestampwithtimezonezhorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-365,0,,43201" is invalid for type "TIMESTAMP WITH TIME ZONE", format "ZHOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|
+3|
+4|1840-01-01 07:03:58-04:56:02
+5|
+6|1840-01-01 07:03:58-04:56:02
+7|9999-12-31 04:59:59-05
+8|
+9|
+10|
+11|9999-12-31 04:59:59.999999-05
+12|
+13|
+14|
+15|
+16|
+(16 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp(zhorolog)) global "^timestampzhorolog" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-366,0,," is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
+id|dob
+0|
+1|
+2|1840-01-01 00:00:00
+3|
+4|1840-01-01 00:00:00
+5|9999-12-31 23:59:59
+6|
+7|9999-12-31 23:59:59.999999
+8|
+9|
+(10 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob date(fileman)) global "^datefileman" readonly;
@@ -258,7 +337,17 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob date(zut)) global "^datezut" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-62167219300000000" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
+id|dob
+0|0000-01-01
+1|0000-01-01
+2|
+3|0000-01-01
+4|
+5|
+6|9999-12-31
+7|
+8|
+(9 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 [ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
@@ -294,62 +383,144 @@ DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp(zut)) global "^timestampzut" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-62167219300000000" is invalid for type "TIMESTAMP", format "ZUT" and datestyle "ISO, YMD"
+id|dob
+0|0000-01-01 04:56:01
+1|0000-01-01 04:56:02
+2|0000-01-01 00:00:00
+3|
+4|
+5|
+6|9999-12-31 23:59:59.999999
+7|
+8|
+(9 rows)
 OCTO> --text
 drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob date) global "^datetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-00-01" is invalid for type "DATE", format "TEXT" and datestyle "ISO, YMD"
+id|dob
+0|0000-01-01
+1|
+2|
+3|
+4|9999-12-31
+5|0100-01-01
+6|0010-01-01
+7|0001-01-01
+8|
+(9 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time) global "^timetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "24:00:00.000000" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
+id|dob
+0|00:00:00
+1|00:00:00
+2|23:59:59.999999
+3|23:59:59
+4|23:59:59.1
+5|
+6|
+7|
+8|
+9|00:01:00
+10|
+(11 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "00:00:00.000000-16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
+id|dob
+0|
+1|11:59:00-04
+2|04:01:00-04
+3|
+4|
+5|11:58:59.999999-04
+6|04:00:59.999999-04
+7|
+8|
+(9 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01 00:00:00.000000-16:00" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-001-12-31 03:04:58-04:56:02" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp) global "^timestamptext" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010 00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10000-01-01 00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time) global "^timetextiso" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "T24:00:00.000000" is invalid for type "TIME", format "TEXT" and datestyle "ISO, YMD"
+id|dob
+0|00:00:00
+1|00:00:00
+2|23:59:59.999999
+3|23:59:59
+4|23:59:59.1
+5|
+6|
+7|
+8|
+9|00:01:00
+10|
+11|00:00:00
+12|00:00:00
+13|23:59:59.999999
+14|23:59:59
+15|23:59:59.1
+16|
+17|
+18|
+19|
+20|00:01:00
+(21 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetextiso" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "T00:00:00.000000-16:00" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
+id|dob
+0|
+1|11:59:00-04
+2|04:01:00-04
+3|
+4|
+5|11:58:59.999999-04
+6|04:00:59.999999-04
+7|
+8|
+9|
+10|11:59:00-04
+11|04:01:00-04
+12|
+13|
+14|11:58:59.999999-04
+15|04:00:59.999999-04
+16|
+(17 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetextiso" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "0000-01-01T00:00:00.000000-16:00" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-001-12-31 03:04:58-04:56:02" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp) global "^timestamptextiso" readonly;
 CREATE TABLE
 OCTO> select * from test;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "1000-01-010T00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "10000-01-01 00:00:00" is invalid for type "TIMESTAMP", format "TEXT" and datestyle "ISO, YMD"
 OCTO> drop table if exists test keepdata;
 DROP TABLE
 OCTO> create table test (id integer primary key, dob timestamp with time zone) global "^edgecase" readonly;

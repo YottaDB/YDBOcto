@@ -82,7 +82,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	 */
 	boolean_t is_date_time_column = IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type);
 	boolean_t is_boolean_column = (BOOLEAN_TYPE == column->data_type_struct.data_type);
-	boolean_t text_format = FALSE;
+	boolean_t is_fileman_column = (OPTIONAL_DATE_TIME_FILEMAN == column->data_type_struct.format);
 	matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
 	cur_plan = pplan;
 	do {
@@ -105,16 +105,18 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 					// Handle date and time column
 					boolean_t close_paren = FALSE;
 					if (is_date_time_column) {
-						if (table->readwrite) {
+						/* Remove the `!is_fileman_column_condition` after
+						 * https://gitlab.com/YottaDB/Util/YDBAIM/-/issues/78 is implemented and Octo makes
+						 * use of it to do key fixing of FILEMAN readonly table columns.
+						 */
+						if (table->readwrite || (!table->readwrite && !is_fileman_column && key->is_cross_reference_key)) {
 							// The value will be in internal format no need to do anything
 						} else {
 							// The value will be in a format different from the internal format expected
 							// Convert it
 							assert(NULL != column->keywords);
 							close_paren = TRUE;
-							enum OptionalKeyword keyword_type = column->data_type_struct.format;
-							text_format = (OPTIONAL_DATE_TIME_TEXT == keyword_type);
-							TMPL(tmpl_convert_to_unix_time, keyword_type);
+							TMPL(tmpl_convert_to_unix_time);
 						}
 						// else {} doesn't need to be handled as if it is any other type its value will already be in internal
 						// format.
@@ -128,13 +130,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 					}
 					TMPL(tmpl_key, key);
 					if (close_paren) {
-						SqlValueType type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type,FALSE);
-						%{},{{ type|%d }}{}%
-						if (text_format) {
-							const char *format_specifier;
-							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(type, format_specifier);
-							%{},"{{ format_specifier }}"{}%
-						}
+						// Add rest of the arguments
+						TMPL(tmpl_print_date_time_to_unix_time_args,
+						     get_sqlvaluetype_from_sqldatatype(
+									column->data_type_struct.data_type,
+									FALSE),
+						     column->data_type_struct.format, FALSE, FALSE);
+						// Close conversion routine
 						%{}){}%
 					} else if (close_force_boolean_paren) {
 						%{}){}%
@@ -172,10 +174,10 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	source = value->v.string_literal;
 
 	boolean_t	is_xref_plan;
-
-	boolean_t close_paren = FALSE;
 	/* Note: pplan->outputKey can be NULL in case of LP_UPDATE plan so account for that below with a "NULL != " check */
 	is_xref_plan = ((NULL != pplan->outputKey) && pplan->outputKey->is_cross_reference_key);
+
+	boolean_t close_paren = FALSE;
 	// Handle date and time column
 	if ((!is_trigger) && (matching_plan != pplan)) {
 		/* Key belongs to a parent query table. Depending on whether OUTER JOINs were
@@ -194,12 +196,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			// Convert it
 			assert(NULL != column->keywords);
 			close_paren = TRUE;
-			enum OptionalKeyword keyword_type = column->data_type_struct.format;
-			text_format = (OPTIONAL_DATE_TIME_TEXT == keyword_type);
-			TMPL(tmpl_convert_to_unix_time, keyword_type);
-			// else {} doesn't need to be handled as if it is any other type its value will already be in internal
-			// format.
-			// Also no need to worry about derived column because of the same reason
+			TMPL(tmpl_convert_to_unix_time);
 		}
 	}
 	// Add additional routine to process a boolean column when it is a readonly table
@@ -282,13 +279,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			}
 		}
 		if (close_paren) {
-			SqlValueType type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type,FALSE);
-			%{},{{ type|%d }}{}%
-			if (text_format) {
-				const char *format_specifier;
-				GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(type, format_specifier);
-				%{},"{{ format_specifier }}"{}%
-			}
+			// Add rest of the arguments
+			TMPL(tmpl_print_date_time_to_unix_time_args,
+			     get_sqlvaluetype_from_sqldatatype(
+						column->data_type_struct.data_type,
+						FALSE),
+			     column->data_type_struct.format, FALSE, FALSE);
+			// Close conversion routine
 			%{}){}% // Date time closing paren
 		} else if (close_force_boolean_paren) {
 			%{}){}%

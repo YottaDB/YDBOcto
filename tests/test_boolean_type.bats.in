@@ -174,6 +174,21 @@ teardown() {
 	stop_rocto
 }
 
+@test "TBT16 : OCTO1032/OCTO1060 : Test that boolean readonly table column values go through key fixing apart from when they are keys" {
+	yottadb -run %XCMD 's ^test1(0)="true"'
+	yottadb -run %XCMD 's ^test1(1)="false"'
+	yottadb -run %XCMD 's ^test2("true")=0'
+	yottadb -run %XCMD 's ^test2("false")=1'
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TBT16.sql .
+	sed '/^#/d' TBT16.sql >> input.sql
+	echo "# Expect: AIM cross references to be used by test1" >> output.txt
+	echo "# Expect: No cross reference usage by test2 because the boolean column is a primary key" >> output.txt
+	echo "# Expect: Row with ID 0 to have TRUE as foo value and row with ID 1 to have FALSE as foo value for both test1 and test2" >> output.txt
+	octo -pf input.sql >> output.txt
+	grep -r "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	verify_output TBT16 output.txt
+}
+
 @test "TBT17 : OCTO1064 : Test that boolean literals in all cases are accepted" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT17.sql "trim_trailing_zeroes"
 }

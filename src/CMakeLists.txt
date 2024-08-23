@@ -532,6 +532,7 @@ set(template_files
   ${template_dir}/tmpl_print_dots.ctemplate
   ${template_dir}/tmpl_print_date_time_addition.ctemplate
   ${template_dir}/tmpl_print_date_time_subtraction.ctemplate
+  ${template_dir}/tmpl_print_date_time_to_unix_time_args.ctemplate
   ${template_dir}/tmpl_print_expression.ctemplate
   ${template_dir}/tmpl_print_expression_assignment.ctemplate
   ${template_dir}/tmpl_print_expression_group_by_computation.ctemplate

@@ -106,15 +106,21 @@ id|dob
 OCTO> create table TDTT071th (id integer primary key, dob timestamp(horolog)) global "^TDTT071th(keys(""id""))" readonly;
 CREATE TABLE
 OCTO> select * from TDTT071th;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840" is invalid for type "TIMESTAMP", format "HOROLOG" and datestyle "ISO, YMD"
+id|dob
+1|
+(1 row)
 OCTO> create table TDTT071tzh (id integer primary key, dob timestamp(horolog) with time zone) global "^TDTT071tzh(keys(""id""))" readonly;
 CREATE TABLE
 OCTO> select * from TDTT071tzh;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840" is invalid for type "TIMESTAMP WITH TIME ZONE", format "HOROLOG" and datestyle "ISO, YMD"
+id|dob
+1|
+(1 row)
 OCTO> create table TDTT071tzho (id integer primary key, dob timestamp(zhorolog)) global "^TDTT071tzho(keys(""id""))" readonly;
 CREATE TABLE
 OCTO> select * from TDTT071tzho;
-[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "66840,,," is invalid for type "TIMESTAMP", format "ZHOROLOG" and datestyle "ISO, YMD"
+id|dob
+1|
+(1 row)
 OCTO> create table TDTT071tzzho (id integer primary key, dob timestamp(zhorolog) with time zone) global "^TDTT071tzzho(keys(""id""))" readonly;
 CREATE TABLE
 OCTO> select * from TDTT071tzzho;

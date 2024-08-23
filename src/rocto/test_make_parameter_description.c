@@ -56,6 +56,10 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 				ret_value->len_used = snprintf(ret_value->buf_addr, OCTO_PATH_MAX, "%s", src_path);
 		}
 		return 0;
+	} else if ((0 == strncmp(varname->buf_addr, "^%ydboctoocto", varname->len_used))
+		   && (0 == strncmp(subsarray->buf_addr, "xc_path", subsarray->len_used))) {
+		// This GV definition is not required for this test so return an undefined error
+		return YDB_ERR_GVUNDEF;
 	}
 	boolean_t     done = FALSE;
 	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t *);

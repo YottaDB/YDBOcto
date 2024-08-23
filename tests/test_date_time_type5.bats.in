@@ -1,0 +1,207 @@
+#################################################################
+#								#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TDTT045 : OCTO382 : Test date and time with a db having ten thousand rows" {
+	# Originally this test had million rows but aim processing will take time in this case so the number
+	# of rows are reduced.
+	$ydb_dist/yottadb -r largedb^datetime
+	load_fixture TDTT045.sql subtest novv
+	verify_output TDTT045 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT046 : OCTO382 : Randomly test 100 date value in text format value range" {
+	# This test needs the user who runs this test to haved CREATEDB permission to create
+	# a new database and alter its timezone
+
+	# Generate test queries with date/time values in text format
+	$ydb_dist/yottadb -r generateDateTimeValues^datetime "0.1"
+
+	databasename="names"
+	if [[ 1 -eq $(($RANDOM%2)) ]]; then
+		startVal=-$((($RANDOM%12)+1))
+		endVal=$(($RANDOM%15))
+		echo "startVal=$startVal, endVal=$endVal" >> timezone.txt
+		if [[ 1 -eq $(($RANDOM%2)) ]]; then
+			timezonehr=$startVal
+			echo "startVal selected" >> timezone.txt
+		else
+			timezonehr=$endVal
+			echo "endVal selected" >> timezone.txt
+			if [[ -f "zhorolog.range" ]] && [[ $timezonehr -gt 11 ]]; then
+				# Ensure timezone is not out of range of zhorolog if the time zone selected exceeds its range
+				timezonehr="12"
+				echo "value changed to 12 to be in zhorolog timezone range" >> timezone.txt
+			fi
+			timezonehr="+$timezonehr"
+		fi
+		if [[ 1 -eq $(($RANDOM%2)) ]]; then
+			# include timezone minutes
+			if [[ -12 -eq $timezonehr ]]; then
+				timezone="$timezonehr:00"
+			elif [[ 14 -eq $timezonehr ]]; then
+				timezone="$timezonehr:00"
+			else
+				if [[ -f "zhorolog.range" ]] && [[ $timezonehr -gt 11 ]]; then
+					# Ensure timezone is not out of range of zhorolog if the time zone selected exceeds its range
+					timezonemin="00"
+				else
+					timezonemin=$((($RANDOM%59)+1))
+					if [[ 10 -gt $timezonemin ]]; then
+						timezonemin="0$timezonemin"
+					fi
+				fi
+				timezone="$timezonehr:$timezonemin"
+			fi
+		else
+			timezone="$timezonehr"
+		fi
+		echo "timezone=$timezone" >> timezone.txt
+		export TZ=UTC$timezone # sets time zone for Octo
+		echo "TZ=$TZ" >> timezone.txt
+		databasename="tdtt046namesutc"
+		create_postgres_database $databasename
+		psql postgres -c "ALTER DATABASE $databasename SET timezone TO 'UTC$timezone'";
+		psql $databasename -c "show time zone" >> timezone.txt
+	fi
+
+	# This test first cross checks Octo's output with Postgres's output. The queries tested here have date literals.
+	# The validated Octo's output is then compared against the readonly table (date/time values mapped here are same as
+	# the date/time literal values)query results. Both are expected to be the same.
+
+	# TEXT input format validation
+	# Validate literal test queries against Postgres
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databasename input.sql
+	# Validate readonly table values
+	# Run in readonly table value queries in Octo
+	octo -p -f input2.sql 2>&1 | tee -a output.txt
+	# Ensure no errors are seen
+	[[ $(grep -c "ERROR" output.txt) -eq 0 ]]
+	mv output.txt octo_text_readonly_table_output.txt
+	# Consolidate Octo's output from execution of run_query_in_octo_and_postgres_and_crosscheck_multiple_queries().
+	# This test depends on all driver executions of cross check interface having Octo's results in files matching the pattern `input*.octo.out`.
+	cat input*.octo.out >> octo_text_literal_output.txt
+	# Remove all but result values from date/time literal query output
+	sed 's/???//g;s/(1 row)//g;/^$/d' octo_text_literal_output.txt >> octo_text_literal_output_only_values.txt
+	# Remove all but result values from readonly table output
+	sed 's/id|dob//g;s/(100 rows)//g;s/OCTO>//g;s/CREATE TABLE//g;s/create table.*readonly\;//g;s/select \* from test\;//g;s/.*|//g;/^$/d;/^ $/d;' octo_text_readonly_table_output.txt >> octo_text_readonly_table_output_only_values.txt
+	# sort both output files
+	sort -o octo_text_literal_output_only_values.txt{,}
+	sort -o octo_text_readonly_table_output_only_values.txt{,}
+	# Check that the output in both files match
+	diff octo_text_literal_output_only_values.txt octo_text_readonly_table_output_only_values.txt
+
+	for filename in fileman horolog zhorolog zut; do
+		if [[ -f "$filename.range" ]]; then
+			# $filename input format validation
+			# Validate literal based queries
+			echo "datetimeoutputformat = \"$filename\"" > octo.conf
+			# Get $filename output formatted values from text formatted input
+			octo -p -f input.sql 2>&1 | tee -a output.txt
+			mv output.txt "octo_text_to_""$filename""_literal_output.txt"
+			sed 's/OCTO>.*//g;s/???//g;s/(1 row)//g;/^$/d' "octo_text_to_""$filename""_literal_output.txt" >> "octo_text_to_""$filename""_literal_output_only_values.txt"
+			# Form $filename input literals
+			if [[ -f date.type ]]; then
+				cmd="{printf \"select date($filename)\047%s\047;\n\", \$0;}"
+			elif [[ -f timestamp.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesnt't allow microseconds
+					mv octo_text_literal_output_only_values.txt octo_text_literal_output_only_values_orig.txt
+					sed 's/\..*//g' octo_text_literal_output_only_values_orig.txt >> octo_text_literal_output_only_values.txt
+				fi
+				cmd="{printf \"select timestamp($filename)\047%s\047;\n\", \$0;}"
+			elif [[ -f time.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesnt't allow microseconds
+					mv octo_text_literal_output_only_values.txt octo_text_literal_output_only_values_orig.txt
+					sed 's/\..*//g' octo_text_literal_output_only_values_orig.txt >> octo_text_literal_output_only_values.txt
+				fi
+				cmd="{printf \"select time($filename)\047%s\047;\n\", \$0;}"
+			elif [[ -f timestamp_with_time_zone.type ]]; then
+				if [[ -f fileman.range ]] || [[ -f horolog.range ]]; then
+					# Removing microseconds as format doesnt't allow microseconds
+					mv octo_text_literal_output_only_values.txt octo_text_literal_output_only_values_orig.txt
+					# Following sed will remove only the micro seconds
+					sed 's/\..*\(-\|+.*\)/\1/g' octo_text_literal_output_only_values_orig.txt >> octo_text_literal_output_only_values.txt
+				fi
+				cmd="{printf \"select timestamp($filename) with time zone\047%s\047;\n\", \$0;}"
+			else
+				# An unsupported type is seen
+				exit 1
+			fi
+			echo $cmd >> "test1.awk"
+			awk -f test1.awk "octo_text_to_""$filename""_literal_output_only_values.txt" >> "octo_""$filename""_literal_test.sql"
+			# Get text output formatted values from $filename formatted input
+			rm octo.conf
+			octo -p -f "octo_""$filename""_literal_test.sql" 2>&1 | tee -a "octo_""$filename""_literal_test_output.txt"
+			sed 's/OCTO>.*//g;s/???//g;s/(1 row)//g;/^$/d' "octo_""$filename""_literal_test_output.txt" >> "octo_""$filename""_literal_test_output_only_values.txt"
+			sort -o "octo_""$filename""_literal_test_output_only_values.txt"{,}
+			diff octo_text_literal_output_only_values.txt "octo_""$filename""_literal_test_output_only_values.txt"
+			# Form global for readonly table test
+			# ^date$filename(keys(id))
+			cmd="{printf \"\tSET ^date$filename(%d)=\\\"%s\\\"\n\", NR, \$0}"
+			echo $cmd >> "test2.awk"
+			awk -f test2.awk "octo_text_to_""$filename""_literal_output_only_values.txt" >> "$filename.m"
+			# run the M code to setup globals
+			yottadb -r "$filename"
+			# Validate readonly table values
+			octo -p -f "octo_""$filename""_readonly_table_query.sql" 2>&1 | tee -a "octo_""$filename""_readonly_table_output.txt"
+			sed 's/id|dob//g;s/(100 rows)//g;s/OCTO>//g;s/CREATE TABLE//g;s/create table.*readonly\;//g;s/select \* from test.*\;//g;s/.*|//g;/^$/d;/^ $/d;' "octo_""$filename""_readonly_table_output.txt" >> "octo_""$filename""_readonly_table_output_only_values.txt"
+			# sort both output files
+			sort -o "octo_""$filename""_readonly_table_output_only_values.txt"{,}
+			diff "octo_""$filename""_literal_test_output_only_values.txt" "octo_""$filename""_readonly_table_output_only_values.txt"
+		fi
+	done
+	if [[ -f timezone.txt ]]; then
+		drop_postgres_database $databasename
+	fi
+}
+
+@test "TDTT047 : OCTO382 : Test ZUT formatted date and time input values have correct text and ZUT formatted output values" {
+	# First text format output
+	load_fixture TDTT047.sql subtest novv
+	mv output.txt output_1.txt
+
+	# zut format output
+	echo "datetimeoutputformat = \"zut\"" > octo.conf
+	load_fixture TDTT047.sql subtest novv
+	mv output.txt output_2.txt
+
+	cat output_*.txt >> output.txt
+	verify_output TDTT047 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TDTT048 : OCTO382 : Test ZHOROLOG formatted date and time input values have correct text and ZHOROLOG fomratted output values" {
+	# First text format output
+	load_fixture TDTT048.sql subtest novv
+	mv output.txt output_1.txt
+
+	# zhorolog format output
+	echo "datetimeoutputformat = \"zhorolog\"" > octo.conf
+	load_fixture TDTT048.sql subtest novv
+	mv output.txt output_2.txt
+
+	cat output_*.txt >> output.txt
+	verify_output TDTT048 output.txt nodatetimefilter noinfo nodebug
+}
+

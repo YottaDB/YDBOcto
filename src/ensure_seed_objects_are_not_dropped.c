@@ -48,6 +48,7 @@ void add_seed_object_to_list(SqlStatement *result) {
 	// obj name
 	SqlValue *value;
 	int	  parms;
+	char	  function_hash[MAX_ROUTINE_LEN + 1];
 	if (create_table_STATEMENT == result->type) {
 		// Add value to gvn
 		SqlTable *tbl;
@@ -61,8 +62,7 @@ void add_seed_object_to_list(SqlStatement *result) {
 		UNPACK_SQL_STATEMENT(function, result, create_function);
 		UNPACK_SQL_STATEMENT(value, function->function_name, value);
 		YDB_STRING_TO_BUFFER(value->v.string_literal, &subs_buff[1]);
-		char function_hash[MAX_ROUTINE_LEN + 1];
-		int  ret = get_function_hash(result, function_hash);
+		int ret = get_function_hash(result, function_hash);
 		assert(0 == ret);
 		UNUSED(ret);
 		YDB_STRING_TO_BUFFER(function_hash, &subs_buff[2]);
@@ -106,6 +106,7 @@ boolean_t is_seed_object_being_dropped(SqlStatement *result, char **obj_name) {
 	// obj name
 	SqlValue *value;
 	int	  parms;
+	char	  function_hash[MAX_ROUTINE_LEN + 1];
 	if (drop_table_STATEMENT == result->type) {
 		// Add type
 		subs_buff[0].len_used = snprintf(subs_buff[0].buf_addr, subs_buff[0].len_alloc, "%d", create_table_STATEMENT);
@@ -123,8 +124,7 @@ boolean_t is_seed_object_being_dropped(SqlStatement *result, char **obj_name) {
 		UNPACK_SQL_STATEMENT(function, result, drop_function);
 		UNPACK_SQL_STATEMENT(value, function->function_name, value);
 		YDB_STRING_TO_BUFFER(value->v.string_literal, &subs_buff[1]);
-		char function_hash[MAX_ROUTINE_LEN + 1];
-		int  ret = get_function_hash(result, function_hash);
+		int ret = get_function_hash(result, function_hash);
 		assert(0 == ret);
 		UNUSED(ret);
 		YDB_STRING_TO_BUFFER(function_hash, &subs_buff[2]);

@@ -11,10 +11,6 @@
 [SOCKET] [TRACE] PATH:LINENUM DATE TIME: INFO_MEM_REALLOCATION: Memory doubled for variable parse_context->is_bind_parm
 
 # Verify INFO_PARSING_DONE and INFO_EXECUTION_DONE messages show up once each per query/command
-# when using Extended Query Protocol for SET, SHOW and SELECT queries
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SET extra_float_digits = 3]
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SET application_name = 'PostgreSQL JDBC Driver']
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete
+# when using Extended Query Protocol for SELECT query
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from names where id = $1 OR firstname = $2 OR id = $3 OR firstname = $4 OR id = $5 OR firstname = $6 OR id = $7 OR firstname = $8 OR id = $9 OR firstname = $10 OR id = $11 OR firstname = $12 OR id = $13 OR firstname = $14 OR id = $15 OR firstname = $16 OR id = $17 OR firstname = $18 OR id = $19 OR firstname = $20]
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_EXECUTION_DONE: SQL query/command execution complete

@@ -2,6 +2,5 @@ SET extra_float_digits = 3;
 
 ----- ROCTO/JDBC -----
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SET extra_float_digits = 3]
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SET extra_float_digits = 3]
 
 ----- OCTO -----

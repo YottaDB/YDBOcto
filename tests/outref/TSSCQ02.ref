@@ -2,6 +2,5 @@ SET application_name = 'PostgreSQL JDBC Driver';
 
 ----- ROCTO/JDBC -----
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SET application_name = 'PostgreSQL JDBC Driver']
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [SET application_name = 'PostgreSQL JDBC Driver']
 
 ----- OCTO -----

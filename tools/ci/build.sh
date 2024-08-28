@@ -484,7 +484,7 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Re-enable "set -e" now that "git merge-base" invocation is done.
 	set -e
 	# Following is used to update TAU001 and TAU002 from using abs to absf because of #948 changes
-	pre_octo948_commit="d9e3b29a3a0404315562dcc4c36e915954fbb547"	# 1 commit before YDBOcto#948 commit
+	pre_octo948_commit="056d161ee796735b49d23a3ae2147b749f26e662"	# 1 commit before YDBOcto#948 commit
 	# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
 	set +e
 	git merge-base --is-ancestor $commitsha $pre_octo948_commit

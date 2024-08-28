@@ -512,8 +512,8 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 			# Add create function statements for `absf`
 			sed -i "/create table/s/^/create function \"absf\"(integer) returns integer as \$\$ABS^%ydboctosqlfunctions;\n/" ../tests/fixtures/TAU001_1.sql
 			# Based on the commit being tested modify TAU001_1.ref to include the CREATE FUNCTION output
-			# commit 0939090a9a04d99063dec7772afc40379b15388b to 14cb254c2e33fe5e3b01ff388903ed88ac8b4b17 add query and output
-			endcommit="14cb254c2e33fe5e3b01ff388903ed88ac8b4b17"
+			# commit 0939090a9a04d99063dec7772afc40379b15388b to 7051776e6143a0e459b23bd89d9e23b5438a17d6 add query and output
+			endcommit="7051776e6143a0e459b23bd89d9e23b5438a17d6" # one commit before 90a266a503930077db8ce62109369ae26bfef319
 			# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
 			set +e
 			git merge-base --is-ancestor $commitsha $endcommit
@@ -528,9 +528,8 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 				# Add output of create function as the first query result
 				sed -i '/CREATE TABLE/s/^/CREATE FUNCTION\n/' ../tests/outref/TAU001_1.ref
 			else
-				# commit 90a266a503930077db8ce62109369ae26bfef319 In addition to above include -p output
-				commitshalong=$(git rev-parse $commitsha)
-				if [[ "90a266a503930077db8ce62109369ae26bfef319" == $commitshalong ]]; then
+				# From commit 90a266a503930077db8ce62109369ae26bfef319 till pre_octo948_commit, in addition to above include -p output
+				if [[ (0 == $is_pre_octo948_commit) ]]; then
 					# Add create function abs query as the first line
 					sed -i "/^create table/s/^/create function \"absf\"(integer) returns integer as \$\$ABS^%ydboctosqlfunctions;\n/" ../tests/outref/TAU001_1.ref
 					# -p related additions and add output of create function as the first query result

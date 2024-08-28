@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -321,6 +321,40 @@ Once you've chosen the data you want, you can then click ``Load`` to pull it int
     Loading data from the Navigator window in PowerBI
 
 -----------------------------
+Connecting using Java Clients
+-----------------------------
+
+Rocto supports multiple Java clients using the `Postgres JDBC driver
+<https://jdbc.postgresql.org/>`_. The following clients are regularly tested to
+confirm that they continue to work:
+
+- `SQuirreL SQL <http://www.squirrelsql.org/>`_
+- `SQL Workbench/J <https://www.sql-workbench.eu/>`_
+- `DBeaver Community <https://dbeaver.io/>`_
+
+With each of these products, you have to pick the exact Postgres JDBC driver to use. The procedure is described in detail in "Connecting using SQuirreL SQL" below; it's similar for the other Java clients. Note that if the Java client gives you the option to use SQL transactions, you need to disable that as Octo does not yet support SQL transactions.
+
+Not all JDBC versions listed at `JDBC driver website <https://jdbc.postgresql.org/>`_ work with Rocto. Here are the versions tested and whether they work or not:
+
+  +----------------+---------------+---------------------------------+
+  | Version        | Works?        | Notes                           |
+  +================+===============+=================================+
+  | 42.2.*         | Yes           |                                 |
+  +----------------+---------------+---------------------------------+
+  | 42.3.*         | No            | Requires SQL transactions which |
+  |                |               | are not yet supported in Octo   |
+  +----------------+---------------+---------------------------------+
+  | 42.4.*         | Yes           |                                 |
+  +----------------+---------------+---------------------------------+
+  | 42.5.*         | Yes           |                                 |
+  +----------------+---------------+---------------------------------+
+  | 42.6.*         | Yes           |                                 |
+  +----------------+---------------+---------------------------------+
+  | 42.7.*         | Yes           | Currently tested in the         |
+  |                |               | pipelines                       |
+  +----------------+---------------+---------------------------------+
+
+-----------------------------
 Connecting using SQuirreL SQL
 -----------------------------
 
@@ -328,7 +362,7 @@ Connecting using SQuirreL SQL
 Introduction
 ++++++++++++
 
-  `SQuirreL SQL <http://squirrel-sql.sourceforge.net/>`_ is an open-source Java SQL Client program for any JDBC compliant database. This documentation will describe in detail how to connect it to ROcto.
+  `SQuirreL SQL <http://www.squirrelsql.org/>`_ is an open-source Java SQL Client program for any JDBC compliant database. This documentation will describe in detail how to connect it to ROcto.
 
   Pre-requisite steps:
 

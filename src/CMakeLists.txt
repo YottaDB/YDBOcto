@@ -588,13 +588,23 @@ if (ENABLE_ASAN)
 	# This feature is not currently used, but is kept here as it doesn't harm anything.
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
 
-	if("${CMAKE_BUILD_TYPE}" MATCHES "RelWithDebInfo")
-		# We have seen "load_pg_defaults.c" take up a lot of time to compile in case of a RelWithDebInfo
-		# build when ASAN is enabled (see https://gitlab.com/YottaDB/DB/YDB/-/merge_requests/1531#note_1937722542
-		# and following discussion for more details). This slowdown seems to be due to "-fvar-tracking-assignments"
-		# as is described at https://gitlab.com/YottaDB/DB/YDB/-/merge_requests/1531#note_2096699936. Therefore,
-		# we work around this by disabling the variable tracking assignment option in case of this particular
-		# .c file and if this is a RelWithDebInfo and ASAN build.
+	# We have seen "load_pg_defaults.c" take up a lot of time to compile in case of a RelWithDebInfo
+	# build when ASAN is enabled (see https://gitlab.com/YottaDB/DB/YDB/-/merge_requests/1531#note_1937722542
+	# and following discussion for more details). This slowdown seems to be due to "-fvar-tracking-assignments"
+	# as is described at https://gitlab.com/YottaDB/DB/YDB/-/merge_requests/1531#note_2096699936. Therefore,
+	# we work around this by disabling the variable tracking assignment option in case of this particular
+	# .c file and if this is a RelWithDebInfo and ASAN build. We pass the "-fno-var-tracking-assignments" flag
+	# to the C compiler for this.
+	#
+	# Only gcc is aware of this flag. Not clang. Hence the use of CMAKE_COMPILER_IS_GNUCC below.
+	# Just like clang, clang-tidy too does not know this flag. So we need to avoid using this in that case too.
+	# But cmake has no way of knowing this is going to be followed by a "clang-tidy" invocation (as opposed to
+	# a gcc or clang make invocation). Therefore we use the CI_JOB_NAME env var to tell us whether this is a
+	# clang-tidy invocation or not (the "asan-ubuntu" and "asan-rocky" jobs run "clang-tidy").
+	if (("${CMAKE_BUILD_TYPE}" MATCHES "RelWithDebInfo")
+		AND CMAKE_COMPILER_IS_GNUCC
+		AND (NOT DEFINED ENV{CI_JOB_NAME}
+			OR NOT (("asan-ubuntu" STREQUAL "$ENV{CI_JOB_NAME}") OR ("asan-rocky" STREQUAL "$ENV{CI_JOB_NAME}"))))
 		set_source_files_properties(load_pg_defaults.c PROPERTIES COMPILE_FLAGS "-fno-var-tracking-assignments")
 		# At this time of writing, we did not notice such huge slowdowns (order of minutes) in any other .c files.
 		# The maximum slowdown in other .c files was of the order of a few seconds. Therefore, we disable this

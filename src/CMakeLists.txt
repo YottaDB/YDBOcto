@@ -587,6 +587,22 @@ if (ENABLE_ASAN)
 	# -fsanitize-recover must be combined with ASAN_OPTIONS="halt_on_error=0" to achieve the desired effect.
 	# This feature is not currently used, but is kept here as it doesn't harm anything.
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize-recover=address -DENABLE_ASAN")
+
+	if("${CMAKE_BUILD_TYPE}" MATCHES "RelWithDebInfo")
+		# We have seen "load_pg_defaults.c" take up a lot of time to compile in case of a RelWithDebInfo
+		# build when ASAN is enabled (see https://gitlab.com/YottaDB/DB/YDB/-/merge_requests/1531#note_1937722542
+		# and following discussion for more details). This slowdown seems to be due to "-fvar-tracking-assignments"
+		# as is described at https://gitlab.com/YottaDB/DB/YDB/-/merge_requests/1531#note_2096699936. Therefore,
+		# we work around this by disabling the variable tracking assignment option in case of this particular
+		# .c file and if this is a RelWithDebInfo and ASAN build.
+		set_source_files_properties(load_pg_defaults.c PROPERTIES COMPILE_FLAGS "-fno-var-tracking-assignments")
+		# At this time of writing, we did not notice such huge slowdowns (order of minutes) in any other .c files.
+		# The maximum slowdown in other .c files was of the order of a few seconds. Therefore, we disable this
+		# option only for the one .c file. If we do notice this in other .c files, then we can disable this for all
+		# .c files by commenting the above "set_source_file_properties" line and instead uncommenting the below line.
+		#	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-var-tracking-assignments")
+	endif()
+
 	if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 		# We had some issues with Clang Sanitizer getting stuck when using psql and TLS with Rocto
 		# Created an issue here: https://github.com/google/sanitizers/issues/1477

@@ -1481,8 +1481,59 @@ getInt()
 getNull()
 	quit "NULL"
 
+createDateBoundaryIntegerValueMap()
+	quit:(0'=$data(map))
+	; Following maps are used by getAddExpression()
+	; It is placed here to avoid recomputation everytime getAddExpression is invoked
+	; Map of month and its days
+	; Jan 31 Feb 28 (29) March 31 April 30 May 31 June 30 July 31 August 31 Sept 30 Oct 31 Nov 30 Dec 31
+	set mmap(1)=31
+	set mmap(2)=28
+	set mmap(3)=31
+	set mmap(4)=30
+	set mmap(5)=31
+	set mmap(6)=30
+	set mmap(7)=31
+	set mmap(8)=31
+	set mmap(9)=30
+	set mmap(10)=31
+	set mmap(11)=30
+	set mmap(12)=31
+	; Map of random integer value which can be added to a date having year in the range 9997 to 9999
+	; based on month and date
+	for i=9997:1:9999 do
+	. for j=1:1:12 do
+	. . for k=1:1:31 do
+	. . . ; i is year, j is month, k is day
+	. . . set int=$$getInt
+	. . . set dayOfMonth=mmap(j)
+	. . . if dayOfMonth>=int do
+	. . . . set int=dayOfMonth-int ; The value of int when added to day of Month will reach the last day of month
+	. . . . set int=$random($select(0=int:1,1:int)) ; Choose a random value which is within the value of int
+	. . . else  do
+	. . . . ; The value of int is greater than number of days in a month
+	. . . . set val=0
+	. . . . if (i=9997) do
+	. . . . . ; 365 in a year so 2 times this value can be added here easily
+	. . . . . ; 730
+	. . . . . for tmp=j+1:1:12 do
+	. . . . . . set val=val+mmap(tmp)
+	. . . . . set val=val+730 ; total number days that can be added from remaining years other than the present one(present month dates are ignored)
+	. . . . else  if (i=9998) do
+	. . . . . ; 365
+	. . . . . for tmp=j+1:1:12 do
+	. . . . . . set val=val+mmap(tmp)
+	. . . . . set val=val+365 ; total number of days that can be added from remaining years other than the present one(present month dates are ignored)
+	. . . . else  if (i=9999) do
+	. . . . . for tmp=j+1:1:12 do
+	. . . . . . set val=val+mmap(tmp)
+	. . . . . set val=val+0 ; total number of days that can be added from remaining years other than the present one(present month dates are ignored)
+	. . . . set int=$random($select(0=val:1,1:val))
+	. . . set map(i,j,k)=int
+	quit
+
 getAddExpression()
-	new randInt,result
+	new randInt,result,int,val,tmp
 	set randInt=$random(16)
 	; TODO (#1044): Remove the following line after time with time zone is properly supported
 	set randInt=$select(randInt=2:0,randInt=3:1,randInt=6:8,randInt=7:9,1:randInt)
@@ -1498,12 +1549,19 @@ getAddExpression()
 	else  if (3=randInt) do
 	. ; TIMEWITHTIMEZONE + DATE
 	. set result=$$getTimeTz_" + "_$$getDate
-	else  if (4=randInt) do
+	else  if (4=randInt)!(5=randInt) do
 	. ; DATE + INTEGER
-	. set result=$$getDate_" + "_$$getInt
-	else  if (5=randInt) do
 	. ; INTEGER + DATE
-	. set result=$$getInt_" + "_$$getDate
+	. set date=$$getDate
+	. set year=$piece(date,"-",1)
+	. set year=$piece(year,"'",2)
+	. set month=$piece(date,"-",2)
+	. set day=$piece(date,"-",3)
+	. set day=$piece(day,"'",1)
+	. if (9996<+year) do createDateBoundaryIntegerValueMap set int=map(year,month,day)
+	. else  set int=$$getInt
+	. if (4=randInt) set result=date_" + "_int
+	. else  if (5=randInt) set result=int_" + "_date
 	else  if (6=randInt) do
 	. ; TIMEWITHTIMEZONE + TIME
 	. set result=$$getTimeTz_" + "_$$getTime
@@ -1539,7 +1597,6 @@ getAddExpression()
 getAddQueries()
 	new queries
 	set queries=100
-	; Get first operand
 	for queries=queries:-1:1 do
 	. write "select "_$$getAddExpression_";",!
 	quit

@@ -124,6 +124,7 @@ int function_call_data_type_check(SqlStatement *fc_stmt, SqlValueType *type, Par
 				written = snprintf(c, MAX_FUNC_TYPES_LEN - function_parm_types_len, FUNC_PARM_SEPARATOR);
 				assert((MAX_FUNC_TYPES_LEN - function_parm_types_len) > written);
 				c += written;
+				function_parm_types_len += written;
 			}
 		} while (cur_column_list != start_column_list);
 	} else {

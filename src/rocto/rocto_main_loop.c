@@ -74,7 +74,8 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		}
 		if ((0 == result) && send_ready_for_query) {
-			ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
+			ready_for_query = make_ready_for_query(in_sql_transaction ? PSQL_TransactionStatus_TRANSACTION
+										  : PSQL_TransactionStatus_IDLE);
 			result = send_message(session, (BaseMessage *)(&ready_for_query->type));
 			if (result)
 				break;

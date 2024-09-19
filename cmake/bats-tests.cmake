@@ -90,6 +90,7 @@ if("${FULL_TEST_SUITE}")
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC020.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC022.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC023.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TBCR002.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multi_query.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multiple_query_files.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_query.java
@@ -227,6 +228,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(test_dbeaver_connect_queries)
 	ADD_BATS_TEST_DML(test_type_cast)
 	ADD_BATS_TEST_DML(test_date_time_type)
+	ADD_BATS_TEST_DML(test_begin_commit_rollback)
 
 	# The following test requires MySQL and PostgreSQL
 	ADD_BATS_TEST_DML(test_date_time_functions)

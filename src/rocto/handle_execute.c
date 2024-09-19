@@ -234,6 +234,11 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, PSQL_Execute);
 			parms.data_sent = TRUE; /* to avoid sending EmptyQueryResponse message */
 			break;
+		case begin_STATEMENT:
+		case commit_STATEMENT:
+		case rollback_STATEMENT:
+			parms.data_sent = TRUE; /* to avoid sending EmptyQueryResponse message */
+			break;
 		default:
 			parms.data_sent = FALSE;
 			break;

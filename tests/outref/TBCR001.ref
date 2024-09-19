@@ -1,0 +1,217 @@
+-- TBCR001: OCTO1058: Sanity checks using octo
+-- Normal use case
+BEGIN;
+SELECT COUNT(*) FROM names;
+COMMIT;
+
+-- Alternate 1 (end instead of commit)
+BEGIN;
+SELECT COUNT(*) FROM names;
+END;
+
+-- Alternate 2 (rollback instead of commit)
+BEGIN;
+SELECT COUNT(*) FROM names;
+ROLLBACK;
+
+-- Test error scenarios
+-- ERR_TRANSACTION_IN_PROGRESS
+BEGIN;
+BEGIN;
+END;
+
+-- ERR_NO_TRANSACTION_IN_PROGRESS
+ROLLBACK;
+COMMIT;
+
+-- ERR_TRANSACTION_NO_UPDATES
+BEGIN;
+INSERT INTO names values (6, 'foo', 'boo');
+UPDATE names SET lastname='foo' WHERE id=1;
+DELETE FROM names WHERE id=1;
+
+DISCARD ALL;
+DISCARD XREFS;
+
+TRUNCATE names;
+
+DROP TABLE IF EXISTS names2;
+CREATE TABLE names2 (id INTEGER PRIMARY KEY, name VARCHAR(6));
+
+DROP VIEW IF EXISTS namesview;
+CREATE VIEW namesview as SELECT * FROM names;
+
+DROP FUNCTION IF EXISTS ABS2(INTEGER);
+CREATE FUNCTION ABS2(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+
+--Not in Octo yet...
+--DROP INDEX IF EXISTS namesindex;
+--CREATE INDEX namesindex;
+
+--Run select and make sure that still works
+-- Test "case table_alias_STATEMENT:" in src/run_query.c
+SELECT COUNT(*) FROM names;
+
+-- Test "case set_operation_STATEMENT:" in src/run_query.c
+SELECT COUNT(*) FROM names UNION select id from names where firstname = 'Lord';
+
+-- Test "case display_relation_STATEMENT:" in src/run_query.c
+\d;        -- Test "case DISPLAY_ALL_RELATION"
+\d names;  -- Test "case DISPLAY_TABLE_RELATION"
+\dv;       -- Test "case DISPLAY_ALL_VIEW_RELATION"
+
+COMMIT;
+OCTO> BEGIN;
+BEGIN
+OCTO> SELECT COUNT(*) FROM names;
+count(*)
+6
+(1 row)
+OCTO> COMMIT;
+COMMIT
+OCTO> BEGIN;
+BEGIN
+OCTO> SELECT COUNT(*) FROM names;
+count(*)
+6
+(1 row)
+OCTO> END;
+COMMIT
+OCTO> BEGIN;
+BEGIN
+OCTO> SELECT COUNT(*) FROM names;
+count(*)
+6
+(1 row)
+OCTO> ROLLBACK;
+ROLLBACK
+OCTO> BEGIN;
+BEGIN
+OCTO> BEGIN;
+[ WARN]: ERR_TRANSACTION_IN_PROGRESS: There is already a transaction in progress
+BEGIN
+OCTO> END;
+COMMIT
+OCTO> ROLLBACK;
+[ WARN]: ERR_NO_TRANSACTION_IN_PROGRESS: There is no transaction in progress
+ROLLBACK
+OCTO> COMMIT;
+[ WARN]: ERR_NO_TRANSACTION_IN_PROGRESS: There is no transaction in progress
+COMMIT
+OCTO> BEGIN;
+BEGIN
+OCTO> INSERT INTO names values (6, 'foo', 'boo');
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> UPDATE names SET lastname='foo' WHERE id=1;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> DELETE FROM names WHERE id=1;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> DISCARD ALL;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> DISCARD XREFS;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> TRUNCATE names;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> DROP TABLE IF EXISTS names2;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> CREATE TABLE names2 (id INTEGER PRIMARY KEY, name VARCHAR(6));
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> DROP VIEW IF EXISTS namesview;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> CREATE VIEW namesview as SELECT * FROM names;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> DROP FUNCTION IF EXISTS ABS2(INTEGER);
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> CREATE FUNCTION ABS2(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+[ERROR]: ERR_TRANSACTION_NO_UPDATES: Updates while in a transaction are not yet implemented
+OCTO> --Not in Octo yet...
+--DROP INDEX IF EXISTS namesindex;
+--CREATE INDEX namesindex;
+
+--Run select and make sure that still works
+SELECT COUNT(*) FROM names;
+count(*)
+6
+(1 row)
+OCTO> SELECT COUNT(*) FROM names UNION select id from names where firstname = 'Lord';
+count(*)
+6
+3
+(2 rows)
+OCTO> \d; 
+Schema|Name|Type|Owner
+public|information_schema.tables|table|octo
+public|names|table|octo
+public|nameswithages|table|octo
+public|octoonerowtable|table|octo
+public|pg_aggregate|table|octo
+public|pg_am|table|octo
+public|pg_attrdef|table|octo
+public|pg_attribute|table|octo
+public|pg_catalog.pg_aggregate|table|octo
+public|pg_catalog.pg_am|table|octo
+public|pg_catalog.pg_attrdef|table|octo
+public|pg_catalog.pg_attribute|table|octo
+public|pg_catalog.pg_class|table|octo
+public|pg_catalog.pg_constraint|table|octo
+public|pg_catalog.pg_conversion|table|octo
+public|pg_catalog.pg_database|table|octo
+public|pg_catalog.pg_depend|table|octo
+public|pg_catalog.pg_description|table|octo
+public|pg_catalog.pg_enum|table|octo
+public|pg_catalog.pg_index|table|octo
+public|pg_catalog.pg_inherits|table|octo
+public|pg_catalog.pg_language|table|octo
+public|pg_catalog.pg_namespace|table|octo
+public|pg_catalog.pg_policies|table|octo
+public|pg_catalog.pg_proc|table|octo
+public|pg_catalog.pg_range|table|octo
+public|pg_catalog.pg_rewrite|table|octo
+public|pg_catalog.pg_roles|table|octo
+public|pg_catalog.pg_settings|table|octo
+public|pg_catalog.pg_shdescription|table|octo
+public|pg_catalog.pg_tablespace|table|octo
+public|pg_catalog.pg_trigger|table|octo
+public|pg_catalog.pg_type|table|octo
+public|pg_catalog.pg_user|table|octo
+public|pg_class|table|octo
+public|pg_constraint|table|octo
+public|pg_conversion|table|octo
+public|pg_database|table|octo
+public|pg_depend|table|octo
+public|pg_description|table|octo
+public|pg_enum|table|octo
+public|pg_index|table|octo
+public|pg_inherits|table|octo
+public|pg_language|table|octo
+public|pg_namespace|table|octo
+public|pg_policies|table|octo
+public|pg_proc|table|octo
+public|pg_range|table|octo
+public|pg_rewrite|table|octo
+public|pg_roles|table|octo
+public|pg_settings|table|octo
+public|pg_shdescription|table|octo
+public|pg_tablespace|table|octo
+public|pg_trigger|table|octo
+public|pg_type|table|octo
+public|pg_user|table|octo
+(56 rows)
+OCTO> -- Test "case DISPLAY_ALL_RELATION"
+\d names; 
+Table "names" stored in Global: ^names(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+firstname|VARCHAR(30)|||
+lastname|VARCHAR(30)|||
+Indexes:
+    "names_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^names(id)
+OCTO> -- Test "case DISPLAY_TABLE_RELATION"
+\dv;
+Schema|Name|Type|Owner
+(0 rows)
+OCTO> -- Test "case DISPLAY_ALL_VIEW_RELATION"
+
+COMMIT;
+COMMIT
+OCTO> 

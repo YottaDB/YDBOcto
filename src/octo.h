@@ -354,6 +354,9 @@
 #define CREATE_FUNCTION_COMMAND_TAG "CREATE FUNCTION"
 #define DROP_FUNCTION_COMMAND_TAG   "DROP FUNCTION"
 #define TRUNCATE_TABLE_COMMAND_TAG  "TRUNCATE TABLE"
+#define BEGIN_COMMAND_TAG	    "BEGIN"
+#define COMMIT_COMMAND_TAG	    "COMMIT"
+#define ROLLBACK_COMMAND_TAG	    "ROLLBACK"
 
 #define PRINT_COMMAND_TAG(COMMAND_TAG)                                                                                     \
 	/* Skip printing COMMAND TAG if running auto load of octo-seed.sql as it is internal (not a user driven activity). \
@@ -1613,5 +1616,6 @@ extern int (*cur_input_more)(void);
 extern OctoConfig  *config;
 extern ydb_buffer_t lex_buffer;		// String buffer for use in lexer.l
 extern int	    ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
+extern boolean_t    in_sql_transaction; // TRUE if inside a BEGIN/COMMIT transaction fence. FALSE otherwise.
 
 #endif

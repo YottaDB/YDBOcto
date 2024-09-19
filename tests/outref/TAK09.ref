@@ -10,7 +10,7 @@ select 1 as array;
 select 1 as as;
 select 1 as asc;
 select 1 as avg;
-select 1 as beg;
+select 1 as begin;
 select 1 as between;
 select 1 as bigint;
 select 1 as bool;
@@ -102,6 +102,7 @@ select 1 as regproc;
 select 1 as restrict;
 select 1 as returns;
 select 1 as right;
+select 1 as rollback;
 select 1 as select;
 select 1 as set;
 select 1 as similar;
@@ -174,8 +175,8 @@ OCTO> select 1 as avg;
 avg
 1
 (1 row)
-OCTO> select 1 as beg;
-beg
+OCTO> select 1 as begin;
+begin
 1
 (1 row)
 OCTO> select 1 as between;
@@ -540,6 +541,10 @@ returns
 (1 row)
 OCTO> select 1 as right;
 right
+1
+(1 row)
+OCTO> select 1 as rollback;
+rollback
 1
 (1 row)
 OCTO> select 1 as select;

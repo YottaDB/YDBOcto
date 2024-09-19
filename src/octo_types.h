@@ -210,6 +210,7 @@ typedef enum SqlStatementType {
 	drop_view_STATEMENT,
 	dynamic_sql_STATEMENT,
 	discard_xrefs_STATEMENT,
+	rollback_STATEMENT,
 	invalid_STATEMENT, // Keep invalid_STATEMENT at the end
 } SqlStatementType;
 

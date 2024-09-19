@@ -375,6 +375,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 	case set_operation_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
+	case rollback_STATEMENT:
 	case dynamic_sql_STATEMENT:
 	case set_STATEMENT:
 	case show_STATEMENT:

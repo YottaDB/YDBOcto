@@ -124,7 +124,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	char		    pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	    release_query_lock;
 	SqlStatement	    stmt;
-	boolean_t	    ok_to_drop, wrapInTp;
+	boolean_t	    ok_to_drop, wrapInTp, fall_through;
 	SqlStatementType    result_type;
 	SqlDisplayRelation *display_relation;
 	SqlStatement	   *table_stmt;
@@ -216,6 +216,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
 	release_query_lock = TRUE;
+	fall_through = FALSE;
 
 	switch (result_type) {
 	case display_relation_STATEMENT:
@@ -253,14 +254,21 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			 */
 			break;
 		}
+		fall_through = TRUE;
+		/* fall through */
+	case insert_STATEMENT:
+	case delete_from_STATEMENT:
+	case update_STATEMENT:
+		if (!fall_through && in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		/* fall through */
 	case table_alias_STATEMENT:
 		// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 		// and so need to propagate them out
 	case set_operation_STATEMENT:
-	case insert_STATEMENT:
-	case delete_from_STATEMENT:
-	case update_STATEMENT:
 		TRACE(INFO_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
@@ -337,6 +345,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		break;
 	case discard_xrefs_STATEMENT: /* DISCARD XREFS */
 	case discard_all_STATEMENT:   /* DISCARD ALL */
+		if (in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		/* Initialize a few variables to NULL at the start. They are used in the CLEANUP_AND_RETURN_WITH_ERROR and
 		 * CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro as parameters (we cannot use NULL literal there due to compile errors).
 		 */
@@ -427,7 +440,12 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;
-	case truncate_table_STATEMENT:; /* TRUNCATE TABLE */
+	case truncate_table_STATEMENT: /* TRUNCATE TABLE */
+		if (in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		ydb_tpfnptr_t tpfn;
 		tpfn = (ydb_tpfnptr_t)&truncate_table_tp_callback_fn;
 		status = ydb_tp_s(tpfn, result, NULL, 0, NULL);
@@ -441,6 +459,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		break;
 	case drop_table_STATEMENT:   /* DROP TABLE */
 	case create_table_STATEMENT: /* CREATE TABLE */
+		if (in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		/* Note that DROP TABLE is very similar to DROP FUNCTION, and changes to either may need to be
 		 * reflected in the other.
 		 */
@@ -744,7 +767,12 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
 	case drop_view_STATEMENT:;	    /* DROP VIEW */
-	case create_view_STATEMENT:;	    /* CREATE VIEW */
+	case create_view_STATEMENT:	    /* CREATE VIEW */
+		if (in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		/* Complete view definition in case this is a create_view_STATEMENT.
 		 * This helps to avoid asterisk related parsing issues. Refer to the following comment for more details
 		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1378#note_1380319421
@@ -991,6 +1019,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
 	case drop_function_STATEMENT:	    /* DROP FUNCTION */
 	case create_function_STATEMENT:	    /* CREATE FUNCTION */
+		if (in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		/* Note that DROP FUNCTION is very similar to DROP TABLE, and changes to either may need to be
 		 * reflected in the other.
 		 */
@@ -1351,9 +1384,29 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;
 	case begin_STATEMENT:
+		if (in_sql_transaction) {
+			WARNING(ERR_TRANSACTION_IN_PROGRESS, "");
+		} else {
+			in_sql_transaction = TRUE;
+		}
+		PRINT_COMMAND_TAG(BEGIN_COMMAND_TAG);
+		break;
 	case commit_STATEMENT:
-		ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
-		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
+		if (!in_sql_transaction) {
+			WARNING(ERR_NO_TRANSACTION_IN_PROGRESS, "");
+		} else {
+			in_sql_transaction = FALSE;
+		}
+		PRINT_COMMAND_TAG(COMMIT_COMMAND_TAG);
+		in_sql_transaction = FALSE;
+		break;
+	case rollback_STATEMENT:
+		if (!in_sql_transaction) {
+			WARNING(ERR_NO_TRANSACTION_IN_PROGRESS, "");
+		} else {
+			in_sql_transaction = FALSE;
+		}
+		PRINT_COMMAND_TAG(ROLLBACK_COMMAND_TAG);
 		break;
 	case dynamic_sql_STATEMENT:
 		/* Do not issue a ERR_FEATURE_NOT_IMPLEMENTED warning. Just silently do nothing. (YDBOcto#958) */
@@ -1368,6 +1421,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		break;
 	case index_STATEMENT:
+		if (in_sql_transaction) {
+			ERROR(ERR_TRANSACTION_NO_UPDATES, "");
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			return 1;
+		}
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	default:

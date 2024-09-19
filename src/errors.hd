@@ -316,5 +316,10 @@ ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "%s: invalid number of c
 ERROR_DEF(ERR_ROCTO_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_INVALID_DATE_TIME_TYPE_FORMAT, "The given type and format is invalid", PSQL_Invalid_Datetime_Format)
 
+/*** Transaction errors ***/
+ERROR_DEF(ERR_TRANSACTION_NO_UPDATES, "Updates while in a transaction are not yet implemented", PSQL_Read_Only_Sql_Transaction)
+ERROR_DEF(ERR_TRANSACTION_IN_PROGRESS, "There is already a transaction in progress", PSQL_Active_Sql_Transaction)
+ERROR_DEF(ERR_NO_TRANSACTION_IN_PROGRESS, "There is no transaction in progress", PSQL_No_Active_Sql_Transaction)
+
 // End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

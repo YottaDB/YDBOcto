@@ -217,6 +217,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token RESTRICT
 %token RETURNS
 %token RIGHT
+%token ROLLBACK
 %token SELECT
 %token SET
 %token SHOW
@@ -393,6 +394,16 @@ sql_statement
   | COMMIT semicolon_or_eof {
       parse_context->command_tag = commit_STATEMENT;
       SQL_STATEMENT(*out, commit_STATEMENT);
+      YYACCEPT;
+    }
+  | END semicolon_or_eof {		/* Postgres treats END the same way as COMMIT so do the same */
+      parse_context->command_tag = commit_STATEMENT;
+      SQL_STATEMENT(*out, commit_STATEMENT);
+      YYACCEPT;
+    }
+  | ROLLBACK semicolon_or_eof {
+      parse_context->command_tag = rollback_STATEMENT;
+      SQL_STATEMENT(*out, rollback_STATEMENT);
       YYACCEPT;
     }
   | error semicolon_or_eof { *out = NULL; YYABORT; }

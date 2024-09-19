@@ -109,7 +109,7 @@ int copied_so_far;
 (?i:AS) { return AS; }
 (?i:ASC) { return ASC; }
 (?i:AVG) { return AVG; }
-(?i:BEG) { return BEG; }
+(?i:BEGIN) { return BEG; }	/* cannot return a token named BEGIN as it conflicts with an internal flex defined macro */
 (?i:BETWEEN) { return BETWEEN; }
 (?i:BIGINT) { return BIGINT; }
 (?i:BOOL) { return BOOL; }
@@ -210,6 +210,7 @@ int copied_so_far;
 (?i:RESTRICT) { return RESTRICT; }
 (?i:RETURNS) { return RETURNS; }
 (?i:RIGHT) { return RIGHT; }
+(?i:ROLLBACK) { return ROLLBACK; }
 (?i:SELECT) { return SELECT; }
 (?i:SET) { return SET; }
 (?i:SIMILAR) { return SIMILAR; }

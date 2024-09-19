@@ -219,6 +219,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	case drop_function_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
+	case rollback_STATEMENT:
 	case dynamic_sql_STATEMENT:
 	case discard_all_STATEMENT:
 	case discard_xrefs_STATEMENT:

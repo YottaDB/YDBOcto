@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -79,6 +79,18 @@ CommandComplete *make_command_complete(SqlStatementType cmd_type, int32_t row_co
 	case truncate_table_STATEMENT:
 		assert(MAX_TAG_LEN >= sizeof(TRUNCATE_TABLE_COMMAND_TAG));
 		snprintf(command_tag, MAX_TAG_LEN, TRUNCATE_TABLE_COMMAND_TAG);
+		break;
+	case begin_STATEMENT:
+		assert(MAX_TAG_LEN >= sizeof(BEGIN_COMMAND_TAG));
+		snprintf(command_tag, MAX_TAG_LEN, BEGIN_COMMAND_TAG);
+		break;
+	case commit_STATEMENT:
+		assert(MAX_TAG_LEN >= sizeof(COMMIT_COMMAND_TAG));
+		snprintf(command_tag, MAX_TAG_LEN, COMMIT_COMMAND_TAG);
+		break;
+	case rollback_STATEMENT:
+		assert(MAX_TAG_LEN >= sizeof(ROLLBACK_COMMAND_TAG));
+		snprintf(command_tag, MAX_TAG_LEN, ROLLBACK_COMMAND_TAG);
 		break;
 	default:
 		return NULL;

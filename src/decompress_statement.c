@@ -479,6 +479,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	case truncate_table_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
+	case rollback_STATEMENT:
 	case dynamic_sql_STATEMENT:
 	case set_STATEMENT:
 	case show_STATEMENT:

@@ -1,0 +1,19 @@
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): select count(*) from names; <--
+-------------------------------------------------------------------------
+6
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): INSERT INTO names values (?, ?, ?); <--
+-------------------------------------------------------------------------
+SQL State: 25006
+ERROR: Updates while in a transaction are not yet implemented
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): UPDATE names SET lastname=? WHERE id=?; <--
+-------------------------------------------------------------------------
+SQL State: 25006
+ERROR: Updates while in a transaction are not yet implemented
+-------------------------------------------------------------------------
+ --> Running query (row limit: 0): DELETE FROM names WHERE id=?; <--
+-------------------------------------------------------------------------
+SQL State: 25006
+ERROR: Updates while in a transaction are not yet implemented

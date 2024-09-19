@@ -128,6 +128,7 @@ group_by_fields_t *get_group_by_fields(SqlStatement *stmt) {
 	case keyword_STATEMENT:
 	case begin_STATEMENT:
 	case commit_STATEMENT:
+	case rollback_STATEMENT:
 	case dynamic_sql_STATEMENT:
 	case set_STATEMENT:
 	case show_STATEMENT:

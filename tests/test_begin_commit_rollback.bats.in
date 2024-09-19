@@ -1,0 +1,41 @@
+#################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
+  test_port=$(start_rocto 1344 -aw)
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TBCR001: OCTO1058: Sanity checks using octo" {
+	load_fixture TBCR001.sql subtest novv
+	verify_output TBCR001 output.txt
+}
+
+@test "TBCR002: OCTO1058: JDBC test" {
+	echo "port: $test_port"
+	run_java TBCR002 $test_port &> output.txt
+	verify_output TBCR002 output.txt
+}
+

@@ -2130,6 +2130,30 @@ ERR_ROCTO_USER_LOOKUP
 
   Description/Action: This error indicates that a client has attempted to log in to Rocto as a non-existent user. PSQL Error Code: 28000
 
++++++++++++++++++++++++++++++++++++++
+ERR_NO_TRANSACTION_IN_PROGRESS
++++++++++++++++++++++++++++++++++++++
+
+  Text: There is no transaction in progress
+
+  Description/Action: This warning is issued when a :code:`COMMIT` or :code:`ROLLBACK` command is issued without a preceding :code:`BEGIN` command. PSQL Error Code: 25P01
+
++++++++++++++++++++++++++++++++++++++
+ERR_TRANSACTION_IN_PROGRESS
++++++++++++++++++++++++++++++++++++++
+
+  Text: There is already a transaction in progress
+
+  Description/Action: This warning is issued when a :code:`BEGIN` command is issued when there is already a preceding :code:`BEGIN` command without an intervening :code:`COMMIT` or :code:`ROLLBACK` command. PSQL Error Code: 25001
+
++++++++++++++++++++++++++++++++++++++
+ERR_TRANSACTION_NO_UPDATES
++++++++++++++++++++++++++++++++++++++
+
+  Text: Updates while in a transaction are not yet implemented
+
+  Description/Action: This error is issued when any command that updates data in user defined tables or octo-internal tables (e.g. :code:`INSERT`, :code:`CREATE TABLE` etc.) is entered when inside a transaction (i.e. inside a :code:`BEGIN`/:code:`COMMIT` fence). Currently only commands that read data (e.g. :code:`SELECT`) are allowed. Transaction support for update commands will be implemented at a later point in time. PSQL Error Code: 25006
+
 ----------------------------
 PostgreSQL Error Codes Used
 ----------------------------

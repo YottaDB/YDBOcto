@@ -1,7 +1,7 @@
 #!/usr/bin/env tcsh
 #################################################################
 #								#
-# Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -89,19 +89,19 @@ echo '# Step 5 : Make the following change in the all .html files:'
 echo '# After the line that contains: <li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>'
 echo '# or <li class="toctree-l1 current"><a class="current reference internal" href="#">LICENSE</a></li>'
 echo '# Add the line:'
-echo '# <img referrerpolicy="no-referrer-when-downgrade" src="https://download.yottadb.com/yottadb-pixel.png" />'
+echo '# <img referrerpolicy="no-referrer-when-downgrade" src="https://download.yottadb.com/OctoDocs.png" />'
 
 set filelist = `find _build/html/ -name '*.html'`
 # Adding the pixel to all HTML pages except LICENSE.html
 set filelist = `find _build/html/ -name '*.html'`
 set from = '<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>'
-set to1 = '<img referrerpolicy="no-referrer-when-downgrade" src="https://download.yottadb.com/yottadb-pixel.png" />'
+set to1 = '<img referrerpolicy="no-referrer-when-downgrade" src="https://download.yottadb.com/OctoDocs.png" />'
 set to = "$from${to1}"
 perl -p -i -e "s|$from|$to|g" $filelist
 
 # Adding the pixel to LICENSE.html pages
 set from = '<li class="toctree-l1 current"><a class="current reference internal" href="#">LICENSE</a></li>'
-set to1 = '<img referrerpolicy="no-referrer-when-downgrade" src="https://download.yottadb.com/yottadb-pixel.png" />'
+set to1 = '<img referrerpolicy="no-referrer-when-downgrade" src="https://download.yottadb.com/OctoDocs.png" />'
 set to = "$from${to1}"
 perl -p -i -e "s|$from|$to|g" $filelist
 echo ""

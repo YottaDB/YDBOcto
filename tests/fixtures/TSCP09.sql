@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,4 +53,8 @@ SELECT 'abcd' || '00'::integer;							-- LP_COERCE_TYPE
 -- to a string (i.e. LP_COERCE_TYPE plan would be ahead of it as the operand of LP_CONCAT).
 SELECT 'abcd' || (SELECT 1);							-- LP_SELECT_QUERY
 SELECT 'abcd' || (SELECT 1 EXCEPT SELECT 2);					-- LP_SET_OPERATION
+
+-- Test of YDBOcto#1038
+select ('1' || 'Acid') > 'Burn';
+select (1 || 'Acid') > 'Burn';
 

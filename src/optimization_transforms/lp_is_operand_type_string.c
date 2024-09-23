@@ -56,6 +56,11 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null) {
 		*is_null = FALSE;
 	for (loop_done = FALSE; !loop_done;) {
 		switch (cur_plan->type) {
+		case LP_CONCAT:
+			/* The result of a concat operation is always a string irrespective of the type of its operands */
+			ret = TRUE;
+			loop_done = TRUE;
+			break;
 		case LP_VALUE:
 			assert(BOOLEAN_OR_STRING_LITERAL != cur_plan->v.lp_value.value->type);
 			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {

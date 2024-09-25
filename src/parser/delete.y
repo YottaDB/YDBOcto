@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,7 @@ delete_statement_searched
         YYERROR;
       }
     }
-  | DELETE FROM qualified_identifier optional_as as_name where_clause {
+  | DELETE FROM qualified_identifier as_name where_clause {
       $$ = delete_from_statement($qualified_identifier, $as_name, $where_clause, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;

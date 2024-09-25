@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,7 @@ update_statement_searched
         YYERROR;
       }
     }
-  | UPDATE qualified_identifier optional_as as_name SET set_clause_list {
+  | UPDATE qualified_identifier as_name SET set_clause_list {
       $$ = update_statement($qualified_identifier, $as_name, $set_clause_list, NULL, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;
@@ -29,7 +29,7 @@ update_statement_searched
         YYERROR;
       }
     }
-  | UPDATE qualified_identifier optional_as as_name SET set_clause_list WHERE search_condition {
+  | UPDATE qualified_identifier as_name SET set_clause_list WHERE search_condition {
       $$ = update_statement($qualified_identifier, $as_name, $set_clause_list, $search_condition, plan_id, parse_context);
       if (NULL == $$) {
         YYERROR;

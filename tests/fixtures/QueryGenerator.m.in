@@ -683,9 +683,9 @@ insertValuesClause(numCols)
 genUpdateQuery()
 	; Following rules are possible for UPDATE clause
 	; 1. UPDATE column_name SET set_clause_list
-	; 2. UPDATE column_name optional_as as_name SET set_clause_list
+	; 2. UPDATE column_name as_name SET set_clause_list
 	; 3. UPDATE column_name SET set_clause_list WHERE search_condition
-	; 4. UPDATE column_name optional_as as_name SET set_clause_list WHERE search_condition
+	; 4. UPDATE column_name as_name SET set_clause_list WHERE search_condition
 	; 1 and 3 are implemented by this routine
 	; Note multiple assignments to same columns is not allowed
 	new updateQuery,tableName,updateColumns
@@ -817,7 +817,7 @@ getColumnUpdateString(tableName,columnName,columnType)
 genDeleteQuery()
 	; DELETE FROM table_name [[AS] alias_name] [WHERE search_condition];
 	; DELETE FROM column_name where_clause
-	; DELETE FROM column_name optional_as as_name where_clause
+	; DELETE FROM column_name as_name where_clause
 	new deleteQuery,tableName
 	set tableName=$$chooseTable
 	set deleteQuery="DELETE FROM "_tableName_" "

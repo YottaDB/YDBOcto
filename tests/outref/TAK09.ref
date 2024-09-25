@@ -1,0 +1,689 @@
+
+-- TAK09 : OCTO1039 : Allow SQL keywords as alias column names after optional AS in SELECT column list
+
+select 1 as advance;
+select 1 as aimtype;
+select 1 as all;
+select 1 as and;
+select 1 as any;
+select 1 as array;
+select 1 as as;
+select 1 as asc;
+select 1 as avg;
+select 1 as beg;
+select 1 as between;
+select 1 as bigint;
+select 1 as bool;
+select 1 as boolean;
+select 1 as by;
+select 1 as cascade;
+select 1 as case;
+select 1 as cast;
+select 1 as char;
+select 1 as character;
+select 1 as check;
+select 1 as coalesce;
+select 1 as collate;
+select 1 as commit;
+select 1 as constraint;
+select 1 as corresponding;
+select 1 as count;
+select 1 as create;
+select 1 as cross;
+select 1 as date;
+select 1 as deallocate;
+select 1 as dec;
+select 1 as decimal;
+select 1 as default;
+select 1 as delete;
+select 1 as delim;
+select 1 as desc;
+select 1 as discard;
+select 1 as distinct;
+select 1 as drop;
+select 1 as else;
+select 1 as end;
+select 1 as endpoint;
+select 1 as except;
+select 1 as exists;
+select 1 as extract;
+select 1 as from;
+select 1 as full;
+select 1 as function;
+select 1 as fileman;
+select 1 as global;
+select 1 as greatest;
+select 1 as group;
+select 1 as having;
+select 1 as horolog;
+select 1 as if;
+select 1 as ilike;
+select 1 as in;
+select 1 as index;
+select 1 as inner;
+select 1 as insert;
+select 1 as int;
+select 1 as int2;
+select 1 as int4;
+select 1 as int8;
+select 1 as integer;
+select 1 as intersect;
+select 1 as into;
+select 1 as is;
+select 1 as join;
+select 1 as keepdata;
+select 1 as key;
+select 1 as least;
+select 1 as left;
+select 1 as like;
+select 1 as limit;
+select 1 as max;
+select 1 as min;
+select 1 as natural;
+select 1 as name;
+select 1 as not;
+select 1 as num;
+select 1 as nullif;
+select 1 as numeric;
+select 1 as on;
+select 1 as or;
+select 1 as order;
+select 1 as outer;
+select 1 as over;
+select 1 as pack;
+select 1 as partition;
+select 1 as piece;
+select 1 as prepare;
+select 1 as primary;
+select 1 as readonly;
+select 1 as readwrite;
+select 1 as regclass;
+select 1 as regproc;
+select 1 as restrict;
+select 1 as returns;
+select 1 as right;
+select 1 as select;
+select 1 as set;
+select 1 as similar;
+select 1 as show;
+select 1 as smallint;
+select 1 as some;
+select 1 as start;
+select 1 as startinclude;
+select 1 as sum;
+select 1 as table;
+select 1 as text;
+select 1 as then;
+select 1 as time;
+select 1 as timestamp;
+select 1 as to;
+select 1 as truncate;
+select 1 as union;
+select 1 as unique;
+select 1 as unknown;
+select 1 as unpack;
+select 1 as update;
+select 1 as using;
+select 1 as values;
+select 1 as varchar;
+select 1 as varying;
+select 1 as view;
+select 1 as when;
+select 1 as where;
+select 1 as exit;
+select 1 as quit;
+select 1 as xrefs;
+select 1 as zhorolog;
+select 1 as zut;
+select 1 as null;
+select 1 as false;
+select 1 as true;
+OCTO> select 1 as advance;
+advance
+1
+(1 row)
+OCTO> select 1 as aimtype;
+aimtype
+1
+(1 row)
+OCTO> select 1 as all;
+all
+1
+(1 row)
+OCTO> select 1 as and;
+and
+1
+(1 row)
+OCTO> select 1 as any;
+any
+1
+(1 row)
+OCTO> select 1 as array;
+array
+1
+(1 row)
+OCTO> select 1 as as;
+as
+1
+(1 row)
+OCTO> select 1 as asc;
+asc
+1
+(1 row)
+OCTO> select 1 as avg;
+avg
+1
+(1 row)
+OCTO> select 1 as beg;
+beg
+1
+(1 row)
+OCTO> select 1 as between;
+between
+1
+(1 row)
+OCTO> select 1 as bigint;
+bigint
+1
+(1 row)
+OCTO> select 1 as bool;
+bool
+1
+(1 row)
+OCTO> select 1 as boolean;
+boolean
+1
+(1 row)
+OCTO> select 1 as by;
+by
+1
+(1 row)
+OCTO> select 1 as cascade;
+cascade
+1
+(1 row)
+OCTO> select 1 as case;
+case
+1
+(1 row)
+OCTO> select 1 as cast;
+cast
+1
+(1 row)
+OCTO> select 1 as char;
+char
+1
+(1 row)
+OCTO> select 1 as character;
+character
+1
+(1 row)
+OCTO> select 1 as check;
+check
+1
+(1 row)
+OCTO> select 1 as coalesce;
+coalesce
+1
+(1 row)
+OCTO> select 1 as collate;
+collate
+1
+(1 row)
+OCTO> select 1 as commit;
+commit
+1
+(1 row)
+OCTO> select 1 as constraint;
+constraint
+1
+(1 row)
+OCTO> select 1 as corresponding;
+corresponding
+1
+(1 row)
+OCTO> select 1 as count;
+count
+1
+(1 row)
+OCTO> select 1 as create;
+create
+1
+(1 row)
+OCTO> select 1 as cross;
+cross
+1
+(1 row)
+OCTO> select 1 as date;
+date
+1
+(1 row)
+OCTO> select 1 as deallocate;
+deallocate
+1
+(1 row)
+OCTO> select 1 as dec;
+dec
+1
+(1 row)
+OCTO> select 1 as decimal;
+decimal
+1
+(1 row)
+OCTO> select 1 as default;
+default
+1
+(1 row)
+OCTO> select 1 as delete;
+delete
+1
+(1 row)
+OCTO> select 1 as delim;
+delim
+1
+(1 row)
+OCTO> select 1 as desc;
+desc
+1
+(1 row)
+OCTO> select 1 as discard;
+discard
+1
+(1 row)
+OCTO> select 1 as distinct;
+distinct
+1
+(1 row)
+OCTO> select 1 as drop;
+drop
+1
+(1 row)
+OCTO> select 1 as else;
+else
+1
+(1 row)
+OCTO> select 1 as end;
+end
+1
+(1 row)
+OCTO> select 1 as endpoint;
+endpoint
+1
+(1 row)
+OCTO> select 1 as except;
+except
+1
+(1 row)
+OCTO> select 1 as exists;
+exists
+1
+(1 row)
+OCTO> select 1 as extract;
+extract
+1
+(1 row)
+OCTO> select 1 as from;
+from
+1
+(1 row)
+OCTO> select 1 as full;
+full
+1
+(1 row)
+OCTO> select 1 as function;
+function
+1
+(1 row)
+OCTO> select 1 as fileman;
+fileman
+1
+(1 row)
+OCTO> select 1 as global;
+global
+1
+(1 row)
+OCTO> select 1 as greatest;
+greatest
+1
+(1 row)
+OCTO> select 1 as group;
+group
+1
+(1 row)
+OCTO> select 1 as having;
+having
+1
+(1 row)
+OCTO> select 1 as horolog;
+horolog
+1
+(1 row)
+OCTO> select 1 as if;
+if
+1
+(1 row)
+OCTO> select 1 as ilike;
+ilike
+1
+(1 row)
+OCTO> select 1 as in;
+in
+1
+(1 row)
+OCTO> select 1 as index;
+index
+1
+(1 row)
+OCTO> select 1 as inner;
+inner
+1
+(1 row)
+OCTO> select 1 as insert;
+insert
+1
+(1 row)
+OCTO> select 1 as int;
+int
+1
+(1 row)
+OCTO> select 1 as int2;
+int2
+1
+(1 row)
+OCTO> select 1 as int4;
+int4
+1
+(1 row)
+OCTO> select 1 as int8;
+int8
+1
+(1 row)
+OCTO> select 1 as integer;
+integer
+1
+(1 row)
+OCTO> select 1 as intersect;
+intersect
+1
+(1 row)
+OCTO> select 1 as into;
+into
+1
+(1 row)
+OCTO> select 1 as is;
+is
+1
+(1 row)
+OCTO> select 1 as join;
+join
+1
+(1 row)
+OCTO> select 1 as keepdata;
+keepdata
+1
+(1 row)
+OCTO> select 1 as key;
+key
+1
+(1 row)
+OCTO> select 1 as least;
+least
+1
+(1 row)
+OCTO> select 1 as left;
+left
+1
+(1 row)
+OCTO> select 1 as like;
+like
+1
+(1 row)
+OCTO> select 1 as limit;
+limit
+1
+(1 row)
+OCTO> select 1 as max;
+max
+1
+(1 row)
+OCTO> select 1 as min;
+min
+1
+(1 row)
+OCTO> select 1 as natural;
+natural
+1
+(1 row)
+OCTO> select 1 as name;
+name
+1
+(1 row)
+OCTO> select 1 as not;
+not
+1
+(1 row)
+OCTO> select 1 as num;
+num
+1
+(1 row)
+OCTO> select 1 as nullif;
+nullif
+1
+(1 row)
+OCTO> select 1 as numeric;
+numeric
+1
+(1 row)
+OCTO> select 1 as on;
+on
+1
+(1 row)
+OCTO> select 1 as or;
+or
+1
+(1 row)
+OCTO> select 1 as order;
+order
+1
+(1 row)
+OCTO> select 1 as outer;
+outer
+1
+(1 row)
+OCTO> select 1 as over;
+over
+1
+(1 row)
+OCTO> select 1 as pack;
+pack
+1
+(1 row)
+OCTO> select 1 as partition;
+partition
+1
+(1 row)
+OCTO> select 1 as piece;
+piece
+1
+(1 row)
+OCTO> select 1 as prepare;
+prepare
+1
+(1 row)
+OCTO> select 1 as primary;
+primary
+1
+(1 row)
+OCTO> select 1 as readonly;
+readonly
+1
+(1 row)
+OCTO> select 1 as readwrite;
+readwrite
+1
+(1 row)
+OCTO> select 1 as regclass;
+regclass
+1
+(1 row)
+OCTO> select 1 as regproc;
+regproc
+1
+(1 row)
+OCTO> select 1 as restrict;
+restrict
+1
+(1 row)
+OCTO> select 1 as returns;
+returns
+1
+(1 row)
+OCTO> select 1 as right;
+right
+1
+(1 row)
+OCTO> select 1 as select;
+select
+1
+(1 row)
+OCTO> select 1 as set;
+set
+1
+(1 row)
+OCTO> select 1 as similar;
+similar
+1
+(1 row)
+OCTO> select 1 as show;
+show
+1
+(1 row)
+OCTO> select 1 as smallint;
+smallint
+1
+(1 row)
+OCTO> select 1 as some;
+some
+1
+(1 row)
+OCTO> select 1 as start;
+start
+1
+(1 row)
+OCTO> select 1 as startinclude;
+startinclude
+1
+(1 row)
+OCTO> select 1 as sum;
+sum
+1
+(1 row)
+OCTO> select 1 as table;
+table
+1
+(1 row)
+OCTO> select 1 as text;
+text
+1
+(1 row)
+OCTO> select 1 as then;
+then
+1
+(1 row)
+OCTO> select 1 as time;
+time
+1
+(1 row)
+OCTO> select 1 as timestamp;
+timestamp
+1
+(1 row)
+OCTO> select 1 as to;
+to
+1
+(1 row)
+OCTO> select 1 as truncate;
+truncate
+1
+(1 row)
+OCTO> select 1 as union;
+union
+1
+(1 row)
+OCTO> select 1 as unique;
+unique
+1
+(1 row)
+OCTO> select 1 as unknown;
+unknown
+1
+(1 row)
+OCTO> select 1 as unpack;
+unpack
+1
+(1 row)
+OCTO> select 1 as update;
+update
+1
+(1 row)
+OCTO> select 1 as using;
+using
+1
+(1 row)
+OCTO> select 1 as values;
+values
+1
+(1 row)
+OCTO> select 1 as varchar;
+varchar
+1
+(1 row)
+OCTO> select 1 as varying;
+varying
+1
+(1 row)
+OCTO> select 1 as view;
+view
+1
+(1 row)
+OCTO> select 1 as when;
+when
+1
+(1 row)
+OCTO> select 1 as where;
+where
+1
+(1 row)
+OCTO> select 1 as exit;
+exit
+1
+(1 row)
+OCTO> select 1 as quit;
+quit
+1
+(1 row)
+OCTO> select 1 as xrefs;
+xrefs
+1
+(1 row)
+OCTO> select 1 as zhorolog;
+zhorolog
+1
+(1 row)
+OCTO> select 1 as zut;
+zut
+1
+(1 row)
+OCTO> select 1 as null;
+null
+1
+(1 row)
+OCTO> select 1 as false;
+false
+1
+(1 row)
+OCTO> select 1 as true;
+true
+1
+(1 row)
+OCTO> 

@@ -88,7 +88,6 @@ set nowhitespace_extensions = "ref"	# List of extensions that cannot have traili
 
 set filelist = `git diff --name-only --cached HEAD`	# recompute "filelist" in case Step (1) had regenerated new files
 foreach file ($filelist)
-
 	if (! -e $file) then
 		# If file is being deleted as part of this commit, skip whitespace conversion on it
 		continue
@@ -238,4 +237,20 @@ if ("" != "$octo_seed_change")  then
 	echo "--> HOOK-E-FAIL : CREATE VIEW usage is found in octo-seed.sql. Refer to https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1244#note_1230614504 for why this is bad."
 	@ exitstatus = 1
 endif
+
+#--------------------------------------------------------------------------------------------------
+# 10) Check if a new token is being returned by src/lexer.l. If so alert about potential update to src/parser/sql_identifier.y
+#--------------------------------------------------------------------------------------------------
+foreach file ($filelist)
+	if ($file != "src/lexer.l") then
+		continue
+	endif
+	echo "--> HOOK-E-FAIL : src/lexer.l has been updated."
+	echo "--> Check if a new token was added as part of this commit."
+	echo "--> If so, check if this token needs to also be added to src/parser/sql_identifier.y."
+	echo "--> If the latter needs to also be updated, do it first. If not, skip to next step."
+	echo "--> Assuming this is the only error, rerun commit using [git commit -n] to skip the pre-commit hook"
+	@ exitstatus = 1
+end
+
 exit $exitstatus

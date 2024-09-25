@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -73,3 +73,20 @@ teardown() {
 	load_fixture TAK08.sql subtest novv
 	verify_output TAK08 output.txt
 }
+
+@test "TAK09 : OCTO1039 : Allow SQL keywords as alias column names after optional AS in SELECT column list" {
+	load_fixture TAK09.sql subtest novv
+	verify_output TAK09 output.txt
+}
+
+@test "TAK10 : OCTO1039 : Test random column names (could be SQL keywords) are accepted after AS in SELECT column list" {
+	echo "# Run [yottadb -run TAK10 > input.sql] to generate queries with random column names after AS" >> output.txt
+	yottadb -run TAK10 > input.sql
+	echo "# Run [octo -f input.sql >& query.out] to run the generated queries" >> output.txt
+	octo -f input.sql >& query.out
+	echo "# Verify there are NO lines containing [ERROR] in [query.out]. Expect no output below." >> output.txt
+	# Need "|| true" below to avoid bats from exiting due to grep not finding any errors.
+	grep -A 1 ERROR query.out >> output.txt || true
+	verify_output TAK10 output.txt
+}
+

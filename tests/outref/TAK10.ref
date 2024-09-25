@@ -1,0 +1,3 @@
+# Run [yottadb -run TAK10 > input.sql] to generate queries with random column names after AS
+# Run [octo -f input.sql >& query.out] to run the generated queries
+# Verify there are NO lines containing [ERROR] in [query.out]. Expect no output below.

@@ -112,7 +112,7 @@ int copied_so_far;
 (?i:BEG) { return BEG; }
 (?i:BETWEEN) { return BETWEEN; }
 (?i:BIGINT) { return BIGINT; }
-(?i:BOOL) { return BOOLEAN; }
+(?i:BOOL) { return BOOL; }
 (?i:BOOLEAN) { return BOOLEAN; }
 (?i:BY) { return BY; }
 (?i:CASCADE) { return CASCADE; }
@@ -215,12 +215,12 @@ int copied_so_far;
 (?i:SIMILAR) { return SIMILAR; }
 (?i:SHOW) { return SHOW; }
 (?i:SMALLINT) { return SMALLINT; }
-(?i:SOME) { return ANY; }			/* SOME is the same as ANY */
+(?i:SOME) { return SOME; }
 (?i:START) { return START; }
 (?i:STARTINCLUDE) { return STARTINCLUDE; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
-(?i:TEXT) { return VARCHAR; }			/* TEXT is the same as VARCHAR */
+(?i:TEXT) { return TEXT; }
 (?i:THEN) { return THEN; }
 (?i:TIME) { return TIME; }
 (?i:TIMESTAMP) { return TIMESTAMP; }

@@ -117,6 +117,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token BEG
 %token BETWEEN
 %token BIGINT
+%token BOOL
 %token BOOLEAN
 %token BY
 %token CASCADE
@@ -221,10 +222,12 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SHOW
 %token SIMILAR
 %token SMALLINT
+%token SOME
 %token START
 %token STARTINCLUDE
 %token SUM
 %token TABLE
+%token TEXT
 %token THEN
 %token TIME
 %token TIMESTAMP
@@ -274,7 +277,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 
 %token LITERAL
 %token DOUBLE_QUOTE_LITERAL
-%token FAKE_TOKEN
 %token INVALID_TOKEN
 
 %token ENDOFFILE
@@ -471,6 +473,7 @@ display_parms
   | qualified_identifier { $$ = $qualified_identifier; }
   ;
 
+%include "parser/sql_identifier.y"
 %include "parser/select.y"
 %include "parser/insert.y"
 %include "parser/delete.y"
@@ -852,15 +855,16 @@ quantified_comparison_predicate
 
 quantifier
   : all
-  | some
+  | any_or_some
   ;
 
 all
   : ALL { $$ = (SqlStatement *)ALL; }
   ;
 
-some		/* rule is named to allow for SOME or ANY but lexer.l returns ANY in both cases so there is only one rule below */
+any_or_some
   : ANY  { $$ = (SqlStatement *)ANY; }
+  | SOME { $$ = (SqlStatement *)ANY; }
   ;
 
 exists_predicate
@@ -1848,7 +1852,7 @@ column_definition
 
 column_name
   : identifier { $$ = $identifier; }
-  | sql_keyword { $$ = $sql_keyword; }
+  | sql_keyword { $$ = $sql_keyword; $$->loc = yyloc; }
   ;
 
 column_definition_tail
@@ -2242,6 +2246,7 @@ character_string_type
   | CHAR character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   | CHARACTER VARYING character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   | CHAR VARYING character_string_type_char_tail { $$ = $character_string_type_char_tail; }
+  | TEXT character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   | VARCHAR character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   | NAME { $$ = NULL; }
   ;
@@ -2277,7 +2282,8 @@ integer_type
   ;
 
 boolean_type
-  : BOOLEAN { $$ = NULL; }
+  : BOOL { $$ = NULL; }
+  | BOOLEAN { $$ = NULL; }
   ;
 
 datetime_type
@@ -2625,26 +2631,11 @@ function_definition
  * function_definition rules.
  */
 sql_keyword
-  : TRUNCATE {
-      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "truncate");
-      $$->loc = yyloc;
-    }
-  | TO {
-      SQL_VALUE_STATEMENT($$, STRING_LITERAL, "to");
-      $$->loc = yyloc;
-    }
-  | NAME {
-      SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "name");
-      $$->loc = yyloc;
-    }
-  | REGCLASS {
-      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regclass");
-      $$->loc = yyloc;
-    }
-  | REGPROC {
-      SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regproc");
-      $$->loc = yyloc;
-    }
+  : TRUNCATE { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "truncate"); }
+  | TO { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "to"); }
+  | NAME { SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "name"); }
+  | REGCLASS { SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regclass"); }
+  | REGPROC { SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regproc"); }
   ;
 
 function_parameter_type_list

@@ -266,7 +266,7 @@ derived_column
   : derived_column_expression {
 	$$ = derived_column($derived_column_expression, NULL, &yyloc);
     }
-  | derived_column_expression optional_as as_name {
+  | derived_column_expression as_name {
         $$ = derived_column($derived_column_expression, $as_name, &yyloc);
     }
   ;
@@ -360,32 +360,32 @@ table_reference_list_tail
   ;
 
 correlation_specification
-  : optional_as as_name { $$ = create_sql_column_list($as_name, NULL, &yyloc); }
-  | optional_as as_name LEFT_PAREN column_name_list RIGHT_PAREN
+  : as_name { $$ = create_sql_column_list($as_name, NULL, &yyloc); }
+  | as_name LEFT_PAREN column_name_list RIGHT_PAREN
     {
 	$$ = create_sql_column_list($as_name, $column_name_list, &yyloc);
     }
   ;
 
-optional_as
-  : /* Empty */
-  | AS
-  ;
-
 as_name
-  : column_name {
-  	SqlStatement	*ret;
+  : optional_as_name {
+	SqlStatement	*ret;
 
-	ret = $column_name;
-	ret->loc = yyloc;
+	ret = $optional_as_name;
 	assert(value_STATEMENT == ret->type);
 	assert(OCTO_MAX_IDENT >= strlen(ret->v.value->v.string_literal));
-	/* SqlValue type of "as_name" is set to "STRING_LITERAL" in order to prevent multiple plan generation
+	/* SqlValue type of "optional_as_name" is set to "STRING_LITERAL" in order to prevent multiple plan generation
 	 * for queries differing only by alias name or LITERAL value.
 	 */
 	ret->v.value->type = STRING_LITERAL;
 	$$ = ret;
-      }
+    }
+  ;
+
+optional_as_name
+  : column_name { $$ = $column_name; }
+  | AS identifier { $$ = $identifier; }
+  | AS sql_identifier { $$ = $sql_identifier; $$->loc = yyloc; }
   ;
 
 joined_table

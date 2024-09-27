@@ -107,7 +107,7 @@ void print_yyloc(YYLTYPE *llocp) {
 	char	 *left_ellipsis, *right_ellipsis;
 	char	 *err_out, *err_ptr;
 	char	  prefix[sizeof(LINE_LIT) + INT32_TO_STRING_MAX];
-	boolean_t is_multiquery_line, line_begin_was_reset, follows_blank_lines;
+	boolean_t is_multiquery_line, line_begin_was_reset;
 
 	// Initialize variables used throughout print_yyloc
 	// Allocate error buffer
@@ -126,7 +126,6 @@ void print_yyloc(YYLTYPE *llocp) {
 	 * query. In that case, move the start of the string to the start of the new line
 	 * to account for the characters from previous lines that are now ignored.
 	 */
-	follows_blank_lines = FALSE;
 	assert(0 <= old_input_line_num);
 	if (0 == old_input_line_num) { // Initialized by INIT_INPUT_BUFFER() prior to reading query
 		old_input_line_begin = input_buffer_combined;
@@ -135,13 +134,6 @@ void print_yyloc(YYLTYPE *llocp) {
 		if (&input_buffer_combined[old_input_index] >= old_input_line_begin) {
 			cur_column = old_input_index
 				     - (&input_buffer_combined[old_input_index] - old_input_line_begin); // llocp is 0 based
-			// Covers the case of preceding blank newlines
-			if (cur_column == old_input_line_num) {
-				old_input_line_begin = input_buffer_combined;
-				cur_column = 0; // llocp is 0 based
-				old_input_line_num = 0;
-				follows_blank_lines = TRUE;
-			}
 		} else {
 			/* There are multiple errors within a single query line, and this error is not the first. In this case, the
 			 * previous error will have updated several variables to point to the next query and/or query line. However,
@@ -220,7 +212,6 @@ void print_yyloc(YYLTYPE *llocp) {
 	assert(NULL != prev_query_end);
 	prev_query_len = prev_query_end - old_input_line_begin;
 	prev_query_len += ((0 < prev_query_len) ? 1 : 0); // llocp is 0-indexed
-	prev_query_len += (((0 < prev_query_len) && follows_blank_lines) ? 1 : 0);
 	prev_input_line_num = old_input_line_num;
 	/* Store the number of the line in the file where the query is located before resetting cur_line to 0 to get the line number
 	 * of the error within the query itself. This will allow the error message to include both the location of the
@@ -247,15 +238,10 @@ void print_yyloc(YYLTYPE *llocp) {
 	 * instead of overwriting `c` with the value of `old_input_line_begin`, which would set the line to start in a previous
 	 * query.
 	 *
-	 * Note that we additionally check whether the current line is preceded by blank lines as noted in above comments. This is
-	 * needed to ensure that we don't erroneously update `old_input_line_begin` when the previous "queries" on "old input lines"
-	 * are actually just blank newlines. Updating `old_input_line_begin` in this case would entail omitting the first query(ies)
-	 * of a line containing multiple queries, where the current error occurs in a subsequent query. This, in turn, results in
-	 * erroneous syntax highlighting. To avoid this issues, we check for `!follows_blank_lines` here.
 	 */
 	line_begin_was_reset = FALSE;
 
-	if ((c > old_input_line_begin) && ((0 < old_input_line_num) || is_multiquery_line) && !follows_blank_lines) {
+	if ((c > old_input_line_begin) && ((0 < old_input_line_num) || is_multiquery_line)) {
 		old_input_line_begin = c;
 		if (0 == old_input_line_num) {
 			assert(is_multiquery_line);

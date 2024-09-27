@@ -19,7 +19,6 @@
 #include "octo_types.h"
 #include "parser.h"
 #include "memory_chunk.h"
-#include "memory_chunk.h"
 
 #define YY_INPUT(buf, result, max_size)	result = get_input(buf, max_size)	/* reads 1 byte of input per invocation */
 
@@ -28,6 +27,7 @@
 	yylloc->first_column = yylloc->last_column;			\
 	for (int i = 0; yytext[i] != '\0'; i++) { 			\
 		if (yytext[i] == '\n') { 				\
+			cur_input_line_num++;				\
 			yylloc->last_line++; 				\
 			yylloc->first_column = 1; 			\
 			yylloc->last_column = 1; 			\
@@ -282,6 +282,9 @@ int copied_so_far;
 		if (0 == yylloc->first_line) {
 			leading_spaces = strlen(yytext);
 			old_input_index += leading_spaces;
+			assert(old_input_line_num <= cur_input_line_num); /* would be "<" in case leading_spaces contains \n */
+			old_input_line_num = cur_input_line_num;
+			old_input_line_begin = &input_buffer_combined[old_input_index];
 			yylloc->last_column -= leading_spaces;
 			yylloc->last_line = 0;
 		}

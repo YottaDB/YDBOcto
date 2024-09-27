@@ -769,6 +769,7 @@ typedef enum DDLDependencyType {
 		prev_input_line_num = 0;                                                     \
 		old_input_line_begin = input_buffer_combined;                                \
 		cur_input_index = 0;                                                         \
+		cur_input_line_num = 0;                                                      \
 		cur_input_more = &no_more;                                                   \
 		leading_spaces = 0;                                                          \
 		eof_hit = EOF_NONE;                                                          \
@@ -786,6 +787,7 @@ typedef enum DDLDependencyType {
 		padding = NEWLINE_NEEDED + 1; /* 1 byte for '\n' if NEWLINE_NEEDED is TRUE and 1 byte for '\0'; */ \
 		if (!NEWLINE_NEEDED) {                                                                             \
 			cur_input_index = 0;                                                                       \
+			cur_input_line_num = 0;                                                                    \
 		}                                                                                                  \
 		/* if query is too long to fit in the current buffer, resize buffer                                \
 		 * by min(cur_input_max * 2, QUERY_LENGTH) + padding (for the \n\0)                                \
@@ -823,7 +825,9 @@ typedef enum DDLDependencyType {
 #define ERASE_INPUT_BUFFER                                                                                          \
 	{                                                                                                           \
 		cur_input_index = 0;                                                                                \
+		cur_input_line_num = 0;                                                                             \
 		old_input_index = 0;                                                                                \
+		old_input_line_num = 0;                                                                             \
 		/* See INIT_INPUT_BUFFER and COPY_QUERY_TO_INPUT_BUFFER macros for why the below assert is valid */ \
 		assert((INIT_QUERY_SIZE - 1) <= cur_input_max);                                                     \
 		memset(input_buffer_combined, 0, cur_input_max + 1);                                                \
@@ -1608,6 +1612,7 @@ extern int   prev_input_line_num;		// The line number pointed to by the previous
 extern char *old_input_line_begin;		// Pointer to the beginning of the line pointed to by old_input_index
 extern int   leading_spaces;			// leading spaces in the current query it needs to be stored somewhere
 						// accessible but should be ignored, except by the lexer and yyerror
+extern int   cur_input_line_num;		// The line number pointed to by cur_input_index
 extern int   cur_input_max;
 extern int   eof_hit;
 extern FILE *inputFile;

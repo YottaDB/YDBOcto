@@ -174,6 +174,8 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
+	old_input_line_num = cur_input_line_num;
+	old_input_line_begin = &input_buffer_combined[cur_input_index];
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE); /* needed by "parse_line()" call below */
 
 	// Kill view's cache created for previous query

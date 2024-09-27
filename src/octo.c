@@ -33,6 +33,7 @@ int no_more(void) { return 0; }
 int main(int argc, char **argv) {
 	ParseContext parse_context;
 	int	     status, ret = YDB_OK;
+	int	     save_cur_input_line_num;
 
 	inputFile = NULL;
 	status = octo_init(argc, argv);
@@ -58,6 +59,7 @@ int main(int argc, char **argv) {
 	 */
 	config->octo_print_query = config->octo_print_flag_specified && !config->is_tty;
 	cur_input_index = 0;
+	cur_input_line_num = 0;
 	input_buffer_combined[cur_input_index] = '\0';
 	do {
 		ydb_buffer_t  cursor_ydb_buff;
@@ -80,6 +82,7 @@ int main(int argc, char **argv) {
 			 */
 			if ('\0' == input_buffer_combined[cur_input_index + 1]) {
 				cur_input_index = 0;
+				cur_input_line_num = 0;
 				/* `leading_spaces` must be reset here to prevent off-by-one issues with syntax highlighting when
 				 * multi-query lines are submitted in succession. For more information, see the discussion thread at
 				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1237#note_1216819522.
@@ -99,6 +102,8 @@ int main(int argc, char **argv) {
 			parse_context.cursorIdString = cursor_ydb_buff.buf_addr;
 			memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 			old_input_index = cur_input_index;
+			old_input_line_num = cur_input_line_num;
+			save_cur_input_line_num = cur_input_line_num;
 			// Kill view's cache created for previous query
 			INIT_VIEW_CACHE_FOR_CURRENT_QUERY(config->global_names.loadedschemas, status);
 			if (YDB_OK != status) {
@@ -212,6 +217,7 @@ int main(int argc, char **argv) {
 			cur_input_index = old_input_index; /* This ensures that the already parsed query is presented again
 							    * to "parse_line()" invocation in "run_query()" call below.
 							    */
+			cur_input_line_num = save_cur_input_line_num;
 		} else {
 			save_eof_hit = FALSE; /* Needed to avoid a false -Wmaybe-uninitialized warning on "save_eof_hit" */
 		}

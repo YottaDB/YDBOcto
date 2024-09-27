@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,6 +37,7 @@ int run_query_file(char *query_file_name) {
 	cur_input_more = &readline_get_more;
 	/* Ready input buffer for reading from seed file */
 	cur_input_index = 0;
+	cur_input_line_num = 0;
 	input_buffer_combined[cur_input_index] = '\0';
 	/* Read query lines from "inputFile" until end */
 	do {

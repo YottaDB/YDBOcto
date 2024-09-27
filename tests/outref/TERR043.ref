@@ -1,2 +1,5 @@
-LINE 2000:1: select * from dummy2000;
+# Run 10,000 queries with errors and redirect output to [octo913.out]
+# Run [tail -1 octo913.out]. Expect it to contain [LINE 10000] below
 LINE 10000:1: select * from dummy10000;
+# Verify that each output line in octo913.out has LINE number matching the dummy table name number
+# Run [diff octo913.cmp octo913.log]. Expect no diff output below

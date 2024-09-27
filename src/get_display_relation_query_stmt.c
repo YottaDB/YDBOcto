@@ -78,7 +78,9 @@ SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_ty
 	// Save parse_line() related things
 	boolean_t save_is_tty = config->is_tty;
 	int	  save_cur_input_index = cur_input_index;
+	int	  save_cur_input_line_num = cur_input_line_num;
 	int	  save_old_input_index = old_input_index;
+	int	  save_old_input_line_num = old_input_line_num;
 	char	 *save_input_buffer_combined = input_buffer_combined;
 	char	 *save_old_input_line_begin = old_input_line_begin;
 	int	  save_leading_spaces = leading_spaces;
@@ -97,7 +99,9 @@ SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_ty
 	// Set new parse_line parameters
 	config->is_tty = 0;
 	cur_input_index = 0;
+	cur_input_line_num = 0;
 	old_input_index = 0;
+	old_input_line_num = 0;
 	if (DISPLAY_ALL_VIEW_RELATION == relation_type) {
 		input_buffer_combined = display_all_view_relation_query_str;
 	} else {
@@ -112,7 +116,9 @@ SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_ty
 	// Restore parse_line parameters
 	config->is_tty = save_is_tty;
 	cur_input_index = save_cur_input_index;
+	cur_input_line_num = save_cur_input_line_num;
 	old_input_index = save_old_input_index;
+	old_input_line_num = save_old_input_line_num;
 	input_buffer_combined = save_input_buffer_combined;
 	old_input_line_begin = save_old_input_line_begin;
 	cur_input_more = save_cur_input_more;

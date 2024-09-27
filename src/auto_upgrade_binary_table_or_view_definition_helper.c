@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -135,6 +135,7 @@ int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_ta
 	 */
 	assert(0 == cur_input_index);
 	old_input_index = cur_input_index;
+	old_input_line_num = cur_input_line_num;
 
 	// Kill View's Cache created and let `CLEANUP_AND_RETURN_IF_NOT_YDB_OK` do `YDB_ERROR_CHECK`
 	INIT_VIEW_CACHE_FOR_CURRENT_QUERY(config->global_names.loadedschemas, status);

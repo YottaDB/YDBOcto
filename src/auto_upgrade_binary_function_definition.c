@@ -270,6 +270,7 @@ int auto_upgrade_binary_function_definition(void) {
 			 */
 			assert(0 == cur_input_index);
 			old_input_index = cur_input_index;
+			old_input_line_num = cur_input_line_num;
 			result = parse_line(&parse_context);
 			/* From now on, all CLEANUP_* macro calls will have TRUE as the last parameter
 			 * to indicate "DELETE_QUERY_PARAMETER_CURSOR_LVN " is needed to cleanup/delete any query parameter

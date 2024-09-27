@@ -8,8 +8,8 @@ LINE 3:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
 OCTO> select id from dummy1;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
-LINE 3:1: select id from dummy1; select id from dummy2;
-                                                ^^^^^^
+LINE 3:1: select id from dummy2;
+                         ^^^^^^
 OCTO> select id from dummy2;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy3
 LINE 4:1: select id from dummy3;

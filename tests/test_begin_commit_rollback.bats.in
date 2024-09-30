@@ -34,8 +34,6 @@ teardown() {
 }
 
 @test "TBCR002: OCTO1058: JDBC test" {
-	echo "port: $test_port"
-	run_java TBCR002 $test_port &> output.txt
+	run_java TBCR002 $test_port |& tee output.txt
 	verify_output TBCR002 output.txt
 }
-

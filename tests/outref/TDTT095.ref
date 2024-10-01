@@ -64,19 +64,19 @@ timestamptz_to_zhorolog
 OCTO> set datestyle="ymd";
 OCTO> select timestamp with time zone '1868-03-25 16:22:12-04:56:02' = timestamp(fileman) with time zone '1680325.162212';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone '1868-03-25 16:22:12-04:56:02' = timestamp(horolog) with time zone '9946,58932';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone '1868-03-25 16:22:12-04:56' = timestamp(zhorolog) with time zone '9946,58932,,17760';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone '1868-03-25 16:22:12-04:56' = timestamp(zhorolog) with time zone '9946,58932,,17762';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone '1868-03-25 16:22:12-04:56';
 ???
@@ -88,6 +88,6 @@ timestamptz_to_fileman
 (1 row)
 OCTO> select timestamp with time zone '1868-03-25 16:22:12-04:56' = timestamp(fileman) with time zone '1680325.162210';
 ???
-1
+t
 (1 row)
 OCTO> 

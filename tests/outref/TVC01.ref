@@ -20,6 +20,8 @@ _ydboctoP*.m:;  SELECT * FROM (VALUES (1, (SELECT 2))) as abcd;
 _ydboctoP*.m:;  SELECT 5 + (VALUES (3));
 _ydboctoP*.m:;  VALUES (1,2,3), (4,5,SAMEVALUE(6));
 _ydboctoP*.m:;  SELECT * FROM (VALUES (true, false)) AS tvc;
+_ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:;  SELECT column1 FROM (VALUES (1)) as MyTable;
 _ydboctoP*.m:;  SELECT * FROM (VALUES (1), (3), (5), (7), (9) ) AS MyTable;
 _ydboctoP*.m:;  SELECT * FROM (VALUES (1)) as MyTable;
@@ -44,6 +46,8 @@ _ydboctoP*.m:;  SELECT column2,column1 FROM (VALUES (1, 2), (3, 4), (5, 6), (7, 
 _ydboctoP*.m:;  SELECT * FROM (VALUES (1, (SELECT 2))) as abcd;
 _ydboctoP*.m:;  SELECT 5 + (VALUES (3));
 _ydboctoP*.m:;  SELECT * FROM (VALUES (true, false)) AS tvc;
+_ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:;  SELECT column1 FROM (VALUES (1)) as MyTable;
 _ydboctoP*.m:;  SELECT * FROM (VALUES (1), (3), (5), (7), (9) ) AS MyTable;
 _ydboctoP*.m:;  SELECT * FROM (VALUES (1)) as MyTable;

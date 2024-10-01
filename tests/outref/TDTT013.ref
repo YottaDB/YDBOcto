@@ -410,19 +410,19 @@ samevalue
 OCTO> set datestyle='mdy';
 OCTO> select date_to_fileman(now()::date)=date_to_fileman(now()::date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
 ???
-1
+t
 (1 row)
 OCTO> set datestyle='ymd';
 OCTO> select date_to_fileman(now()::date)=date_to_fileman(now()::date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
 ???
-1
+t
 (1 row)
 OCTO> 

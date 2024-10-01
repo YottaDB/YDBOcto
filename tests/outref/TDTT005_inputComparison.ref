@@ -1,74 +1,74 @@
 OCTO> select date'2023-01-01' = date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' = ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' = ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
 LINE 19:1: select date'2023-01-01' = time'01:01:00';
@@ -180,219 +180,219 @@ LINE 36:1: select date'2023-01-01' >= ALL(select time'01:01:00');
 OCTO> select date'2023-01-01' >= ALL(select time'01:01:00');
 OCTO> select date'2023-01-01' = timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' > timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' > timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' = ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' = ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
 LINE 91:1: select date'2023-01-01' = n1.dob from TDTT005time n1;
@@ -504,147 +504,147 @@ LINE 108:1: select date'2023-01-01' >= ALL(select dob from TDTT005time);
 OCTO> select date'2023-01-01' >= ALL(select dob from TDTT005time);
 OCTO> select date'2023-01-01' = n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' > n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' = ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' != n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' != ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' < n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' < ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' > n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' > ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' > ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' <= n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' <= ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' >= n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' >= ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
 LINE 145:1: select date'2023-01-01' = 3;
@@ -1152,75 +1152,75 @@ LINE 234:1: select time'01:01:00' >= ALL(select date'2023-01-01');
 OCTO> select time'01:01:00' >= ALL(select date'2023-01-01');
 OCTO> select time'01:01:00' = time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' = ANY(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' = ALL(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' != ANY(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' != ALL(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' < time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' < ANY(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' < ALL(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > ANY(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > ALL(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' <= time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= ANY(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= ALL(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= ANY(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= ALL(select time'01:01:00');
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
 LINE 253:1: select time'01:01:00' = timestamp'2023-01-01 01:01:00';
@@ -1548,75 +1548,75 @@ LINE 306:1: select time'01:01:00' >= ALL(select dob from TDTT005date);
 OCTO> select time'01:01:00' >= ALL(select dob from TDTT005date);
 OCTO> select time'01:01:00' = n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' = ANY(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' = ALL(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' != n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != ANY(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != ALL(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < ANY(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < ALL(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' > n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > ANY(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > ALL(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' <= n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= ANY(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= ALL(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' >= ANY(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' >= ALL(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
 LINE 325:1: select time'01:01:00' = n1.dob from TDTT005timestamp n1;
@@ -2232,75 +2232,75 @@ OCTO> select time'01:01:00' >= ALL(select NULL);
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
 LINE 451:1: select timestamp'2023-01-01 01:01:00' = time'01:01:00';
@@ -2412,219 +2412,219 @@ LINE 468:1: ...ct timestamp'2023-01-01 01:01:00' >= ALL(select time'01:01:00');
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select time'01:01:00');
 OCTO> select timestamp'2023-01-01 01:01:00' = timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
 LINE 523:1: select timestamp'2023-01-01 01:01:00' = n1.dob from TDTT005time ...
@@ -2736,147 +2736,147 @@ LINE 540:1: ...estamp'2023-01-01 01:01:00' >= ALL(select dob from TDTT005time);
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select dob from TDTT005time);
 OCTO> select timestamp'2023-01-01 01:01:00' = n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' = ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' != ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' < ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' > ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' <= ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
 LINE 577:1: select timestamp'2023-01-01 01:01:00' = 3;
@@ -3276,75 +3276,75 @@ OCTO> select timestamp'2023-01-01 01:01:00' >= ALL(select NULL);
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= date'2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ANY(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ALL(select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= date'2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ANY(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select date'2023-01-01');
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
 LINE 667:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' = tim...
@@ -3456,219 +3456,219 @@ LINE 684:1: ...e zone'2023-01-01 01:01:00-05:00' >= ALL(select time'01:01:00');
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select time'01:01:00');
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > timestamp'2023-01-01 01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ANY(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ALL(select timestamp'2023-01-01 01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= timestamp'2023-01-01 01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ANY(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select timestamp'2023-01-01 01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= timestamp with time zone'2023-01-01 01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= n1.dob from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ANY(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ALL(select dob from TDTT005date);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= n1.dob from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ANY(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select dob from TDTT005date);
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
 LINE 739:1: ...elect timestamp with time zone'2023-01-01 01:01:00-05:00' = n1....
@@ -3780,147 +3780,147 @@ LINE 756:1: ...'2023-01-01 01:01:00-05:00' >= ALL(select dob from TDTT005time);
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select dob from TDTT005time);
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= n1.dob from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ANY(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ALL(select dob from TDTT005timestamp);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= n1.dob from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ANY(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select dob from TDTT005timestamp);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' = ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' != ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' < ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' > ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= n1.dob from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ANY(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' <= ALL(select dob from TDTT005timestamptz);
 ???
-0
+f
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= n1.dob from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ANY(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select dob from TDTT005timestamptz);
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
 LINE 793:1: select timestamp with time zone'2023-01-01 01:01:00-05:00' = 3;
@@ -4320,75 +4320,75 @@ OCTO> select timestamp with time zone'2023-01-01 01:01:00-05:00' >= ALL(select N
 (1 row)
 OCTO> select n1.dob = date'2023-01-01' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ANY(select date'2023-01-01') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ALL(select date'2023-01-01') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != date'2023-01-01' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ANY(select date'2023-01-01') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ALL(select date'2023-01-01') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < date'2023-01-01' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select date'2023-01-01') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select date'2023-01-01') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > date'2023-01-01' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select date'2023-01-01') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select date'2023-01-01') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= date'2023-01-01' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select date'2023-01-01') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select date'2023-01-01') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= date'2023-01-01' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select date'2023-01-01') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select date'2023-01-01') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
 LINE 883:1: select n1.dob = time'01:01:00' from TDTT005date n1;
@@ -4500,219 +4500,219 @@ LINE 900:1: select n1.dob >= ALL(select time'01:01:00') from TDTT005date n1;
 OCTO> select n1.dob >= ALL(select time'01:01:00') from TDTT005date n1;
 OCTO> select n1.dob = timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= timestamp'2023-01-01 01:01:00' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select timestamp'2023-01-01 01:01:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005date n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005date) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005date) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005date n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005date) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005date) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005date n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005date) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005date) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005date n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005date) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005date) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005date n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005date) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005date) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005date n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005date) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005date) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right TIME
 LINE 955:1: select n1.dob = n2.dob from TDTT005date n1, TDTT005time n2;
@@ -4824,147 +4824,147 @@ LINE 972:1: select n1.dob >= ALL(select dob from TDTT005time) from TDTT005da...
 OCTO> select n1.dob >= ALL(select dob from TDTT005time) from TDTT005date n1;
 OCTO> select n1.dob = n2.dob from TDTT005date n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005date n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005date n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005date n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005date n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005date n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timestamp) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005date n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005date n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005date n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005date n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005date n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005date n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timestamptz) from TDTT005date n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left DATE, right INTEGER
 LINE 1009:1: select n1.dob = 3 from TDTT005date n1;
@@ -5472,75 +5472,75 @@ LINE 1098:1: select n1.dob >= ALL(select date'2023-01-01') from TDTT005time n...
 OCTO> select n1.dob >= ALL(select date'2023-01-01') from TDTT005time n1;
 OCTO> select n1.dob = time'01:01:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select time'01:01:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select time'01:01:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != time'01:01:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select time'01:01:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select time'01:01:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < time'01:01:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select time'01:01:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select time'01:01:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > time'01:01:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select time'01:01:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select time'01:01:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= time'01:01:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select time'01:01:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select time'01:01:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= time'01:01:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select time'01:01:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select time'01:01:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
 LINE 1117:1: select n1.dob = timestamp'2023-01-01 01:01:00' from TDTT005time ...
@@ -5868,75 +5868,75 @@ LINE 1170:1: select n1.dob >= ALL(select dob from TDTT005date) from TDTT005ti...
 OCTO> select n1.dob >= ALL(select dob from TDTT005date) from TDTT005time n1;
 OCTO> select n1.dob = n2.dob from TDTT005time n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005time) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005time) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005time n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005time) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005time) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005time n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005time) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005time) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005time n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005time) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005time) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005time n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005time) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005time) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005time n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005time) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005time) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIME, right TIMESTAMP
 LINE 1189:1: select n1.dob = n2.dob from TDTT005time n1, TDTT005timestamp n2;
@@ -6552,75 +6552,75 @@ OCTO> select n1.dob >= ALL(select NULL) from TDTT005time n1;
 (1 row)
 OCTO> select n1.dob = date'2023-01-01' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != date'2023-01-01' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < date'2023-01-01' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > date'2023-01-01' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= date'2023-01-01' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= date'2023-01-01' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select date'2023-01-01') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
 LINE 1315:1: select n1.dob = time'01:01:00' from TDTT005timestamp n1;
@@ -6732,219 +6732,219 @@ LINE 1332:1: select n1.dob >= ALL(select time'01:01:00') from TDTT005timestam...
 OCTO> select n1.dob >= ALL(select time'01:01:00') from TDTT005timestamp n1;
 OCTO> select n1.dob = timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= timestamp'2023-01-01 01:01:00' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005timestamp n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timestamp n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timestamp n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timestamp n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timestamp n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timestamp n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005date) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right TIME
 LINE 1387:1: select n1.dob = n2.dob from TDTT005timestamp n1, TDTT005time n2;
@@ -7056,147 +7056,147 @@ LINE 1404:1: select n1.dob >= ALL(select dob from TDTT005time) from TDTT005ti...
 OCTO> select n1.dob >= ALL(select dob from TDTT005time) from TDTT005timestamp n1;
 OCTO> select n1.dob = n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timestamp n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timestamp) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timestamptz) from TDTT005timestamp n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP, right INTEGER
 LINE 1441:1: select n1.dob = 3 from TDTT005timestamp n1;
@@ -7596,75 +7596,75 @@ OCTO> select n1.dob >= ALL(select NULL) from TDTT005timestamp n1;
 (1 row)
 OCTO> select n1.dob = date'2023-01-01' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != date'2023-01-01' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < date'2023-01-01' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > date'2023-01-01' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= date'2023-01-01' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= date'2023-01-01' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select date'2023-01-01') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
 LINE 1531:1: select n1.dob = time'01:01:00' from TDTT005timestamptz n1;
@@ -7776,219 +7776,219 @@ LINE 1548:1: select n1.dob >= ALL(select time'01:01:00') from TDTT005timestam...
 OCTO> select n1.dob >= ALL(select time'01:01:00') from TDTT005timestamptz n1;
 OCTO> select n1.dob = timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= timestamp'2023-01-01 01:01:00' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= timestamp with time zone'2023-01-01 01:01:00-05:00' from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005timestamptz n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timestamptz n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timestamptz n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timestamptz n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timestamptz n1, TDTT005date n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timestamptz n1, TDTT005date n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005date) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right TIME
 LINE 1603:1: select n1.dob = n2.dob from TDTT005timestamptz n1, TDTT005time n...
@@ -8100,147 +8100,147 @@ LINE 1620:1: select n1.dob >= ALL(select dob from TDTT005time) from TDTT005ti...
 OCTO> select n1.dob >= ALL(select dob from TDTT005time) from TDTT005timestamptz n1;
 OCTO> select n1.dob = n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timestamptz n1, TDTT005timestamp n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timestamp) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timestamptz n1, TDTT005timestamptz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timestamptz) from TDTT005timestamptz n1;
 ???
-1
+t
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TIMESTAMP WITH TIME ZONE, right INTEGER
 LINE 1657:1: select n1.dob = 3 from TDTT005timestamptz n1;

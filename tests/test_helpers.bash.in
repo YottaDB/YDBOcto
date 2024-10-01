@@ -1015,15 +1015,14 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		do
 			# Note that "run_multiple_query_files.java" produces output even for DML/DDL commands (e.g. INSERT INTO)
 			# and not just for "SELECT" so it is safe to assume that the *.psql.out and *.octo.out files exist.
-			# Postgres displays boolean values as t/f whereas Octo displays them as 1/0 so fix that before the diff.
 			mv $nocomment_query_file.octo.out $nocomment_query_file.octo.out.tmp
 			querytype=`awk 'NR==1 {print tolower($1);}' $nocomment_query_file`
 			if [[ 1 -eq $enableErrorCheck ]] && [[ "insert" == $querytype || "update" == $querytype ]]; then
 				sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/ERROR: New row for table \(.*\) violates CHECK constraint.*/ERROR: New row for table \U\1\E violates check constraint/;' $nocomment_query_file.octo.out.tmp >& $nocomment_query_file.octo.out
 				sed 's/.*new row for relation \"\(.*\)\" violates check constraint.*/ERROR: New row for table \U\1\E violates check constraint/;s/.*duplicate key value violates unique constraint.*/ERROR: Duplicate Key Value violates UNIQUE constraint/;s/\<id\([0-9]\)\>/ID\1/g;s/^DETAIL:  //;/Detail:/d;/NOTICE/d;/^Key /d;/^Failing row contains/d;s/ERROR: null value in column \"\([^"]*\)\"\( of relation \"\([^"]*\)\"\)\{0,1\} violates not-null constraint/ERROR: NULL value in column \L\1\E violates NOT NULL constraint/;s/^ERROR: column \"\(.*\)\" specified more than once/ERROR: Column '\''\U\1\E'\'' specified more than once/;/Position:/d' $nocomment_query_file.psql.out >& $nocomment_query_file.ref
 			else
-				cat $nocomment_query_file.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.octo.out
-				cat $nocomment_query_file.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $nocomment_query_file.ref
+				cp $nocomment_query_file.octo.out.tmp $nocomment_query_file.octo.out
+				cp $nocomment_query_file.psql.out $nocomment_query_file.ref
 			fi
 			query_num=`echo $nocomment_query_file | sed 's/.*_nocomment-//g'`
 			query_file="$fname"_comment-"$query_num"
@@ -1037,7 +1036,6 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		# Additionally, DROP TABLE IF EXISTS queries issue a NOTICE that the table does not exist. We do not want this
 		# as it makes comparing Postgres vs Octo output harder so disable that using the PGOPTIONS variable below.
 		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $database -f $query_file >& $fname.psql.out || true
-		# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
 		if [[ $randclientstr == "PSQL" ]]; then
 			# Following invocation result need to be captures in a way ERROR messages are also included in the final result verification in case of INSERT/UPDATE
 			# Error information is written to $fname.octo.out.err. This file will also have INFO related messages so only copy lines starting with ERROR to $fname.octo.out.tmp
@@ -1069,12 +1067,13 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 				sed 's/ : \(Failing.*\)//;s/ : \(Key .*\)//;/WARN/d;s/\(Duplicate Key Value violates UNIQUE constraint\).*/\1/;s/^\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \(.*\) violates CHECK constraint.*/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \U\1\E violates check constraint/;/LINE/d;/\^/d;' $fname.octo.out.tmp &> $fname.octo.out
 				sed 's/^psql.*new row for relation \"\(.*\)\" violates check constraint.*/\[ERROR\]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table \U\1\E violates check constraint/;s/^psql.*duplicate key value violates unique constraint.*/\[ERROR\]: ERR_DUPLICATE_KEY_VALUE: Duplicate Key Value violates UNIQUE constraint/;s/\<id\([0-9]\)\>/ID\1/g;s/^DETAIL:  //;/NOTICE/d;/^Key /d;/^Failing row contains/d;s/.*null value in column \"\([^"]*\)\"\( of relation \"\([^"]*\)\"\)\{0,1\} violates not-null constraint/\[ERROR\]: ERR_NULL_COL_VALUE: NULL value in column \L\1\E violates NOT NULL constraint/;s/^psql.*ERROR:  column \"\(.*\)\" specified more than once/\[ERROR\]: ERR_DUPLICATE_COLUMN: Column '\''\U\1\E'\'' specified more than once/;/LINE/d;/\^/d' $fname.psql.out &> $fname.ref
 			fi
+
 		elif [[ "select" == $querytype || "(select" == $querytype || "values" == $querytype ]]; then
-			tail -n +2 $fname.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.octo.out
-			tail -n +2 $fname.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.ref
+			tail -n +2 $fname.octo.out.tmp &> $fname.octo.out
+			tail -n +2 $fname.psql.out &> $fname.ref
 		else
-			sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' $fname.octo.out.tmp | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $fname.octo.out
-			sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' $fname.psql.out | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' >& $fname.ref
+			cp $fname.octo.out.tmp $fname.octo.out
+			cp $fname.psql.out $fname.ref
 		fi
 		run_query_verify $query_file $fname
 	fi

@@ -217,7 +217,7 @@ TEMPLATE(tmpl_column_reference_common, PhysicalPlan *pplan, SqlColumnAlias *colu
 	 int depth, int unique_id, boolean_t *done);
 TEMPLATE(tmpl_print_expression_group_by_computation, int group_by_column_num, int dot_count);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
-	 boolean_t is_asterisk, boolean_t needs_date_time_formatting);
+	 boolean_t is_asterisk, boolean_t needs_formatting);
 TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int parm2, int keys_to_match,

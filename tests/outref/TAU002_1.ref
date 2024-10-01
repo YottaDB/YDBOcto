@@ -210,7 +210,7 @@ OCTO> create view v38 as select 1 IN (2,3);
 CREATE VIEW
 OCTO> select * from v38;
 ???
-0
+f
 (1 row)
 OCTO> create view v39 as select sum(mybool::integer) from (select id=2 as mybool from names) n1;
 CREATE VIEW

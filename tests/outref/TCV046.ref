@@ -57,7 +57,7 @@ CREATE VIEW
 OCTO> -- EXISTS
 select * from v1;
 EXISTS
-1
+t
 (1 row)
 OCTO> create view v2 as select abs(1);
 CREATE VIEW
@@ -137,13 +137,13 @@ OCTO> create view v11 as select NOT EXISTS(select id from names);
 CREATE VIEW
 OCTO> select * from v11;
 ???
-0
+f
 (1 row)
 OCTO> create view v12 as select NOT 1::boolean;
 CREATE VIEW
 OCTO> select * from v12;
 ???
-0
+f
 (1 row)
 OCTO> create view v13 as select 1 + id from names;
 CREATE VIEW

@@ -33,8 +33,8 @@ dob
 (2 rows)
 OCTO> select n1.* = n1.* from test n1;
 ???
-1
-1
+t
+t
 (2 rows)
 OCTO> 
 # ----------------------------------------------------------------------------
@@ -114,6 +114,7 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$TableAsteriskCompare^%ydboctoplanhelpers($$str2mval^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))),"|",1)))_$$str2mval^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))),"|",2))),$$str2mval^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))),"|",1)))_$$str2mval^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))),"|",2))),"=",2,"f,f")
+    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")

@@ -65,12 +65,12 @@ hello3
 (6 rows)
 OCTO> SELECT OVERLOADEDFUNC(1::boolean) FROM names;
 overloadedfunc
-1
-1
-1
-1
-1
-1
+t
+t
+t
+t
+t
+t
 (6 rows)
 OCTO> SELECT  * FROM names where firstname = OVERLOADEDFUNC(true)::varchar;
 id|firstname|lastname

@@ -1290,6 +1290,22 @@ else
 						fi
 						mv $outfile.tmp $outfile
 					fi
+					pre_octo1032_commit="584ac8c50da72878ecf744cd6ee9ed7806a89996" # 1 commit before #1032 commit
+					# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
+					set +e
+					git merge-base --is-ancestor $commitsha $pre_octo1032_commit
+					is_post_octo1032_commit=$?
+					# Re-enable "set -e" now that "git merge-base" invocation is done.
+					set -e
+					if [[ (0 == $is_post_octo1032_commit) && (("select" == $querytype) || ("values" == $querytype)) ]]; then
+						# Octo before #1032 returned boolean values as 1 or 0. So, if the old build version is or before
+						# 584ac8c50da72878ecf744cd6ee9ed7806a89996 (1 commit before #1032 change) convert boolean values of
+						# the new build such that it can be compared with the old results.
+						# Converts t to 1 and f to 0. The tranformation is applied twice to convert
+						# consecutive values like tt to 11.
+						mv $outfile $outfile.tmp2
+						sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' $outfile.tmp2 | sed 's/|t$/|1/g;s/^t|/1|/g;s/|t|/|1|/g;s/^t$/1/g;s/|f$/|0/g;s/^f|/0|/g;s/|f|/|0|/g;s/^f$/0/g;' &> $outfile
+					fi
 					# TEST2
 					# $sqlfile.log is Octo's output for the same query using the older commit build
 					# It could contain "null" references if it was run through the JDBC driver.

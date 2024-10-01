@@ -22,11 +22,11 @@ LINE 4:1: select -time with time zone'01:01:01 +1';
 OCTO> select -time with time zone'01:01:01 +1';
 OCTO> select EXISTS(select date'2023-01-01');
 EXISTS
-1
+t
 (1 row)
 OCTO> select EXISTS(select time'01:01:01');
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "01:01:01 +1" is invalid for type "TIME WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 8:1: select EXISTS(select time with time zone'01:01:01 +1');
@@ -34,7 +34,7 @@ LINE 8:1: select EXISTS(select time with time zone'01:01:01 +1');
 OCTO> select EXISTS(select time with time zone'01:01:01 +1');
 OCTO> select EXISTS(select timestamp'2023-01-01 01:01:01');
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_DATE_TIME_VALUE: "2023-01-01 01:01:01 +1" is invalid for type "TIMESTAMP WITH TIME ZONE", format "TEXT" and datestyle "ISO, YMD"
 LINE 10:1: ...EXISTS(select timestamp with time zone'2023-01-01 01:01:01 +1');

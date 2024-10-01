@@ -217,32 +217,32 @@ LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC..
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
 OCTO> select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true` for text output format
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475';
 ???
-0
+f
 (1 row)
 OCTO> -- Should return `true` for horolog output format
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101';
 ???
-0
+f
 (1 row)
 OCTO> -- Should return `true` for fileman output format
 select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 
@@ -361,6 +361,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d",6)
     . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -544,6 +545,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -573,6 +575,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,"%Y-%m-%d")
     . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
+    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -678,6 +681,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$$Text2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,"%H:%M:%S")
     . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
+    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
@@ -1058,32 +1062,32 @@ LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC..
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
 OCTO> select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> -- Should return `true` for text output format
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true` for horolog output format
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101';
 ???
-0
+f
 (1 row)
 OCTO> -- Should return `true` for fileman output format
 select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 
@@ -1339,32 +1343,32 @@ LINE 50:1: ...ct CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARC..
 OCTO> select CAST(timestamp with time zone'2023-01-01 01:01:01 -5' AS VARCHAR);
 OCTO> select timestamp'2023-01-01 01:01:01'::time < time'01:02:01';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 select timestamp'2023-01-01 01:01:01'::date < date'2023-01-02';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='2023-01-01';
 ???
-0
+f
 (1 row)
 OCTO> -- Should return `true` for text output format
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='66475';
 ???
-0
+f
 (1 row)
 OCTO> -- Should return `true` for horolog output format
 select (timestamp'2023-01-01 01:01:01'::date)::varchar ='3230101';
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true` for fileman output format
 select (timestamp'2023-01-01 01:01:01'::date) ='2023-01-01'::date;
 ???
-1
+t
 (1 row)
 OCTO> -- Should return `true`
 

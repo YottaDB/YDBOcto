@@ -54,6 +54,6 @@ OCTO> select timestamp(zhorolog) with time zone '-365,0,,43198';
 (1 row)
 OCTO> select timestamp(horolog) '228893,65111' <= timestamp(zhorolog) with time zone '194240,17291,+43662,22739';
 ???
-0
+f
 (1 row)
 OCTO> -- 0

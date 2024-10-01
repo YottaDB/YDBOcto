@@ -59,7 +59,7 @@ ORDER BY nspname,
          attnum
 [ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: OVER not implemented, just returning columns
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|attnum|attidentity|adsrc|description|typbasetype|typtype
-public|names|id|23|1|-1|4|1||||0|b
-public|names|firstname|1043|0|34|-1|2||||0|b
-public|names|lastname|1043|0|34|-1|3||||0|b
+public|names|id|23|t|-1|4|1||||0|b
+public|names|firstname|1043|f|34|-1|2||||0|b
+public|names|lastname|1043|f|34|-1|3||||0|b
 (3 rows)

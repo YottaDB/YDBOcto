@@ -20,7 +20,7 @@ OCTO> select date(zhorolog) '189078,,,';
 (1 row)
 OCTO> select date(zhorolog) '189078,,,' = date(zut) '12265494700000000';
 ???
-1
+t
 (1 row)
 OCTO> -- TRUE
 select date_to_zhorolog(date(zut) '12265494700000000');

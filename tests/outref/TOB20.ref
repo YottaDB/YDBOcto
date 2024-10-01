@@ -389,6 +389,7 @@ _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
 _ydboctoP*.m:;  select * from composite order by id1 desc limit 2
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20b order by id desc limit 2
+_ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:;  select * from TOB20f order by id desc limit 2
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc
 _ydboctoP*.m:;  select * from TOB20e order by id
@@ -400,6 +401,7 @@ _ydboctoP*.m:;  select * from TOB20g order by id
 _ydboctoP*.m:;  select * from names order by id desc
 _ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20b order by id asc
+_ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id asc limit 2
 _ydboctoP*.m:;  select * from TOB20i where lastname = 'efgh' order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20a order by id desc limit 2

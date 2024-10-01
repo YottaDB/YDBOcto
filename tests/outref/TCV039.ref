@@ -86,7 +86,7 @@ OCTO> create view v5 as select true;
 CREATE VIEW
 OCTO> select * from v5;
 ???
-1
+t
 (1 row)
 OCTO> \d v5;
 View "v5"
@@ -98,7 +98,7 @@ OCTO> create view v6 as select false;
 CREATE VIEW
 OCTO> select * from v6;
 ???
-0
+f
 (1 row)
 OCTO> \d v6;
 View "v6"
@@ -110,8 +110,8 @@ OCTO> create view v7 as select true,'t' as col2 union select 'f','t';
 CREATE VIEW
 OCTO> select * from v7;
 ???|col2
-1|t
-0|t
+t|t
+f|t
 (2 rows)
 OCTO> \d v7;
 View "v7"

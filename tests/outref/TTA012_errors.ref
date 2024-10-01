@@ -198,21 +198,21 @@ LINE 18:1: select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::N...
 OCTO> select n1.* = n2.* from (VALUES(1::NUMERIC) ,(2::NUMERIC) ,(1::NUMERIC)) n1 JOIN (VALUES(1.0::INTEGER) ,(2.0::INTEGER) ,(1.0::INTEGER)) n2 on (n1.column1=2);
 OCTO> select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::VARCHAR)) n1 JOIN (VALUES(NULL) ,(NULL) ,(NULL)) n2 on (n1.column1='1');
 ???
-0
-0
-0
-0
-0
-0
+f
+f
+f
+f
+f
+f
 (6 rows)
 OCTO> select n1.* = n2.* from (VALUES(1::VARCHAR) ,(2::VARCHAR) ,(1::VARCHAR)) n1 JOIN (VALUES('test') ,('test') ,('test')) n2 on (n1.column1='1');
 ???
-0
-0
-0
-0
-0
-0
+f
+f
+f
+f
+f
+f
 (6 rows)
 [ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting UNKNOWN or TRUE_TOKEN or FALSE_TOKEN or NULL_TOKEN
 LINE 23:1: select n1.* is not n1.* from names n1;
@@ -308,21 +308,21 @@ LINE 39:1: select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) ...
 OCTO> select 'test' <= n2.* from (VALUES('test') ,('test') ,('test')) n1 JOIN (select ('test') union select ('test') union select ('test')) n2 on (n1.column1='test');
 OCTO> select n1.* = n2.* from (VALUES(1) ,(2) ,(1)) n1 JOIN (select (NULL) union select (NULL) union select (NULL)) n2 on (1=1);
 ???
-0
-0
-0
+f
+f
+f
 (3 rows)
 OCTO> select n1.* = n2.* from (VALUES(1.0) ,(2.0) ,(1.0)) n1 JOIN (select (NULL) union select (NULL) union select (NULL)) n2 on (1=1);
 ???
-0
-0
-0
+f
+f
+f
 (3 rows)
 OCTO> select n1.* = n2.* from (VALUES(true) ,(true) ,(true)) n1 JOIN (select (NULL) union select (NULL) union select (NULL)) n2 on (1=1);
 ???
-0
-0
-0
+f
+f
+f
 (3 rows)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left TABLENAME.*, right BOOLEAN
 LINE 45:1: select n1.* is UNKNOWN from (VALUES(TRUE)) n1;
@@ -382,15 +382,15 @@ LINE 55:1: select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1...
 OCTO> select n1.* != n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',1.0 union select 2, NULL,2.0 union select 3,'test3',3.0) n2 on (1=1);
 OCTO> select n1.* >= n2.* from (VALUES(1,'test1',1) ,(2,'test2',2) ,(1,'test3',3)) n1 JOIN (select 1,'test1',NULL union select 2, NULL,NULL union select 3,'test3',NULL) n2 on (1=1);
 ???
-0
-0
-0
-1
-0
-0
-1
-0
-0
+f
+f
+f
+t
+f
+f
+t
+f
+f
 (9 rows)
 [ERROR]: ERR_TABLE_ASTERISK_COLUMN_TYPE_MISMATCH: Table asterisk column type mismatch: left NUMERIC, right INTEGER
 LINE 57:1: select n1.* NOT IN (n2.*) from (VALUES(1,'test1',1.0) ,(2,'test2...

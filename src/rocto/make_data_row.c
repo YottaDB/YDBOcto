@@ -24,14 +24,14 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-#define COPY_TEXT_PARM(DATA_PTR, PARM)                       \
-	{                                                    \
-		*((int32_t *)DATA_PTR) = htonl(PARM.length); \
-		DATA_PTR += sizeof(int32_t);                 \
-		if (PSQL_NULL != PARM.length) {              \
-			memcpy(c, PARM.value, PARM.length);  \
-			DATA_PTR += PARM.length;             \
-		}                                            \
+#define COPY_TEXT_PARM(DATA_PTR, PARM)                             \
+	{                                                          \
+		*((int32_t *)DATA_PTR) = htonl(PARM.length);       \
+		DATA_PTR += sizeof(int32_t);                       \
+		if (PSQL_NULL != PARM.length) {                    \
+			memcpy(DATA_PTR, PARM.value, PARM.length); \
+			DATA_PTR += PARM.length;                   \
+		}                                                  \
 	}
 
 DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types) {

@@ -527,8 +527,8 @@ OCTO> drop table TBT13;
 DROP TABLE
 OCTO> select 't' union select 'f' union select true;
 ???
-1
-0
+t
+f
 (2 rows)
 OCTO> select null in (false, 'f', '');
 ???
@@ -540,7 +540,7 @@ OCTO> select null in (true, 't', null, '');
 (1 row)
 OCTO> select 't' in (true, null, 't', '');
 ???
-1
+t
 (1 row)
 OCTO> select true = case true when false then '' end;
 ???
@@ -556,7 +556,7 @@ OCTO> select true = case true when false then '' when null then null end;
 (1 row)
 OCTO> select true = case true when false then '' when null then null when true then true else 't' end;
 ???
-1
+t
 (1 row)
 OCTO> create table TBT13 (txt boolean);
 CREATE TABLE
@@ -564,10 +564,10 @@ OCTO> insert into TBT13 values ('t'), (true), ('f'), (false), (null), ('');
 INSERT 0 6
 OCTO> select * from TBT13;
 txt
-1
-1
-0
-0
+t
+t
+f
+f
 
 
 (6 rows)

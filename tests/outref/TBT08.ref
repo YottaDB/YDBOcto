@@ -7,18 +7,18 @@ select * from stock_availability where available is false;
 OCTO> discard all;
 OCTO> select id::boolean is true from names;
 ???
-0
-1
-1
-1
-1
-1
+f
+t
+t
+t
+t
+t
 (6 rows)
 OCTO> select * from stock_availability where available is false;
 product_id|available
-200|0
-700|0
-800|0
+200|f
+700|f
+800|f
 (3 rows)
 OCTO> 
 
@@ -33,29 +33,29 @@ select * from stock_availability where available is false;
 OCTO> discard all;
 OCTO> select id::boolean is unknown from names;
 ???
-0
-0
-0
-0
-0
-0
+f
+f
+f
+f
+f
+f
 (6 rows)
 OCTO> select id::boolean is true from names;
 ???
-0
-1
-1
-1
-1
-1
+f
+t
+t
+t
+t
+t
 (6 rows)
 OCTO> select * from stock_availability where available is unknown;
 product_id|available
 (0 rows)
 OCTO> select * from stock_availability where available is false;
 product_id|available
-200|0
-700|0
-800|0
+200|f
+700|f
+800|f
 (3 rows)
 OCTO> 

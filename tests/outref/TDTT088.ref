@@ -6,17 +6,17 @@
 # Run SELECT commands for READWRITE tables involving JOINs
 # Verify output of 4 SELECT commands involving JOINs
 # Expect output of all 4 SELECT commands to be 1
-1
+t
 (1 row)
 --
-1
+t
 (1 row)
 --
-1
+t
 (1 row)
 --
-1
+t
 (1 row)
 --
-1
+t
 (1 row)

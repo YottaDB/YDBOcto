@@ -37,7 +37,7 @@ LINE 28:1: select NOT date'2023-01-01';
 OCTO> select NOT date'2023-01-01';
 OCTO> select EXISTS(select date'2023-01-01');
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIME
 LINE 30:1: select +time'01:01:00';
@@ -53,7 +53,7 @@ LINE 32:1: select NOT time'01:01:00';
 OCTO> select NOT time'01:01:00';
 OCTO> select EXISTS(select time'01:01:00');
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP
 LINE 34:1: select +timestamp'2023-01-01 01:01:00';
@@ -69,7 +69,7 @@ LINE 36:1: select NOT timestamp'2023-01-01 01:01:00';
 OCTO> select NOT timestamp'2023-01-01 01:01:00';
 OCTO> select EXISTS(select timestamp'2023-01-01 01:01:00');
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP WITH TIME ZONE
 LINE 38:1: select +timestamp with time zone'2023-01-01 01:01:00-05:00';
@@ -85,7 +85,7 @@ LINE 40:1: select NOT timestamp with time zone'2023-01-01 01:01:00-05:00';
 OCTO> select NOT timestamp with time zone'2023-01-01 01:01:00-05:00';
 OCTO> select EXISTS(select timestamp with time zone'2023-01-01 01:01:00-05:00');
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type DATE
 LINE 42:1: select +dob from TDTT006date n1;
@@ -101,7 +101,7 @@ LINE 44:1: select NOT dob from TDTT006date n1;
 OCTO> select NOT dob from TDTT006date n1;
 OCTO> select EXISTS(select dob from TDTT006date n1);
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIME
 LINE 46:1: select +dob from TDTT006time n1;
@@ -117,7 +117,7 @@ LINE 48:1: select NOT dob from TDTT006time n1;
 OCTO> select NOT dob from TDTT006time n1;
 OCTO> select EXISTS(select dob from TDTT006time n1);
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP
 LINE 50:1: select +dob from TDTT006timestamp n1;
@@ -133,7 +133,7 @@ LINE 52:1: select NOT dob from TDTT006timestamp n1;
 OCTO> select NOT dob from TDTT006timestamp n1;
 OCTO> select EXISTS(select dob from TDTT006timestamp n1);
 EXISTS
-1
+t
 (1 row)
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type TIMESTAMP WITH TIME ZONE
 LINE 54:1: select +dob from TDTT006timestamptz n1;
@@ -149,7 +149,7 @@ LINE 56:1: select NOT dob from TDTT006timestamptz n1;
 OCTO> select NOT dob from TDTT006timestamptz n1;
 OCTO> select EXISTS(select dob from TDTT006timestamptz n1);
 EXISTS
-1
+t
 (1 row)
 OCTO> -- type:date format:
 drop table TDTT006date;

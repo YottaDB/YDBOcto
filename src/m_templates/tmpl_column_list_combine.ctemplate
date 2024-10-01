@@ -17,7 +17,7 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
-	 boolean_t is_asterisk, boolean_t needs_date_time_formatting) {
+	 boolean_t is_asterisk, boolean_t needs_formatting) {
 	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
 	boolean_t	is_insert_into_values;	/* used for optimization in case of INSERT INTO .. VALUES (YDBOcto#910) */
 	int		col_num;
@@ -251,11 +251,11 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		if (need_closing_paren) {
 			%{}){}%
 		}
-		/* "needs_date_time_formatting" is TRUE if caller is in a context where it wants date/time formatting.
+		/* "needs_formatting" is TRUE if caller is in a context where it wants date/time and boolean formatting.
 		 * But we should do this only if "pplan" is the outermost plan (i.e. not a sub-query etc.).
 		 * An easy way to identify this is if "pplan->parent_plan" is NULL.
 		 */
-		if (needs_date_time_formatting && (NULL == pplan->parent_plan)) {
+		if (needs_formatting && (NULL == pplan->parent_plan)) {
 			LogicalPlan	*tmpPlan;
 			SqlValueType     column_type;
 			if (is_lp_table_value && !is_insert_into_values) {
@@ -271,6 +271,10 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 				const char *datetime_text_format_specifier;
 				GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(column_type, datetime_text_format_specifier);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ column_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			} else if (BOOLEAN_VALUE == column_type) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}=$select((1={{ PP_YDB_OCTO_EXPR }}):"t",(0={{ PP_YDB_OCTO_EXPR }}):"f",1:$ZYSQLNULL){}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
 		}

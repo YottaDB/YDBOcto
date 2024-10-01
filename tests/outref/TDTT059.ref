@@ -76,7 +76,7 @@ OCTO> -- expect 0
 
 select date_to_fileman(date'1701-01-01') = 0010101;
 ???
-1
+t
 (1 row)
 OCTO> select timestamp_to_fileman(date'1701-01-01'::timestamp);
 timestamp_to_fileman

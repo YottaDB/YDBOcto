@@ -748,17 +748,17 @@ testKiller
 (6 rows)
 OCTO> select not 1!=samevalue(id) from names group by not 1!=samevalue(id);
 ???
-0
-1
+f
+t
 (2 rows)
 OCTO> select not 1!=samevalue(id) from names group by id;
 ???
-0
-1
-0
-0
-0
-0
+f
+t
+f
+f
+f
+f
 (6 rows)
 OCTO> select samevalue('test'||samevalue(lastname)) from names group by lastname;
 samevalue
@@ -794,74 +794,74 @@ testKiller
 (5 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names;
 samevalue
-1
-1
-1
-1
+t
+t
+t
+t
 
-1
+t
 (6 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname;
 samevalue
 
-1
-1
-1
-1
+t
+t
+t
+t
 (5 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 'test'=lastname;
 samevalue
 
-1
+t
 (2 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by NOT 'test'=lastname;
 samevalue
 
-1
+t
 (2 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname);
 samevalue
 
-1
+t
 (2 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname);
 samevalue
-1
-1
-1
-1
+t
+t
+t
+t
 (4 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
 samevalue
-1
-1
-1
-1
+t
+t
+t
+t
 (4 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having 'Cool'!=lastname;
 samevalue
-1
-1
-1
+t
+t
+t
 (3 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname) order by lastname;
 samevalue
-1
-1
-1
-1
+t
+t
+t
+t
 (4 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname);
 samevalue
-1
+t
 (1 row)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname) having FALSE!=samevalue(NOT 'test'=lastname) order by samevalue(NOT 'test'=lastname);
 samevalue
-1
+t
 (1 row)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by NOT 'test'=lastname having FALSE!=(NOT 'test'=lastname);
 samevalue
-1
+t
 (1 row)
 OCTO> select 1 from names group by lastname having FALSE!=samevalue(NOT 'test'=lastname);
 ???
@@ -908,71 +908,71 @@ Cereal
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 1;
 samevalue
 
-1
+t
 (2 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 1 order by samevalue(NOT 'test'=lastname);
 samevalue
-1
+t
 
 (2 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 1 order by 1;
 samevalue
-1
+t
 
 (2 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 1,firstname order by samevalue(firstname);
 samevalue
-1
-1
+t
+t
 
-1
-1
+t
+t
 (5 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 1,firstname having 'Zero'!=samevalue(firstname) order by 1;
 samevalue
-1
-1
-1
+t
+t
+t
 
 (4 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by 1,firstname having 'Zero'!=firstname order by 1;
 samevalue
-1
-1
-1
+t
+t
+t
 
 (4 rows)
 OCTO> select samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname),id;
 samevalue
 
-1
-1
-1
-1
-1
+t
+t
+t
+t
+t
 (6 rows)
 OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by not TRUE!=samevalue(NOT 'test'=lastname);
 ???
 
-1
+t
 (2 rows)
 OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by lastname;
 ???
 
-1
-1
-1
-1
+t
+t
+t
+t
 (5 rows)
 OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by samevalue(NOT 'test'=lastname);
 ???
 
-1
+t
 (2 rows)
 OCTO> select not TRUE!=samevalue(NOT 'test'=lastname) from names group by TRUE!=samevalue(NOT 'test'=lastname);
 ???
 
-1
+t
 (2 rows)
 OCTO> select 1 from names group by parmlessfunc();
 ???
@@ -1025,40 +1025,40 @@ SUCCESS
 (6 rows)
 OCTO> select parmlessfunc()!='Success' from names group by parmlessfunc()!='Success';
 ???
-1
+t
 (1 row)
 OCTO> select parmlessfunc()!=firstname from names group by parmlessfunc()!=firstname;
 ???
-1
+t
 (1 row)
 OCTO> select parmlessfunc()!=firstname from names group by firstname;
 ???
-1
-1
-1
-1
-1
+t
+t
+t
+t
+t
 (5 rows)
 OCTO> select parmlessfunc()!=firstname from names group by parmlessfunc()!=firstname,firstname;
 ???
-1
-1
-1
-1
-1
+t
+t
+t
+t
+t
 (5 rows)
 OCTO> select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by firstname,lastname;
 ???
-0
+f
 
-0
-0
-0
+f
+f
+f
 (5 rows)
 OCTO> select ('Zero'!=lastname)!=(parmlessfunc()!=firstname) from names group by ('Zero'!=lastname)!=(parmlessfunc()!=firstname);
 ???
 
-0
+f
 (2 rows)
 OCTO> select parmlessfunc() from names group by 1;
 parmlessfunc

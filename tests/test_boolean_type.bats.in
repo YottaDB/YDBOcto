@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -135,3 +135,34 @@ teardown() {
 	verify_output TBT13 output.txt
 }
 
+@test "TBT14 : OCTO1032/OCTO1060 : Test that boolean literal and values work as expected with JDBC driver" {
+	stop_rocto
+	test_port=$(start_rocto 1344 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT14.sql "trim_trailing_zeroes" usejdbc
+	# Test TBT14_1.sql
+	yottadb -run %XCMD 'SET ^datef(0)="3230201"'
+	yottadb -run %XCMD 's ^persons(1)="Surname|Name|Samutprakarn|Thailand|2024-02-21T13:31:48.050980+06:00|1110100110|true"'
+	yottadb -run %XCMD 's ^persons(2)="SurnameA|NameA|Samutprakarn|Thailand|2024-02-21T13:31:49.050980101+07:00|1110100111|false"'
+	yottadb -run %XCMD 's ^persons(3)="SurnameB|NameB|Samutprakarn|Thailand|2024-02-21T13:31:50.050980+07:00|1110100112|false"'
+	yottadb -run %XCMD 's ^persons(4)="SurnameC|NameC|Samutprakarn|Thailand|2024-02-21T13:31:51.050980+07:00|1110100113|true"'
+	yottadb -run %XCMD 's ^persons(5)="SurnameD|NameD|Samutprakarn|Thailand|2023-01-01T01:01:01.567555-08:30|1110100114|false"'
+	yottadb -run %XCMD 's ^persons(6)="SurnameE|NameE|Samutprakarn|Thailand|2023-01-01T01:01:01.567555-08:30|1110100115|true"'
+	yottadb -run %XCMD 's ^persons(7)="SurnameF|NameF|Samutprakarn|Thailand|2023-01-01T01:01:01.567555-08:30|1110100116|false"'
+	yottadb -run %XCMD 's ^persons(8)="SurnameG|NameG|Samutprakarn|Thailand|2023-01-01T01:01:01.567555-08:30|1110100117|true"'
+	yottadb -run %XCMD 's ^persons(9)="SurnameH|NameH|Samutprakarn|Thailand|2024-02-21T13:31:48.05098021+07:00|1110100118|false"'
+	yottadb -run %XCMD 's ^a(1)="true"'
+	yottadb -run %XCMD 's ^a(2)="false"'
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TBT14_1.sql .
+	sed '/^#/d' TBT14_1.sql >> input.sql
+	echo "# Test: readonly table with boolean column works the same in Octo and Rocto" >> output.txt
+	echo "# Run tests in Octo" >> output.txt
+	echo "=========Octo============" >> output.txt
+	octo -pf input.sql >> output.txt
+	testname="TBT14_2"
+	echo "# Run tests in Rocto" >> output.txt
+	echo "=========Rocto/JDBC============" >> output.txt
+	run_java run_multi_query $test_port $testname >> output.txt
+	echo "========================================" >> output.txt
+	echo "# Expect: Results of SELECT queries should be same in Octo and Rocto" >> output.txt
+	verify_output TBT14 output.txt
+}

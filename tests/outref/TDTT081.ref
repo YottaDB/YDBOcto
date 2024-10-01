@@ -1132,7 +1132,7 @@ OCTO> insert into TDTT006timetz values(1,time with time zone'01:01:01+05:00');
 INSERT 0 1
 OCTO> select EXISTS(select dob from TDTT006timetz n1);
 EXISTS
-1
+t
 (1 row)
 OCTO> drop table TDTT006timetz;
 DROP TABLE
@@ -1324,163 +1324,163 @@ OCTO> select n1.dob + time with time zone'01:01:00-05:00' from TDTT005time n1;
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' BETWEEN n1.dob AND time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' BETWEEN n1.dob AND time with time zone'01:01:00-05:00' from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob BETWEEN time with time zone'01:01:00-05:00' AND n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob BETWEEN time with time zone'01:01:00-05:00' AND n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ANY(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ALL(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ANY(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ALL(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ANY(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ALL(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ANY(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ALL(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= n1.dob from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ANY(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ALL(select dob from TDTT005time);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ANY(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ALL(select dob from TDTT005time);
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' + time with time zone'01:01:00-05:00';
 ???
@@ -1500,15 +1500,15 @@ OCTO> select time with time zone'01:01:00-05:00' + time'01:01:00';
 (1 row)
 OCTO> select time'01:01:00' BETWEEN time with time zone'01:01:00-05:00' AND time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' BETWEEN time'01:01:00' AND time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' BETWEEN time with time zone'01:01:00-05:00' AND time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' BETWEEN NULL AND time with time zone'01:01:00-05:00';
 ???
@@ -1516,267 +1516,267 @@ OCTO> select time with time zone'01:01:00-05:00' BETWEEN NULL AND time with time
 (1 row)
 OCTO> select time'01:01:00' = time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' = ANY(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' = ALL(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' != time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != ANY(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != ALL(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < ANY(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < ALL(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' > time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > ANY(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > ALL(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' <= time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= ANY(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= ALL(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' >= ANY(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' >= ALL(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ANY(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ALL(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ANY(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ALL(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ANY(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ALL(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ANY(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ALL(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= time'01:01:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ANY(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ALL(select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ANY(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ALL(select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ANY(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ALL(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ANY(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ALL(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ANY(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ALL(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ANY(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ALL(select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ANY(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ALL(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= time with time zone'01:01:00-05:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ANY(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ALL(select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = ALL(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' != ALL(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' < ALL(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' > ALL(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' <= ALL(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' >= ALL(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' = NULL;
 ???
@@ -1852,39 +1852,39 @@ OCTO> select time with time zone'01:01:00-05:00' >= ALL(select NULL);
 (1 row)
 OCTO> select n1.dob = time with time zone'01:01:00-05:00' from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' IN (select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (select time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (time with time zone'01:01:00-05:00',time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (select n1.dob) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (n1.dob,time with time zone'01:01:00-05:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (select n1.dob) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (NULL,time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (select NULL);
 ???
@@ -1892,75 +1892,75 @@ OCTO> select time with time zone'01:01:00-05:00' IN (select NULL);
 (1 row)
 OCTO> select n1.dob IN (select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (time with time zone'01:01:00-05:00',n1.dob) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN (select time with time zone'01:01:00-05:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' NOT BETWEEN time with time zone'01:01:00-05:00' AND time'01:01:00';
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT BETWEEN time'01:01:00' AND time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT BETWEEN time with time zone'01:01:00-05:00' AND time with time zone'01:01:00-05:00';
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT BETWEEN n1.dob AND time with time zone'01:01:00-05:00' from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT BETWEEN n1.dob AND time with time zone'01:01:00-05:00' from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT BETWEEN time with time zone'01:01:00-05:00' AND n1.dob from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT BETWEEN time with time zone'01:01:00-05:00' AND n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' NOT IN (select time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (select time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (time with time zone'01:01:00-05:00',time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (select time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (select n1.dob) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (n1.dob,time with time zone'01:01:00-05:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (select n1.dob) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (NULL,time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (select NULL);
 ???
@@ -1968,7 +1968,7 @@ OCTO> select time with time zone'01:01:00-05:00' NOT IN (select NULL);
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (NULL,time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (select NULL);
 ???
@@ -1976,15 +1976,15 @@ OCTO> select time with time zone'01:01:00-05:00' NOT IN (select NULL);
 (1 row)
 OCTO> select n1.dob NOT IN (select time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (time with time zone'01:01:00-05:00',n1.dob) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN (select time with time zone'01:01:00-05:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' - NULL;
 ???
@@ -2024,23 +2024,23 @@ OCTO> select n1.dob + n2.dob from TDTT005timetz n1, TDTT005time n2;
 (1 row)
 OCTO> select time'01:01:00' BETWEEN n1.dob AND time'01:01:00' from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob BETWEEN n2.dob AND n1.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob BETWEEN time'01:01:00' AND n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob BETWEEN n2.dob AND n1.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob BETWEEN n2.dob AND n1.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob BETWEEN NULL AND n1.dob from TDTT005timetz n1;
 ???
@@ -2048,363 +2048,363 @@ OCTO> select n1.dob BETWEEN NULL AND n1.dob from TDTT005timetz n1;
 (1 row)
 OCTO> select time'01:01:00' = n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' = ANY(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' = ALL(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' != n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != ANY(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' != ALL(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' < n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' < ANY(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' < ALL(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' > n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' > ANY(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' > ALL(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' <= n1.dob from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' <= ANY(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' <= ALL(select dob from TDTT005timetz);
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' >= n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= ANY(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' >= ALL(select dob from TDTT005timetz);
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timetz) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = time'01:01:00' from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != time'01:01:00' from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < time'01:01:00' from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > time'01:01:00' from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= time'01:01:00' from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= time'01:01:00' from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005time) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob = n2.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ANY(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = ALL(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob != n2.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ANY(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob != ALL(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < n2.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ANY(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob < ALL(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > n2.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ANY(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob > ALL(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob <= n2.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ANY(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob <= ALL(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= n2.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ANY(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob >= ALL(select dob from TDTT005timetz) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob = NULL from TDTT005timetz n1;
 ???
@@ -2488,31 +2488,31 @@ OCTO> select n1.dob || NULL from TDTT005timetz n1;
 (1 row)
 OCTO> select time'01:01:00' IN (select n1.dob) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (select n2.dob) from TDTT005time n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (select time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (select n2.dob) from TDTT005timetz n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (n2.dob,n1.dob) from TDTT005timetz n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN (select n2.dob) from TDTT005timetz n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN (NULL,n1.dob) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN (select NULL) from TDTT005timetz n1;
 ???
@@ -2520,23 +2520,23 @@ OCTO> select n1.dob IN (select NULL) from TDTT005timetz n1;
 (1 row)
 OCTO> select time'01:01:00' NOT BETWEEN n1.dob AND time'01:01:00' from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT BETWEEN n2.dob AND n1.dob from TDTT005time n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT BETWEEN time'01:01:00' AND n1.dob from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT BETWEEN n2.dob AND n1.dob from TDTT005timetz n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT BETWEEN n2.dob AND n1.dob from TDTT005timetz n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT BETWEEN NULL AND n1.dob from TDTT005timetz n1;
 ???
@@ -2544,31 +2544,31 @@ OCTO> select n1.dob NOT BETWEEN NULL AND n1.dob from TDTT005timetz n1;
 (1 row)
 OCTO> select time'01:01:00' NOT IN (select n1.dob) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (select n2.dob) from TDTT005time n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (select time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (select n2.dob) from TDTT005timetz n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (n2.dob,n1.dob) from TDTT005timetz n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN (select n2.dob) from TDTT005timetz n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN (NULL,n1.dob) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN (select NULL) from TDTT005timetz n1;
 ???
@@ -2640,83 +2640,83 @@ NULLIF
 (1 row)
 OCTO> select time'01:01:00' IN (time with time zone'01:01:00-05:00',time'01:01:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (time'01:01:00',time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN (n1.dob,time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' IN ('01:01:01-05',time with time zone'01:01:00-05:00');
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN (time with time zone'01:01:00-05:00',n1.dob) from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' NOT IN (time with time zone'01:01:00-05:00',time'01:01:00');
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (time'01:01:00',time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN ('01:01:01-05',time with time zone'01:01:00-05:00');
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN (time with time zone'01:01:00-05:00',n1.dob) from TDTT005time n1;
 ???
-1
+t
 (1 row)
 OCTO> select time with time zone'01:01:00-05:00' NOT IN (n1.dob,time with time zone'01:01:00-05:00') from TDTT005time n1;
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:00' IN (n1.dob,time'01:01:00') from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (n2.dob,n1.dob) from TDTT005time n1, TDTT005timetz n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob IN (time'01:01:00',n1.dob) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN (n2.dob,n1.dob) from TDTT005timetz n1, TDTT005time n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob IN ('01:01:01-05',n1.dob) from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:00' NOT IN (n1.dob,time'01:01:00') from TDTT005timetz n1;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (n2.dob,n1.dob) from TDTT005time n1, TDTT005timetz n2;
 ???
-1
+t
 (1 row)
 OCTO> select n1.dob NOT IN (time'01:01:00',n1.dob) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN (n2.dob,n1.dob) from TDTT005timetz n1, TDTT005time n2;
 ???
-0
+f
 (1 row)
 OCTO> select n1.dob NOT IN ('01:01:01-05',n1.dob) from TDTT005timetz n1;
 ???
-0
+f
 (1 row)
 OCTO> drop table TDTT005date;
 DROP TABLE

@@ -18,70 +18,70 @@ select FMDIFF((select null),(select null),(select null)) IS NULL as FMDIFF;
 select FMADD((select null),1,2,3,4) IS NULL as FMADD;
 OCTO> select CURRTIMESTAMP((select null)) IS NULL as CURRTIMESTAMP;
 currtimestamp
-1
+t
 (1 row)
 OCTO> select GETDATE((select null)) IS NULL as GETDATE;
 getdate
-1
+t
 (1 row)
 OCTO> select DATEFORMAT((select null)) IS NULL as DATEFORMAT1;
 dateformat1
-1
+t
 (1 row)
 OCTO> select DATEFORMAT((select null),'5Z') IS NULL as DATEFORMAT2;
 dateformat2
-1
+t
 (1 row)
 OCTO> select FMGET(200,.01,(select null)) IS NULL as FMGET1;
 fmget1
-1
+t
 (1 row)
 OCTO> select FMGET(200,.01,(select null),(select null)) IS NULL as FMGET2;
 fmget2
-1
+t
 (1 row)
 OCTO> select FMGET(200,.01,1,(select null),(select null)) IS NULL as FMGET3;
 fmget3
-1
+t
 (1 row)
 OCTO> select IFNULL((select null),'foo') IS NULL as IFNULL;
 ifnull
-0
+f
 (1 row)
 OCTO> select LEFTY((select null),5) IS NULL as LEFTY;
 lefty
-1
+t
 (1 row)
 OCTO> select MPIECE((select null),'^',1) IS NULL as MPIECE;
 mpiece
-1
+t
 (1 row)
 OCTO> select NUMBER((select null)) IS NULL as NUMBER;
 number
-1
+t
 (1 row)
 OCTO> select PATINDEX((select null), 'A') IS NULL as PATINDEX;
 patindex
-1
+t
 (1 row)
 OCTO> select REPLACE((select null), 'A', 'B') IS NULL as REPLACE;
 replace
-1
+t
 (1 row)
 OCTO> select RIGHTY((select null),5) IS NULL as RIGHTY;
 righty
-1
+t
 (1 row)
 OCTO> select TOKEN((select null),'^',1) IS NULL as TOKEN;
 token
-1
+t
 (1 row)
 OCTO> select FMDIFF((select null),(select null),(select null)) IS NULL as FMDIFF;
 fmdiff
-1
+t
 (1 row)
 OCTO> select FMADD((select null),1,2,3,4) IS NULL as FMADD;
 fmadd
-1
+t
 (1 row)
 OCTO> 

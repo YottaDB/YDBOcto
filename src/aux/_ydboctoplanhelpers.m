@@ -699,6 +699,25 @@ Fileman2Text(inputStr,type)
 	ELSE  SET result="",endLoop=1
 	QUIT result
 
+; Following routine is invoked to process a boolean type column of a readonly table and it converts string in `val` to 1 or 0.
+; Invalid values return ZYSQLNULL.
+; Note:
+; * Refer to `boolMap` subscripts and its values to know which string is mapped to which value.
+; * This conversion is needed by Rocto to do additional processing on boolean values.
+ForceBoolean(val)
+	new boolMap
+	set boolMap("true")=1
+	set boolMap("t")=1
+	set boolMap("yes")=1
+	set boolMap("y")=1
+	set boolMap("1")=1
+	set boolMap("false")=0
+	set boolMap("f")=0
+	set boolMap("no")=0
+	set boolMap("n")=0
+	set boolMap("0")=0
+	QUIT $select(0'=$data(boolMap(val)):boolMap(val),1:$ZYSQLNULL)
+
 max(isString,a,b)
 	; return the greatest of a and b
 	; uses lexicographical sorting if `isString` is true; otherwise uses numerical sorting

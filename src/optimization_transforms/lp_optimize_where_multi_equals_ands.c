@@ -88,6 +88,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	LPActionType	type;
 	SqlTableAlias  *right_table_alias;
 	boolean_t	is_null;
+	SqlValueType	left_type, right_type;
 
 	if (LP_WHERE == where->type) {
 		cur = where->v.lp_default.operand[0];
@@ -142,9 +143,29 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_EQUALS:
 		// We only check whether optimization can be done when the left or right value is a column alias
 		if ((LP_COLUMN_ALIAS == left->type) || (LP_COLUMN_ALIAS == right->type)) {
-			SqlValueType left_type, right_type;
 			left_type = lp_get_plan_value_type(left);
 			right_type = lp_get_plan_value_type(right);
+			/* If a boolean value is involved in an expression with a readonly table column skip optimization till
+			 * YottaDB/Util/YDBAIM!76 is fixed.
+			 */
+			if ((BOOLEAN_VALUE == left_type) || (BOOLEAN_VALUE == right_type)) {
+				boolean_t	do_not_optimize = FALSE;
+				SqlColumnAlias *ca = NULL;
+				if (LP_COLUMN_ALIAS == left->type) {
+					ca = left->v.lp_column_alias.column_alias;
+					IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+				}
+				if (!do_not_optimize && (LP_COLUMN_ALIAS == right->type)) {
+					ca = right->v.lp_column_alias.column_alias;
+					IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+				}
+				if (do_not_optimize) {
+					if (BOOLEAN_TYPE == ca->column->v.column->data_type_struct.data_type) {
+						return where;
+						break;
+					}
+				}
+			}
 			if ((!IS_DATE(left_type)) || (!IS_DATE(right_type))) {
 				/*
 				 * TIMESTAMP readonly table values in TEXT format can have T or space as the beginning of a time
@@ -179,6 +200,29 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_GREATER_THAN:
 	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+		/* If a boolean value is involved in an expression with a readonly table column skip optimization till
+		 * YottaDB/Util/YDBAIM!76 is fixed.
+		 */
+		left_type = lp_get_plan_value_type(left);
+		right_type = lp_get_plan_value_type(right);
+		if ((BOOLEAN_VALUE == left_type) || (BOOLEAN_VALUE == right_type)) {
+			boolean_t	do_not_optimize = FALSE;
+			SqlColumnAlias *ca = NULL;
+			if (LP_COLUMN_ALIAS == left->type) {
+				ca = left->v.lp_column_alias.column_alias;
+				IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+			}
+			if (!do_not_optimize && (LP_COLUMN_ALIAS == right->type)) {
+				ca = right->v.lp_column_alias.column_alias;
+				IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+			}
+			if (do_not_optimize) {
+				if (BOOLEAN_TYPE == ca->column->v.column->data_type_struct.data_type) {
+					return where;
+					break;
+				}
+			}
+		}
 		if ((IS_DATE_TIME_TYPE(lp_get_plan_value_type(left))) || (IS_DATE_TIME_TYPE(lp_get_plan_value_type(right)))) {
 			/* Readonly table optimization leads to wrong results as cross reference of date/time values will
 			 * have ordering based on string format.
@@ -201,6 +245,24 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		if (LP_COLUMN_ALIAS != left->type) {
 			return where;
 			break;
+		}
+		/* If a boolean value is involved in an expression with a readonly table column skip optimization till
+		 * YottaDB/Util/YDBAIM!76 is fixed.
+		 */
+		left_type = lp_get_plan_value_type(left);
+		if (BOOLEAN_VALUE == left_type) {
+			boolean_t	do_not_optimize = FALSE;
+			SqlColumnAlias *ca = NULL;
+			if (LP_COLUMN_ALIAS == left->type) {
+				ca = left->v.lp_column_alias.column_alias;
+				IS_READONLY_TABLE_COLUMN(ca, do_not_optimize);
+			}
+			if (do_not_optimize) {
+				if (BOOLEAN_TYPE == ca->column->v.column->data_type_struct.data_type) {
+					return where;
+					break;
+				}
+			}
 		}
 		/* Check if right side of IN is a list of values (LP_VALUE). If not, we cannot do key fixing. */
 		list = right;

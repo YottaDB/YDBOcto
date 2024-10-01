@@ -2217,8 +2217,8 @@ OCTO> UPDATE country SET gnp = NULL;
 UPDATE 2
 OCTO> SELECT gnp is NULL from country;
 ???
-1
-1
+t
+t
 (2 rows)
 [ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LITERAL
 LINE 538:1: CREATE TABLE abcd (id1 INTEGER, UNIQUE (3));

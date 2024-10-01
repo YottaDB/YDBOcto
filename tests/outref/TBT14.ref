@@ -1,0 +1,98 @@
+# Test: readonly table with boolean column works the same in Octo and Rocto
+# Run tests in Octo
+=========Octo============
+OCTO> CREATE TABLE Persons (PersonID int primary key,LastName varchar(255) GLOBAL "^persons(keys(""personid""))" PIECE 1,FirstName varchar(255) GLOBAL "^persons(keys(""personid""))" PIECE 2,Address varchar(255) GLOBAL "^persons(keys(""personid""))" PIECE 3,City varchar(255) GLOBAL "^persons(keys(""personid""))" PIECE 4,ts TIMESTAMP WITH TIME ZONE GLOBAL "^persons(keys(""personid""))" PIECE 5,socnum INTEGER GLOBAL "^persons(keys(""personid""))" PIECE 6,foo BOOLEAN GLOBAL "^persons(keys(""personid""))" PIECE 7)GLOBAL "^persons(keys(""personid""))"DELIM "|";
+CREATE TABLE
+OCTO> select * from Persons;
+personid|lastname|firstname|address|city|ts|socnum|foo
+1|Surname|Name|Samutprakarn|Thailand|DATE TIME.05098-05|1110100110|t
+2|SurnameA|NameA|Samutprakarn|Thailand|DATE TIME.05098-05|1110100111|f
+3|SurnameB|NameB|Samutprakarn|Thailand|DATE TIME.05098-05|1110100112|f
+4|SurnameC|NameC|Samutprakarn|Thailand|DATE TIME.05098-05|1110100113|t
+5|SurnameD|NameD|Samutprakarn|Thailand|DATE TIME.567555-05|1110100114|f
+6|SurnameE|NameE|Samutprakarn|Thailand|DATE TIME.567555-05|1110100115|t
+7|SurnameF|NameF|Samutprakarn|Thailand|DATE TIME.567555-05|1110100116|f
+8|SurnameG|NameG|Samutprakarn|Thailand|DATE TIME.567555-05|1110100117|t
+9|SurnameH|NameH|Samutprakarn|Thailand|DATE TIME.05098-05|1110100118|f
+(9 rows)
+OCTO> create table tmp (id integer primary key, bln boolean) global "^a" readonly;
+CREATE TABLE
+OCTO> select * from tmp;
+id|bln
+1|t
+2|f
+(2 rows)
+OCTO> select true;
+???
+t
+(1 row)
+OCTO> select false;
+???
+f
+(1 row)
+OCTO> select true and true;
+???
+t
+(1 row)
+OCTO> select * from Persons where foo = true;
+personid|lastname|firstname|address|city|ts|socnum|foo
+1|Surname|Name|Samutprakarn|Thailand|DATE TIME.05098-05|1110100110|t
+4|SurnameC|NameC|Samutprakarn|Thailand|DATE TIME.05098-05|1110100113|t
+6|SurnameE|NameE|Samutprakarn|Thailand|DATE TIME.567555-05|1110100115|t
+8|SurnameG|NameG|Samutprakarn|Thailand|DATE TIME.567555-05|1110100117|t
+(4 rows)
+OCTO> select * from Persons where foo = false;
+personid|lastname|firstname|address|city|ts|socnum|foo
+2|SurnameA|NameA|Samutprakarn|Thailand|DATE TIME.05098-05|1110100111|f
+3|SurnameB|NameB|Samutprakarn|Thailand|DATE TIME.05098-05|1110100112|f
+5|SurnameD|NameD|Samutprakarn|Thailand|DATE TIME.567555-05|1110100114|f
+7|SurnameF|NameF|Samutprakarn|Thailand|DATE TIME.567555-05|1110100116|f
+9|SurnameH|NameH|Samutprakarn|Thailand|DATE TIME.05098-05|1110100118|f
+(5 rows)
+OCTO> select * from Persons where foo AND true;
+personid|lastname|firstname|address|city|ts|socnum|foo
+1|Surname|Name|Samutprakarn|Thailand|DATE TIME.05098-05|1110100110|t
+4|SurnameC|NameC|Samutprakarn|Thailand|DATE TIME.05098-05|1110100113|t
+6|SurnameE|NameE|Samutprakarn|Thailand|DATE TIME.567555-05|1110100115|t
+8|SurnameG|NameG|Samutprakarn|Thailand|DATE TIME.567555-05|1110100117|t
+(4 rows)
+OCTO> select * from tmp where bln > 'false';
+id|bln
+1|t
+(1 row)
+OCTO> select * from tmp where bln > 'true';
+id|bln
+(0 rows)
+OCTO> 
+# Run tests in Rocto
+=========Rocto/JDBC============
+1|Surname|Name|Samutprakarn|Thailand|DATE TIME.05098-05|1110100110|t
+2|SurnameA|NameA|Samutprakarn|Thailand|DATE TIME.05098-05|1110100111|f
+3|SurnameB|NameB|Samutprakarn|Thailand|DATE TIME.05098-05|1110100112|f
+4|SurnameC|NameC|Samutprakarn|Thailand|DATE TIME.05098-05|1110100113|t
+5|SurnameD|NameD|Samutprakarn|Thailand|DATE TIME.567555-05|1110100114|f
+6|SurnameE|NameE|Samutprakarn|Thailand|DATE TIME.567555-05|1110100115|t
+7|SurnameF|NameF|Samutprakarn|Thailand|DATE TIME.567555-05|1110100116|f
+8|SurnameG|NameG|Samutprakarn|Thailand|DATE TIME.567555-05|1110100117|t
+9|SurnameH|NameH|Samutprakarn|Thailand|DATE TIME.05098-05|1110100118|f
+1|t
+2|f
+t
+f
+t
+1|Surname|Name|Samutprakarn|Thailand|DATE TIME.05098-05|1110100110|t
+4|SurnameC|NameC|Samutprakarn|Thailand|DATE TIME.05098-05|1110100113|t
+6|SurnameE|NameE|Samutprakarn|Thailand|DATE TIME.567555-05|1110100115|t
+8|SurnameG|NameG|Samutprakarn|Thailand|DATE TIME.567555-05|1110100117|t
+2|SurnameA|NameA|Samutprakarn|Thailand|DATE TIME.05098-05|1110100111|f
+3|SurnameB|NameB|Samutprakarn|Thailand|DATE TIME.05098-05|1110100112|f
+5|SurnameD|NameD|Samutprakarn|Thailand|DATE TIME.567555-05|1110100114|f
+7|SurnameF|NameF|Samutprakarn|Thailand|DATE TIME.567555-05|1110100116|f
+9|SurnameH|NameH|Samutprakarn|Thailand|DATE TIME.05098-05|1110100118|f
+1|Surname|Name|Samutprakarn|Thailand|DATE TIME.05098-05|1110100110|t
+4|SurnameC|NameC|Samutprakarn|Thailand|DATE TIME.05098-05|1110100113|t
+6|SurnameE|NameE|Samutprakarn|Thailand|DATE TIME.567555-05|1110100115|t
+8|SurnameG|NameG|Samutprakarn|Thailand|DATE TIME.567555-05|1110100117|t
+1|t
+========================================
+# Expect: Results of SELECT queries should be same in Octo and Rocto

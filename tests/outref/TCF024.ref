@@ -65,12 +65,12 @@ hello2
 (6 rows)
 OCTO> SELECT OVERLOADEDFUNC(true) FROM names;
 overloadedfunc
-1
-1
-1
-1
-1
-1
+t
+t
+t
+t
+t
+t
 (6 rows)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right BOOLEAN
 LINE 18:1: SELECT  * FROM names where firstname = OVERLOADEDFUNC(true);

@@ -17,50 +17,50 @@ select time'01:01:01' NOT IN (select time'01:01:20');
 select timestamp'2023-01-01 01:01:01' NOT IN (select timestamp'2023-01-02 01:01:01');
 OCTO> select date'2023-01-01' IN (date'2023-01-02', date'2023-01-03', date'2023-01-01');
 ???
-1
+t
 (1 row)
 OCTO> select time'01:01:01' IN (time'01:01:20', time'01:03:23', time'01:01:01');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:01' IN (timestamp'2023-01-02 01:01:01', timestamp'2023-01-01 01:02:01',timestamp'2023-01-01 01:01:01');
 ???
-1
+t
 (1 row)
 OCTO> select date'2023-01-01' IN (select date'2023-01-02');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:01' IN (select time'01:01:20');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:01' IN (select timestamp'2023-01-02 01:01:01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' NOT IN (date'2023-01-02', date'2023-01-03', date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:01' NOT IN (time'01:01:20', time'01:03:23', time'01:01:01');
 ???
-0
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:01' NOT IN (timestamp'2023-01-02 01:01:01', timestamp'2023-01-01 01:02:01',timestamp'2023-01-01 01:01:01');
 ???
-0
+f
 (1 row)
 OCTO> select date'2023-01-01' NOT IN (select date'2023-01-01');
 ???
-0
+f
 (1 row)
 OCTO> select time'01:01:01' NOT IN (select time'01:01:20');
 ???
-1
+t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:01' NOT IN (select timestamp'2023-01-02 01:01:01');
 ???
-1
+t
 (1 row)
 OCTO> 

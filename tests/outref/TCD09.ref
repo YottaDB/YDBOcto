@@ -9,5 +9,5 @@ customer_id|first_name|last_name|email|address|city|state|zipcode
 customer_id|first_name|last_name|email|address|city|state|zipcode
 (0 rows)
 ???|???
-1|0
+t|f
 (1 row)

@@ -22,15 +22,15 @@
 
 #define YY_INPUT(buf, result, max_size)	result = get_input(buf, max_size)	/* reads 1 byte of input per invocation */
 
-#define YY_USER_ACTION 							\
+#define YY_USER_ACTION							\
 	yylloc->first_line = yylloc->last_line;				\
 	yylloc->first_column = yylloc->last_column;			\
-	for (int i = 0; yytext[i] != '\0'; i++) { 			\
-		if (yytext[i] == '\n') { 				\
+	for (int i = 0; yytext[i] != '\0'; i++) {			\
+		if (yytext[i] == '\n') {				\
 			cur_input_line_num++;				\
-			yylloc->last_line++; 				\
-			yylloc->first_column = 1; 			\
-			yylloc->last_column = 1; 			\
+			yylloc->last_line++;				\
+			yylloc->first_column = 1;			\
+			yylloc->last_column = 1;			\
 		} else {						\
 			yylloc->last_column++;				\
 		}							\
@@ -45,40 +45,55 @@
 /* Copies from src to dst, incrementing both pointers as it goes
  * copied will be incremented by the number of characters copied
  */
-#define COPY_STRING(dst, src, copied)						\
-	{									\
-		size_t total_len;						\
-		char * dst_str;							\
-										\
-		total_len = strlen(src);					\
+#define COPY_STRING(dst, src, copied)							\
+	{										\
+		size_t total_len;							\
+		char * dst_str;								\
+											\
+		total_len = strlen(src);						\
 		if (dst->len_alloc <= (copied + total_len)) {				\
-			char *tmp;\
-			int len_used;\
-\
-			tmp = (char*)malloc(sizeof(char) * (copied + total_len + 1));			\
-			memcpy(tmp, dst->buf_addr, dst->len_used);\
-			len_used = dst->len_used;\
-			free(dst->buf_addr); \
-			dst->len_alloc = copied + total_len + 1; \
-			dst->buf_addr = tmp; \
-			dst->len_used = len_used; \
-		}								\
-		dst_str =  dst->buf_addr + dst->len_used;	\
+			char *tmp;							\
+			int len_used;							\
+											\
+			tmp = (char*)malloc(sizeof(char) * (copied + total_len + 1));	\
+			memcpy(tmp, dst->buf_addr, dst->len_used);			\
+			len_used = dst->len_used;					\
+			free(dst->buf_addr);						\
+			dst->len_alloc = copied + total_len + 1;			\
+			dst->buf_addr = tmp;						\
+			dst->len_used = len_used;					\
+		}									\
+		dst_str =  dst->buf_addr + dst->len_used;				\
 		while ((*src)) {							\
-			*dst_str++ = *src++;					\
-			(copied)++;						\
-			dst->len_used++;					\
-		}								\
-		*dst_str = '\0';						\
+			*dst_str++ = *src++;						\
+			(copied)++;							\
+			dst->len_used++;						\
+		}									\
+		*dst_str = '\0';							\
 	}
 
 #define RESET_BUFFER(BUFFER) \
 	BUFFER.len_used = 0; /* Reset the length of the buffer to indicate the value is no longer needed */ \
 	BUFFER.buf_addr[0] = '\0'; /* Reset the length of the buffer to indicate the value is no longer needed */
 
+#define	LEADING_SPACE_FINISH								\
+	if (0 == save_yylloc_first_line) {						\
+		leading_spaces = copied_so_far;						\
+		/* skip leading whitespace */						\
+		old_input_index += copied_so_far;					\
+		assert(old_input_line_num <= cur_input_line_num);			\
+		old_input_line_num = cur_input_line_num;				\
+		old_input_line_begin = &input_buffer_combined[old_input_index];		\
+		yylloc->last_column -= leading_spaces;					\
+		yylloc->last_line = 0;							\
+	}
+
+#define	EOF_HIT	eof_hit = EOF_CTRLD; return ENDOFFILE;
+
 #define YYSTYPE SqlStatement *
 
 int copied_so_far;
+int save_yylloc_first_line;
 
 %}
 
@@ -97,6 +112,7 @@ int copied_so_far;
 %x IDENTIFIER
 %x COMMENT
 %x COMMENT_CSTYLE
+%x LEADING_SPACE
 
 %%
 
@@ -278,16 +294,25 @@ int copied_so_far;
 \\d { return DISPLAY; }
 \\dv { return DISPLAY_VIEW; }
 
-^[ \t\r\n]* { /* skip leading whitespace */
-		if (0 == yylloc->first_line) {
-			leading_spaces = strlen(yytext);
-			old_input_index += leading_spaces;
-			assert(old_input_line_num <= cur_input_line_num); /* would be "<" in case leading_spaces contains \n */
-			old_input_line_num = cur_input_line_num;
-			old_input_line_begin = &input_buffer_combined[old_input_index];
-			yylloc->last_column -= leading_spaces;
-			yylloc->last_line = 0;
-		}
+^[ \t\r\n]  {
+		BEGIN(LEADING_SPACE);
+		save_yylloc_first_line = yylloc->first_line;
+		copied_so_far = 1;
+	}
+<LEADING_SPACE>[ \t\r\n] {
+		copied_so_far++;
+	}
+<LEADING_SPACE><<EOF>> {
+		BEGIN(INITIAL);
+		LEADING_SPACE_FINISH;
+		EOF_HIT;
+	}
+<LEADING_SPACE>[^ \t\r\n] {
+		BEGIN(INITIAL);
+		LEADING_SPACE_FINISH;
+		/* Undo the effect of reading one extra character that is not a space, tab or newline */
+		yyless(0);
+		yylloc->last_column--;
 	}
 
 [0-9]*(\.)[0-9]* {
@@ -446,7 +471,7 @@ int copied_so_far;
 <COMMENT_CSTYLE>. { /* Ignore comments */ }
 <COMMENT_CSTYLE>[\n\r] { /* Ignore multi-line C-style comments */ }
 
-<<EOF>> { eof_hit = EOF_CTRLD; return ENDOFFILE; }
+<<EOF>> { EOF_HIT; }
 
 . { return INVALID_TOKEN; }
 

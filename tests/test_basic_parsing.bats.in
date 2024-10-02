@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -68,3 +68,15 @@ teardown() {
 	load_fixture TBP007.sql subtest novv
 	verify_output TBP007 output.txt
 }
+
+@test "TBP008 : OCTO1059 : Test that octo does NOT take exponentially long time to run query with lots of preceding spaces" {
+	for value in 100 200 500 1000 2000 5000 10000 20000 50000 100000
+	do
+		yottadb -run %XCMD 'write $justify(" ",'$value'),"select 1;",!' > $value.sql
+		time octo -f $value.sql > /dev/null 2>> time.out
+	done
+	cputimelist=`grep elapsed time.out | sed 's/user/ /;s/system/ /;' | awk '{print $1 + $2}'`
+	yottadb -run TBP008 $cputimelist >& ydbcheck.out
+	[[ "$(grep -c "FAIL" ydbcheck.out)" == "0" ]]
+}
+

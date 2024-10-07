@@ -25,24 +25,25 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	boolean_t		nested_call, this_join_is_left_join;
 
 	total_keys = pplan->total_iter_keys;
-	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
+	assert(NULL != tablejoin);
+	assert(LP_TABLE_JOIN == tablejoin->type);
 	assert(cur_key < total_keys);
 	key = pplan->iterKeys[cur_key];
 	left_table_id = key->unique_id;
 	nested_call = FALSE;
-	this_join_type = ((NULL == tablejoin) ? NO_JOIN
-						: tablejoin->extra_detail.lp_table_join.cur_join_type);
+	this_join_type = tablejoin->extra_detail.lp_table_join.cur_join_type;
 	this_join_is_left_join = ((LEFT_JOIN == this_join_type) || ((FULL_JOIN == this_join_type) && !right_join_second_half));
 	key_start = cur_key;
 	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
 	if (pplan->tablejoin == tablejoin) {
+		/* This is the outermost "tmpl_tablejoin" invocation. */
+
 		unsigned int	save_cur_key;
 
 		save_cur_key = cur_key;
-		/* This is the outermost "tmpl_tablejoin" invocation. See if there are any IN operator usages which have
-		 * a key on the LHS that is fixed to a list of values on the RHS. If so, generate M local variables to store
-		 * that list before any of the FOR loops for scanning any key begins. This way we do this M local variable
-		 * initialization only once.
+		/* See if there are any IN operator usages which have a key on the LHS that is fixed to a list of values
+		 * on the RHS. If so, generate M local variables to store that list before any of the FOR loops for
+		 * scanning any key begins. This way we do this M local variable initialization only once.
 		 */
 		for ( ; cur_key < total_keys; cur_key++) {
 			LogicalPlan	*list;
@@ -108,23 +109,22 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		}
 		cur_key = save_cur_key;
 	}
-	if (NULL != tablejoin) {
-		LogicalPlan	*left_tablejoin;
-		left_tablejoin = tablejoin->v.lp_default.operand[0];
-		switch(left_tablejoin->type) {
-		case LP_SELECT_QUERY:
-		case LP_SET_OPERATION:
-		case LP_TABLE_VALUE:
-			/* If a table in the FROM/JOIN list is a sub-query that corresponds to a deferred plan,
-			 * generate code to invoke it here (before we generate code to use the results of the plan
-			 * in the next "for" loop). If it does not correspond to a deferred plan, we would have
-			 * already generated M code to invoke it so no need to do anything in that case.
-			 */
-			TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_TABLEJOIN, left_tablejoin, dot_count);
-			break;
-		default:
-			break;
-		}
+
+	LogicalPlan	*left_tablejoin;
+	left_tablejoin = tablejoin->v.lp_default.operand[0];
+	switch(left_tablejoin->type) {
+	case LP_SELECT_QUERY:
+	case LP_SET_OPERATION:
+	case LP_TABLE_VALUE:
+		/* If a table in the FROM/JOIN list is a sub-query that corresponds to a deferred plan,
+		 * generate code to invoke it here (before we generate code to use the results of the plan
+		 * in the next "for" loop). If it does not correspond to a deferred plan, we would have
+		 * already generated M code to invoke it so no need to do anything in that case.
+		 */
+		TMPL(tmpl_invoke_deferred_plan, InvokeDeferredPlan_TABLEJOIN, left_tablejoin, dot_count);
+		break;
+	default:
+		break;
 	}
 
 	int	orig_dot_count;

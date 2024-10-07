@@ -155,6 +155,9 @@ enum EmitSourceForm {
 	EmitSourceForm_UpdateKeyCol,
 	EmitSourceForm_AIM,
 	EmitSourceForm_KeyFix,
+	EmitSourceForm_Octo617,
+	EmitSourceForm_Octo617Min,
+	EmitSourceForm_Octo617Max,
 };
 
 typedef enum {
@@ -196,6 +199,7 @@ TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *pplan, unsigned int key_start, unsign
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *pplan, int *dot_count);
+TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, LogicalPlan *tablejoin, int dot_count);
 TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
@@ -220,7 +224,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	 boolean_t is_asterisk, boolean_t needs_formatting);
 TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
-TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, int parm2, int keys_to_match,
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, void *parm2, int keys_to_match,
 	 enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);

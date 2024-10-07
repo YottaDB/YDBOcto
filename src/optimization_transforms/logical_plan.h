@@ -559,4 +559,6 @@ LogicalPlan *lp_generate_view(SqlStatement *stmt, boolean_t *caller_error_encoun
 // Creates and returns a new/unique plan id
 int get_new_plan_unique_id(void);
 
+boolean_t is_keycol_type_string(SqlKey *key);
+
 #endif

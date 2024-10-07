@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,7 +20,7 @@ setup() {
 }
 
 teardown() {
-  corecheck
+	corecheck
 }
 
 @test "TAF01 : OCTO455 : AVG/MIN/MAX/SUM on empty table should return the NULL value if GROUP BY clause is absent" {
@@ -46,5 +46,26 @@ teardown() {
 @test "TAF05 : OCTO579 : Test of various error scenarios with aggregate function usage in UPDATE and DELETE queries" {
 	load_fixture TAF05_errors.sql subtest novv
 	verify_output TAF05_errors output.txt
+}
+
+@test "TAF06 : OCTO617 : Test MAX(COL) and MIN(COL) is optimized in various cases and not in various other cases" {
+	echo "# Run crosscheck on TAF06.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF06.sql
+	echo "# Remove Octo M plans (_ydboctoP*.*) from the crosscheck run as the _ydboctoP*.m file names can differ" >> output.txt
+	echo "# when run through the JDBC driver (that uses the extended query protocol and which the crosscheck" >> output.txt
+	echo "# can invoke randomly) due to the addition of a LIMIT keyword (see YDBOcto@48c0b208 for more details)" >> output.txt
+	echo "# This can cause issues with a deterministic reference file as that includes lines from this M plan." >> output.txt
+	rm _ydbocto*
+	echo "# Combine queries from TAF06.sql and TAF06_octo.sql into one query file TAF06all.sql" >> output.txt
+	cat @PROJECT_SOURCE_DIR@/tests/fixtures/TAF06.sql @PROJECT_SOURCE_DIR@/tests/fixtures/TAF06_octo.sql > TAF06all.sql
+	# Get gvn data for tables used in TAF06all.sql
+	yottadb -run %XCMD 'for i=1:1:10 set ^TAF06octod(i)=""'			# data for TAF06octod table
+	yottadb -run %XCMD 'for i=1:1:10 set ^TAF06octoe($char(96+i))=""'	# data for TAF06octoe table
+	echo "# Run queries in TAF06all.sql using octo (for deterministic M plan names) [load_fixture TAF06all.sql]" >> output.txt
+	# Some queries can issue errors (e.g. ERR_MISTYPED_FUNCTION error when MIN(BOOLEAN) is attempted) hence the "|| true" below
+	octo -p -f TAF06all.sql >> output.txt 2>&1 || true
+	echo '# Find out which queries had M plans with $ORDER for loops. Those are the non-optimized queries.' >> output.txt
+	grep -E " select|FOR|------|ORDER|DATA" $(ls -1 _ydbocto*.m | sort_LC_ALL_C) | grep -v GroupBy | sed 's/.*[;:] //;' >> output.txt
+	verify_output TAF06 output.txt
 }
 

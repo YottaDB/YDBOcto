@@ -24,6 +24,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	LogicalPlan		*right_tablejoin;
 	boolean_t		nested_call, this_join_is_left_join;
 
+	/* Check if simple aggregate function usages on table columns can be optimized (YDBOcto#617).
+	 * If so emit the appropriate M code and return from this function.
+	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/617#note_2142141907 for more details.
+	 */
+	TMPL(tmpl_tablejoin_octo617_optimize, pplan, tablejoin, dot_count);
+	if (pplan->is_octo617_optimized) {
+		return;
+	}
+
 	total_keys = pplan->total_iter_keys;
 	assert(NULL != tablejoin);
 	assert(LP_TABLE_JOIN == tablejoin->type);
@@ -348,26 +357,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						%{}({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})="")!({}%
 						/* Determine type of column as that will determine how the QUIT: is structured */
 						assert(NULL != key->column);
+
 						boolean_t	is_string;
-						is_string = FALSE;
-						switch(key->column->data_type_struct.data_type) {
-						case BOOLEAN_TYPE:
-						case INTEGER_TYPE:
-						case NUMERIC_TYPE:
-						case DATE_TYPE:
-						case TIME_TYPE:
-						case TIME_WITH_TIME_ZONE_TYPE:
-						case TIMESTAMP_TYPE:
-						case TIMESTAMP_WITH_TIME_ZONE_TYPE:
-							break;
-						case STRING_TYPE:
-							is_string = TRUE;
-							break;
-						case UNKNOWN_SqlDataType:
-						case NUL_TYPE:
-							assert(FALSE);
-							break;
-						}
+						is_string = is_keycol_type_string(key);
 						if (!is_string) {
 							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
 							switch(key->fixed_to_value_type) {

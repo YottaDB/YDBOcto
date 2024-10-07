@@ -237,7 +237,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`nbaseSubs:(base,subs) ; Private entry point for use by other labels in this routine{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW global SET global=$NAME({}%
-			TMPL(tmpl_emit_source, table, source, tableName, pplan->outputKey->unique_id, 0, MAX_KEY_COUNT,	\
+			TMPL(tmpl_emit_source, table, source, tableName, pplan->outputKey->unique_id, (void *)0, MAX_KEY_COUNT,	\
 				EmitSourceForm_AIM);
 			%{}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%

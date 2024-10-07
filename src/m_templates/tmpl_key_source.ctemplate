@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -95,9 +95,20 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 		assert(keys_to_match);
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		if ((EmitSourceForm_Value == form) || (EmitSourceForm_KeyFix == form)) {
+		if ((EmitSourceForm_Value == form) || (EmitSourceForm_KeyFix == form)
+				|| (EmitSourceForm_Octo617Min == form) || (EmitSourceForm_Octo617Max == form)
+				|| (EmitSourceForm_Octo617 == form)) {
+			void	*parm2;
+
+			if (EmitSourceForm_Value == form) {
+				parm2 = (void *)(intptr_t)0;
+			} else if (EmitSourceForm_KeyFix == form) {
+				parm2 = (void *)(intptr_t)iter_key_index;
+			} else {
+				parm2 = (void *)plan_key;
+			}
 			TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id,	\
-				(EmitSourceForm_Value == form) ? 0 : iter_key_index, keys_to_match, form);
+									parm2, keys_to_match, form);
 		} else {
 			assert(EmitSourceForm_UpdateKeyCol == form);
 			/* In this case a linked list of "lp_column_list" structures needs to be passed in to "tmpl_emit_source". */
@@ -109,7 +120,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 			lp_column_list = lp_get_update_column_list(lp_update);
 
 			TMPL(tmpl_emit_source, table, value->v.string_literal, (char *)lp_column_list,		\
-									key->unique_id, 0, keys_to_match, form);
+							key->unique_id, (intptr_t)0, keys_to_match, form);
 		}
 	}
 	return;

@@ -114,6 +114,7 @@ typedef struct PhysicalPlan {
 					     * of the DNF plans get optimized differently and therefore we cannot use one
 					     * common M code for all DNF plans. Could be used in other scenarios in the future.
 					     */
+	boolean_t is_octo617_optimized;	    /* TRUE if YDBOcto#617 optimization (e.g. SELECT MAX(id) from names;) was done. */
 #ifndef NDEBUG
 	boolean_t emitting_octoLeftJoin_label; /* TRUE if we are emitting M code under the `octoLeftJoinNN` label. Used only by
 						* an assert currently. Hence kept under a `NDEBUG` flag.

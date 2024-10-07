@@ -1,0 +1,279 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, LogicalPlan *tablejoin, int dot_count) {
+
+	assert(!pplan->is_octo617_optimized);	/* Due to malloced memory being 0-initialized */
+	pplan->is_octo617_optimized = FALSE;	/* Just for code clarity */
+	/* Check if simple aggregate function usages on table columns can be optimized (YDBOcto#617).
+	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/617#note_2142141907 for more details.
+	 */
+	assert(NULL != tablejoin);
+	assert(LP_TABLE_JOIN == tablejoin->type);
+	if (pplan->tablejoin != tablejoin) {
+		/* The current TABLEJOIN is not the first TABLEJOIN. This means there are at least 2 TABLEJOINs.
+		 * And in turn this means there are at least 2 tables in the FROM/JOIN clause. Cannot optimize.
+		 */
+		return;
+	}
+	assert(NO_JOIN == tablejoin->extra_detail.lp_table_join.cur_join_type);
+	if (NULL != tablejoin->v.lp_default.operand[1]) {
+		/* There is at least one JOIN involved. That means there are at least 2 tables involved. So cannot optimize. */
+		return;
+	}
+	if (pplan->where && pplan->where->v.lp_default.operand[0]) {
+		/* This query has a WHERE clause specified. Cannot optimize. */
+		return;
+	}
+	if (GROUP_BY_SPECIFIED & pplan->aggregate_function_or_group_by_or_having_specified) {
+		/* This query has a GROUP BY clause specified. Cannot optimize. */
+		return;
+	}
+	if (HAVING_SPECIFIED & pplan->aggregate_function_or_group_by_or_having_specified) {
+		/* This query has a HAVING clause specified. Cannot optimize. */
+		return;
+	}
+	if (!(AGGREGATE_FUNCTION_SPECIFIED & pplan->aggregate_function_or_group_by_or_having_specified)) {
+		/* This query has no aggregate function usages. Cannot optimize. */
+		return;
+	}
+	assert(IS_GROUP_BY_PLAN(pplan));
+
+	LogicalPlan	*af, *first_aggregate;
+	first_aggregate = pplan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
+	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
+		switch(af->type) {
+		case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
+		case LP_AGGREGATE_FUNCTION_COUNT:
+		case LP_AGGREGATE_FUNCTION_SUM:
+		case LP_AGGREGATE_FUNCTION_AVG:
+		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT_TABLE_ASTERISK:
+		case LP_AGGREGATE_FUNCTION_COUNT_TABLE_ASTERISK:
+			/* There is at least one aggregate function that is not MIN/MAX. Cannot apply YDBOcto#617 optimization. */
+			return;
+			break;
+		case LP_AGGREGATE_FUNCTION_MIN:
+		case LP_AGGREGATE_FUNCTION_MAX:;
+			LogicalPlan	*lp_column_list;
+			LogicalPlan	*l_plan;
+
+			GET_LP(lp_column_list, af, 0, LP_COLUMN_LIST);
+			l_plan = lp_column_list->v.lp_default.operand[0];
+			if (LP_VALUE == l_plan->type) {
+				/* There is a MIN/MAX aggregate function usage on a literal.
+				 * Can still apply YDBOcto#617 optimization.
+				 */
+				break;
+			}
+			if (LP_COLUMN_ALIAS != l_plan->type) {
+				/* There is a MIN/MAX aggregate function usage on something that is not a column value
+				 * or a literal. Cannot apply YDBOcto#617 optimization. */
+				return;
+			}
+
+			SqlColumnAlias	*column_alias;
+			column_alias = l_plan->v.lp_column_alias.column_alias;
+			if (column_STATEMENT != column_alias->column->type) {
+				/* Not sure how this is possible. Cannot anyways apply the YDBOcto#617 optimization in this case. */
+				assert(FALSE);
+				return;
+			}
+			if (1 != pplan->total_iter_keys) {
+				/* Is a table with multiple key column (i.e. composite key).
+				 * Cannot apply the YDBOcto#617 optimization for now.
+				 * Will be enabled in a future commit once YottaDB/Util/YDBAIM#5 is fixed.
+				 */
+				return;
+			}
+
+			SqlValue	*value;
+			char		*aggr_col_name, *key_col_name;
+			SqlKey		*key;
+			SqlColumn	*column;
+			UNPACK_SQL_STATEMENT(value, column_alias->column->v.column->columnName, value);
+			aggr_col_name = value->v.string_literal;
+			key = pplan->iterKeys[0];
+			column = key->column;
+			/* Disable optimization in case of a READONLY table and for date/time/boolean typed key column.
+			 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1584#note_2150972079 for details.
+			 */
+			switch(column->data_type_struct.data_type) {
+			case NUMERIC_TYPE:
+			case STRING_TYPE:
+			case INTEGER_TYPE:
+				break;
+			case DATE_TYPE:
+			case TIME_TYPE:
+			case TIMESTAMP_TYPE:
+			case TIME_WITH_TIME_ZONE_TYPE:
+			case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+				if (!key->table->readwrite) {
+					return;
+				}
+				break;
+			case BOOLEAN_TYPE:	/* not possible because this would have issued a ERR_MISTYPED_FUNCTION error */
+			case NUL_TYPE:		/* not possible because CREATE TABLE does not allow such a type for a column */
+			default:
+				assert(FALSE);
+				break;
+			}
+			if (NULL != get_keyword(column, OPTIONAL_STARTINCLUDE)) {
+				/* It is easy to support START and ENDPOINT with YDBOcto#617 optimization but not so easy to
+				 * support STARTINCLUDE. Since no user cares about this flag, just disable the optimization
+				 * in case STARTINCLUDE is specified.
+				 */
+				return;
+			}
+			if (NULL != get_keyword(column, OPTIONAL_END)) {
+				/* It is not easy to support END with YDBOcto#617 optimization because it is a boolean
+				 * condition and not a terminating value for the valid range. Therefore disable the
+				 * optimization in this case.
+				 */
+				return;
+			}
+			UNPACK_SQL_STATEMENT(value, column->columnName, value);
+			key_col_name = value->v.string_literal;
+			if (strcmp(aggr_col_name, key_col_name)) {
+				/* Aggregate function is used on a non-key column. Cannot apply YDBOcto#617 optimization for now.
+				 * Will do in a future commit.
+				 */
+				return;
+			}
+			if (NULL != key->fixed_to_value) {
+				/* If key fixing optimization is enabled, then YDBOcto#617 optimization cannot be also enabled
+				 * because the former implies a WHERE clause was specified and that does not work with YDBOcto#617.
+				 */
+				return;
+			}
+			break;
+		default:
+			assert(FALSE);
+			return;
+			break;
+		}
+	}
+	/* If we reached here, it means the YDBOcto#617 optimization is possible. Now emit M code for the optimization. */
+	pplan->is_octo617_optimized = TRUE;
+	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
+		assert((LP_AGGREGATE_FUNCTION_MIN == af->type) || (LP_AGGREGATE_FUNCTION_MAX == af->type));
+
+		LogicalPlan		*lp_column_list;
+		LogicalPlan		*l_plan;
+		LPActionType		af_type;
+		SqlKey			*key;
+		SqlOptionalKeyword	*keyword;
+		SqlValue		*value;
+		char			*str;
+
+		if (af != first_aggregate) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
+		GET_LP(lp_column_list, af, 0, LP_COLUMN_LIST);
+		l_plan = lp_column_list->v.lp_default.operand[0];
+
+		key = pplan->iterKeys[0];
+		TMPL(tmpl_print_dots, dot_count);
+		if (LP_VALUE == l_plan->type) {
+			%{}SET {}%
+			%{}{{ PP_YDB_OCTO_EXPR }}(1)={}%
+			TMPL(tmpl_print_expression, l_plan, pplan, dot_count, 0);
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			af_type = LP_AGGREGATE_FUNCTION_MIN;
+		} else {
+			assert(LP_COLUMN_ALIAS == l_plan->type);
+			assert(column_STATEMENT == l_plan->v.lp_column_alias.column_alias->column->type);
+			af_type = af->type;
+			if (LP_AGGREGATE_FUNCTION_MIN != af_type) {
+				keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
+				if (NULL != keyword) {
+					UNPACK_SQL_STATEMENT(value, keyword->v, value);
+					str = value->v.string_literal;
+					%{}SET {}%
+					%{}{{ PP_YDB_OCTO_EXPR }}={}%
+					%{}{{ str }}{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_dots, dot_count);
+					%{}IF '$DATA({}%
+					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+					%{}) {}%
+				}
+			}
+		}
+		if (LP_AGGREGATE_FUNCTION_MIN == af_type) {
+			%{}SET {}%
+			%{}{{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617Min);
+			%{},1){}%
+		} else {
+			%{}SET {}%
+			%{}{{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617Max);
+			%{},-1){}%
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET:$DATA({}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+		%{}){}%
+
+		keyword = get_keyword(key->column, (LP_AGGREGATE_FUNCTION_MIN != af_type) ? OPTIONAL_START : OPTIONAL_ENDPOINT);
+		if (NULL != keyword) {
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			str = value->v.string_literal;
+		} else {
+			str = NULL;
+		}
+		if (NULL != str) {
+			boolean_t	is_string;
+
+			is_string = is_keycol_type_string(key);
+			%{}&({{ PP_YDB_OCTO_EXPR }}{}%
+			if (LP_AGGREGATE_FUNCTION_MIN == af_type) {
+				if (!is_string) {
+					%{}<={}%
+				} else {
+					%{}']{}%
+				}
+			} else {
+				if (!is_string) {
+					%{}>{}%
+				} else {
+					%{}]{}%
+				}
+			}
+			%{}{{ str }}){}%
+		}
+		%{} {}%
+		TMPL(tmpl_key, pplan->outputKey);
+		(*buffer_index)--;
+		%{},{{ PP_GROUP_BY }},"",{}%
+
+		int	aggregate_cnt;
+
+		aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
+		%{}{{ aggregate_cnt|%d }}{}%
+		%{})={{ PP_YDB_OCTO_EXPR }}{}%
+		if (LP_VALUE == l_plan->type) {
+			%{}(1){}%
+		}
+	}
+	return;
+}
+%{}

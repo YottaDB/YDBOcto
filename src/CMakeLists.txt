@@ -227,6 +227,7 @@ add_library(libocto OBJECT
   history.c
   hash_canonical_query.c
   is_auto_upgrade_valid.c
+  is_keycol_type_string.c
   is_query_canceled.c
   is_stmt_table_asterisk.c
   load_pg_defaults.c
@@ -537,6 +538,7 @@ set(template_files
   ${template_dir}/tmpl_tablejoin.ctemplate
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
+  ${template_dir}/tmpl_tablejoin_octo617_optimize.ctemplate
   ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
   ${template_dir}/tmpl_update_column_reference.ctemplate
   ${template_dir}/tmpl_update_key_source.ctemplate

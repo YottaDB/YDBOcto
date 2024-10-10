@@ -162,6 +162,7 @@ teardown() {
 	echo "# Run tests in Rocto" >> output.txt
 	echo "=========Rocto/JDBC============" >> output.txt
 	run_java run_multi_query $test_port $testname >> output.txt
+	stop_rocto
 	echo "========================================" >> output.txt
 	echo "# Expect: Results of SELECT queries should be same in Octo and Rocto" >> output.txt
 	verify_output TBT14 output.txt

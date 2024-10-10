@@ -1,0 +1,812 @@
+# Run crosscheck on TAF07.sql
+# Remove Octo M plans (_ydboctoP*.*) from the crosscheck run as the _ydboctoP*.m file names can differ
+# when run through the JDBC driver (that uses the extended query protocol and which the crosscheck
+# can invoke randomly) due to the addition of a LIMIT keyword (see YDBOcto@48c0b208 for more details)
+# This can cause issues with a deterministic reference file as that includes lines from this M plan.
+# Combine queries from TAF07.sql and TAF07_octo.sql into one query file TAF07all.sql
+# Run queries in TAF07all.sql using octo (for deterministic M plan names) [load_fixture TAF07all.sql]
+OCTO> #################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+-- TAF07 : OCTO617 : Test MAX(COL) and MIN(COL) is optimized or not in various cases where COL is a non-key-column
+
+-- First check queries that we expect to be optimized
+select max(firstname) from names;
+max
+Zero
+(1 row)
+OCTO> select min(lastname) from names;
+min
+Burn
+(1 row)
+OCTO> select 'abcd' || min(lastname) from names;
+???
+abcdBurn
+(1 row)
+OCTO> select 'abcd' || min(n1.firstname), 'efgh' || max(n1.lastname), max(n1.firstname) || min(n1.lastname) from names n1;
+???|???|???
+abcdAcid|efghNikon|ZeroBurn
+(1 row)
+OCTO> -- Test max/min on all columns of names table. Also test that min(lastname) does not return NULL.
+select max(id), min(id), max(firstname), min(firstname), max(lastname), min(lastname) from names;
+max|min|max|min|max|min
+5|0|Zero|Acid|Nikon|Burn
+(1 row)
+OCTO> -- Then check queries that we don't expect to be optimized
+
+-- Query with JOIN
+select max(n1.firstname) from names n1, names n2;
+max
+Zero
+(1 row)
+OCTO> -- Query with WHERE
+select max(lastname) from names where lastname < 'qrst';
+max
+Nikon
+(1 row)
+OCTO> -- Query with GROUP BY
+select max(firstname) from names group by firstname;
+max
+Acid
+Joey
+Lord
+Zero
+Cereal
+(5 rows)
+OCTO> select max(lastname) from names group by firstname;
+max
+Burn
+
+Nikon
+Cool
+Killer
+(5 rows)
+OCTO> -- Query with HAVING
+select max(firstname) from names having min(firstname) > 'mnop';
+max
+(0 rows)
+OCTO> -- Query with NO aggregate function
+select firstname from names;
+firstname
+Zero
+Acid
+Cereal
+Lord
+Joey
+Zero
+(6 rows)
+OCTO> -- Query with aggregate functions that are not simple column references or literals
+select min(firstname || 'abcd') from names;
+min
+Acidabcd
+(1 row)
+OCTO> select min(3*2) from names;
+min
+6
+(1 row)
+OCTO> select 1 from names order by max(lastname || 'ijkl');
+???
+1
+(1 row)
+OCTO> -- Additionally verify that ORDER BY clause is NOT removed even if YDBOcto#617 optimization can be applied by
+-- verifying that in the emitted M plan there is a FOR loop for the ORDER BY in this case
+-- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/617#note_2151071683 for why ORDER BY is NOT removed
+select min(firstname) from names order by max(lastname);
+min
+Acid
+(1 row)
+OCTO> select min(2) from names order by max(lastname);
+min
+2
+(1 row)
+OCTO> select min(firstname) from names order by max(2);
+min
+Acid
+(1 row)
+OCTO> #################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+-- TAF07 : OCTO617 : Test YDBOcto#617 optimization for various edge cases
+
+-- Note: These are queries that use OCTO specific keywords and so are not kept in TAF07.sql (which is used against Postgres too).
+
+-- Test that empty table works
+create table TAF07octoa (id integer primary key, lastname varchar);
+CREATE TABLE
+OCTO> select min(lastname) is null from TAF07octoa;
+???
+t
+(1 row)
+OCTO> select max(lastname) is null from TAF07octoa;
+???
+t
+(1 row)
+OCTO> ----------------------------------------------------------------------------------------------------
+-- Note: The below READWRITE and READONLY tests are done on an empty table more so to verify from
+-- the emitted M plan that the optimization is enabled or disabled as appropriate. The actual query
+-- results are not checked as it is not considered worth the effort (requires adding data into the tables).
+----------------------------------------------------------------------------------------------------
+-- Test INTEGER typed key column on READWRITE table
+create table TAF07octorw1 (id integer primary key, id2 integer);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw1;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw1;
+???
+t
+(1 row)
+OCTO> -- Test NUMERIC typed key column on READWRITE table
+create table TAF07octorw2 (id integer primary key, id2 numeric);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw2;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw2;
+???
+t
+(1 row)
+OCTO> -- Test VARCHAR typed key column on READWRITE table
+create table TAF07octorw3 (id integer primary key, id2 varchar);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw3;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw3;
+???
+t
+(1 row)
+OCTO> -- Test BOOLEAN typed key column on READWRITE table
+create table TAF07octorw4 (id integer primary key, id2 boolean);
+CREATE TABLE
+[ERROR]: ERR_MISTYPED_FUNCTION: Function min cannot be invoked with a parameter of type BOOLEAN
+LINE 91:1: select min(id2) is null from TAF07octorw4;
+                  ^^^
+OCTO> select min(id2) is null from TAF07octorw4;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function max cannot be invoked with a parameter of type BOOLEAN
+LINE 92:1: select max(id2) is null from TAF07octorw4;
+                  ^^^
+OCTO> select max(id2) is null from TAF07octorw4;
+OCTO> -- Test DATE typed key column on READWRITE table
+create table TAF07octorw5 (id integer primary key, id2 date);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw5;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw5;
+???
+t
+(1 row)
+OCTO> -- Test TIME typed key column on READWRITE table
+create table TAF07octorw6 (id integer primary key, id2 time);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw6;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw6;
+???
+t
+(1 row)
+OCTO> -- Test TIME WITH TIME ZONE typed key column on READWRITE table
+create table TAF07octorw7 (id integer primary key, id2 time with time zone);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw7;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw7;
+???
+t
+(1 row)
+OCTO> -- Test TIMESTAMP typed key column on READWRITE table
+create table TAF07octorw8 (id integer primary key, id2 timestamp);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw8;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw8;
+???
+t
+(1 row)
+OCTO> -- Test TIMESTAMP WITH TIME ZONE typed key column on READWRITE table
+create table TAF07octorw9 (id integer primary key, id2 timestamp with time zone);
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octorw9;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octorw9;
+???
+t
+(1 row)
+OCTO> -- Test INTEGER typed key column on READONLY table
+create table TAF07octoro1 (id integer primary key, id2 integer) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro1;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro1;
+???
+t
+(1 row)
+OCTO> -- Test NUMERIC typed key column on READONLY table
+create table TAF07octoro2 (id integer primary key, id2 numeric) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro2;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro2;
+???
+t
+(1 row)
+OCTO> -- Test VARCHAR typed key column on READONLY table
+create table TAF07octoro3 (id integer primary key, id2 varchar) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro3;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro3;
+???
+t
+(1 row)
+OCTO> -- Test BOOLEAN typed key column on READONLY table
+create table TAF07octoro4 (id integer primary key, id2 boolean) READONLY;
+CREATE TABLE
+[ERROR]: ERR_MISTYPED_FUNCTION: Function min cannot be invoked with a parameter of type BOOLEAN
+LINE 136:1: select min(id2) is null from TAF07octoro4;
+                   ^^^
+OCTO> select min(id2) is null from TAF07octoro4;
+[ERROR]: ERR_MISTYPED_FUNCTION: Function max cannot be invoked with a parameter of type BOOLEAN
+LINE 137:1: select max(id2) is null from TAF07octoro4;
+                   ^^^
+OCTO> select max(id2) is null from TAF07octoro4;
+OCTO> -- Test DATE typed key column on READONLY table
+create table TAF07octoro5 (id integer primary key, id2 date) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro5;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro5;
+???
+t
+(1 row)
+OCTO> -- Test TIME typed key column on READONLY table
+create table TAF07octoro6 (id integer primary key, id2 time) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro6;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro6;
+???
+t
+(1 row)
+OCTO> -- Test TIME WITH TIME ZONE typed key column on READONLY table
+create table TAF07octoro7 (id integer primary key, id2 time with time zone) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro7;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro7;
+???
+t
+(1 row)
+OCTO> -- Test TIMESTAMP typed key column on READONLY table
+create table TAF07octoro8 (id integer primary key, id2 timestamp) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro8;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro8;
+???
+t
+(1 row)
+OCTO> -- Test TIMESTAMP WITH TIME ZONE typed key column on READONLY table
+create table TAF07octoro9 (id integer primary key, id2 timestamp with time zone) READONLY;
+CREATE TABLE
+OCTO> select min(id2) is null from TAF07octoro9;
+???
+t
+(1 row)
+OCTO> select max(id2) is null from TAF07octoro9;
+???
+t
+(1 row)
+OCTO> -- Test a query from customers data set using MAX/MIN on all columns (tests variety of column data types)
+-- Test that for READONLY table integer/string etc. types are optimized
+select max(order_id), min(order_id), max(customer_id), min(customer_id), max(order_amount), min(order_amount) from orders;
+max|min|max|min|max|min
+6|1|10|1|$78.50|$124.00
+(1 row)
+OCTO> -- Test that for READONLY table date type is NOT optimized
+select max(order_date), min(order_date) from orders;
+max|min
+1795-07-21|1760-03-14
+(1 row)
+OCTO> -- Test case where all rows in table have NULL values for non-key column. Expect NULL return from MAX/MIN in this case.
+create table TAF07octorw10 (id integer primary key, firstname varchar);
+CREATE TABLE
+OCTO> insert into TAF07octorw10 values (1, NULL);
+INSERT 0 1
+OCTO> select max(firstname) is null,min(firstname) is null from TAF07octorw10;
+???|???
+t|t
+(1 row)
+OCTO> create table TAF07octorw11 (id integer primary key, firstname varchar);
+CREATE TABLE
+OCTO> insert into TAF07octorw11 values (1, NULL);
+INSERT 0 1
+OCTO> insert into TAF07octorw11 values (2, NULL);
+INSERT 0 1
+OCTO> select max(firstname) is null,min(firstname) is null from TAF07octorw11;
+???|???
+t|t
+(1 row)
+OCTO> create table TAF07octorw12 (id integer primary key, id2 integer);
+CREATE TABLE
+OCTO> insert into TAF07octorw12 values (1, NULL);
+INSERT 0 1
+OCTO> insert into TAF07octorw12 values (2, NULL);
+INSERT 0 1
+OCTO> select max(id2) is null,min(id2) is null from TAF07octorw12;
+???|???
+t|t
+(1 row)
+OCTO> create table TAF07octorw13 (id integer primary key, id2 integer);
+CREATE TABLE
+OCTO> insert into TAF07octorw13 values (1, NULL);
+INSERT 0 1
+OCTO> select max(id2) is null,min(id2) is null from TAF07octorw13;
+???|???
+t|t
+(1 row)
+OCTO> -- Test that MAX/MIN never return NULL as long as there is at least one row with a non-NULL column value for the non-key column
+create table TAF07octorw14 (id integer primary key, id2 integer);
+CREATE TABLE
+OCTO> insert into TAF07octorw14 values (1, NULL);
+INSERT 0 1
+OCTO> insert into TAF07octorw14 values (2, 3);
+INSERT 0 1
+OCTO> select max(id2),min(id2) from TAF07octorw14;
+max|min
+3|3
+(1 row)
+OCTO> -- Test that query with aggregate function usage that is not MIN or MAX does not get optimized
+select sum(id2) from TAF07octorw14;
+sum
+3
+(1 row)
+OCTO> create table TAF07octorw15 (id integer primary key, id2 varchar);
+CREATE TABLE
+OCTO> insert into TAF07octorw15 values (1, NULL);
+INSERT 0 1
+OCTO> insert into TAF07octorw15 values (2, 'abcd');
+INSERT 0 1
+OCTO> select max(id2),min(id2) from TAF07octorw15;
+max|min
+abcd|abcd
+(1 row)
+OCTO> 
+# Find out which queries had M plans with $ORDER for loops. Those are the non-optimized queries.
+---------------------------------------------------------
+ select min(3*2) from names;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select max(firstname) is null,min(firstname) is null from TAF07octorw10;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,""),1)
+   SET:$DATA(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,""),-1)
+   SET:$DATA(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDi4Xxyiu7q7sgfqoghRHE24(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw8;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,""),-1)
+   SET:$DATA(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2),min(id2) from TAF07octorw14;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,""),1)
+   SET:$DATA(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,""),-1)
+   SET:$DATA(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDYzfN7YNKRVKzpJBhgpVm58(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro6;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro6","id")=$ORDER(^%ydboctoDmNe8wJrFSaEmcSF71kxW7A(%ydboctocursor(cursorId,"keys",1,"taf07octoro6","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro6","id")="")  DO
+---------------------------------------------------------
+ select max(order_date), min(order_date) from orders;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"orders","order_id")=$ORDER(^orders(%ydboctocursor(cursorId,"keys",1,"orders","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders","order_id")="")  DO
+---------------------------------------------------------
+ select 1 from names order by max(lastname || 'ijkl');
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+   . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
+---------------------------------------------------------
+ select firstname from names;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select min(lastname) from names;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw3;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,""),-1)
+   SET:$DATA(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select sum(id2) from TAF07octorw14;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octorw14","id")=$ORDER(^%ydboctoDeojLy087ytNKK0J42ffy4H(%ydboctocursor(cursorId,"keys",1,"taf07octorw14","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octorw14","id")="")  DO
+---------------------------------------------------------
+ select min(2) from names order by max(lastname);
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^names(""),1)
+   SET:$DATA(^names(%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+   SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+   . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro2;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,""),-1)
+   SET:$DATA(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw9;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,""),-1)
+   SET:$DATA(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ -- Additionally verify that ORDER BY clause is NOT removed even if YDBOcto#617 optimization can be applied by
+ -- verifying that in the emitted M plan there is a FOR loop for the ORDER BY in this case
+ -- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/617#note_2151071683 for why ORDER BY is NOT removed
+ select min(firstname) from names order by max(lastname);
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+   SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+   . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
+---------------------------------------------------------
+ select min(firstname || 'abcd') from names;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw2;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,""),-1)
+   SET:$DATA(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro7;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro7","id")=$ORDER(^%ydboctoDmkOmQwjBWEq0VkQWiq0bF1(%ydboctocursor(cursorId,"keys",1,"taf07octoro7","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro7","id")="")  DO
+---------------------------------------------------------
+ select min(firstname) from names order by max(2);
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^names(""),1)
+   SET:$DATA(^names(%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+   SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+   . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
+---------------------------------------------------------
+ select max(lastname) from names where lastname < 'qrst';
+---------------------------------------------------------
+   IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0,1)) FOR  SET %ydboctozkeyfix(1,0)=$$aimsubs2strcolval^%ydboctoplanhelpers($ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctozkeyfix(1,0))))) QUIT:(%ydboctozkeyfix(1,0)="")!(%ydboctozkeyfix(1,0,1)']%ydboctozkeyfix(1,0))  DO
+   . SET %ydboctocursor(cursorId,"keys",1,"names","lastname")=%ydboctozkeyfix(1,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","lastname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")))) DO
+   . . FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"names","lastname")),%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select max(id2),min(id2) from TAF07octorw15;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,""),1)
+   SET:$DATA(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,""),-1)
+   SET:$DATA(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDu75S6YSPUE1lxCAI3C73LK(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro2;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,""),1)
+   SET:$DATA(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMD9EwkVEZNv7ZOFlcZa7MHBH(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw5;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,""),1)
+   SET:$DATA(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw1;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,""),-1)
+   SET:$DATA(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro3;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,""),1)
+   SET:$DATA(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw3;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,""),1)
+   SET:$DATA(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDYHPJCwvUQ1T88hlHWc9MEF(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select max(lastname) is null from TAF07octoa;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,""),-1)
+   SET:$DATA(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select 'abcd' || min(lastname) from names;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw7;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,""),-1)
+   SET:$DATA(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro9;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro9","id")=$ORDER(^%ydboctoDjtbnpJkQJVWjjwuvdP2ZJI(%ydboctocursor(cursorId,"keys",1,"taf07octoro9","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro9","id")="")  DO
+---------------------------------------------------------
+ select max(order_id), min(order_id), max(customer_id), min(customer_id), max(order_amount), min(order_amount) from orders;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,""),1)
+   SET:$DATA(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",6)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,""),-1)
+   SET:$DATA(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDzTCd4V2sM2UYTl4fE2sv47(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",5)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,""),1)
+   SET:$DATA(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",4)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,""),-1)
+   SET:$DATA(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDjrxHoM6teHpBHmytfyBe36(3,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",3)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^orders(""),1)
+   SET:$DATA(^orders(%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^orders(""),-1)
+   SET:$DATA(^orders(%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw9;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,""),1)
+   SET:$DATA(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDrzDv8qDxAKJq9mL8cOusE7(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(n1.firstname) from names n1, names n2;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw6;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,""),1)
+   SET:$DATA(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw8;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,""),1)
+   SET:$DATA(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDLtSgXA24VPkiTDDn46dn3B(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null,min(id2) is null from TAF07octorw12;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,""),1)
+   SET:$DATA(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,""),-1)
+   SET:$DATA(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDYJCu0Y6o4eVNjvIMpCtO5J(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw2;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,""),1)
+   SET:$DATA(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMD9cOwFcy3s68GVnPfDhNm7J(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id), min(id), max(firstname), min(firstname), max(lastname), min(lastname) from names;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",6)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",5)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",4)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",3)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^names(""),1)
+   SET:$DATA(^names(%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^names(""),-1)
+   SET:$DATA(^names(%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro5;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro5","id")=$ORDER(^%ydboctoDuzdkoP8YeeTmODw8Vrh9EK(%ydboctocursor(cursorId,"keys",1,"taf07octoro5","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro5","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null,min(id2) is null from TAF07octorw13;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,""),1)
+   SET:$DATA(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,""),-1)
+   SET:$DATA(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDlpLj9D7g8Hwzr2fVOH9W15(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(firstname) is null,min(firstname) is null from TAF07octorw11;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,""),1)
+   SET:$DATA(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,""),-1)
+   SET:$DATA(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMD7KDVl6lhLZM0WAqxUCDnEH(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro1;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,""),1)
+   SET:$DATA(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro6;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro6","id")=$ORDER(^%ydboctoDmNe8wJrFSaEmcSF71kxW7A(%ydboctocursor(cursorId,"keys",1,"taf07octoro6","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro6","id")="")  DO
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw7;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,""),1)
+   SET:$DATA(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMD0KIxSGz7gKq68vJfPrIy77(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select max(lastname) from names group by firstname;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro3;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,""),-1)
+   SET:$DATA(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDuANkP6W5y26osyRduq6J8J(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select min(lastname) is null from TAF07octoa;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,""),1)
+   SET:$DATA(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDHXLN65jvCjlhpPWxfwh560(0,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select max(firstname) from names group by firstname;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw5;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,""),-1)
+   SET:$DATA(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDlEsKSRN2Nv1phnhS7q6AB8(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro8;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro8","id")=$ORDER(^%ydboctoD8RpmCuHGI83sf5EsHhKj2E(%ydboctocursor(cursorId,"keys",1,"taf07octoro8","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro8","id")="")  DO
+---------------------------------------------------------
+ select max(firstname) from names having min(firstname) > 'mnop';
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro5;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro5","id")=$ORDER(^%ydboctoDuzdkoP8YeeTmODw8Vrh9EK(%ydboctocursor(cursorId,"keys",1,"taf07octoro5","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro5","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro8;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro8","id")=$ORDER(^%ydboctoD8RpmCuHGI83sf5EsHhKj2E(%ydboctocursor(cursorId,"keys",1,"taf07octoro8","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro8","id")="")  DO
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro7;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro7","id")=$ORDER(^%ydboctoDmkOmQwjBWEq0VkQWiq0bF1(%ydboctocursor(cursorId,"keys",1,"taf07octoro7","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro7","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octoro1;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,""),-1)
+   SET:$DATA(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDzKlkiSPOaJqn9eJ7uROg2C(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octorw1;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,""),1)
+   SET:$DATA(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDcd4FrCuqYxvqAlafdZlZIC(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select min(id2) is null from TAF07octoro9;
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf07octoro9","id")=$ORDER(^%ydboctoDjtbnpJkQJVWjjwuvdP2ZJI(%ydboctocursor(cursorId,"keys",1,"taf07octoro9","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf07octoro9","id")="")  DO
+---------------------------------------------------------
+ select max(id2) is null from TAF07octorw6;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,""),-1)
+   SET:$DATA(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDdWYSetJ0seVllGo3C2tz74(0,%ydboctoexpr))&(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr
+---------------------------------------------------------
+ select 'abcd' || min(n1.firstname), 'efgh' || max(n1.lastname), max(n1.firstname) || min(n1.lastname) from names n1;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",4)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",3)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+---------------------------------------------------------
+ select max(firstname) from names;
+---------------------------------------------------------
+   SET %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,""),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr),-1)
+   SET:$DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)

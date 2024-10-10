@@ -199,7 +199,7 @@ TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *pplan, unsigned int key_start, unsign
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *pplan, int *dot_count);
-TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, LogicalPlan *tablejoin, int dot_count);
+TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);

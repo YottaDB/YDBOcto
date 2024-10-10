@@ -580,6 +580,23 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	assert(NULL != first_pplan);
 	assert(NULL == first_pplan->prev);
 	out->dependent_plans_end = first_pplan;
+
+	/* Check if YDBOcto#617 optimization can be applied on this physical plan */
+	out->is_octo617_optimized = is_octo617_optimization_possible(out);
+	if (out->is_octo617_optimized) {
+		/* Now that we know optimization is possible, check to see if there are any non-key columns where
+		 * aggregate functions were used. If so, generate xref plans for those.
+		 */
+		LogicalPlan *af, *first_aggregate;
+		first_aggregate = out->lp_select_query->extra_detail.lp_select_query.first_aggregate;
+		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
+			LogicalPlan *stmt;
+			stmt = af->extra_detail.lp_aggregate_function.octo617_xref_plan;
+			if (NULL != stmt) {
+				generate_physical_plan(stmt, &plan_options);
+			}
+		}
+	}
 	return out;
 }
 

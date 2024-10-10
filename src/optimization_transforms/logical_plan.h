@@ -235,6 +235,9 @@ typedef struct LpExtraAggregateFunction {
 	int unique_id;			/* This field is set by lp_generate_where() to convey to lp_verify_structure() invocation
 					 * from generate_physical_plan() that the aggregate belongs to the table with this `id`.
 					 */
+	struct LogicalPlan *octo617_xref_plan; /* Non-NULL in case an xref plan was generated for the <column> referenced in
+						* this aggregate function (as part of YDBOcto#617 optimization).
+						*/
 } LpExtraAggregateFunction;
 
 typedef struct LpExtraCoerceType {

@@ -216,7 +216,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *option
 			cur = cur->v.lp_default.operand[1];
 		}
 		if (new_plan != plan) {
-			/* Below sets the RHS of the last LP_BOOLEAN_OR condition as the WHERE clause of the last DNF plans */
+			/* Below sets the RHS of the last LP_BOOLEAN_OR condition as the WHERE clause of the last DNF plan */
 			assert(NULL != cur);
 			where->v.lp_default.operand[0] = cur;
 			/* TRUE below disables "lp_optimize_order_by()" call as that could produce output in random order

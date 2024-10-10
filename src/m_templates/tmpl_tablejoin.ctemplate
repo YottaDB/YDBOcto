@@ -28,11 +28,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	 * If so emit the appropriate M code and return from this function.
 	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/617#note_2142141907 for more details.
 	 */
-	TMPL(tmpl_tablejoin_octo617_optimize, pplan, tablejoin, dot_count);
 	if (pplan->is_octo617_optimized) {
+		TMPL(tmpl_tablejoin_octo617_optimize, pplan, dot_count);
 		return;
 	}
-
 	total_keys = pplan->total_iter_keys;
 	assert(NULL != tablejoin);
 	assert(LP_TABLE_JOIN == tablejoin->type);

@@ -31,3 +31,4 @@ select * from film;
 
 select * from film where foo=true;
 select * from film where foo=false;
+drop table film;

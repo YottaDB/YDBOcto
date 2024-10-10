@@ -34,3 +34,6 @@ drop table if exists TDTT0561;
 create table TDTT0561 (dob timestamp with time zone);
 insert into TDTT0561 values(NULL);
 select * from TDTT0561;
+
+-- Drop all tables such that hello_db doesn't failing these exist in Postgres
+drop table TDTT0561;

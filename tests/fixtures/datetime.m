@@ -1863,6 +1863,8 @@ tdtt102()
 	write "create table timestamptztdtt102rw (id int, dob timestamp with time zone);",!
 	write "insert into timestamptztdtt102rw values(1,timestamp with time zone'2023-01-01"_tStr_"01:01:01-05');",!
 	write "select * from timestamptztdtt102rw;",!
+	write "drop table timestamptdtt102rw;",!
+	write "drop table timestamptztdtt102rw;",!
 	set ^tdtt102timestamp(1)="2023-01-01"_tStr_"01:01:01"
 	set ^tdtt102timestamptz(1)="2023-01-01"_tStr_"01:01:01-05"
 

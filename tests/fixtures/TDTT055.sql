@@ -44,11 +44,16 @@ insert into tdtt055 values(1,time'01:01:01');
 insert into tdtt055 values(1,time'T01:01:01');
 insert into tdtt055 values(1,time with time zone'01:01:01');
 
-drop table if exists dt;
-drop table if exists tmstmp;
-CREATE TABLE dt (order_date DATE);
-CREATE TABLE tmstmp (order_timestamp TIMESTAMP);
-insert into tmstmp values (timestamp '7208-07-11 10:16:27');
-insert into dt select order_timestamp from tmstmp;
-select * from dt;
-select * from tmstmp;
+drop table if exists tdtt055dt;
+drop table if exists tdtt055tmstmp;
+CREATE TABLE tdtt055dt (order_date DATE);
+CREATE TABLE tdtt055tmstmp (order_timestamp TIMESTAMP);
+insert into tdtt055tmstmp values (timestamp '7208-07-11 10:16:27');
+insert into tdtt055dt select order_timestamp from tdtt055tmstmp;
+select * from tdtt055dt;
+select * from tdtt055tmstmp;
+
+-- Drop all tables such that hello_db doesn't failing these exist in Postgres
+drop table tdtt055;
+drop table tdtt055dt;
+drop table tdtt055tmstmp;

@@ -250,26 +250,11 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 								%{}+{}%
 								// Get format of cur_column->data_type_struct
 								OptionalKeyword date_time_format = cur_column->data_type_struct.format;
+
 								// place conversion routine
-								boolean_t text_format = FALSE;
-								switch(date_time_format) {
-								case OPTIONAL_DATE_TIME_HOROLOG:
-									%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
-									break;
-								case OPTIONAL_DATE_TIME_ZHOROLOG:
-									%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
-									break;
-								case OPTIONAL_DATE_TIME_FILEMAN:
-									%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
-									break;
-								case OPTIONAL_DATE_TIME_ZUT:
-									%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
-									break;
-								default:
-									%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
-									text_format = TRUE;
-									break;
-								}
+								boolean_t text_format;
+								text_format = (OPTIONAL_DATE_TIME_TEXT == date_time_format);
+								TMPL(tmpl_convert_to_unix_time, date_time_format);
 								// place parameters along with PP_COL(col_num)
 								%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
 								SqlValueType date_time_value_type = get_sqlvaluetype_from_sqldatatype(cur_column->data_type_struct.data_type, FALSE);

@@ -241,4 +241,5 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 	 int dot_count, UniqueConstraintLoopType loop_type);
 TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count);
 TEMPLATE(tmpl_identity_column, SqlColumn *column);
+TEMPLATE(tmpl_convert_to_unix_time, OptionalKeyword date_time_format);
 #endif

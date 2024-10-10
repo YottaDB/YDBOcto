@@ -113,27 +113,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 							assert(NULL != column->keywords);
 							close_paren = TRUE;
 							enum OptionalKeyword keyword_type = column->data_type_struct.format;
-							switch(keyword_type) {
-							case OPTIONAL_DATE_TIME_HOROLOG:
-								%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
-								break;
-							case OPTIONAL_DATE_TIME_ZHOROLOG:
-								%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
-								break;
-							case OPTIONAL_DATE_TIME_FILEMAN:
-								%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
-								break;
-							case OPTIONAL_DATE_TIME_ZUT:
-								%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
-								break;
-							case OPTIONAL_DATE_TIME_TEXT:
-								%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
-								text_format = TRUE;
-								break;
-							default:
-								assert(FALSE);
-								break;
-							}
+							text_format = (OPTIONAL_DATE_TIME_TEXT == keyword_type);
+							TMPL(tmpl_convert_to_unix_time, keyword_type);
 						}
 						// else {} doesn't need to be handled as if it is any other type its value will already be in internal
 						// format.
@@ -214,27 +195,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			assert(NULL != column->keywords);
 			close_paren = TRUE;
 			enum OptionalKeyword keyword_type = column->data_type_struct.format;
-			switch(keyword_type) {
-			case OPTIONAL_DATE_TIME_HOROLOG:
-				%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
-				break;
-			case OPTIONAL_DATE_TIME_ZHOROLOG:
-				%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
-				break;
-			case OPTIONAL_DATE_TIME_FILEMAN:
-				%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
-				break;
-			case OPTIONAL_DATE_TIME_ZUT:
-				%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
-				break;
-			case OPTIONAL_DATE_TIME_TEXT:
-				%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
-				text_format = TRUE;
-				break;
-			default:
-				assert(FALSE);
-				break;
-			}
+			text_format = (OPTIONAL_DATE_TIME_TEXT == keyword_type);
+			TMPL(tmpl_convert_to_unix_time, keyword_type);
 			// else {} doesn't need to be handled as if it is any other type its value will already be in internal
 			// format.
 			// Also no need to worry about derived column because of the same reason

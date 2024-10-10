@@ -1,0 +1,43 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include <string.h>
+
+#include "octo_types.h"
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_convert_to_unix_time, OptionalKeyword date_time_format) {
+	switch(date_time_format) {
+	case OPTIONAL_DATE_TIME_HOROLOG:
+		%{}$$Horolog2UnixTime^%%ydboctoplanhelpers({}%
+		break;
+	case OPTIONAL_DATE_TIME_ZHOROLOG:
+		%{}$$ZHorolog2UnixTime^%%ydboctoplanhelpers({}%
+		break;
+	case OPTIONAL_DATE_TIME_FILEMAN:
+		%{}$$Fileman2UnixTime^%%ydboctoplanhelpers({}%
+		break;
+	case OPTIONAL_DATE_TIME_ZUT:
+		%{}$$ZUT2UnixTime^%%ydboctoplanhelpers({}%
+		break;
+	case OPTIONAL_DATE_TIME_TEXT:
+		%{}$$Text2UnixTime^%%ydboctoplanhelpers({}%
+		break;
+	default:
+		assert(FALSE);
+		break;
+	}
+	return;
+}
+%{}

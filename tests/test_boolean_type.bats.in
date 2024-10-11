@@ -167,3 +167,9 @@ teardown() {
 	echo "# Expect: Results of SELECT queries should be same in Octo and Rocto" >> output.txt
 	verify_output TBT14 output.txt
 }
+
+@test "TBT15 : OCTO1061 : Test that different boolean literal can be inserted into a table" {
+	test_port=$(start_rocto 1344 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT15.sql "trim_trailing_zeroes"
+	stop_rocto
+}

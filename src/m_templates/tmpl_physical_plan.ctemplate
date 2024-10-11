@@ -326,6 +326,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		assert(!pplan->distinct_values);
 		%{} KILL {}%
 		TMPL(tmpl_key, pplan->outputKey);
+		%{}`n{{ PLAN_LINE_START }}{}%
 		GET_LP(lp_table_data, pplan->lp_select_query, 0, LP_TABLE_DATA);
 		GET_LP(lp_row_value, lp_table_data, 1, LP_ROW_VALUE);
 		dot_count = 1;
@@ -334,7 +335,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			boolean_t	stash_columns_in_keys;
 
 			assert(LP_ROW_VALUE == lp_row_value->type);
-			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}IF $INCREMENT({}%
 			TMPL(tmpl_key, pplan->outputKey);
 			%{}) DO{}%
@@ -350,6 +350,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 					TMPL(tmpl_key, pplan->outputKey);
 					%{}){}%
 					%{}={{ PP_YDB_OCTO_EXPR }}{}%
+					if (NULL != lp_row_value->v.lp_default.operand[1]) {
+						%{}`n{{ PLAN_LINE_START }}{}%
+					}
 				}
 			} else {
 				%{}IF $INCREMENT({}%
@@ -357,6 +360,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				%{},{}%
 				%{}{{ PP_YDB_OCTO_EXPR }}{}%
 				%{})){}%
+				if (NULL != lp_row_value->v.lp_default.operand[1]) {
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
 			}
 			GET_LP_ALLOW_NULL(lp_row_value, lp_row_value, 1, LP_ROW_VALUE);
 		} while (NULL != lp_row_value);

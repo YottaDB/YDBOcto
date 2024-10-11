@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -62,4 +62,13 @@ teardown() {
 
 @test "TVC05 : OCTO932 : Test correct results when VALUES clause is used in an expression (in WHERE clause etc.)" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC05.sql
+}
+
+@test "TVC06 : OCTO1061 : Test that values clause in an insert doesn't added blank new line" {
+	# Validates changes done for https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1593#note_2162095188
+	grep "create\|insert" @PROJECT_SOURCE_DIR@/tests/fixtures/TVC06.sql >> input.sql
+	octo -f input.sql >> output.txt
+	echo "# Verify that empty line is not seen in octoPlan1" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TVC06 output.txt
 }

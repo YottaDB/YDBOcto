@@ -18,6 +18,130 @@
 
 #define HAS_DATE(VAL) (IS_TIMESTAMP(VAL) || (DATE_LITERAL == (VAL)))
 
+int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
+	boolean_t is_invalid = FALSE;
+	SqlValue *value;
+	UNPACK_SQL_STATEMENT(value, val, value);
+	/* Accept "t"/"f"/"yes"/"no" etc as BOOLEAN literals (the list of literals that are accepted as BOOLEAN literals is also
+	 * maintained at String2Boolean label in "src/aux/_ydboctoplanhelpers.m").
+	 */
+	size_t len;
+	char  *ptr;
+	ptr = value->v.string_literal;
+	len = strlen(ptr);
+	switch (len) {
+	case 1:
+		switch (*ptr) {
+		case '0':
+		case 'n':
+		case 'f':
+			value->u.bool_or_str.truth_value = FALSE;
+			value->type = BOOLEAN_VALUE;
+			break;
+		case '1':
+		case 'y':
+		case 't':
+			value->u.bool_or_str.truth_value = TRUE;
+			value->type = BOOLEAN_VALUE;
+			break;
+		default:
+			is_invalid = TRUE;
+		}
+		break;
+	case 2:
+		if (0 == strcmp(ptr, "no")) {
+			value->u.bool_or_str.truth_value = FALSE;
+			value->type = BOOLEAN_VALUE;
+		} else {
+			is_invalid = TRUE;
+		}
+		break;
+	case 3:
+		if (0 == strcmp(ptr, "yes")) {
+			value->u.bool_or_str.truth_value = TRUE;
+			value->type = BOOLEAN_VALUE;
+		} else {
+			is_invalid = TRUE;
+		}
+		break;
+	case 4:
+		if (0 == strcmp(ptr, "true")) {
+			value->u.bool_or_str.truth_value = TRUE;
+			value->type = BOOLEAN_VALUE;
+		} else {
+			is_invalid = TRUE;
+		}
+		break;
+	case 5:
+		if (0 == strcmp(ptr, "false")) {
+			value->u.bool_or_str.truth_value = FALSE;
+			value->type = BOOLEAN_VALUE;
+		} else {
+			is_invalid = TRUE;
+		}
+		break;
+	default:
+		/* This is invalid */
+		is_invalid = TRUE;
+		break;
+	}
+	if (is_invalid) {
+		ERROR(ERR_INVALID_BOOLEAN_SYNTAX, get_user_visible_type_string(BOOLEAN_VALUE));
+		yyerror(NULL, NULL, &val, NULL, NULL, NULL);
+		return 1;
+	} else {
+		value->v.string_literal = (value->u.bool_or_str.truth_value ? "1" : "0");
+		int status;
+		status = parse_literal_to_parameter(parse_context, value, TRUE);
+		if (0 != status) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int fix_value_stmt_to_boolean_in_table_values(SqlStatement *val, int col, boolean_t *is_type_mismatch,
+					      ParseContext *parse_context) {
+	assert(table_value_STATEMENT == val->type);
+	SqlTableValue *tv;
+	UNPACK_SQL_STATEMENT(tv, val, table_value);
+
+	int	     colno;
+	SqlRowValue *row_value, *start_row_value;
+	UNPACK_SQL_STATEMENT(row_value, tv->row_value_stmt, row_value);
+	start_row_value = row_value;
+
+	do {
+		SqlColumnList *start_column_list, *cur_column_list;
+		UNPACK_SQL_STATEMENT(start_column_list, row_value->value_list, column_list);
+		cur_column_list = start_column_list;
+		for (colno = 1; colno != col; colno++) {
+			cur_column_list = cur_column_list->next;
+		}
+		if (value_STATEMENT == cur_column_list->value->type) {
+			int status = fix_value_to_boolean_value(cur_column_list->value, parse_context);
+			if (status) {
+				// Error is issued by fix_value_to_boolean_value(), just return here
+				return 1;
+			}
+		} else {
+			// We cannot validate the row values, return and let the caller handle mismatch
+			*is_type_mismatch = TRUE;
+			return 1;
+		}
+		row_value = row_value->next;
+	} while (row_value != start_row_value);
+	// if above loop did not return with an error then we need to set the column type to boolean
+	SqlColumn *start_column = tv->column_stmt->v.column;
+	SqlColumn *column = start_column;
+	for (colno = 1; colno != col; colno++) {
+		column = column->next;
+	}
+	assert(STRING_TYPE == column->data_type_struct.data_type);
+	column->data_type_struct.data_type = BOOLEAN_TYPE;
+	return 0;
+}
+
 /* Checks 2 column lists for type match and does a few other things depending on input type.
  * Issues error as appropriate if column list's type or number of columns does not match.
  * Currently accepts input "stmt" of type "set_operation_STATEMENT" or "insert_STATEMENT".
@@ -40,6 +164,8 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 	SqlSetOperation	   *set_operation;
 	boolean_t	    is_set_operation, cla1_is_of_type_cl, fixed_type;
 	int		    result;
+	SqlStatementType    insert_src_type;
+	SqlTableAlias	   *src_table_alias;
 
 	if (set_operation_STATEMENT == stmt->type) {
 		is_set_operation = TRUE;
@@ -60,15 +186,27 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 		}
 		start_set_cla = NULL;
 		cla1_is_of_type_cl = FALSE;
+		insert_src_type = invalid_STATEMENT; // Avoids [-Wmaybe-uninitialized]
+		src_table_alias = NULL;		     // Avoids [-Wmaybe-uninitialized]
 	} else {
-		SqlTableAlias *src_table_alias;
-		SqlStatement  *src_table_alias_stmt, *src_table_alias_stmt2;
+		SqlStatement *src_table_alias_stmt, *src_table_alias_stmt2;
 
 		is_set_operation = FALSE;
 		set_operation = NULL; /* Not needed but there to prevent [-Wmaybe-uninitialized] warning from C compiler */
 		assert(insert_STATEMENT == stmt->type);
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		src_table_alias_stmt = insert->src_table_alias_stmt;
+		insert_src_type = src_table_alias_stmt->type;
+		switch (insert_src_type) {
+		case table_alias_STATEMENT:
+			insert_src_type = src_table_alias_stmt->v.table_alias->table->type;
+			break;
+		case set_operation_STATEMENT:
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
 		src_table_alias_stmt2 = drill_to_table_alias(src_table_alias_stmt);
 		UNPACK_SQL_STATEMENT(src_table_alias, src_table_alias_stmt2, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla[0], src_table_alias->column_list, column_list_alias);
@@ -180,6 +318,63 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 					} /* else this is an insert operation allow it here to prevent the use of date/time prefix
 					   * to literals. The value itself is validated in M code later on.
 					   */
+				} else if (BOOLEAN_VALUE == right_type) {
+					if (is_set_operation) {
+						/* Following query relies on this check to throw error for 'a'.
+						 * 'a' is of type STRING_LITERAL but the right operand is of type BOOLEAN_VALUE.
+						 * Which is an error case.
+						 * 	select 'a','t' union select false,'f';
+						 * If 't' was the left operand column value as shown below, the value will be set
+						 * to type BOOLEAN_OR_STRING and we will not reach this code.
+						 * So we consider it a mismatch here.
+						 *	select 't','t' union select false,'f';
+						 */
+						is_type_mismatch = TRUE;
+					} else {
+						if (set_operation_STATEMENT == insert_src_type) {
+							is_type_mismatch = TRUE;
+						} else if (table_value_STATEMENT == insert_src_type) {
+							// If the src_tbl_alias is a values drill down and update
+							// string to boolean literals
+							/* Following insert relies on allowing this mismatch to let
+							 * tmpl_insert_into.ctemplate handle validating input.
+							 * 	create table test (id int, foo bool);
+							 * 	insert test values(1,'t');
+							 * Here STRING_LITERAL is the type which 't' is qualified to be.
+							 */
+							is_type_mismatch = FALSE;
+							int status = fix_value_stmt_to_boolean_in_table_values(
+							    src_table_alias->table,
+							    cur_cla[0]
+								->column_list->v.column_list->value->v.column_alias->column->v
+								.column->column_number,
+							    &is_type_mismatch, parse_context);
+							if (!status) {
+								// Fixing the string to boolean was a success, update type
+								cur_cla[0]->type = BOOLEAN_VALUE;
+							} else {
+								assert(status);
+								if (is_type_mismatch) {
+									// If it was not possible to change string to boolean
+									// because of values clause not having value_STATEMENT, then
+									// report a mismatch
+									break;
+								} else {
+									// If boolean value syntax was not valid error is already
+									// issued so just return
+									return 1;
+								}
+							}
+						} else {
+							// if the src_tbl_alias is a select then we reach this code if the literal
+							// is not a boolean literal
+							is_type_mismatch = TRUE;
+							ERROR(ERR_INVALID_BOOLEAN_SYNTAX,
+							      get_user_visible_type_string(BOOLEAN_VALUE));
+							yyerror(NULL, NULL, &cur_cla[0]->column_list, NULL, NULL, NULL);
+							return 1;
+						}
+					}
 				}
 				break;
 			case BOOLEAN_OR_STRING_LITERAL:
@@ -188,7 +383,27 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 				case STRING_LITERAL:
 					is_type_mismatch = FALSE;
 					if (BOOLEAN_VALUE == right_type) {
-						FIX_TYPE_TO_BOOLEAN_VALUE(cur_cla[0]->type);
+						if (is_set_operation) {
+							FIX_TYPE_TO_BOOLEAN_VALUE(cur_cla[0]->type);
+						} else {
+							assert((NULL != cur_cla[0]->column_list)
+							       && (column_list_STATEMENT == cur_cla[0]->column_list->type));
+							assert(value_STATEMENT
+							       == cur_cla[0]->column_list->v.column_list->value->type);
+							if (set_operation_STATEMENT == insert_src_type) {
+								is_type_mismatch = TRUE;
+							} else if (select_STATEMENT == insert_src_type) {
+								// Convert it here since we are sure this is a value_STATEMENT
+								FIX_TYPE_TO_BOOLEAN_VALUE(cur_cla[0]->type);
+								int status = fix_value_to_boolean_value(
+								    cur_cla[0]->column_list->v.column_list->value, parse_context);
+								if (status) {
+									return 1;
+								}
+							} else {
+								assert(FALSE);
+							}
+						}
 					} else {
 						FIX_TYPE_TO_STRING_LITERAL(cur_cla[0]->type);
 					}

@@ -52,12 +52,6 @@ create table TBT13 (id integer, CHECK (case 1 when 't' then 'MyZero' end));
 create table TBT13 (id integer, CHECK (case 't' when 1 then 'MyZero' end));
 create table TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
 
--- Test of ERR_INSERT_TYPE_MISMATCH error
-create table TBT13 (txt boolean);
-insert into TBT13 values ('t'), ('f');
-select * from TBT13;
-drop table TBT13;
-
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 select * from names where 't' AND 'g';
 select * from names where ('f' or 'fat');
@@ -180,6 +174,19 @@ create table TBT13 (id integer, check ('t' in (true, null, 't', '')));
 insert into TBT13 values (10);
 select * from TBT13;
 drop table TBT13;
+
+drop table if exists tbt13;
+create table tbt13 (id int, foo boolean);
+insert into tbt13 values(9, 'y'), (10, 'abcd');
+insert into tbt13 select 9, 'y' union select 10, 'abcd';
+insert into tbt13 select 9, 'y' union select 10, 't'; -- errors as we don't know if 't' should be true or string from the set operation. Behavior is similar in Postgres. The same with a values clause is allowed in Octo as well as Postgres.
+select * from tbt13;
+create table tbt(foo varchar);
+insert into tbt values('t'),('abcd'),('f');
+insert into tbt13 select 1, 't' union select 2, * from tbt union select 3, true;
+insert into tbt13 values((select 1), (select 't'));
+insert into tbt13 select 1, 'abc' union select 2, false;
+select * from tbt13;
 
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left VARCHAR, right INTEGER
 LINE 3:1: select * from names where 'f' = 1;
@@ -361,35 +368,26 @@ OCTO> create table TBT13 (id integer, CHECK (case 't' when 1 then 'MyZero' end))
 LINE 45:1: ... TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
                                                        ^^^^
 OCTO> create table TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
-OCTO> create table TBT13 (txt boolean);
-CREATE TABLE
-[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "txt" is of type BOOLEAN but expression is of type VARCHAR
-OCTO> insert into TBT13 values ('t'), ('f');
-OCTO> select * from TBT13;
-txt
-(0 rows)
-OCTO> drop table TBT13;
-DROP TABLE
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 52:1: select * from names where 't' AND 'g';
+LINE 47:1: select * from names where 't' AND 'g';
                                      ^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 52:1: select * from names where 't' AND 'g';
+LINE 47:1: select * from names where 't' AND 'g';
                                              ^^^
 OCTO> select * from names where 't' AND 'g';
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 53:1: select * from names where ('f' or 'fat');
+LINE 48:1: select * from names where ('f' or 'fat');
                                       ^^^
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 53:1: select * from names where ('f' or 'fat');
+LINE 48:1: select * from names where ('f' or 'fat');
                                              ^^^^^
 OCTO> select * from names where ('f' or 'fat');
 [ERROR]: ERR_TYPE_NOT_COMPATIBLE: Type VARCHAR not compatible for boolean operations
-LINE 55:1: ...BT13 (id integer, CHECK (case when id=1 then 't' else 'f' end));
+LINE 50:1: ...BT13 (id integer, CHECK (case when id=1 then 't' else 'f' end));
                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table TBT13 (id integer, CHECK (case when id=1 then 't' else 'f' end));
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tbt13
-LINE 56:1: insert into TBT13 values (1);
+LINE 51:1: insert into TBT13 values (1);
                        ^^^^^
 OCTO> insert into TBT13 values (1);
 OCTO> drop table TBT13;
@@ -496,17 +494,17 @@ OCTO> insert into TBT13 values (1);
 OCTO> drop table TBT13;
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_FUNCTION: No function fn defined with given parameter types (VARCHAR, VARCHAR)
-LINE 119:1: create table TBT13 (id varchar, check (fn(id, 'f')));
+LINE 114:1: create table TBT13 (id varchar, check (fn(id, 'f')));
                                                    ^^
 OCTO> create table TBT13 (id varchar, check (fn(id, 'f')));
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'VARCHAR' is not a valid boolean value
-LINE 121:1: select not 'falsed' from names;
+LINE 116:1: select not 'falsed' from names;
                        ^^^^^^^^
 OCTO> select not 'falsed' from names;
 OCTO> select * from names order by 'ff'::boolean;
 [ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'ff' is not a valid boolean value
 [ERROR]: ERR_INVALID_INPUT_SYNTAX: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
-LINE 124:1: select -'t';
+LINE 119:1: select -'t';
                     ^^^
 OCTO> select -'t';
 OCTO> create table TBT13 (id integer, check ('t' in (true, 'f')));
@@ -547,7 +545,7 @@ OCTO> select true = case true when false then '' end;
 
 (1 row)
 [ERROR]: ERR_TYPE_MISMATCH: Type mismatch: left BOOLEAN, right VARCHAR
-LINE 138:1: select true = case true when false then '' else 't' end;
+LINE 133:1: select true = case true when false then '' else 't' end;
                    ^^^^
 OCTO> select true = case true when false then '' else 't' end;
 OCTO> select true = case true when false then '' when null then null end;
@@ -607,4 +605,45 @@ id
 (1 row)
 OCTO> drop table TBT13;
 DROP TABLE
+OCTO> drop table if exists tbt13;
+DROP TABLE
+OCTO> create table tbt13 (id int, foo boolean);
+CREATE TABLE
+[ERROR]: ERR_INVALID_BOOLEAN_SYNTAX: Invalid input syntax for type boolean: 'BOOLEAN' is not a valid boolean value
+LINE 161:1: insert into tbt13 values(9, 'y'), (10, 'abcd');
+                                                   ^^^^^^
+OCTO> insert into tbt13 values(9, 'y'), (10, 'abcd');
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "foo" is of type BOOLEAN but expression is of type VARCHAR
+LINE 162:1: insert into tbt13 select 9, 'y' union select 10, 'abcd';
+                                        ^^^
+OCTO> insert into tbt13 select 9, 'y' union select 10, 'abcd';
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "foo" is of type BOOLEAN but expression is of type VARCHAR
+LINE 163:1: insert into tbt13 select 9, 'y' union select 10, 't'; -- errors...
+                                        ^^^
+OCTO> insert into tbt13 select 9, 'y' union select 10, 't';
+OCTO> -- errors as we don't know if 't' should be true or string from the set operation. Behavior is similar in Postgres. The same with a values clause is allowed in Octo as well as Postgres.
+select * from tbt13;
+id|foo
+(0 rows)
+OCTO> create table tbt(foo varchar);
+CREATE TABLE
+OCTO> insert into tbt values('t'),('abcd'),('f');
+INSERT 0 3
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and BOOLEAN cannot be matched
+LINE 167:1: insert into tbt13 select 1, 't' union select 2, * from tbt unio...
+                                        ^^^
+LINE 167:1: ...3 select 1, 't' union select 2, * from tbt union select 3, true;
+                                                                          ^^^^
+OCTO> insert into tbt13 select 1, 't' union select 2, * from tbt union select 3, true;
+[ERROR]: ERR_INSERT_TYPE_MISMATCH: Column "foo" is of type BOOLEAN but expression is of type VARCHAR
+OCTO> insert into tbt13 values((select 1), (select 't'));
+[ERROR]: ERR_SETOPER_TYPE_MISMATCH: UNION types VARCHAR and BOOLEAN cannot be matched
+LINE 169:1: insert into tbt13 select 1, 'abc' union select 2, false;
+                                        ^^^^^
+LINE 169:1: insert into tbt13 select 1, 'abc' union select 2, false;
+                                                              ^^^^^
+OCTO> insert into tbt13 select 1, 'abc' union select 2, false;
+OCTO> select * from tbt13;
+id|foo
+(0 rows)
 OCTO> 

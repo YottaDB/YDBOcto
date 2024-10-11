@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -62,12 +62,6 @@ select case 't' when true then 'abcd' end;
 create table TBT13 (id integer, CHECK (case 1 when 't' then 'MyZero' end));
 create table TBT13 (id integer, CHECK (case 't' when 1 then 'MyZero' end));
 create table TBT13 (id integer, CHECK (case 't' when true then 'abcd' end));
-
--- Test of ERR_INSERT_TYPE_MISMATCH error
-create table TBT13 (txt boolean);
-insert into TBT13 values ('t'), ('f');
-select * from TBT13;
-drop table TBT13;
 
 -- Test of ERR_TYPE_NOT_COMPATIBLE error
 select * from names where 't' AND 'g';
@@ -191,4 +185,17 @@ create table TBT13 (id integer, check ('t' in (true, null, 't', '')));
 insert into TBT13 values (10);
 select * from TBT13;
 drop table TBT13;
+
+drop table if exists tbt13;
+create table tbt13 (id int, foo boolean);
+insert into tbt13 values(9, 'y'), (10, 'abcd');
+insert into tbt13 select 9, 'y' union select 10, 'abcd';
+insert into tbt13 select 9, 'y' union select 10, 't'; -- errors as we don't know if 't' should be true or string from the set operation. Behavior is similar in Postgres. The same with a values clause is allowed in Octo as well as Postgres.
+select * from tbt13;
+create table tbt(foo varchar);
+insert into tbt values('t'),('abcd'),('f');
+insert into tbt13 select 1, 't' union select 2, * from tbt union select 3, true;
+insert into tbt13 values((select 1), (select 't'));
+insert into tbt13 select 1, 'abc' union select 2, false;
+select * from tbt13;
 

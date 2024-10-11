@@ -699,24 +699,30 @@ Fileman2Text(inputStr,type)
 	ELSE  SET result="",endLoop=1
 	QUIT result
 
+initBoolMap
+	; Below are list of string literals which are accepted for boolean conversion
+	; A similar list is maintained in a switch/case block in the "literal_value" rule definition in src/parser.y
+	; Note: Caller checks if %ydboctoStr2Bool has data and calls only when it doesn't
+	SET %ydboctoStr2Bool("true")=1
+	SET %ydboctoStr2Bool("t")=1
+	SET %ydboctoStr2Bool("yes")=1
+	SET %ydboctoStr2Bool("y")=1
+	SET %ydboctoStr2Bool("1")=1
+	SET %ydboctoStr2Bool("false")=0
+	SET %ydboctoStr2Bool("f")=0
+	SET %ydboctoStr2Bool("no")=0
+	SET %ydboctoStr2Bool("n")=0
+	SET %ydboctoStr2Bool("0")=0
+	QUIT
+
 ; Following routine is invoked to process a boolean type column of a readonly table and it converts string in `val` to 1 or 0.
 ; Invalid values return ZYSQLNULL.
 ; Note:
-; * Refer to `boolMap` subscripts and its values to know which string is mapped to which value.
+; * Refer to `%ydboctoStr2Bool` subscripts and its values to know which string is mapped to which value.
 ; * This conversion is needed by Rocto to do additional processing on boolean values.
 ForceBoolean(val)
-	new boolMap
-	set boolMap("true")=1
-	set boolMap("t")=1
-	set boolMap("yes")=1
-	set boolMap("y")=1
-	set boolMap("1")=1
-	set boolMap("false")=0
-	set boolMap("f")=0
-	set boolMap("no")=0
-	set boolMap("n")=0
-	set boolMap("0")=0
-	QUIT $select(0'=$data(boolMap(val)):boolMap(val),1:$ZYSQLNULL)
+	DO:'$DATA(%ydboctoStr2Bool) initBoolMap
+	QUIT $SELECT(0'=$DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:$ZYSQLNULL)
 
 max(isString,a,b)
 	; return the greatest of a and b
@@ -1350,19 +1356,7 @@ Boolean2String(boolvalue)	;
 String2Boolean(boolstr)	;
 	; Converts an input boolean string value (`boolstr`) (can be `t` or `f`) to 1 or 0 respectively
 	QUIT:$ZYISSQLNULL(boolstr) $ZYSQLNULL
-	IF '$DATA(%ydboctoStr2Bool) DO
-	.	; Below are list of string literals which are accepted for boolean conversion
-	.	; A similar list is maintained in a switch/case block in the "literal_value" rule definition in src/parser.y
-	.	SET %ydboctoStr2Bool("true")=1
-	.	SET %ydboctoStr2Bool("t")=1
-	.	SET %ydboctoStr2Bool("yes")=1
-	.	SET %ydboctoStr2Bool("y")=1
-	.	SET %ydboctoStr2Bool("1")=1
-	.	SET %ydboctoStr2Bool("false")=0
-	.	SET %ydboctoStr2Bool("f")=0
-	.	SET %ydboctoStr2Bool("no")=0
-	.	SET %ydboctoStr2Bool("n")=0
-	.	SET %ydboctoStr2Bool("0")=0
+	DO:'$DATA(%ydboctoStr2Bool) initBoolMap
 	IF '$DATA(%ydboctoStr2Bool(boolstr))  DO
 	.	SET %ydboctoerror("INVALIDBOOLEANSYNTAX",1)=boolstr	; pass parameter to `src/ydb_error_check.c`
 	.	ZMESSAGE %ydboctoerror("INVALIDBOOLEANSYNTAX")

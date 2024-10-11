@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -96,11 +96,12 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 					break; /* KEY column is not same as ORDER BY column. Cannot optimize. */
 				}
 
-				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC and
-				 * BOOLEAN types. Not for STRING type (for more details, see
-				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/959#note_1612645682).
-				 * So skip optimization for the STRING case. In the future, types like DATE/TIME etc.
-				 * would need to be examined on a case-by-case basis and either supported or not in the
+				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC,
+				 * BOOLEAN, readwrite table DATE/TIME types. Not for STRING type (for more details, see
+				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/959#note_1612645682) or READONLY TABLE
+				 * DATE/TIME types.
+				 * So skip optimization for the cases where ordering is not guaranteed. In the future, other types
+				 * need to be examined on a case-by-case basis and either supported or not in the
 				 * code block below.
 				 */
 				LogicalPlan *lp_column_list_alias;
@@ -116,6 +117,23 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 						break;
 					case STRING_LITERAL:
 						type_supported = FALSE;
+						break;
+					case DATE_LITERAL:
+					case TIME_LITERAL:
+					case TIME_WITH_TIME_ZONE_LITERAL:
+					case TIMESTAMP_LITERAL:
+					case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
+						/* A key column of a readonly table that is date/time type can be in non-standard
+						 * form. A non standard form for date/time type
+						 * can have values like '2023-01-01T01:01:01' and '2023-01-01 01:01:01' in the same
+						 * global. Its ordering in FOR will not be the same one expected by ORDER BY.
+						 * Do not optimize in this case.
+						 */
+						assert(key->column == sql_column);
+						SqlTable *table;
+						UNPACK_SQL_STATEMENT(table, sql_column->table, create_table);
+						type_supported
+						    = table->readwrite; // TRUE for readwrite and FALSE for readonly table
 						break;
 					default:
 						assert(FALSE);

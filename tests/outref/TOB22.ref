@@ -1,0 +1,157 @@
+
+drop table if exists test;
+create table test (foo timestamp primary key);
+insert into test values (timestamp'2023-01-01T01:01:01');
+insert into test values (timestamp'2023-01-01 02:01:01');
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test (foo date primary key);
+insert into test values (date'2023-01-01');
+insert into test values (date'2023-01-02');
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test (foo timestamp with time zone primary key);
+insert into test values (timestamp with time zone'2023-01-01T01:01:01-05');
+insert into test values (timestamp with time zone'2023-01-01 02:01:01-05');
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test (foo time primary key);
+insert into test values (time 'T01:01:01');
+insert into test values (time '02:01:01');
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test(foo timestamp primary key) global "^testts" readonly;
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test(foo Date primary key) global "^testd" readonly;
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test(foo Time primary key) global "^testt" readonly;
+select * from test order by foo; -- Used to cause an assert fail
+
+drop table if exists test;
+create table test(foo Timestamp With Time Zone primary key) global "^testtstz" readonly;
+select * from test order by foo; -- Used to cause an assert fail
+OCTO> drop table if exists test;
+DROP TABLE
+OCTO> create table test (foo timestamp primary key);
+CREATE TABLE
+OCTO> insert into test values (timestamp'2023-01-01T01:01:01');
+INSERT 0 1
+OCTO> insert into test values (timestamp'2023-01-01 02:01:01');
+INSERT 0 1
+OCTO> select * from test order by foo;
+foo
+2023-01-01 01:01:01
+2023-01-01 02:01:01
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test (foo date primary key);
+CREATE TABLE
+OCTO> insert into test values (date'2023-01-01');
+INSERT 0 1
+OCTO> insert into test values (date'2023-01-02');
+INSERT 0 1
+OCTO> select * from test order by foo;
+foo
+2023-01-01
+2023-01-02
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test (foo timestamp with time zone primary key);
+CREATE TABLE
+OCTO> insert into test values (timestamp with time zone'2023-01-01T01:01:01-05');
+INSERT 0 1
+OCTO> insert into test values (timestamp with time zone'2023-01-01 02:01:01-05');
+INSERT 0 1
+OCTO> select * from test order by foo;
+foo
+2023-01-01 01:01:01-05
+2023-01-01 02:01:01-05
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test (foo time primary key);
+CREATE TABLE
+OCTO> insert into test values (time 'T01:01:01');
+INSERT 0 1
+OCTO> insert into test values (time '02:01:01');
+INSERT 0 1
+OCTO> select * from test order by foo;
+foo
+01:01:01
+02:01:01
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test(foo timestamp primary key) global "^testts" readonly;
+CREATE TABLE
+OCTO> select * from test order by foo;
+foo
+2023-01-01 01:01:01
+2023-01-01 02:01:01
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test(foo Date primary key) global "^testd" readonly;
+CREATE TABLE
+OCTO> select * from test order by foo;
+foo
+2023-01-01
+2023-01-02
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test(foo Time primary key) global "^testt" readonly;
+CREATE TABLE
+OCTO> select * from test order by foo;
+foo
+01:01:01
+01:01:02
+(2 rows)
+
+drop table if exists test;]
+OCTO> -- Used to cause an assert fail
+
+drop table if exists test;
+DROP TABLE
+OCTO> create table test(foo Timestamp With Time Zone primary key) global "^testtstz" readonly;
+CREATE TABLE
+OCTO> select * from test order by foo;
+foo
+2023-01-01 01:01:01-05
+2023-01-01 02:01:01-05
+(2 rows)
+OCTO> -- Used to cause an assert fail

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -258,3 +258,17 @@ OCTO
 	verify_output TOB21 output.txt noinfo nodebug
 }
 
+@test "TOB22 : OCTO382/OCTO1032 : Test that ORDER BY doesn't result in assert failure when it has date/time type readonly table key column" {
+	yottadb -run %XCMD 'SET ^testts("2023-01-01T01:01:01")=""'
+	yottadb -run %XCMD 'SET ^testts("2023-01-01 02:01:01")=""'
+	yottadb -run %XCMD 'SET ^testtstz("2023-01-01T01:01:01-05")=""'
+	yottadb -run %XCMD 'SET ^testtstz("2023-01-01 02:01:01-05")=""'
+	yottadb -run %XCMD 'SET ^testd("2023-01-01")=""'
+	yottadb -run %XCMD 'SET ^testd("2023-01-02")=""'
+	yottadb -run %XCMD 'SET ^testt("01:01:01")=""'
+	yottadb -run %XCMD 'SET ^testt("01:01:02")=""'
+	yottadb -run %XCMD 'SET ^testttz("01:01:01-05")=""'
+	yottadb -run %XCMD 'SET ^testttz("01:01:02-05")=""'
+	load_fixture TOB22.sql subtest
+	verify_output TOB22 output.txt nodatetimefilter noinfo nodebug
+}

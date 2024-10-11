@@ -662,6 +662,18 @@ drop table TDTT005timetz;
 drop table TDTT005timestamp;
 drop table TDTT005timestamptz;
 select time(zhorolog) with time zone ',25210,+78868,23370' + time '20:32:01';
+
+-- Ensure order by optimization doesn't result in assert false for time with time zone
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/382
+drop table if exists test;
+create table test (foo time primary key);
+insert into test values (time 'T01:01:01-05');
+insert into test values (time '02:01:01-05');
+select * from test order by foo; -- Used to cause an assert fail
+drop table if exists test;
+create table test(foo Time With Time Zone primary key) global "^testttz" readonly;
+select * from test order by foo; -- Used to cause an assert fail
+
 OCTO> select concat(time with time zone'01:01:01-05:00', 'sample text');
 concat
 02:01:01-04sample text
@@ -2732,4 +2744,28 @@ OCTO> select time(zhorolog) with time zone ',25210,+78868,23370' + time '20:32:0
 ???
 06:01:41.78868-04
 (1 row)
-OCTO> 
+OCTO> drop table if exists test;
+DROP TABLE
+OCTO> create table test (foo time primary key);
+CREATE TABLE
+OCTO> insert into test values (time 'T01:01:01-05');
+INSERT 0 1
+OCTO> insert into test values (time '02:01:01-05');
+INSERT 0 1
+OCTO> select * from test order by foo;
+foo
+01:01:01
+02:01:01
+(2 rows)
+OCTO> -- Used to cause an assert fail
+drop table if exists test;
+DROP TABLE
+OCTO> create table test(foo Time With Time Zone primary key) global "^testttz" readonly;
+CREATE TABLE
+OCTO> select * from test order by foo;
+foo
+02:01:01-04
+02:01:02-04
+(2 rows)
+OCTO> -- Used to cause an assert fail
+

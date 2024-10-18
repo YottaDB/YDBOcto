@@ -96,9 +96,9 @@ create view TCV003v1 (TCV003v1_col1,TCV003v1_col2,TCV003v1_col3) as select (valu
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 12:2: ...v1_col3) as select (values(1,'Zero','Cool')) from names; -- ERR...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected VALUES
-LINE 13:2: ...ol2,TCV003v1_col3) as select values(1,'Zero','Cool') from names;...
-                                           ^^^^^^
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN, expecting SEMICOLON or ENDOFFILE
+LINE 13:2: ...TCV003v1_col3) as select values(1,'Zero','Cool') from names; --...
+                                             ^
 OCTO> -- ERROR:  subquery must return only one column
 create view TCV003v1 (TCV003v1_col1,TCV003v1_col2,TCV003v1_col3) as select values(1,'Zero','Cool') from names;
 OCTO> -- ERROR:  syntax error at or near "("
@@ -135,9 +135,9 @@ create view TCV003v1 as select(values(1,'Zero','Cool')) from names;
 [ERROR]: ERR_SUBQUERY_ONE_COLUMN: Subquery must return only one column
 LINE 21:2: ... TCV003v1 as select(values(1,'Zero','Cool')) from names; -- ERR...
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected VALUES
-LINE 22:2: ...eate view TCV003v1 as select values(1,'Zero','Cool') from names;...
-                                           ^^^^^^
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN, expecting SEMICOLON or ENDOFFILE
+LINE 22:2: ... view TCV003v1 as select values(1,'Zero','Cool') from names; --...
+                                             ^
 OCTO> -- ERROR:  subquery must return only one column
 create view TCV003v1 as select values(1,'Zero','Cool') from names;
 OCTO> -- ERROR:  syntax error at or near "("

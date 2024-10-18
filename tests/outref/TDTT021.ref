@@ -1126,7 +1126,7 @@ OCTO> select date'01-01--2023';
 LINE 229:1: select date'01-01-';
                    ^^^^^^^^^^^^
 OCTO> select date'01-01-';
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 230:1: select date'';
                         ^
 OCTO> select date'';
@@ -1192,7 +1192,7 @@ OCTO> select time'23:60:0';
 LINE 247:1: select time'01/00/00';
                    ^^^^^^^^^^^^^^
 OCTO> select time'01/00/00';
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 248:1: select time '';
                          ^
 OCTO> select time '';
@@ -1314,7 +1314,7 @@ OCTO> select timestamp'01-01--2023';
 LINE 280:1: select timestamp'01-01-';
                    ^^^^^^^^^^^^^^^^^
 OCTO> select timestamp'01-01-';
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 281:1: select timestamp'';
                              ^
 OCTO> select timestamp'';

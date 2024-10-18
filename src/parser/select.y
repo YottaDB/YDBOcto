@@ -264,10 +264,15 @@ set_quantifier
 
 derived_column
   : derived_column_expression {
-	$$ = derived_column($derived_column_expression, NULL, &yyloc);
+      $$ = derived_column($derived_column_expression, NULL, &yyloc);
     }
   | derived_column_expression as_name {
-        $$ = derived_column($derived_column_expression, $as_name, &yyloc);
+      $$ = derived_column($derived_column_expression, $as_name, &yyloc);
+    }
+  | sql_identifier_minus_a_few AS sql_identifier_minus_a_few {
+      $1->v.value->type = COLUMN_REFERENCE;
+      $3->v.value->type = COLUMN_REFERENCE;
+      $$ = derived_column($1, $3, &yyloc);
     }
   ;
 
@@ -343,6 +348,14 @@ table_reference
 	$$ = $derived_table;
     }
   | joined_table { $$ = $joined_table; }
+  | sql_identifier_minus_a_few {
+	$sql_identifier_minus_a_few->v.value->type = COLUMN_REFERENCE;
+	INVOKE_TABLE_REFERENCE($$, $sql_identifier_minus_a_few, NULL, plan_id);
+    }
+  | sql_identifier_minus_a_few correlation_specification {
+	$sql_identifier_minus_a_few->v.value->type = COLUMN_REFERENCE;
+	INVOKE_TABLE_REFERENCE($$, $sql_identifier_minus_a_few, $correlation_specification, plan_id);
+    }
   ;
 
 derived_table

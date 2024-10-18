@@ -1,0 +1,88 @@
+
+-- TBP009 : OCTO1062 : Test SQL keywords accepted as table/column names for various commands
+
+-- Try out TIMESTAMP keyword as table and or column name in various commands
+create table test (timestamp timestamp);
+select t.timestamp from test t;
+select timestamp from test;
+drop table test;
+
+create table timestamp (timestamp timestamp);
+select t.timestamp from timestamp t;
+select timestamp from timestamp;
+drop table timestamp;
+
+drop table if exists timestamp;
+create table if not exists timestamp (timestamp timestamp);
+insert into timestamp values (NULL);
+delete from timestamp where timestamp is NULL;
+truncate timestamp;
+drop table timestamp;
+
+drop view if exists timestamp;
+create view timestamp as select * from names;
+drop view timestamp;
+
+-- CREATE FUNCTION and DROP FUNCTION do not allow TIMESTAMP so use another keyword WHERE for testing.
+create function timestamp (integer) returns integer as $$ABS^%ydboctosqlfunctions;
+drop function timestamp (integer);
+
+create function where (integer) returns integer as $$ABS^%ydboctosqlfunctions;
+select where(-5);
+drop function where (integer);
+
+OCTO> create table test (timestamp timestamp);
+CREATE TABLE
+OCTO> select t.timestamp from test t;
+timestamp
+(0 rows)
+OCTO> select timestamp from test;
+timestamp
+(0 rows)
+OCTO> drop table test;
+DROP TABLE
+OCTO> create table timestamp (timestamp timestamp);
+CREATE TABLE
+OCTO> select t.timestamp from timestamp t;
+timestamp
+(0 rows)
+OCTO> select timestamp from timestamp;
+timestamp
+(0 rows)
+OCTO> drop table timestamp;
+DROP TABLE
+OCTO> drop table if exists timestamp;
+DROP TABLE
+OCTO> create table if not exists timestamp (timestamp timestamp);
+CREATE TABLE
+OCTO> insert into timestamp values (NULL);
+INSERT 0 1
+OCTO> delete from timestamp where timestamp is NULL;
+DELETE 1
+OCTO> truncate timestamp;
+TRUNCATE TABLE
+OCTO> drop table timestamp;
+DROP TABLE
+OCTO> drop view if exists timestamp;
+DROP VIEW
+OCTO> create view timestamp as select * from names;
+CREATE VIEW
+OCTO> drop view timestamp;
+DROP VIEW
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected TIMESTAMP
+LINE 24:1: create function timestamp (integer) returns integer as $$ABS^%y...
+                           ^^^^^^^^^
+OCTO> create function timestamp (integer) returns integer as $$ABS^%ydboctosqlfunctions;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected TIMESTAMP
+LINE 25:1: drop function timestamp (integer);
+                         ^^^^^^^^^
+OCTO> drop function timestamp (integer);
+OCTO> create function where (integer) returns integer as $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION
+OCTO> select where(-5);
+where
+5
+(1 row)
+OCTO> drop function where (integer);
+DROP FUNCTION
+OCTO> 

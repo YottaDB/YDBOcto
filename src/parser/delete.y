@@ -23,5 +23,19 @@ delete_statement_searched
         YYERROR;
       }
     }
+  | DELETE FROM sql_identifier where_clause {
+      $sql_identifier->v.value->type = COLUMN_REFERENCE;
+      $$ = delete_from_statement($sql_identifier, NULL, $where_clause, plan_id, parse_context);
+      if (NULL == $$) {
+        YYERROR;
+      }
+    }
+  | DELETE FROM sql_identifier as_name where_clause {
+      $sql_identifier->v.value->type = COLUMN_REFERENCE;
+      $$ = delete_from_statement($sql_identifier, $as_name, $where_clause, plan_id, parse_context);
+      if (NULL == $$) {
+        YYERROR;
+      }
+    }
   ;
 

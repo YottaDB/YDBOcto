@@ -35,14 +35,10 @@ LINE 5:2: select count(v1.lastname) from v1 group by 1; -- ERROR
                  ^^^^^
 OCTO> -- ERROR
 select count(v1.lastname) from v1 group by 1;
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected GROUP
-LINE 6:2: select v1.lastname,v1.firstname from group by 1; -- ERROR
-                                               ^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: group
 OCTO> -- ERROR
 select v1.lastname,v1.firstname from group by 1;
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected GROUP
-LINE 7:2: ... v1.lastname as test, v1.firstname from group by test; -- ERROR
-                                                     ^^^^^
+[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: group
 OCTO> -- ERROR
 select v1.lastname as test, v1.firstname from group by test;
 OCTO> -- ERROR

@@ -318,13 +318,11 @@ OCTO> update names set firstname != 'abcd' ;
 LINE 58:1: update names set id * 2 = 3;
                                ^
 OCTO> update names set id * 2 = 3;
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected WHERE
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting EQUALS
 LINE 59:1: update names set where firstname = lastname;
-                            ^^^^^
+                                  ^^^^^^^^^
 OCTO> update names set where firstname = lastname;
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected WHERE
-LINE 60:1: update names set id = id + where firstname = lastname;
-                                      ^^^^^
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: where
 OCTO> update names set id = id + where firstname = lastname;
 OCTO> select '-- Test of ERR_UNKNOWN_TABLE error';
 ???

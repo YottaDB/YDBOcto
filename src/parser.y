@@ -291,6 +291,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %left PREC1
 %left CROSS FULL INNER JOIN LEFT NATURAL RIGHT
 %left COMMA COLLATE RIGHT_PAREN
+%left AS
 
 %%
 
@@ -798,6 +799,7 @@ extract_parm_list_non_empty_term
   : literal_value { $$ = $literal_value; }
   | boolean_primary { $$ = $boolean_primary; }
   | qualified_name { $$ = $qualified_name; }
+  | sql_identifier_minus_a_few { $$ = $sql_identifier_minus_a_few; ($$)->v.value->type = COLUMN_REFERENCE; }
   | qualified_name cast_specification {
       $$ = cast_specification($cast_specification, $1);
       if (NULL == $$) {
@@ -1309,15 +1311,14 @@ extract_function_call
       fc->function_name = $function_name;
       fc->parameters = $extract_parm_list_allow_empty;
       value->v.calculated = fc_statement;
-
-      // Change the function name value to be a string literal rather than column reference
-      UNPACK_SQL_STATEMENT(value, $function_name, value);
-      value->type = FUNCTION_NAME;
+      // Change the function name value to be a function name rather than column reference
+      $function_name->v.value->type = FUNCTION_NAME;
     }
   | parenless_function { $$ = $parenless_function; }
   ;
 function_name
   : qualified_identifier { $$ = $qualified_identifier; }
+  | sql_identifier_minus_more { $$ = $sql_identifier_minus_more; $$->loc = yyloc; }
   ;
 
 parenless_function
@@ -1349,6 +1350,7 @@ parenless_function_tail
 
 column_reference
   : qualified_name { $$ = $qualified_name; }
+  | sql_identifier_minus_a_few { $$ = $sql_identifier_minus_a_few; ($$)->v.value->type = COLUMN_REFERENCE; }	%prec PREC1
   | column_name PERIOD ASTERISK {
       SqlValue *qual;
       char *new_string, *c;
@@ -1409,8 +1411,8 @@ corresponding_column_list
   ;
 
 column_name_list
-  : column_name column_name_list_tail {
-	$$ = create_sql_column_list($column_name, $column_name_list_tail, &yyloc);
+  : column_name_or_sql_identifier column_name_list_tail {
+	$$ = create_sql_column_list($column_name_or_sql_identifier, $column_name_list_tail, &yyloc);
     }
   ;
 
@@ -1422,6 +1424,10 @@ column_name_list_tail
 qualified_table_name_list
   : qualified_identifier qualified_table_name_list_tail {
 	$$ = create_sql_column_list($qualified_identifier, $qualified_table_name_list_tail, &yyloc);
+    }
+  | sql_identifier qualified_table_name_list_tail {
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	$$ = create_sql_column_list($sql_identifier, $qualified_table_name_list_tail, &yyloc);
     }
   ;
 
@@ -1576,6 +1582,32 @@ view_definition
 	view->column_name_list = $column_name_list;
 	$$ = create_view_stmt;
        }
+  | CREATE VIEW sql_identifier AS query_expression {
+	SqlStatement *create_view_stmt;
+	SqlView *     view;
+	SQL_STATEMENT(create_view_stmt, create_view_STATEMENT);
+	MALLOC_STATEMENT(create_view_stmt, create_view, SqlView);
+	UNPACK_SQL_STATEMENT(view, create_view_stmt, create_view);
+	assert(value_STATEMENT == $sql_identifier->type);
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	view->viewName = $sql_identifier;
+	view->src_table_alias_stmt = $query_expression;
+	view->column_name_list = NULL;
+	$$ = create_view_stmt;
+       }
+  | CREATE VIEW sql_identifier LEFT_PAREN column_name_list RIGHT_PAREN AS query_expression {
+	SqlStatement *create_view_stmt;
+	SqlView *     view;
+	SQL_STATEMENT(create_view_stmt, create_view_STATEMENT);
+	MALLOC_STATEMENT(create_view_stmt, create_view, SqlView);
+	UNPACK_SQL_STATEMENT(view, create_view_stmt, create_view);
+	assert(value_STATEMENT == $sql_identifier->type);
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	view->viewName = $sql_identifier;
+	view->src_table_alias_stmt = $query_expression;
+	view->column_name_list = $column_name_list;
+	$$ = create_view_stmt;
+       }
   ;
 
 /// TODO: not complete
@@ -1595,6 +1627,28 @@ table_definition
 	boolean_t	if_not_exists_specified = TRUE;
 
 	ret = table_definition($qualified_identifier, $table_element_list, $table_definition_tail, if_not_exists_specified);
+	if (NULL == ret) {
+		YYABORT;
+	}
+	$$ = ret;
+      }
+  | CREATE TABLE sql_identifier LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
+	SqlStatement	*ret;
+	boolean_t	if_not_exists_specified = FALSE;
+
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	ret = table_definition($sql_identifier, $table_element_list, $table_definition_tail, if_not_exists_specified);
+	if (NULL == ret) {
+		YYABORT;
+	}
+	$$ = ret;
+      }
+  | CREATE TABLE IF NOT EXISTS sql_identifier LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
+	SqlStatement	*ret;
+	boolean_t	if_not_exists_specified = TRUE;
+
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	ret = table_definition($sql_identifier, $table_element_list, $table_definition_tail, if_not_exists_specified);
 	if (NULL == ret) {
 		YYABORT;
 	}
@@ -1848,11 +1902,11 @@ unique_column_list
 
 /// TODO: not complete
 column_definition
-  : column_name data_type column_definition_tail {
+  : column_name_or_sql_identifier data_type column_definition_tail {
 	SQL_STATEMENT($$, column_STATEMENT);
 	MALLOC_STATEMENT($$, column, SqlColumn);
 	dqinit(($$)->v.column);
-	($$)->v.column->columnName = $column_name;
+	($$)->v.column->columnName = $column_name_or_sql_identifier;
 	($$)->v.column->data_type_struct = $data_type->v.data_type_struct;
 	($$)->v.column->keywords = $column_definition_tail;
 	($$)->v.column->delim = NULL;
@@ -1863,7 +1917,15 @@ column_definition
 
 column_name
   : identifier { $$ = $identifier; }
-  | sql_keyword { $$ = $sql_keyword; $$->loc = yyloc; }
+  ;
+
+column_name_or_sql_identifier
+  : column_name { $$ = $column_name; }
+  | sql_identifier_minus_primary_unique_check {
+      $$ = $sql_identifier_minus_primary_unique_check;
+      ($$)->v.value->type = COLUMN_REFERENCE;
+      $$->loc = yyloc;
+    }
   ;
 
 column_definition_tail
@@ -2130,11 +2192,10 @@ qualified_name
       $1->loc.last_column = ($5)->loc.last_column;
       $$ = $1;
     }
-
   ;
 
 qualified_identifier
-  : column_name PERIOD column_name {
+  : column_name PERIOD column_name_or_sql_identifier {
       SqlValue *qual, *col_name;
       char *new_string, *c;
       int len_qual, len_col_name;
@@ -2225,7 +2286,7 @@ identifier_start
        */
       $$ = $DOUBLE_QUOTE_LITERAL;
       ($$)->v.value->type = COLUMN_REFERENCE;
-  }
+    }
   ;
 
 data_type
@@ -2617,36 +2678,20 @@ optional_order_by
   ;
 
 function_definition
-  : CREATE FUNCTION qualified_identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	INVOKE_FUNCTION_DEFINITION($$, $qualified_identifier, $function_parameter_type_list, $data_type, $m_function, FALSE);
+  : CREATE FUNCTION function_name LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $function_name, $function_parameter_type_list, $data_type, $m_function, FALSE);
+      }
+  | CREATE FUNCTION IF NOT EXISTS function_name LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+	INVOKE_FUNCTION_DEFINITION($$, $function_name, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }
   | CREATE FUNCTION PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	/* This rule is necessary because `PARENLESS_FUNCTION` is not a subset of identifier. */
 	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, FALSE);
       }
-  | CREATE FUNCTION IF NOT EXISTS qualified_identifier LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	INVOKE_FUNCTION_DEFINITION($$, $qualified_identifier, $function_parameter_type_list, $data_type, $m_function, TRUE);
-      }
   | CREATE FUNCTION IF NOT EXISTS PARENLESS_FUNCTION LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
 	/* This rule is necessary because `PARENLESS_FUNCTION` is not a subset of identifier. */
 	INVOKE_FUNCTION_DEFINITION($$, $PARENLESS_FUNCTION, $function_parameter_type_list, $data_type, $m_function, TRUE);
       }
-  ;
-
-/* Some SQL keywords may also be valid SQL column or function names. So, we must distinguish
- * between the cases where the keyword is intended as a keyword, and where it is intended
- * as the name of a column or function.
- *
- * To do this, we explictly allow such keywords to be accepted as column or function names via the following
- * rule, which prevents syntax errors due to an unexpected keyword appearing in the column_definition or
- * function_definition rules.
- */
-sql_keyword
-  : TRUNCATE { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "truncate"); }
-  | TO { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "to"); }
-  | NAME { SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, "name"); }
-  | REGCLASS { SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regclass"); }
-  | REGPROC { SQL_VALUE_STATEMENT($$, FUNCTION_NAME, "regproc"); }
   ;
 
 function_parameter_type_list

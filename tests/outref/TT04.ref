@@ -20,10 +20,8 @@ OCTO> truncate 2+3;
 LINE 4:1: truncate 2;
                    ^
 OCTO> truncate 2;
-[ERROR] PATH:LINENUM DATE TIME: ERR_PARSE_FAILED: syntax error, unexpected FALSE_TOKEN
-LINE 5:1: truncate false;
-                   ^^^^^
 OCTO> truncate false;
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: false
 [ERROR] PATH:LINENUM DATE TIME: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN
 LINE 7:1: truncate (names);
                    ^

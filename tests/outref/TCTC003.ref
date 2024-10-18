@@ -1090,9 +1090,9 @@ CREATE TABLE tmp (product_no integer, CHECK (false));
 INSERT INTO tmp VALUES (1);
 DROP TABLE tmp;
 
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected NOT, expecting CHECK or PRIMARY or UNIQUE
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected NULL_TOKEN
 LINE 3:1: create table products (first varchar, last varchar, not null);
-                                                              ^^^
+                                                                  ^^^^
 OCTO> create table products (first varchar, last varchar, not null);
 [ERROR]: ERR_PARSE_FAILED: syntax error, unexpected LEFT_PAREN
 LINE 5:1: create table products (id integer, name varchar unique (name));

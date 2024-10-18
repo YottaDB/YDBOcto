@@ -80,3 +80,8 @@ teardown() {
 	[[ "$(grep -c "FAIL" ydbcheck.out)" == "0" ]]
 }
 
+@test "TBP009 : OCTO1062 : Test SQL keywords accepted as table/column names for various commands" {
+	load_fixture TBP009.sql subtest novv
+	verify_output TBP009 output.txt
+}
+

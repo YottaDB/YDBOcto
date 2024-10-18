@@ -757,7 +757,7 @@ OCTO> select date'0001-01-01';
 ???
 0001-01-01
 (1 row)
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 129:1: select date'';
                         ^
 OCTO> select date'';
@@ -801,7 +801,7 @@ OCTO> select time'00:00:60';
 ???
 00:01:00
 (1 row)
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 141:1: select time'';
                         ^
 OCTO> select time'';
@@ -943,7 +943,7 @@ OCTO> select timestamp '9999-12-31 23:59:59.1000000';
 ???
 9999-12-31 23:59:59.1
 (1 row)
-[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
 LINE 179:1: select timestamp '';
                               ^
 OCTO> select timestamp '';

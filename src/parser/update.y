@@ -77,5 +77,5 @@ set_clause_value
   ;
 
 object_column
-  : column_name
+  : column_name_or_sql_identifier { $$ = $column_name_or_sql_identifier; }
   ;

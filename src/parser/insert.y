@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,6 +40,45 @@ insert_statement
 	YYABORT;
 	/* TODO: YDBOcto#555 : Uncomment below when "INSERT INTO table DEFAULT VALUES" functionality is implemented.
 	$$ = insert_statement($qualified_identifier, NULL, NULL, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+	*/
+    }
+  | INSERT INTO sql_identifier query_expression {
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	$$ = insert_statement($sql_identifier, NULL, NULL, $query_expression, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+    }
+  | INSERT INTO sql_identifier optional_insert_words query_expression {
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	$$ = insert_statement($sql_identifier, NULL, $optional_insert_words, $query_expression, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+    }
+  | INSERT INTO sql_identifier LEFT_PAREN column_name_list RIGHT_PAREN query_expression {
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	$$ = insert_statement($sql_identifier, $column_name_list, NULL, $query_expression, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+    }
+  | INSERT INTO sql_identifier LEFT_PAREN column_name_list RIGHT_PAREN optional_insert_words query_expression {
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	$$ = insert_statement($sql_identifier, $column_name_list, $optional_insert_words, $query_expression, plan_id, parse_context);
+	if (NULL == $$) {
+		YYERROR;
+	}
+    }
+  | INSERT INTO sql_identifier DEFAULT VALUES {
+	$sql_identifier->v.value->type = COLUMN_REFERENCE;
+	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "INSERT INTO sql_identifier DEFAULT VALUES");
+	YYABORT;
+	/* TODO: YDBOcto#555 : Uncomment below when "INSERT INTO table DEFAULT VALUES" functionality is implemented.
+	$$ = insert_statement($sql_identifier, NULL, NULL, plan_id, parse_context);
 	if (NULL == $$) {
 		YYERROR;
 	}

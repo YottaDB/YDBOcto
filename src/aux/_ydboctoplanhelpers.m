@@ -702,6 +702,8 @@ Fileman2Text(inputStr,type)
 initBoolMap
 	; Below are list of string literals which are accepted for boolean conversion
 	; A similar list is maintained in a switch/case block in the "literal_value" rule definition in src/parser.y
+	; and fix_value_to_boolean_value() in "src/check_column_lists_for_type_match.c". Ensure
+	; any change here is reflected in other places too.
 	; Note: Caller checks if %ydboctoStr2Bool has data and calls only when it doesn't
 	SET %ydboctoStr2Bool("true")=1
 	SET %ydboctoStr2Bool("t")=1
@@ -719,10 +721,10 @@ initBoolMap
 ; Invalid values return ZYSQLNULL.
 ; Note:
 ; * Refer to `%ydboctoStr2Bool` subscripts and its values to know which string is mapped to which value.
-; * This conversion is needed by Rocto to do additional processing on boolean values.
 ForceBoolean(val)
 	DO:'$DATA(%ydboctoStr2Bool) initBoolMap
-	QUIT $SELECT(0'=$DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:$ZYSQLNULL)
+	SET val=$ZCONVERT(val,"L")
+	QUIT $SELECT($DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:$ZYSQLNULL)
 
 max(isString,a,b)
 	; return the greatest of a and b
@@ -1357,10 +1359,11 @@ String2Boolean(boolstr)	;
 	; Converts an input boolean string value (`boolstr`) (can be `t` or `f`) to 1 or 0 respectively
 	QUIT:$ZYISSQLNULL(boolstr) $ZYSQLNULL
 	DO:'$DATA(%ydboctoStr2Bool) initBoolMap
-	IF '$DATA(%ydboctoStr2Bool(boolstr))  DO
+	SET boolnewstr=$ZCONVERT(boolstr,"L")
+	IF '$DATA(%ydboctoStr2Bool(boolnewstr))  DO
 	.	SET %ydboctoerror("INVALIDBOOLEANSYNTAX",1)=boolstr	; pass parameter to `src/ydb_error_check.c`
 	.	ZMESSAGE %ydboctoerror("INVALIDBOOLEANSYNTAX")
-	QUIT %ydboctoStr2Bool(boolstr)
+	QUIT %ydboctoStr2Bool(boolnewstr)
 
 str2mval(str)
 	; Converts an input string `str` into a `len,str` 2-tuple. Cannot use `str` as is in case input string is `$ZYSQLNULL`

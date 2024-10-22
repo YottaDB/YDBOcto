@@ -22,8 +22,9 @@ int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
 	boolean_t is_invalid = FALSE;
 	SqlValue *value;
 	UNPACK_SQL_STATEMENT(value, val, value);
-	/* Accept "t"/"f"/"yes"/"no" etc as BOOLEAN literals (the list of literals that are accepted as BOOLEAN literals is also
-	 * maintained at String2Boolean label in "src/aux/_ydboctoplanhelpers.m").
+	/* The list of literals that are accepted as BOOLEAN literals is also maintained at
+	 * initBoolMap label in "src/aux/_ydboctoplanhelpers.m" and "literal_value" rule in src/parser.y.
+	 * Ensure any change here is reflected in other places too.
 	 */
 	size_t len;
 	char  *ptr;
@@ -34,13 +35,17 @@ int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
 		switch (*ptr) {
 		case '0':
 		case 'n':
+		case 'N':
 		case 'f':
+		case 'F':
 			value->u.bool_or_str.truth_value = FALSE;
 			value->type = BOOLEAN_VALUE;
 			break;
 		case '1':
 		case 'y':
+		case 'Y':
 		case 't':
+		case 'T':
 			value->u.bool_or_str.truth_value = TRUE;
 			value->type = BOOLEAN_VALUE;
 			break;
@@ -49,7 +54,7 @@ int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
 		}
 		break;
 	case 2:
-		if (0 == strcmp(ptr, "no")) {
+		if (0 == strcasecmp(ptr, "no")) {
 			value->u.bool_or_str.truth_value = FALSE;
 			value->type = BOOLEAN_VALUE;
 		} else {
@@ -57,7 +62,7 @@ int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
 		}
 		break;
 	case 3:
-		if (0 == strcmp(ptr, "yes")) {
+		if (0 == strcasecmp(ptr, "yes")) {
 			value->u.bool_or_str.truth_value = TRUE;
 			value->type = BOOLEAN_VALUE;
 		} else {
@@ -65,7 +70,7 @@ int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
 		}
 		break;
 	case 4:
-		if (0 == strcmp(ptr, "true")) {
+		if (0 == strcasecmp(ptr, "true")) {
 			value->u.bool_or_str.truth_value = TRUE;
 			value->type = BOOLEAN_VALUE;
 		} else {
@@ -73,7 +78,7 @@ int fix_value_to_boolean_value(SqlStatement *val, ParseContext *parse_context) {
 		}
 		break;
 	case 5:
-		if (0 == strcmp(ptr, "false")) {
+		if (0 == strcasecmp(ptr, "false")) {
 			value->u.bool_or_str.truth_value = FALSE;
 			value->type = BOOLEAN_VALUE;
 		} else {

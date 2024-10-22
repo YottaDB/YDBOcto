@@ -2703,20 +2703,29 @@ joinTypes(joinCount)
 	. if $increment(joinTypes)
 	quit joinTypes($random(joinTypes))
 
+mixCase(val)
+	new res
+	set res=""
+	for i=1:1:$length(val) do
+	. set ch=$extract(val,i)
+	. set:("'"'=ch)&(1=$random(2)) ch=$zconvert(ch,"U")
+	. set res=res_ch
+	QUIT res
+
 tf()
 	if (initDone("tf")=0) do
 	. set initDone("tf")=1
 	. set tf=-1
 	. set tf($increment(tf))="TRUE"
 	. set tf($increment(tf))="FALSE"
-	. set tf($increment(tf))="'t'"
-	. set tf($increment(tf))="'f'"
-	. set tf($increment(tf))="'true'"
-	. set tf($increment(tf))="'false'"
-	. set tf($increment(tf))="'y'"
-	. set tf($increment(tf))="'n'"
-	. set tf($increment(tf))="'yes'"
-	. set tf($increment(tf))="'no'"
+	. set tf($increment(tf))=$$mixCase("'t'")
+	. set tf($increment(tf))=$$mixCase("'f'")
+	. set tf($increment(tf))=$$mixCase("'true'")
+	. set tf($increment(tf))=$$mixCase("'false'")
+	. set tf($increment(tf))=$$mixCase("'y'")
+	. set tf($increment(tf))=$$mixCase("'n'")
+	. set tf($increment(tf))=$$mixCase("'yes'")
+	. set tf($increment(tf))=$$mixCase("'no'")
 	. set tf($increment(tf))="'1'"
 	. set tf($increment(tf))="'0'"
 	. if $increment(tf)

@@ -2455,8 +2455,9 @@ literal_value
 		switch(value->type) {
 		case STRING_LITERAL:;
 			/* Accept "t"/"f"/"yes"/"no" etc. not just as STRING literal but as potential BOOLEAN literals too (the
-			 * list of literals that are accepted as BOOLEAN literals is also maintained at String2Boolean label in
-			 * "src/aux/_ydboctoplanhelpers.m").
+			 * list of literals that are accepted as BOOLEAN literals is also maintained at initBoolMap label in
+			 * "src/aux/_ydboctoplanhelpers.m" and fix_value_to_boolean_value() in
+			 * "src/check_column_lists_for_type_match.c". Ensure any change here is reflected in other places too).
 			 * The type will be later deduced from the query context by "populate_data_type()".
 			 * So set the type to allow for EITHER choice right now.
 			 */
@@ -2470,38 +2471,42 @@ literal_value
 				switch(*ptr) {
 				case '0':
 				case 'n':
+				case 'N':
 				case 'f':
+				case 'F':
 					value->u.bool_or_str.truth_value = FALSE;
 					value->type = BOOLEAN_OR_STRING_LITERAL;
 					break;
 				case '1':
 				case 'y':
+				case 'Y':
 				case 't':
+				case 'T':
 					value->u.bool_or_str.truth_value = TRUE;
 					value->type = BOOLEAN_OR_STRING_LITERAL;
 					break;
 				}
 				break;
 			case 2:
-				if (0 == strcmp(ptr, "no")) {
+				if (0 == strcasecmp(ptr, "no")) {
 					value->u.bool_or_str.truth_value = FALSE;
 					value->type = BOOLEAN_OR_STRING_LITERAL;
 				}
 				break;
 			case 3:
-				if (0 == strcmp(ptr, "yes")) {
+				if (0 == strcasecmp(ptr, "yes")) {
 					value->u.bool_or_str.truth_value = TRUE;
 					value->type = BOOLEAN_OR_STRING_LITERAL;
 				}
 				break;
 			case 4:
-				if (0 == strcmp(ptr, "true")) {
+				if (0 == strcasecmp(ptr, "true")) {
 					value->u.bool_or_str.truth_value = TRUE;
 					value->type = BOOLEAN_OR_STRING_LITERAL;
 				}
 				break;
 			case 5:
-				if (0 == strcmp(ptr, "false")) {
+				if (0 == strcasecmp(ptr, "false")) {
 					value->u.bool_or_str.truth_value = FALSE;
 					value->type = BOOLEAN_OR_STRING_LITERAL;
 				}

@@ -173,3 +173,7 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT15.sql "trim_trailing_zeroes"
 	stop_rocto
 }
+
+@test "TBT17 : OCTO1064 : Test that boolean literals in all cases are accepted" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT17.sql "trim_trailing_zeroes"
+}

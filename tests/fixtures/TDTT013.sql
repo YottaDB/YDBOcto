@@ -42,8 +42,8 @@ select samevalue(samevalue(date'01-01-2023'));
 select samevalue(samevalue(samevalue(date'01-01-2023')));
 -- sql functions
 set datestyle='mdy';
-select date_to_fileman(now()::date)=date_to_fileman(now()::date);
-select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
+select date_to_fileman(date'01-01-2023')=date_to_fileman(date'01-01-2023');
+select timestamp_to_fileman(timestamp'01-01-2023 01:01:01')=timestamp_to_fileman(timestamp'01-01-2023 01:01:01');
 set datestyle='ymd';
-select date_to_fileman(now()::date)=date_to_fileman(now()::date);
-select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
+select date_to_fileman(date'2023-01-01')=date_to_fileman(date'2023-01-01');
+select timestamp_to_fileman(timestamp'2023-01-01 01:01:01')=timestamp_to_fileman(timestamp'2023-01-01 01:01:01');

@@ -351,11 +351,11 @@ select samevalue(samevalue(date'01-01-2023'));
 select samevalue(samevalue(samevalue(date'01-01-2023')));
 -- sql functions
 set datestyle='mdy';
-select date_to_fileman(now()::date)=date_to_fileman(now()::date);
-select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
+select date_to_fileman(date'01-01-2023')=date_to_fileman(date'01-01-2023');
+select timestamp_to_fileman(timestamp'01-01-2023 01:01:01')=timestamp_to_fileman(timestamp'01-01-2023 01:01:01');
 set datestyle='ymd';
-select date_to_fileman(now()::date)=date_to_fileman(now()::date);
-select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
+select date_to_fileman(date'2023-01-01')=date_to_fileman(date'2023-01-01');
+select timestamp_to_fileman(timestamp'2023-01-01 01:01:01')=timestamp_to_fileman(timestamp'2023-01-01 01:01:01');
 OCTO> create function samevalue(date) returns date as $$samevalue^functions;
 CREATE FUNCTION
 OCTO> set datestyle='mdy';
@@ -408,20 +408,20 @@ samevalue
 2023-01-01
 (1 row)
 OCTO> set datestyle='mdy';
-OCTO> select date_to_fileman(now()::date)=date_to_fileman(now()::date);
+OCTO> select date_to_fileman(date'01-01-2023')=date_to_fileman(date'01-01-2023');
 ???
 t
 (1 row)
-OCTO> select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
+OCTO> select timestamp_to_fileman(timestamp'01-01-2023 01:01:01')=timestamp_to_fileman(timestamp'01-01-2023 01:01:01');
 ???
 t
 (1 row)
 OCTO> set datestyle='ymd';
-OCTO> select date_to_fileman(now()::date)=date_to_fileman(now()::date);
+OCTO> select date_to_fileman(date'2023-01-01')=date_to_fileman(date'2023-01-01');
 ???
 t
 (1 row)
-OCTO> select timestamp_to_fileman(now()::timestamp)=timestamp_to_fileman(now()::timestamp);
+OCTO> select timestamp_to_fileman(timestamp'2023-01-01 01:01:01')=timestamp_to_fileman(timestamp'2023-01-01 01:01:01');
 ???
 t
 (1 row)

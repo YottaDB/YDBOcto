@@ -18,3 +18,8 @@ select timestamp'2023-01-01T01:01:01'=timestamp'2023-01-01 01:01:01';
 select timestamp'2023-01-01T01:01:01'<date'2023-01-01';
 select timestamp'2023-01-01T01:01:01'<date'2023-01-02';
 select timestamp'2023-01-01T01:01:01'>date'2023-01-01';
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1055
+select date'2023-08-01'::timestamp with time zone;
+select timestamp with time zone'2023-08-01';
+select timestamp with time zone'2023-08-01' = date'2023-08-01'::timestamp with time zone;

@@ -1311,6 +1311,7 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			tm1.tm_sec = 0;
 			tm1.tm_min = 0;
 			tm1.tm_hour = 0;
+			tm1.tm_isdst = -1;
 			ret = mktime(&tm1);
 		} else if (TIMESTAMP_LITERAL == input_type) {
 			ret = mktime(&tm1);

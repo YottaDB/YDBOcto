@@ -23,3 +23,5 @@ select timestamp'2023-01-01T01:01:01'>date'2023-01-01';
 select date'2023-08-01'::timestamp with time zone;
 select timestamp with time zone'2023-08-01';
 select timestamp with time zone'2023-08-01' = date'2023-08-01'::timestamp with time zone;
+select timestamp'2023-08-01 00:00:00'::timestamp with time zone;
+select timestamp with time zone'2023-08-01 00:00:00' = timestamp'2023-08-01 00:00:00'::timestamp with time zone;

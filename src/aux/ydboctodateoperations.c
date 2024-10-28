@@ -1307,6 +1307,7 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			tm1.tm_isdst = -1;
 			ret = mktime(&tm1);
 		} else if (TIMESTAMP_LITERAL == input_type) {
+			tm1.tm_isdst = -1;
 			ret = mktime(&tm1);
 		} else {
 			assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL == input_type);

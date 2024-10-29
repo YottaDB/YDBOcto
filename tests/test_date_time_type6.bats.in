@@ -1,0 +1,28 @@
+#################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TDTT109 : Validate that values of types that are compatible with TIMESTAMP WITH TIME ZONE can be inserted to a column of that type" {
+        test_port=$(start_rocto 1400 -aw)
+        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT109.sql
+}

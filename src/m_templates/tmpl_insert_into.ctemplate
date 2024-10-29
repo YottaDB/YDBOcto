@@ -15,6 +15,7 @@
 
 #include "physical_plan.h"
 #include "template_helpers.h"
+#define HAS_DATE_DATA_TYPE(TYPE) ((DATE_TYPE == TYPE) || (TIMESTAMP_TYPE == TYPE) || (TIMESTAMP_WITH_TIME_ZONE_TYPE == TYPE))
 TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	LogicalPlan		*lp_insert_into, *lp_insert_into_options, *lp_select_query, *lp_key, *lp_table, *lp_col_list;
 	LogicalPlan		*lp_insert_into_more_options;
@@ -184,6 +185,9 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 					 * 3) If the source column is an INTEGER/NUMERIC type and target column is INTEGER/NUMERIC,
 					 *    need to do "+" of the input data to ensure non-canonical strings are converted
 					 *    to numeric (e.g. "023" -> "23").
+					 * 4) If the source column is DATE/TIME and target is DATE/TIME ensure
+					 *    source value is casted to target type as we want the value to be inserted after
+					 *    TIME ZONE data is factored into the value.
 					 */
 					switch(cur_column->data_type_struct.data_type) {
 					case NUMERIC_TYPE:
@@ -220,11 +224,85 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 							}
 						}
 						break;
-					case DATE_TYPE:
 					case TIME_TYPE:
 					case TIME_WITH_TIME_ZONE_TYPE:
+					case DATE_TYPE:
 					case TIMESTAMP_TYPE:
 					case TIMESTAMP_WITH_TIME_ZONE_TYPE:
+						switch (src_cur_cla_type) {
+						case TIME_LITERAL:
+						case TIME_WITH_TIME_ZONE_LITERAL:
+						case DATE_LITERAL:
+						case TIMESTAMP_LITERAL:
+						case TIMESTAMP_WITH_TIME_ZONE_LITERAL:;
+							/* Conditions in the assert below is same as what is allowed in
+							 * src/check_column_lists_for_type_match.c, any change here should reflect
+							 * there. This assert ensures this code path is reviewed when allowed type
+							 * combination is modified.
+							 */
+							SqlDataType trgt_type = cur_column->data_type_struct.data_type;
+							assert((IS_DATE(src_cur_cla_type) && HAS_DATE_DATA_TYPE(trgt_type))
+							       || (IS_TIME(src_cur_cla_type) && ((TIME_TYPE == trgt_type) || (TIME_WITH_TIME_ZONE_TYPE == trgt_type)))
+							       || (IS_TIMESTAMP(src_cur_cla_type) && (HAS_DATE_DATA_TYPE(trgt_type) || (TIME_TYPE == trgt_type))));
+							if (((TIMESTAMP_WITH_TIME_ZONE_TYPE == trgt_type) && ((DATE_LITERAL == src_cur_cla_type) || (TIMESTAMP_LITERAL == src_cur_cla_type)))
+							   || ((TIMESTAMP_TYPE == trgt_type) && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == src_cur_cla_type))
+							   || ((TIME_TYPE == trgt_type) && (TIME_WITH_TIME_ZONE_LITERAL == src_cur_cla_type))
+							   || ((TIME_WITH_TIME_ZONE_TYPE == trgt_type) && (TIME_LITERAL == src_cur_cla_type))) {
+								/* Before adding the given src value to result table column
+								 * cast the src value to target type this takes care of modifying
+								 * the src value to the right time zone if needed
+								 */
+								%{}`n{{ PLAN_LINE_START }}{}%
+								TMPL(tmpl_print_dots, dot_count);
+								%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+								// place parameters along with PP_COL(col_num)
+								%{}$$DateTimeCast^%%ydboctoplanhelpers({}%
+								%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+								%{},{{ src_cur_cla_type|%d }}{}%
+								%{},{{ cur_column->data_type_struct.data_type|%d }}{}%
+								// close conversion routine
+								%{}){}%
+							}
+							break;
+						case STRING_LITERAL:
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
+							// Place conversion routine
+							TMPL(tmpl_convert_to_unix_time);
+							// Add arguments along with PP_COL(col_num)
+							// 1. Add value to tranform : inputStr
+							%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
+							// Add rest of the arguments
+							TMPL(tmpl_print_date_time_to_unix_time_args,
+							     get_sqlvaluetype_from_sqldatatype(
+										cur_column->data_type_struct.data_type,
+										FALSE),
+							     cur_column->data_type_struct.format, TRUE, FALSE);
+							// Close conversion routine
+							%{}){}%
+							break;
+						case NUL_VALUE:
+							/* Following insert can reach this code path.
+							 * create table if not exists timestamp (timestamp timestamp);
+							 * insert into timestamp values (NULL);
+							 */
+							break;
+						case UNKNOWN_SqlValueType:
+							/* Following insert can reach this code path.
+							 * CREATE TABLE EmployeesTQG04 (EmployeeID INTEGER PRIMARY KEY
+							 *   ,LastName  VARCHAR(32),FirstName VARCHAR(32),BirthDate DATE
+							 *   ,Photo VARCHAR(16),Notes VARCHAR(512));
+							 * INSERT INTO EmployeesTQG04  (BirthDate,LastName) (VALUES
+							 *   (DATE '1960-05-29','Davolio'),(DATE '1955-03-04','Buchanan')
+							 *   ,(DATE '1955-03-04','King'));
+							 */
+							break;
+						default:
+							assert(FALSE);
+							break;
+						}
+						break;
 					case INTEGER_TYPE:
 						switch(src_cur_cla_type) {
 						case NUMERIC_LITERAL:
@@ -242,25 +320,6 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 								%{},0){}%
 							}
 							break;
-						case STRING_LITERAL:
-							if (IS_DATE_TIME_DATA_TYPE(cur_column->data_type_struct.data_type)) {
-								%{}`n{{ PLAN_LINE_START }}{}%
-								TMPL(tmpl_print_dots, dot_count);
-								%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
-								// Place conversion routine
-								TMPL(tmpl_convert_to_unix_time);
-								// Add arguments along with PP_COL(col_num)
-								// 1. Add value to tranform : inputStr
-								%{}{{ PP_COL }}({{ cur_column->column_number|%d }}){}%
-								// Add rest of the arguments
-								TMPL(tmpl_print_date_time_to_unix_time_args,
-								     get_sqlvaluetype_from_sqldatatype(
-								     			cur_column->data_type_struct.data_type,
-											FALSE),
-								     cur_column->data_type_struct.format, TRUE, FALSE);
-								// Close conversion routine
-								%{}){}%
-							}
 						default:
 							break;
 						}

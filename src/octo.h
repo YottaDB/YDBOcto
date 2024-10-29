@@ -694,6 +694,7 @@ typedef enum DDLDependencyType {
 #define IS_DATE(TYPE)	   (DATE_LITERAL == TYPE)
 #define IS_TIME(TYPE)	   ((TIME_LITERAL == TYPE) || (TIME_WITH_TIME_ZONE_LITERAL == TYPE))
 #define IS_TIMESTAMP(TYPE) ((TIMESTAMP_LITERAL == TYPE) || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE))
+#define HAS_DATE(VAL)	   (IS_TIMESTAMP(VAL) || (DATE_LITERAL == (VAL)))
 
 // Initialize a stack-allocated ydb_buffer_t to point to a stack-allocated buffer (char [])
 #define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \

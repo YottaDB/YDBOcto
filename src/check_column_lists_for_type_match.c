@@ -430,16 +430,19 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 				is_type_mismatch = FALSE;
 				break;
 			case DATE_LITERAL:
-				// ensure_same_type.c has similar checks any change here should also reflect there
+				// ensure_same_type.c and tmpl_insert_into has similar checks any change here should also reflect
+				// there
 				is_type_mismatch = HAS_DATE(right_type) ? FALSE : TRUE;
 				break;
 			case TIME_LITERAL:
-				// ensure_same_type.c has similar checks any change here should also reflect there
+				// ensure_same_type.c and tmpl_insert_into has similar checks any change here should also reflect
+				// there
 				is_type_mismatch
 				    = ((TIME_LITERAL == right_type) || (TIME_WITH_TIME_ZONE_LITERAL == right_type)) ? FALSE : TRUE;
 				break;
 			case TIME_WITH_TIME_ZONE_LITERAL:
-				// ensure_same_type.c has similar checks any change here should also reflect there
+				// ensure_same_type.c and tmpl_insert_into has similar checks any change here should also reflect
+				// there
 				is_type_mismatch
 				    = ((TIME_LITERAL == right_type) || (TIME_WITH_TIME_ZONE_LITERAL == right_type)) ? FALSE : TRUE;
 				break;
@@ -448,6 +451,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 					// ensure_same_type.c has similar checks any change here should also reflect there
 					is_type_mismatch = HAS_DATE(right_type) ? FALSE : TRUE;
 				} else {
+					// tmpl_insert_into.ctemplate has similar checks any change here should also reflect there
 					is_type_mismatch = (HAS_DATE(right_type) || (TIME_LITERAL == right_type)) ? FALSE : TRUE;
 				}
 				break;
@@ -456,6 +460,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 					// ensure_same_type.c has similar checks any change here should also reflect there
 					is_type_mismatch = HAS_DATE(right_type) ? FALSE : TRUE;
 				} else {
+					// tmpl_insert_into.ctemplate has similar checks any change here should also reflect there
 					is_type_mismatch = (HAS_DATE(right_type) || (TIME_LITERAL == right_type)) ? FALSE : TRUE;
 				}
 				break;

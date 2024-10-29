@@ -685,3 +685,19 @@ drop table if exists test;
 create table test(foo Time With Time Zone primary key) global "^testttz" readonly;
 select * from test order by foo; -- Used to cause an assert fail
 
+-- #1054
+-- target: timetz
+-- source: time,timetz
+drop table if exists TDTT109;
+create table TDTT109 (id int, dob time with time zone);
+insert into TDTT109 values(1, time'01:01:01');
+insert into TDTT109 values(2, time with time zone'01:01:01+06');
+insert into TDTT109 values(3, time with time zone'01:01:01-05');
+insert into TDTT109 values(4, time with time zone'01:01:01-04');
+insert into TDTT109 values(5, '01:01:01');
+insert into TDTT109 values(6, '01:01:01+06');
+insert into TDTT109 values(7, '01:01:01-05');
+insert into TDTT109 values(8, '01:01:01-04');
+select * from TDTT109;
+drop table TDTT109;
+

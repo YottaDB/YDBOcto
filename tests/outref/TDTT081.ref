@@ -674,6 +674,22 @@ drop table if exists test;
 create table test(foo Time With Time Zone primary key) global "^testttz" readonly;
 select * from test order by foo; -- Used to cause an assert fail
 
+-- #1054
+-- target: timetz
+-- source: time,timetz
+drop table if exists TDTT109;
+create table TDTT109 (id int, dob time with time zone);
+insert into TDTT109 values(1, time'01:01:01');
+insert into TDTT109 values(2, time with time zone'01:01:01+06');
+insert into TDTT109 values(3, time with time zone'01:01:01-05');
+insert into TDTT109 values(4, time with time zone'01:01:01-04');
+insert into TDTT109 values(5, '01:01:01');
+insert into TDTT109 values(6, '01:01:01+06');
+insert into TDTT109 values(7, '01:01:01-05');
+insert into TDTT109 values(8, '01:01:01-04');
+select * from TDTT109;
+drop table TDTT109;
+
 OCTO> select concat(time with time zone'01:01:01-05:00', 'sample text');
 concat
 02:01:01-04sample text
@@ -2769,3 +2785,37 @@ foo
 (2 rows)
 OCTO> -- Used to cause an assert fail
 
+drop table if exists TDTT109;
+DROP TABLE
+OCTO> create table TDTT109 (id int, dob time with time zone);
+CREATE TABLE
+OCTO> insert into TDTT109 values(1, time'01:01:01');
+INSERT 0 1
+OCTO> insert into TDTT109 values(2, time with time zone'01:01:01+06');
+INSERT 0 1
+OCTO> insert into TDTT109 values(3, time with time zone'01:01:01-05');
+INSERT 0 1
+OCTO> insert into TDTT109 values(4, time with time zone'01:01:01-04');
+INSERT 0 1
+OCTO> insert into TDTT109 values(5, '01:01:01');
+INSERT 0 1
+OCTO> insert into TDTT109 values(6, '01:01:01+06');
+INSERT 0 1
+OCTO> insert into TDTT109 values(7, '01:01:01-05');
+INSERT 0 1
+OCTO> insert into TDTT109 values(8, '01:01:01-04');
+INSERT 0 1
+OCTO> select * from TDTT109;
+id|dob
+1|02:01:01-04
+2|15:01:01-04
+3|02:01:01-04
+4|01:01:01-04
+5|01:01:01-04
+6|15:01:01-04
+7|02:01:01-04
+8|01:01:01-04
+(8 rows)
+OCTO> drop table TDTT109;
+DROP TABLE
+OCTO> 

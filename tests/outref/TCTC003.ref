@@ -42,7 +42,7 @@ create table products (product_no integer, name text, price numeric CONSTRAINT n
 -- Test of ERR_AGGREGATE_FUNCTION_CHECK error (ERR_SUBQUERY_CHECK error exists too but will not show since it is 2nd error)
 create table products (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
 
--- Test of ERR_UNKNOWN_TABLE error in CHECK constraint
+-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error in CHECK constraint
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
 
 -- Test of syntax error (TABLE_ASTERISK case in src/qualify_check_constraint.c)
@@ -1172,7 +1172,7 @@ OCTO> create table products (id integer, name text CHECK (SUM(name) is NULL));
 LINE 29:1: ..., price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
                                                                ^^^^^^
 OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select 1000)));
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: names
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: names
 LINE 30:1: ...umeric CONSTRAINT name1 CHECK (price < (select * from names)));
                                                                     ^^^^^
 OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from names)));
@@ -1180,7 +1180,7 @@ OCTO> create table products (product_no integer, name text, price numeric CONSTR
 LINE 32:1: ...ducts (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
                                                   ^^^^^
 OCTO> create table products (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: invalid
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: invalid
 LINE 34:1: ...eric CONSTRAINT name1 CHECK (price < (select * from invalid)));
                                                                   ^^^^^^^
 OCTO> create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));

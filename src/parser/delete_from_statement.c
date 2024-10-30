@@ -28,7 +28,7 @@ SqlStatement *delete_from_statement(SqlStatement *table_name, SqlStatement *alia
 	SqlTable      *table;
 
 	assert(value_STATEMENT == table_name->type);
-	join_stmt = table_reference(table_name, NULL, plan_id);
+	join_stmt = table_reference(table_name, NULL, plan_id, TRUE);
 	if (NULL == join_stmt) {
 		return NULL;
 	}

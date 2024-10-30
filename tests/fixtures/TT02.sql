@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -31,7 +31,7 @@ select typname from pg_type;
 select first_name, last_name from customers;
 
 -- Truncate of multiple tables with some non-existent tables
-truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE for `invalid`
+truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE_OR_VIEW for `invalid`
 -- All rows present not just in `customers`, but also in `names` (TRUNCATE of list of tables is atomic)
 select firstname, lastname from names;
 select first_name, last_name from customers;

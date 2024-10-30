@@ -277,7 +277,7 @@ LINE 46:1: create table test (id integer, dob time(fileman));
                                               ^^^^^^^^^^^^^
 OCTO> create table test (id integer, dob time(fileman));
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 LINE 48:1: insert into test values(1,time'01:01:01');
                        ^^^^
@@ -286,7 +286,7 @@ OCTO> insert into test values(1,time'01:01:01');
 LINE 49:1: insert into test values(2,time'01:02:01');
                        ^^^^
 OCTO> insert into test values(2,time'01:02:01');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 50:1: select * from test;
                          ^^^^
 OCTO> select * from test;
@@ -333,7 +333,7 @@ LINE 67:1: create table test (id integer, dob time(zut));
                                               ^^^^^^^^^
 OCTO> create table test (id integer, dob time(zut));
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 LINE 69:1: insert into test values(1,time'01:01:01');
                        ^^^^
@@ -342,7 +342,7 @@ OCTO> insert into test values(1,time'01:01:01');
 LINE 70:1: insert into test values(2,time'01:02:01');
                        ^^^^
 OCTO> insert into test values(2,time'01:02:01');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 71:1: select * from test;
                          ^^^^
 OCTO> select * from test;
@@ -515,7 +515,7 @@ LINE 138:1: ...ate table test (id integer, dob timestamp(zut) with time zone);
                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer, dob timestamp(zut) with time zone);
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 LINE 140:1: insert into test values(1,timestamp with time zone'2023-01-01 01...
                         ^^^^
@@ -524,7 +524,7 @@ OCTO> insert into test values(1,timestamp with time zone'2023-01-01 01:01:01-05:
 LINE 141:1: insert into test values(2,timestamp with time zone'2023-01-02 01...
                         ^^^^
 OCTO> insert into test values(2,timestamp with time zone'2023-01-02 01:01:01-05:00');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 142:1: select * from test;
                           ^^^^
 OCTO> select * from test;

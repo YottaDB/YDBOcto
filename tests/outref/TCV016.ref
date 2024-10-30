@@ -45,7 +45,7 @@ Lord
 Joey
 Zero
 (6 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v4
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: v4
 LINE 11:1: select * from v4;
                          ^^
 OCTO> select * from v4;

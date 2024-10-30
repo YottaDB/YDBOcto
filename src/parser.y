@@ -1482,7 +1482,7 @@ table_value_constructor
 	UNPACK_SQL_STATEMENT(table_value, table_value_stmt, table_value);
 	row_value_stmt = $table_value_constructor_list;
 	table_value->row_value_stmt = row_value_stmt;
-	join_stmt = table_reference(table_value_stmt, NULL, plan_id);
+	join_stmt = table_reference(table_value_stmt, NULL, plan_id, TRUE);
 	if (NULL == join_stmt) {
 		assert(FALSE);	/* currently this is not possible since we pass NULL as the second parameter and
 				 * the only error inside "table_reference" is possible if that parameter is non-NULL.

@@ -113,7 +113,7 @@ DROP TABLE
 LINE 40:1: ...tmp (id integer primary key, fullname varchar extract abs(id));
                                                             ^^^^^^^^^^^^^^^
 OCTO> create table tmp (id integer primary key, fullname varchar extract abs(id));
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 41:1: select * from tmp;  -- Error: table `tmp` doesn't exist
                          ^^^
 OCTO> select * from tmp;
@@ -125,7 +125,7 @@ DROP TABLE
 LINE 44:1: ...imary key, fullname1 varchar extract concat(id, id || 'abcd'));
                                                                  ^
 OCTO> create table tmp (id varchar primary key, fullname1 varchar extract concat(id, id || 'abcd'));
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 45:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;

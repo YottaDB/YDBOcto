@@ -14,7 +14,7 @@ DROP VIEW
 LINE 5:1: create view v1 as (values (1), ABS(-2));
                                          ^^^
 OCTO> create view v1 as (values (1), ABS(-2));
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: v1
 LINE 6:1: select * from v1;
                         ^^
 OCTO> select * from v1;

@@ -1583,67 +1583,67 @@ LINE 44:1: select NULLIF(time with time zone'01:01:00-05:00',timestamp wit...
 LINE 44:1: ...00-05:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select NULLIF(time with time zone'01:01:00-05:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 45:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select COALESCE(time with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 46:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select GREATEST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 47:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select LEAST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 48:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select NULLIF(time with time zone'01:01:00-05:00',n1.dob) from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 49:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select COALESCE(time with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 50:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select GREATEST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 51:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select LEAST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 52:1: ...ime with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select NULLIF(time with time zone'01:01:00-05:00',n1.dob) from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 53:1: ...with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select COALESCE(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 54:1: ...with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select GREATEST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 55:1: ...with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select LEAST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 56:1: ...with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select NULLIF(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 57:1: ...th time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select COALESCE(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 58:1: ...th time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select GREATEST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 59:1: ...th time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select LEAST(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 60:1: ...th time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select NULLIF(time with time zone'01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
@@ -1751,67 +1751,67 @@ LINE 80:1: ...ULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',time ...
 LINE 80:1: ...023-01-01 01:01:00-05:00',time with time zone'01:01:00-05:00');
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',time with time zone'01:01:00-05:00');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 81:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select COALESCE(n1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 82:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select GREATEST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 83:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select LEAST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011date
 LINE 84:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
                                                               ^^^^^^^^^^^
 OCTO> select NULLIF(n1.dob,time with time zone'01:01:00-05:00') from TDTT011date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 85:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select COALESCE(n1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 86:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select GREATEST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 87:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select LEAST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011time
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011time
 LINE 88:1: ...1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
                                                               ^^^^^^^^^^^
 OCTO> select NULLIF(n1.dob,time with time zone'01:01:00-05:00') from TDTT011time n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 89:1: ...b,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select COALESCE(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 90:1: ...b,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select GREATEST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 91:1: ...b,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select LEAST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamp
 LINE 92:1: ...b,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
                                                           ^^^^^^^^^^^^^^^^
 OCTO> select NULLIF(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 93:1: ...time with time zone'01:01:00-05:00') from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select COALESCE(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 94:1: ...time with time zone'01:01:00-05:00') from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select GREATEST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 95:1: ...time with time zone'01:01:00-05:00') from TDTT011timestamptz n1;
                                                         ^^^^^^^^^^^^^^^^^^
 OCTO> select LEAST(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt011timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt011timestamptz
 LINE 96:1: ...ob,time with time zone'01:01:00-05:00') from TDTT011timestamptz;
                                                            ^^^^^^^^^^^^^^^^^^
 OCTO> select NULLIF(n1.dob,time with time zone'01:01:00-05:00') from TDTT011timestamptz;
@@ -1852,7 +1852,7 @@ LINE 105:1: ...reate table test (id integer, dob time(fileman) with time zone);
                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer, dob time(fileman) with time zone);
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 LINE 107:1: insert into test values(1,time with time zone'01:01:01-05:00');
                         ^^^^
@@ -1863,7 +1863,7 @@ LINE 108:1: insert into test values(2,time with time zone'01:02:01-05:00');
 OCTO> insert into test values(2,time with time zone'01:02:01-05:00');
 OCTO> drop table test;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "test" as it does not exist
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 110:1: select * from test;
                           ^^^^
 OCTO> select * from test;
@@ -1872,7 +1872,7 @@ LINE 111:1: create table test (id integer, dob time(zut) with time zone);
                                                ^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer, dob time(zut) with time zone);
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
 LINE 113:1: insert into test values(1,time with time zone'01:01:01-05:00');
                         ^^^^
@@ -1881,7 +1881,7 @@ OCTO> insert into test values(1,time with time zone'01:01:01-05:00');
 LINE 114:1: insert into test values(2,time with time zone'01:02:01-05:00');
                         ^^^^
 OCTO> insert into test values(2,time with time zone'01:02:01-05:00');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 115:1: select * from test;
                           ^^^^
 OCTO> select * from test;
@@ -1892,8 +1892,8 @@ LINE 117:1: ... primary key, dob time(fileman) with time zone) global "^datetim.
                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer primary key, dob time(fileman) with time zone) global "^datetimetimetzfileman" readonly;
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 119:1: select * from test;
                           ^^^^
 OCTO> select * from test;
@@ -1904,8 +1904,8 @@ LINE 121:1: ...er primary key, dob time(zut) with time zone) global "^datetimet.
                                    ^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer primary key, dob time(zut) with time zone) global "^datetimetimetzzut" readonly;
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 123:1: select * from test;
                           ^^^^
 OCTO> select * from test;
@@ -2035,27 +2035,27 @@ OCTO> select true::TIME WITH TIME ZONE;
 LINE 157:1: select CAST(true AS TIME WITH TIME ZONE);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(true AS TIME WITH TIME ZONE);
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt005date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt005date
 LINE 158:1: select dob::TIME WITH TIME ZONE from TDTT005date n1;
                                                  ^^^^^^^^^^^
 OCTO> select dob::TIME WITH TIME ZONE from TDTT005date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt005date
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt005date
 LINE 159:1: select CAST(dob AS TIME WITH TIME ZONE) from TDTT005date n1;
                                                          ^^^^^^^^^^^
 OCTO> select CAST(dob AS TIME WITH TIME ZONE) from TDTT005date n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt005timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt005timestamp
 LINE 160:1: select dob::TIME WITH TIME ZONE from TDTT005timestamp n1;
                                                  ^^^^^^^^^^^^^^^^
 OCTO> select dob::TIME WITH TIME ZONE from TDTT005timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt005timestamp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt005timestamp
 LINE 161:1: ...elect CAST(dob AS TIME WITH TIME ZONE) from TDTT005timestamp n1;
                                                            ^^^^^^^^^^^^^^^^
 OCTO> select CAST(dob AS TIME WITH TIME ZONE) from TDTT005timestamp n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt005timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt005timestamptz
 LINE 162:1: select dob::TIME WITH TIME ZONE from TDTT005timestamptz n1;
                                                  ^^^^^^^^^^^^^^^^^^
 OCTO> select dob::TIME WITH TIME ZONE from TDTT005timestamptz n1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt005timestamptz
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt005timestamptz
 LINE 163:1: ...ect CAST(dob AS TIME WITH TIME ZONE) from TDTT005timestamptz n1;
                                                          ^^^^^^^^^^^^^^^^^^
 OCTO> select CAST(dob AS TIME WITH TIME ZONE) from TDTT005timestamptz n1;

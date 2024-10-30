@@ -915,14 +915,14 @@ typedef enum DDLDependencyType {
 	}
 
 /* Below parses a table_reference SQL grammar component  */
-#define INVOKE_TABLE_REFERENCE(STMT, COLUMN_NAME, CORRELATION_SPECIFICATION, PLAN_ID)   \
-	{                                                                               \
-		SqlStatement *ret;                                                      \
-		ret = table_reference(COLUMN_NAME, CORRELATION_SPECIFICATION, PLAN_ID); \
-		if (NULL == ret) {                                                      \
-			YYERROR;                                                        \
-		}                                                                       \
-		STMT = ret;                                                             \
+#define INVOKE_TABLE_REFERENCE(STMT, COLUMN_NAME, CORRELATION_SPECIFICATION, PLAN_ID)          \
+	{                                                                                      \
+		SqlStatement *ret;                                                             \
+		ret = table_reference(COLUMN_NAME, CORRELATION_SPECIFICATION, PLAN_ID, FALSE); \
+		if (NULL == ret) {                                                             \
+			YYERROR;                                                               \
+		}                                                                              \
+		STMT = ret;                                                                    \
 	}
 
 /* Below parses a derived_table SQL grammar component  */
@@ -1536,7 +1536,8 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			       boolean_t is_not_exists_specified);
 SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *parse_context);
 SqlStatement *table_expression(SqlStatement *from, SqlStatement *where, SqlStatement *group_by, SqlStatement *having);
-SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id);
+SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id,
+			      boolean_t only_table_possible);
 SqlStatement *function_definition(SqlStatement *identifier, SqlStatement *function_parameter_type_list, SqlStatement *data_type,
 				  SqlStatement *m_function, boolean_t if_not_exists_specified);
 SqlStatement *drop_function(SqlStatement *identifier, SqlStatement *function_parameter_type_list, boolean_t if_exists_specified);

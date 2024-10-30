@@ -57,7 +57,7 @@ OCTO> create view v1 as select 1;
 CREATE VIEW
 OCTO> drop view v1;
 DROP VIEW
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: v1
 LINE 4:1: select * from v1;
                         ^^
 OCTO> select * from v1;

@@ -155,6 +155,7 @@ ERROR_DEF(ERR_UNKNOWN_FUNCTION_EMULATION, "No %s-parameter function %s() defined
 ERROR_DEF(ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY, "Updating a GENERATED ALWAYS IDENTITY column \"%s\" to a non-DEFAULT value is invalid.", PSQL_Code_Generated_Always)
 ERROR_DEF(ERR_FUNCTION_NOT_UNIQUE, "Function '%s(%s)' not unique. Parameter(s) may require explicit type cast(s)", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s", PSQL_Code_Undefined_Table)
+ERROR_DEF(ERR_UNKNOWN_TABLE_OR_VIEW, "Unknown table or view: %s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_VALUES_LENGTH, "VALUES lists must all be the same length", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_VIEW_MORE_COLUMN_NAMES, "View specifies more column names than the number of columns defined", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_WRONG_TYPE, "\"%s\" is not a %s", PSQL_Code_Wrong_Object_Type)

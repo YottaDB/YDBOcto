@@ -19,7 +19,7 @@ OCTO> drop table if exists tmp;
 DROP TABLE
 [ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname2"
 OCTO> create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname2), fullname2 varchar extract concat(fullname3, lastname), fullname3 varchar extract concat(fullname1, firstname)) GLOBAL "^names";
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 5:1: select * from tmp;
                         ^^^
 OCTO> select * from tmp;
@@ -27,7 +27,7 @@ OCTO> drop table if exists tmp;
 DROP TABLE
 [ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname2"
 OCTO> create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname2), fullname2 varchar extract concat(fullname3, lastname), fullname3 varchar extract concat(fullname4, lastname), fullname4 varchar extract concat(fullname1, firstname)) GLOBAL "^names";
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 9:1: select * from tmp;
                         ^^^
 OCTO> select * from tmp;
@@ -35,7 +35,7 @@ OCTO> drop table if exists tmp;
 DROP TABLE
 [ERROR]: ERR_CIRCULAR_EXTRACT_DEFINITION: Definition for EXTRACT column "fullname1" contains circular dependency starting from EXTRACT column "fullname1"
 OCTO> create table tmp (id integer primary key, firstname varchar, lastname varchar, fullname1 varchar extract concat(firstname, fullname1)) GLOBAL "^names";
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 13:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;

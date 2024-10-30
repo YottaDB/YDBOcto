@@ -288,22 +288,22 @@ DROP TABLE
 LINE 2:1: ... primary key, dob timestamp(zut)with time zone) global "^datetim...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table timestamptzzutr (id integer primary key, dob timestamp(zut)with time zone) global "^datetimetimestamptzzut" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timestamptzzutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timestamptzzutr
 LINE 3:1: select * from timestamptzzutr;
                         ^^^^^^^^^^^^^^^
 OCTO> select * from timestamptzzutr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timestamptzzutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timestamptzzutr
 LINE 4:1: select * from timestamptzzutr where dob = timestamp(zut)with ti...
                         ^^^^^^^^^^^^^^^
 OCTO> select * from timestamptzzutr where dob = timestamp(zut)with time zone'1700250859368731';
 OCTO> 
 -- Run the yottadb command which modifies the globals that were mapped to a table above --
 -- Run select on the table to see the modifications done to the global --
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timestamptzzutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timestamptzzutr
 LINE 1:1: select * from timestamptzzutr;
                         ^^^^^^^^^^^^^^^
 OCTO> select * from timestamptzzutr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timestamptzzutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timestamptzzutr
 LINE 2:1: select * from timestamptzzutr where dob = timestamp(zut)with ti...
                         ^^^^^^^^^^^^^^^
 OCTO> select * from timestamptzzutr where dob = timestamp(zut)with time zone'1700250859368731';
@@ -458,22 +458,22 @@ DROP TABLE
 LINE 2:1: ...integer primary key, dob time(fileman)) global "^datetimetimefi...
                                       ^^^^^^^^^^^^^
 OCTO> create table timefilemanr (id integer primary key, dob time(fileman)) global "^datetimetimefileman" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timefilemanr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timefilemanr
 LINE 3:1: select * from timefilemanr;
                         ^^^^^^^^^^^^
 OCTO> select * from timefilemanr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timefilemanr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timefilemanr
 LINE 4:1: select * from timefilemanr where dob = time(fileman)'010201';
                         ^^^^^^^^^^^^
 OCTO> select * from timefilemanr where dob = time(fileman)'010201';
 OCTO> 
 -- Run the yottadb command which modifies the globals that were mapped to a table above --
 -- Run select on the table to see the modifications done to the global --
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timefilemanr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timefilemanr
 LINE 1:1: select * from timefilemanr;
                         ^^^^^^^^^^^^
 OCTO> select * from timefilemanr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timefilemanr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timefilemanr
 LINE 2:1: select * from timefilemanr where dob = time(fileman)'010201';
                         ^^^^^^^^^^^^
 OCTO> select * from timefilemanr where dob = time(fileman)'010201';
@@ -542,22 +542,22 @@ DROP TABLE
 LINE 2:1: ...d integer primary key, dob time(zut)) global "^datetimetimezut"...
                                         ^^^^^^^^^
 OCTO> create table timezutr (id integer primary key, dob time(zut)) global "^datetimetimezut" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timezutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timezutr
 LINE 3:1: select * from timezutr;
                         ^^^^^^^^
 OCTO> select * from timezutr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timezutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timezutr
 LINE 4:1: select * from timezutr where dob = time(zut)'1700250859368731';
                         ^^^^^^^^
 OCTO> select * from timezutr where dob = time(zut)'1700250859368731';
 OCTO> 
 -- Run the yottadb command which modifies the globals that were mapped to a table above --
 -- Run select on the table to see the modifications done to the global --
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timezutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timezutr
 LINE 1:1: select * from timezutr;
                         ^^^^^^^^
 OCTO> select * from timezutr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timezutr
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: timezutr
 LINE 2:1: select * from timezutr where dob = time(zut)'1700250859368731';
                         ^^^^^^^^
 OCTO> select * from timezutr where dob = time(zut)'1700250859368731';

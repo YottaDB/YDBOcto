@@ -7,7 +7,7 @@ select * from asdf;
 
 -- Error highlighting after \d
 select * from asdf;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: asdf
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: asdf
 LINE 2:1: select * from asdf;
                         ^^^^
 OCTO> select * from asdf;
@@ -70,7 +70,7 @@ public|pg_trigger|table|octo
 public|pg_type|table|octo
 public|pg_user|table|octo
 (56 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: asdf
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: asdf
 LINE 6:1: select * from asdf;
                         ^^^^
 OCTO> select * from asdf;

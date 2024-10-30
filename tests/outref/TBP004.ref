@@ -1,6 +1,6 @@
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: mytable
 LINE 1:1: UPDATE myTable
                  ^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tableofdogs
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tableofdogs
 LINE 5:2: ... name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab"...
                                        ^^^^^^^^^^^

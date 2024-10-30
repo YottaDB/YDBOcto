@@ -362,9 +362,9 @@ OCTO> \dv;
 Schema|Name|Type|Owner
 (0 rows)
 OCTO> \d v1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: v1
 OCTO> \d v2;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: v2
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: v2
 OCTO> create view v1 as select 1;
 CREATE VIEW
 OCTO> create view v2 as select firstname, lastname from names;

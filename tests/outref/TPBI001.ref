@@ -341,7 +341,7 @@ OCTO> select	'octo'::name as "PKTABLE_CAT",
   order by ref.oid, ref.i;
 PKTABLE_CAT|PKTABLE_SCHEM|PKTABLE_NAME|PKCOLUMN_NAME|FKTABLE_CAT|FKTABLE_SCHEM|FKTABLE_NAME|FKCOLUMN_NAME|KEY_SEQ|UPDATE_RULE|DELETE_RULE|FK_NAME|PK_NAME|DEFERRABILITY
 (0 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: octo.public.EMPLOYEES
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: octo.public.EMPLOYEES
 LINE 140:7: from "octo"."public"."EMPLOYEES";
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select "EMPLOYEEID",

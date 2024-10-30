@@ -45,7 +45,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	SqlTable	   *table;
 
 	assert(value_STATEMENT == table_name->type);
-	join_stmt = table_reference(table_name, NULL, plan_id);
+	join_stmt = table_reference(table_name, NULL, plan_id, TRUE);
 	if (NULL == join_stmt) {
 		return NULL;
 	}

@@ -4,9 +4,9 @@ WHERE  word <> ALL ('{a,abs,absolute,action,ada,add,admin,after,all,allocate,alt
 
 ----- ROCTO/JDBC -----
 SQL State: 42P01
-ERROR: Unknown table: pg_catalog.pg_get_keywords
+ERROR: Unknown table or view: pg_catalog.pg_get_keywords
 
 ----- OCTO -----
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: pg_catalog.pg_get_keywords
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: pg_catalog.pg_get_keywords
 LINE 2:2: FROM   pg_catalog.Pg_get_keywords()
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -20,7 +20,7 @@ select typname from pg_type;
 select first_name, last_name from customers;
 
 -- Truncate of multiple tables with some non-existent tables
-truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE for `invalid`
+truncate names, invalid, customers;  -- ERR_UNKNOWN_TABLE_OR_VIEW for `invalid`
 -- All rows present not just in `customers`, but also in `names` (TRUNCATE of list of tables is atomic)
 select firstname, lastname from names;
 select first_name, last_name from customers;
@@ -109,7 +109,7 @@ James|Monroe
 (5 rows)
 OCTO> truncate names, invalid, customers;
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: invalid
-OCTO> -- ERR_UNKNOWN_TABLE for `invalid`
+OCTO> -- ERR_UNKNOWN_TABLE_OR_VIEW for `invalid`
 select firstname, lastname from names;
 firstname|lastname
 Zero|Cool

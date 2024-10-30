@@ -11,12 +11,12 @@
 #################################################################
 
 -- TX11 : OCTO961 : Verify DISCARD XREFS table_name error cases
--- Verify DISCARD XREFS table_name fails with ERR_UNKNOWN_TABLE error if table_name is not known
+-- Verify DISCARD XREFS table_name fails with ERR_UNKNOWN_TABLE_OR_VIEW error if table_name is not known
 DISCARD XREFS mynames;
 -- Verify DISCARD XREFS table_name fails with ERR_IDENT_LENGTH error if table_name is too long
 DISCARD XREFS abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl;
 
--- Command only works on tables, expect ERR_UNKNOWN_TABLE for the DISCARD below
+-- Command only works on tables, expect ERR_UNKNOWN_TABLE_OR_VIEW for the DISCARD below
 CREATE VIEW v AS SELECT 1;
 DISCARD XREFS v;
 

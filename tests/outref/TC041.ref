@@ -3,11 +3,11 @@
 [ERROR]: ERR_TOO_MANY_DELIM_CHARS: Too many characters specified for DELIM specification (got: 256, max: 255)
 LINE 7:7: DELIM (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,...
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tc041
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tc041
 LINE 8:1: SELECT * FROM TC041;
                         ^^^^^
 # Run [octo -f input-255char.sql] and verify no error message
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tc041
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tc041
 LINE 8:1: SELECT * FROM TC041;
                         ^^^^^

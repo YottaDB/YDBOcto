@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -63,7 +63,7 @@ teardown() {
 	octo -f slashd.sql >> slashd.out 2>&1
 	grep xxx slashd.out >> output.txt
 	echo "# Verify no errors exist except for expected ones" >> output.txt
-	grep ERROR *.mje* | grep -vE "ERR_CANNOT_CREATE_TABLE:|ERR_CANNOT_DROP_TABLE:|ERR_DUPLICATE_KEY_VALUE:|ERR_UNKNOWN_TABLE:" >> output.txt || true
+	grep ERROR *.mje* | grep -vE "ERR_CANNOT_CREATE_TABLE:|ERR_CANNOT_DROP_TABLE:|ERR_DUPLICATE_KEY_VALUE:|ERR_UNKNOWN_TABLE:|ERR_UNKNOWN_TABLE_OR_VIEW:" >> output.txt || true
 	echo "# Verify no core files exist (no assert failures, SIG-11s etc.)" >> output.txt
 	find . -name "core*" >> output.txt
 	verify_output TDRC05 output.txt

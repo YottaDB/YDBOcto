@@ -77,7 +77,7 @@ OCTO> insert into TDTT0562 values(1,NULL);
 LINE 11:1: ...DTT0562 values(0,timestamp(zut) with time zone'1700255690324907...
                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> insert into TDTT0562 values(0,timestamp(zut) with time zone'1700255690324907');
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tdtt0562
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tdtt0562
 LINE 12:1: select * from TDTT0562;
                          ^^^^^^^^
 OCTO> select * from TDTT0562;

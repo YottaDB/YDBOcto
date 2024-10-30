@@ -220,7 +220,7 @@ CREATE FUNCTION
 OCTO> -- Recreate dropped function for use in below queries
 
 create table selfref (firstname varchar, lastname varchar, fullname varchar extract concatf(fullname, lastname)) READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: selfref
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: selfref
 LINE 25:1: select * from selfref;
                          ^^^^^^^
 OCTO> select * from selfref;

@@ -225,8 +225,8 @@ LINE 34:1: ...integer primary key, dob time(fileman)) global "^datetimetimefi...
                                        ^^^^^^^^^^^^^
 OCTO> create table test (id integer primary key, dob time(fileman)) global "^datetimetimefileman" readonly;
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 36:1: select * from test;
                          ^^^^
 OCTO> select * from test;
@@ -269,8 +269,8 @@ LINE 49:1: ...d integer primary key, dob time(zut)) global "^datetimetimezut"...
                                          ^^^^^^^^^
 OCTO> create table test (id integer primary key, dob time(zut)) global "^datetimetimezut" readonly;
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 51:1: select * from test;
                          ^^^^
 OCTO> select * from test;
@@ -425,8 +425,8 @@ LINE 100:1: ...primary key, dob timestamp(zut) with time zone) global "^dateti..
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer primary key, dob timestamp(zut) with time zone) global "^datetimetimestamptzzut" readonly;
 OCTO> \d test;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 102:1: select * from test;
                           ^^^^
 OCTO> select * from test;

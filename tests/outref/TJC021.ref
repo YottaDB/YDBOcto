@@ -32,7 +32,7 @@ select 'NAMES'::regclass;
 select 'public.NAMES'::regclass;
 select '"public"."NAMES"'::regclass;
 
--- Test that if table name is not in proper case, an ERR_UNKNOWN_TABLE error is issued.
+-- Test that if table name is not in proper case, an ERR_UNKNOWN_TABLE_OR_VIEW error is issued.
 select 'pg_class'::regclass;
 select 'pg_catalog."pg_class"'::regclass;
 select '"PG_CATALOG"."pg_class"'::regclass;
@@ -186,7 +186,7 @@ OCTO> SELECT * FROM (SELECT n.nspname,c.relname,a.attname,a.atttypid,a.attnotnul
 nspname|relname|attname|atttypid|attnotnull|atttypmod|attlen|typtypmod|attnum|attidentity|attgenerated|adsrc|description|typbasetype|typtype
 (0 rows)
 [ WARN]: WARN_FEATURE_NOT_IMPLEMENTED: Feature not implemented but some of its usages are allowed: arrays
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: generate_series
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: generate_series
 LINE 40:1: ...                   from generate_series(1, array_upper(current_...
                                       ^^^^^^^^^^^^^^^
 OCTO> SELECT typinput='pg_catalog.array_in'::regproc as is_array, typtype, typname, pg_type.oid   FROM pg_catalog.pg_type   LEFT JOIN (select ns.oid as nspoid, ns.nspname, r.r           from pg_namespace as ns           join ( select s.r, (current_schemas(false))[s.r] as nspname                    from generate_series(1, array_upper(current_schemas(false), 1)) as s(r) ) as r          using ( nspname )        ) as sp     ON sp.nspoid = typnamespace  WHERE pg_type.oid = $1  ORDER BY sp.r, pg_type.oid DESC;

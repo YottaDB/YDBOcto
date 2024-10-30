@@ -79,7 +79,7 @@ OCTO> SELECT (SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT DISTINCT n1.id
 LINE 15:1: ...ECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FRO...
                                            ^^^^^
 OCTO> SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: n1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: n1
 LINE 16:1: SELECT * FROM names n1, (SELECT * FROM n1) n2;
                                                   ^^
 OCTO> SELECT * FROM names n1, (SELECT * FROM n1) n2;
@@ -95,7 +95,7 @@ OCTO> SELECT * FROM names n1, (SELECT n1.id) n2;
 LINE 20:1: ...ECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FRO...
                                            ^^^^^
 OCTO> SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: n1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: n1
 LINE 21:1: ...ELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
                                                                    ^^
 OCTO> SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
@@ -127,11 +127,11 @@ OCTO> SELECT (SELECT n1.firstname FROM names n1, (SELECT n1.id) n2);
 LINE 30:1: SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
                                                        ^^^^^
 OCTO> SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: customers
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: customers
 LINE 32:1: SELECT * FROM customers c, (SELECT c.customer_id) c2;
                          ^^^^^^^^^
 OCTO> SELECT * FROM customers c, (SELECT c.customer_id) c2;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: customers
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: customers
 LINE 33:1: SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ...
                          ^^^^^^^^^
 OCTO> SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ON c2.customer_id = c.customer_id;

@@ -3,26 +3,26 @@
 
 select id from dummy1; select id from dummy2;
 select id from dummy3;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: dummy1
 LINE 3:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
 OCTO> select id from dummy1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: dummy2
 LINE 3:1: select id from dummy2;
                          ^^^^^^
 OCTO> select id from dummy2;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy3
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: dummy3
 LINE 4:1: select id from dummy3;
                          ^^^^^^
 OCTO> select id from dummy3;
 OCTO> 
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: dummy1
 LINE 1:1: select id from dummy1; select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy2
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: dummy2
 LINE 1:1: select id from dummy2;
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: dummy3
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: dummy3
 LINE 2:1: select id from dummy3;
                          ^^^^^^
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: notathing

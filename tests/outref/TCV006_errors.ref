@@ -35,10 +35,10 @@ LINE 5:2: select count(v1.lastname) from v1 group by 1; -- ERROR
                  ^^^^^
 OCTO> -- ERROR
 select count(v1.lastname) from v1 group by 1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: group
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: group
 OCTO> -- ERROR
 select v1.lastname,v1.firstname from group by 1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: group
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: group
 OCTO> -- ERROR
 select v1.lastname as test, v1.firstname from group by test;
 OCTO> -- ERROR

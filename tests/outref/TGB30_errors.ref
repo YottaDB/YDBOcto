@@ -55,7 +55,7 @@ OCTO> select id as id1, firstname as id1 from names order by id1;
 LINE 6:1: select id as id1, id as id1 from names group by id1;
                                                           ^^^
 OCTO> select id as id1, id as id1 from names group by id1;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: customers
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: customers
 LINE 9:1: ... ALL last_name as ln1 FROM customers c GROUP BY last_name ORDER...
                                         ^^^^^^^^^
 OCTO> SELECT ALL last_name as ln1 FROM customers c GROUP BY last_name ORDER BY EXISTS (SELECT 1 FROM customers n1 ORDER BY count(ln1=n1.last_name)=1);

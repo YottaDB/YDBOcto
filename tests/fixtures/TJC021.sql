@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -43,7 +43,7 @@ select 'NAMES'::regclass;
 select 'public.NAMES'::regclass;
 select '"public"."NAMES"'::regclass;
 
--- Test that if table name is not in proper case, an ERR_UNKNOWN_TABLE error is issued.
+-- Test that if table name is not in proper case, an ERR_UNKNOWN_TABLE_OR_VIEW error is issued.
 select 'pg_class'::regclass;
 select 'pg_catalog."pg_class"'::regclass;
 select '"PG_CATALOG"."pg_class"'::regclass;

@@ -241,11 +241,11 @@ OCTO> -- Table dropped successfully
 
 create table "EFGH" ("ID" integer);
 CREATE TABLE
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: efgh
 LINE 46:1: select * from "efgh"; -- Error: Unknown table
                          ^^^^^^
 OCTO> select * from "efgh";
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: efgh
 LINE 47:2: select * from efgh; -- Error: Unknown table
                          ^^^^
 OCTO> -- Error: Unknown table
@@ -254,7 +254,7 @@ OCTO> -- Error: Unknown table
 select * from "EFGH";
 ID
 (0 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: efgh
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: efgh
 LINE 49:1: select * from EFGH; -- Error: Unknown table
                          ^^^^
 OCTO> select * from EFGH;
@@ -262,7 +262,7 @@ OCTO> -- Error: Unknown table
 select * from "EFGH" where "EFGH"."ID" = 0;
 ID
 (0 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: Efgh
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: Efgh
 LINE 51:1: select * from "Efgh" where "EFGH"."ID" = 0; -- Error: Unknown ta...
                          ^^^^^^
 OCTO> select * from "Efgh" where "EFGH"."ID" = 0;
@@ -292,7 +292,7 @@ OCTO> -- Table dropped successfully
 
 create table "efgh" (id integer);
 CREATE TABLE
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: EFGH
 LINE 60:1: select * from "EFGH"; -- Error: Unknown table
                          ^^^^^^
 OCTO> select * from "EFGH";
@@ -300,7 +300,7 @@ OCTO> -- Error: Unknown table
 select * from efgh;
 id
 (0 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: EFGH
 LINE 62:1: select * from "EFGH";
                          ^^^^^^
 OCTO> select * from "EFGH";
@@ -322,7 +322,7 @@ id
 OCTO> select * from efgh;
 id
 (0 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: EFGH
 LINE 70:1: select * from "EFGH"; -- Error: Unknown table
                          ^^^^^^
 OCTO> select * from "EFGH";
@@ -345,7 +345,7 @@ id
 OCTO> select * from efgh;
 id
 (0 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: EFGH
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: EFGH
 LINE 78:1: select * from "EFGH"; -- Error: Unknown table
                          ^^^^^^
 OCTO> select * from "EFGH";

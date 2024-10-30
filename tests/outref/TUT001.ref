@@ -60,7 +60,7 @@ update names set id * 2 = 3;
 update names set where firstname = lastname;
 update names set id = id + where firstname = lastname;
 
-select '-- Test of ERR_UNKNOWN_TABLE error';
+select '-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error';
 update abcd set id = 2;
 
 select '-- Test of ERR_DUPLICATE_COLUMN error';
@@ -324,9 +324,9 @@ LINE 59:1: update names set where firstname = lastname;
 OCTO> update names set where firstname = lastname;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: where
 OCTO> update names set id = id + where firstname = lastname;
-OCTO> select '-- Test of ERR_UNKNOWN_TABLE error';
+OCTO> select '-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error';
 ???
--- Test of ERR_UNKNOWN_TABLE error
+-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error
 (1 row)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: abcd
 LINE 63:1: update abcd set id = 2;

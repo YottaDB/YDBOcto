@@ -13,7 +13,7 @@ SELECT
 	line,
 	query
 from nonexistenttable;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistenttable
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistenttable
 LINE 3:1: ...badcolumn, notsogoodcolumn, maybeokcolumn from nonexistenttable;
                                                             ^^^^^^^^^^^^^^^^
 OCTO> SELECT badcolumn, notsogoodcolumn, maybeokcolumn from nonexistenttable;
@@ -29,7 +29,7 @@ OCTO> SELECT
 	multilinequery,
 	lastname
 from names;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistenttable
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistenttable
 LINE 14:5: from nonexistenttable;
                 ^^^^^^^^^^^^^^^^
 OCTO> SELECT

@@ -24,6 +24,6 @@
 # Wait for OCTO> prompt to appear in OCTO2
 # Run <SELECT * FROM names;> in OCTO1. Should display table does not exist error since DROP TABLE has finished
 # Wait for OCTO> prompt to appear in OCTO1
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: names
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: names
 # Exit from process OCTO1
 # Exit from process OCTO2

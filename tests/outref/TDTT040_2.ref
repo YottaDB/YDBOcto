@@ -276,7 +276,7 @@ DROP TABLE
 LINE 34:1: ...integer primary key, dob time(fileman)) global "^timefileman" r...
                                        ^^^^^^^^^^^^^
 OCTO> create table test (id integer primary key, dob time(fileman)) global "^timefileman" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 35:1: select * from test;
                          ^^^^
 OCTO> select * from test;
@@ -319,7 +319,7 @@ DROP TABLE
 LINE 48:1: ...d integer primary key, dob time(zut)) global "^timezut" readonl...
                                          ^^^^^^^^^
 OCTO> create table test (id integer primary key, dob time(zut)) global "^timezut" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 49:1: select * from test;
                          ^^^^
 OCTO> select * from test;
@@ -329,7 +329,7 @@ DROP TABLE
 LINE 51:1: ... primary key, dob timestamp(zut)with time zone) global "^timesta...
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> create table test (id integer primary key, dob timestamp(zut)with time zone) global "^timestampwithtimezonezut" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: test
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: test
 LINE 52:1: select * from test;
                          ^^^^
 OCTO> select * from test;

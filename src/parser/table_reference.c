@@ -22,7 +22,8 @@
  *	NULL     pointer in case of errors so caller can take appropriate action.
  */
 
-SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id) {
+SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id,
+			      boolean_t only_table_possible) {
 	SqlStatement  *ret, *tableName;
 	SqlValue      *value;
 	SqlJoin	      *join;
@@ -47,7 +48,11 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 			table_stmt = find_view_or_table(column2);
 		}
 		if (NULL == table_stmt) {
-			ERROR(ERR_UNKNOWN_TABLE, value->v.reference);
+			if (only_table_possible) {
+				ERROR(ERR_UNKNOWN_TABLE, value->v.reference);
+			} else {
+				ERROR(ERR_UNKNOWN_TABLE_OR_VIEW, value->v.reference);
+			}
 			yyerror(NULL, NULL, &column_name, NULL, NULL, NULL);
 			return NULL;
 		}

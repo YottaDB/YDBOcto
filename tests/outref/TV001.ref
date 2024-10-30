@@ -12,7 +12,7 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""ID""))";
 
 select * from names;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 OCTO> select * from nonexistanttable;
@@ -41,7 +41,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
@@ -81,7 +81,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME: INFO_LOADED_CONFIG: Loaded config from $PWD/octo.conf
 [ INFO] PATH:LINENUM DATE TIME: INFO_RECORDING_ENV_VARS: # Recording pertinent ydb_* env var values at process startup
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 [ INFO] PATH:LINENUM DATE TIME: INFO_PARSING_DONE: Parsing done for SQL command [select * from nonexistanttable;]
@@ -271,7 +271,7 @@ Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_name (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view nonexistanttable
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 Error: popping token FROM (: )

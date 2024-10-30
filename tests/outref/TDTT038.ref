@@ -5331,7 +5331,7 @@ OCTO> insert into testdc values(1,date'2023/10/16',date'2023/10/19');
 LINE 126:1: update testdc set dod=date'2023/10/17';
                                   ^^^^^^^^^^^^^^^^
 OCTO> update testdc set dod=date'2023/10/17';
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testdc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testdc
 LINE 127:1: select * from testdc;
                           ^^^^^^
 OCTO> select * from testdc;
@@ -5380,21 +5380,21 @@ OCTO> insert into testtsc values(1,timestamp'2023/10/16 01:02:01',timestamp'2023
 LINE 142:1: update testtsc set tod=timestamp'2023/10/18 23:00:00';
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> update testtsc set tod=timestamp'2023/10/18 23:00:00';
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testtsc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testtsc
 LINE 143:1: select * from testtsc;
                           ^^^^^^^
 OCTO> select * from testtsc;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testdc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testdc
 LINE 145:1: create view testdv as select * from testdc;
                                                 ^^^^^^
 OCTO> create view testdv as select * from testdc;
 OCTO> create view testtv as select * from testtc;
 CREATE VIEW
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testtsc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testtsc
 LINE 147:1: create view testtsv as select * from testtsc;
                                                  ^^^^^^^
 OCTO> create view testtsv as select * from testtsc;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testdv
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testdv
 LINE 148:1: select * from testdv;
                           ^^^^^^
 OCTO> select * from testdv;
@@ -5403,7 +5403,7 @@ id|tob|tod
 1|01:01:01|22:00:00
 1|01:02:01|22:00:00
 (2 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testtsv
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testtsv
 LINE 150:1: select * from testtsv;
                           ^^^^^^^
 OCTO> select * from testtsv;
@@ -7521,7 +7521,7 @@ OCTO> insert into testdc values(1,date'16/10/2023',date'19/10/2023');
 LINE 126:1: update testdc set dod=date'17/10/2023';
                                   ^^^^^^^^^^^^^^^^
 OCTO> update testdc set dod=date'17/10/2023';
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testdc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testdc
 LINE 127:1: select * from testdc;
                           ^^^^^^
 OCTO> select * from testdc;
@@ -7570,21 +7570,21 @@ OCTO> insert into testtsc values(1,timestamp'16/10/2023 01:02:01',timestamp'17/1
 LINE 142:1: update testtsc set tod=timestamp'18/10/2023 23:00:00';
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> update testtsc set tod=timestamp'18/10/2023 23:00:00';
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testtsc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testtsc
 LINE 143:1: select * from testtsc;
                           ^^^^^^^
 OCTO> select * from testtsc;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testdc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testdc
 LINE 145:1: create view testdv as select * from testdc;
                                                 ^^^^^^
 OCTO> create view testdv as select * from testdc;
 OCTO> create view testtv as select * from testtc;
 CREATE VIEW
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testtsc
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testtsc
 LINE 147:1: create view testtsv as select * from testtsc;
                                                  ^^^^^^^
 OCTO> create view testtsv as select * from testtsc;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testdv
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testdv
 LINE 148:1: select * from testdv;
                           ^^^^^^
 OCTO> select * from testdv;
@@ -7593,7 +7593,7 @@ id|tob|tod
 1|01:01:01|22:00:00
 1|01:02:01|22:00:00
 (2 rows)
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: testtsv
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: testtsv
 LINE 150:1: select * from testtsv;
                           ^^^^^^^
 OCTO> select * from testtsv;

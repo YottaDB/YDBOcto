@@ -53,7 +53,7 @@ create table products (product_no integer, name text, price numeric CONSTRAINT n
 -- Test of ERR_AGGREGATE_FUNCTION_CHECK error (ERR_SUBQUERY_CHECK error exists too but will not show since it is 2nd error)
 create table products (id integer, name text CHECK (COUNT(*) = (SELECT 1000)));
 
--- Test of ERR_UNKNOWN_TABLE error in CHECK constraint
+-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error in CHECK constraint
 create table products (product_no integer, name text, price numeric CONSTRAINT name1 CHECK (price < (select * from invalid)));
 
 -- Test of syntax error (TABLE_ASTERISK case in src/qualify_check_constraint.c)

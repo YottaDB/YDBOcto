@@ -9,7 +9,7 @@ CREATE VIEW
 OCTO> create view TCV049_v11 as select * from names EXCEPT select * from TCV049_v12;
 CREATE VIEW
 OCTO> 
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: tcv049_v12
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tcv049_v12
 LINE 1:1: ...V049_v11 as select * from names EXCEPT select * from TCV049_v12;
 ^%ydboctoocto("viewdependency","tcv049_v11","tables","names")=""
 ^%ydboctoocto("viewdependency","tcv049_v12","fromview","tcv049_v11")=""

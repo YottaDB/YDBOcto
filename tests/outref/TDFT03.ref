@@ -37,7 +37,7 @@ create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname
 delete from test1;
 drop table test1;
 
-select '-- Test of ERR_UNKNOWN_TABLE error';
+select '-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error';
 delete from abcd;
 
 select '-- Test of ERR_TYPE_NOT_COMPATIBLE error';
@@ -122,9 +122,9 @@ CREATE TABLE
 OCTO> delete from test1;
 OCTO> drop table test1;
 DROP TABLE
-OCTO> select '-- Test of ERR_UNKNOWN_TABLE error';
+OCTO> select '-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error';
 ???
--- Test of ERR_UNKNOWN_TABLE error
+-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error
 (1 row)
 [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: abcd
 LINE 40:1: delete from abcd;

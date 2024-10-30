@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,9 +10,9 @@
 #								#
 #################################################################
 
--- TBP006 : OCTO935 : Test no SIG-11 and/or incorrect ERR_UNKNOWN_TABLE error on an invalid SQL command
+-- TBP006 : OCTO935 : Test no SIG-11 and/or incorrect ERR_UNKNOWN_TABLE_OR_VIEW error on an invalid SQL command
 
--- Queries that start with an invalid table name ("tablename" below) used to previously issue a ERR_UNKNOWN_TABLE error
+-- Queries that start with an invalid table name ("tablename" below) used to previously issue a ERR_UNKNOWN_TABLE_OR_VIEW error
 -- They are now expected to issue a "syntax error" highlighting the first token (i.e. invalid command).
 tablename;
 tablename aliasname;

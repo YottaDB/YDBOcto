@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -48,7 +48,7 @@ create table test1 (id INTEGER PRIMARY KEY, firstname VARCHAR DELIM "", lastname
 delete from test1;
 drop table test1;
 
-select '-- Test of ERR_UNKNOWN_TABLE error';
+select '-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error';
 delete from abcd;
 
 select '-- Test of ERR_TYPE_NOT_COMPATIBLE error';

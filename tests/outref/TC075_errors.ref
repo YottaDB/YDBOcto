@@ -250,7 +250,7 @@ OCTO> drop table tmp;
 DROP TABLE
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1",keys("ID2")
 OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(""ID1"",keys(""ID2"")))" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 57:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -258,7 +258,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(ID1))" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 61:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -266,7 +266,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: "ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(""""ID1))" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 65:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -274,7 +274,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: "ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id2, id1)) GLOBAL "^x(keys(""""ID1)" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 69:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -282,7 +282,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER, id2 INTEGER, PRIMARY KEY (id1, id2)) GLOBAL "^x(keys(""ID1""),keys(""ID2" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 73:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -290,7 +290,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY) GLOBAL "^x(keys(""ID1"")" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 77:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -298,7 +298,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY, firstname varchar) GLOBAL "^x(keys(""ID1"")" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 81:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -306,7 +306,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY) GLOBAL "^x(keys(""ID1"")x" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 85:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -314,7 +314,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY, firstname varchar) GLOBAL "^x(keys(""ID1"")x" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 89:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -322,7 +322,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY) GLOBAL "^x(keys(""ID1"")xy" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 93:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;
@@ -330,7 +330,7 @@ OCTO> drop table tmp;
 [ERROR]: ERR_CANNOT_DROP_TABLE: Cannot DROP table "tmp" as it does not exist
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID1
 OCTO> CREATE TABLE TMP (id1 INTEGER PRIMARY KEY, firstname varchar) GLOBAL "^x(keys(""ID1"")xy)" READONLY;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tmp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tmp
 LINE 97:1: select * from tmp;
                          ^^^
 OCTO> select * from tmp;

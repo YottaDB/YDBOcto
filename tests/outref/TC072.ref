@@ -110,7 +110,7 @@ LINE 22:1: create table a.b.c (id integer);
                            ^
 OCTO> create table a.b.c (id integer);
 OCTO> \d a.b.
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: a.b
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: a.b
 [ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE
 LINE 23:1: c;
            ^

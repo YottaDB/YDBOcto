@@ -66,7 +66,7 @@ Then the following error messages will be issued:
     [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: MYTABLE
     LINE 1:1: UPDATE myTable
                      ^^^^^^^
-    [ERROR]: ERR_UNKNOWN_TABLE: Unknown table: TABLEOFDOGS
+    [ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: TABLEOFDOGS
     LINE 5:2: ... name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab"...
                                            ^^^^^^^^^^^
 
@@ -1571,6 +1571,14 @@ ERR_UNKNOWN_TABLE
   Text: Unknown table: xxx
 
   Description/Action: This error is generated when the table referenced does not exist or is unknown. PSQL Error Code: 42P01
+
+++++++++++++++++++++++++++
+ERR_UNKNOWN_TABLE_OR_VIEW
+++++++++++++++++++++++++++
+
+  Text: Unknown table or view: xxx
+
+  Description/Action: This error is generated when the table or view referenced does not exist or is unknown. PSQL Error Code: 42P01
 
 +++++++++++++++++++++++++++++++++++++++
 ERR_UPDATE_OF_GENERATED_ALWAYS_IDENTITY

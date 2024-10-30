@@ -17,19 +17,19 @@ select * from aaaa;
 select * from
 
 aaaa;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: aaaa
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: aaaa
 LINE 3:1: select * from aaaa;
                         ^^^^
 OCTO> select * from aaaa;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: aaaa
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: aaaa
 LINE 5:1: select * from aaaa;
                         ^^^^
 OCTO> select * from aaaa;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: aaaa
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: aaaa
 LINE 10:1: select * from aaaa;
                          ^^^^
 OCTO> select * from aaaa;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: aaaa
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: aaaa
 LINE 18:3: aaaa;
            ^^^^
 OCTO> select * from

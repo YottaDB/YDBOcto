@@ -1,4 +1,4 @@
 [ERROR]: ERR_MULTIPLE_ZERO_KEYS: Multiple 1 keys found for table t1
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: t1
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: t1
 LINE 2:1: select * from t1;
                         ^^

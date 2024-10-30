@@ -1,39 +1,39 @@
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: mytable
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: mytable
 LINE 1:1: SELECT * FROM myTable;
                         ^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: hellotable
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: hellotable
 LINE 2:1: SELECT "Hello world!" FROM helloTable;
                                      ^^^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: people
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: people
 LINE 4:2: FROM people
                ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: tablea
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: tablea
 LINE 13:1: SELECT * FROM tableA
                          ^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 18:2: Select distinct Salary from Employee e1 where 2=(Select count(di...
                                        ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 19:1: Select * from Employee a where rowid <>( select max(rowid) from ...
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 20:1: ...elect Employee_name,Salary/12 as `Monthly Salary` from employee;
                                                                      ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 21:1: Select * from Employee where Rownum =1;
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 22:1: Select * from Employee where Rowid=(select max(Rowid) from Emplo...
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 23:1: Select * from Employee where Rownum <= 5;
                          ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: employee
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: employee
 LINE 24:1: select distinct salary from employee a where 3 >= (select count(...
                                        ^^^^^^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: emp
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: emp
 LINE 25:1: ...m(select distinct salary from emp order by salary desc)where ro...
                                             ^^^
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: a
+[ERROR]: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: a
 LINE 27:2: SELECT 5+5/5 FROM A;
                              ^

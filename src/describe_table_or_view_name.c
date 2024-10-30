@@ -42,7 +42,7 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 	tablename = value->v.reference;
 	table_or_view_stmt = find_view_or_table(tablename);
 	if (NULL == table_or_view_stmt) {
-		ERROR(ERR_UNKNOWN_TABLE, tablename);
+		ERROR(ERR_UNKNOWN_TABLE_OR_VIEW, tablename);
 		return -1;
 	}
 	if (create_view_STATEMENT == table_or_view_stmt->type) {

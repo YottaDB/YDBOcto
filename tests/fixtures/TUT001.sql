@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -71,7 +71,7 @@ update names set id * 2 = 3;
 update names set where firstname = lastname;
 update names set id = id + where firstname = lastname;
 
-select '-- Test of ERR_UNKNOWN_TABLE error';
+select '-- Test of ERR_UNKNOWN_TABLE_OR_VIEW error';
 update abcd set id = 2;
 
 select '-- Test of ERR_DUPLICATE_COLUMN error';

@@ -75,7 +75,7 @@ Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
    $1 = nterm qualified_name (: )
 [TRACE] PATH:LINENUM DATE TIME: INFO_TABLE_OR_VIEW_SEARCH: Searching for table or view nonexistanttable
-[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE: Unknown table: nonexistanttable
+[ERROR] PATH:LINENUM DATE TIME: ERR_UNKNOWN_TABLE_OR_VIEW: Unknown table or view: nonexistanttable
 LINE 2:1: select * from nonexistanttable;
                         ^^^^^^^^^^^^^^^^
 Error: popping token FROM (: )

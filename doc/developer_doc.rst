@@ -62,7 +62,7 @@ Ubuntu/Debian
   .. code-block:: bash
 
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-    sudo apt-get install default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat
+    sudo apt-get install default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat r-base r-base-dev libpq-dev
     locale-gen en_US.UTF-8
 
 ~~~~~~~~~~~~~~~~~
@@ -76,11 +76,15 @@ Rocky Linux/RHEL
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
 
     # Rocky Linux
-    sudo yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat
+    sudo yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel
+    sudo yum install epel-release
+    sudo yum --enablerepo=powertools install R
 
     # RHEL 8
     sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-    sudo yum install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat
+    sudo yum install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel
+    sudo yum install epel-release
+    sudo yum install R
 
 ~~~~~~~~~~~~~~~~~
 OpenSUSE/SLES
@@ -93,7 +97,7 @@ OpenSUSE/SLES
     git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
 
     # SLES
-    zypper install java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat
+    zypper install java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat R-base R-base-devel postgresql-devel
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL and MySQL/MariaDB

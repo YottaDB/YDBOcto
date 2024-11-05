@@ -249,6 +249,11 @@ if("${FULL_TEST_SUITE}")
 		ADD_BATS_TEST_DML(test_odbc_connection)
 	endif()
 
+	find_program(Rscript NAMES Rscript)
+	if(Rscript)
+		ADD_BATS_TEST(test_r_connection)
+	endif()
+
 	ADD_BATS_TEST_DML(test_octo_conf)
 endif()
 if(${TEST_SPEED})

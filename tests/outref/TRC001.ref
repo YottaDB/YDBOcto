@@ -1,0 +1,16 @@
+   customerid   customername       contactname          address         
+ Min.   : 1.0   Length:91          Length:91          Length:91         
+ 1st Qu.:23.5   Class :character   Class :character   Class :character  
+ Median :46.0   Mode  :character   Mode  :character   Mode  :character  
+ Mean   :46.0                                                           
+ 3rd Qu.:68.5                                                           
+ Max.   :91.0                                                           
+     city            postalcode          country         
+ Length:91          Length:91          Length:91         
+ Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character  
+                                                         
+                                                         
+                                                         
+null device 
+          1 

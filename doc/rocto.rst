@@ -546,3 +546,56 @@ Detailed Steps
     .. figure:: images/squirrel-rocto-autocomplete.png
 
     Octo Auto-Complete with Squirrel
+
+-----------------
+Connecting from R
+-----------------
+`R <https://www.r-project.org/>`_ is a free software environment for statistical computing and graphics. To connect R to Octo data, you can either use the JDBC driver or the Postgres driver.
+
+The following are the steps for each one. Note that in the examples ROcto is listening at the localhost on port 1337 with user ydb with password ydbrocks.
+
+Consult the `R Website <https://www.r-project.org/>`_ for specific install instructions for your platform. Type ``R`` to start R.
+
+.. code-block:: R
+   :caption: JDBC
+
+        # Install and Use RJDBC package
+        install.packages('RJDBC')
+        library(RJDBC)
+
+        drv <- JDBC("org.postgresql.Driver", /path/to/postgresJDBC.jar)
+
+        # Connect to database
+        conn <- dbConnect(drv, "jdbc:postgresql://localhost:1337/helloR", "ydb", "ydbrocks")
+
+        # Load, summarize, create a pie chart into a pdf
+        customers <- dbGetQuery(conn, "select * from nwcustomers")
+        summary(customers)
+        country_table <- table(customers$country)
+        pdf('customers.pdf')
+        pie(country_table)
+        dev.off()
+
+.. code-block:: R
+   :caption: Postgres
+
+        # Install and use RPostgres Package
+        install.packages('RPostgres')
+        library(DBI)
+
+        # Connect to database
+        con <- dbConnect(RPostgres::Postgres(), dbname = 'helloR', host = 'localhost',
+                         port = 1337, user = 'ydb', password = 'ydbrocks')
+
+        # Load, summarize, create a pie chart into a pdf
+        query <- dbSendQuery(con, "SELECT * FROM nwcustomers")
+        customers <- dbFetch(query)
+        summary(customers)
+        country_table <- table(customers$country)
+        pdf('customers.pdf')
+        pie(country_table)
+        dev.off()
+
+Sample output as an image (generated using the ``png()`` function):
+
+    .. figure:: images/R-sample-output-chart.png

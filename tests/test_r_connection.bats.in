@@ -1,0 +1,38 @@
+#################################################################
+#								#
+# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	create_default_user
+	psql_jar="@PROJECT_BINARY_DIR@/postgresql.jar"
+	test_port=$(start_rocto 1338)
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+}
+
+teardown() {
+	stop_rocto
+	corecheck
+}
+
+@test "TRC001 : Test R JDBC Driver" {
+	Rscript --vanilla @PROJECT_SOURCE_DIR@/tests/fixtures/TRC001.R $psql_jar $test_port > output.txt
+	verify_output TRC001 output.txt
+}
+
+@test "TRC002 : Test R Postgres Driver" {
+	Rscript --vanilla @PROJECT_SOURCE_DIR@/tests/fixtures/TRC002.R $test_port > output.txt
+	verify_output TRC002 output.txt
+}

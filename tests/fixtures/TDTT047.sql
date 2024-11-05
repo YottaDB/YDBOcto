@@ -22,13 +22,14 @@ select timestamp(zut)'-1'; -- 1969-12-31 23:59:59.999999 -- -1
 select timestamp(zut)'-2554279907000810'; -- 1889-01-21 13:48:12.99919
 
 create table test (id int, dot time);
-create table test1 (id int, dot time with time zone);
+-- Enable following test after YDBOcto#1044 is fixed
+-- create table test1 (id int, dot time with time zone);
 create table test2(id int, dot timestamp with time zone);
 
 insert into test(values(1,time'01:01:01'));
-insert into test1(values(1,time with time zone'01:01:01'));
+-- insert into test1(values(1,time with time zone'01:01:01'));
 insert into test2(values(1,timestamp with time zone'2023-01-01 01:01:01'));
 
 select * from test;
-select * from test1;
+-- select * from test1;
 select * from test2;

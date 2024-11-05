@@ -668,7 +668,6 @@ select n1.dob NOT IN (time'01:01:00',n1.dob) from TDTT005timetz n1;
 select n1.dob NOT IN (n2.dob,n1.dob) from TDTT005timetz n1, TDTT005time n2;
 select n1.dob NOT IN ('01:01:01-05',n1.dob) from TDTT005timetz n1;
 drop table TDTT005date;
-drop table TDTT005time;
 drop table TDTT005timetz;
 drop table TDTT005timestamp;
 drop table TDTT005timestamptz;
@@ -701,3 +700,8 @@ insert into TDTT109 values(8, '01:01:01-04');
 select * from TDTT109;
 drop table TDTT109;
 
+-- Values for the following queries change when daylight savings change
+select time with time zone'01:01:00-05:00' || 'sample string';
+select time with time zone'01:01:00-05:00' - time'01:01:00';
+select time with time zone'01:01:00-05:00' - n1.dob from TDTT005time n1;
+drop table TDTT005time;

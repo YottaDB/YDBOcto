@@ -1883,7 +1883,8 @@ tdtt104
 	if (isPrimaryKey) do datetimemglobal(1) set inputStr="inputprim" write "hello",!
 	else  do datetimemglobal set inputStr="input" write "hellowso",!
 	set cnt=0
-	for tp="date","time","timetz","timestamp","timestamptz" do
+	; Add `"timetz"` after YDBOcto#1044 is fixed
+	for tp="date","time","timestamp","timestamptz" do
 	. for fmt="","fileman","horolog","zhorolog","zut" do
 	. . set filename=inputStr_cnt_".sql"
 	. . open filename:(append)

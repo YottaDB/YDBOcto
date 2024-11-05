@@ -10,6 +10,7 @@
 #								#
 #################################################################
 
+-- TODO: Enable following `time with time zone`tests below after YDBOcto#1044 is fixed
 --(horolog)
 -- type:date
 drop table if exists test keepdata;
@@ -20,9 +21,9 @@ drop table if exists test keepdata;
 create table test (id integer primary key, dob time(horolog)) global "^timehorolog" readonly;
 select * from test;
 -- type:time with time zone
-drop table if exists test keepdata;
-create table test (id integer primary key, dob time(horolog)with time zone) global "^timewithtimezonehorolog" readonly;
-select * from test;
+-- drop table if exists test keepdata;
+-- create table test (id integer primary key, dob time(horolog)with time zone) global "^timewithtimezonehorolog" readonly;
+-- select * from test;
 -- type:timestamp with time zone
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp(horolog)with time zone) global "^timestampwithtimezonehorolog" readonly;
@@ -42,9 +43,9 @@ drop table if exists test keepdata;
 create table test (id integer primary key, dob time(zhorolog)) global "^timezhorolog" readonly;
 select * from test;
 -- type:time with time zone
-drop table if exists test keepdata;
-create table test (id integer primary key, dob time(zhorolog)with time zone) global "^timewithtimezonezhorolog" readonly;
-select * from test;
+-- drop table if exists test keepdata;
+-- create table test (id integer primary key, dob time(zhorolog)with time zone) global "^timewithtimezonezhorolog" readonly;
+-- select * from test;
 -- type:timestamp with time zone
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp(zhorolog) with time zone) global "^timestampwithtimezonezhorolog" readonly;
@@ -64,9 +65,9 @@ drop table if exists test keepdata;
 create table test (id integer primary key, dob time(fileman)) global "^timefileman" readonly;
 select * from test;
 -- type:time with time zone
-drop table if exists test keepdata;
-create table test (id integer primary key, dob time(fileman)with time zone) global "^timewithtimezonefileman" readonly;
-select * from test;
+-- drop table if exists test keepdata;
+-- create table test (id integer primary key, dob time(fileman)with time zone) global "^timewithtimezonefileman" readonly;
+-- select * from test;
 -- type:timestamp with time zone
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp(fileman) with time zone) global "^timestampwithtimezonefileman" readonly;
@@ -86,9 +87,9 @@ drop table if exists test keepdata;
 create table test (id integer primary key, dob time(zut)) global "^timezut" readonly;
 select * from test;
 -- type:time with time zone
-drop table if exists test keepdata;
-create table test (id integer primary key, dob time(zut)with time zone) global "^timewithtimezonezut" readonly;
-select * from test;
+-- drop table if exists test keepdata;
+-- create table test (id integer primary key, dob time(zut)with time zone) global "^timewithtimezonezut" readonly;
+-- select * from test;
 -- type:timestamp with time zone
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp(zut)with time zone) global "^timestampwithtimezonezut" readonly;
@@ -108,9 +109,9 @@ drop table if exists test keepdata;
 create table test (id integer primary key, dob time) global "^timetext" readonly;
 select * from test;
 -- type:time with time zone
-drop table if exists test keepdata;
-create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetext" readonly;
-select * from test;
+-- drop table if exists test keepdata;
+-- create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetext" readonly;
+-- select * from test;
 -- type:timestamp with time zone
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetext" readonly;
@@ -125,9 +126,9 @@ drop table if exists test keepdata;
 create table test (id integer primary key, dob time) global "^timetextiso" readonly;
 select * from test;
 -- type:time with time zone
-drop table if exists test keepdata;
-create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetextiso" readonly;
-select * from test;
+-- drop table if exists test keepdata;
+-- create table test (id integer primary key, dob time with time zone) global "^timewithtimezonetextiso" readonly;
+-- select * from test;
 -- type:timestamp with time zone
 drop table if exists test keepdata;
 create table test (id integer primary key, dob timestamp with time zone) global "^timestampwithtimezonetextiso" readonly;

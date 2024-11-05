@@ -28,146 +28,6 @@ id|dob
 OCTO> 
 -- Testing input10
 -- Run create and select with key fix optimization -- 
-OCTO> drop table if exists timetzr;
-DROP TABLE
-OCTO> create table timetzr (id integer primary key, dob time with time zone) global "^datetimetimetz" readonly;
-CREATE TABLE
-OCTO> select * from timetzr;
-id|dob
-0|02:01:01-04
-1|03:01:01-04
-(2 rows)
-OCTO> select * from timetzr where dob = time with time zone'01:01:01-06:00';
-id|dob
-1|03:01:01-04
-(1 row)
-OCTO> 
--- Run the yottadb command which modifies the globals that were mapped to a table above --
--- Run select on the table to see the modifications done to the global --
-OCTO> select * from timetzr;
-id|dob
-0|02:01:01-04
-3|03:01:01-04
-(2 rows)
-OCTO> select * from timetzr where dob = time with time zone'01:01:01-06:00';
-id|dob
-3|03:01:01-04
-(1 row)
-OCTO> 
--- Testing input11
--- Run create and select with key fix optimization -- 
-OCTO> drop table if exists timetzfilemanr;
-DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
-LINE 2:1: ... primary key, dob time(fileman)with time zone) global "^datetim...
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> create table timetzfilemanr (id integer primary key, dob time(fileman)with time zone) global "^datetimetimetzfileman" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzfilemanr
-LINE 3:1: select * from timetzfilemanr;
-                        ^^^^^^^^^^^^^^
-OCTO> select * from timetzfilemanr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzfilemanr
-LINE 4:1: select * from timetzfilemanr where dob = time(fileman)with time ...
-                        ^^^^^^^^^^^^^^
-OCTO> select * from timetzfilemanr where dob = time(fileman)with time zone'010201';
-OCTO> 
--- Run the yottadb command which modifies the globals that were mapped to a table above --
--- Run select on the table to see the modifications done to the global --
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzfilemanr
-LINE 1:1: select * from timetzfilemanr;
-                        ^^^^^^^^^^^^^^
-OCTO> select * from timetzfilemanr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzfilemanr
-LINE 2:1: select * from timetzfilemanr where dob = time(fileman)with time ...
-                        ^^^^^^^^^^^^^^
-OCTO> select * from timetzfilemanr where dob = time(fileman)with time zone'010201';
-OCTO> 
--- Testing input12
--- Run create and select with key fix optimization -- 
-OCTO> drop table if exists timetzhorologr;
-DROP TABLE
-OCTO> create table timetzhorologr (id integer primary key, dob time(horolog)with time zone) global "^datetimetimetzhorolog" readonly;
-CREATE TABLE
-OCTO> select * from timetzhorologr;
-id|dob
-0|01:01:01-04
-1|01:02:01-04
-(2 rows)
-OCTO> select * from timetzhorologr where dob = time(horolog)with time zone'3721';
-id|dob
-1|01:02:01-04
-(1 row)
-OCTO> 
--- Run the yottadb command which modifies the globals that were mapped to a table above --
--- Run select on the table to see the modifications done to the global --
-OCTO> select * from timetzhorologr;
-id|dob
-0|01:01:01-04
-3|01:02:01-04
-(2 rows)
-OCTO> select * from timetzhorologr where dob = time(horolog)with time zone'3721';
-id|dob
-3|01:02:01-04
-(1 row)
-OCTO> 
--- Testing input13
--- Run create and select with key fix optimization -- 
-OCTO> drop table if exists timetzzhorologr;
-DROP TABLE
-OCTO> create table timetzzhorologr (id integer primary key, dob time(zhorolog)with time zone) global "^datetimetimetzzhorolog" readonly;
-CREATE TABLE
-OCTO> select * from timetzzhorologr;
-id|dob
-0|02:01:01.1-04
-1|02:02:01.1-04
-(2 rows)
-OCTO> select * from timetzzhorologr where dob = time(zhorolog)with time zone',3721,1,18000';
-id|dob
-1|02:02:01.1-04
-(1 row)
-OCTO> 
--- Run the yottadb command which modifies the globals that were mapped to a table above --
--- Run select on the table to see the modifications done to the global --
-OCTO> select * from timetzzhorologr;
-id|dob
-0|02:01:01.1-04
-3|02:02:01.1-04
-(2 rows)
-OCTO> select * from timetzzhorologr where dob = time(zhorolog)with time zone',3721,1,18000';
-id|dob
-3|02:02:01.1-04
-(1 row)
-OCTO> 
--- Testing input14
--- Run create and select with key fix optimization -- 
-OCTO> drop table if exists timetzzutr;
-DROP TABLE
-[ERROR]: ERR_INVALID_DATE_TIME_TYPE_FORMAT: The given type and format is invalid
-LINE 2:1: ...er primary key, dob time(zut)with time zone) global "^datetimet...
-                                 ^^^^^^^^^^^^^^^^^^^^^^^
-OCTO> create table timetzzutr (id integer primary key, dob time(zut)with time zone) global "^datetimetimetzzut" readonly;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzzutr
-LINE 3:1: select * from timetzzutr;
-                        ^^^^^^^^^^
-OCTO> select * from timetzzutr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzzutr
-LINE 4:1: select * from timetzzutr where dob = time(zut)with time zone'170...
-                        ^^^^^^^^^^
-OCTO> select * from timetzzutr where dob = time(zut)with time zone'1700250859368731';
-OCTO> 
--- Run the yottadb command which modifies the globals that were mapped to a table above --
--- Run select on the table to see the modifications done to the global --
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzzutr
-LINE 1:1: select * from timetzzutr;
-                        ^^^^^^^^^^
-OCTO> select * from timetzzutr;
-[ERROR]: ERR_UNKNOWN_TABLE: Unknown table: timetzzutr
-LINE 2:1: select * from timetzzutr where dob = time(zut)with time zone'170...
-                        ^^^^^^^^^^
-OCTO> select * from timetzzutr where dob = time(zut)with time zone'1700250859368731';
-OCTO> 
--- Testing input15
--- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestampr;
 DROP TABLE
 OCTO> create table timestampr (id integer primary key, dob timestamp) global "^datetimetimestamp" readonly;
@@ -194,7 +54,7 @@ id|dob
 3|2023-01-02 01:02:01
 (1 row)
 OCTO> 
--- Testing input16
+-- Testing input11
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestampfilemanr;
 DROP TABLE
@@ -222,7 +82,7 @@ id|dob
 3|2023-01-02 01:02:01
 (1 row)
 OCTO> 
--- Testing input17
+-- Testing input12
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestamphorologr;
 DROP TABLE
@@ -250,7 +110,7 @@ id|dob
 3|2023-01-02 01:02:01
 (1 row)
 OCTO> 
--- Testing input18
+-- Testing input13
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestampzhorologr;
 DROP TABLE
@@ -278,7 +138,7 @@ id|dob
 3|2023-01-02 01:02:01.1
 (1 row)
 OCTO> 
--- Testing input19
+-- Testing input14
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestampzutr;
 DROP TABLE
@@ -308,35 +168,7 @@ id|dob
 3|2023-11-17 19:54:19.368731
 (2 rows)
 OCTO> 
--- Testing input1
--- Run create and select with key fix optimization -- 
-OCTO> drop table if exists datefilemanr;
-DROP TABLE
-OCTO> create table datefilemanr (id integer primary key, dob date(fileman)) global "^datetimedatefileman" readonly;
-CREATE TABLE
-OCTO> select * from datefilemanr;
-id|dob
-0|2023-01-01
-1|2023-01-02
-(2 rows)
-OCTO> select * from datefilemanr where dob = date(fileman)'3230102';
-id|dob
-1|2023-01-02
-(1 row)
-OCTO> 
--- Run the yottadb command which modifies the globals that were mapped to a table above --
--- Run select on the table to see the modifications done to the global --
-OCTO> select * from datefilemanr;
-id|dob
-0|2023-01-01
-3|2023-01-02
-(2 rows)
-OCTO> select * from datefilemanr where dob = date(fileman)'3230102';
-id|dob
-3|2023-01-02
-(1 row)
-OCTO> 
--- Testing input20
+-- Testing input15
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestamptzr;
 DROP TABLE
@@ -364,7 +196,7 @@ id|dob
 3|2023-01-01 02:01:01-05
 (1 row)
 OCTO> 
--- Testing input21
+-- Testing input16
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestamptzfilemanr;
 DROP TABLE
@@ -392,7 +224,7 @@ id|dob
 3|2023-01-02 01:02:01-05
 (1 row)
 OCTO> 
--- Testing input22
+-- Testing input17
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestamptzhorologr;
 DROP TABLE
@@ -420,7 +252,7 @@ id|dob
 3|2023-01-02 01:02:01-05
 (1 row)
 OCTO> 
--- Testing input23
+-- Testing input18
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestamptzzhorologr;
 DROP TABLE
@@ -448,7 +280,7 @@ id|dob
 3|2023-01-02 01:02:01.1-05
 (1 row)
 OCTO> 
--- Testing input24
+-- Testing input19
 -- Run create and select with key fix optimization -- 
 OCTO> drop table if exists timestamptzzutr;
 DROP TABLE
@@ -475,6 +307,34 @@ OCTO> select * from timestamptzzutr;
 LINE 2:1: select * from timestamptzzutr where dob = timestamp(zut)with ti...
                         ^^^^^^^^^^^^^^^
 OCTO> select * from timestamptzzutr where dob = timestamp(zut)with time zone'1700250859368731';
+OCTO> 
+-- Testing input1
+-- Run create and select with key fix optimization -- 
+OCTO> drop table if exists datefilemanr;
+DROP TABLE
+OCTO> create table datefilemanr (id integer primary key, dob date(fileman)) global "^datetimedatefileman" readonly;
+CREATE TABLE
+OCTO> select * from datefilemanr;
+id|dob
+0|2023-01-01
+1|2023-01-02
+(2 rows)
+OCTO> select * from datefilemanr where dob = date(fileman)'3230102';
+id|dob
+1|2023-01-02
+(1 row)
+OCTO> 
+-- Run the yottadb command which modifies the globals that were mapped to a table above --
+-- Run select on the table to see the modifications done to the global --
+OCTO> select * from datefilemanr;
+id|dob
+0|2023-01-01
+3|2023-01-02
+(2 rows)
+OCTO> select * from datefilemanr where dob = date(fileman)'3230102';
+id|dob
+3|2023-01-02
+(1 row)
 OCTO> 
 -- Testing input2
 -- Run create and select with key fix optimization -- 

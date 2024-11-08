@@ -215,7 +215,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	 * technically a valid port number.
 	 */
 	if (verbosity_unset) {
-		config->verbosity_level = ERROR + 1; // Cannot use negative numbers for enum, so use an invalid value
+		config->verbosity_level = INVALID;
 	}
 	if (port_unset) {
 		config->rocto_config.port = -1;

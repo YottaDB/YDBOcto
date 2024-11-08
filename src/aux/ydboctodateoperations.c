@@ -13,8 +13,10 @@
 /* Define _XOPEN_SOURCE to prevent the following two compiler warnings:
  *	warning: implicit declaration of function 'strptime'; did you mean 'strftime'? [-Wimplicit-function-declaration]
  *	warning: assignment to 'char *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+ *
+ * Also, to be able to get `strdup()`, per the man page, _XOPEN_SOURCE needs to be 500 or above.
  */
-#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
 /* Define _POSIX_C_SOURCE to prevent the following two compiler warnings:
  * 	warning: implicit declaration of function `setenv`; did you mean `getenv`? [-Wimplicit-function-declaration]
  *	warning: implicit declaration of function `unsetenv`; did you mean `getenv`? [-Wimplicit-function-declaration]
@@ -26,6 +28,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <limits.h>
+#include <string.h>
 
 #include <libyottadb.h>
 #include <gtmxc_types.h>
@@ -1140,14 +1143,19 @@ void convert_to_std_time_lit(char *time_str, int length, char *new_str) {
 }
 
 ydb_long_t utc_mktime(struct tm *tm1) {
-	ydb_long_t ret;
 	// Change TZ to UTC
-	char *orig_tz_val;
-	int   ret_setenv;
-	orig_tz_val = getenv("TZ");
-	if (NULL == orig_tz_val) {
-		orig_tz_val = "";
+	ydb_long_t ret;
+	char	  *orig_tz_val_env, *orig_tz_val;
+	int	   ret_setenv;
+	boolean_t  tz_unset = FALSE;
+
+	orig_tz_val_env = getenv("TZ");
+	if (NULL == orig_tz_val_env) {
+		orig_tz_val_env = "";
+		tz_unset = TRUE;
 	}
+	orig_tz_val = strdup(orig_tz_val_env);
+
 	ret_setenv = setenv("TZ", "UTC", 1);
 	assert(0 == ret_setenv);
 	UNUSED(ret_setenv); // Prevents clang-analyzer-deadcode.DeadStores
@@ -1161,9 +1169,10 @@ ydb_long_t utc_mktime(struct tm *tm1) {
 	ret_setenv = setenv("TZ", orig_tz_val, 1);
 	assert(0 == ret_setenv);
 	UNUSED(ret_setenv); // Prevents clang-analyzer-deadcode.DeadStores
-	if (0 == strcmp(orig_tz_val, "")) {
+	if (tz_unset) {
 		unsetenv("TZ"); // This is needed to avoid next call to use UTC value from the variables which tzset sets
 	}
+	free(orig_tz_val);
 	return ret;
 }
 

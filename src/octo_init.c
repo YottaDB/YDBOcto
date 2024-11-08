@@ -837,7 +837,6 @@ int octo_init(int argc, char **argv) {
 
 		// Load config file
 		config_file_list.num_files = 0;
-		ydb_dist = getenv("ydb_dist");
 		if (NULL == config_file_name) {
 			if (NULL == getcwd(cwd, sizeof(cwd))) {
 				ERROR(ERR_SYSCALL, "getcwd", errno, strerror(errno));
@@ -850,6 +849,7 @@ int octo_init(int argc, char **argv) {
 				MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list,
 								      homedir_file_name);
 			}
+			ydb_dist = getenv("ydb_dist");
 			if (NULL != ydb_dist) {
 				MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list,
 								      plugin_file_name);
@@ -947,6 +947,7 @@ int octo_init(int argc, char **argv) {
 			/* Octo was installed under $ydb_dist (using "cmake -D DISABLE_INSTALL=OFF"). So pick that path.
 			 * NOTE: this uses a hard-coded path under $ydb_dist.
 			 */
+			ydb_dist = getenv("ydb_dist");
 			if (NULL != ydb_dist) {
 				status = snprintf(xc_path, sizeof(xc_path), "%s/plugin/octo/ydbocto.xc", ydb_dist);
 				if ((int)sizeof(xc_path) <= status) {
@@ -1044,6 +1045,7 @@ int octo_init(int argc, char **argv) {
 			/* Octo was installed under $ydb_dist (using "cmake -D DISABLE_INSTALL=OFF"). So pick that path.
 			 * NOTE: this uses a hard-coded path under $ydb_dist. Not the currently active $ydb_ci.
 			 */
+			ydb_dist = getenv("ydb_dist");
 			if (NULL != ydb_dist) {
 				status = snprintf(ci_path, sizeof(ci_path), "%s/plugin/octo/ydbocto.ci", ydb_dist);
 				if ((int)sizeof(ci_path) <= status) {

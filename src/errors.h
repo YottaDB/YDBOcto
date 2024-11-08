@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,7 @@
 #define FALSE 0
 #define TRUE  1
 
-enum VERBOSITY_LEVEL { TRACE, DEBUG, INFO, ERROR };
+enum VERBOSITY_LEVEL { TRACE, DEBUG, INFO, ERROR, INVALID = 99 };
 
 enum SEVERITY_LEVEL { TRACE_Severity, DEBUG_Severity, INFO_Severity, WARNING_Severity, ERROR_Severity, FATAL_Severity };
 

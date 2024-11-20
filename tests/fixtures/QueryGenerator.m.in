@@ -1870,13 +1870,13 @@ groupbyClause(queryDepth)
 	. . set:anotherholder="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:holder),firstholder=0
 	. . set:chooseSelectNumber chooseSelectNumber=0
 	. . if (j=queryDepth)&($DATA(selectedExprGroupBy(j,holder,"column"))) do
-	. . ; This means some subquery has used expression from this queryDepth, ensure its columns are included in
-	. . ; GroupBY of this level. This ensures following types of queries are not created.
-	. . ; OCTO> select coalesce(alias2.firstname,alias2.firstname), (select alias1.firstname from names alias1 group by
-	. . ; 	    coalesce(alias2.firstname,alias2.firstname),alias1.firstname) from names alias2 group by coalesce(alias2.firstname,alias2.firstname);
-	. . ; [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
-	. . ; LINE 1:1: ...lias1 group by coalesce(alias2.firstname,alias2.firstname),alias...
-	. . ; 				    	   ^^^^^^^^^^^^^^^^
+	. . . ; This means some subquery has used expression from this queryDepth, ensure its columns are included in
+	. . . ; GroupBY of this level. This ensures following types of queries are not created.
+	. . . ; OCTO> select coalesce(alias2.firstname,alias2.firstname), (select alias1.firstname from names alias1 group by
+	. . . ; 	    coalesce(alias2.firstname,alias2.firstname),alias1.firstname) from names alias2 group by coalesce(alias2.firstname,alias2.firstname);
+	. . . ; [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
+	. . . ; LINE 1:1: ...lias1 group by coalesce(alias2.firstname,alias2.firstname),alias...
+	. . . ; 				    	   ^^^^^^^^^^^^^^^^
 	. . . set result=result_", "_selectedExprGroupBy(j,holder,"column")
 	. . . kill selectedExprGroupBy(j,holder,"column") ; This ensures we do not repeat this step in every iteration
 	write "groupbyClause() : result = ",result,!

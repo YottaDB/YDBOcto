@@ -655,11 +655,13 @@ filter_file_path() {
 	sed -i 's# [/\.][^ ]*/.*\.[yc]:[0-9]*# PATH:LINENUM#' clean_output.txt
 }
 
+# This function expects a file name to be passed. It checks if the file has any un-expected error entries.
 verify_no_octo_or_ydb_error() {
-	[[ $(grep "\[ERROR\] " stderr.txt | wc -l) -eq 0 ]]
-	[[ $(grep "\%YDB\-E\-" stderr.txt | wc -l) -eq 0 ]]
-	[[ $(grep "\%YDB\-W\-" stderr.txt | wc -l) -eq 0 ]]
-	[[ $(grep "\%YDB\-F\-" stderr.txt | wc -l) -eq 0 ]]
+	local file="$1"
+	[[ $(grep "\[ERROR\] " "$file" | wc -l) -eq 0 ]]
+	[[ $(grep "\%YDB\-E\-" "$file" | wc -l) -eq 0 ]]
+	[[ $(grep "\%YDB\-W\-" "$file" | wc -l) -eq 0 ]]
+	[[ $(grep "\%YDB\-F\-" "$file" | wc -l) -eq 0 ]]
 }
 
 verify_output() {
@@ -667,7 +669,7 @@ verify_output() {
 	# the test passed inspite of that because that output went to stderr.txt whereas the test only looked at output.txt.
 	# Therefore, since this is a central function that is usually invoked at the end of a subtest, take this opportunity
 	# to verify stderr.txt do not have any Octo or YottaDB errors in them (prefix of [ERROR]). Fail the test if they do.
-	verify_no_octo_or_ydb_error
+	verify_no_octo_or_ydb_error "stderr.txt"
 
 	echo "Comparing outref/$1.ref $2"
 	copy_test_files outref/$1.ref
@@ -1090,9 +1092,10 @@ sort_LC_ALL_C() {
 	export LC_ALL=en_US.UTF8
 }
 
+# .log* is Octo's output and .ref* is Postgres output in the below function
 run_query_verify() {
 	# Ensure no errors are seen in stderr.txt
-	verify_no_octo_or_ydb_error
+	verify_no_octo_or_ydb_error "stderr.txt"
 	local query_file="$1"
 	local fname="$2"
 	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' $fname.octo.out
@@ -1234,6 +1237,9 @@ run_query_generator() {
 	isReadWriteMode="write"
   fi
   $ydb_dist/yottadb -run -noignore QueryGenerator $databaseSqlFileName "$databaseName.zwr" "$numQueries" "$prefix" $isReadWriteMode 2> "QG_stderr.txt" 1> "QG_stdout.txt"
+
+  # Fail the test if query generator has any errors
+  verify_no_octo_or_ydb_error "QG_stderr.txt"
 
   queryfile="$prefix.sql"
   if [[ -f "tabledefinition-$queryfile" ]]; then
@@ -1453,7 +1459,7 @@ run_query_and_crosscheck_avoiding_execution_time_delay() {
 			run_mysql $db "$qfile".sql >& "$name"_output2.txt
 		fi
 		# validate result
-		verify_no_octo_or_ydb_error
+		verify_no_octo_or_ydb_error "stderr.txt"
 		mv "$name"_output.txt "$name"_output.log1
 		mv "$qfile"_octo_output.txt "$qfile"_octo_output.log1
 		grep ".*:.*:.*" "$name"_output.log1 >& "$name"_output.txt

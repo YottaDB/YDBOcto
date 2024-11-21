@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -22,6 +22,7 @@ Welcome to the Octo Documentation!
    :maxdepth: 5
 
    intro
+   upgrade
    aim_upgrade
    grammar
    admin

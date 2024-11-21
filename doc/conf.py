@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2018-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -64,7 +64,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Octo'
-copyright = u'2018-2022, YottaDB LLC'
+copyright = u'2018-2024, YottaDB LLC'
 author = u'YottaDB Team'
 
 # The version info for the project you're documenting, acts as replacement for

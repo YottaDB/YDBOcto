@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.       #
+.. # Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.       #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -20,8 +20,11 @@ Octo 1.1 (Octo with AIM) Upgrade for Existing Octo VistA Users
 ------------
 Introduction
 ------------
+.. note::
 
-  Effective r1.10.0, Octo uses the `Application Independent Metadata <https://docs.yottadb.com/Plugins/ydbaim.html>`_ plugin to maintain metadata (cross references and statistics) for Octo. Previously, Octo used its own code for metadata. AIM brings several advantages to Octo:
+   If the version of Octo that you are currently using already uses AIM, don't use this guide (which is intended to be used only by users who use a version of Octo that doesn't have AIM functionality). Use :doc:`this guide <./upgrade>`.
+
+Effective r1.10.0, Octo uses the `Application Independent Metadata <https://docs.yottadb.com/Plugins/ydbaim.html>`_ plugin to maintain metadata (cross references and statistics) for Octo. Previously, Octo used its own code for metadata. AIM brings several advantages to Octo:
 
   * If the parent record of a VistA record is removed, AIM removes the metadata. Previously, with the internally maintained metadata, removal of the parent record would not remove the metadata, resulting in an out of design condition. [https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/630]
   * AIM allows triggers to be specified on ranges or subsets of subscripts at each level. Octo previously cross referenced all subscripts at each level. Since Fileman only uses a subset of possible subscripts at each level, this meant that if application code set global nodes with subscripts outside a range or subset used by Fileman, those nodes would be cross referenced by Octo, potentially resulting in incorrect query results.

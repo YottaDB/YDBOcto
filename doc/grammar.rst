@@ -518,15 +518,6 @@ Operations and allowed operand types
 
       * Input needs to be in ``text`` format for ``STRING`` to date/time conversion. Other conversions can have any of the internal formats as input.
       * Output will be in the date/time output format specified in :code:`octo.conf`
-    * ``::`` can also be used to print a date/time value in zut, zhorolog, horolog or fileman. The returned value will be a varchar.
-
-      .. code-block::
-
-	 Example:
-	 OCTO> select date'2023-01-01'::date(fileman);
-	 DATE
-	 3230101
-	 (1 row)
 
   ``CASE`` statements
 

@@ -175,6 +175,8 @@ teardown() {
 	load_fixture names.sql
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT099.sql
+	load_fixture TDTT099_2.sql subtest novv
+	verify_output TDTT099_2 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT100 : Check datestyle set when MYSQL is being emulated" {

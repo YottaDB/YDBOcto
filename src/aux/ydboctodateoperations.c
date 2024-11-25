@@ -1041,12 +1041,42 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 	return ret;
 }
 
+/* Used to compute the 9's compliment of a given value
+ * 	`VAL` is microsecond value as an integer, valid only when `ARR` is NULL
+ * 	`ARR` is pointer to the microseconds array
+ * Mainly called to form the internal format value of a date/time which is
+ * before EPOCH. Before EPOCH the seconds part of the internal format will be negative
+ * so we need to convert the microseconds value to be a negative number also. This macro is
+ * used for the conversion.
+ * Similar logic is used in PrintDateTimeResultColumnValue() of src/aux/_ydboctoplanhelpers.m
+ * to process microsecond when output format is ZUT (Search for NINES_COMPLIMENT). Any change
+ * here should reflect there.
+ */
+#define NINES_COMPLIMENT(VAL, ARR)                                          \
+	{                                                                   \
+		if (NULL != ARR) {                                          \
+			char *val = ARR;                                    \
+			for (int i = 5; i > -1; i--) {                      \
+				assert(('0' <= val[i]) && ('9' >= val[i])); \
+				val[i] = '9' - val[i] + '0';                \
+			}                                                   \
+		} else {                                                    \
+			assert(0 <= (VAL));                                 \
+			(VAL) = 999999 - (VAL);                             \
+		}                                                           \
+	}
+
 /* This macro appends microseconds part given by `micro` to `value`.
  * If `y` is `micro` and `x` is `value the result will be `xy`.
  */
 #define ADD_MICRO_SECONDS(VALUE, MICRO)                       \
 	{                                                     \
 		int lcl_micro = MICRO;                        \
+		if (0 > VALUE) {                              \
+			assert(0 <= MICRO);                   \
+			lcl_micro = MICRO;                    \
+			NINES_COMPLIMENT(lcl_micro, NULL);    \
+		}                                             \
 		int micro_arr[6] = {0, 0, 0, 0, 0, 0};        \
 		int i = 5;                                    \
 		while (0 != lcl_micro) {                      \
@@ -1077,7 +1107,11 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 			mult *= 10;                         \
 		}                                           \
 		if (0 > lcl_micro) {                        \
+			/* Ignore -ve sign */               \
 			lcl_micro = -lcl_micro;             \
+		}                                           \
+		if (0 > VALUE) {                            \
+			NINES_COMPLIMENT(lcl_micro, NULL);  \
 		}                                           \
 		RET = lcl_micro;                            \
 	}
@@ -1632,6 +1666,11 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 	// This allocation will be freed not in Octo but by YottaDB after the external call returns.
 	ret = ydb_malloc(sizeof(ydb_string_t));
 	ret->address = ydb_malloc(sizeof(char) * 19); // Null terminator included
+
+	if (0 > op1_time) {
+		int dummy_var = 0; // Avoids `lvalue required as left operand of assignment` error
+		NINES_COMPLIMENT(dummy_var, micro);
+	}
 	ret->length = sprintf(ret->address, "%ld%s", op1_time, micro);
 	ret->address[ret->length] = '\0';
 	ydb_free(time_format);
@@ -1762,6 +1801,14 @@ ydb_long_t ydboctoSubDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	}
 	ydb_long_t ret;
 	ret = utc_mktime(&tm1);
+	if ((0 > ret) && (0 > micro_op1)) {
+		/* Following queries can have micro_op1 -ve its okay to ignore the negative
+		 * sign as it has already been factored in to ret by the above code.
+		 *   select time with time zone'00:00:00' - time'00:00:00.1';
+		 *   select timestamp'1969-12-31 23:59:59' - time'01:01:01.1';
+		 */
+		micro_op1 = -micro_op1;
+	}
 	ADD_MICRO_SECONDS(ret, micro_op1);
 	// Validate result
 	if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {

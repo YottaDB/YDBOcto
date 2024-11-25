@@ -294,6 +294,9 @@ PrintDateTimeResultColumnValue(value,columnType,outputFormat,textFormatSpecifier
 	. . ; Extract last 6 digits which represent microseconds
 	. . NEW microsec
 	. . SET microsec=$EXTRACT(value,$length(value)-5,$length(value))
+	. . ; Nine's compliment below is similar to NINES_COMPLIMENT() in src/aux/ydboctodateoperations.c
+	. . ; Any change here should reflect there as well
+	. . set:(0>value) microsec=(999999-microsec)  ; take nines compliment
 	. . NEW sec SET sec=$EXTRACT(value,1,$length(value)-6)
 	. . ; Multiply seconds part by 1000000 to get microseconds and add the extracted part to this value
 	. . SET sec=sec*1000000

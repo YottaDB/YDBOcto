@@ -1,0 +1,12 @@
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1611#note_2254023516
+select timestamp_to_zut(timestamp'1969-12-31 23:59:59.111');
+select timestamp(zut)'-889000';
+OCTO> select timestamp_to_zut(timestamp'1969-12-31 23:59:59.111');
+timestamp_to_zut
+-889000
+(1 row)
+OCTO> select timestamp(zut)'-889000';
+???
+1969-12-31 23:59:59.111
+(1 row)
+OCTO> 

@@ -25,3 +25,9 @@ select timestamp with time zone'2023-08-01';
 select timestamp with time zone'2023-08-01' = date'2023-08-01'::timestamp with time zone;
 select timestamp'2023-08-01 00:00:00'::timestamp with time zone;
 select timestamp with time zone'2023-08-01 00:00:00' = timestamp'2023-08-01 00:00:00'::timestamp with time zone;
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/382#note_2220821669
+select time'0:37:37' between time'0:37:37.412205' and time'6:16:21';
+
+-- https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/382#note_2225026843
+select timestamp'0001-01-01 01:01:01' < timestamp'0001-01-01 01:01:01.222';

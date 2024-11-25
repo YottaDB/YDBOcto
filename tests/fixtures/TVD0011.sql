@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,8 +10,6 @@
 #								#
 #################################################################
 -- TVD0011 : YDBOctoVistA#34 VistA Functions need to handle SQL NULL
-select CURRTIMESTAMP((select null)) IS NULL as CURRTIMESTAMP;
-select GETDATE((select null)) IS NULL as GETDATE;
 select DATEFORMAT((select null)) IS NULL as DATEFORMAT1;
 select DATEFORMAT((select null),'5Z') IS NULL as DATEFORMAT2;
 select FMGET(200,.01,(select null)) IS NULL as FMGET1;

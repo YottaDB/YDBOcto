@@ -1,0 +1,14 @@
+-- TVD0013 : OCTO1069 : Test Outer joins with Computed Fields
+SELECT pm.ward_at_discharge IS NULL as is_null, count(pm.ward_at_discharge IS NULL)
+FROM patient p
+LEFT JOIN patient_movement pm on p.patient_id = pm.patient
+GROUP BY pm.ward_at_discharge IS NULL;
+OCTO> SELECT pm.ward_at_discharge IS NULL as is_null, count(pm.ward_at_discharge IS NULL)
+FROM patient p
+LEFT JOIN patient_movement pm on p.patient_id = pm.patient
+GROUP BY pm.ward_at_discharge IS NULL;
+is_null|count
+f|966
+t|4883
+(2 rows)
+OCTO> 

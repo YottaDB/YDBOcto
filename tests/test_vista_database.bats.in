@@ -252,3 +252,8 @@ teardown() {
 	load_fixture TVD0012.sql subtest novv
 	verify_output TVD0012 output.txt nodatetimefilter
 }
+
+@test "TVD0013 : OCTO1069 : Test Outer joins with Computed Fields" {
+	load_fixture TVD0013.sql subtest novv
+	verify_output TVD0013 output.txt
+}

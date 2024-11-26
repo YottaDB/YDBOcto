@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,8 +11,6 @@
 #################################################################
 -- TVD0012 : YDBOctoVistA#34 Test VistA Functions
 --
--- select CURRTIMESTAMP('v'); -- Disabled as answer different by date
--- select GETDATE('v');       -- Ditto
 select DATEFORMAT(3000101.010101);
 select DATEFORMAT(3000101.010101,'');
 select DATEFORMAT(3000101.010101,'5Z');

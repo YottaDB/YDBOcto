@@ -23,3 +23,8 @@ select timestamp with time zone'2024-11-03 01:00:00-04'+ time'01:00:00';
 select timestamp with time zone'2024-11-03 02:00:00-04'+ time'01:00:00';
 select timestamp with time zone'2024-11-03 02:00:00-04'- time'01:00:00';
 select timestamp with time zone'2024-11-03 03:00:00-04'- time'01:00:00';
+select timestamp with time zone'2024-03-10 03:00:00';
+select timestamp with time zone'2024-03-10 02:00:00';
+select timestamp with time zone'2024-03-10 01:00:00';
+select timestamp'2024-03-10 02:00:00'::timestamp with time zone;
+select timestamp with time zone'2024-03-10 02:00:00'::timestamp with time zone;

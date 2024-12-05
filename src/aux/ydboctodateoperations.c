@@ -1613,12 +1613,14 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 			tm2 = localtime(&current_time);
 			gmtoff = (-1) * tm2->__tm_gmtoff;
 		} else {
-			// Factor in local timezone value
-			struct tm tm2;
-			memcpy(&tm2, &tm1, sizeof(struct tm));
-			tm2.tm_isdst = -1;
-			mktime(&tm2);
-			gmtoff = (-1) * tm2.__tm_gmtoff;
+			/* We need to allow mktime() to update time in tm1, otherwise daylight savings related changes will not
+			 * reflect correctly.
+			 * `select timestamp with time zone'2024-03-10 02:00:00';`
+			 * will return `2024-03-10 01:00:00-05` instead of `2024-03-10 03:00:00-04`.
+			 */
+			tm1.tm_isdst = -1;
+			mktime(&tm1);
+			gmtoff = (-1) * tm1.__tm_gmtoff;
 		}
 		tm1.tm_sec += gmtoff; // Local time zone to UTC
 	}

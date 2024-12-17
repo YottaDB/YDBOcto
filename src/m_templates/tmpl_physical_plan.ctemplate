@@ -143,9 +143,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			}
 
 			boolean_t	is_column_string_type = IS_COLUMN_STRING_TYPE(column);
-			// Enable optimization with tranformation functions after AIM supports type descibed in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1565#note_2100745009
-			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type) && (OPTIONAL_DATE_TIME_FILEMAN != column->data_type_struct.format)) {
-				%{},0,0,1,2,2,{}%
+			// Add arguments needed by AIM
+			%{},0,0,1,2,{}%
+			// Add type argument for AIM based on the following conditions
+			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
+				if (aim_type) {
+					// This is a vista column it needs additional NULL handling from AIM along with the date/time tranformation function. `type` argument of 3 enables
+					// both. Pass that here.
+					%{}3,{}%
+				} else {
+					// Only tranformation function handling from AIM is sufficient
+					%{}2,{}%
+				}
 				%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
 				// First argument will be added by AIM so nothing to add
 				// Add rest of the arguments
@@ -159,7 +168,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// Close XREF call
 				%{}){}%
 			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
-				%{},0,0,1,2,2,{}%
+				%{}2,{}%
 				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
 				// Argument will be added by AIM so nothing to add here
 				// Close conversion routine
@@ -167,7 +176,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// Close XREF call
 				%{}){}%
 			} else {
-				%{},0,0,1,2,{{aim_type|%d}},{}%
+				%{}{{aim_type|%d}},{}%
 				%{}{{ is_column_string_type|%d }}){}%
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -228,9 +237,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 			%{},{{piece}}{}%
 			}
-			// Enable optimization with tranformation functions after AIM supports type descibed in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1565#note_2100745009
-			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type) && (OPTIONAL_DATE_TIME_FILEMAN != column->data_type_struct.format)) {
-				%{},1,0,1,2,2,{}%
+			// Add arguments needed by AIM
+			%{},1,0,1,2,{}%
+			// Add type argument for AIM based on the following conditions
+			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
+				if (aim_type) {
+					// This is a vista column it needs additional NULL handling from AIM along with the date/time tranformation function. `type` argument of 3 enables
+					// both. Pass that here.
+					%{}3,{}%
+				} else {
+					// Only tranformation function handling from AIM is sufficient
+					%{}2,{}%
+				}
 				%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
 				// First argument will be added by AIM so nothing to add
 				// Add rest of the arguments
@@ -244,7 +262,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// Close XREF call
 				%{}){}%
 			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
-				%{},0,0,1,2,2,{}%
+				%{}2,{}%
 				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
 				// Argument will be added by AIM so nothing to add here
 				// Close conversion routine
@@ -252,7 +270,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// Close XREF call
 				%{}){}%
 			} else {
-				%{},1,0,1,2,{{aim_type|%d}},{}%
+				%{}{{aim_type|%d}},{}%
 				%{}{{ is_column_string_type|%d }}){}%
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%

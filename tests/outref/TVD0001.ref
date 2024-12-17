@@ -140,7 +140,7 @@ count(*)
 (1 row)
 OCTO> select count(*) from ORDER1 where START_DATE IS NULL;
 count(*)
-4351
+4357
 (1 row)
 OCTO> select count(*) from ORDER1 where STOP_DATE IS NULL;
 count(*)

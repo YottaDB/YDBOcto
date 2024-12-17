@@ -38,30 +38,23 @@
 	}
 
 // Check the comments in the inner most IF conditions below to know when we RETURN without OPTIMIZING
-#define RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE(OPERAND, OP_TYPE)                        \
-	SqlColumnAlias *ca = OPERAND->v.lp_column_alias.column_alias;                                      \
-	boolean_t	is_read_only_table = FALSE;                                                        \
-	IS_READONLY_TABLE_COLUMN(ca, is_read_only_table);                                                  \
-	if (is_read_only_table) {                                                                          \
-		SqlValueType t_type = lp_get_plan_value_type(OPERAND);                                     \
-		if ((BOOLEAN_VALUE == t_type) || IS_DATE_TIME_TYPE(t_type)) {                              \
-			SqlColumn	   *column = ca->column->v.column;                                 \
-			SqlOptionalKeyword *keyword = column->keywords->v.keyword;                         \
-			if ((NULL != get_keyword_from_keywords(keyword, PRIMARY_KEY))                      \
-			    || (NULL != get_keyword_from_keywords(keyword, OPTIONAL_KEY_NUM))) {           \
-				/* Key columns cannot be optimized if it is of type boolean or */          \
-				/* date/time as they can exist in non-standard format. Hence disable*/     \
-				/* it here.*/                                                              \
-				return where;                                                              \
-			} else if ((OPTIONAL_DATE_TIME_FILEMAN == column->data_type_struct.format)         \
-				   && ((LP_BOOLEAN_IS != OP_TYPE) && (LP_BOOLEAN_EQUALS != OP_TYPE))) {    \
-				/* If this is fileman column, inequality operations cannot be*/            \
-				/* key fixed. Refer to*/                                                   \
-				/* https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1052#note_2101034781*/ \
-				/* for more details.*/                                                     \
-				return where;                                                              \
-			}                                                                                  \
-		}                                                                                          \
+#define RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE(OPERAND, OP_TYPE)                    \
+	SqlColumnAlias *ca = OPERAND->v.lp_column_alias.column_alias;                                  \
+	boolean_t	is_read_only_table = FALSE;                                                    \
+	IS_READONLY_TABLE_COLUMN(ca, is_read_only_table);                                              \
+	if (is_read_only_table) {                                                                      \
+		SqlValueType t_type = lp_get_plan_value_type(OPERAND);                                 \
+		if ((BOOLEAN_VALUE == t_type) || IS_DATE_TIME_TYPE(t_type)) {                          \
+			SqlColumn	   *column = ca->column->v.column;                             \
+			SqlOptionalKeyword *keyword = column->keywords->v.keyword;                     \
+			if ((NULL != get_keyword_from_keywords(keyword, PRIMARY_KEY))                  \
+			    || (NULL != get_keyword_from_keywords(keyword, OPTIONAL_KEY_NUM))) {       \
+				/* Key columns cannot be optimized if it is of type boolean or */      \
+				/* date/time as they can exist in non-standard format. Hence disable*/ \
+				/* it here.*/                                                          \
+				return where;                                                          \
+			}                                                                              \
+		}                                                                                      \
 	}
 
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,

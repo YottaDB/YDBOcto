@@ -82,7 +82,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	 */
 	boolean_t is_date_time_column = IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type);
 	boolean_t is_boolean_column = (BOOLEAN_TYPE == column->data_type_struct.data_type);
-	boolean_t is_fileman_column = (OPTIONAL_DATE_TIME_FILEMAN == column->data_type_struct.format);
 	matching_plan = get_physical_plan_and_key_for_unique_id(pplan, unique_id, &matching_key);
 	cur_plan = pplan;
 	do {
@@ -105,11 +104,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 					// Handle date and time column
 					boolean_t close_paren = FALSE;
 					if (is_date_time_column) {
-						/* Remove the `!is_fileman_column_condition` after
-						 * https://gitlab.com/YottaDB/Util/YDBAIM/-/issues/78 is implemented and Octo makes
-						 * use of it to do key fixing of FILEMAN readonly table columns.
-						 */
-						if (table->readwrite || (!table->readwrite && !is_fileman_column && key->is_cross_reference_key)) {
+						if (table->readwrite || (!table->readwrite && key->is_cross_reference_key)) {
 							// The value will be in internal format no need to do anything
 						} else {
 							// The value will be in a format different from the internal format expected

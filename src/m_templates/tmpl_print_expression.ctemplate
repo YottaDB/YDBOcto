@@ -135,7 +135,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (IS_DATE_TIME_TYPE(value->type)) {
 				close_date_time_function_paren = TRUE;
 				// Place conversion routine
-				TMPL(tmpl_convert_to_unix_time);
+				%{}{{ PP_CONVERT_TO_UNIX_TIME }}{}%
 			}
 			/* Note that "value->parameter_index" is guaranteed to be non-zero in most cases.
 			 * The only exception that we know of currently is CHECK constraints where literals in the
@@ -1545,7 +1545,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		} else if (IS_DATE_TIME_TYPE(return_type)) {
 			// Output processing
 			// Add conversion routine
-			TMPL(tmpl_convert_to_unix_time);
+			%{}{{ PP_CONVERT_TO_UNIX_TIME }}{}%
 		}
 		/* Below is function name which should not be a leaf level expression so okay to pass "0" as "dot_count"
 		 * (last but one parameter) even if "dot_count" is non-zero. Passing a non-zero "dot_count" would cause

@@ -73,18 +73,19 @@
 	       * PP_YDB_OCTO_* variables as they will have a `%ydbocto` prefix in the name.   \
 	       * Makes it harder to read the M code but need it for correctness just in case. \
 	       */
-#define PP_XREF_COLUMN	       "xrefCol"
-#define PP_YDB_OCTO_EXPR       "%ydboctoexpr"
-#define PP_YDB_OCTO_G	       "%ydboctog"
-#define PP_YDB_OCTO_I	       "%ydboctoi"
-#define PP_YDB_OCTO_IN	       "%ydboctoin"
-#define PP_YDB_OCTO_P	       "%ydboctop"
-#define PP_YDB_OCTO_UPD	       "%ydboctoUPD" /* see comment in tmpl_update_table.ctemplate for its purpose */
-#define PP_YDB_OCTO_Z	       "%ydboctoz"
-#define PP_YDB_OCTO_ZDISTINCT  "%ydboctozdistinct"
-#define PP_YDB_OCTO_ZDUPLICATE "%ydboctozduplicate"
-#define PP_YDB_OCTO_ZLIMIT     "%ydboctozlimit"
-#define PP_YDB_OCTO_ZKEYFIX    "%ydboctozkeyfix"
+#define PP_XREF_COLUMN		"xrefCol"
+#define PP_YDB_OCTO_EXPR	"%ydboctoexpr"
+#define PP_YDB_OCTO_G		"%ydboctog"
+#define PP_YDB_OCTO_I		"%ydboctoi"
+#define PP_YDB_OCTO_IN		"%ydboctoin"
+#define PP_YDB_OCTO_P		"%ydboctop"
+#define PP_YDB_OCTO_UPD		"%ydboctoUPD" /* see comment in tmpl_update_table.ctemplate for its purpose */
+#define PP_YDB_OCTO_Z		"%ydboctoz"
+#define PP_YDB_OCTO_ZDISTINCT	"%ydboctozdistinct"
+#define PP_YDB_OCTO_ZDUPLICATE	"%ydboctozduplicate"
+#define PP_YDB_OCTO_ZLIMIT	"%ydboctozlimit"
+#define PP_YDB_OCTO_ZKEYFIX	"%ydboctozkeyfix"
+#define PP_CONVERT_TO_UNIX_TIME "$$Transform2UnixTime^%ydboctoplanhelpers("
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
@@ -243,5 +244,4 @@ TEMPLATE(tmpl_constraint_col_list, PhysicalPlan *pplan, SqlConstraint *constrain
 	 int dot_count, UniqueConstraintLoopType loop_type);
 TEMPLATE(tmpl_update_column_reference, PhysicalPlan *pplan, SqlColumn *cur_column, int dot_count);
 TEMPLATE(tmpl_identity_column, SqlColumn *column);
-TEMPLATE(tmpl_convert_to_unix_time);
 #endif

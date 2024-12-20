@@ -116,7 +116,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 							// Convert it
 							assert(NULL != column->keywords);
 							close_paren = TRUE;
-							TMPL(tmpl_convert_to_unix_time);
+							%{}{{ PP_CONVERT_TO_UNIX_TIME }}{}%
 						}
 						// else {} doesn't need to be handled as if it is any other type its value will already be in internal
 						// format.
@@ -196,7 +196,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			// Convert it
 			assert(NULL != column->keywords);
 			close_paren = TRUE;
-			TMPL(tmpl_convert_to_unix_time);
+			%{}{{ PP_CONVERT_TO_UNIX_TIME }}{}%
 		}
 	}
 	// Add additional routine to process a boolean column when it is a readonly table

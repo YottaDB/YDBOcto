@@ -42,7 +42,7 @@ while read -r line; do
 	if [[ $(grep -cn "^$mnemonic$" doc/errors.rst || true) -eq 0 ]]; then
 		missing_mnemonics="$mnemonic\n$missing_mnemonics"
 	else
-		format_string=$(echo "$line" | sed 's/.*, "\(.*\)", PSQL.*)/\1/' | sed 's/%s\|%d\|%c\|%x\|%ld\|%\.\*s/xxx/g')
+		format_string=$(echo "$line" | sed 's/.*, "\(.*\)", PSQL.*)/\1/' | sed 's/%s\|%d\|%c\|%x\|%ld\|%\.\*s/xxx/g;s/\\"/"/g;')
 		if [[ $1 == "check" ]]; then
 			if [[ $(grep -c "$format_string" doc/errors.rst || true) -eq 0 ]]; then
 				missing_messages="$mnemonic\n$missing_messages"

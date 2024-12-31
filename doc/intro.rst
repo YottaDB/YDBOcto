@@ -157,7 +157,7 @@ Configure Octo
 
     There is no need to create databases manually if :code:`ydb_env_set` has been sourced.
 
-  Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM*` global variables to a separate region or regions. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#no-n-ull-ubscripts-always-never-existing>`_.
+  Octo uses several global variables for its operation, which start with :code:`%ydbocto` and :code:`%ydbAIM`. Use `GDE <https://docs.yottadb.net/AdminOpsGuide/gde.html>`_ to map :code:`%ydbocto*` and :code:`%ydbAIM*` global variables to a separate region or regions. Global variables used by Octo and AIM must have `NULL_SUBSCRIPTS=ALWAYS <https://docs.yottadb.net/AdminOpsGuide/gde.html#gde-null-subs-opts>`_.
 
   The following example creates OCTO and AIM database regions with the recommended setting in the :code:`$ydb_dir/$ydb_rel/g` directory and assumes an existing application global directory at :code:`$ydb_dir/$ydb_rel/g/yottadb.gld`. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_, and the `YottaDB Acculturation Guide <https://docs.yottadb.com/AcculturationGuide/>`_ for self-paced exercises on YottaDB DevOps.
 

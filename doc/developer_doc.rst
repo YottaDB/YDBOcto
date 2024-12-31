@@ -259,7 +259,7 @@ Running all the tests
 Contributing
 -------------
 
- To contribute or help with further development, `fork <https://docs.gitlab.com/ee/gitlab-basics/fork-project.html>`_ the `YDBOcto repository <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_, clone your fork to a local copy and begin contributing!
+ To contribute or help with further development, `fork <https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html#create-a-fork>`_ the `YDBOcto repository <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_, clone your fork to a local copy and begin contributing!
 
  Please also set up the pre-commit and pre-rebase script to automatically enforce some coding conventions. Creating a symbolic link to YDBOcto/pre-commit and YDBOcto/pre-rebase will be enough for the setup. Assuming you are in the top-level directory of your local copy, the following will work:
 

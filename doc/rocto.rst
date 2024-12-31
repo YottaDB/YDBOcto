@@ -192,7 +192,7 @@ Configuring the PostgreSQL ODBC driver
 
 The easiest way to access ROcto using Microsoft tools is via the PostgreSQL ODBC driver. So, before demonstrating how to use ROcto with Excel and PowerBI, we'll show you how to setup the PostgreSQL ODBC driver for use with ROcto on Windows.
 
-First, download an ODBC driver with at least version 13 from the `PostgreSQL ODBC MSI downloads page <https://www.postgresql.org/ftp/odbc/versions/msi/>`_. Then, run the file you downloaded to open the install wizard, then click through to install the driver.
+First, download an ODBC driver with at least version 13 from the `PostgreSQL ODBC downloads page <https://www.postgresql.org/ftp/odbc/releases/>`_. Then, run the file you downloaded to open the install wizard, then click through to install the driver.
 
 Once the ODBC driver is installed, run the ODBC Data Sources application (``odbcad32.exe``). In the application window, click ``Add ...`` to add a new User DSN:
 
@@ -328,7 +328,7 @@ Rocto supports multiple Java clients using the `Postgres JDBC driver
 <https://jdbc.postgresql.org/>`_. The following clients are regularly tested to
 confirm that they continue to work:
 
-- `SQuirreL SQL <http://www.squirrelsql.org/>`_
+- `SQuirreL SQL <https://squirrel-sql.sourceforge.io/>`_
 - `SQL Workbench/J <https://www.sql-workbench.eu/>`_
 - `DBeaver Community <https://dbeaver.io/>`_
 
@@ -362,7 +362,7 @@ Connecting using SQuirreL SQL
 Introduction
 ++++++++++++
 
-  `SQuirreL SQL <http://www.squirrelsql.org/>`_ is an open-source Java SQL Client program for any JDBC compliant database. This documentation will describe in detail how to connect it to ROcto.
+  `SQuirreL SQL <https://squirrel-sql.sourceforge.io/>`_ is an open-source Java SQL Client program for any JDBC compliant database. This documentation will describe in detail how to connect it to ROcto.
 
   Pre-requisite steps:
 
@@ -388,7 +388,7 @@ Detailed Steps
 
   Java is required to be installed in order to use SQuirrel SQL. Install Java if not already installed. Note that the Oracle version has some licensing limitations, but OpenJDK does not; but the OpenJDK version does not include auto-updating capabilities on some platforms.
 
-  Download `JAR <https://en.wikipedia.org/wiki/JAR_(file_format)>`_ from `Squirrel SQL's <http://squirrel-sql.sourceforge.net/#installation>`_ website.
+  Download `JAR <https://en.wikipedia.org/wiki/JAR_(file_format)>`_ from `Squirrel SQL's <https://squirrel-sql.sourceforge.io/#installation>`_ website.
 
   Launch the installer program as an administrator/root. On Windows, see `here <https://stackoverflow.com/questions/37105012/execute-jar-file-as-administrator-in-windows>`_ for some guidance, as it is not on the right-click menu for jars.
 

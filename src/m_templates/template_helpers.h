@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -147,6 +147,10 @@
 		assert(YDB_OK == status);                                                               \
 		UNUSED(status); /* needed to avoid [-Wunused-but-set-variable] warning from compiler */ \
 	}
+
+#define IS_COMPARE_OP(type)                                                                                        \
+	((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_LESS_THAN == type) || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == type) \
+	 || (LP_BOOLEAN_GREATER_THAN == type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == type) || (LP_BOOLEAN_NOT_EQUALS == type))
 
 enum EmitSourceForm {
 	EmitSourceForm_Value,

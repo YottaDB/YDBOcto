@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -807,6 +807,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 * values and at least one right-hand expression yields null, the result of the NOT IN construct will be
 			 * null, not true.
 			 */
+			second_operand_type = lp_get_plan_value_type(second_operand);
+			if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)
+			    || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+				second_operand_needs_timezone_comp = TRUE;
+			}
+			if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type)
+			    && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+				/* Avoids losing time zone and daylight savings information during the comparison.
+				 * Refer to details in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1620
+				 */
+				first_operand_needs_timezone_comp = second_operand_needs_timezone_comp = FALSE;
+			}
 			if (dot_count) {
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 				TMPL(tmpl_print_dots, dot_count);
@@ -819,10 +831,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
-			}
-			second_operand_type = lp_get_plan_value_type(second_operand);
-			if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
-				second_operand_needs_timezone_comp = TRUE;
 			}
 			cur_lp_key = lp_get_output_key(second_operand);
 			%{}$SELECT({}%
@@ -937,6 +945,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}({}%
 			}
 			first_iteration = TRUE;
+			if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type) {
+				/* Avoids losing time zone and daylight savings information during the comparison.
+				 * Refer to details in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1620
+				 */
+				first_operand_needs_timezone_comp = FALSE;
+			}
 			if (dot_count) {
 				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
@@ -955,10 +969,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 */
 			// Prevent date/time type search if the first operand is not of similar type
 			second_operand_type = UNKNOWN_SqlValueType; // avoids false [-Wmaybe-uninitialized] warning
-			boolean_t second_operand_needs_timezone_check = (IS_DATE_TIME_TYPE(first_operand_type));
+			boolean_t second_operand_needs_timezone_check = ((IS_DATE_TIME_TYPE(first_operand_type))
+									 && (TIMESTAMP_WITH_TIME_ZONE_LITERAL != first_operand_type
+									    ));
 			do {
 				if (second_operand_needs_timezone_check) {
 					second_operand_type = lp_get_plan_value_type(plan2);
+					assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL != first_operand_type);
 					if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)
 					    || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
 						second_operand_needs_timezone_comp = TRUE;
@@ -1122,11 +1139,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		use_string_comparison = lp_is_operand_type_string(plan, NULL);
 		first_operand_type = lp_get_plan_value_type(first_operand);
 		second_operand_type = lp_get_plan_value_type(second_operand);
-		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == first_operand_type)) {
-			first_operand_needs_timezone_comp = TRUE;
-		}
-		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
-			second_operand_needs_timezone_comp = TRUE;
+		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type)
+		    && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+			/* Avoids losing time zone and daylight savings information during the comparison.
+			 * Refer to details in https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1620
+			 */
+			first_operand_needs_timezone_comp = second_operand_needs_timezone_comp = FALSE;
+		} else {
+			if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type)
+			    || (TIME_WITH_TIME_ZONE_LITERAL == first_operand_type)) {
+				first_operand_needs_timezone_comp = TRUE;
+			}
+			if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)
+			    || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+				second_operand_needs_timezone_comp = TRUE;
+			}
 		}
 
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
@@ -1878,13 +1905,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (is_stmt_table_asterisk(first_operand_ca->column)
 			    && is_stmt_table_asterisk(second_operand_ca->column)) {
 				// Only in case of comparison operation generate the following code
-				switch(plan_type) {
-				case LP_BOOLEAN_EQUALS:
-				case LP_BOOLEAN_NOT_EQUALS:
-				case LP_BOOLEAN_LESS_THAN:
-				case LP_BOOLEAN_GREATER_THAN:
-				case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-				case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:;
+				if (IS_COMPARE_OP(plan_type)) {
 					/* Generate `table.*` comparison M code which compares the two `table.*` values by
 					 * column-wise comparison. Get the underlying table_alias to get the column_list but first
 					 * check if its a set_operation column. If it is then get col_type_list_stmt from set_oper
@@ -1981,11 +2002,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 						// This is an ORDER BY usage nothing to do here
 					}
 					done = TRUE;
-					break;
-				default:
+				} else {
 					// Nothing to do here
 					done = FALSE;
-					break;
 				}
 			}
 		}
@@ -2013,6 +2032,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				}
 				if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type) || (TIME_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
 					second_operand_needs_timezone_comp = TRUE;
+				}
+				if (IS_COMPARE_OP(plan_type)
+				    && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == first_operand_type)
+				    && (TIMESTAMP_WITH_TIME_ZONE_LITERAL == second_operand_type)) {
+					first_operand_needs_timezone_comp = second_operand_needs_timezone_comp = FALSE;
 				}
 			}
 			if (dot_count) {

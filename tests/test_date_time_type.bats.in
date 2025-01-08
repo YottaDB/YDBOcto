@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -112,7 +112,8 @@ teardown() {
 }
 
 @test "TDTT011 : OCTO382 : Ensure that the working of coalesce/greatest/least/nullif functions are checked when operands are of type date/time (including date/time and other data type combinations)" {
-	# Note only text format input is considered here and since we are validating usages this will apply to all other formats as well
+	# Note only text format input is considered in this test
+	# The validations done here will apply to all other formats
 	$ydb_dist/yottadb -r cogtltnifunctionstatements^datetime "TDTT011" >> input.sql
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT011.sql TDTT011.sql
 	sed 's/^#.*//g;/^$/d' TDTT011.sql >> input.sql

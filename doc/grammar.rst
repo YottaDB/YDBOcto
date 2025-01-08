@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2025 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -681,6 +681,30 @@ Note
 
     User defined functions with date/time parameters will receive date/time values in the format specified. Also, when text format input is expected, date/time value passed to
     the function implementation will be in the input form seen in datestyle. The output of the function is expected to be in the output form seen in datestyle.
+
+    If timezone is not specified in a ``TIMESTAMP WITH TIME ZONE``, a date/time value falling at the end of daylight savings time will be treated as a date/time specified
+    before the daylight savings change. For example, when local time zone is EST and the date/time value specified corresponds to a time before and after the daylight savings
+    time switch then such a time would be taken to correspond to the time BEFORE the switch i.e. EDT instead of the current EST.
+
+    .. code-block::
+
+      OCTO> select timestamp with time zone'2024-11-03 01:49:19';
+      ???
+      2024-11-03 01:49:19-04
+      (1 row)
+
+    When ``timestamp`` is being compared with a ``timestamp with time zone`` and if the latter value is in DST boundary following behaviors are expected
+
+    .. code-block::
+
+      OCTO> select timestamp with time zone '2024-11-03 01:49:19-05'=timestamp'2024-11-03 01:49:19'; -- left operand is before DST
+      ???
+      t
+      (1 row)
+      OCTO> select timestamp with time zone '2024-11-03 01:49:19-04'=timestamp'2024-11-03 01:49:19'; -- left operand is after DST
+      ???
+      t
+      (1 row)
 
 +++++++++++++++++++++++++
 Casting between SQL types

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -401,7 +401,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 35
+#define FMT_PLAN_DEFINITION 36
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
@@ -1331,15 +1331,15 @@ typedef enum DDLDependencyType {
 #define SET_INTERNAL_FORMAT_FOR_DATA_TYPE(DATA_TYPE, INTERNAL_FORMAT) \
 	{ (DATA_TYPE)->v.data_type_struct.format = (INTERNAL_FORMAT)->v.keyword->keyword; }
 
-/* Following macro updates STMT to be a COERCE_TYPE statement and the
- * original contents are placed as the coerce_target. coerced_type is set to DATE_TIME_TYPE.
+/* Following macro updates STMT to be a COERCE_TYPE value statement and the
+ * original contents are placed as the coerce_target.
  * This macro is used by check_column_lists_for_type_match and ensure_same_type to cast
- * literals and columns to DATE_TIME_TYPE from OTHER_TYPE.
+ * literals and columns to COERCED_TYPE from PRE_COERCED_TYPE.
  */
-#define ADD_DATE_TIME_TIMESTAMP_CAST_STMT(STMT, DATE_TIME_TYPE, OTHER_TYPE)                      \
+#define ADD_DATE_TIME_TIMESTAMP_CAST_STMT(STMT, COERCED_TYPE, PRE_COERCED_TYPE)                  \
 	{                                                                                        \
 		SqlStatement *stmt = (STMT);                                                     \
-		SqlValueType  type = (DATE_TIME_TYPE);                                           \
+		SqlValueType  type = (COERCED_TYPE);                                             \
                                                                                                  \
 		SqlStatement *ret2;                                                              \
 		SQL_STATEMENT(ret2, stmt->type);                                                 \
@@ -1359,7 +1359,7 @@ typedef enum DDLDependencyType {
 		dt_type->v.data_type_struct.scale = SCALE_UNSPECIFIED;                           \
 		dt_type->v.data_type_struct.scale_parameter_index = 0;                           \
 		value->u.coerce_type.coerced_type = dt_type->v.data_type_struct;                 \
-		value->u.coerce_type.pre_coerced_type = (OTHER_TYPE);                            \
+		value->u.coerce_type.pre_coerced_type = (PRE_COERCED_TYPE);                      \
 		value->v.coerce_target = ret2;                                                   \
 	}
 

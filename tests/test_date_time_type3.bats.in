@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -527,6 +527,8 @@ teardown() {
 
 @test "TDTT079 : Test daylight savings case" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT079.sql
+	load_fixture TDTT079_2.sql subtest novv
+	verify_output TDTT079_2 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT080 : Test comparison expression with random date/time values" {

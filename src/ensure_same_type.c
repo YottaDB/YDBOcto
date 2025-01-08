@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -50,7 +50,7 @@ int ensure_same_type(SqlValueType *left_type, SqlValueType *right_type, SqlState
 		}
 		if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == *left_type) && (TIMESTAMP_LITERAL == *right_type)) {
 			// Convert TIMESTAMP to TIMESTAMP WITH TIME ZONE
-			ADD_DATE_TIME_TIMESTAMP_CAST_STMT(left_stmt, *left_type, *right_type);
+			ADD_DATE_TIME_TIMESTAMP_CAST_STMT(right_stmt, *left_type, *right_type);
 			*right_type = *left_type;
 			return result; // This is ok
 		}

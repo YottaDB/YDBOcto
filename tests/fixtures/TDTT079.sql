@@ -33,3 +33,5 @@ select timestamp with time zone'2194-11-02 01:49:19-04' = timestamp with time zo
 select timestamp with time zone'2023-04-08 01:38:00+05:30'=timestamp'2023-04-07 16:08:00';
 select least(timestamp with time zone'2194-11-02 01:49:19-04',timestamp with time zone'2194-11-02 01:49:19-05');
 select greatest(timestamp with time zone'2194-11-02 01:49:19-04',timestamp with time zone'2194-11-02 01:49:19-05');
+select timestamp with time zone '2024-03-10 02:49:19-04'=timestamp'2024-03-10 01:49:19';
+select timestamp with time zone '2024-03-10 02:49:19-05'=timestamp'2024-03-10 03:49:19';

@@ -745,19 +745,19 @@ LINE 177:1: ...stamp with time zone'2023-01-01 01:01:00-05:00',time'01:01:00');
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',time'01:01:00');
 OCTO> select COALESCE(timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp'2023-01-01 01:01:00');
 COALESCE
-2023-01-01 06:01:00-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select GREATEST(timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp'2023-01-01 01:01:00');
 GREATEST
-2023-01-01 06:01:00-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select LEAST(timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp'2023-01-01 01:01:00');
 LEAST
-2022-12-31 20:01:00-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp'2023-01-01 01:01:00');
 NULLIF
-2023-01-01 06:01:00-05
+
 (1 row)
 OCTO> select COALESCE(timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp with time zone'2023-01-01 01:01:00-05:00');
 COALESCE
@@ -817,19 +817,19 @@ LINE 193:1: ...ime zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011time n1;
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011time n1;
 OCTO> select COALESCE(timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
 COALESCE
-2023-01-01 06:01:00-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select GREATEST(timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
 GREATEST
-2023-01-01 06:01:00-05
+2023-01-01 01:01:01-05
 (1 row)
 OCTO> select LEAST(timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
 LEAST
-2022-12-31 20:01:01-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select NULLIF(timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011timestamp n1;
 NULLIF
-2023-01-01 06:01:00-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select COALESCE(timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT011timestamptz n1;
 COALESCE
@@ -1641,19 +1641,19 @@ LINE 369:1: select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
 OCTO> select NULLIF(n1.dob,time'01:01:00') from TDTT011timestamptz n1;
 OCTO> select COALESCE(n1.dob,timestamp'2023-01-01 01:01:00') from TDTT011timestamptz n1;
 COALESCE
-2022-12-31 20:01:01-05
+2022-12-31 15:01:01-05
 (1 row)
 OCTO> select GREATEST(n1.dob,timestamp'2023-01-01 01:01:00') from TDTT011timestamptz n1;
 GREATEST
-2022-12-31 20:01:01-05
+2023-01-01 01:01:00-05
 (1 row)
 OCTO> select LEAST(n1.dob,timestamp'2023-01-01 01:01:00') from TDTT011timestamptz n1;
 LEAST
-2022-12-31 20:01:00-05
+2022-12-31 15:01:01-05
 (1 row)
 OCTO> select NULLIF(n1.dob,timestamp'2023-01-01 01:01:00') from TDTT011timestamptz n1;
 NULLIF
-2022-12-31 20:01:01-05
+2022-12-31 15:01:01-05
 (1 row)
 OCTO> select COALESCE(n1.dob,timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT011timestamptz n1;
 COALESCE
@@ -1713,19 +1713,19 @@ LINE 385:1: select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011...
 OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011time n2;
 OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
 COALESCE
-2022-12-31 20:01:01-05
+2022-12-31 15:01:01-05
 (1 row)
 OCTO> select GREATEST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
 GREATEST
-2022-12-31 20:01:01-05
+2023-01-01 01:01:01-05
 (1 row)
 OCTO> select LEAST(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
 LEAST
-2022-12-31 20:01:01-05
+2022-12-31 15:01:01-05
 (1 row)
 OCTO> select NULLIF(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamp n2;
 NULLIF
-2022-12-31 20:01:01-05
+2022-12-31 15:01:01-05
 (1 row)
 OCTO> select COALESCE(n1.dob,n2.dob) from TDTT011timestamptz n1, TDTT011timestamptz n2;
 COALESCE

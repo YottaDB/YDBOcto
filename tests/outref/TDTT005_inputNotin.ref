@@ -268,7 +268,7 @@ f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' NOT IN (timestamp with time zone'2023-01-01 01:01:00-05:00',timestamp'2023-01-01 01:01:00');
 ???
-t
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' NOT IN (select timestamp with time zone'2023-01-01 01:01:00-05:00');
 ???
@@ -304,7 +304,7 @@ t
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' NOT IN (n1.dob,timestamp'2023-01-01 01:01:00') from TDTT005timestamptz n1;
 ???
-t
+f
 (1 row)
 OCTO> select timestamp'2023-01-01 01:01:00' NOT IN (select n1.dob) from TDTT005timestamptz n1;
 ???
@@ -732,7 +732,7 @@ t
 (1 row)
 OCTO> select n1.dob NOT IN (timestamp with time zone'2023-01-01 01:01:00-05:00',n1.dob) from TDTT005timestamp n1;
 ???
-t
+f
 (1 row)
 OCTO> select n1.dob NOT IN (select timestamp with time zone'2023-01-01 01:01:00-05:00') from TDTT005timestamp n1;
 ???
@@ -768,7 +768,7 @@ f
 (1 row)
 OCTO> select n1.dob NOT IN (n2.dob,n1.dob) from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???
-t
+f
 (1 row)
 OCTO> select n1.dob NOT IN (select n2.dob) from TDTT005timestamp n1, TDTT005timestamptz n2;
 ???

@@ -9,8 +9,8 @@ OCTO> select date(zut) '-66475';
 ???
 1969-12-31
 (1 row)
+[ERROR]: ERR_INVALID_DATE_TIME_VALUE: "-62167201438000000" is invalid for type "DATE", format "ZUT" and datestyle "ISO, YMD"
+LINE 3:1: select date(zut)'-62167201438000000';
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 OCTO> select date(zut)'-62167201438000000';
-???
-0000-01-01
-(1 row)
 OCTO> 

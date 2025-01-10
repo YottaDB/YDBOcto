@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -124,11 +124,12 @@ select date(zut)'-62167201439000000';
 select date(zut)'-62167201438000000';
 select date(zut)'-62167219300000000';
 select date(zut)'-62167219200000000';
-select date(zut)'253402232400000000';
+select date(zut)'253402214400000000';
 select date(zut)'253402232500000000';
 select date(zut)'253402214400000000';
 select date(zut)'253402214500000000';
 select date(zut)'';
+select date(zut)'-62135596800000000';
 select time(zut)'-2209057300000000';
 select time(zut)'-2209057200000000';
 select time(zut)'-2208970800000001';
@@ -138,11 +139,12 @@ select timestamp(zut)'-62167201439000000';
 select timestamp(zut)'-62167201438000000';
 select timestamp(zut)'-62167219200000000';
 select timestamp(zut)'-62167219300000000';
-select timestamp(zut)'253402318799999999';
+select timestamp(zut)'253402300799999999';
 select timestamp(zut)'253402318800000000';
 select timestamp(zut)'253402300799999999';
 select timestamp(zut)'253402300800000000';
 select timestamp(zut)'';
+select timestamp(zut)'-62135596800000000';
 -- select time(zut) with time zone'0';
 select time with time zone'';
 select timestamp with time zone'0';
@@ -243,7 +245,9 @@ select timestamp '0000-01-01t23:60:59';
 select timestamp '9999-12-31t23:59:59.1000000';
 
 select timestamp with time zone'0000-01-01 00:00:00.000000-16:00';
+select timestamp with time zone'0001-01-01 00:00:00.000000-16:00';
 select timestamp with time zone'0000-01-01 00:00:00.000000-15:59';
+select timestamp with time zone'0001-01-01 00:00:00.000000-15:59';
 select timestamp with time zone'0000-01-01 00:00:00.000000+15:59';
 select timestamp with time zone'0000-01-01 00:00:00.000000+16:00';
 select timestamp with time zone'9999-12-31 23:59:59.999999-16:00';
@@ -253,17 +257,25 @@ select timestamp with time zone'9999-12-31 23:59:59.999999+16:00';
 select timestamp with time zone'';
 -- ISO 8601
 select timestamp with time zone'0000-01-01T00:00:00.000000-16:00';
+select timestamp with time zone'0001-01-01T00:00:00.000000-16:00';
 select timestamp with time zone'0000-01-01T00:00:00.000000-15:59';
+select timestamp with time zone'0001-01-01T00:00:00.000000-15:59';
 select timestamp with time zone'0000-01-01T00:00:00.000000+15:59';
+select timestamp with time zone'0001-01-01T00:00:00.000000+15:59';
 select timestamp with time zone'0000-01-01T00:00:00.000000+16:00';
+select timestamp with time zone'0001-01-01T00:00:00.000000+16:00';
 select timestamp with time zone'9999-12-31T23:59:59.999999-16:00';
 select timestamp with time zone'9999-12-31T23:59:59.999999-15:59';
 select timestamp with time zone'9999-12-31T23:59:59.999999+15:59';
 select timestamp with time zone'9999-12-31T23:59:59.999999+16:00';
 select timestamp with time zone'0000-01-01t00:00:00.000000-16:00';
+select timestamp with time zone'0001-01-01t00:00:00.000000-16:00';
 select timestamp with time zone'0000-01-01t00:00:00.000000-15:59';
+select timestamp with time zone'0001-01-01t00:00:00.000000-15:59';
 select timestamp with time zone'0000-01-01t00:00:00.000000+15:59';
+select timestamp with time zone'0001-01-01t00:00:00.000000+15:59';
 select timestamp with time zone'0000-01-01t00:00:00.000000+16:00';
+select timestamp with time zone'0001-01-01t00:00:00.000000+16:00';
 select timestamp with time zone'9999-12-31t23:59:59.999999-16:00';
 select timestamp with time zone'9999-12-31t23:59:59.999999-15:59';
 select timestamp with time zone'9999-12-31t23:59:59.999999+15:59';

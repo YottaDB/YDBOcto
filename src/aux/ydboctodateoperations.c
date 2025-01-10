@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -217,6 +217,8 @@
 		if (IS_END(c) || IS_END(c + 1) || IS_END(c + 2) || IS_END(c + 3)) {                       \
 			return 1;                                                                         \
 		} else if (!(IS_NUMBER(c) && IS_NUMBER(c + 1) && IS_NUMBER(c + 2) && IS_NUMBER(c + 3))) { \
+			return 1;                                                                         \
+		} else if (('0' == *c) && ('0' == *(c + 1)) && ('0' == *(c + 2)) && ('0' == *(c + 3))) {  \
 			return 1;                                                                         \
 		}                                                                                         \
 		LIT_C++;                                                                                  \
@@ -836,20 +838,20 @@ int is_all_numbers_and_has_specified_num_of_delims(char *str, char delim, int nu
 }
 
 int is_date_time_value_in_zut_range(char *value, SqlValueType type) {
-	// Date: -62167219200000000 (01-01-0000) to 253402214400000000 (12-31-9999)
-	// Timestamp: -62167219200000000 (01-01-0000 00:00:00.000000) to 253402300799999999(12-31-9999 23:59:59.999999)
+	// Date: -62135596800000000 (01-01-0001) to 253402214400000000 (12-31-9999)
+	// Timestamp: -62135596800000000 (01-01-0000 00:00:00.000000) to 253402300799999999(12-31-9999 23:59:59.999999)
 	if ((TIME_LITERAL == type) || (TIME_WITH_TIME_ZONE_LITERAL == type)) {
 		return 1;
 	}
 	long int int_value = strtol(value, NULL, 10);
 	switch (type) {
 	case DATE_LITERAL:
-		if ((-62167219200000000 <= int_value) && (253402214400000000 >= int_value)) {
+		if ((-62135596800000000 <= int_value) && (253402214400000000 >= int_value)) {
 			return 0;
 		}
 		break;
 	case TIMESTAMP_LITERAL:
-		if ((-62167219200000000 <= int_value) && (253402300799999999 >= int_value)) {
+		if ((-62135596800000000 <= int_value) && (253402300799999999 >= int_value)) {
 			return 0;
 		}
 		break;

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -196,7 +196,7 @@ datetimeerrorglobal
 	set ^datezut(0)="-62167201439000000"
 	set ^datezut(1)="-62167201438000000"
 	set ^datezut(2)="-62167219300000000"
-	set ^datezut(3)="-62167219200000000"
+	set ^datezut(3)="-62135596800000000"
 	set ^datezut(4)="253402232400000000"
 	set ^datezut(5)="253402232500000000"
 	set ^datezut(6)="253402214400000000"
@@ -214,7 +214,7 @@ datetimeerrorglobal
 
 	set ^timestampzut(0)="-62167201439000000"
 	set ^timestampzut(1)="-62167201438000000"
-	set ^timestampzut(2)="-62167219200000000"
+	set ^timestampzut(2)="-62135596800000000"
 	set ^timestampzut(3)="-62167219300000000"
 	set ^timestampzut(4)="253402318799999999"
 	set ^timestampzut(5)="253402318800000000"

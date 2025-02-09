@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2025 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -207,7 +207,7 @@ Configure Octo
      add -segment OCTO -access_method=BG -file_name="$ydb_dir/$ydb_rel/g/octo.dat"
      add -region OCTO -dynamic=OCTO -null_subscripts=ALWAYS -key_size=1019 -record_size=300000 -journal=(before,file="$ydb_dir/$ydb_rel/g/octo.mjl")
      add -name %ydbocto* -region=OCTO
-     add -segment AIM -access_method=BG -allocation=20000 -block_size=1024 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
+     add -segment AIM -access_method=BG -allocation=20000 -block_size=2048 -extension_count=20000 -file_name="$ydb_dir/$ydb_rel/g/aim.dat"
      add -region AIM -dynamic=AIM -null_subscripts=ALWAYS -key_size=992 -record_size=1008 -journal=(before,file="$ydb_dir/$ydb_rel/g/aim.mjl")
      add -name %ydbAIM* -region=AIM
      verify

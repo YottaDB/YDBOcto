@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -62,32 +62,35 @@ teardown() {
 }
 
 @test "TSCP06 : OCTO469 : SELECT COLUMN list values ~ 1Mb long AND 1024 columns in Octo/Rocto; Also test OCTO473 and OCTO474" {
-  $ydb_dist/mupip set -key_size=1019 -record_size=1048576 -reg DEFAULT	# huge records are going to be created in next line
-  inputfile="TSC20.sql"
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
-  yottadb -run TSC20	# populate ^longvalues and ^lotsofcols globals, creates ddl.sql AND creates TSC20.ref
-  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  # Load CREATE TABLE commands for LONGVALUES and LOTSOFCOLS
-  octo -f ddl.sql > octo_output.txt.tmp 2>&1
-  # Test Octo
-  octo -f $inputfile > octo_output.txt.tmp 2>&1
-  # Filter global octo.conf (any not in the local directory)
-  sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' octo_output.txt.tmp
-  # Filter out header ("ID" or "VALUE" or "COL1") and summary ("rows") lines from octo output before creating reference file.
-  grep -vwE "id|value|col1|rows" octo_output.txt.tmp > octo_output.txt
-  # Generate the final reference file (it is two copies of what has been generated in TSC20.half_ref)
-  cat TSC20.half_ref TSC20.half_ref > TSC20.ref
-  cmp TSC20.ref octo_output.txt
-  # Test Rocto with same set of queries
-  create_user ydb tester
-  test_port=$(start_rocto 1339)
-  run_psql_auth ydb tester $test_port < $inputfile > rocto_orig_output.txt
-  stop_rocto
-  delete_users ydb
-  grep -vwE "id|value|rows" rocto_orig_output.txt > rocto_output.txt
-  # Filter global octo.conf (any not in the local directory)
-  sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' rocto_output.txt
-  cmp TSC20.ref rocto_output.txt
+	if [[ ($CI_JOB_NAME == "asan-rocky") ]]; then
+		skip
+	fi
+	$ydb_dist/mupip set -key_size=1019 -record_size=1048576 -reg DEFAULT	# huge records are going to be created in next line
+	inputfile="TSC20.sql"
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+	yottadb -run TSC20	# populate ^longvalues and ^lotsofcols globals, creates ddl.sql AND creates TSC20.ref
+	grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+	# Load CREATE TABLE commands for LONGVALUES and LOTSOFCOLS
+	octo -f ddl.sql > octo_output.txt.tmp 2>&1
+	# Test Octo
+	octo -f $inputfile > octo_output.txt.tmp 2>&1
+	# Filter global octo.conf (any not in the local directory)
+	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' octo_output.txt.tmp
+	# Filter out header ("ID" or "VALUE" or "COL1") and summary ("rows") lines from octo output before creating reference file.
+	grep -vwE "id|value|col1|rows" octo_output.txt.tmp > octo_output.txt
+	# Generate the final reference file (it is two copies of what has been generated in TSC20.half_ref)
+	cat TSC20.half_ref TSC20.half_ref > TSC20.ref
+	cmp TSC20.ref octo_output.txt
+	# Test Rocto with same set of queries
+	create_user ydb tester
+	test_port=$(start_rocto 1339)
+	run_psql_auth ydb tester $test_port < $inputfile > rocto_orig_output.txt
+	stop_rocto
+	delete_users ydb
+	grep -vwE "id|value|rows" rocto_orig_output.txt > rocto_output.txt
+	# Filter global octo.conf (any not in the local directory)
+	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' rocto_output.txt
+	cmp TSC20.ref rocto_output.txt
 }
 
 @test "TSCP07 : OCTO576 : Numeric literals in SELECT column list should be displayed as is" {

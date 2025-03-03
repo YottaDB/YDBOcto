@@ -259,8 +259,8 @@ Indexes:
     "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimezhorolog(id)
 OCTO> select * from test;
 id|dob
-0|01:01:01.1
-1|01:02:01.1
+0|01:01:01.000001
+1|01:02:01.000001
 (2 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
@@ -335,8 +335,8 @@ Indexes:
     "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestampzhorolog(id)
 OCTO> select * from test;
 id|dob
-0|2023-01-01 01:01:01.1
-1|2023-01-02 01:02:01.1
+0|2023-01-01 01:01:01.000001
+1|2023-01-02 01:02:01.000001
 (2 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE
@@ -415,8 +415,8 @@ Indexes:
     "test_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^datetimetimestamptzzhorolog(id)
 OCTO> select * from test;
 id|dob
-0|2023-01-01 01:01:01.1-05
-1|2023-01-02 01:02:01.1-05
+0|2023-01-01 01:01:01.000001-05
+1|2023-01-02 01:02:01.000001-05
 (2 rows)
 OCTO> drop table if exists test keepdata;
 DROP TABLE

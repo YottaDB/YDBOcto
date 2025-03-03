@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -235,6 +235,11 @@ PrintDateTimeResultColumnValue(value,columnType,outputFormat,textFormatSpecifier
 	. . SET:(timestampWithTimeZone=columnType) timeZone=$select(("+"=sign):"-",1:"")_timeZone
 	. . NEW microsec
 	. . SET microsec=$PIECE(result,".",2)
+	. . ; select timestamp'2969-3-18 16:31:45.365' -> needs to be converted to 412071,59505,365000, NOT 412071,59505,365,
+	. . ; If microsec variable, which contains the numeric part to the right side of the decimal, is less than 100,000
+	. . ; (possible since .123400 microseconds is the same as .1234 microseconds), add 0s to right to get real microseconds
+	. . ; value
+	. . SET:""'=microsec microsec=microsec_$zextract("000000",1,6-$zlength(microsec))
 	. . SET result=$PIECE(result,".",1)
 	. . SET result=$$CTN^%H(result)
 	. . SET result=","_result_","_microsec_","
@@ -273,6 +278,11 @@ PrintDateTimeResultColumnValue(value,columnType,outputFormat,textFormatSpecifier
 	. . SET:(timestampWithTimeZone=columnType) timeZone=$select(("+"=sign):"-",1:"")_timeZone
 	. . NEW microsec
 	. . SET microsec=$PIECE(timeResult,".",2)
+	. . ; select timestamp'2969-3-18 16:31:45.365' -> needs to be converted to 412071,59505,365000, NOT 412071,59505,365,
+	. . ; If microsec variable, which contains the numeric part to the right side of the decimal, is less than 100,000
+	. . ; (possible since .123400 microseconds is the same as .1234 microseconds), add 0s to right to get real microseconds
+	. . ; value
+	. . SET:""'=microsec microsec=microsec_$zextract("000000",1,6-$zlength(microsec))
 	. . SET timeResult=$PIECE(timeResult,".",1)
 	. . ; Text time to HOROLOG time
 	. . SET timeResult=$$CTN^%H(timeResult)
@@ -566,6 +576,7 @@ ZHorolog2Text(inputStr,type)
 	SET microsec=$PIECE(inputStr,",",3)
 	SET timezone=$PIECE(inputStr,",",4)
 	SET microsec=+microsec ; It is possible that + sign is present in this value get rid of it
+	SET microsec=$translate($justify(microsec,6)," ",0)	; If microseconds are less than 100,000 add 0s to left
 	IF (""=timezone) DO
 	. ; There is no timezone information present
 	ELSE  DO

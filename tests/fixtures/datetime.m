@@ -1939,4 +1939,201 @@ tdtt104
 	. . ;
 	. . set cnt=cnt+1
 	quit
-
+	;
+unixepoch ; Create Tables to compare output at Unix Epoch
+	; Timezone set by test to be UTC exactly. This test depends on that.
+	set map("date","",-1)="1969-12-31"
+	set map("date","",0)="1970-01-01"
+	set map("date","",1)="1970-01-01" ; can't use
+	set map("time","",-1)="23:59:59.999999"
+	set map("time","",0)="00:00:00"
+	set map("time","",1)="00:00:00.000001"
+	set map("timetz","",-1)="23:59:59.999999-00:00"
+	set map("timetz","",0)="00:00:00-00:00"
+	set map("timetz","",1)="00:00:00.000001-00:00"
+	set map("timestamp","",-1)="1969-12-31 23:59:59.999999"
+	set map("timestamp","",0)="1970-01-01 00:00:00"
+	set map("timestamp","",1)="1970-01-01 00:00:00.000001"
+	set map("timestamptz","",-1)="1969-12-31 23:59:59.999999-00:00"
+	set map("timestamptz","",0)="1970-01-01 00:00:00-00:00"
+	set map("timestamptz","",1)="1970-01-01 00:00:00.000001-00:00"
+	set map("date","fileman",-1)="2691231"
+	set map("date","fileman",0)="2700101"
+	set map("date","fileman",1)="2700101" ; can't use
+	set map("time","fileman",-1)="235959"
+	set map("time","fileman",0)=""
+	set map("time","fileman",1)="" ; can't use
+	set map("timetz","fileman",-1)="235959"
+	set map("timetz","fileman",0)=""
+	set map("timetz","fileman",1)="" ; can't use
+	set map("timestamp","fileman",-1)="2691231.235959"
+	set map("timestamp","fileman",0)="2700101"
+	set map("timestamp","fileman",1)="2700101"
+	set map("timestamptz","fileman",-1)="2691231.235959"
+	set map("timestamptz","fileman",0)="2700101"
+	set map("timestamptz","fileman",1)="2700101" ; can't use
+	set map("date","horolog",-1)="47116"
+	set map("date","horolog",0)="47117"
+	set map("date","horolog",1)="47117"          ; can't use
+	set map("time","horolog",-1)="86399"
+	set map("time","horolog",0)="0"
+	set map("time","horolog",1)="0"
+	set map("timetz","horolog",-1)="86399"
+	set map("timetz","horolog",0)="0"
+	set map("timetz","horolog",1)="0"
+	set map("timestamp","horolog",-1)="47116,86399"
+	set map("timestamp","horolog",0)="47117,0"
+	set map("timestamp","horolog",1)="47117,0"   ; We can't use that!
+	set map("timestamptz","horolog",-1)="47116,86399"
+	set map("timestamptz","horolog",0)="47117,0"
+	set map("timestamptz","horolog",1)="47117,0" ; We can't use that!
+	set map("date","zhorolog",-1)="47116,,,"
+	set map("date","zhorolog",0)="47117,,,"
+	set map("date","zhorolog",1)="47117,0,1,"
+	set map("time","zhorolog",-1)="47116,86399,999999,"
+	set map("time","zhorolog",0)=",0,,"
+	set map("time","zhorolog",1)=",0,1,"
+	set map("timetz","zhorolog",-1)=",86399,999999,0"
+	set map("timetz","zhorolog",0)=",0,,0"
+	set map("timetz","zhorolog",1)=",0,1,0"
+	set map("timestamp","zhorolog",-1)="47116,86399,999999,0"
+	set map("timestamp","zhorolog",0)="47117,0,0,0"
+	set map("timestamp","zhorolog",1)="47117,0,1,0"
+	set map("timestamptz","zhorolog",-1)="47116,86399,999999,0"
+	set map("timestamptz","zhorolog",0)="47117,,,0"
+	set map("timestamptz","zhorolog",1)="47117,,,0"
+	set map("date","zut",-1)="-1"
+	set map("date","zut",0)="0"
+	set map("date","zut",1)="1"
+	set map("time","zut",-1)="-1"
+	set map("time","zut",0)="0"
+	set map("time","zut",1)="1"
+	set map("timetz","zut",-1)="-1"
+	set map("timetz","zut",0)="0"
+	set map("timetz","zut",1)="1"
+	set map("timestamp","zut",-1)="-1"
+	set map("timestamp","zut",0)="0"
+	set map("timestamp","zut",1)="1"
+	set map("timestamptz","zut",-1)="-1"
+	set map("timestamptz","zut",0)="0"
+	set map("timestamptz","zut",1)="1"
+	do epochSharedCode
+	;
+	quit
+	;
+regularDate ; Create tables for regular dates of 2020-02-14 05:14:32.009922 and 1947-03-10 16:13:22.582
+	set map("date","",0)="2020-02-14"
+	set map("date","",1)="1947-03-10"
+	set map("time","",0)="05:14:32.009922"
+	set map("time","",1)="16:13:22.582"
+	set map("timetz","",0)="05:14:32.009922-00:00"
+	set map("timetz","",1)="16:13:22.582-00:00"
+	set map("timestamp","",0)="2020-02-14 05:14:32.009922"
+	set map("timestamp","",1)="1947-03-10 16:13:22.582"
+	set map("timestamptz","",0)="2020-02-14 05:14:32.009922-00:00"
+	set map("timestamptz","",1)="1947-03-10 16:13:22.582-00:00"
+	set map("date","fileman",0)="3200214"
+	set map("date","fileman",1)="2470310"
+	set map("time","fileman",0)="051432"
+	set map("time","fileman",1)="161322"
+	set map("timetz","fileman",0)="051432-00:00"
+	set map("timetz","fileman",1)="161322-00:00"
+	set map("timestamp","fileman",0)="3200214.051432"
+	set map("timestamp","fileman",1)="2470310.161322"
+	set map("timestamptz","fileman",0)="3200214.051432-00:00"
+	set map("timestamptz","fileman",1)="2470310.161322-00:00"
+	set map("date","horolog",0)="65423"
+	set map("date","horolog",1)="38784"
+	set map("time","horolog",0)="18872"
+	set map("time","horolog",1)="58402"
+	set map("timetz","horolog",0)="18872"
+	set map("timetz","horolog",1)="58402"
+	set map("timestamp","horolog",0)="65423,18872"
+	set map("timestamp","horolog",1)="38784,58402"
+	set map("timestamptz","horolog",0)="65423,18872"
+	set map("timestamptz","horolog",1)="38784,58402"
+	set map("date","zhorolog",0)="65423,,,"
+	set map("date","zhorolog",1)="38784,,,"
+	set map("time","zhorolog",0)=",18872,009922,"
+	set map("time","zhorolog",1)=",58402,582000,"
+	set map("timetz","zhorolog",0)=",18872,009922,"
+	set map("timetz","zhorolog",1)=",58402,582000,"
+	set map("timestamp","zhorolog",0)="65423,18872,009922,0"
+	set map("timestamp","zhorolog",1)="38784,58402,582000,0"
+	set map("timestamptz","zhorolog",0)="65423,18872,009922,0"
+	set map("timestamptz","zhorolog",1)="38784,58402,582000,0"
+	set map("date","zut",0)="1581657272009922"
+	set map("date","zut",1)="-719912797418000"
+	set map("time","zut",0)="1581657272009922"
+	set map("time","zut",1)="-719912797418000"
+	set map("timetz","zut",0)="1581657272009922"
+	set map("timetz","zut",1)="-719912797418000"
+	set map("timestamp","zut",0)="1581657272009922"
+	set map("timestamp","zut",1)="-719912797418000"
+	set map("timestamptz","zut",0)="1581657272009922"
+	set map("timestamptz","zut",1)="-719912797418000"
+	do epochSharedCode
+	quit
+	;
+epochSharedCode ; Shared code for beforeepoch afterepoch and unixepoch
+	write "--;",!
+	write "--Test start;",!
+	write "--;",!
+	new tablenames,basetype
+	for type="date","time","timetz","timestamp","timestamptz" do
+	. for format="","fileman","horolog","zhorolog","zut" do
+	. . ; invalid formats
+	. . if type="time",format="fileman" quit
+	. . if type="time",format="zut" quit
+	. . if type="timetz",format="fileman" quit
+	. . if type="timetz",format="zut" quit
+	. . if type="timestamptz",format="zut" quit
+	. . ;
+	. . ; Set base type
+	. . if (type="time")!(type="timetz") set basetype="TIME"
+	. . if type="date" set basetype="DATE"
+	. . if (type="timestamp")!(type="timestamptz") set basetype="TIMESTAMP"
+	. . ;
+	. . set global="^"_type_format
+	. . kill @global
+	. . for i=-1:1:1 if $data(map(type,format,i)) set @global@(i)=map(type,format,i)
+	. . new tablename set tablename=type_format
+	. . new dateformat,hastimezone
+	. . set hastimezone=0
+	. . if type="timetz"      set hastimezone=1,type="time"
+	. . if type="timestamptz" set hastimezone=1,type="timestamp"
+	. . set dateformat=$zconvert(type,"u")
+	. . if format'="" set dateformat=dateformat_"("_$zconvert(format,"u")_")"
+	. . if hastimezone set dateformat=dateformat_" with time zone"
+	. . write "-- date format "_dateformat_";",!
+	. . write "DROP TABLE IF EXISTS "_tablename_" KEEPDATA;",!
+	. . write "CREATE TABLE "_tablename_" (id INTEGER PRIMARY KEY, dob "_dateformat_") GLOBAL """_global_""" READONLY;",!
+	. . write "SELECT * FROM "_tablename_";",!
+	. . write "--;",!
+	. . ;
+	. . set tablenames(tablename)=basetype  ; Store the type along with the table name
+    ;
+	write "--;",!
+	write "--Joins;",!
+	write "--;",!
+	write "--Only compatible type joins are included;",!
+    ;
+	; Helper function to check if types are compatible
+	new isinCompatible
+	set isinCompatible("DATE","TIME")=""
+	set isinCompatible("TIMESTAMP","TIME")=""
+	;
+	; Now for the inner joins
+	new tablename1 set tablename1=""
+	new type1,type2
+	for  set tablename1=$order(tablenames(tablename1)) quit:tablename1=""  do
+	. new tablename2 set tablename2=""
+	. for  set tablename2=$order(tablenames(tablename2)) quit:tablename2=""  do
+	. . if tablename1=tablename2 quit  ; same table
+	. . set type1=tablenames(tablename1)
+	. . set type2=tablenames(tablename2)
+	. . if $data(isinCompatible(type1,type2)) quit  ; incompatible types
+	. . if $data(isinCompatible(type2,type1)) quit  ; incompatible types
+	. . write "-- join between "_tablename1_" and "_tablename2_";",!
+	. . write "SELECT * FROM "_tablename1_" t1 INNER JOIN "_tablename2_" t2 ON t1.dob = t2.dob;",!
+	quit

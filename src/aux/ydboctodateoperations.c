@@ -1673,7 +1673,15 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 		int dummy_var = 0; // Avoids `lvalue required as left operand of assignment` error
 		NINES_COMPLIMENT(dummy_var, micro);
 	}
-	ret->length = sprintf(ret->address, "%ld%s", op1_time, micro);
+
+	int micro_sec;
+
+	if (op1_time)
+		ret->length = sprintf(ret->address, "%ld%s", op1_time, micro);
+	else if ((micro_sec = atoi(micro))) // warning: assignment
+		ret->length = sprintf(ret->address, "%i", micro_sec);
+	else
+		ret->length = sprintf(ret->address, "0");
 	ret->address[ret->length] = '\0';
 	ydb_free(time_format);
 	ydb_free(time_str);

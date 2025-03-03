@@ -118,24 +118,24 @@ OCTO> create table timestampzhorologr (id integer primary key, dob timestamp(zho
 CREATE TABLE
 OCTO> select * from timestampzhorologr;
 id|dob
-0|2023-01-01 01:01:01.1
-1|2023-01-02 01:02:01.1
+0|2023-01-01 01:01:01.000001
+1|2023-01-02 01:02:01.000001
 (2 rows)
 OCTO> select * from timestampzhorologr where dob = timestamp(zhorolog)'66476,3721,1,18000';
 id|dob
-1|2023-01-02 01:02:01.1
+1|2023-01-02 01:02:01.000001
 (1 row)
 OCTO> 
 -- Run the yottadb command which modifies the globals that were mapped to a table above --
 -- Run select on the table to see the modifications done to the global --
 OCTO> select * from timestampzhorologr;
 id|dob
-0|2023-01-01 01:01:01.1
-3|2023-01-02 01:02:01.1
+0|2023-01-01 01:01:01.000001
+3|2023-01-02 01:02:01.000001
 (2 rows)
 OCTO> select * from timestampzhorologr where dob = timestamp(zhorolog)'66476,3721,1,18000';
 id|dob
-3|2023-01-02 01:02:01.1
+3|2023-01-02 01:02:01.000001
 (1 row)
 OCTO> 
 -- Testing input14
@@ -260,24 +260,24 @@ OCTO> create table timestamptzzhorologr (id integer primary key, dob timestamp(z
 CREATE TABLE
 OCTO> select * from timestamptzzhorologr;
 id|dob
-0|2023-01-01 01:01:01.1-05
-1|2023-01-02 01:02:01.1-05
+0|2023-01-01 01:01:01.000001-05
+1|2023-01-02 01:02:01.000001-05
 (2 rows)
 OCTO> select * from timestamptzzhorologr where dob = timestamp(zhorolog)with time zone'66476,3721,1,18000';
 id|dob
-1|2023-01-02 01:02:01.1-05
+1|2023-01-02 01:02:01.000001-05
 (1 row)
 OCTO> 
 -- Run the yottadb command which modifies the globals that were mapped to a table above --
 -- Run select on the table to see the modifications done to the global --
 OCTO> select * from timestamptzzhorologr;
 id|dob
-0|2023-01-01 01:01:01.1-05
-3|2023-01-02 01:02:01.1-05
+0|2023-01-01 01:01:01.000001-05
+3|2023-01-02 01:02:01.000001-05
 (2 rows)
 OCTO> select * from timestamptzzhorologr where dob = timestamp(zhorolog)with time zone'66476,3721,1,18000';
 id|dob
-3|2023-01-02 01:02:01.1-05
+3|2023-01-02 01:02:01.000001-05
 (1 row)
 OCTO> 
 -- Testing input19
@@ -514,24 +514,24 @@ OCTO> create table timezhorologr (id integer primary key, dob time(zhorolog)) gl
 CREATE TABLE
 OCTO> select * from timezhorologr;
 id|dob
-0|01:01:01.1
-1|01:02:01.1
+0|01:01:01.000001
+1|01:02:01.000001
 (2 rows)
 OCTO> select * from timezhorologr where dob = time(zhorolog)',3721,1,';
 id|dob
-1|01:02:01.1
+1|01:02:01.000001
 (1 row)
 OCTO> 
 -- Run the yottadb command which modifies the globals that were mapped to a table above --
 -- Run select on the table to see the modifications done to the global --
 OCTO> select * from timezhorologr;
 id|dob
-0|01:01:01.1
-3|01:02:01.1
+0|01:01:01.000001
+3|01:02:01.000001
 (2 rows)
 OCTO> select * from timezhorologr where dob = time(zhorolog)',3721,1,';
 id|dob
-3|01:02:01.1
+3|01:02:01.000001
 (1 row)
 OCTO> 
 -- Testing input9

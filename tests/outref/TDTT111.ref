@@ -1,0 +1,12 @@
+-- TDTT111: OCTO382 : Verify that timestamp -> zhorolog conversion for microseconds happens correctly
+SELECT timestamp'2969-3-18 16:31:45.365000';
+SELECT timestamp'2969-3-18 16:31:45.365';
+OCTO> SELECT timestamp'2969-3-18 16:31:45.365000';
+???
+412071,59505,365000,
+(1 row)
+OCTO> SELECT timestamp'2969-3-18 16:31:45.365';
+???
+412071,59505,365000,
+(1 row)
+OCTO> 

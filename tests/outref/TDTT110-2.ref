@@ -1,0 +1,807 @@
+OCTO> --;
+--Test start;
+--;
+-- date format DATE;
+DROP TABLE IF EXISTS date KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE date (id INTEGER PRIMARY KEY, dob DATE) GLOBAL "^date" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM date;
+id|dob
+0|2020-02-14
+1|1947-03-10
+(2 rows)
+OCTO> --;
+-- date format DATE(FILEMAN);
+DROP TABLE IF EXISTS datefileman KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE datefileman (id INTEGER PRIMARY KEY, dob DATE(FILEMAN)) GLOBAL "^datefileman" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM datefileman;
+id|dob
+0|2020-02-14
+1|1947-03-10
+(2 rows)
+OCTO> --;
+-- date format DATE(HOROLOG);
+DROP TABLE IF EXISTS datehorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE datehorolog (id INTEGER PRIMARY KEY, dob DATE(HOROLOG)) GLOBAL "^datehorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM datehorolog;
+id|dob
+0|2020-02-14
+1|1947-03-10
+(2 rows)
+OCTO> --;
+-- date format DATE(ZHOROLOG);
+DROP TABLE IF EXISTS datezhorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE datezhorolog (id INTEGER PRIMARY KEY, dob DATE(ZHOROLOG)) GLOBAL "^datezhorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM datezhorolog;
+id|dob
+0|2020-02-14
+1|1947-03-10
+(2 rows)
+OCTO> --;
+-- date format DATE(ZUT);
+DROP TABLE IF EXISTS datezut KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE datezut (id INTEGER PRIMARY KEY, dob DATE(ZUT)) GLOBAL "^datezut" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM datezut;
+id|dob
+0|2020-02-14
+1|1947-03-10
+(2 rows)
+OCTO> --;
+-- date format TIME;
+DROP TABLE IF EXISTS time KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE time (id INTEGER PRIMARY KEY, dob TIME) GLOBAL "^time" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM time;
+id|dob
+0|05:14:32.009922
+1|16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIME(HOROLOG);
+DROP TABLE IF EXISTS timehorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timehorolog (id INTEGER PRIMARY KEY, dob TIME(HOROLOG)) GLOBAL "^timehorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timehorolog;
+id|dob
+0|05:14:32
+1|16:13:22
+(2 rows)
+OCTO> --;
+-- date format TIME(ZHOROLOG);
+DROP TABLE IF EXISTS timezhorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timezhorolog (id INTEGER PRIMARY KEY, dob TIME(ZHOROLOG)) GLOBAL "^timezhorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timezhorolog;
+id|dob
+0|05:14:32.009922
+1|16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIME with time zone;
+DROP TABLE IF EXISTS timetz KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timetz (id INTEGER PRIMARY KEY, dob TIME with time zone) GLOBAL "^timetz" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timetz;
+id|dob
+0|05:14:32.009922+00
+1|16:13:22.582+00
+(2 rows)
+OCTO> --;
+-- date format TIME(HOROLOG);
+DROP TABLE IF EXISTS timehorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timehorolog (id INTEGER PRIMARY KEY, dob TIME(HOROLOG)) GLOBAL "^timehorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timehorolog;
+id|dob
+0|05:14:32
+1|16:13:22
+(2 rows)
+OCTO> --;
+-- date format TIME(ZHOROLOG);
+DROP TABLE IF EXISTS timezhorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timezhorolog (id INTEGER PRIMARY KEY, dob TIME(ZHOROLOG)) GLOBAL "^timezhorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timezhorolog;
+id|dob
+0|05:14:32.009922
+1|16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP;
+DROP TABLE IF EXISTS timestamp KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestamp (id INTEGER PRIMARY KEY, dob TIMESTAMP) GLOBAL "^timestamp" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestamp;
+id|dob
+0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(FILEMAN);
+DROP TABLE IF EXISTS timestampfileman KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestampfileman (id INTEGER PRIMARY KEY, dob TIMESTAMP(FILEMAN)) GLOBAL "^timestampfileman" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestampfileman;
+id|dob
+0|2020-02-14 05:14:32
+1|1947-03-10 16:13:22
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(HOROLOG);
+DROP TABLE IF EXISTS timestamphorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestamphorolog (id INTEGER PRIMARY KEY, dob TIMESTAMP(HOROLOG)) GLOBAL "^timestamphorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestamphorolog;
+id|dob
+0|2020-02-14 05:14:32
+1|1947-03-10 16:13:22
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(ZHOROLOG);
+DROP TABLE IF EXISTS timestampzhorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestampzhorolog (id INTEGER PRIMARY KEY, dob TIMESTAMP(ZHOROLOG)) GLOBAL "^timestampzhorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestampzhorolog;
+id|dob
+0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(ZUT);
+DROP TABLE IF EXISTS timestampzut KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestampzut (id INTEGER PRIMARY KEY, dob TIMESTAMP(ZUT)) GLOBAL "^timestampzut" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestampzut;
+id|dob
+0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP with time zone;
+DROP TABLE IF EXISTS timestamptz KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestamptz (id INTEGER PRIMARY KEY, dob TIMESTAMP with time zone) GLOBAL "^timestamptz" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestamptz;
+id|dob
+0|2020-02-14 05:14:32.009922+00
+1|1947-03-10 16:13:22.582+00
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(FILEMAN);
+DROP TABLE IF EXISTS timestampfileman KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestampfileman (id INTEGER PRIMARY KEY, dob TIMESTAMP(FILEMAN)) GLOBAL "^timestampfileman" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestampfileman;
+id|dob
+0|2020-02-14 05:14:32
+1|1947-03-10 16:13:22
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(HOROLOG);
+DROP TABLE IF EXISTS timestamphorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestamphorolog (id INTEGER PRIMARY KEY, dob TIMESTAMP(HOROLOG)) GLOBAL "^timestamphorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestamphorolog;
+id|dob
+0|2020-02-14 05:14:32
+1|1947-03-10 16:13:22
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(ZHOROLOG);
+DROP TABLE IF EXISTS timestampzhorolog KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestampzhorolog (id INTEGER PRIMARY KEY, dob TIMESTAMP(ZHOROLOG)) GLOBAL "^timestampzhorolog" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestampzhorolog;
+id|dob
+0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> --;
+-- date format TIMESTAMP(ZUT);
+DROP TABLE IF EXISTS timestampzut KEEPDATA;
+DROP TABLE
+OCTO> CREATE TABLE timestampzut (id INTEGER PRIMARY KEY, dob TIMESTAMP(ZUT)) GLOBAL "^timestampzut" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM timestampzut;
+id|dob
+0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> --;
+--;
+--Joins;
+--;
+--Only compatible type joins are included;
+-- join between date and datefileman;
+SELECT * FROM date t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between date and datehorolog;
+SELECT * FROM date t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between date and datezhorolog;
+SELECT * FROM date t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between date and datezut;
+SELECT * FROM date t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between date and timestamp;
+SELECT * FROM date t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between date and timestampfileman;
+SELECT * FROM date t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between date and timestamphorolog;
+SELECT * FROM date t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between date and timestamptz;
+SELECT * FROM date t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between date and timestampzhorolog;
+SELECT * FROM date t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between date and timestampzut;
+SELECT * FROM date t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datefileman and date;
+SELECT * FROM datefileman t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datefileman and datehorolog;
+SELECT * FROM datefileman t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datefileman and datezhorolog;
+SELECT * FROM datefileman t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datefileman and datezut;
+SELECT * FROM datefileman t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datefileman and timestamp;
+SELECT * FROM datefileman t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datefileman and timestampfileman;
+SELECT * FROM datefileman t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datefileman and timestamphorolog;
+SELECT * FROM datefileman t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datefileman and timestamptz;
+SELECT * FROM datefileman t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datefileman and timestampzhorolog;
+SELECT * FROM datefileman t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datefileman and timestampzut;
+SELECT * FROM datefileman t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datehorolog and date;
+SELECT * FROM datehorolog t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datehorolog and datefileman;
+SELECT * FROM datehorolog t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datehorolog and datezhorolog;
+SELECT * FROM datehorolog t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datehorolog and datezut;
+SELECT * FROM datehorolog t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datehorolog and timestamp;
+SELECT * FROM datehorolog t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datehorolog and timestampfileman;
+SELECT * FROM datehorolog t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datehorolog and timestamphorolog;
+SELECT * FROM datehorolog t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datehorolog and timestamptz;
+SELECT * FROM datehorolog t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datehorolog and timestampzhorolog;
+SELECT * FROM datehorolog t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datehorolog and timestampzut;
+SELECT * FROM datehorolog t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezhorolog and date;
+SELECT * FROM datezhorolog t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezhorolog and datefileman;
+SELECT * FROM datezhorolog t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezhorolog and datehorolog;
+SELECT * FROM datezhorolog t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezhorolog and datezut;
+SELECT * FROM datezhorolog t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezhorolog and timestamp;
+SELECT * FROM datezhorolog t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezhorolog and timestampfileman;
+SELECT * FROM datezhorolog t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezhorolog and timestamphorolog;
+SELECT * FROM datezhorolog t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezhorolog and timestamptz;
+SELECT * FROM datezhorolog t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezhorolog and timestampzhorolog;
+SELECT * FROM datezhorolog t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezhorolog and timestampzut;
+SELECT * FROM datezhorolog t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezut and date;
+SELECT * FROM datezut t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezut and datefileman;
+SELECT * FROM datezut t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezut and datehorolog;
+SELECT * FROM datezut t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezut and datezhorolog;
+SELECT * FROM datezut t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14|0|2020-02-14
+1|1947-03-10|1|1947-03-10
+(2 rows)
+OCTO> -- join between datezut and timestamp;
+SELECT * FROM datezut t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezut and timestampfileman;
+SELECT * FROM datezut t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezut and timestamphorolog;
+SELECT * FROM datezut t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezut and timestamptz;
+SELECT * FROM datezut t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezut and timestampzhorolog;
+SELECT * FROM datezut t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between datezut and timestampzut;
+SELECT * FROM datezut t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between time and timehorolog;
+SELECT * FROM time t1 INNER JOIN timehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between time and timetz;
+SELECT * FROM time t1 INNER JOIN timetz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|05:14:32.009922|0|05:14:32.009922+00
+1|16:13:22.582|1|16:13:22.582+00
+(2 rows)
+OCTO> -- join between time and timezhorolog;
+SELECT * FROM time t1 INNER JOIN timezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|05:14:32.009922|0|05:14:32.009922
+1|16:13:22.582|1|16:13:22.582
+(2 rows)
+OCTO> -- join between timehorolog and time;
+SELECT * FROM timehorolog t1 INNER JOIN time t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timehorolog and timetz;
+SELECT * FROM timehorolog t1 INNER JOIN timetz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timehorolog and timezhorolog;
+SELECT * FROM timehorolog t1 INNER JOIN timezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and date;
+SELECT * FROM timestamp t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and datefileman;
+SELECT * FROM timestamp t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and datehorolog;
+SELECT * FROM timestamp t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and datezhorolog;
+SELECT * FROM timestamp t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and datezut;
+SELECT * FROM timestamp t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and timestampfileman;
+SELECT * FROM timestamp t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and timestamphorolog;
+SELECT * FROM timestamp t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamp and timestamptz;
+SELECT * FROM timestamp t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922+00
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582+00
+(2 rows)
+OCTO> -- join between timestamp and timestampzhorolog;
+SELECT * FROM timestamp t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestamp and timestampzut;
+SELECT * FROM timestamp t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestampfileman and date;
+SELECT * FROM timestampfileman t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and datefileman;
+SELECT * FROM timestampfileman t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and datehorolog;
+SELECT * FROM timestampfileman t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and datezhorolog;
+SELECT * FROM timestampfileman t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and datezut;
+SELECT * FROM timestampfileman t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and timestamp;
+SELECT * FROM timestampfileman t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and timestamphorolog;
+SELECT * FROM timestampfileman t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32|0|2020-02-14 05:14:32
+1|1947-03-10 16:13:22|1|1947-03-10 16:13:22
+(2 rows)
+OCTO> -- join between timestampfileman and timestamptz;
+SELECT * FROM timestampfileman t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and timestampzhorolog;
+SELECT * FROM timestampfileman t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampfileman and timestampzut;
+SELECT * FROM timestampfileman t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and date;
+SELECT * FROM timestamphorolog t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and datefileman;
+SELECT * FROM timestamphorolog t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and datehorolog;
+SELECT * FROM timestamphorolog t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and datezhorolog;
+SELECT * FROM timestamphorolog t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and datezut;
+SELECT * FROM timestamphorolog t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and timestamp;
+SELECT * FROM timestamphorolog t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and timestampfileman;
+SELECT * FROM timestamphorolog t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32|0|2020-02-14 05:14:32
+1|1947-03-10 16:13:22|1|1947-03-10 16:13:22
+(2 rows)
+OCTO> -- join between timestamphorolog and timestamptz;
+SELECT * FROM timestamphorolog t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and timestampzhorolog;
+SELECT * FROM timestamphorolog t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamphorolog and timestampzut;
+SELECT * FROM timestamphorolog t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and date;
+SELECT * FROM timestamptz t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and datefileman;
+SELECT * FROM timestamptz t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and datehorolog;
+SELECT * FROM timestamptz t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and datezhorolog;
+SELECT * FROM timestamptz t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and datezut;
+SELECT * FROM timestamptz t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and timestamp;
+SELECT * FROM timestamptz t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922+00|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582+00|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestamptz and timestampfileman;
+SELECT * FROM timestamptz t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and timestamphorolog;
+SELECT * FROM timestamptz t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestamptz and timestampzhorolog;
+SELECT * FROM timestamptz t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922+00|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582+00|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestamptz and timestampzut;
+SELECT * FROM timestamptz t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922+00|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582+00|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestampzhorolog and date;
+SELECT * FROM timestampzhorolog t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and datefileman;
+SELECT * FROM timestampzhorolog t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and datehorolog;
+SELECT * FROM timestampzhorolog t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and datezhorolog;
+SELECT * FROM timestampzhorolog t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and datezut;
+SELECT * FROM timestampzhorolog t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and timestamp;
+SELECT * FROM timestampzhorolog t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestampzhorolog and timestampfileman;
+SELECT * FROM timestampzhorolog t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and timestamphorolog;
+SELECT * FROM timestampzhorolog t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzhorolog and timestamptz;
+SELECT * FROM timestampzhorolog t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922+00
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582+00
+(2 rows)
+OCTO> -- join between timestampzhorolog and timestampzut;
+SELECT * FROM timestampzhorolog t1 INNER JOIN timestampzut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestampzut and date;
+SELECT * FROM timestampzut t1 INNER JOIN date t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and datefileman;
+SELECT * FROM timestampzut t1 INNER JOIN datefileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and datehorolog;
+SELECT * FROM timestampzut t1 INNER JOIN datehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and datezhorolog;
+SELECT * FROM timestampzut t1 INNER JOIN datezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and datezut;
+SELECT * FROM timestampzut t1 INNER JOIN datezut t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and timestamp;
+SELECT * FROM timestampzut t1 INNER JOIN timestamp t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timestampzut and timestampfileman;
+SELECT * FROM timestampzut t1 INNER JOIN timestampfileman t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and timestamphorolog;
+SELECT * FROM timestampzut t1 INNER JOIN timestamphorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timestampzut and timestamptz;
+SELECT * FROM timestampzut t1 INNER JOIN timestamptz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922+00
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582+00
+(2 rows)
+OCTO> -- join between timestampzut and timestampzhorolog;
+SELECT * FROM timestampzut t1 INNER JOIN timestampzhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|2020-02-14 05:14:32.009922|0|2020-02-14 05:14:32.009922
+1|1947-03-10 16:13:22.582|1|1947-03-10 16:13:22.582
+(2 rows)
+OCTO> -- join between timetz and time;
+SELECT * FROM timetz t1 INNER JOIN time t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|05:14:32.009922+00|0|05:14:32.009922
+1|16:13:22.582+00|1|16:13:22.582
+(2 rows)
+OCTO> -- join between timetz and timehorolog;
+SELECT * FROM timetz t1 INNER JOIN timehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timetz and timezhorolog;
+SELECT * FROM timetz t1 INNER JOIN timezhorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|05:14:32.009922+00|0|05:14:32.009922
+1|16:13:22.582+00|1|16:13:22.582
+(2 rows)
+OCTO> -- join between timezhorolog and time;
+SELECT * FROM timezhorolog t1 INNER JOIN time t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|05:14:32.009922|0|05:14:32.009922
+1|16:13:22.582|1|16:13:22.582
+(2 rows)
+OCTO> -- join between timezhorolog and timehorolog;
+SELECT * FROM timezhorolog t1 INNER JOIN timehorolog t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+(0 rows)
+OCTO> -- join between timezhorolog and timetz;
+SELECT * FROM timezhorolog t1 INNER JOIN timetz t2 ON t1.dob = t2.dob;
+id|dob|id|dob
+0|05:14:32.009922|0|05:14:32.009922+00
+1|16:13:22.582|1|16:13:22.582+00
+(2 rows)
+OCTO> 

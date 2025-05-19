@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -635,14 +635,18 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	}
 	compare /dev/null sorted_build_warnings.txt build_warnings.txt
 
-	echo "# Check for unexpected warning(s) from clang-tidy ..."
-	../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
-	../tools/ci/sort_warnings.sh clang_tidy_warnings.txt sorted_clang_warnings.txt
-	# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
-	if [ "$build_type" = Debug ]; then
-		compare ../tools/ci/clang_tidy_warnings.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
-	else
-		compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
+	# Skip Clang-tidy checking with Rocky Linux as the version keeps getting upgraded and is not fixed, resulting in changing 
+	# warnings, some of which are false positives. Clang-tidy on Ubuntu is good enough for now.
+	if ! $is_rocky8; then
+		echo "# Check for unexpected warning(s) from clang-tidy ..."
+		../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
+		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt sorted_clang_warnings.txt
+		# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
+		if [ "$build_type" = Debug ]; then
+			compare ../tools/ci/clang_tidy_warnings.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
+		else
+			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
+		fi
 	fi
 
 	$build_tool install

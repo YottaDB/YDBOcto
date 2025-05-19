@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -244,8 +244,12 @@ test-vista:
     # Suppress Docker warning advising against using the --password flag
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
     - docker push yottadb/${REPO}:${DOCKERHUBTAG}
-  only:
-    - master@YottaDB/DBMS/YDBOcto
+  # Run for master branch on YottaDB/DBMS/YDBOcto repo
+  # $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH means run only post merge
+  # Don't run for scheduled pipelines
+  # https://docs.gitlab.com/ci/jobs/job_rules/#ci_pipeline_source-predefined-variable
+  rules:
+    - if: '$CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto" && $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"'
 
 docker-octo-amd64:
   extends: .docker-octo-common
@@ -277,8 +281,12 @@ docker-octo-aarch64:
     - docker rmi yottadb/octo-vehu:latest-master
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
     - docker push yottadb/${REPO}:${DOCKERHUBTAG}
-  only:
-    - master@YottaDB/DBMS/YDBOcto
+  # Run for master branch on YottaDB/DBMS/YDBOcto repo
+  # $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH means run only post merge
+  # Don't run for scheduled pipelines
+  # https://docs.gitlab.com/ci/jobs/job_rules/#ci_pipeline_source-predefined-variable
+  rules:
+    - if: '$CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto" && $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"'
 
 docker-vista-amd64:
   extends: .docker-vista-common
@@ -309,8 +317,12 @@ docker-vista-aarch64:
     - docker manifest push yottadb/${REPO}:${DOCKERHUBTAG}
   tags:
     - amd64
-  only:
-    - master@YottaDB/DBMS/YDBOcto
+  # Run for master branch on YottaDB/DBMS/YDBOcto repo
+  # $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH means run only post merge
+  # Don't run for scheduled pipelines
+  # https://docs.gitlab.com/ci/jobs/job_rules/#ci_pipeline_source-predefined-variable
+  rules:
+    - if: '$CI_PROJECT_PATH == "YottaDB/DBMS/YDBOcto" && $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"'
 
 docker-manifest-octo:
   extends: .docker-manifest-common

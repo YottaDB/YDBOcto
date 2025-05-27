@@ -1,0 +1,35 @@
+# YDBOcto#1078 : Test that NOW() function does not return NULL if TZ is ahead of UTC
+# Test NOW() function when TZ is ahead of, equal to and behind UTC
+# Set TZ env var to UTC-7
+# Run [octo -f TDTF17.sql]
+now
+YYYY-MM-DD HH:MM:SS.uuuuuu+07
+(1 row)
+current_timestamp
+YYYY-MM-DD HH:MM:SS.uuuuuu+07
+(1 row)
+current_time
+HH:MM:SS.uuuuuu+07
+(1 row)
+# Set TZ env var to UTC
+# Run [octo -f TDTF17.sql]
+now
+YYYY-MM-DD HH:MM:SS.uuuuuu+00
+(1 row)
+current_timestamp
+YYYY-MM-DD HH:MM:SS.uuuuuu+00
+(1 row)
+current_time
+HH:MM:SS.uuuuuu+00
+(1 row)
+# Set TZ env var to UTC+9
+# Run [octo -f TDTF17.sql]
+now
+YYYY-MM-DD HH:MM:SS.uuuuuu-09
+(1 row)
+current_timestamp
+YYYY-MM-DD HH:MM:SS.uuuuuu-09
+(1 row)
+current_time
+HH:MM:SS.uuuuuu-09
+(1 row)

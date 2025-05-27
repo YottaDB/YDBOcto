@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -20,7 +20,8 @@ PostgreSQL()
 	; (where `US` is microseconds and `TT` is the current timezone as a UTC offset).
 	; The accuracy of microseconds has the same limitations as in https://docs.yottadb.com/ProgrammersGuide/isv.html#zhorolog.
 	new utcoffset  set utcoffset=$piece($zhorolog,",",4)/3600
-	quit $ZDATE($H,"YYYY-MM-DD 24:60:SS")_"."_$piece($zhorolog,",",3)_$select(utcoffset>0:"-",1:"+")_$translate($justify(utcoffset,2)," ","0")
+	new utcabsolute set utcabsolute=$translate(utcoffset,"-","")
+	quit $ZDATE($H,"YYYY-MM-DD 24:60:SS")_"."_$piece($zhorolog,",",3)_$select(utcoffset>0:"-",1:"+")_$translate($justify(utcabsolute,2)," ","0")
 
 MySQL()
 	; Returns the current date and time in `YYYY-MM-DD HH:MM:SS` format

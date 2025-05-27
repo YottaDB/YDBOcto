@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -181,3 +181,23 @@ teardown() {
 	stop_rocto
 	verify_output TDTF16 output.txt noinfo nodebug
 }
+
+@test "TDTF17 : OCTO1078 : Check that NOW() does not return NULL if TZ is ahead of UTC" {
+	echo "# YDBOcto#1078 : Test that NOW() function does not return NULL if TZ is ahead of UTC" >> output.txt
+	echo "# Test NOW() function when TZ is ahead of, equal to and behind UTC" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDTF17.sql .
+	for timezone in UTC-7 UTC UTC+9
+	do
+		export TZ="$timezone"
+		echo "# Set TZ env var to $TZ" >> output.txt
+		echo "# Run [octo -f TDTF17.sql]" >> output.txt
+		octo -f TDTF17.sql 2>&1 > octo_output.txt
+		# Filter out the variable parts of the output using the sed expression below
+		# Microseconds can be less than 6 digits (in case the last digits are 0, they are not displayed).
+		# Hence the {1,6} usage in the regex below (minimum 1 digit, maximum 6 digits).
+		sed 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/YYYY-MM-DD/g;s/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\.[0-9]\{1,6\}/HH:MM:SS.uuuuuu/g;' octo_output.txt >> output.txt
+		mv octo_output.txt octo_output_$timezone.txt
+	done
+	verify_output TDTF17 output.txt nodatetimefilter
+}
+

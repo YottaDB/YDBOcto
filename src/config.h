@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -96,6 +96,8 @@ typedef struct OctoConfig {
 	FILE *octo929_sqlfile_stream;			   /* File used to write CREATE TABLE/CREATE FUNCTION commands during
 							    * special YDBOcto#929 auto upgrade.
 							    */
+	char	   *octo929_sqlfile_stream_buf;		   /* Buffer used by open_memstream() of octo929_sqlfile_stream */
+	size_t	    octo929_sqlfile_stream_buf_size;	   /* Size of buffer used by octo929_sqlfile_stream */
 	tabletype_t default_tabletype;			   /* type of table (readonly vs readwrite) assigned to CREATE TABLE
 							    * if not explicitly specified.
 							    */

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -91,7 +91,7 @@
  *	-1 if query has been canceled.
  */
 int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type, ParseContext *parse_context) {
-	FILE	     *out;
+	FILE	     *memstream;
 	SqlStatement *result;
 	SqlValue     *value;
 	boolean_t     free_memory_chunks;
@@ -192,11 +192,11 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	 */
 	INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	if (config->octo_print_query) {
-		fprintf(stdout, "OCTO> %.*s\n", cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 		/* It is possible error output of this query goes to stderr. In that case, it is possible for the two
 		 * output streams to get mixed up giving confusing results. Therefore, flush stdout right away.
 		 */
-		fflush(stdout);
+		SAFE_PRINTF(fprintf, stdout, FALSE, TRUE, "OCTO> %.*s\n", cur_input_index - old_input_index,
+			    input_buffer_combined + old_input_index);
 	}
 	if (NULL == result) {
 		INFO(INFO_RETURNING_FAILURE, "run_query");
@@ -710,10 +710,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					}
 				}
 			}
-			out = open_memstream(&buffer, &buffer_size);
-			assert(out);
-			text_table_defn_length = emit_create_table(out, result);
-			fclose(out); // at this point "buffer" and "buffer_size" are usable
+			memstream = open_memstream(&buffer, &buffer_size);
+			if (NULL == memstream) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			text_table_defn_length = emit_create_table(memstream, result);
+			fclose(memstream); // at this point "buffer" and "buffer_size" are usable
 			if (0 > text_table_defn_length) {
 				// Error messages for the negative status would already have been issued in
 				// "emit_create_table"
@@ -960,14 +963,17 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				ERROR(ERR_CANNOT_CREATE_VIEW, viewname);
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
-			out = open_memstream(&buffer, &buffer_size);
-			assert(out);
+			memstream = open_memstream(&buffer, &buffer_size);
+			if (NULL == memstream) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
 
 			// Emit text definition
 			int text_view_defn_length = 0;
-			text_view_defn_length
-			    += fprintf(out, "%.*s", cur_input_index - old_input_index, input_buffer_combined + old_input_index);
-			fclose(out); // at this point "buffer" and "buffer_size" are usable
+			text_view_defn_length += fprintf(memstream, "%.*s", cur_input_index - old_input_index,
+							 input_buffer_combined + old_input_index);
+			fclose(memstream); // at this point "buffer" and "buffer_size" are usable
 			if (0 > text_view_defn_length) {
 				// Cleanup the buffer and exit with error status
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
@@ -1321,10 +1327,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			int text_function_defn_length;
 
 			/* CREATE FUNCTION */
-			out = open_memstream(&buffer, &buffer_size);
-			assert(out);
-			text_function_defn_length = emit_create_function(out, result);
-			fclose(out); // at this point "buffer" and "buffer_size" are usable
+			memstream = open_memstream(&buffer, &buffer_size);
+			if (NULL == memstream) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");
+				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
+			}
+			text_function_defn_length = emit_create_function(memstream, result);
+			fclose(memstream); // at this point "buffer" and "buffer_size" are usable
 			if (0 > text_function_defn_length) {
 				/* Error messages for the non-zero status would already have been issued in
 				 * "emit_create_function"

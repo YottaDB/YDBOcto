@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,6 +37,13 @@
 		}                                                                           \
 	}
 
+#define OCTO929_SQLFILE_STREAM_FREE()                      \
+	{                                                  \
+		free(config->octo929_sqlfile_stream_buf);  \
+		config->octo929_sqlfile_stream_buf = NULL; \
+		config->octo929_sqlfile_stream = NULL;     \
+	}
+
 /* Previous to YDBOcto#940, ^%ydboctoocto("seedfmt") was used to hold git SHA
  * and if this value was different than the current git SHA octo-seed was reloaded.
  * After YDBOcto#940, ^%ydboctoocto("seeddfnfmt") is used to hold `FMT_SEED_DEFINITION`
@@ -55,6 +62,76 @@
 		YDB_ERROR_CHECK(dlqStatus);                                                 \
 	}
 
+int set_octo929_sqlfile_memstream(void) {
+	/* Open a stream that will hold the CREATE FUNCTION/CREATE TABLE commands needed for special auto upgrade */
+	config->octo929_sqlfile_stream
+	    = open_memstream(&config->octo929_sqlfile_stream_buf, &config->octo929_sqlfile_stream_buf_size);
+	if (NULL == config->octo929_sqlfile_stream) {
+		int save_errno;
+
+		save_errno = errno;
+		ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", save_errno, strerror(save_errno), "memstream");
+		return save_errno;
+	}
+
+	return 0;
+}
+
+int write_octo929_sqlfile_memstream(void) {
+	sigset_t savemask;
+	ssize_t	 bytes_written;
+	int	 fd;
+	int	 status;
+	int	 save_errno;
+
+	status = fclose(config->octo929_sqlfile_stream);
+	if (0 != status) {
+		save_errno = errno;
+		OCTO929_SQLFILE_STREAM_FREE();
+		ERROR(ERR_SYSCALL_WITH_ARG, "fclose()", save_errno, strerror(save_errno), "config->octo929_sqlfile_stream");
+		return save_errno;
+	}
+
+	assert(sizeof(OCTO929_SQLFILE_NAME) < sizeof(config->octo929_sqlfile));
+	strcpy(config->octo929_sqlfile, OCTO929_SQLFILE_NAME);
+	fd = mkstemp(config->octo929_sqlfile);
+	if (-1 == fd) {
+		save_errno = errno;
+		OCTO929_SQLFILE_STREAM_FREE();
+		ERROR(ERR_SYSCALL_WITH_ARG, "mkstemp()", save_errno, strerror(save_errno), config->octo929_sqlfile);
+		return save_errno;
+	}
+
+	// write() protected from signals
+	sigprocmask(SIG_BLOCK, &block_sigsent, &savemask);
+	bytes_written = write(fd, config->octo929_sqlfile_stream_buf, config->octo929_sqlfile_stream_buf_size);
+	sigprocmask(SIG_SETMASK, &savemask, NULL);
+	if ((-1 == bytes_written) || ((size_t)bytes_written != config->octo929_sqlfile_stream_buf_size)) {
+		char write_error_message[YDB_MAX_ERRORMSG];
+
+		save_errno = errno;
+		OCTO929_SQLFILE_STREAM_FREE();
+		snprintf(write_error_message, sizeof(write_error_message), "file: %s, bytes_written: %li, bytes_to_write: %li",
+			 config->octo929_sqlfile, bytes_written, config->octo929_sqlfile_stream_buf_size);
+		ERROR(ERR_SYSCALL_WITH_ARG, "write()", save_errno, strerror(save_errno), write_error_message);
+		return save_errno;
+	}
+
+	// Now free and NULL the stream objects to make sure nobody else uses them
+	OCTO929_SQLFILE_STREAM_FREE();
+
+	// close() protected from signals
+	sigprocmask(SIG_BLOCK, &block_sigsent, &savemask);
+	status = close(fd);
+	sigprocmask(SIG_SETMASK, &savemask, NULL);
+	if (0 != status) {
+		save_errno = errno;
+		ERROR(ERR_SYSCALL_WITH_ARG, "close()", errno, strerror(errno), config->octo929_sqlfile);
+		return save_errno;
+	}
+
+	return 0;
+}
 /* Checks if the octo seed file needs to be reloaded due to a new Octo build opening this database for the first time.
  * If so, it auto loads the octo-seed.sql and octo-seed.zwr files.
  * Returns YDB_OK on success and a non-zero (YDB_ERR_* status code or 1) on errors.
@@ -162,19 +239,11 @@ int auto_load_octo_seed_if_needed(void) {
 		}
 	}
 	if (config->is_auto_upgrade_octo929) {
-		/* Open a temporary file that will hold the CREATE FUNCTION/CREATE TABLE commands needed for special auto upgrade */
-		int fd;
-		assert(sizeof(OCTO929_SQLFILE_NAME) < sizeof(config->octo929_sqlfile));
-		strcpy(config->octo929_sqlfile, OCTO929_SQLFILE_NAME);
-		fd = mkstemp(config->octo929_sqlfile);
-		if (-1 == fd) {
-			ERROR(ERR_SYSCALL_WITH_ARG, "mkstemp()", errno, strerror(errno), config->octo929_sqlfile);
-			CLEANUP_AND_RETURN(fd, release_ddl_lock, octo_global, locksub);
-		}
-		config->octo929_sqlfile_stream = fdopen(fd, "w");
-		if (NULL == config->octo929_sqlfile_stream) {
-			ERROR(ERR_SYSCALL_WITH_ARG, "fdopen()", errno, strerror(errno), config->octo929_sqlfile);
-			CLEANUP_AND_RETURN(fd, release_ddl_lock, octo_global, locksub);
+		/* Open a memory stream followed by a file that will hold the CREATE FUNCTION/CREATE TABLE commands needed for
+		 * special auto upgrade */
+		status = set_octo929_sqlfile_memstream();
+		if (0 != status) {
+			CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
 		}
 	}
 	/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade
@@ -192,6 +261,9 @@ int auto_load_octo_seed_if_needed(void) {
 	config->in_auto_load_octo_seed = FALSE;
 	config->allow_schema_changes = save_allow_schema_changes;
 	if (0 != status) {
+		if (config->is_auto_upgrade_octo929) {
+			OCTO929_SQLFILE_STREAM_FREE();
+		}
 		CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
 	}
 	if (full_auto_load_needed) {
@@ -201,9 +273,8 @@ int auto_load_octo_seed_if_needed(void) {
 		UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(status, release_ddl_lock, octo_global, locksub);
 		assert(YDB_OK == status); // Ensure above call succeeded
 		if (config->is_auto_upgrade_octo929) {
-			status = fclose(config->octo929_sqlfile_stream);
+			status = write_octo929_sqlfile_memstream();
 			if (0 != status) {
-				ERROR(ERR_SYSCALL_WITH_ARG, "fclose()", errno, strerror(errno), config->octo929_sqlfile);
 				CLEANUP_AND_RETURN(status, release_ddl_lock, octo_global, locksub);
 			}
 			status = run_query_file(config->octo929_sqlfile);

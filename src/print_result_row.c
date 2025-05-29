@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,7 @@
 
 #include "octo.h"
 
-void print_result_row(ydb_buffer_t *row) {
+void print_result_row(FILE *memstream, ydb_buffer_t *row) {
 	int	       i, hdr_len, data_len;
 	unsigned char *buff_start, *buff, *buff_top, *tail;
 
@@ -53,5 +53,5 @@ void print_result_row(ydb_buffer_t *row) {
 	}
 	assert(tail <= buff_top); /* caller `print_temporary_table()` ensures there is space for a '\0' terminator */
 	*tail = '\0';
-	fprintf(stdout, "%s\n", buff_start);
+	fprintf(memstream, "%s\n", buff_start);
 }

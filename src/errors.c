@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -115,7 +115,7 @@ void populate_and_print_full_err_str(enum ERROR error, char **full_err_str, int 
 #ifndef IS_ROCTO
 			if (0 < copied) {
 				__va_copy(args, orig_args);
-				vfprintf(stderr, *full_err_str, args);
+				SAFE_PRINTF(vfprintf, stderr, FALSE, FALSE, *full_err_str, args);
 				va_end(args);
 			}
 #endif
@@ -196,15 +196,17 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	while ('\0' != *line_end) {
 		if ('\n' == *line_end) {
 			copied = line_end - line_start;
-			if (0 < copied)
-				fprintf(stderr, "%s%.*s\n", err_prefix, copied, line_start);
+			if (0 < copied) {
+				SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s%.*s\n", err_prefix, copied, line_start);
+			}
 			line_start = line_end + 1;
 		}
 		line_end++;
 	}
 	copied = line_end - line_start;
-	if (0 < copied)
-		fprintf(stderr, "%s%.*s\n", err_prefix, copied, line_start);
+	if (0 < copied) {
+		SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s%.*s\n", err_prefix, copied, line_start);
+	}
 	if (!rocto_session.sending_message && rocto_session.connection_fd != 0) {
 		rocto_session.sending_message = TRUE;
 		if (TRACE < level) {

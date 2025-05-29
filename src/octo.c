@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
 				 * be sitting at the "OCTO>" prompt in that case.
 				 */
 				if (EOF_CTRLD == eof_hit) {
-					printf("\n");
+					SAFE_PRINTF(fprintf, stdout, FALSE, FALSE, "%s", "\n");
 				}
 
 				/* The purpose of this block is to add ";" so that a previous

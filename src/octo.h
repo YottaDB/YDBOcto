@@ -30,6 +30,7 @@
 #include "constants.h"
 #include "memory_chunk.h"
 #include "pg_defaults.h" /* Only used for DEFAULT_DATESTYLE */
+#include <signal.h>
 
 #include "mmrhash.h"
 
@@ -359,14 +360,36 @@
 #define COMMIT_COMMAND_TAG	    "COMMIT"
 #define ROLLBACK_COMMAND_TAG	    "ROLLBACK"
 
+/* Signal safe printing function
+ * YottaDB issues signals (esp. SIGALRM for database flush timer) which can interrupt
+ * glibc IO calls, which Octo does not re-try again.
+ *
+ * See
+ * https://web.archive.org/web/20110923235423/http://www.gnu.org/s/libc/manual/html_node/Interrupted-Primitives.html#Interrupted-Primitives
+ *
+ * This function blocks the signals while doing the glibc IO calls.
+ */
+#define SAFE_PRINTF(FN, STREAM, NL, FLUSH, ...)                    \
+	{                                                          \
+		sigset_t savemask;                                 \
+                                                                   \
+		sigprocmask(SIG_BLOCK, &block_sigsent, &savemask); \
+		FN((STREAM), ##__VA_ARGS__);                       \
+		if (NL) {                                          \
+			fprintf((STREAM), "\n");                   \
+		}                                                  \
+		if (FLUSH) {                                       \
+			fflush((STREAM));                          \
+		}                                                  \
+		sigprocmask(SIG_SETMASK, &savemask, NULL);         \
+	}
 #define PRINT_COMMAND_TAG(COMMAND_TAG)                                                                                     \
 	/* Skip printing COMMAND TAG if running auto load of octo-seed.sql as it is internal (not a user driven activity). \
 	 * Skip printing COMMAND TAG if rocto as that should not go to stdout (should only go to client through simple     \
 	 * or extended query protocol connection.                                                                          \
 	 */                                                                                                                \
 	if (!config->in_auto_load_octo_seed && !config->is_auto_upgrade_octo929 && !config->is_rocto) {                    \
-		fprintf(stdout, "%s\n", COMMAND_TAG);                                                                      \
-		fflush(stdout);                                                                                            \
+		SAFE_PRINTF(fprintf, stdout, FALSE, TRUE, "%s\n", COMMAND_TAG);                                            \
 	}
 
 // Default buffer allocated for $zroutines
@@ -1084,83 +1107,77 @@ typedef enum DDLDependencyType {
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);              \
 	}
 
-#define UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)                        \
-	{                                                                                                                          \
-		/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade  \
-		 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.                     \
-		 */                                                                                                                \
-		boolean_t save_allow_schema_changes;                                                                               \
-		save_allow_schema_changes = config->allow_schema_changes;                                                          \
-		config->allow_schema_changes = TRUE;                                                                               \
-		assert(FALSE == config->in_auto_upgrade_binary_table_definition);                                                  \
-		/* Do the actual auto upgrade of the binary function definition.                                                   \
-		 * Note: Function upgrade is done prior to table upgrade to ensure that the                                        \
-		 * table which depends on a function refers to the upgraded function during its upgrade.                           \
-		 * This also helps to re-create all dependency nodes in the correct format.                                        \
-		 */                                                                                                                \
-		STATUS = auto_upgrade_binary_function_definition();                                                                \
-		if (YDB_OK != STATUS) {                                                                                            \
-			config->allow_schema_changes = save_allow_schema_changes;                                                  \
-			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                        \
-		}                                                                                                                  \
-		/* Do the actual auto upgrade of the binary table definition.                                                      \
-		 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions       \
-		 * happens. This lets "table_definition.c" know to do some special processing (use different logic to calculate    \
-		 * whether a table should be considered READONLY or READWRITE).                                                    \
-		 */                                                                                                                \
-		config->in_auto_upgrade_binary_table_definition = TRUE;                                                            \
-		STATUS = auto_upgrade_binary_table_definition();                                                                   \
-		config->in_auto_upgrade_binary_table_definition = FALSE;                                                           \
-		if (YDB_OK != STATUS) {                                                                                            \
-			config->allow_schema_changes = save_allow_schema_changes;                                                  \
-			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                        \
-		}                                                                                                                  \
-		if (config->is_auto_upgrade_octo929) {                                                                             \
-			STATUS = fclose(config->octo929_sqlfile_stream);                                                           \
-			if (0 != STATUS) {                                                                                         \
-				ERROR(ERR_SYSCALL_WITH_ARG, "fclose()", errno, strerror(errno), config->octo929_sqlfile);          \
-				config->allow_schema_changes = save_allow_schema_changes;                                          \
-				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
-			}                                                                                                          \
-			STATUS = run_query_file(config->octo929_sqlfile);                                                          \
-			if (0 != STATUS) {                                                                                         \
-				config->allow_schema_changes = save_allow_schema_changes;                                          \
-				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
-			}                                                                                                          \
-			/* Now that auto upgrade of tables/functions finished fine, remove the temporary file */                   \
-			STATUS = unlink(config->octo929_sqlfile);                                                                  \
-			if (0 != STATUS) {                                                                                         \
-				config->allow_schema_changes = save_allow_schema_changes;                                          \
-				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
-			}                                                                                                          \
-			/* Open a temporary file that will hold the DROP VIEW/CREATE VIEW commands needed for special auto upgrade \
-			 */                                                                                                        \
-			int fd;                                                                                                    \
-			assert(sizeof(OCTO929_SQLFILE_NAME) < sizeof(config->octo929_sqlfile));                                    \
-			strcpy(config->octo929_sqlfile, OCTO929_SQLFILE_NAME);                                                     \
-			fd = mkstemp(config->octo929_sqlfile);                                                                     \
-			if (-1 == fd) {                                                                                            \
-				ERROR(ERR_SYSCALL_WITH_ARG, "mkstemp()", errno, strerror(errno), config->octo929_sqlfile);         \
-				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
-			}                                                                                                          \
-			config->octo929_sqlfile_stream = fdopen(fd, "w");                                                          \
-			if (NULL == config->octo929_sqlfile_stream) {                                                              \
-				ERROR(ERR_SYSCALL_WITH_ARG, "fdopen()", errno, strerror(errno), config->octo929_sqlfile);          \
-				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                \
-			}                                                                                                          \
-		}                                                                                                                  \
-		config->in_auto_upgrade_binary_view_definition = TRUE;                                                             \
-		STATUS = auto_upgrade_binary_view_definition();                                                                    \
-		config->in_auto_upgrade_binary_view_definition = FALSE;                                                            \
-		if (YDB_OK != STATUS) {                                                                                            \
-			config->allow_schema_changes = save_allow_schema_changes;                                                  \
-			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                        \
-		}                                                                                                                  \
-		config->allow_schema_changes = save_allow_schema_changes;                                                          \
-		/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)           \
-		 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.                                              \
-		 */                                                                                                                \
-		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                   \
+#define UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB)                       \
+	{                                                                                                                         \
+		/* In case this is a rocto process, it is not allowed to do schema changes by default. But allow the auto upgrade \
+		 * for this process. Hence the temporary modification to "config->allow_schema_changes" below.                    \
+		 */                                                                                                               \
+		boolean_t save_allow_schema_changes;                                                                              \
+		save_allow_schema_changes = config->allow_schema_changes;                                                         \
+		config->allow_schema_changes = TRUE;                                                                              \
+		assert(FALSE == config->in_auto_upgrade_binary_table_definition);                                                 \
+		/* Do the actual auto upgrade of the binary function definition.                                                  \
+		 * Note: Function upgrade is done prior to table upgrade to ensure that the                                       \
+		 * table which depends on a function refers to the upgraded function during its upgrade.                          \
+		 * This also helps to re-create all dependency nodes in the correct format.                                       \
+		 */                                                                                                               \
+		STATUS = auto_upgrade_binary_function_definition();                                                               \
+		if (YDB_OK != STATUS) {                                                                                           \
+			config->allow_schema_changes = save_allow_schema_changes;                                                 \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
+		}                                                                                                                 \
+		/* Do the actual auto upgrade of the binary table definition.                                                     \
+		 * Set a global variable to indicate this is the small window where auto upgrade of binary table definitions      \
+		 * happens. This lets "table_definition.c" know to do some special processing (use different logic to calculate   \
+		 * whether a table should be considered READONLY or READWRITE).                                                   \
+		 */                                                                                                               \
+		config->in_auto_upgrade_binary_table_definition = TRUE;                                                           \
+		STATUS = auto_upgrade_binary_table_definition();                                                                  \
+		config->in_auto_upgrade_binary_table_definition = FALSE;                                                          \
+		if (YDB_OK != STATUS) {                                                                                           \
+			config->allow_schema_changes = save_allow_schema_changes;                                                 \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
+		}                                                                                                                 \
+		if (config->is_auto_upgrade_octo929) {                                                                            \
+			STATUS = write_octo929_sqlfile_memstream();                                                               \
+			if (0 != STATUS) {                                                                                        \
+				config->allow_schema_changes = save_allow_schema_changes;                                         \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                               \
+			}                                                                                                         \
+			STATUS = run_query_file(config->octo929_sqlfile);                                                         \
+			if (0 != STATUS) {                                                                                        \
+				config->allow_schema_changes = save_allow_schema_changes;                                         \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                               \
+			}                                                                                                         \
+			/* Now that auto upgrade of tables/functions finished fine, remove the temporary file */                  \
+			STATUS = unlink(config->octo929_sqlfile);                                                                 \
+			if (0 != STATUS) {                                                                                        \
+				config->allow_schema_changes = save_allow_schema_changes;                                         \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                               \
+			}                                                                                                         \
+			/* Open a temporary file that will hold the DROP VIEW/CREATE VIEW commands needed for special auto        \
+			 * upgrade. This is done separately from the CREATE TABLE/CREATE FUNCTION commands above to ensure the    \
+			 * upgraded versions of the tables and/or functions are available when upgrading views that in turn rely  \
+			 * on any tables/functions.                                                                               \
+			 */                                                                                                       \
+			STATUS = set_octo929_sqlfile_memstream();                                                                 \
+			if (0 != STATUS) {                                                                                        \
+				config->allow_schema_changes = save_allow_schema_changes;                                         \
+				CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                               \
+			}                                                                                                         \
+		}                                                                                                                 \
+		config->in_auto_upgrade_binary_view_definition = TRUE;                                                            \
+		STATUS = auto_upgrade_binary_view_definition();                                                                   \
+		config->in_auto_upgrade_binary_view_definition = FALSE;                                                           \
+		if (YDB_OK != STATUS) {                                                                                           \
+			config->allow_schema_changes = save_allow_schema_changes;                                                 \
+			CLEANUP_AND_RETURN(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                                       \
+		}                                                                                                                 \
+		config->allow_schema_changes = save_allow_schema_changes;                                                         \
+		/* Now that auto upgrade is complete, indicate that (so other processes do not attempt the auto upgrade)          \
+		 * by setting ^%ydboctoocto(OCTOLIT_BINFMT) to FMT_BINARY_DEFINITION.                                             \
+		 */                                                                                                               \
+		SET_OCTOLIT_BINFMT_GVN_AND_RETURN_IF_NOT_YDB_OK(STATUS, RELEASE_DDL_LOCK, OCTO_GLOBAL, LOCKSUB);                  \
 	}
 
 #define DO_AUTO_UPGRADE_OCTO929_CHECK(PTR, EXPR_LEN, COLUMN, SQL_COLUMN)                              \
@@ -1425,7 +1442,7 @@ int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int  get_row_count_from_cursorId(ydb_long_t cursorId);
 int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);
-void print_result_row(ydb_buffer_t *row);
+void print_result_row(FILE *memstream, ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
 int  truncate_table_tp_callback_fn(SqlStatement *truncate_stmt);
 
@@ -1453,7 +1470,7 @@ SqlStatement *get_display_relation_query_stmt(SqlDisplayRelationType relation_ty
 int describe_table_or_view_name(SqlStatement *table_name);
 
 /* Displays the GLOBAL that holds the table's records. */
-void describe_tablename_global(SqlTable *table);
+void describe_tablename_global(FILE *memstream, SqlTable *table);
 
 // GROUP BY expression support functions
 int		   get_group_by_column_number(SqlTableAlias *table_alias, SqlStatement *hash_to_match);
@@ -1591,6 +1608,8 @@ int auto_upgrade_binary_view_definition(void);
 int auto_upgrade_binary_table_or_view_definition_helper(ydb_buffer_t *view_or_table_name, boolean_t is_view);
 int is_auto_upgrade_valid(void);
 int ensure_seed_objects_are_not_dropped(SqlStatement *result);
+int set_octo929_sqlfile_memstream(void);
+int write_octo929_sqlfile_memstream(void);
 
 /* history.c function prototypes */
 void print_history(void);
@@ -1624,5 +1643,5 @@ extern OctoConfig  *config;
 extern ydb_buffer_t lex_buffer;		// String buffer for use in lexer.l
 extern int	    ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 extern boolean_t    in_sql_transaction; // TRUE if inside a BEGIN/COMMIT transaction fence. FALSE otherwise.
-
+extern sigset_t	    block_sigsent;	// Set of signals to block while doing IO
 #endif

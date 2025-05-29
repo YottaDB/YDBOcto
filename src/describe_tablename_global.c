@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,10 +16,10 @@
 #include "octo.h"
 
 /* This function displays the GLOBAL that holds the table records */
-void describe_tablename_global(SqlTable *table) {
+void describe_tablename_global(FILE *memstream, SqlTable *table) {
 	SqlOptionalKeyword *keyword;
 	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-	fprintf(stdout, "Global: ");
+	fprintf(memstream, "Global: ");
 
 	SqlValue *value;
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -39,7 +39,7 @@ void describe_tablename_global(SqlTable *table) {
 					 ((value->v.string_literal == source_ptr) ? *source_ptr : *(char *)(source_ptr - 1)));
 		assert(MatchExpressionOFlow != match);
 		if (NoMatchExpression < match) {
-			fprintf(stdout, "%s", column);
+			fprintf(memstream, "%s", column);
 			source_ptr += expr_len;
 		} else {
 			if (table_has_hidden_key_column && ('(' == *source_ptr)) {
@@ -49,7 +49,7 @@ void describe_tablename_global(SqlTable *table) {
 				 */
 				break;
 			}
-			fprintf(stdout, "%c", *source_ptr);
+			fprintf(memstream, "%c", *source_ptr);
 			source_ptr++;
 		}
 	}

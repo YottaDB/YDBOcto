@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,11 +19,11 @@
 
 // Emits DDL specification for the given table
 // Args:
-//	FILE *output: output file to write DDL to
+//	FILE *memstream: memstream file to write DDL to
 //	SqlStatement *stmt: a SqlTable type SqlStatement
 // Returns:
 //	0 for success, 1 for error
-int emit_create_table(FILE *output, struct SqlStatement *stmt) {
+int emit_create_table(FILE *memstream, struct SqlStatement *stmt) {
 	int		    status = 0, buffer_size, defn_len = 0;
 	SqlColumn	   *start_column, *cur_column;
 	SqlTable	   *table;
@@ -41,9 +41,9 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 	assert(table->columns);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	if (value->is_double_quoted) {
-		defn_len += fprintf(output, "CREATE TABLE \"%s\" (", value->v.reference);
+		defn_len += fprintf(memstream, "CREATE TABLE \"%s\" (", value->v.reference);
 	} else {
-		defn_len += fprintf(output, "CREATE TABLE `%s` (", value->v.reference);
+		defn_len += fprintf(memstream, "CREATE TABLE `%s` (", value->v.reference);
 	}
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
@@ -55,25 +55,25 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 		}
 		/* Note: status can be 0 if it is a hidden key column in which case nothing would be emitted */
 		if (0 < status) {
-			defn_len += fprintf(output, "%s", buffer);
+			defn_len += fprintf(memstream, "%s", buffer);
 		}
 		cur_column = cur_column->next;
 		if (start_column != cur_column) {
 			if (0 < status) {
-				defn_len += fprintf(output, ", ");
+				defn_len += fprintf(memstream, ", ");
 			}
 		}
 	} while (start_column != cur_column);
-	defn_len += fprintf(output, ")");
+	defn_len += fprintf(memstream, ")");
 	assert(NULL != table->source);
 	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	m_escape_string2(&buffer, &buffer_size, value->v.reference);
-	defn_len += fprintf(output, " GLOBAL \"%s\"", buffer);
+	defn_len += fprintf(memstream, " GLOBAL \"%s\"", buffer);
 	if (NULL != table->delim) {
 		char ch, *delim;
 
-		defn_len += fprintf(output, " DELIM ");
+		defn_len += fprintf(memstream, " DELIM ");
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		delim = value->v.reference;
@@ -82,25 +82,25 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 		assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
 		if (DELIM_IS_LITERAL == ch) {
 			m_escape_string2(&buffer, &buffer_size, delim);
-			defn_len += fprintf(output, "\"%s\"", buffer);
+			defn_len += fprintf(memstream, "\"%s\"", buffer);
 		} else {
 			assert(!MEMCMP_LIT(delim, "$CHAR(")); /* this is added in parser.y */
 			delim += sizeof("$CHAR") - 1;	      /* Skip "$CHAR" */
-			defn_len += fprintf(output, "%s", delim);
+			defn_len += fprintf(memstream, "%s", delim);
 		}
 	}
 	if (table->readwrite) {
-		defn_len += fprintf(output, " READWRITE");
+		defn_len += fprintf(memstream, " READWRITE");
 	} else {
-		defn_len += fprintf(output, " READONLY");
+		defn_len += fprintf(memstream, " READONLY");
 	}
 	if (table->aim_type) {
 		UNPACK_SQL_STATEMENT(keyword, table->aim_type, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		m_escape_string2(&buffer, &buffer_size, value->v.reference);
-		defn_len += fprintf(output, " AIMTYPE %s", buffer);
+		defn_len += fprintf(memstream, " AIMTYPE %s", buffer);
 	}
-	defn_len += fprintf(output, ";");
+	defn_len += fprintf(memstream, ";");
 	free(buffer);
 	return defn_len;
 }

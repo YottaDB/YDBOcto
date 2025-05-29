@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,7 +28,18 @@ SqlStatement *view_definition(SqlStatement *create_view_stmt, ParseContext *pars
 	UNPACK_SQL_STATEMENT(view, create_view_stmt, create_view);
 
 	SqlStatement *viewName = view->viewName;
-	if (config->is_auto_upgrade_octo929) {
+	/* While octo929 auto_upgrade is happening, this code can run twice:
+	 *
+	 * 1. Once from auto_load_octo_seed_if_needed() -> UPGRADE_BINARY_DEFINITIONS_AND_RETURN_IF_NOT_YDB_OK() ->
+	 * -> auto_upgrade_binary_view_definition() -> auto_upgrade_binary_table_or_view_definition_helper() ->
+	 * view_definition()
+	 * 2. Once from auto_load_octo_seed_if_needed() -> run_query_file() -> run_query() -> view_defintion()
+	 *
+	 * When are in #2, we are actually processing the output that was produced by #1. We shouldn't do the same
+	 * logic again. We check that we are in #1 by checking that config->octo929_sqlfile_stream is not NULL.
+	 */
+
+	if (config->is_auto_upgrade_octo929 && (NULL != config->octo929_sqlfile_stream)) {
 		SqlValue *value;
 		char	 *view_name, upper_or_lower_case_name[OCTO_MAX_IDENT + 1];
 

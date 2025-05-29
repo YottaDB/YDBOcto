@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,12 +37,23 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 	SqlTable     *table;
 	SqlStatement *table_or_view_stmt;
 	SqlColumn    *start_column, *cur_column;
+	FILE	     *memstream;
+	char	     *outbuf;
+	size_t	      outsize;
+
+	memstream = open_memstream(&outbuf, &outsize);
+	if (NULL == memstream) {
+		ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");
+		return -1;
+	}
 
 	UNPACK_SQL_STATEMENT(value, table_name, value);
 	tablename = value->v.reference;
 	table_or_view_stmt = find_view_or_table(tablename);
 	if (NULL == table_or_view_stmt) {
 		ERROR(ERR_UNKNOWN_TABLE_OR_VIEW, tablename);
+		fclose(memstream);
+		free(outbuf);
 		return -1;
 	}
 	if (create_view_STATEMENT == table_or_view_stmt->type) {
@@ -52,10 +63,10 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 		/* Note: The below output is more or less the same as what \d viewname outputs at the psql prompt */
 
 		/* First output view name */
-		fprintf(stdout, "View \"%s\"\n", value->v.reference);
+		fprintf(memstream, "View \"%s\"\n", value->v.reference);
 
 		/* Next output the table columns */
-		fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
+		fprintf(memstream, "Column|Type|Collation|Nullable|Default\n");
 
 		SqlTableAlias *table_alias;
 		boolean_t      is_set_oper = FALSE;
@@ -77,13 +88,13 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 		cur_cla = start_cla;
 		do {
 			UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
-			fprintf(stdout, "%s|", value->v.reference); /* "Column" column */
+			fprintf(memstream, "%s|", value->v.reference); /* "Column" column */
 
 			SqlColumn *col;
 			col = get_column_under_column_list_alias(cur_cla);
 			if ((NULL == col) || (is_set_oper)) {
 				// Get just the column type
-				fprintf(stdout, "%s|", get_user_visible_type_string(cur_cla->type)); /* "Type" column */
+				fprintf(memstream, "%s|", get_user_visible_type_string(cur_cla->type)); /* "Type" column */
 			} else {
 				// Get more precise column type
 				int  ret;
@@ -92,14 +103,17 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 									sizeof(data_type_string));
 				if (0 > ret) {
 					assert(FALSE);
+					fclose(memstream);
+					free(outbuf);
 					return -1;
 				}
-				fprintf(stdout, "%s|", data_type_string); /* "Type" column */
+				fprintf(memstream, "%s|", data_type_string); /* "Type" column */
 			}
-			fprintf(stdout, "|"); /* "Collation" column (currently empty as we don't yet support the COLLATE keyword) */
-			fprintf(stdout, "|"); /* "Nullable" column is just kept for similarity with table display */
-			fprintf(stdout, "|"); /* "Default" column is just kept for similarity with table display */
-			fprintf(stdout, "\n");
+			fprintf(memstream,
+				"|"); /* "Collation" column (currently empty as we don't yet support the COLLATE keyword) */
+			fprintf(memstream, "|"); /* "Nullable" column is just kept for similarity with table display */
+			fprintf(memstream, "|"); /* "Default" column is just kept for similarity with table display */
+			fprintf(memstream, "\n");
 			cur_cla = cur_cla->next;
 		} while (cur_cla != start_cla);
 
@@ -116,10 +130,15 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 			if (NULL != text_definition) {
 				free(text_definition);
 			}
+			fclose(memstream);
+			free(outbuf);
 			return -1;
 		}
-		fprintf(stdout, "View definition:\n%s\n", text_definition);
+		fprintf(memstream, "View definition:\n%s\n", text_definition);
 		free(text_definition);
+		fclose(memstream);
+		SAFE_PRINTF(fprintf, stdout, FALSE, FALSE, "%s", outbuf);
+		free(outbuf);
 		return 0;
 	} else {
 		assert(create_table_STATEMENT == table_or_view_stmt->type);
@@ -129,22 +148,22 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 		/* Note: The below output is more or less the same as what \d tablename outputs at the psql prompt */
 
 		/* First output Column names, types etc. */
-		fprintf(stdout, "Table \"%s\" stored in ", value->v.reference);
+		fprintf(memstream, "Table \"%s\" stored in ", value->v.reference);
 
 		/* Next output GLOBAL (could be subscripted) that holds the table records */
-		describe_tablename_global(table);
-		fprintf(stdout, " : Type = %s\n", (table->readwrite ? "READWRITE" : "READONLY"));
+		describe_tablename_global(memstream, table);
+		fprintf(memstream, " : Type = %s\n", (table->readwrite ? "READWRITE" : "READONLY"));
 	}
 
 	/* Next output the table columns */
-	fprintf(stdout, "Column|Type|Collation|Nullable|Default\n");
+	fprintf(memstream, "Column|Type|Collation|Nullable|Default\n");
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
 		/* Skip processing hidden columns AND columns that correspond to table constraints */
 		if (!cur_column->is_hidden_keycol && (NULL != cur_column->columnName)) {
 			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-			fprintf(stdout, "%s|", value->v.reference); /* "Column" column */
+			fprintf(memstream, "%s|", value->v.reference); /* "Column" column */
 
 			int  ret;
 			char data_type_string[MAX_USER_VISIBLE_TYPE_STRING_LEN];
@@ -152,15 +171,19 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 								sizeof(data_type_string));
 			if (0 > ret) {
 				assert(FALSE);
+				fclose(memstream);
+				free(outbuf);
+				outbuf = NULL;
 				return -1;
 			}
 
-			fprintf(stdout, "%s|", data_type_string); /* "Type" column */
-			fprintf(stdout, "|"); /* "Collation" column (currently empty as we don't yet support the COLLATE keyword) */
+			fprintf(memstream, "%s|", data_type_string); /* "Type" column */
+			fprintf(memstream,
+				"|"); /* "Collation" column (currently empty as we don't yet support the COLLATE keyword) */
 
 			char *nullable;
 			nullable = (IS_COLUMN_NOT_NULL(cur_column) ? "NOT NULL" : "");
-			fprintf(stdout, "%s|", nullable); /* "Nullable" column */
+			fprintf(memstream, "%s|", nullable); /* "Nullable" column */
 
 			char *default_str;
 			if (IS_COLUMN_ALWAYS_IDENTITY(cur_column)) {
@@ -171,7 +194,7 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 				/* fprintf(stdout, ""); "Default" column is empty till YDBOcto#555 is implemented hence commented */
 				default_str = "";
 			}
-			fprintf(stdout, "%s\n", default_str);
+			fprintf(memstream, "%s\n", default_str);
 		}
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
@@ -203,7 +226,7 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 				/* fall through */
 			case UNIQUE_CONSTRAINT:;
 				if (first_unique_constraint) {
-					fprintf(stdout, "Indexes:\n");
+					fprintf(memstream, "Indexes:\n");
 					buffer_size = OCTO_INIT_BUFFER_LEN;
 					buffer = (char *)malloc(sizeof(char) * buffer_size);
 					buffer_orig = buffer;
@@ -213,14 +236,14 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 				SqlConstraint *constraint;
 				UNPACK_SQL_STATEMENT(constraint, cur_keyword->v, constraint);
 				assert(cur_keyword->keyword == constraint->type);
-				fprintf(stdout, "    ");
+				fprintf(memstream, "    ");
 				assert(NULL != constraint->name);
 
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
 				assert(value->is_double_quoted);
-				fprintf(stdout, "\"%s\" ", value->v.string_literal);
+				fprintf(memstream, "\"%s\" ", value->v.string_literal);
 
-				fprintf(stdout, "%s CONSTRAINT, Column(s) ",
+				fprintf(memstream, "%s CONSTRAINT, Column(s) ",
 					(UNIQUE_CONSTRAINT == constraint->type) ? "UNIQUE" : "PRIMARY KEY");
 				buffer = buffer_orig;
 				buff_ptr = &buffer;
@@ -234,18 +257,21 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 				if (0 > status) {
 					assert(FALSE);
 					free(buffer);
+					fclose(memstream);
+					free(outbuf);
+					outbuf = NULL;
 					return -1;
 				}
-				fprintf(stdout, "%s", buffer_orig);
-				fprintf(stdout, ", ");
+				fprintf(memstream, "%s", buffer_orig);
+				fprintf(memstream, ", ");
 				if (UNIQUE_CONSTRAINT == constraint->type) {
-					fprintf(stdout, "Global ");
+					fprintf(memstream, "Global ");
 					UNPACK_SQL_STATEMENT(value, constraint->v.uniq_gblname, value);
-					fprintf(stdout, "%s\n", value->v.string_literal);
+					fprintf(memstream, "%s\n", value->v.string_literal);
 				} else {
 					assert(PRIMARY_KEY == constraint->type);
-					describe_tablename_global(table);
-					fprintf(stdout, "\n");
+					describe_tablename_global(memstream, table);
+					fprintf(memstream, "\n");
 				}
 				break;
 			default:
@@ -275,7 +301,7 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 			switch (cur_keyword->keyword) {
 			case OPTIONAL_CHECK_CONSTRAINT:;
 				if (first_check_constraint) {
-					fprintf(stdout, "Check constraints:\n");
+					fprintf(memstream, "Check constraints:\n");
 					buffer_size = OCTO_INIT_BUFFER_LEN;
 					buffer = (char *)malloc(sizeof(char) * buffer_size);
 					buffer_orig = buffer;
@@ -287,16 +313,18 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 				assert(OPTIONAL_CHECK_CONSTRAINT == constraint->type);
 				UNPACK_SQL_STATEMENT(value, constraint->name, value);
 				assert(value->is_double_quoted);
-				fprintf(stdout, "    \"%s\" CHECK (", value->v.string_literal);
+				fprintf(memstream, "    \"%s\" CHECK (", value->v.string_literal);
 				buffer = buffer_orig;
 				buff_ptr = &buffer;
 				status = emit_check_constraint(&buffer_orig, &buffer_size, buff_ptr, constraint->definition);
 				if (0 > status) {
 					assert(FALSE);
 					free(buffer);
+					fclose(memstream);
+					free(outbuf);
 					return -1;
 				}
-				fprintf(stdout, "%s)\n", buffer_orig);
+				fprintf(memstream, "%s)\n", buffer_orig);
 				/* Note that "constraint->v.check_columns" is information derived from "constraint->definition"
 				 * and is not relevant to the user so is not displayed here. Hence no processing for that done here.
 				 */
@@ -311,6 +339,11 @@ int describe_table_or_view_name(SqlStatement *table_name) {
 	if (NULL != buffer_orig) {
 		free(buffer_orig);
 	}
+
+	fclose(memstream);
+	SAFE_PRINTF(fprintf, stdout, FALSE, FALSE, "%s", outbuf);
+	free(outbuf);
+	outbuf = NULL;
 
 	return 0;
 }

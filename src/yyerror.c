@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,12 +26,11 @@
  * which will log the error locally as well as propagate it
  * to the client. Otherwise print via stderr.
  */
-#define PRINT_YYERROR(...)                              \
-	if (config->is_rocto) {                         \
-		ERROR(CUSTOM_ERROR, ##__VA_ARGS__);     \
-	} else {                                        \
-		fprintf(stderr, ##__VA_ARGS__);         \
-		fprintf(stderr, "\n"); /* formatting */ \
+#define PRINT_YYERROR(...)                                                \
+	if (config->is_rocto) {                                           \
+		ERROR(CUSTOM_ERROR, ##__VA_ARGS__);                       \
+	} else {                                                          \
+		SAFE_PRINTF(fprintf, stderr, TRUE, FALSE, ##__VA_ARGS__); \
 	}
 
 #define SNPRINTF_ERR_BUFF(ERR_PTR, ERR_OUT_LEN, ERR_OUT, ...)                                          \

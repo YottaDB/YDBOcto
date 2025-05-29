@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,6 +39,15 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	FILE	       *output_file;
 	char	       *linestart, *lineend;
 	hash128_state_t state;
+	FILE	       *memstream;
+	char	       *outbuf;
+	size_t		outsize;
+
+	memstream = open_memstream(&outbuf, &outsize);
+	if (NULL == memstream) {
+		ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");
+		return 1;
+	}
 
 	assert(NULL != cur_plan);
 	buffer_len = INIT_M_ROUTINE_LENGTH;
@@ -168,14 +177,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	tmp_plan_filename = (char *)octo_cmalloc(memory_chunks, plan_filename_len + sizeof(char));
 	strncpy(tmp_plan_filename, plan_filename, plan_filename_len + sizeof(char));
 	tmp_plan_filename[plan_filename_len - 1] = 't';
-	output_file = fopen(tmp_plan_filename, "w");
-	if (output_file == NULL) {
-		ERROR(ERR_SYSCALL_WITH_ARG, "fopen()", errno, strerror(errno), tmp_plan_filename);
-		free(buffer);
-		return 1;
-	}
 
-	fprintf(output_file, ";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
+	fprintf(memstream, ";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
 		HYPHEN_LINE);
 	// input_buffer_combined would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the
 	// SQL query
@@ -200,18 +203,18 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			 * length of the format argument to be printed:
 			 *	";  " (3) + "..." (3) + "\n" (2) = 7 characters
 			 */
-			fprintf(output_file, ";  %.*s\n", (int)(M_LINE_MAX - 7), linestart);
+			fprintf(memstream, ";  %.*s\n", (int)(M_LINE_MAX - 7), linestart);
 		} else {
-			fprintf(output_file, ";  %.*s\n", (int)(linelen), linestart);
+			fprintf(memstream, ";  %.*s\n", (int)(linelen), linestart);
 		}
 		linestart = lineend + 1; /* + 1 to skip past matching '\n' to go to next line to print */
 		/* if we hit cur_input_index stop looping */
 		if (lineend == (input_buffer_combined + cur_input_index))
 			break;
 	}
-	fprintf(output_file, ";; %s\n", HYPHEN_LINE);
+	fprintf(memstream, ";; %s\n", HYPHEN_LINE);
 	// Emit meta plan first that invokes all the Non-Deferred plans in sequence
-	fprintf(output_file, "\n%s0(cursorId,wrapInTp)\n", OCTOPLAN_LIT);
+	fprintf(memstream, "\n%s0(cursorId,wrapInTp)\n", OCTOPLAN_LIT);
 	/* Emit M code to invoke xref plans first (if needed). This lets us wrap the rest of the query inside TP without TRANS2BIG
 	 * errors (which are very likely if xref plans also happen while inside TP). To do that, go through the xref plans
 	 * and invoke those cross reference plans.
@@ -236,10 +239,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 
 		/* Global tables (most Octo tables) xref differs from local tables (e.g. pg_settings) */
 		if ('^' == t_key->xref_prefix[0]) {
-			fprintf(output_file, "    DO:'$GET(%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", OCTOLIT_AIM_OCTO_CACHE,
+			fprintf(memstream, "    DO:'$GET(%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", OCTOLIT_AIM_OCTO_CACHE,
 				tableName, columnName, OCTOLIT_AIM_SUB_COMPLETED, XREFPLAN_LIT, cur_plan->filename);
 		} else {
-			fprintf(output_file, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", t_key->xref_prefix,
+			fprintf(memstream, "    DO:'$DATA(%s%s(\"%s\",\"%s\",\"%s\")) %s^%s(cursorId)\n", t_key->xref_prefix,
 				config->global_names.raw_octo, OCTOLIT_XREF_STATUS, tableName, columnName, XREFPLAN_LIT,
 				cur_plan->filename);
 		}
@@ -249,13 +252,13 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	 * inside a FOR loop. Note that PP_YDB_OCTO_Z needs to be NEWed inside each plan separately (as opposed to once
 	 * across all plans). See YDBOcto#706 for details.
 	 */
-	fprintf(output_file, "    NEW %s,%s\n", PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
-	fprintf(output_file, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
+	fprintf(memstream, "    NEW %s,%s\n", PP_YDB_OCTO_P, PP_YDB_OCTO_EXPR);
+	fprintf(memstream, "    TSTART:wrapInTp ():(serial)\n"); /* Wrap post-xref part of query in TP if requested */
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (cur_plan->is_deferred_plan)
 			break; // if we see a Deferred plan, it means we are done with the Non-Deferred plans
 		assert(NULL != cur_plan->plan_name);
-		fprintf(output_file, "    DO %s(cursorId)\n", cur_plan->plan_name);
+		fprintf(memstream, "    DO %s(cursorId)\n", cur_plan->plan_name);
 
 		/* Check if this physical plan corresponds to a SET operation. If so, generate code that does the SET
 		 * operation based on the results obtained from the SET operands (which would be queries whose physical
@@ -296,21 +299,21 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			char *plan_helper_mlabref;
 			plan_helper_mlabref = get_setoper_mlabref(prev_oper, cur_plan);
 			if (NULL != plan_helper_mlabref) {
-				fprintf(output_file, "    DO %s^%%ydboctoplanhelpers(%d,%d,%d)\n", plan_helper_mlabref,
+				fprintf(memstream, "    DO %s^%%ydboctoplanhelpers(%d,%d,%d)\n", plan_helper_mlabref,
 					prev_oper->input_id1, prev_oper->input_id2, prev_oper->output_id);
 			}
 			prev_oper = prev_oper->prev;
 		}
 	}
-	fprintf(output_file, "    TCOMMIT:wrapInTp\n"); /* Commit TP (if wrapped) */
-	fprintf(output_file, "    QUIT\n");
+	fprintf(memstream, "    TCOMMIT:wrapInTp\n"); /* Commit TP (if wrapped) */
+	fprintf(memstream, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		assert(cur_plan == cur_plan->lp_select_query->extra_detail.lp_select_query.physical_plan);
 		cur_plan->filename = NULL; // filename needed only for cross reference plans
 		buffer_index = 0;
 		tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
-		fprintf(output_file, "%s\n", buffer);
+		fprintf(memstream, "%s\n", buffer);
 	}
 	// Emit M code coresponding to LEFT JOIN body (in case any exists)
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
@@ -333,17 +336,31 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			} else {
 				dnf_num_str[0] = '\0';
 			}
-			fprintf(output_file, "\n%s%d%s;\n", OCTO_LEFT_JOIN_LIT, unique_id, dnf_num_str);
-			fprintf(output_file, "%.*s\n    QUIT\n",
+			fprintf(memstream, "\n%s%d%s;\n", OCTO_LEFT_JOIN_LIT, unique_id, dnf_num_str);
+			fprintf(memstream, "%.*s\n    QUIT\n",
 				(int)tablejoin->extra_detail.lp_table_join.left_join_save_buffer_index,
 				tablejoin->extra_detail.lp_table_join.left_join_buffer);
 		}
 	}
+
+	fclose(memstream);
+
+	output_file = fopen(tmp_plan_filename, "w");
+	if (output_file == NULL) {
+		ERROR(ERR_SYSCALL_WITH_ARG, "fopen()", errno, strerror(errno), tmp_plan_filename);
+		free(buffer);
+		free(outbuf);
+		return 1;
+	}
+
+	SAFE_PRINTF(fprintf, output_file, FALSE, FALSE, "%s", outbuf);
+	fclose(output_file);
+	free(outbuf);
 	free(buffer);
+
 	// Close out the file
 	fd = fileno(output_file);
 	fsync(fd);
-	fclose(output_file);
 	rename(tmp_plan_filename, plan_filename);
 	status = store_plandirs_gvn(plan_filename); /* Track this plan in Octo internal gvns */
 	return status;

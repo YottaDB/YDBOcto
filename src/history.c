@@ -1,6 +1,6 @@
 /****************************************************************
  * 								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  * 								*
  * This source code contains the intellectual property		*
@@ -291,10 +291,16 @@ void set_octo_history_max_length(void) {
 /* Implementation of \s to print history */
 void print_history(void) {
 	HIST_ENTRY *h;
+	sigset_t    savemask;
 
 	history_set_pos(0);
+
+	// Block signals while printing history in case calls are interrupted by YottaDB signals
+	sigprocmask(SIG_BLOCK, &block_sigsent, &savemask);
 	for (h = current_history(); NULL != h; h = next_history())
-		printf("%s\n", h->line);
+		fprintf(stdout, "%s\n", h->line); // NB: already SIGNAL PROTECTED
+	fflush(stdout);
+	sigprocmask(SIG_SETMASK, &savemask, NULL);
 }
 
 /* Readline setup call */

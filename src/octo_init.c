@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -814,6 +814,20 @@ int octo_init(int argc, char **argv) {
 	act.sa_flags = 0;
 	act.sa_handler = SIG_IGN;
 	sigaction(SIGTERM, &act, NULL);
+
+	// Setup signals that need to be blocked while doing IO
+	// block_sigsent is a global variable used in SAFE_PRINTF to block signals while doing IO calls
+	// This is based on set_blocksig() function in YDB/sr_unix/gt_timers.c; in addition, SIGUSR1 and SIGUSR2 have been added
+	// to that list for Octo.
+	sigemptyset(&block_sigsent);
+	sigaddset(&block_sigsent, SIGINT);
+	sigaddset(&block_sigsent, SIGQUIT);
+	sigaddset(&block_sigsent, SIGTERM);
+	sigaddset(&block_sigsent, SIGTSTP);
+	sigaddset(&block_sigsent, SIGCONT);
+	sigaddset(&block_sigsent, SIGALRM);
+	sigaddset(&block_sigsent, SIGUSR1);
+	sigaddset(&block_sigsent, SIGUSR2);
 
 	// Note: This loop is only ever executed once. Structured this way to make it easy to break out in case of error code paths.
 	for (;;) {

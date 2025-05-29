@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -83,7 +83,7 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 		UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
 		parameter_value = get_parameter_from_pg_settings(&runtime_variable->v.string_literal, &value_buffer);
 		if (NULL != parameter_value) {
-			fprintf(stdout, "%.*s\n", value_buffer.len_used, value_buffer.buf_addr);
+			SAFE_PRINTF(fprintf, stdout, FALSE, FALSE, "%.*s\n", value_buffer.len_used, value_buffer.buf_addr);
 			free(parameter_value);
 			return YDB_OK;
 		} else {
@@ -112,7 +112,16 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 	}
 
 	if (select_STATEMENT == stmt->type) {
+		FILE	    *memstream;
+		char	    *outbuf;
+		size_t	     outsize;
 		ydb_buffer_t value_buffer;
+
+		memstream = open_memstream(&outbuf, &outsize);
+		if (NULL == memstream) {
+			ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");
+			return 1;
+		}
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta_buffers[3]);
 		plan_meta_buffers[4].buf_addr = col_num_str;
@@ -159,11 +168,11 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 					break;
 				}
 				if (1 < colnum) {
-					fprintf(stdout, "|");
+					fprintf(memstream, "|");
 				}
-				fprintf(stdout, "%.*s", value_buffer.len_used, value_buffer.buf_addr);
+				fprintf(memstream, "%.*s", value_buffer.len_used, value_buffer.buf_addr);
 			}
-			fprintf(stdout, "\n");
+			fprintf(memstream, "\n");
 			YDB_LITERAL_TO_BUFFER("", &cursor_buffers[4]);
 			YDB_LITERAL_TO_BUFFER("", &cursor_buffers[5]);
 			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&cursor_buffers[6], INT64_TO_STRING_MAX);
@@ -191,16 +200,22 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 					break;
 				}
 				value_buffer.buf_addr[value_buffer.len_used] = '\0';
-				print_result_row(&value_buffer);
+				print_result_row(memstream, &value_buffer);
 				num_rows++;
 			}
 			YDB_FREE_BUFFER(&cursor_buffers[6]);
 			/* Print number of rows */
-			fprintf(stdout, "(%lld %s)\n", (long long int)num_rows, (1 == num_rows) ? "row" : "rows");
-			fflush(stdout);
+			fprintf(memstream, "(%lld %s)\n", (long long int)num_rows, (1 == num_rows) ? "row" : "rows");
+			fclose(memstream);
+
+			// Write the buffer from memstream using SAFE_PRINTF
+			SAFE_PRINTF(fprintf, stdout, FALSE, TRUE, "%s", outbuf);
+
 			break;
 		}
+		// Free resources
 		YDB_FREE_BUFFER(&value_buffer);
+		free(outbuf);
 	} else {
 		/* This is not a SELECT statement type (e.g. INSERT INTO/DELETE FROM/UPDATE statement etc.).
 		 * In that case, there are no result rows to send.

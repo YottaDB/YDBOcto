@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,6 +45,8 @@ int (*cur_input_more)(void);
 ydb_buffer_t lex_buffer;	 // String buffer for use in lexer.l
 int	     ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 boolean_t    in_sql_transaction; // TRUE if inside a BEGIN/COMMIT transaction fence. FALSE otherwise.
+/* sigset_t copied from global variable of same name in YDB project */
+sigset_t block_sigsent; // Set of signals to block while doing IO
 
 RoctoSession rocto_session;
 

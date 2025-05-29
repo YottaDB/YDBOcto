@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,11 +47,11 @@ char *get_type_string_from_sql_data_type(SqlDataType type) {
 }
 // Emits DDL specification for the given function
 // Args:
-//	FILE *output: output file to write DDL to
+//	FILE *memstream: memstream file to write DDL to
 //	SqlStatement *stmt: a SqlFunction type SqlStatement
 // Returns:
 //	0 for success, 1 for error
-int emit_create_function(FILE *output, struct SqlStatement *stmt) {
+int emit_create_function(FILE *memstream, struct SqlStatement *stmt) {
 	SqlFunction	     *function;
 	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
 	SqlValue	     *function_name;
@@ -65,9 +65,9 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	// assert(function->parameter_type_list);
 	UNPACK_SQL_STATEMENT(function_name, function->function_name, value);
 	if (function_name->is_double_quoted) {
-		defn_len += fprintf(output, "CREATE FUNCTION \"%s\"(", function_name->v.string_literal);
+		defn_len += fprintf(memstream, "CREATE FUNCTION \"%s\"(", function_name->v.string_literal);
 	} else {
-		defn_len += fprintf(output, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
+		defn_len += fprintf(memstream, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
 	}
 	if (NULL != function->parameter_type_list) { // Skip parameter types if none were specified
 		UNPACK_SQL_STATEMENT(start_parameter_type, function->parameter_type_list, parameter_type_list);
@@ -84,15 +84,15 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 				case DATE_TYPE:
 				case TIME_TYPE:
 				case TIMESTAMP_TYPE:
-					defn_len += fprintf(output, " %s(%s)", get_type_string_from_sql_data_type(data_type),
+					defn_len += fprintf(memstream, " %s(%s)", get_type_string_from_sql_data_type(data_type),
 							    get_date_time_format_string(keyword));
 					break;
 				case TIME_WITH_TIME_ZONE_TYPE:
 					defn_len
-					    += fprintf(output, " TIME(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
+					    += fprintf(memstream, " TIME(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
 					break;
 				case TIMESTAMP_WITH_TIME_ZONE_TYPE:
-					defn_len += fprintf(output, " TIMESTAMP(%s) WITH TIME ZONE",
+					defn_len += fprintf(memstream, " TIMESTAMP(%s) WITH TIME ZONE",
 							    get_date_time_format_string(keyword));
 					break;
 				default:
@@ -100,14 +100,14 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 					break;
 				}
 			} else {
-				defn_len += fprintf(output, " %s", get_type_string_from_sql_data_type(data_type));
+				defn_len += fprintf(memstream, " %s", get_type_string_from_sql_data_type(data_type));
 			}
 			cur_parameter_type = cur_parameter_type->next;
 			if (start_parameter_type != cur_parameter_type)
-				defn_len += fprintf(output, ", ");
+				defn_len += fprintf(memstream, ", ");
 		} while (start_parameter_type != cur_parameter_type);
 	}
-	defn_len += fprintf(output, ") RETURNS ");
+	defn_len += fprintf(memstream, ") RETURNS ");
 	data_type = function->return_type->v.data_type_struct.data_type;
 	enum OptionalKeyword keyword = function->return_type->v.data_type_struct.format;
 	if (IS_DATE_TIME_DATA_TYPE(data_type) && (OPTIONAL_DATE_TIME_TEXT != keyword)) {
@@ -116,24 +116,24 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 		case DATE_TYPE:
 		case TIME_TYPE:
 		case TIMESTAMP_TYPE:
-			defn_len += fprintf(output, "%s(%s)", get_type_string_from_sql_data_type(data_type),
+			defn_len += fprintf(memstream, "%s(%s)", get_type_string_from_sql_data_type(data_type),
 					    get_date_time_format_string(keyword));
 			break;
 		case TIME_WITH_TIME_ZONE_TYPE:
-			defn_len += fprintf(output, "TIME(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
+			defn_len += fprintf(memstream, "TIME(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
 			break;
 		case TIMESTAMP_WITH_TIME_ZONE_TYPE:
-			defn_len += fprintf(output, "TIMESTAMP(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
+			defn_len += fprintf(memstream, "TIMESTAMP(%s) WITH TIME ZONE", get_date_time_format_string(keyword));
 			break;
 		default:
 			assert(FALSE);
 			break;
 		}
 	} else {
-		defn_len += fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
+		defn_len += fprintf(memstream, "%s", get_type_string_from_sql_data_type(data_type));
 	}
-	defn_len += fprintf(output, " AS %s", function->extrinsic_function->v.value->v.string_literal);
+	defn_len += fprintf(memstream, " AS %s", function->extrinsic_function->v.value->v.string_literal);
 
-	defn_len += fprintf(output, ";");
+	defn_len += fprintf(memstream, ";");
 	return defn_len;
 }

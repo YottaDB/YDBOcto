@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -385,6 +385,7 @@ find_open_port() {
 	if ! [ -e $lockfile.gld ]; then
 		ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run GDE "change -segment DEFAULT -file_name=$lockfile.dat"
 		ydb_gbldir=$lockfile.gld $ydb_dist/mupip create
+		ydb_gbldir=$lockfile.gld $ydb_dist/mupip set -journal=enable,on,nobefore -reg "*"
 	fi
 
 	# Find open port

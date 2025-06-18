@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.       #
+.. # Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.       #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -254,6 +254,8 @@ Running all the tests
      100% tests passed, 0 tests failed out of 137
 
      Total Test time (real) = 1111.17 sec
+
+ Bats tests directories for passed tests are deleted by default; if you wish to keep them, ``export octo_keep_bats_dirs=1``.
 
 -------------
 Contributing

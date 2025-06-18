@@ -731,6 +731,9 @@ PSQL
 	# Parallelize tests to however many CPUs there are on a machine
 	CTEST_PARALLEL_LEVEL=$(getconf _NPROCESSORS_ONLN)
 	export CTEST_PARALLEL_LEVEL
+	# Keep output from bats tests, which is deleted by default
+	octo_keep_bats_dirs=1
+	export octo_keep_bats_dirs
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
 		ctest
 	else

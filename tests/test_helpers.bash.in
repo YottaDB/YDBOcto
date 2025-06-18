@@ -1428,10 +1428,16 @@ corecheck() {
 	[[ -z $corefilelist ]]
 	# See https://github.com/bats-core/bats-core/issues/383#issuecomment-738628888
 	# for how the determination of a failure is done.
+	#
+	# We delete test directories if we don't need them, but we need them in pipelines (esp autoupgrade tests which use passed bats tests for further tests)
+	# Var is $octo_keep_bats_dirs, 0 (default) don't keep, 1 keep
+	should_i_keep_bats_dirctory=${octo_keep_bats_dirs:-0}
 	if [[ 1 == $BATS_TEST_COMPLETED ]]; then
 		touch bats_test_"$subtest"_end_passed.out
+		if [ $should_i_keep_bats_dirctory -eq 0 ]; then rm -rf $PWD; fi
 	elif [[ "" != $BATS_TEST_SKIPPED ]]; then
 		touch bats_test_"$subtest"_end_skipped.out
+		if [ $should_i_keep_bats_dirctory -eq 0 ]; then rm -rf $PWD; fi
 	else
 		touch bats_test_"$subtest"_end_failed.out
 		# Now that we know this subtest failed, capture the "ps -ef" listing.

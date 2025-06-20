@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -46,6 +46,7 @@ findopenport
 	.	.	do:(portisopen'=0)&(portisopen'=1)
 	.	.	.	set port="TEST-E-FAIL : nc -z localhost "_port_" exited with ["_portisopen_"] exit status"
 	set ^portdir(port)=$zdir
+	set ^history($zut,port,"findopenport",$zdir)=$ztrnlnm("BATS_TEST_NAME")
 	write port
 	quit
 
@@ -56,12 +57,14 @@ releaseport
 	new port
 	set port=+$zcmdline
 	write:'$data(^portdir(port)) "TEST-E-RELEASEPORT : port "_port_" expected to be allocated but is not",!
+	set ^history($zut,port,"releaseport",$zdir)=$ztrnlnm("BATS_TEST_NAME")
 	kill ^portdir(port)
 	quit
 
 scavenge
 	new port
 	set port="" for  set port=$order(^portdir(port)) quit:port=""  do
+	.	set ^history($zut,port,"scavenge",$zdir)=$ztrnlnm("BATS_TEST_NAME")
 	.	kill:(""=$zsearch(^portdir(port))) ^portdir(port)
 	quit
 

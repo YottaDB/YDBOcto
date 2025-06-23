@@ -64,6 +64,15 @@ teardown() {
 }
 
 @test "TDTT088 : Test INNER JOIN on various DATE/TIME/TIMESTAMP format columns in READWRITE tables" {
+	# Issue #1080: The test creates random dates and uses them in multiple
+	# date formats to ensure that the formats interoperate with each other.
+	# If the random date created falls in the window where daylight savings
+	# time loses effect (in the Autumn), a timestamp with timezone with
+	# horolog format will have an ambigious timezone and can't fully
+	# interoperate with other formats. The TZ="UTC" avoid this issue because
+	# UTC does not have Daylight Savings by definition.
+	export TZ="UTC"
+
 	echo "# This subtest is like TDTT087 but for READWRITE tables (instead of READONLY tables)" >> output.txt
 	echo "# See that subtest for test flow details" >> output.txt
 	echo "" >> output.txt

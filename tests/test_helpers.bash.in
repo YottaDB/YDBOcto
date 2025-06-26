@@ -499,6 +499,7 @@ stop_rocto() {
 		ydb_gbldir=$lockfile.gld $ydb_dist/yottadb -run releaseport^portno $test_port
 		# Record port number release time for later debugging in case it is needed
 		echo " `date -Ins` : Released port [$test_port]" >> portno.out
+		mv rocto.pid rocto.pid_`date -Ins`_$$
 	fi
 }
 

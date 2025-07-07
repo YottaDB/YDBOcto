@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -47,7 +47,9 @@ teardown() {
 	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
 		# YDBOcto#1052 changes set ^%ydboctoocto("xc_path") only when DISABLE_INSTALL is ON.
 		# Account for that by updating the reference file by 1
-		sed -i 's/octo_region_label|SET|5744/octo_region_label|SET|5745/' @PROJECT_SOURCE_DIR@/tests/outref/TYIO01.ref
+		mkdir -p outref
+		cp @PROJECT_SOURCE_DIR@/tests/outref/TYIO01.ref outref/TYIO01.ref
+		sed -i 's/octo_region_label|SET|5744/octo_region_label|SET|5745/' outref/TYIO01.ref
 	fi
 	verify_output TYIO01 output.txt
 }

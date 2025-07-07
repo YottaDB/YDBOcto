@@ -678,7 +678,13 @@ verify_output() {
 	verify_no_octo_or_ydb_error "stderr.txt"
 
 	echo "Comparing outref/$1.ref $2"
-	copy_test_files outref/$1.ref
+
+	# If file exists already, use that instead of copying the reference file from fixtures
+	# Used by TYIO01 test to modify the ref file on the fly
+	if [ ! -f outref/$1.ref ]; then
+		copy_test_files outref/$1.ref
+	fi
+
 	cp $2 clean_output.txt
 
 	# Universal filters

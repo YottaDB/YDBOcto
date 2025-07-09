@@ -210,7 +210,14 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 15)"; then
 			echo "# Check code style using clang-format"
 			# This modifies the files in place so no need to record the output.
+			# We use git to check if clang format made a change... stash our changes so it won't give a false positive
+			set +e
+			git diff --stat
+			git diff-index --quiet HEAD; uncommited_change=$?
+			set -e
+			test $uncommited_change -eq 1 && git stash
 			../tools/ci/clang-format-all.sh $CLANG_FORMAT
+			test $uncommited_change -eq 1 && git stash pop
 		else
 			# Otherwise, fail the pipeline.
 			echo " -> A recent enough version of clang-format was not found!"
@@ -464,14 +471,18 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Re-enable "set -e" now that "git merge-base" invocation is done.
 	set -e
 	if [[ (0 == $is_post_octo929_commit) ]]; then
-		shopt -s extglob	# enable extended pattern matching feature (we use ! syntax below)
-		fixtures="$(ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql)"
+		# enable extended pattern matching feature (we use ! syntax below)
+		# We also need to disable history expansion as the ! syntax otherwise causes an error
+		set +o histexpand
+		shopt -s extglob
+		fixtures="$('ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql')"
+		shopt -u extglob	# reset now that extended pattern matching feature need is done
+		set -o histexpand
 		sed -i 's/keys(\(""[A-Za-z_0-9]*""\))/keys(\U\1\E)/g' $fixtures
 		# In similar fashion, we could have M programs that generates DDLs (i.e. CREATE TABLE commands)
 		# containing "keys(...)" expressions with lower cased column names. Fix those as well.
 		fixtures="$(ls ../tests/fixtures/*.m)"
 		sed -i 's/keys(\(""""[A-Za-z_0-9]*""""\))/keys(\U\1\E)/g' $fixtures
-		shopt -u extglob	# reset now that extended pattern matching feature need is done
 	fi
 	pre_octo519_commit="bee2b104e52874f79d728c98047a1cad2829e25f" # 1 commit before YDBOcto#519 commit
 	# Disable the "set -e" setting temporarily as the "git merge-base" can return exit status 0 or 1
@@ -635,7 +646,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	}
 	compare /dev/null sorted_build_warnings.txt build_warnings.txt
 
-	# Skip Clang-tidy checking with Rocky Linux as the version keeps getting upgraded and is not fixed, resulting in changing 
+	# Skip Clang-tidy checking with Rocky Linux as the version keeps getting upgraded and is not fixed, resulting in changing
 	# warnings, some of which are false positives. Clang-tidy on Ubuntu is good enough for now.
 	if ! $is_rocky8; then
 		echo "# Check for unexpected warning(s) from clang-tidy ..."

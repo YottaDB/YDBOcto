@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,6 +18,8 @@ set -o pipefail # this way $? is set to zero only if ALL commands in a pipeline 
 set -e # Below ensures any errors in this script cause it to exit with a non-zero status right away
 
 # Copy of the same function in tools/ci/build.sh
+# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1644#note_2631746498 for explanation of next line
+# shellcheck disable=SC2317
 cleanup_before_exit() {
 	echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
 	rm -rf CMakeFiles _CPack_Packages bats-test.*/go src/CMakeFiles || true

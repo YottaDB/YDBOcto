@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -102,6 +102,12 @@ SELECT NULL FROM names GROUP BY 1 HAVING NULL!='hello' ORDER BY firstname; -- er
 
 -- TRUE
 SELECT TRUE FROM names GROUP BY 1 HAVING TRUE!=FALSE ORDER BY firstname; -- errors out saying firstname in ORDER BY must be in GROUP BY
+SELECT TRUE FROM names GROUP BY TRUE;
+SELECT TRUE FROM names GROUP BY TRUE HAVING TRUE!=FALSE;
+SELECT TRUE FROM names GROUP BY TRUE ORDER BY TRUE;
+SELECT TRUE FROM names GROUP BY 1 ORDER BY TRUE;
+SELECT TRUE FROM names GROUP BY 1 HAVING TRUE!=FALSE ORDER BY TRUE;
+SELECT TRUE FROM names GROUP BY firstname HAVING TRUE!=FALSE ORDER BY TRUE;
 
 -- null_if
 SELECT nullif('soml','test','hello') FROM names; -- Postgres ERROR

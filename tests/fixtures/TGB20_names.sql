@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -144,14 +144,8 @@ SELECT NULL FROM names GROUP BY 1 HAVING NULL!='hello';
 SELECT NULL FROM names GROUP BY firstname HAVING NULL!='hello' ORDER BY 1;
 
 -- TRUE
-SELECT TRUE FROM names GROUP BY TRUE;
-SELECT TRUE FROM names GROUP BY TRUE HAVING TRUE!=FALSE;
-SELECT TRUE FROM names GROUP BY TRUE ORDER BY TRUE;
 SELECT TRUE FROM names GROUP BY 1;
-SELECT TRUE FROM names GROUP BY 1 ORDER BY TRUE;
-SELECT TRUE FROM names GROUP BY 1 HAVING TRUE!=FALSE ORDER BY TRUE;
 SELECT TRUE FROM names GROUP BY 1 HAVING TRUE!=FALSE;
-SELECT TRUE FROM names GROUP BY firstname HAVING TRUE!=FALSE ORDER BY TRUE;
 SELECT TRUE FROM names GROUP BY firstname HAVING TRUE!=FALSE ORDER BY 1;
 
 -- Coalesce

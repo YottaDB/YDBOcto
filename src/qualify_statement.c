@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -725,11 +725,18 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					 * If so, point "cur_cla" to corresponding cla from the SELECT column list.
 					 */
 					SqlColumnList *col_list;
-					boolean_t      error_encountered = FALSE;
-					boolean_t      is_positive_numeric_literal, is_negative_numeric_literal;
+					boolean_t      is_positive_numeric_literal, is_negative_numeric_literal, is_boolean_value;
 
 					order_by_or_group_by_alias = FALSE;
 					UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
+					/* Check for boolean values -- these are not allowed */
+					is_boolean_value = ((value_STATEMENT == col_list->value->type)
+							    && (BOOLEAN_VALUE == col_list->value->v.value->type));
+					if (is_boolean_value) {
+						ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
+						    table_alias->aggregate_depth, FALSE, "TRUE/FALSE", &cur_cla->column_list);
+						return 1;
+					}
 					/* Check for positive numeric literal */
 					is_positive_numeric_literal = ((value_STATEMENT == col_list->value->type)
 								       && ((INTEGER_LITERAL == col_list->value->v.value->type)
@@ -772,49 +779,42 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 								ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
 								    table_alias->aggregate_depth, is_negative_numeric_literal, str,
 								    &cur_cla->column_list);
-								error_encountered = 1;
-								break;
+								return 1;
 							}
 						}
-						if (!error_encountered) {
-							/* Now that we have confirmed the string only consists of the digits [0-9],
-							 * check if it is a valid number that can be represented in an integer.
-							 * If not issue error.
-							 */
-							retval = strtol(str, NULL, 10);
-							if ((LONG_MIN == retval) || (LONG_MAX == retval)) {
-								ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
-								    table_alias->aggregate_depth, is_negative_numeric_literal, str,
-								    &cur_cla->column_list);
-								error_encountered = 1;
-							}
+
+						/* Now that we have confirmed the string only consists of the digits [0-9],
+						 * check if it is a valid number that can be represented in an integer.
+						 * If not issue error.
+						 */
+						retval = strtol(str, NULL, 10);
+						if ((LONG_MIN == retval) || (LONG_MAX == retval)) {
+							ISSUE_ORDER_BY_OR_GROUP_BY_POSITION_NOT_INTEGER_ERROR(
+							    table_alias->aggregate_depth, is_negative_numeric_literal, str,
+							    &cur_cla->column_list);
+							return 1;
 						}
-						if (!error_encountered) {
-							/* Now that we have confirmed the input string is a valid integer,
-							 * check if it is within the range of valid column numbers in the
-							 * SELECT column list. If not, issue an error. If we already determined
-							 * that this is a negative numeric literal, we can issue an error without
-							 * looking at anything else. We wait for the decimal and integer range
-							 * checks above to mirror the error messages that Postgres does.
-							 */
-							column_number = (int)retval;
-							if (!is_negative_numeric_literal && (0 <= column_number)) {
-								qualified_cla = get_column_list_alias_n_from_table_alias(
-								    table_alias, column_number);
-							} else {
-								qualified_cla = NULL;
-							}
-							if (NULL == qualified_cla) {
-								ERROR((AGGREGATE_DEPTH_GROUP_BY_CLAUSE
-								       == table_alias->aggregate_depth)
-									  ? ERR_GROUP_BY_POSITION_INVALID
-									  : ERR_ORDER_BY_POSITION_INVALID,
-								      is_negative_numeric_literal ? "-" : "", str);
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
-								error_encountered = 1;
-							}
+
+						/* Now that we have confirmed the input string is a valid integer,
+						 * check if it is within the range of valid column numbers in the
+						 * SELECT column list. If not, issue an error. If we already determined
+						 * that this is a negative numeric literal, we can issue an error without
+						 * looking at anything else. We wait for the decimal and integer range
+						 * checks above to mirror the error messages that Postgres does.
+						 */
+						column_number = (int)retval;
+						if (!is_negative_numeric_literal && (0 <= column_number)) {
+							qualified_cla
+							    = get_column_list_alias_n_from_table_alias(table_alias, column_number);
+						} else {
+							qualified_cla = NULL;
 						}
-						if (error_encountered) {
+						if (NULL == qualified_cla) {
+							ERROR((AGGREGATE_DEPTH_GROUP_BY_CLAUSE == table_alias->aggregate_depth)
+								  ? ERR_GROUP_BY_POSITION_INVALID
+								  : ERR_ORDER_BY_POSITION_INVALID,
+							      is_negative_numeric_literal ? "-" : "", str);
+							yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 							return 1;
 						}
 					} else {

@@ -5,6 +5,8 @@ select 1 from names order by -1;
 select 1 from names order by 'test';
 select 1 from names order by "test";
 select 1 from names order by NULL;
+select 1 from names order by TRUE;
+select 1 from names order by FALSE;
 [ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant 1.0 in ORDER BY
 LINE 2:1: select 1 from names order by 1.0;
                                        ^^^
@@ -29,4 +31,12 @@ OCTO> select 1 from names order by "test";
 LINE 7:1: select 1 from names order by NULL;
                                        ^^^^
 OCTO> select 1 from names order by NULL;
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant TRUE/FALSE in ORDER BY
+LINE 8:1: select 1 from names order by TRUE;
+                                       ^^^^
+OCTO> select 1 from names order by TRUE;
+[ERROR] PATH:LINENUM DATE TIME: ERR_ORDER_BY_POSITION_NOT_INTEGER: Non integer constant TRUE/FALSE in ORDER BY
+LINE 9:1: select 1 from names order by FALSE;
+                                       ^^^^^
+OCTO> select 1 from names order by FALSE;
 OCTO> 

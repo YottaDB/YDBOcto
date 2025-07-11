@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,3 +16,5 @@ select 1 from names order by -1;
 select 1 from names order by 'test';
 select 1 from names order by "test";
 select 1 from names order by NULL;
+select 1 from names order by TRUE;
+select 1 from names order by FALSE;

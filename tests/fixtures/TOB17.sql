@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,8 +11,6 @@
 #################################################################
 
 select 1 from names order by 1;
-select 1 from names order by TRUE;
-select 1 from names order by FALSE;
 select 1 from names order by nullif(1,1);
 select 1 from names order by case 1 when 1 then 1 end;
 select 1 from names order by 1+1;

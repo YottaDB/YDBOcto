@@ -354,13 +354,13 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 
 	SAFE_PRINTF(fprintf, output_file, FALSE, FALSE, "%s", outbuf);
+	// Close out the file
+	fd = fileno(output_file);
+	fsync(fd);
 	fclose(output_file);
 	free(outbuf);
 	free(buffer);
 
-	// Close out the file
-	fd = fileno(output_file);
-	fsync(fd);
 	rename(tmp_plan_filename, plan_filename);
 	status = store_plandirs_gvn(plan_filename); /* Track this plan in Octo internal gvns */
 	return status;

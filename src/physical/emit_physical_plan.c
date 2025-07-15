@@ -163,6 +163,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		}
 	}
 
+	boolean_t regexmatch_invoked = FALSE;
 	// Generate plan names for Non-deferred and Deferred plans
 	for (plan_id = 1, cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		assert(!(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key));
@@ -171,6 +172,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
 		plan_id++;
+		if (cur_plan->regexmatch_invoked)
+			regexmatch_invoked = TRUE;
 	}
 
 	plan_filename_len = strlen(plan_filename);
@@ -306,6 +309,17 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		}
 	}
 	fprintf(memstream, "    TCOMMIT:wrapInTp\n"); /* Commit TP (if wrapped) */
+	/* Now that a SELECT/INSERT/DELETE etc. query has finished execution, check if there are any regex expression
+	 * which were compiled through "$$regexmatch^%ydboctoplanhelpers calls". If so, free them up here to avoid a
+	 * memory leak. We do not do this free inside "$$regexmatch^%ydboctoplanhelpers" for performance reasons. See
+	 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/873#note_1034216975 for more details.
+	 */
+	if (regexmatch_invoked) { /* There is at least one physical plan that had M code which invoked
+				   * $$regexmatch^%ydboctoplanhelpers. Emit M code to free up the memory allocated for regex
+				   * compilations. To avoid a memory leak (YDBOcto#873).
+				   */
+		fprintf(memstream, "    DO regfreeIfAny^%%ydboctoplanhelpers\n");
+	}
 	fprintf(memstream, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {

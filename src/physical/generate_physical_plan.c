@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -337,6 +337,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 *	1) Fix aggregate function counts.
 	 *	2) Fix plan_options.table to point to list of LP_TABLE plans (caller emit_sql_statement relies on this).
 	 *	3) Fix plan_options.function to point to list of LP_FUNCTION_CALL plans (caller emit_sql_statement relies on this).
+	 *	4) Set plan_options.regexmatch_invoked if any LP_BOOLEAN_REGEX_* child plans are encountered.
 	 * We achieve this by passing a non-NULL second parameter (first call to previously would have passed a NULL parameter).
 	 */
 	assert(NULL == plan->extra_detail.lp_select_query.first_aggregate);
@@ -350,6 +351,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		return NULL;
 	}
 	out = allocate_physical_plan(plan, &plan_options, options);
+	out->regexmatch_invoked = plan_options.regexmatch_invoked;
 	if (LP_INSERT_INTO == plan->type) {
 		/* A physical plan for the destination table of the INSERT INTO has been generated above.
 		 * Now generate a separate physical plan for source table/query of the INSERT INTO.

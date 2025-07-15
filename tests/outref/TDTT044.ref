@@ -273,15 +273,6 @@ _ydboctoP*.m:    IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0,1)) FOR  SET %ydboctozkeyf
 _ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders","order_id")=$ORDER(^%ydbAIMDi2PV9xtCoB7dRj9l9xcIGC(1,%ydboctocursor(cursorId,"keys",1,"orders","order_date"),%ydboctocursor(cursorId,"keys",1,"orders","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders","order_id")="")  DO
 _ydboctoP*.m:    . . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
 _ydboctoP*.m:    . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:;  select * from orders where orders.order_date IN (DATE '03-14-1760');
-_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%m-%d-%Y")
-_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders","order_id")=$ORDER(^%ydbAIMDi2PV9xtCoB7dRj9l9xcIGC(1,%ydboctocursor(cursorId,"keys",1,"orders","order_date"),%ydboctocursor(cursorId,"keys",1,"orders","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders","order_id")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:;  select * from testrtexttziso;
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"testrtexttziso","id")=$ORDER(^tstexttziso(%ydboctocursor(cursorId,"keys",1,"testrtexttziso","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testrtexttziso","id")="")  DO
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
@@ -437,6 +428,15 @@ _ydboctoP*.m:    IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0)) FOR  SET %ydboctozkeyfix
 _ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"testr","id")=$ORDER(^%ydbAIMDw8D4uI9xbuaUbohj5z9rF7(0,%ydboctocursor(cursorId,"keys",1,"testr","dob"),%ydboctocursor(cursorId,"keys",1,"testr","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testr","id")="")  DO
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from orders where orders.order_date IN (DATE '03-14-1760');
+_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%m-%d-%Y")
+_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders","order_id")=$ORDER(^%ydbAIMDi2PV9xtCoB7dRj9l9xcIGC(1,%ydboctocursor(cursorId,"keys",1,"orders","order_date"),%ydboctocursor(cursorId,"keys",1,"orders","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders","order_id")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in testr table
 _ydboctoX*.m:    ;   stat (always 2), AIM Metadata Type (depending if the table has it specified or not);   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)

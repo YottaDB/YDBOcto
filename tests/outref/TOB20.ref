@@ -369,8 +369,6 @@ _ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id desc l
 _ydboctoP*.m:;  select * from names order by id
 _ydboctoP*.m:;  select * from TOB20a order by id asc
 _ydboctoP*.m:;  select * from TOB20g where firstname = 'abcd' order by id asc limit 2
-_ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id desc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20e order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20f order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20i order by id asc limit 2
@@ -398,6 +396,8 @@ _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc
 _ydboctoP*.m:;  select * from TOB20d order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20g order by id
+_ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id desc
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names order by id desc
 _ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20b order by id asc
@@ -419,9 +419,9 @@ _ydboctoP*.m:;  select * from TOB20g order by id desc limit 2
 _ydboctoP*.m:;  select * from TOB20f order by id
 _ydboctoP*.m:;  select * from TOB20h order by id desc
 _ydboctoP*.m:;  select * from composite order by id0 desc limit 1
-_ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id asc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc limit 2
 _ydboctoP*.m:;  select * from TOB20a order by id asc limit 2
 _ydboctoP*.m:;  select * from TOB20g order by id desc
 _ydboctoP*.m:;  select * from TOB20e where firstname = 'abcd' order by id asc limit 2
+_ydboctoP*.m:;  select * from names where firstname in ('Zero','Cereal')  order by id asc
+_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")

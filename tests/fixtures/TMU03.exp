@@ -1,0 +1,63 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2025 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# -------------------------------------------------------------------------------------------------
+# Note: The first part of the below expect script is based off tests/fixtures/get_memory_usage.exp
+# -------------------------------------------------------------------------------------------------
+
+# set huge timeout since on a loaded system it is possible the psql password prompt takes some time to show up
+set timeout 60
+set port [lindex $argv 0];
+
+# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
+spawn /bin/bash --noprofile
+
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+# Start psql
+send -- "psql -U ydb -h localhost -p $port\r"
+expect -re ".*Password for user ydb: "
+send "ydbrocks\r"
+expect -re ".*ydb=. "
+# Disable psql pager as it can otherwise confuse the expect commands below (it did in the pipeline causing timeouts
+# and huge test run times).
+send -- "\\pset pager off\r"
+expect -re ".*ydb=. "
+
+# Run 3 rounds of queries, noting down the rocto server process memory usage after each round
+# Caller script will later check that the memory usage did not change across each round (YDBOcto#873).
+set round 0
+while {$round < 3 } {
+	set round [expr $round+1];
+	set count 0;
+	while {$count < 100 } {
+		set count [expr $count+1];
+		set namesake x%${round}${count}
+		send "select * from names where firstname ~ '$namesake';\r"
+		expect -re ".*ydb=. "
+		send "select * from names where firstname ~* '$namesake';\r"
+		expect -re ".*ydb=. "
+		send "select * from names where firstname like '$namesake';\r"
+		expect -re ".*ydb=. "
+		send "select * from names where firstname ilike '$namesake';\r"
+		expect -re ".*ydb=. "
+		send "select * from names where firstname similar to '$namesake';\r"
+		expect -re ".*ydb=. "
+	}
+	# Get memory usage after running each round of queries
+	set output [exec ./report_memory_usage.sh]
+}
+
+send "\\q\r"
+exit

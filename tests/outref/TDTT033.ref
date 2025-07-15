@@ -40,6 +40,31 @@ OCTO>
 # ----------------------------------------------------------------------------
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
+;  select date'2024-01-01'-time'01:01:01';
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId,wrapInTp)
+    NEW %ydboctop,%ydboctoexpr
+    TSTART:wrapInTp ():(serial)
+    DO octoPlan1(cursorId)
+    TCOMMIT:wrapInTp
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+    . SET %ydboctoexpr=1
+    . DO:%ydboctoexpr
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctoexpr=$$SubDateTime^%ydboctoplanhelpers($$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d"),17,$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,36,"%H:%M:%S"),18)
+    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
 ;  select date'2024-01-01'-date'2024-01-02';
 ;; ---------------------------------------------------------
 
@@ -107,31 +132,6 @@ octoPlan1(cursorId)
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$SubDateTime^%ydboctoplanhelpers($$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,36,"%Y-%m-%d %H:%M:%S"),20,$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,36,"%H:%M:%S"),18)
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
-    ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select date'2024-01-01'-time'01:01:01';
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId,wrapInTp)
-    NEW %ydboctop,%ydboctoexpr
-    TSTART:wrapInTp ():(serial)
-    DO octoPlan1(cursorId)
-    TCOMMIT:wrapInTp
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$$SubDateTime^%ydboctoplanhelpers($$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d"),17,$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,36,"%H:%M:%S"),18)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
     . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr

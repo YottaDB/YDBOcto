@@ -55,6 +55,13 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoe
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(^datetimedate(%ydboctocursor(cursorId,"keys",2,"dater","id"))),17,36,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from dater where dob in (date(fileman)'3230101');
+_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
+_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,%ydboctocursor(cursorId,"keys",1,"dater","dob"),%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:;  select * from datep where dob in (date(fileman)'3230101');
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"datep","dob")=$ORDER(^datetimepdate(%ydboctocursor(cursorId,"keys",1,"datep","dob"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"datep","dob")="")  DO
 _ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
@@ -80,13 +87,6 @@ _ydboctoP*.m:    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:;  select * from dater where dob in (date(fileman)'3230101');
-_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
-_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,%ydboctocursor(cursorId,"keys",1,"dater","dob"),%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in dater table
 _ydboctoX*.m:    ;   stat (always 2), AIM Metadata Type (depending if the table has it specified or not);   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,2,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")")

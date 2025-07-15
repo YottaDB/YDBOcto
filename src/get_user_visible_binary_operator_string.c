@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -81,10 +81,6 @@ char *get_user_visible_binary_operator_string(enum BinaryOperations operation) {
 		break;
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
 		ret = "SIMILAR TO";
-		break;
-	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
-		assert(FALSE); /* A case-insensitive SIMILAR TO is impossible */
-		ret = "";
 		break;
 	case BOOLEAN_IN:
 		ret = "IN";

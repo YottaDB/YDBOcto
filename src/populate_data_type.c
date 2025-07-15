@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -1300,7 +1300,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				case BOOLEAN_REGEX_SENSITIVE_LIKE:
 				case BOOLEAN_REGEX_INSENSITIVE_LIKE:
 				case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
-				case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
 				case BOOLEAN_IN:
 				case BOOLEAN_NOT_IN:
 				case BOOLEAN_ANY_EQUALS:

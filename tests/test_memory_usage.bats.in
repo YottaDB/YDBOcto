@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -98,3 +98,21 @@ teardown() {
   sed -i 's/%ydboctosession("user")=".*"/%ydboctosession("user")="USER"/' node_usage.log
   verify_output TMU02 node_usage.log
 }
+
+@test "TMU03 : OCTO873 : Ensure no memory leaks with LIKE and ~ keywords" {
+  if [[ @ENABLE_ASAN@ == "ON" ]]; then
+    skip "This test cannot run correctly under ASAN as ASAN increases memory usage on each run"
+  fi
+  test_port=$(start_rocto 1444)
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/report_memory_usage.sh .
+  run_psql_expect TMU03 $test_port
+  stop_rocto
+  first_round_query_mem=$(sed -n '1p' < mem_usage.log)
+  second_round_query_mem=$(sed -n '2p' < mem_usage.log)
+  third_round_query_mem=$(sed -n '3p' < mem_usage.log)
+  # Ensure memory usage doesn't increase between 1st and 2nd round of same queries
+  [[ $first_round_query_mem == $second_round_query_mem ]]
+  # Ensure memory usage doesn't increase between 2nd and 3rd round of same queries
+  [[ $second_round_query_mem == $third_round_query_mem ]]
+}
+

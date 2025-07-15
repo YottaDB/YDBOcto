@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -42,11 +42,11 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 		/* The below matches are all case insensitive matches. And so cannot be converted
 		 * into an EQUALS operator like we did cases in the "if()" block above.
 		 */
+		assert(REGEX_SIMILARTO != regex_type);
 		if (REGEX_LIKE == regex_type) {
 			regex->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE_LIKE;
-		} else if (REGEX_SIMILARTO == regex_type) {
-			regex->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE_SIMILARTO;
 		} else {
+			assert(REGEX_TILDE == regex_type);
 			regex->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
 		}
 	}

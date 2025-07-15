@@ -24,6 +24,7 @@ octoPlan0(cursorId,wrapInTp)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
+    DO regfreeIfAny^%ydboctoplanhelpers
     QUIT
 
 octoPlan1(cursorId)

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -328,7 +328,6 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	case BOOLEAN_REGEX_SENSITIVE_LIKE:
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
-	case BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
 		if (!result) {
 			int i;
 			for (i = 0; i < 2; i++) {

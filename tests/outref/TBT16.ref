@@ -32,13 +32,6 @@ f|1
 t|0
 (2 rows)
 OCTO> 
-_ydboctoP*.m:;  select * from test1 where foo in (true,false);
-_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
-_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"test1","id")=$ORDER(^%ydbAIMD8rishkyHymdiJCSfedBn05(0,%ydboctocursor(cursorId,"keys",1,"test1","foo"),%ydboctocursor(cursorId,"keys",1,"test1","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test1","id")="")  DO
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test1","foo"))
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
-_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:;  select * from test2 where foo=true;
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"test2","foo")=$ORDER(^test2(%ydboctocursor(cursorId,"keys",1,"test2","foo"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test2","foo")="")  DO
 _ydboctoP*.m:    . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test2","foo"))
@@ -48,12 +41,6 @@ _ydboctoP*.m:    . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboct
 _ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:;  select * from test1 where foo=true;
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"test1","id")=$ORDER(^%ydbAIMD8rishkyHymdiJCSfedBn05(0,%ydboctocursor(cursorId,"keys",1,"test1","foo"),%ydboctocursor(cursorId,"keys",1,"test1","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test1","id")="")  DO
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test1","foo"))
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:;  select * from test2 where foo in (true,false);
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"test2","foo")=$ORDER(^test2(%ydboctocursor(cursorId,"keys",1,"test2","foo"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test2","foo")="")  DO
 _ydboctoP*.m:    . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test2","foo"))
@@ -63,5 +50,18 @@ _ydboctoP*.m:    . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboct
 _ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from test1 where foo in (true,false);
+_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"test1","id")=$ORDER(^%ydbAIMD8rishkyHymdiJCSfedBn05(0,%ydboctocursor(cursorId,"keys",1,"test1","foo"),%ydboctocursor(cursorId,"keys",1,"test1","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test1","id")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test1","foo"))
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:;  select * from test1 where foo=true;
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"test1","id")=$ORDER(^%ydbAIMD8rishkyHymdiJCSfedBn05(0,%ydboctocursor(cursorId,"keys",1,"test1","foo"),%ydboctocursor(cursorId,"keys",1,"test1","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test1","id")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test1","foo"))
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,2,2,"$$ForceBoolean^%ydboctoplanhelpers()")
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,2,2,"$$ForceBoolean^%ydboctoplanhelpers()")

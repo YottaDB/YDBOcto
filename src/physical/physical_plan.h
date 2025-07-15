@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -120,6 +120,10 @@ typedef struct PhysicalPlan {
 						* an assert currently. Hence kept under a `NDEBUG` flag.
 						*/
 #endif
+	boolean_t regexmatch_invoked; /* TRUE if this plan went through LP_BOOLEAN_REGEX_* code paths in tmpl_print_expression.
+				       * If so, we need to emit M code at the end of the query to free up the compiled
+				       * regex expression (YDBOcto#873).
+				       */
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
@@ -152,6 +156,10 @@ typedef struct PhysicalPlanOptions {
 					  * tmpl_print_expression.ctemplate to directly use it to fetch data associated with
 					  * its unique_id.
 					  */
+	boolean_t regexmatch_invoked;	 /* TRUE if this logical plan has LP_BOOLEAN_REGEX_* as a child logical plan.
+					  * Used later to propagate this value to the physical plan (YDBOcto#873).
+					  */
+
 } PhysicalPlanOptions;
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);

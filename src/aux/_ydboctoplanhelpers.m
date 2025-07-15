@@ -1671,6 +1671,13 @@ regexmatch(str,regexstr,regextype,regexflags)
 	ELSE  SET ret=$$regmatch^%ydbposix(str,result,regexflags)
 	QUIT ret
 
+regfreeIfAny
+	NEW regex,regexflags
+	SET regex="" FOR  SET regex=$ORDER(%ydbposix("regmatch",regex))  QUIT:regex=""  DO
+	. SET regexflags="" FOR  SET regexflags=$ORDER(%ydbposix("regmatch",regex,regexflags))  QUIT:regexflags=""  DO
+	. . DO regfree^%ydbposix($NAME(%ydbposix("regmatch",regex,regexflags)))
+	QUIT
+
 Cast2VARCHAR(string,size)
 	; This function helps implement the typecast operator where the target type is VARCHAR
 	; "string" is the input string that needs to be type cast.

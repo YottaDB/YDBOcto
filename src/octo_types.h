@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -246,7 +246,6 @@ typedef enum BinaryOperations {
 	BOOLEAN_REGEX_SENSITIVE_LIKE,
 	BOOLEAN_REGEX_INSENSITIVE_LIKE,
 	BOOLEAN_REGEX_SENSITIVE_SIMILARTO,
-	BOOLEAN_REGEX_INSENSITIVE_SIMILARTO,
 	BOOLEAN_IN,
 	BOOLEAN_NOT_IN,
 	BOOLEAN_ANY_EQUALS,

@@ -191,13 +191,36 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	}
 	UNUSED(copied); // UNUSED macro needed to avoid 'never read' warning from clang-analyzer in RelWithDebInfo builds
 	populate_and_print_full_err_str(error, &full_err_str, &full_err_len, err_prefix, args);
+
+	/* At this point, we have potentially a bunch of lines to log to stderr. If we are the "rocto" server process,
+	 * "stderr" would point to a file that is shared by multiple rocto server processes (each of which was forked off
+	 * as part of connecting to multiple clients under the same listener rocto process). In that case, we do not want
+	 * concurrent writes to the same rocto log file by multiple rocto server processes to overwrite each other.
+	 * Therefore, we write out the bunch of lines into a memory buffer first and then do the "fprintf()" of that buffer
+	 * to stderr. Since stderr is unbuffered by default (see man pages of "setvbuf()"), it is okay to do a "fprintf()"
+	 * of the final accumulated memory buffer and write to "stderr" without risking an overwrite due to concurrent writes.
+	 */
+	char  *buffer;
+	size_t buffer_size;
+	FILE  *memstream;
+	memstream = open_memstream(&buffer, &buffer_size);
+	if (NULL == memstream) {
+		/* If we cannot open a memstream, use "stderr" instead. We could potentially have overwrites in this case
+		 * but it is considered acceptable since we will have some output show up instead of none.
+		 */
+		memstream = stderr;
+	}
 	line_start = full_err_str;
 	line_end = line_start;
 	while ('\0' != *line_end) {
 		if ('\n' == *line_end) {
 			copied = line_end - line_start;
 			if (0 < copied) {
-				SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s%.*s\n", err_prefix, copied, line_start);
+				if (stderr != memstream) {
+					fprintf(memstream, "%s%.*s\n", err_prefix, copied, line_start);
+				} else {
+					SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s%.*s\n", err_prefix, copied, line_start);
+				}
 			}
 			line_start = line_end + 1;
 		}
@@ -205,7 +228,16 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	}
 	copied = line_end - line_start;
 	if (0 < copied) {
-		SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s%.*s\n", err_prefix, copied, line_start);
+		if (stderr != memstream) {
+			fprintf(memstream, "%s%.*s\n", err_prefix, copied, line_start);
+		} else {
+			SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s%.*s\n", err_prefix, copied, line_start);
+		}
+	}
+	if (stderr != memstream) {
+		fclose(memstream); // at this point "buffer" and "buffer_size" are usable
+		SAFE_PRINTF(fprintf, stderr, FALSE, FALSE, "%s", buffer);
+		free(buffer);
 	}
 	if (!rocto_session.sending_message && rocto_session.connection_fd != 0) {
 		rocto_session.sending_message = TRUE;

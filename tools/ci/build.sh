@@ -471,13 +471,7 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	# Re-enable "set -e" now that "git merge-base" invocation is done.
 	set -e
 	if [[ (0 == $is_post_octo929_commit) ]]; then
-		# enable extended pattern matching feature (we use ! syntax below)
-		# We also need to disable history expansion as the ! syntax otherwise causes an error
-		set +o histexpand
-		shopt -s extglob
-		fixtures="$('ls ../tests/*.bats.in ../tests/fixtures/!(TC058*|TC059*|TC060*).sql')"
-		shopt -u extglob	# reset now that extended pattern matching feature need is done
-		set -o histexpand
+		fixtures=$(find ../tests -name '*.bats.in'; find ../tests/fixtures -name '*.sql' ! -name 'TC058*' ! -name 'TC059*' ! -name 'TC060*')
 		sed -i 's/keys(\(""[A-Za-z_0-9]*""\))/keys(\U\1\E)/g' $fixtures
 		# In similar fashion, we could have M programs that generates DDLs (i.e. CREATE TABLE commands)
 		# containing "keys(...)" expressions with lower cased column names. Fix those as well.

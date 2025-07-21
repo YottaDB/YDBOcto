@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2025 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -15,8 +15,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Octo Documentation!
-===================================
+Octo Documentation
+##################
 
 .. toctree::
    :maxdepth: 5

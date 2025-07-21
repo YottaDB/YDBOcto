@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2018-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2018-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -109,7 +109,7 @@ html_show_sourcelink = False
 #html_theme_options = {'stickysidebar':'true','sidebarwidth':'330','sidebarbgcolor':'#f3f3f3','sidebartextcolor':'#3b1a68','relbarbgcolor':'#3b1a68','footerbgcolor':'#3b1a68','sidebarlinkcolor':'#3b1a68','bodyfont':'Raleway','headfont':'Lora'}
 
 html_theme_options = {'sticky_navigation' : 'true', 'prev_next_buttons_location':'both','logo_only':True}
-html_logo = "octologo.png"
+html_logo = "octologo.jpg"
 html_favicon = "favicon.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,

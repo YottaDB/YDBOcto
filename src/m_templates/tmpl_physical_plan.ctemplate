@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -126,7 +126,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (0 here),{}%
 			%{} zpiece (always 0), omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{};   stat (always 2), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   stat (0 for now), AIM Metadata Type (depending if the table has it specified or not){}%
 			%{};   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise){}%
 
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -144,7 +144,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 
 			boolean_t	is_column_string_type = IS_COLUMN_STRING_TYPE(column);
 			// Add arguments needed by AIM
-			%{},0,0,1,2,{}%
+			%{},0,0,1,0,{}%		// nmonly, zpiece, omitfix, stat
 			// Add type argument for AIM based on the following conditions
 			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
 				if (aim_type) {
@@ -224,7 +224,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (1 here), zpiece (always 0),{}%
 			%{} omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{};   stat (always 2), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   stat (0 for now), AIM Metadata Type (depending if the table has it specified or not){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs{}%
 			if (is_dollar_char) {
@@ -238,7 +238,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{},{{piece}}{}%
 			}
 			// Add arguments needed by AIM
-			%{},1,0,1,2,{}%
+			%{},1,0,1,0,{}%		// nmonly, zpiece, omitfix, stat
 			// Add type argument for AIM based on the following conditions
 			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
 				if (aim_type) {

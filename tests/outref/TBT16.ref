@@ -63,5 +63,5 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoe
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$ForceBoolean^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"test1","foo"))
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,2,2,"$$ForceBoolean^%ydboctoplanhelpers()")
-_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,2,2,"$$ForceBoolean^%ydboctoplanhelpers()")
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,2,"$$ForceBoolean^%ydboctoplanhelpers()")
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$ForceBoolean^%ydboctoplanhelpers()")

@@ -98,8 +98,6 @@
 
 // Maximum size for a fragment of an extended query or literal parameter value stored in the database
 #define MAX_PARM_VALUE_FRAGMENT_SIZE 32768
-// Maximum length of an M line
-#define M_LINE_MAX 32768
 
 /* Set OCTO_PATH_MAX to be the same as the system PATH_MAX (should be defined by limits.h or sys/param.h)
  * but in case it is not available, set it to a value of 1024 just like is done in YDB.

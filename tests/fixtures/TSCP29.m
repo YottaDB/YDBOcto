@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2024-2025 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -10,9 +10,15 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+setupdev ; Set-up Principal Device so that long strings are not split (using newlines) at 32K byte boundary
+	; This magic incantation works for output redirected to files (yottadb -r foo > foo.txt)
+	use $principal:nowrap
+	quit
+
 ; Following are individually called by TSCP29
 test4
 	; 32k length string where aaaa is replaced as bbb
+	do setupdev
 	set res=""
 	for i=0:1:32000 set res=res_"a"
 	write "select replace('"_res_"','aaaa','bbb');"
@@ -20,6 +26,7 @@ test4
 
 test5
 	; 32k length string where abcabc is replaced as xyzxyz
+	do setupdev
 	set res=""
 	for i=0:1:1000 set res=res_"abcabc"
 	write "select replace('"_res_"','abcabc','xyzxyz');"
@@ -27,6 +34,7 @@ test5
 
 test6
 	; 1k length utf string each char replacement
+	do setupdev
 	set res=""
 	for i=0:1:1000 set res=res_$char(20028)
 	write "select replace('"_res_"','"_$char(20028)_"','"_$char(20027)_"');"
@@ -34,6 +42,7 @@ test6
 
 test7
 	; 1k length utf string 2 char replacement
+	do setupdev
 	set res=""
 	for i=0:1:1000 set res=res_$char(20028)
 	write "select replace('"_res_"','"_$char(20028)_$char(20028)_"','"_$char(20027)_$char(20027)_"');"
@@ -41,6 +50,7 @@ test7
 
 test8
 	; 32k length utf string each char replacment
+	do setupdev
 	set res=""
 	for i=0:1:32000 set res=res_$char(20028)
 	write "select replace('"_res_"','"_$char(20028)_"','"_$char(20027)_"');"
@@ -48,6 +58,7 @@ test8
 
 test9
 	; 32k length utf string double char replacment
+	do setupdev
 	set res=""
 	for i=0:1:32000 set res=res_$char(20028)
 	write "select replace('"_res_"','"_$char(20028)_$char(20028)_"','"_$char(20027)_$char(20027)_"');"

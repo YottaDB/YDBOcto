@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -135,3 +135,41 @@ teardown() {
 	[[ 1 -eq $(ls _ydboctoP*.m | wc -l) ]]
 }
 
+@test "TPP11 : OCTO1079 : Verify that long queries don't cause a plan to fail to compile" {
+	echo "# TPP11 : OCTO1079 : Verify that long queries don't cause a plan to fail to compile" | tee output.txt
+	echo "# Generate/run queries which are 32763 to 32768 bytes long" | tee -a output.txt
+	echo -e "Test\t\tSQL Length\t3rd Line Length" | tee -a output.txt
+	echo -e "(3rd line truncated output)"           | tee -a output.txt
+	echo -e "----\t\t----------\t---------------" | tee -a output.txt
+	# select ''\n
+	# 12345678900 <- 10 characters
+	# Start with 10 characters less
+	for len in {32753..32758}; do
+		# %0.sa means: print 'a' once for each argument (seq 1 "$len" gives that many)
+		# printf -v stores the result directly in a variable
+		printf -v str '%0.sa' $(seq 1 "$len")
+
+		# sql statement
+		fulllen=$(($len+10))
+		sql="select '$str'"
+		echo $sql > test$fulllen.sql
+
+		# Discard all is necessary to delete the previous plans and not reuse them for subsequent queries
+		octo <<< 'discard all'
+
+		# Test will fail if we can't compile the SQL statement
+		octo -f test$fulllen.sql
+
+		# Save the result into output.txt for examination
+		echo -en "test$fulllen.sql\t" >> output.txt
+		echo -en "$fulllen\t\t"         >> output.txt
+		# Count # of bytes in 3rd line
+		sed -n 3p *.m | wc -c >> output.txt
+		# Print line beginning and end
+		line=$(sed -n 3p *.m)
+		prefix=$(printf "%s" "$line" | head -c10)
+		suffix=$(printf "%s" "$line" | tail -c10)
+		echo "${prefix}##LONG_LINE##${suffix}" >> output.txt
+	done
+	verify_output TPP11 output.txt
+}

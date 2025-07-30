@@ -200,13 +200,13 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			lineend = input_buffer_combined + cur_input_index;
 		assert(NULL != lineend);
 		linelen = lineend - linestart;
-		if (M_LINE_MAX < linelen) {
+		if (MAX_M_LINE_LEN < (linelen + 4)) { // 4 is the length of ";  \n"
 			/* Truncate the query string if it exceeds the maximum M line length and insert ellipsis to indicate
 			 * truncation has occurred. Include room for comment syntax, spaces, and ellipsis, so subtract 7 from the
 			 * length of the format argument to be printed:
-			 *	";  " (3) + "..." (3) + "\n" (2) = 7 characters
+			 *	";  " (3) + "..." (3) + "\n" (1) = 7 bytes
 			 */
-			fprintf(memstream, ";  %.*s\n", (int)(M_LINE_MAX - 7), linestart);
+			fprintf(memstream, ";  %.*s...\n", (int)(MAX_M_LINE_LEN - 7), linestart);
 		} else {
 			fprintf(memstream, ";  %.*s\n", (int)(linelen), linestart);
 		}

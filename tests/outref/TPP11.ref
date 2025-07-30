@@ -1,0 +1,17 @@
+# TPP11 : OCTO1079 : Verify that long queries don't cause a plan to fail to compile
+# Generate/run queries which are 32763 to 32768 bytes long
+Test		SQL Length	3rd Line Length
+(3rd line truncated output)
+----		----------	---------------
+test32763.sql	32763		32766
+;  select ##LONG_LINE##aaaaaaaaa'
+test32764.sql	32764		32766
+;  select ##LONG_LINE##aaaaaaa...
+test32765.sql	32765		32766
+;  select ##LONG_LINE##aaaaaaa...
+test32766.sql	32766		32766
+;  select ##LONG_LINE##aaaaaaa...
+test32767.sql	32767		32766
+;  select ##LONG_LINE##aaaaaaa...
+test32768.sql	32768		32766
+;  select ##LONG_LINE##aaaaaaa...

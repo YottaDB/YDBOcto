@@ -88,7 +88,19 @@ init_test() {
 		ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
 		export ydb_icu_version
 	fi
-	source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
+	# Set TMPDIR env var to current directory to avoid ydb_env_set from creating ydb_env_PID_XXXXXX subdir under /tmp
+	# (it uses "mktemp -d" command without specifying "-p" and that commands honors the TMPDIR env var) as if it is in /tmp,
+	# a test failure in docker will not have later access to the /tmp folder artifacts making it harder to analyze what went
+	# wrong (due to the absence of files like "CreateEnv.err" which would have "No space" error in case the disk is full etc.).
+	export TMPDIR="$PWD"
+	source @YOTTADB_INCLUDE_DIRS@/ydb_env_set || true
+	unset TMPDIR
+	# If "ydb_dist" env var is not set, it means "ydb_env_set" call above failed. If so, exit.
+	# But before that save env vars (would have otherwise been done in a later "createdb" call.
+	if [[ ! -v ydb_dist ]]; then
+		save_env_variables
+		exit 1
+	fi
 	# Run tests locally without installing Octo/Rocto to $ydb_dist
 	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
 		export PATH="@PROJECT_BINARY_DIR@/src:$PATH"

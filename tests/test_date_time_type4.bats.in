@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -178,6 +178,7 @@ teardown() {
 }
 
 @test "TDTT034_1 : OCTO382 : Validate cast expression involving date and time type values in text format" {
+	export TZ="America/New_York"
 	load_fixture TDTT034.sql subtest novv
 	echo "# ----------------------------------------------------------------------------" >> output.txt
 	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
@@ -200,6 +201,7 @@ teardown() {
 }
 
 @test "TDTT034_2 : OCTO382 : Validate cast expression involving date and time type values horolog format" {
+	export TZ="America/New_York"
 	load_fixture TDTT034_2.sql subtest novv
 	echo "# ----------------------------------------------------------------------------" >> output.txt
 	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
@@ -218,6 +220,7 @@ teardown() {
 }
 
 @test "TDTT034_3 : OCTO382 : Validate cast expression involving date and time type values fileman format" {
+	export TZ="America/New_York"
 	load_fixture TDTT034_3.sql subtest novv
 	echo "# ----------------------------------------------------------------------------" >> output.txt
 	echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
@@ -319,6 +322,7 @@ teardown() {
 }
 
 @test "TDTT040 : OCTO382 : Validate date and time value range for all formats" {
+	export TZ="America/New_York"
 	load_fixture TDTT040.sql subtest novv
 	verify_output TDTT040 output.txt nodatetimefilter noinfo nodebug
 	mv clean_output.txt TDTT040_clean_output.txt
@@ -359,6 +363,7 @@ teardown() {
 }
 
 @test "TDTT044 : OCTO382 : Validate key fixing optimization working in readwrite and readonly table" {
+	export TZ="America/New_York"
 	yottadb -run %XCMD 'SET ^date(0)="3230201"'
 	yottadb -run %XCMD 'SET ^date(1)="3230301"'
 	yottadb -run %XCMD 'SET ^date(2)="3230401"'

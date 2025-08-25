@@ -18,13 +18,15 @@ setup() {
 }
 
 teardown() {
-  stop_rocto
-  corecheck
+	stop_rocto
+	corecheck
 }
 
 @test "TDTT109 : Validate that values of types that are compatible with TIMESTAMP WITH TIME ZONE can be inserted to a column of that type" {
-        test_port=$(start_rocto 1400 -aw)
-        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT109.sql
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
+	test_port=$(start_rocto 1400 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT109.sql
 }
 
 @test "TDTT110-2: OCTO382 : Test Unix epoch (1970-01-01) is correctly represented" {

@@ -178,6 +178,7 @@ teardown() {
 }
 
 @test "TDTT047 : OCTO382 : Test ZUT formatted date and time input values have correct text and ZUT formatted output values" {
+	export TZ="America/New_York"
 	# First text format output
 	load_fixture TDTT047.sql subtest novv
 	mv output.txt output_1.txt
@@ -192,6 +193,7 @@ teardown() {
 }
 
 @test "TDTT048 : OCTO382 : Test ZHOROLOG formatted date and time input values have correct text and ZHOROLOG fomratted output values" {
+	export TZ="America/New_York"
 	# First text format output
 	load_fixture TDTT048.sql subtest novv
 	mv output.txt output_1.txt

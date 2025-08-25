@@ -48,6 +48,8 @@ teardown() {
 }
 
 @test "TDTT051 : OCTO382 : Test leap year and leap second date/time values" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT051.sql "trim_trailing_zeroes"
 }
 
@@ -69,6 +71,8 @@ teardown() {
 }
 
 @test "TDTT054 : OCTO382 : Test concat functions with 2 and 3 parameters" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	$ydb_dist/yottadb -r createconcatfunctiontest^datetime "TDTT054.sql"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT054.sql
 }
@@ -81,6 +85,8 @@ teardown() {
 }
 
 @test "TDTT056 : OCTO382 : Test NULL values in date/time columns" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	test_port=$(start_rocto 1400 -aw)
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT056_1.sql
 
@@ -119,6 +125,8 @@ teardown() {
 @test "TDTT060 : OCTO382 : Validate date/time value auto upgrade in table, view and function" {
 	# Auto upgrade test
 	# Add gvns for readonly table
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	yottadb -run %XCMD 'SET ^tdtt060(1)="2023-01-01|01:01:01|2023-01-01 01:01:01|2023-01-01 01:01:01-05"'
 	yottadb -run %XCMD 'SET ^tdtt060(2)="2023-01-01|01:01:01|2023-01-01 01:01:01|2023-04-01 01:01:01-04"'
 	yottadb -run %XCMD 'SET ^tdtt060(3)="2023-01-01||2023-01-01 01:01:01|2023-01-01 04:01:01-05"'
@@ -227,6 +235,8 @@ teardown() {
 }
 
 @test "TDTT068 : Validate edge case with microseconds" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT068.sql
 	# Max precision is 6, values greater than that are ignored
 	yottadb -run %XCMD 'SET ^TDTT068(1)="2024-02-21T13:31:48.05098021111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"'
@@ -248,6 +258,7 @@ teardown() {
 }
 
 @test "TDTT071 : Validate timestamp literal and global values working without time information" {
+	export TZ="America/New_York"
 	yottadb -run %XCMD 'SET ^TDTT071t(1)="2023-01-01"'
 	yottadb -run %XCMD 'SET ^TDTT071tz(1)="2023-01-01 01:01:01"'
 	yottadb -run %XCMD 'SET ^TDTT071tz(2)="2023-01-01"'
@@ -294,11 +305,14 @@ teardown() {
 }
 
 @test "TDTT076 : zhorolog timezone boundary values should not generate an assert failure" {
+	export TZ="America/New_York"
 	load_fixture TDTT076.sql subtest novv
 	verify_output TDTT076 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT077 : Test add expression with random date/time values" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	$ydb_dist/yottadb -r getAddQueries^datetime >> input.sql
 	psql names -f input.sql > postgres_output.txt 2>&1
 	cat postgres_output.txt | sed '/?column?/d;/--/d;/^$/d;s/^ *//g' >> postgres_output.log
@@ -310,6 +324,8 @@ teardown() {
 }
 
 @test "TDTT078 : Test sub expression with random date/time values" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	$ydb_dist/yottadb -r getSubQueries^datetime >> input.sql
 	psql names -f input.sql > postgres_output.txt 2>&1
 	cat postgres_output.txt | sed '/?column?/d;/--/d;/^$/d;s/^ *//g' >> postgres_output.log
@@ -321,6 +337,8 @@ teardown() {
 }
 
 @test "TDTT079 : Test daylight savings case" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT079.sql
 	load_fixture TDTT079_2.sql subtest novv
 	verify_output TDTT079_2 output.txt nodatetimefilter noinfo nodebug

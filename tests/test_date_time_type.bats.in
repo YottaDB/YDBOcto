@@ -23,10 +23,14 @@ teardown() {
 }
 
 @test "TDTT001 : OCTO382 : Validate that timezone information input and output is correct in select cases" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT001.sql
 }
 
 @test "TDTT002 : OCTO382 : Validate that date and time text format input to a date/time column in a readwrite table works" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	# TDTT002 uses cross check function to validate date/time functionality
 	# TDTT003 is used to validate the same but with formats which cannot be used with cross check
 	test_port=$(start_rocto 1400 -aw)
@@ -34,17 +38,20 @@ teardown() {
 }
 
 @test "TDTT003 : OCTO382 : Validate that different date and time internal formats can be specified in a CREATE TABLE column definition for a readwrite table" {
+	export TZ="America/New_York"
 	load_fixture TDTT003.sql subtest novv
 	verify_output TDTT003 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT004 : OCTO382 : Validate that different date and time internal formats can be specified in a CREATE TABLE column definition for a readonly table" {
+	export TZ="America/New_York"
 	$ydb_dist/yottadb -r datetimemglobal^datetime
 	load_fixture TDTT004.sql subtest novv
 	verify_output TDTT004 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT005 : OCTO382 : Ensure that the working of all binary operators are checked when operands are of type date/time (including date/time and other data type combinations)" {
+	export TZ="America/New_York"
 	# Note only text format input is considered here and since we are validating usages this will apply to all other formats as well
 	$ydb_dist/yottadb -r binaryoperationstatements^datetime "TDTT005"
 
@@ -84,6 +91,7 @@ teardown() {
 }
 
 @test "TDTT007 : OCTO382 : Ensure that the working of all cast operations are checked when operand and type are of type date/time (including date/time and other data type combinations)" {
+	export TZ="America/New_York"
 	# Note only text format input is considered here and since we are validating usages this will apply to all other formats as well
 	$ydb_dist/yottadb -r castoperationstatements^datetime "TDTT005" >> input.sql
 	octo -p -f input.sql 2>&1 | tee -a output.txt
@@ -91,6 +99,7 @@ teardown() {
 }
 
 @test "TDTT008 : OCTO382 : Ensure that the working of case statements are checked when operands are of type date/time (including date/time and other data type combinations)" {
+	export TZ="America/New_York"
 	# Note only text format input is considered here and since we are validating usages this will apply to all other formats as well
 	$ydb_dist/yottadb -r caseoperationstatements^datetime "TDTT008" >> input.sql
 	octo -p -f input.sql 2>&1 | tee -a output.txt
@@ -98,6 +107,7 @@ teardown() {
 }
 
 @test "TDTT009 : OCTO382 : Ensure that the working of all date and time array operations are checked" {
+	export TZ="America/New_York"
 	# Note only text format input is considered here and since we are validating usages this will apply to all other formats as well
 	$ydb_dist/yottadb -r arrayoperationstatements^datetime "TDTT009" >> input.sql
 	octo -p -f input.sql 2>&1 | tee -a output.txt
@@ -105,6 +115,7 @@ teardown() {
 }
 
 @test "TDTT010 : OCTO382 : Ensure that the working of all aggregate functions are checked when operands are of type date/time" {
+	export TZ="America/New_York"
 	# Note only text format input is considered here and since we are validating usages this will apply to all other formats as well
 	$ydb_dist/yottadb -r aggregatefunctionstatements^datetime "TDTT010" >> input.sql
 	octo -p -f input.sql 2>&1 | tee -a output.txt
@@ -112,6 +123,7 @@ teardown() {
 }
 
 @test "TDTT011 : OCTO382 : Ensure that the working of coalesce/greatest/least/nullif functions are checked when operands are of type date/time (including date/time and other data type combinations)" {
+	export TZ="America/New_York"
 	# Note only text format input is considered in this test
 	# The validations done here will apply to all other formats
 	$ydb_dist/yottadb -r cogtltnifunctionstatements^datetime "TDTT011" >> input.sql
@@ -127,6 +139,7 @@ teardown() {
 }
 
 @test "TDTT013 : OCTO382 : Validate different date and time user defined function usage" {
+	export TZ="America/New_York"
 	$ydb_dist/yottadb -r userdefinedfunctionstatements^datetime "TDTT013" >> input.sql
 	octo -p -f input.sql 2>&1 | tee -a output.txt
 	mv output.txt output1.txt
@@ -170,7 +183,7 @@ teardown() {
 }
 
 @test "TDTT019 : OCTO382 : Validate working of date/time literals and its internal format specification" {
+	export TZ="America/New_York"
 	load_fixture TDTT019.sql subtest novv
 	verify_output TDTT019 output.txt nodatetimefilter noinfo nodebug
-
 }

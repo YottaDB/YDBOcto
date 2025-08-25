@@ -136,6 +136,7 @@ teardown() {
 }
 
 @test "TDTT092 : Validate that change in datestyle is taken into account while doing a cast operation" {
+	export TZ="America/New_York"
 	load_fixture TDTT092.sql subtest novv
 	verify_output TDTT092 output.txt nodatetimefilter noinfo nodebug
 }
@@ -158,11 +159,14 @@ teardown() {
 }
 
 @test "TDTT095 : Validate timezone with seconds information works as expected" {
+	export TZ="America/New_York"
 	load_fixture TDTT095.sql subtest novv
 	verify_output TDTT095 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTT096 : Validate that timezone seconds is generated and cross check function validates this output" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT096.sql
 }
 
@@ -193,6 +197,8 @@ teardown() {
 }
 
 @test "TDTT099 : Misc valid cases" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	load_fixture names.sql
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT099.sql
@@ -230,6 +236,8 @@ teardown() {
 }
 
 @test "TDTT102 : Validate that arbitrary spaces are allowed at the beginning and end, and between date and time; Validated arbitrary T's allowed between date and time" {
+	export TZ="America/New_York"
+	export PGTZ="America/New_York"
 	stop_rocto
 	test_port=$(start_rocto 1400 -aw)
 	# Following routine creates queries and creates the global for readonly table used in TDTT102_octo.sql
@@ -295,6 +303,7 @@ teardown() {
 }
 
 @test "TDTT104: OCTO1052 : Validate triggers working with all readonly table date/time type columns" {
+	export TZ="America/New_York"
 	# Test 1 with non-primary key date/time column
 	$ydb_dist/yottadb -r tdtt104^datetime
 	for filename in input*.sql; do

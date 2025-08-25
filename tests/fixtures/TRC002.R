@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,7 +13,7 @@
 # Create user install directory (necessary on Debian)
 dir.create(path = Sys.getenv("R_LIBS_USER"), showWarnings = FALSE, recursive = TRUE)
 # Install
-install.packages('RPostgres', repos='http://cran.us.r-project.org', lib = Sys.getenv("R_LIBS_USER"), quiet=TRUE)
+install.packages('RPostgres', repos='https://cloud.r-project.org/', lib = Sys.getenv("R_LIBS_USER"), quiet=TRUE)
 # Load
 .libPaths( c( .libPaths(), Sys.getenv("R_LIBS_USER") ) )
 library(DBI)

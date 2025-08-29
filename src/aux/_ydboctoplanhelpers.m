@@ -232,7 +232,7 @@ PrintDateTimeResultColumnValue(value,columnType,outputFormat,textFormatSpecifier
 	. . SET timeH=timeH*60*60
 	. . SET timeM=timeM*60
 	. . SET timeZone=timeH+timeM+timeS
-	. . SET:(timestampWithTimeZone=columnType) timeZone=$select(("+"=sign):"-",1:"")_timeZone
+	. . SET:(timeWithTimeZone=columnType) timeZone=$select(("+"=sign):"-",1:"")_timeZone
 	. . NEW microsec
 	. . SET microsec=$PIECE(result,".",2)
 	. . ; select timestamp'2969-3-18 16:31:45.365' -> needs to be converted to 412071,59505,365000, NOT 412071,59505,365,

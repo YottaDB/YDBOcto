@@ -32,6 +32,18 @@ teardown() {
 }
 
 @test "TDTT087 : Test INNER JOIN on various DATE/TIME/TIMESTAMP format columns in READONLY tables" {
+	# The test creates random dates and uses them in multiple
+	# date formats to ensure that the formats interoperate with each other.
+	# If the random date created falls in the window where daylight savings
+	# time loses effect (in the Autumn), a timestamp with timezone with
+	# horolog format will have an ambigious timezone and can't fully
+	# interoperate with other formats. The TZ="Asia/Bangkok" avoids this issue
+	# because Bangkok does not have Daylight Savings by definition.
+	#
+	# This is the same issue found in TDTT088, and there it was solved by
+	# setting TZ="UTC"
+	export TZ="Asia/Bangkok"
+
 	echo "# -----------------------------------------------------------------" >> output.txt
 	echo "# This test takes a randomly generated date/time/timestamp literal." >> output.txt
 	echo "# Finds its equivalent in different formats (fileman/horolog etc.)." >> output.txt

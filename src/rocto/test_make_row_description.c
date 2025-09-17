@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -71,8 +71,7 @@ static void test_one_parms(void **state) {
 	assert_int_equal(received_response->length, expected_length);
 	assert_int_equal(received_response->num_parms, num_parms);
 
-	// Account for tolower conversion in make_row_description
-	assert_string_equal(received_response->parms[0].name, "helloworld");
+	assert_string_equal(received_response->parms[0].name, parms[0].name);
 	assert_int_equal(received_response->parms[0].table_id, parms[0].table_id);
 	assert_int_equal(received_response->parms[0].column_id, parms[0].column_id);
 	assert_int_equal(received_response->parms[0].data_type, parms[0].data_type);
@@ -91,14 +90,14 @@ static void test_multi_parms(void **state) {
 	RowDescriptionParm parms[num_parms];
 
 	memset(parms, 0, sizeof(RowDescriptionParm) * num_parms);
-	parms[0].name = "helloworld";
+	parms[0].name = "helloWorld";
 	parms[0].table_id = 1;
 	parms[0].column_id = 2;
 	parms[0].data_type = 3;
 	parms[0].data_type_size = 4;
 	parms[0].type_modifier = 5;
 	parms[0].format_code = 6;
-	parms[1].name = "hellouniverse";
+	parms[1].name = "helloUniverse";
 	parms[1].table_id = 11;
 	parms[1].column_id = 12;
 	parms[1].data_type = 13;

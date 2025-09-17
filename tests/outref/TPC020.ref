@@ -1,5 +1,5 @@
                   List of relations
- schema |            name             | type  | owner 
+ Schema |            Name             | Type  | Owner 
 --------+-----------------------------+-------+-------
  public | information_schema.tables   | table | octo
  public | names                       | table | octo

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -533,4 +533,9 @@ OCTO
 		done
 	done
 	verify_output TPC029 output.txt noinfo nodebug
+}
+
+@test "TPC030 : OCTO1091 : Columns in double quotes are not automatically lowercased" {
+	run_psql $test_port TPC030.sql 2>&1 | tee output.txt
+	verify_output TPC030 output.txt noinfo nodebug
 }

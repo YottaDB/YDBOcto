@@ -1,7 +1,7 @@
 #!/bin/sh
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,7 +18,6 @@ set -eu
 
 tool="$1"
 version="$2"
-FOUND=
 
 exists() {
 	[ -x "$(command -v "$1")" ]
@@ -28,47 +27,15 @@ exists() {
 # NOTE: should be updated when later versions of LLVM are released
 for version in $(seq 15 -1 "$version"); do
 	if exists "$tool-$version"; then
-		FOUND="$tool-$version"
 		# We found a recent enough version so return success
-		echo "$FOUND"
+		echo "$tool-$version"
 		exit 0
+	else
+		echo "Version not found: $tool-$version"
+		exit 1
 	fi
 done
 
-# We didn't find a version specific tool. Check if tool without a specific version exists.
-if ! exists "$tool"; then
-	# We did not find generic tool. Exit with error.
-	exit 1
-fi
-
-# We found generic tool. Check if its version is at least the minimum we want.
-FOUND=$tool
-
-# Make sure we have a recent enough version.
-# "clang-format --version" output is different depending on the versions.
-# Example outputs on various linux distributions
-#	RHEL 8       : clang-format version 11.0.0 (Red Hat 11.0.0-1.module+el8.4.0+8598+a071fcd5)
-#	Ubuntu 20.04 : clang-format version 10.0.0-4ubuntu1
-#	Arch Linux   : clang-format version 12.0.1
-#	Ubuntu 21.04 : Ubuntu clang-format version 12.0.0-3ubuntu1~21.04.1
-# We want to extract the major version from the above (11, 10, 12, 12 respectively). Hence the gsub() function usage below.
-#
-# "clang-tidy --version" output is different too.
-# LLVM (http://llvm.org/):
-#  LLVM version 10.0.0
-#
-#  Optimized build.
-#  Default target: x86_64-pc-linux-gnu
-#  Host CPU: haswell
-
-if [ "$tool" = "clang-tidy" ]; then
-	majorver=$($FOUND --version | awk '/version/ {print $3}' | cut -d '.' -f 1)
-elif [ "$tool" = "clang-format" ]; then
-	majorver=$($FOUND --version | awk '/version/ {gsub(".*clang-format version", ""); print $1}' | cut -d '.' -f 1)
-fi
-
-if [ "$majorver" -ge "$version" ]; then
-	echo "$FOUND"
-else
-	exit 1
-fi
+# We didn't find a version specific tool. Exit with error.
+echo "No LLVM tool found >= version 15. Please install LLVM tools >= 15 to run this script."
+exit 1

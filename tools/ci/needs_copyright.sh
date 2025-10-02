@@ -2,7 +2,7 @@
 
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -43,7 +43,7 @@ fi
 
 # Below is a list of specific files that do not have a copyright or are from an
 # external project with a specific copyright so ignore them
-skiplist="COPYING README.md LICENSE tests/fixtures/TSPEED006.sql tests/fixtures/TSPEED007.sql cmake/git-watcher.cmake"
+skiplist="COPYING README.md LICENSE .gitlab/issue_templates/Issue.md tests/fixtures/TSPEED006.sql tests/fixtures/TSPEED007.sql cmake/git-watcher.cmake"
 for skipfile in $skiplist; do
 	if [ "$file" = "$skipfile" ]; then
 		exit 1

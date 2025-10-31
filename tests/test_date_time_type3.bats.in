@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -217,6 +217,13 @@ teardown() {
 	# validate the stdout output as that is what we care about in this case.
 	mv output.txt output2.txt
 	cat output*.txt >> output.txt
+	# psql 16 and earlier print a "SET" command tag even for a "set" statement that fails (e.g. an
+	# invalid datestyle value here), whereas psql 17 stopped doing so. The tag is textually identical
+	# whether the "set" succeeded or failed, so a single reference file cannot keep the valid-set tags
+	# while matching both client versions. Strip all standalone "SET" lines from the output (and omit
+	# them from the reference file) so the comparison is psql-client-version independent. The datestyle
+	# values asserted via "show datestyle" are unaffected and remain what this test actually validates.
+	sed -i '/^SET$/d' output.txt
 	verify_output TDTT064 output.txt noinfo nodebug
 }
 

@@ -885,7 +885,8 @@ else
 		# one of the wildcards ("/usr/lib*/libicuio.so" or "/usr/lib*/*/libicuio.so") could end up expanding to
 		# a non-existent file name (that would cause bash to treat it as a failure).
 		set +e
-		ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
+		# Need "sort -u" in case /usr/lib64 is a soft link to /usr/lib as we would then get duplicate lines (seen in Ubuntu AARCH64)
+		ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sort -u | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
 		# Re-enable "set -e" now that "readlink" invocation is done.
 		set -e
 		export ydb_icu_version

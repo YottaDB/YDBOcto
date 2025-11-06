@@ -1,7 +1,7 @@
 #!/bin/bash -v
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -13,7 +13,8 @@
 source /opt/yottadb/current/ydb_env_set
 set -e
 
-ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
+# Need "sort -u" in case /usr/lib64 is a soft link to /usr/lib as we would then get duplicate lines (seen in Ubuntu AARCH64)
+ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sort -u | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
 export ydb_icu_version
 
 # Install TLS plugin

@@ -1,7 +1,7 @@
 #!/bin/sh -v
 #################################################################
 #								#
-# Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -30,4 +30,4 @@ docker ps -a
 # -d Create development directories
 # -a Alternate VistA version (VEHU)
 # -n Install YottaDB GUI
-docker build --pull --build-arg flags="-o -f -b -s -q -d -n -a https://github.com/WorldVistA/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .
+docker build --pull --provenance=false --build-arg flags="-o -f -b -s -q -d -n -a https://github.com/WorldVistA/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .

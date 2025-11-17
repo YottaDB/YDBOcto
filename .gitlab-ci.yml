@@ -240,7 +240,7 @@ test-vista:
   services:
     - docker:dind
   script:
-    - docker build --pull -t yottadb/${REPO}:${DOCKERHUBTAG} .
+    - docker build --provenance=false --pull -t yottadb/${REPO}:${DOCKERHUBTAG} .
     # Suppress Docker warning advising against using the --password flag
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
     - docker push yottadb/${REPO}:${DOCKERHUBTAG}
@@ -310,8 +310,8 @@ docker-vista-aarch64:
     - docker:dind
   script:
     - echo -n $HUB_PASSWORD | docker login -u $HUB_USERNAME --password-stdin
-    - docker pull yottadb/${REPO}:${DOCKERHUBTAG}-amd64
-    - docker pull yottadb/${REPO}:${DOCKERHUBTAG}-aarch64
+    - docker pull --platform=linux/amd64 yottadb/${REPO}:${DOCKERHUBTAG}-amd64
+    - docker pull --platform=linux/aarch64 yottadb/${REPO}:${DOCKERHUBTAG}-aarch64
     - docker manifest create yottadb/${REPO}:${DOCKERHUBTAG} yottadb/${REPO}:${DOCKERHUBTAG}-amd64 yottadb/${REPO}:${DOCKERHUBTAG}-aarch64
     - docker manifest inspect yottadb/${REPO}:${DOCKERHUBTAG}
     - docker manifest push yottadb/${REPO}:${DOCKERHUBTAG}

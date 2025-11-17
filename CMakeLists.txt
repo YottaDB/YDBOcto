@@ -66,6 +66,7 @@ option(FULL_TEST_SUITE "Run full test suite?" OFF)
 option(TEST_SPEED "Run separate speed test?" OFF)
 option(TEST_VISTA "Run separate VistA test (Database needs to be set-up separately)?" OFF)
 option(ENABLE_ASAN "Enable address sanitizer in build?" OFF)
+option(ENABLE_COVERAGE "Enable coverage in build?" OFF)
 option(ENABLE_AUTO_VAR_INIT_PATTERN "Enable -ftrivial-auto-var-init=pattern in build?" OFF)
 option(FORCE_BINARY_DEFINITION_AUTO_UPGRADE "Force binary table definition auto upgrade?" OFF)
 
@@ -82,6 +83,9 @@ if(${TEST_SPEED})
 endif()
 if(${TEST_VISTA})
 	message(STATUS "`make test` will run VistA tests")
+endif()
+if(${ENABLE_COVERAGE})
+	message(STATUS "`make test` will track code coverage")
 endif()
 # Check if YottaDB is compiled using ASAN. If so, enable ASAN by default
 execute_process(COMMAND nm $ENV{ydb_dist}/libyottadb.so

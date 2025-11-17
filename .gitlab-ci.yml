@@ -173,6 +173,18 @@ make-tls-ubuntu:
   script:
     - ./tools/ci/install-tls.sh
     - ./tools/ci/build.sh "make-tls-ubuntu" "none"
+  coverage: /^lines:\s+(\d+\.\d+)%/ # lines: 91.6% (23972 out of 26164)
+  # Artifacts is overridden (from .make above) as we need to provide the coverage report for this job
+  # See https://docs.gitlab.com/ci/testing/code_coverage/cobertura/#cc-example
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 month
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/coverage.xml
 
 make-tls-rocky:
   image: ${ROCKY_MAS_BASELINE_REPO}

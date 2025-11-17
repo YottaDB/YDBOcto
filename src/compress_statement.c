@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -570,10 +570,13 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, 
 		break;
 	case binary_STATEMENT:;
 		SqlBinaryOperation *binary, *new_binary;
+
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
 		if (NULL != out) {
 			new_binary = ((void *)&out[*out_length]);
 			memcpy(new_binary, binary, sizeof(SqlBinaryOperation));
+		} else {
+			new_binary = NULL;
 		}
 		*out_length += sizeof(SqlBinaryOperation);
 

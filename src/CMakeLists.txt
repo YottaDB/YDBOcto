@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -126,7 +126,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
 
 BISON_TARGET(OctoParser ${PROJECT_BINARY_DIR}/parser.y
   ${PROJECT_BINARY_DIR}/parser.c)
-FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
+FLEX_TARGET(OctoLexer ${CMAKE_CURRENT_SOURCE_DIR}/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/optimization_transforms")
@@ -623,6 +623,10 @@ if (ENABLE_ASAN)
 		# Created an issue here: https://github.com/google/sanitizers/issues/1477
 		message(WARNING "-fsanitize=address has some issues in tests for Octo for compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 	endif()
+endif()
+
+if(ENABLE_COVERAGE)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
 endif()
 
   # TODO: Per https://gcc.gnu.org/pipermail/gcc-patches/2021-February/565514.html, gcc 12 should most likely have

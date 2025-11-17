@@ -63,7 +63,7 @@ compile_octo() {
 	# So disable the "set -e" setting temporarily for this step.
 	set +e
 	# Use Ninja by default, but allow overriding it to use Make.
-	if [ "$USE_MAKE" = 1 ]; then
+	if [[ "$USE_MAKE" == "1" ]]; then
 		make -j $(grep -c ^processor /proc/cpuinfo) 2> build_warnings.txt
 	else
 		# Only show warnings in the GitLab UI. Show the full output in `build_warnings.txt`.
@@ -116,7 +116,7 @@ AIM
 FILE
 }
 
-if [ "$USE_MAKE" = 1 ]; then
+if [[ "$USE_MAKE" == "1" ]]; then
 	generator="Unix Makefiles"
 	build_tool="make -j $(grep -c ^processor /proc/cpuinfo)"
 else
@@ -261,9 +261,17 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		else
 			full_test="ON"
 		fi
+		enable_coverage="OFF"
 	else # We are running on a branch pipeline. Run the full test suite.
 		echo "# On branch pipeline, running full test suite"
 		full_test="ON"
+		# gcovr is easily installable on Ubuntu, but not Rocky 8. We only need one set of coverage calculations, so no need
+		# ...to have this enabled on Rocky as well.
+		if command -v gcovr &>/dev/null; then
+			enable_coverage="ON"
+		else
+			enable_coverage="OFF"
+		fi
 	fi
 	set -u # Enable back
 	echo "# Randomly choose whether to test from installed directory OR from build directory (prefer install 3/4 times)"
@@ -273,11 +281,12 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		disable_install="OFF"
 	fi
 
-	if [ "asan" = $subtaskname ]; then
+	if [[ "asan" == "$subtaskname" ]]; then
 		# Enable ASAN. It's only a 2x slowdown
 		# Run full test suite
 		asan="ON"
 		full_test="ON"
+		enable_coverage="OFF"
 		if [[ "make-ubuntu" == $jobname ]]; then
 			# We started seeing "AddressSanitizer:DEADLYSIGNAL" errors in the "asan-ubuntu" pipeline job in Apr 2024.
 			# https://stackoverflow.com/a/77895910 has more details. It mentions "gcc-libs version 13.2.1-4 was just
@@ -299,10 +308,12 @@ else
 	disable_install="ON"
 	# Don't run any ASAN on upgrade jobs.
 	asan="OFF"
+	enable_coverage="OFF"
 fi
 echo " -> full_test = $full_test"
 echo " -> disable_install = $disable_install"
 echo " -> enable_asan = $asan"
+echo " -> enable_coverage = $enable_coverage"
 
 if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	if [[ "debug" == $subtaskname ]]; then
@@ -603,7 +614,7 @@ randomize_OCTO_INIT_BUFFER_LEN() {
 	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
 }
 
-cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install -DENABLE_ASAN=$asan ..
+cmake -G "$generator" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install -DENABLE_ASAN=$asan -DENABLE_COVERAGE=$enable_coverage ..
 if [[ ("ON" == $asan) ]]; then
 	# This is an ASAN job. In this case, we want to test for memory issues so randomly select a power of two to
 	# use for altering the size of OCTO_INIT_BUFFER_LEN to test for regressions
@@ -698,7 +709,7 @@ if [[ $disable_install == "OFF" ]]; then
 else
 	# In case DISABLE_INSTALL = ON, we need to set the correct UTF-8 directory for $ZROUTINES
 	# In case DISABLE_INSTALL = OFF, ydb_env_set takes care of that for us.
-	if [ "$ydb_chset" = "UTF-8" ]; then
+	if [[ "$ydb_chset" == "UTF-8" ]]; then
 		ydb_routines="$(pwd)/utf8/_ydbocto.so $ydb_routines"
 	else
 		ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
@@ -736,6 +747,13 @@ PSQL
 	export octo_keep_bats_dirs
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
 		ctest
+		if [[ "ON" == "$enable_coverage" ]]; then
+			# --gcov-ignore-parse-errors is needed because of https://github.com/gcovr/gcovr/issues/882, fixed in the latest gcovr
+			# When we upgrade to Ubuntu 26.04, we can try removing --gcov-ignore-parse-errors
+			gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o=coverage-gcovr.xml --gcov-ignore-parse-errors --root=${CI_PROJECT_DIR} .
+			# See https://github.com/gcovr/gcovr/issues/806 for background
+			sed "s|<source>..</source>|<source>${CI_PROJECT_DIR}</source>|" coverage-gcovr.xml > coverage.xml
+		fi
 	else
 		# Ensure that `hello*` tests, e.g. `hello_psql.bats` and `hello_db.bats`, run before tests that depend on them in
 		# order to prevent failures when parallelizing test execution in test-auto-upgrade jobs, which use older commits.

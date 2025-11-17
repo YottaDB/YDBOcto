@@ -9,6 +9,15 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+
+# This image will be rebuilt overnight but if you need to rebuild it manually, e.g. to get an MR to pass:
+# Deploy a new version of the docker image with:
+#docker build --pull -f tools/misc-dockerfiles/Dockerfile-Ubuntu-Tests.baseline -t registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-master .
+#docker login registry.gitlab.com/yottadb/dbms/ydbocto
+#<username is your gitlab username>
+#<password is your gitlab token, NOT your gitlab password>
+#docker push registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-master
+
 ARG imagetag=latest-master
 FROM yottadb/yottadb-base:${imagetag}
 RUN export DEBIAN_FRONTEND=noninteractive
@@ -16,6 +25,9 @@ RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
 RUN apt-get update && \
     apt-get install -y tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt-get install -y -qq --no-install-recommends build-essential clang clang-tidy-15 clang-format-15 cmake bison flex libcmocka-dev python3 python3-pip python3-setuptools python3-wheel libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk ninja-build unixodbc odbc-postgresql tcsh shellcheck libicu-dev pkg-config locales curl mysql-client golang ncat r-base r-base-dev libpq-dev python3-sphinx python3-sphinx-rtd-theme libtirpc-dev gcovr
+# Note: following line is taken verbatim from developer_doc.rst
+RUN apt-get install -y -q --no-install-recommends bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
+RUN apt-get install -y -q --no-install-recommends bats clang cmake python3-pip python3-setuptools python3-wheel python3-sphinx python3-sphinx-rtd-theme git xxd wget libgcrypt20-dev libgpgme-dev ninja-build tcsh shellcheck libicu-dev pkg-config curl golang gcovr
+
 RUN locale-gen en_US.UTF-8
 ENV USER=root

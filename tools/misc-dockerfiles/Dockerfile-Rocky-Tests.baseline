@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,11 +16,12 @@ RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
 # Yum update and packages
 RUN yum update -y  && \
     yum clean all && \
-    rm -rf /var/cache/yum/* && \
-    yum --enablerepo=powertools install -y libcmocka-devel gcc libasan make clang clang-tools-extra cmake bison flex python3 python3-pip readline-devel git libconfig-devel openssl-devel postgresql postgresql-server libgcrypt-devel gpgme-devel openssl expect java-11-openjdk-devel tzdata-java unzip unixODBC postgresql-odbc diffutils pkg-config libicu-devel glibc-langpack-en wget mysql-server mysql xz curl go nmap-ncat epel-release postgresql-devel && \
-    # we need to enable epel-release first before installing R
-    # also need to enable powertools repo to install some dependencies for R
-    yum --enablerepo=powertools install -y R
+    rm -rf /var/cache/yum/*
+# Next line makes bats and R packages available
+RUN yum install -y epel-release
+# Note: following line is taken verbatim from developer_doc.rst
+RUN yum --enablerepo=powertools install -y bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
+RUN yum --enablerepo=powertools install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel openssl java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz curl
 
 # Ninja
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja

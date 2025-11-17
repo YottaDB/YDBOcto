@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,6 +9,15 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+
+# This image will be rebuilt overnight but if you need to rebuild it manually, e.g. to get an MR to pass:
+# Deploy a new version of the docker image with:
+#docker build --pull -f tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline -t registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master .
+#docker login registry.gitlab.com/yottadb/dbms/ydbocto
+#<username is your gitlab username>
+#<password is your gitlab token, NOT your gitlab password>
+#docker push registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master
+
 # This file mirrors the pipeline set-up, but is not used by the
 # pipeline. It lets you run the pipeline tests locally.
 #

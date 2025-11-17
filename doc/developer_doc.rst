@@ -61,8 +61,7 @@ Ubuntu/Debian
 
   .. code-block:: bash
 
-    git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-    sudo apt-get install default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat r-base r-base-dev libpq-dev
+    sudo apt-get install bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
     locale-gen en_US.UTF-8
 
 ~~~~~~~~~~~~~~~~~
@@ -73,18 +72,14 @@ Rocky Linux/RHEL
 
   .. code-block:: bash
 
-    git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-
     # Rocky Linux
-    sudo yum --enablerepo=powertools install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel
-    sudo yum install epel-release
-    sudo yum --enablerepo=powertools install R
+    sudo yum install epel-release  # make bats and R available next line; powertools below required for R dependencies
+    sudo yum --enablerepo=powertools install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
 
     # RHEL 8
     sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-    sudo yum install java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel
-    sudo yum install epel-release
-    sudo yum install R
+    sudo yum install epel-release  # make bats and R available next line
+    sudo yum install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
 
 ~~~~~~~~~~~~~~~~~
 OpenSUSE/SLES
@@ -94,10 +89,8 @@ OpenSUSE/SLES
 
   .. code-block:: bash
 
-    git clone https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr
-
     # SLES
-    zypper install java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat R-base R-base-devel postgresql-devel
+    zypper install bats clang java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat R-base R-base-devel postgresql-devel libomp-devel libtirpc-devel
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL and MySQL/MariaDB
@@ -270,48 +263,26 @@ Contributing
      ln -s ../../pre-commit .git/hooks/pre-commit
      ln -s ../../pre-rebase .git/hooks/pre-rebase
 
- Note that this script will require :code:`tcsh` and :code:`clang-format-15` or a later release.
+ Note that this script requires :code:`tcsh` and :code:`clang-format` version 15 or later (installed above).
+
+ The CI pipeline will also run the `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_ tool version 8 or later (installed above), to catch common errors. You can replicate its behavior locally as follows:
 
   .. code-block:: bash
-
-     # Ubuntu 22.04
-     sudo apt install --no-install-recommends clang-format-15
-     # Any Debian-like distro; see also https://apt.llvm.org/
-     bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-     # RHEL 8/Rocky Linux
-     sudo yum install clang-tools-extra
-
-+++++++++++
-clang-tidy
-+++++++++++
-
- The CI pipeline will run the `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_ tool to catch common errors. You can replicate its behavior locally as follows:
-
-  .. code-block:: bash
-
-     # Ubuntu 20.04
-     sudo apt install --no-install-recommends clang-tidy
-     # Any Debian-like distro
-     bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-     # RHEL 8/Rocky Linux
-     sudo yum install clang-tools-extra
 
      mkdir build
      cd build
      cmake -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ..
      clang-tidy ../src/octo_init.c  # replace octo_init.c with the file you want to check
 
- :code:`clang-tidy-8` and later are supported.
-
 +++++++++++
 Dockerfiles
 +++++++++++
 
- There are 4 Dockerfiles at the top of the source tree:
+ There are various Dockerfiles at the top of the source tree:
 
   - :code:`Dockerfile`
-  - :code:`Dockerfile-Tests.rocky`
-  - :code:`Dockerfile-Tests.ubuntu`
-  - :code:`Dockerfile-Tests.vista`
+  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.rocky`
+  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.ubuntu`
+  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.vista`
 
  :code:`Dockerfile` builds a docker container suitable for use for using Octo in a testing capacity. The other files are all testing related, and are used to replicate the Gitlab pipelines. There are instructions at the top of each file for usage as well as current limitations.

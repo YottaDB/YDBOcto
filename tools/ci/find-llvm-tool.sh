@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #################################################################
 #								#
 # Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
@@ -13,29 +13,27 @@
 # Find an LLVM tool in the environment
 #
 # Takes 2 arguments ("name" and "minimum version" of tool) and outputs the name of the executable.
-# If a recent enough version was not found, outputs nothing.
+# If a recent enough version was not found, outputs nothing to stdout and returns false
 set -eu
 
 tool="$1"
 version="$2"
 
-exists() {
-	[ -x "$(command -v "$1")" ]
-}
+# First check if exact version exists and if so print it and exit true
+command -v $tool-$version && exit
 
-# Ubuntu likes to name the tools after the version
-# NOTE: should be updated when later versions of LLVM are released
-for version in $(seq 15 -1 "$version"); do
-	if exists "$tool-$version"; then
-		# We found a recent enough version so return success
-		echo "$tool-$version"
-		exit 0
-	else
-		echo "Version not found: $tool-$version"
-		exit 1
-	fi
-done
+# Failing that, check whether the tool with the generic name (without the -version suffix exists)
+if ! command -v $tool >/dev/null; then
+	echo >/dev/stderr "No LLVM tool '$tool' found. Please install LLVM tools >= $version to run this script."
+	exit 1
+fi
 
-# We didn't find a version specific tool. Exit with error.
-echo "No LLVM tool found >= version 15. Please install LLVM tools >= 15 to run this script."
-exit 1
+# If so, get its version and check that it is at least as recent as the required version
+tool_version=$($tool --version | grep -oP '(?<=version )[0-9.]+')
+
+if [[ $(sort -V <(echo $tool_version) <(echo $version) | head -n1) != "$version" ]]; then
+	echo >/dev/stderr "LLVM tool '$tool' is version $tool_version but must be at least version $version"
+	exit 1
+fi
+
+echo $tool

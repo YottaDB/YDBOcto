@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -117,7 +117,7 @@ teardown() {
 	verify_output TTA012_errors output.txt
 }
 
-@test "TTA013 : OCTO849 : Validate comparison operations of set_operation column references doesn't treat `NULL` as its type if the first column is of that type" {
+@test "TTA013 : OCTO849 : Validate comparison operations of set_operation column references doesn't treat 'NULL' as its type if the first column is of that type" {
 	load_fixture names.sql
 	load_fixture names.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TTA013.sql "trim_trailing_zeroes"

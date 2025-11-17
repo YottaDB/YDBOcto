@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -234,7 +234,7 @@ teardown() {
 	verify_output TC078 output.txt
 }
 
-@test "TC079 : OCTO993 : Check auto load works fine when table and column names start with `_`" {
+@test "TC079 : OCTO993 : Check auto load works fine when table and column names start with '_'" {
 	# Run only if build is of type "Debug", `seedreload` config is only available in "Debug" build
 	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
 		skip

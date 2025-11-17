@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -66,12 +66,12 @@ teardown() {
 	verify_output TCV020 output.txt
 }
 
-@test "TCV021 : Verify `create view` and `create table` fails with an error if relation of the name already exists" {
+@test "TCV021 : Verify 'create view' and 'create table' fails with an error if relation of the name already exists" {
 	load_fixture TCV021_errors.sql subtest
 	verify_output TCV021_errors output.txt nodebug
 }
 
-@test "TCV022 : Verify `drop view` deletes the plans associated with views" {
+@test "TCV022 : Verify 'drop view' deletes the plans associated with views" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV022.sql "trim_trailing_zeroes"
 	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 3 ]]
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV022_DROP.sql "trim_trailing_zeroes"

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -60,7 +60,7 @@ teardown() {
 	verify_output TGB06 output.txt
 }
 
-@test "TGB07 : OCTO401 : COUNT(DISTINCT) usage issues `Assert failed` error" {
+@test "TGB07 : OCTO401 : COUNT(DISTINCT) usage issues 'Assert failed' error" {
 	load_fixture northwind.sql
 	load_fixture northwind.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB07.sql "trim_trailing_zeroes"

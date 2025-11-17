@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -29,7 +29,7 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV008.sql "trim_trailing_zeroes"
 }
 
-@test "TCV019 : Verify `set operation` and `values` clause usage with views" {
+@test "TCV019 : Verify 'set operation' and 'values' clause usage with views" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCV019.sql "trim_trailing_zeroes"
 }
 

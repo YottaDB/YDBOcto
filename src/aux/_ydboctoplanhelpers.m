@@ -420,14 +420,14 @@ Transform2UnixTime(inputStr,type,dtformat,textFormatSpecifier,isReadWrite)
 ; Returns "" for invalid input else internal format data
 Text2UnixTime(inputStr,type,format)
 	NEW result
-	; Trim the value as this makes further processing difficult
+	; Trim whitespace which otherwise makes further processing difficult
 	SET inputStr=$$FUNC^%TRIM(inputStr)
 	IF (date=type)  ; no modifications here
 	ELSE  IF (time=type) DO
 	. SET:(format["%z") format=$PIECE(format,"%z")
 	ELSE  IF (timeWithTimeZone=type) DO
 	. SET:(format'["%z") format=format_"%z"
-	. ; Add additional 00 to match %z
+	. ; Add additional two digits (seconds) to timezone to match %z in the format
 	. NEW timezone SET timezone=""
 	. IF (inputStr["+") SET timezone=$piece(inputStr,"+",2)
 	. ELSE  IF (inputStr["-") SET timezone=$piece(inputStr,"-",2)
@@ -437,7 +437,7 @@ Text2UnixTime(inputStr,type,format)
 	. SET:(format["%z") format=$PIECE(format,"%z")
 	ELSE  IF (timestampWithTimeZone=type) DO
 	. SET:(format'["%z") format=format_"%z"
-	. ; Add additional 00 to match %z
+	. ; Add additional two digits (seconds) to timezone to match %z in the format
 	. NEW timezone SET timezone=""
 	. IF (inputStr["+") SET timezone=$piece(inputStr,"+",2)
 	. ELSE  IF (inputStr[":") DO
@@ -447,7 +447,7 @@ Text2UnixTime(inputStr,type,format)
 	. IF (2=$length(timezone)) DO
 	. . SET inputStr=inputStr_":00"
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,textFormat,format)
-	QUIT:result ""; return "" if inputStr is invalid
+	QUIT:result ""  ; return "" if inputStr is invalid
 	IF (date=type)!(time=type)!(timeWithTimeZone=type)!(timestamp=type)!(timestampWithTimeZone=type) DO
 	. SET result=$&octo.ydboctoText2InternalFormatM(inputStr,format)
 	QUIT result

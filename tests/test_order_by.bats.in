@@ -261,6 +261,9 @@ OCTO
 	yottadb -run %XCMD 'SET ^testd("2023-01-02")=""'
 	yottadb -run %XCMD 'SET ^testt("01:01:01")=""'
 	yottadb -run %XCMD 'SET ^testt("01:01:02")=""'
-	load_fixture TOB22.sql subtest
+	# This test bakes in EST/-05 timezone offset into outref, which is America/New York,
+	# so to make the test output consistent, pin that timezone into TZ here since
+	# TIMESTAMP WITH TIME ZONE values are printed in the local system time zone
+	TZ="America/New_York" load_fixture TOB22.sql subtest
 	verify_output TOB22 output.txt nodatetimefilter noinfo nodebug
 }

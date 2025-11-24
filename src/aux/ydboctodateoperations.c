@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,8 +20,13 @@
 /* Define _POSIX_C_SOURCE to prevent the following two compiler warnings:
  * 	warning: implicit declaration of function `setenv`; did you mean `getenv`? [-Wimplicit-function-declaration]
  *	warning: implicit declaration of function `unsetenv`; did you mean `getenv`? [-Wimplicit-function-declaration]
+ * Define _DEFAULT_SOURCE to prevent the following compiler warning:
+ *      error: call to undeclared function 'timegm'; ISO C99 and later do not support implicit function declarations,
+ *             a also allows use of the public name tm_gtmoff rather than the reserved name tm_gmtoff.
+ * See the man pages for those specific functions which requires defining these macros
  */
 #define _POSIX_C_SOURCE 200112L
+#define _DEFAULT_SOURCE
 #include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
@@ -1068,8 +1073,8 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 		}                                                           \
 	}
 
-/* This macro appends microseconds part given by `micro` to `value`.
- * If `y` is `micro` and `x` is `value the result will be `xy`.
+/* This macro appends microseconds part given by `MICRO` to `VALUE`.
+ * If `y` is `MICRO` and `x` is `VALUE` the result will be `xy`.
  */
 #define ADD_MICRO_SECONDS(VALUE, MICRO)                       \
 	{                                                     \
@@ -1096,8 +1101,8 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 		}                                             \
 	}
 
-/* This macro removes microseconds part in `value` and returns it using `ret`.
- * `value` is date/time data in internal format.
+/* This macro removes microseconds part in `VALUE` and returns it using `RET`.
+ * `VALUE` is date/time data in internal format.
  */
 #define REMOVE_MICRO_SECONDS(VALUE, RET)                    \
 	{                                                   \
@@ -1178,39 +1183,14 @@ void convert_to_std_time_lit(char *time_str, int length, char *new_str) {
 	new_str[new_iter] = '\0';
 }
 
-ydb_long_t utc_mktime(struct tm *tm1) {
-	// Change TZ to UTC
-	ydb_long_t ret;
-	char	  *orig_tz_val_env, *orig_tz_val;
-	int	   ret_setenv;
-	boolean_t  tz_unset = FALSE;
-
-	orig_tz_val_env = getenv("TZ");
-	if (NULL == orig_tz_val_env) {
-		orig_tz_val_env = "";
-		tz_unset = TRUE;
-	}
-	orig_tz_val = strdup(orig_tz_val_env);
-
-	ret_setenv = setenv("TZ", "UTC", 1);
-	assert(0 == ret_setenv);
-	UNUSED(ret_setenv); // Prevents clang-analyzer-deadcode.DeadStores
-	/* A positive value means DST is in effect; zero means that DST is not in effect;
-	 * and a negative value means that mktime() should (use timezone in-formation and system databases to)
-	 * attempt to determine whether DST is in effect at the specified time.
-	 */
-	tm1->tm_isdst = -1;
-	ret = mktime(tm1);
-	// Change TZ back to original value
-	ret_setenv = setenv("TZ", orig_tz_val, 1);
-	assert(0 == ret_setenv);
-	UNUSED(ret_setenv); // Prevents clang-analyzer-deadcode.DeadStores
-	if (tz_unset) {
-		unsetenv("TZ"); // This is needed to avoid next call to use UTC value from the variables which tzset sets
-	}
-	free(orig_tz_val);
-	return ret;
-}
+// This function converts a time struct into a seconds-since-epoch integer,
+// but unlike mktime(), does not adjust for local time.
+// It does not assume input or output are UTC; it just doesn't apply a local time offset;
+// so it is called raw_mktime() rather than utc_mktime(), to avoid confusion.
+// (The libc function timegm(), causes confusion because gm means GMT (=UTC), but
+// it doesn't really convert from GMT but from a zone-agnostic struct. Its output needn't
+// be UTC, either, like the DATE type in our use cases below, which is local-time based.)
+static inline ydb_long_t raw_mktime(struct tm *tm1) { return timegm(tm1); }
 
 /* This function converts the input `secs` which is in unix time and `microsec` sub second value to internal format value */
 ydb_long_t ydboctoZutC(int count, ydb_long_t secs, ydb_int_t microsec, ydb_string_t *format) {
@@ -1227,14 +1207,12 @@ ydb_long_t ydboctoZutC(int count, ydb_long_t secs, ydb_int_t microsec, ydb_strin
 		ret = sec;
 	} else {
 		// gmtime as Zut is in utc
-		struct tm *static_tm = gmtime(&sec);
-		struct tm  tm1;
-		memcpy(&tm1, static_tm, sizeof(struct tm));
+		struct tm tm1 = *gmtime(&sec);
 		tm1.tm_min = 0;
 		tm1.tm_hour = 0;
 		tm1.tm_sec = 0;
 		microsec = 0;
-		ret = utc_mktime(&tm1);
+		ret = raw_mktime(&tm1);
 	}
 	ADD_MICRO_SECONDS(ret, microsec);
 	ydb_free(value_str_format);
@@ -1252,10 +1230,10 @@ time_t convertToLocalTimezone(SqlValueType type, time_t val) {
 		current_time = time(NULL);
 		// Get struct tm
 		tm2 = localtime(&current_time);
-		gmtoff = tm2->__tm_gmtoff;
+		gmtoff = tm2->tm_gmtoff;
 	} else {
 		tm1 = localtime(&op1_time);
-		gmtoff = (*tm1).__tm_gmtoff;
+		gmtoff = (*tm1).tm_gmtoff;
 	}
 	return op1_time + gmtoff;
 }
@@ -1269,7 +1247,6 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 	UNUSED(count);
 	// Convert value to tm structure
 	struct tm  tm1;
-	struct tm *static_tm;
 	// Before calling time function remove the micro second portion in value
 	// micro = last 6 digits
 	long int micro;
@@ -1278,11 +1255,10 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 	SqlValueType input_type = date_time_input_type;
 	SqlDataType  output_type = date_time_output_type;
 	if ((DATE_LITERAL == input_type) || (TIME_LITERAL == input_type) || (TIMESTAMP_LITERAL == input_type)) {
-		static_tm = gmtime(&value);
+		tm1 = *gmtime(&value);
 	} else {
-		static_tm = localtime(&value);
+		tm1 = *localtime(&value);
 	}
-	memcpy(&tm1, static_tm, sizeof(struct tm));
 	ydb_long_t ret;
 	if (TIME_TYPE == output_type) {
 		// Keep only date related info in tm1 and form the return value
@@ -1290,18 +1266,18 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			// Nothing to do here as its already in date format
 			ret = value;
 		} else if (TIME_WITH_TIME_ZONE_LITERAL == input_type) {
-			ret = utc_mktime(&tm1);
+			ret = raw_mktime(&tm1);
 		} else if (TIMESTAMP_LITERAL == input_type) {
 			tm1.tm_mday = 0;
 			tm1.tm_mon = 0;
 			tm1.tm_year = 0;
-			ret = utc_mktime(&tm1);
+			ret = raw_mktime(&tm1);
 		} else {
 			assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL == input_type);
 			tm1.tm_mday = 0;
 			tm1.tm_mon = 0;
 			tm1.tm_year = 0;
-			ret = utc_mktime(&tm1);
+			ret = raw_mktime(&tm1);
 		}
 	} else if (DATE_TYPE == output_type) {
 		if (DATE_LITERAL == input_type) {
@@ -1311,13 +1287,20 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			tm1.tm_sec = 0;
 			tm1.tm_min = 0;
 			tm1.tm_hour = 0;
-			ret = utc_mktime(&tm1);
+			ret = raw_mktime(&tm1);
 		} else {
-			assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL == input_type);
+			assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL == input_type); // Can't get date from TIME_* types
 			tm1.tm_sec = 0;
 			tm1.tm_min = 0;
 			tm1.tm_hour = 0;
-			ret = mktime(&tm1);
+			// This is non-intuitive. It looks like this is ignoring tm1.tm_gtmoff but it's not
+			// because, like postgres, types like TIMESTAMP_WITH_TIME_ZONE
+			// are stored internally as UTC, without timezone information
+			// (the timezone is factored into the UTC stamp when the type is created).
+			// Note that tm1 was created above using localtime() to capture
+			// the local date matching the instant expressed in the input TIMESTAMP.
+			// This local zone is normal for postgres DATE objects (which is the output here).
+			ret = raw_mktime(&tm1);
 		}
 		micro = 0; // Remove any microsecond value
 	} else if (TIMESTAMP_TYPE == output_type) {
@@ -1325,18 +1308,19 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			tm1.tm_sec = 0;
 			tm1.tm_min = 0;
 			tm1.tm_hour = 0;
-			ret = utc_mktime(&tm1);
+			ret = raw_mktime(&tm1);
 		} else if (TIMESTAMP_LITERAL == input_type) {
 			// Nothing to do here as its already in timestamp format
 			ret = value;
 		} else {
 			assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL == input_type);
 			// Value is already in current time zone, save it as it is in UTC
-			ret = utc_mktime(&tm1);
+			ret = raw_mktime(&tm1);
 		}
 	} else if (TIME_WITH_TIME_ZONE_TYPE == output_type) {
 		if (TIME_LITERAL == input_type) {
-			// Nothing to do here as its already in time format
+			// Instead of raw_mktime, use mktime which outputs in local time as per postgres for output of
+			// TIME_WITH_TIME_ZONE
 			ret = mktime(&tm1);
 		} else {
 			assert(TIME_WITH_TIME_ZONE_LITERAL == input_type);
@@ -1350,9 +1334,13 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			tm1.tm_min = 0;
 			tm1.tm_hour = 0;
 			tm1.tm_isdst = -1;
+			// Instead of raw_mktime, use mktime which outputs in local time as per postgres for output of
+			// TIMESTAMP_WITH_TIME_ZONE
 			ret = mktime(&tm1);
 		} else if (TIMESTAMP_LITERAL == input_type) {
 			tm1.tm_isdst = -1;
+			// Instead of raw_mktime, use mktime which outputs in local time as per postgres for output of
+			// TIMESTAMP_WITH_TIME_ZONE
 			ret = mktime(&tm1);
 		} else {
 			assert(TIMESTAMP_WITH_TIME_ZONE_LITERAL == input_type);
@@ -1469,7 +1457,7 @@ ydb_string_t *ydboctoDateTimeInternalFormat2TextC(int count, ydb_long_t value, y
 			char time_zone[8];
 			strncpy(time_zone, ret_str + length - 5, 5);
 			// copy timezone seconds as well
-			int timezone_sec = (tm1->__tm_gmtoff % 3600) % 60;
+			int timezone_sec = (tm1->tm_gmtoff % 3600) % 60;
 			if (0 > timezone_sec) {
 				timezone_sec = -timezone_sec;
 			}
@@ -1602,7 +1590,7 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 	} else if ('\0' == *micro_second_str_ptr) {
 		// There is no microseconds
 		// or
-		// There is perfect match between format and value. In this case __gmt_off will be set
+		// There is perfect match between format and value. In this case tm_gmtoff will be set
 		format_match = TRUE;
 		if (include_time_zone) {
 			time_zone_set = TRUE;
@@ -1613,7 +1601,7 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 		if (include_time_zone) {
 			if (':' == *micro_second_str_ptr) {
 				timezone_seconds = atoi(micro_second_str_ptr + 1);
-				if (0 > tm1.__tm_gmtoff) {
+				if (0 > tm1.tm_gmtoff) {
 					timezone_seconds = -timezone_seconds;
 				}
 				time_zone_set = TRUE;
@@ -1624,7 +1612,7 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 	boolean_t tm_sec_modified = FALSE;
 	if (time_zone_set) {
 		if (format_match) {
-			tm1.tm_sec += (-1 * (tm1.__tm_gmtoff + timezone_seconds)); // Given time zone to UTC
+			tm1.tm_sec += (-1 * (tm1.tm_gmtoff + timezone_seconds)); // Given time zone to UTC
 			tm_sec_modified = TRUE;
 		} else {
 			if (include_time_zone) {
@@ -1647,7 +1635,7 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 			current_time = time(NULL);
 			// Get struct tm
 			tm2 = localtime(&current_time);
-			gmtoff = (-1) * tm2->__tm_gmtoff;
+			gmtoff = (-1) * tm2->tm_gmtoff;
 		} else {
 			/* We need to allow mktime() to update time in tm1, otherwise daylight savings related changes will not
 			 * reflect correctly.
@@ -1656,12 +1644,12 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 			 */
 			tm1.tm_isdst = -1;
 			mktime(&tm1);
-			gmtoff = (-1) * tm1.__tm_gmtoff;
+			gmtoff = (-1) * tm1.tm_gmtoff;
 		}
 		tm1.tm_sec += gmtoff; // Local time zone to UTC
 	}
 
-	time_t op1_time = utc_mktime(&tm1);
+	time_t op1_time = raw_mktime(&tm1);
 
 	// Convert op1_time to string
 	ydb_string_t *ret;
@@ -1712,10 +1700,7 @@ ydb_long_t ydboctoSubDateC(int count, ydb_long_t op1, ydb_long_t op2, ydb_int_t 
 	if (is_op2_integer) {
 		// Convert op1 to tm structure
 		struct tm  tm1;
-		struct tm *static_tm;
-		static_tm = gmtime(&op1);
-		// static_tm = localtime(&op1);
-		memcpy(&tm1, static_tm, sizeof(struct tm));
+		tm1 = *gmtime(&op1);
 		// Get integer
 		long int_val = op2;
 		if ((INT_MAX < int_val) || (INT_MIN > int_val)) {
@@ -1723,7 +1708,7 @@ ydb_long_t ydboctoSubDateC(int count, ydb_long_t op1, ydb_long_t op2, ydb_int_t 
 		}
 		// Subtract op2 to tm_days
 		tm1.tm_mday -= (int)int_val;
-		ret = utc_mktime(&tm1);
+		ret = raw_mktime(&tm1);
 		ADD_MICRO_SECONDS(ret, micro_op1);
 		// Validate result
 		if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {
@@ -1764,29 +1749,26 @@ ydb_long_t ydboctoSubDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	long int micro_op1;
 	REMOVE_MICRO_SECONDS(op1, micro_op1);
 	// Prepare the tm structure
-	struct tm *static_tm;
-	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op1_type) || (TIME_WITH_TIME_ZONE_LITERAL == op1_type)) {
-		static_tm = localtime(&op1);
-		convert_to_utc = TRUE;
-		gmtoff = static_tm->__tm_gmtoff;
-	} else {
-		static_tm = gmtime(&op1);
-	}
 	struct tm tm1;
-	memcpy(&tm1, static_tm, sizeof(struct tm));
+	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op1_type) || (TIME_WITH_TIME_ZONE_LITERAL == op1_type)) {
+		tm1 = *localtime(&op1);
+		convert_to_utc = TRUE;
+		gmtoff = tm1.tm_gmtoff;
+	} else {
+		tm1 = *gmtime(&op1);
+	}
 	// Process op2
 	// Prepare the tm structure
 	long int micro_op2;
 	REMOVE_MICRO_SECONDS(op2, micro_op2);
 	struct tm tm2;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op2_type) || (TIME_WITH_TIME_ZONE_LITERAL == op2_type)) {
-		static_tm = localtime(&op2);
+		tm2 = *localtime(&op2);
 		convert_to_utc = TRUE;
-		gmtoff = static_tm->__tm_gmtoff;
+		gmtoff = tm2.tm_gmtoff;
 	} else {
-		static_tm = gmtime(&op2);
+		tm2 = *gmtime(&op2);
 	}
-	memcpy(&tm2, static_tm, sizeof(struct tm));
 	// Subtract op1 and op2
 	// Timestamp - time
 	// Time with time zone - time
@@ -1810,7 +1792,7 @@ ydb_long_t ydboctoSubDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 		tm1.tm_sec += (-1 * gmtoff);
 	}
 	ydb_long_t ret;
-	ret = utc_mktime(&tm1);
+	ret = raw_mktime(&tm1);
 	if ((0 > ret) && (0 > micro_op1)) {
 		/* Following queries can have micro_op1 -ve its okay to ignore the negative
 		 * sign as it has already been factored in to ret by the above code.
@@ -1840,17 +1822,15 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	long int micro_op1;
 	REMOVE_MICRO_SECONDS(op1, micro_op1);
 	// Convert op1 to tm structure
-	struct tm *static_tm;
 	struct tm  tm1;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op1_type) || (TIME_WITH_TIME_ZONE_LITERAL == op1_type)) {
-		static_tm = localtime(&op1);
+		tm1 = *localtime(&op1);
 		convert_to_utc = TRUE;
-		gmtoff = static_tm->__tm_gmtoff;
+		gmtoff = tm1.tm_gmtoff;
 	} else {
-		static_tm = gmtime(&op1);
+		tm1 = *gmtime(&op1);
 	}
 
-	memcpy(&tm1, static_tm, sizeof(struct tm));
 	// Process op2
 	// Integer addition to date
 	if (INTEGER_LITERAL == op2_type) {
@@ -1861,7 +1841,7 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 		}
 		// Add op2 to tm_days
 		tm1.tm_mday += (int)int_val;
-		ret = utc_mktime(&tm1);
+		ret = raw_mktime(&tm1);
 		ADD_MICRO_SECONDS(ret, micro_op1);
 		// Validate result
 		if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {
@@ -1874,13 +1854,12 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	// Prepare the tm structure
 	struct tm tm2;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op2_type) || (TIME_WITH_TIME_ZONE_LITERAL == op2_type)) {
-		static_tm = localtime(&op2);
+		tm2 = *localtime(&op2);
 		convert_to_utc = TRUE;
-		gmtoff = static_tm->__tm_gmtoff;
+		gmtoff = tm2.tm_gmtoff;
 	} else {
-		static_tm = gmtime(&op2);
+		tm2 = *gmtime(&op2);
 	}
-	memcpy(&tm2, static_tm, sizeof(struct tm));
 	// Add op1 and op2
 	tm1.tm_hour += tm2.tm_hour;
 	tm1.tm_min += tm2.tm_min;
@@ -1896,7 +1875,7 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	if (convert_to_utc) {
 		tm1.tm_sec += (-1 * gmtoff);
 	}
-	ret = utc_mktime(&tm1);
+	ret = raw_mktime(&tm1);
 	ADD_MICRO_SECONDS(ret, micro_op1);
 	// Validate result
 	if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {

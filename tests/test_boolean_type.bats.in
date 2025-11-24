@@ -137,6 +137,11 @@ teardown() {
 
 @test "TBT14 : OCTO1032/OCTO1060 : Test that boolean literal and values work as expected with JDBC driver" {
 	stop_rocto
+	# This test bakes in EST/-05 timezone offset into outref, which is America/New York,
+	# so to make the test output consistent, pin that timezone into TZ here since
+	# TIMESTAMP WITH TIME ZONE values are printed in the local system time zone
+	# Do this before running rocto and, further below, octo
+	export TZ="America/New_York"
 	test_port=$(start_rocto 1344 -aw)
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT14.sql "trim_trailing_zeroes" usejdbc
 	# Test TBT14_1.sql

@@ -206,7 +206,11 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			 * length of the format argument to be printed:
 			 *	";  " (3) + "..." (3) + "\n" (1) = 7 bytes
 			 */
-			fprintf(memstream, ";  %.*s...\n", (int)(MAX_M_LINE_LEN - 7), linestart);
+			// Don't split in the middle of a UTF8 sequence: back up last byte until it's not a UTF8 continuation byte
+			int end = MAX_M_LINE_LEN - 7;
+			while (end && (((linestart[--end]) & 0xc0) == 0x80))
+				;
+			fprintf(memstream, ";  %.*s...\n", end, linestart);
 		} else {
 			fprintf(memstream, ";  %.*s\n", (int)(linelen), linestart);
 		}

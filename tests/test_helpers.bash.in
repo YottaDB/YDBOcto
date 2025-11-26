@@ -683,6 +683,12 @@ verify_no_octo_or_ydb_error() {
 	[[ $(grep "\%YDB\-F\-" "$file" | wc -l) -eq 0 ]]
 }
 
+# Compare output file against a reference file after first removing various commonly-changing details in output.
+# Usage: verify_output <outref> <output.txt> [nodatetimefilter] [<options>...] [sort]
+# Where:
+#       <outref> is typically the test code and is used to locate the outref file in path `outref/<outref>.ref`
+#       <options> suppress filter out different aspects of output.txt as defined in the for loop at the end
+#       sort must be the last option, if provided, and sorts the output file
 verify_output() {
 	# We had cases where loading octo-seed.sql in "createdb()" issued a "ERR_CANNOT_CREATE_FUNCTION" error but
 	# the test passed inspite of that because that output went to stderr.txt whereas the test only looked at output.txt.

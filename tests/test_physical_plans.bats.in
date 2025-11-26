@@ -173,3 +173,32 @@ teardown() {
 	done
 	verify_output TPP11 output.txt
 }
+
+
+# create a long `select 'uu';` SQL line ending in utf8 chars u by inserting placing $1 spaces after select
+long_utf8_line() {
+  # define a utf8 character this way because pre-commit prohibits utf8 characters in the source file
+  u1=$'\xe4\xb8\xbc'
+  # add spaces before the utf8 string instead of having a long utf8 string because
+  # octo is very slow to process many utf8 characters
+  line="select$(printf ' %.0s' $(seq $1))'$u1$u1$u1';"
+  # remove any previous M plans
+  octo <<< 'discard all'
+  # create and run new M plan
+  echo "$line" | octo >/dev/null
+  # select line 3 and replace 3 or more spaces with " <spaces> " then 'p' print just that line
+  sed -En '3s/ {3,}/ <spaces> /gp' *.m
+}
+
+@test "TPP12 : Ensure UTF8 lines longer than 32K are truncated on UTF8 boundary" {
+  echo "# $BATS_TEST_DESCRIPTION" | tee -a output.txt
+  set -o pipefail  # ensure all pipeline failures exit for this test
+  echo "SQL source lines in M plan:" | tee -a output.txt
+  # Break UTF-8 u1 character at different points for test
+  long_utf8_line 32745 | tee -a output.txt
+  long_utf8_line 32746 | tee -a output.txt
+  long_utf8_line 32747 | tee -a output.txt
+  long_utf8_line 32748 | tee -a output.txt
+  long_utf8_line 32749 | tee -a output.txt
+  verify_output TPP12 output.txt
+}

@@ -20,7 +20,6 @@
 #include <stdbool.h>
 
 #include <libyottadb.h>
-#include <gtmxc_types.h>
 
 #include "mmrhash.h"
 
@@ -30,6 +29,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "helpers.h"
+#include "gtmxc_types_wrapper.h"
 
 #define CLEANUP_AND_RETURN_COMMON(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK, CURSOR_YDB_BUFF)                 \
 	{                                                                                                           \

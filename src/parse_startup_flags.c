@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,6 @@
 #include <string.h>
 
 #include <libyottadb.h>
-#include <gtmxc_types.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -28,6 +27,7 @@
 #include "lexer.h"
 #include "git_hashes.h"
 #include "rocto_common.h"
+#include "gtmxc_types_wrapper.h"
 
 void handle_invalid_option(char *executable_name, char short_option) {
 	printf("%s: invalid option -- '%c'\n", executable_name, short_option);

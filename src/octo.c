@@ -19,12 +19,12 @@
 #include <string.h>
 
 #include <libyottadb.h>
-#include <gtmxc_types.h>
 
 #include "octo.h"
 #include "octo_types.h"
 #include "parser.h"
 #include "lexer.h"
+#include "gtmxc_types_wrapper.h"
 
 extern int yydebug;
 

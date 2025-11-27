@@ -21,7 +21,16 @@
 #include <stdio.h>   // For FILE, as readline doesn't include it. CentOS issue.
 
 // readline lib stuff
+// The fancy clang stuff is to disable a compilation warning on v7 readline.h on Clang
+// See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/1096
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+#endif
 #include <readline.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include <readline/history.h>
 
 static int history_lines_added;
@@ -194,7 +203,7 @@ void set_readline_file(void) {
 	// Final History File memory location. Allocate memory for it and zero out
 	// free() in save_readline_history()
 	readline_actualfile_max_length = PATH_MAX + NAME_MAX + 1; // 1 for NULL
-	readline_actualfile = calloc(sizeof(char), readline_actualfile_max_length);
+	readline_actualfile = calloc(readline_actualfile_max_length, sizeof(char));
 
 	/* Get history file
 	 * First from config file. If not present, default to ~/.octo_history

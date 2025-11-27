@@ -99,12 +99,6 @@ message(STATUS "Platform name: ${PLATFORM_NAME}")
 message(STATUS "Platform version: ${PLATFORM_VERSION}")
 message(STATUS "Platform architecture: ${PLATFORM_ARCH}")
 
-# Generate the physical-parser
-BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y
-  ${PROJECT_BINARY_DIR}/physical-parser.c)
-FLEX_TARGET(PhysicalLexer ${PROJECT_SOURCE_DIR}/src/physical/physical-lexer.l
-  ${PROJECT_BINARY_DIR}/physical-lexer.c)
-
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y
@@ -124,9 +118,19 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   COMMENT "Combining grammar files"
 )
 
+# Generate the physical-parser
+BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y
+  ${PROJECT_BINARY_DIR}/physical-parser.c)
+FLEX_TARGET(PhysicalLexer ${PROJECT_SOURCE_DIR}/src/physical/physical-lexer.l
+  ${PROJECT_BINARY_DIR}/physical-lexer.c)
+
 BISON_TARGET(OctoParser ${PROJECT_BINARY_DIR}/parser.y
   ${PROJECT_BINARY_DIR}/parser.c)
 FLEX_TARGET(OctoLexer ${CMAKE_CURRENT_SOURCE_DIR}/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
+
+# Due to https://github.com/akimd/bison/issues/89, silence output about unused yynerrs variable
+# Per https://github.com/akimd/bison/issues/103, fix in issue 89 won't be released soon due to a lack of a maintainer
+set_source_files_properties(${BISON_OctoParser_OUTPUTS} ${BISON_PhysicalParser_OUTPUTS} PROPERTIES COMPILE_OPTIONS "-Wno-unused-but-set-variable")
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/optimization_transforms")

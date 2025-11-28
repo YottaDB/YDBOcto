@@ -256,14 +256,14 @@ Contributing
 
  To contribute or help with further development, `fork <https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html#create-a-fork>`_ the `YDBOcto repository <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_, clone your fork to a local copy and begin contributing!
 
- Please also set up the pre-commit and pre-rebase script to automatically enforce some coding conventions. Creating a symbolic link to YDBOcto/pre-commit and YDBOcto/pre-rebase will be enough for the setup. Assuming you are in the top-level directory of your local copy, the following will work:
+ Enabling pre-commit and pre-rebase scripts are mandatory to automatically enforce some coding conventions. Creating a symbolic link to YDBOcto/pre-commit and YDBOcto/pre-rebase will be enough for the setup. Assuming you are in the top-level directory of your local copy, the following will work:
 
   .. code-block:: bash
 
      ln -s ../../pre-commit .git/hooks/pre-commit
      ln -s ../../pre-rebase .git/hooks/pre-rebase
 
- Note that this script requires :code:`tcsh` and :code:`clang-format` version 15 or later (installed above).
+ Note that this script requires :code:`tcsh` and :code:`clang-format` (installed above).
 
  The CI pipeline will also run the `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_ tool version 8 or later (installed above), to catch common errors. You can replicate its behavior locally as follows:
 

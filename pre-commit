@@ -2,7 +2,7 @@
 #
 #################################################################
 #                                                               #
-# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.  #
+# Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.  #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -123,14 +123,14 @@ foreach file ($filelist)
 end
 
 # ---------------------------------------------------------------------------
-# 4) Runs clang-format on all files and make sure there were no differences.
+# 4) Runs clang-format on all changed lines and commit any differences.
 # ---------------------------------------------------------------------------
-# We require at least clang-format-15
-set CLANG_FORMAT="`tools/ci/find-llvm-tool.sh clang-format 15`"
-if ($status) then
-	echo "warning: missing a recent version of clang-format, not running format checks"
-	echo "note: this could happen either if clang-format is not installed or if it's not a recent enough version"
+if ( `where clang-format-diff` == "" ) then
+	echo "clang-format (including clang-format-diff) is required to commit" && exit 1
 else
+	# Run clang-format on any modified lines
+	git diff -U0 --no-color --cached HEAD | clang-format-diff -p1 -i -regex=".*\.(c|h)"
+	# Check if there are unstaged changes (as opposed to staged and uncommitted)
 	foreach file ($filelist)
 		if (! -e $file) then
 			continue
@@ -138,7 +138,6 @@ else
 		set extension = $file:e
 		set fixlist = ""
 		if ( "c" == "$extension" || "h" == "$extension" ) then
-			"$CLANG_FORMAT" -i "$file"
 			# Check if there are unstaged changes (as opposed to staged and uncommitted)
 			git diff-files --exit-code --name-only -- "$file" >/dev/null
 			if ($status) then
@@ -147,7 +146,7 @@ else
 			endif
 		endif
 		if ("" != "$fixlist") then
-			echo "note: automatically commiting clang-format changes for the following files:"
+			echo "note: automatically committing clang-format changes for the following files:"
 			echo "$fixlist"
 		endif
 	end

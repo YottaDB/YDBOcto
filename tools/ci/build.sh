@@ -199,32 +199,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 	popd
 
-	# Run clang-format check on the Ubuntu pipeline jobs (i.e. "make-ubuntu" and "make-tls-ubuntu").
-	# Do not run it on the Rocky linux pipeline jobs (i.e. "make-rocky" and "make-tls-rocky") as
-	# we have seen that Rocky Linux could have different clang-format versions than Ubuntu
-	# (at the time of this writing Rocky Linux had clang-format-12 whereas Ubuntu had clang-format-10)
-	# and each could format the same C program differently causing pipeline failures. So run the
-	# clang-format only on one OS. We pick Ubuntu for now. Hence the "$is_ubuntu" check below.
-	if $is_ubuntu; then
-		# If we found a recent enough version, run clang-format
-		if CLANG_FORMAT="$(../tools/ci/find-llvm-tool.sh clang-format 15)"; then
-			echo "# Check code style using clang-format"
-			# This modifies the files in place so no need to record the output.
-			# We use git to check if clang format made a change... stash our changes so it won't give a false positive
-			set +e
-			git diff --stat
-			git diff-index --quiet HEAD; uncommited_change=$?
-			set -e
-			test $uncommited_change -eq 1 && git stash
-			../tools/ci/clang-format-all.sh $CLANG_FORMAT
-			test $uncommited_change -eq 1 && git stash pop
-		else
-			# Otherwise, fail the pipeline.
-			echo " -> A recent enough version of clang-format was not found!"
-			exit 1
-		fi
-	fi
-
 	if [ -x "$(command -v shellcheck)" ]; then
 		find .. -name build -prune -o -name '*.sh' -print0 | xargs -0 shellcheck -e SC1091,SC2154,SC1090,SC2086,SC2053,SC2046
 	else

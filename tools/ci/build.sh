@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -721,6 +721,7 @@ PSQL
 	export octo_keep_bats_dirs
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
 		ctest
+		exit_status=$?
 		if [[ "ON" == "$enable_coverage" ]]; then
 			# --gcov-ignore-parse-errors is needed because of https://github.com/gcovr/gcovr/issues/882, fixed in the latest gcovr
 			# When we upgrade to Ubuntu 26.04, we can try removing --gcov-ignore-parse-errors
@@ -733,8 +734,8 @@ PSQL
 		# order to prevent failures when parallelizing test execution in test-auto-upgrade jobs, which use older commits.
 		ctest -R "hello"
 		ctest -R "test"
+		exit_status=$?
 	fi
-	exit_status=$?
 	echo " -> exit_status from ctest = $exit_status"
 
 	# This block and much under it is duplicated in tools/ci/vistatest.sh

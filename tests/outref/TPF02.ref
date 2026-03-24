@@ -1,0 +1,21 @@
+select row_number() from names;
+select row_number() from names;
+OCTO> select row_number() from names;
+row_number
+1
+2
+3
+4
+5
+6
+(6 rows)
+OCTO> select row_number() from names;
+row_number
+1
+2
+3
+4
+5
+6
+(6 rows)
+OCTO> 

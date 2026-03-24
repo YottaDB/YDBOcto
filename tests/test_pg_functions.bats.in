@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -26,3 +26,12 @@ teardown() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TPF01.sql
 }
 
+@test "TPF02 : OCTO1099 : row_number() is now per query, not per session" {
+	# row_number() is tested in various other queries across the test
+	# system, mainly queries against the Postgres catalog. These don't
+	# show the problem, thus the need for this small test.
+	load_fixture names.sql
+	load_fixture names.zwr
+	load_fixture TPF02.sql subtest novv
+	verify_output TPF02 output.txt noinfo nodebug
+}

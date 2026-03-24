@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -15,7 +15,7 @@ run(cursorId,routine,wrapInTp)
   ;   where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
   ;   We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
   ; * "wrapInTp" is 0 or 1. If 1, the query execution (excluding building any cross references) is wrapped in a TP transaction.
-  NEW rtn,zcmpl
+  NEW rtn,zcmpl,%ydboctopgRowNumber
   SET rtn="^"_routine,zcmpl=$ZCOMPILE
   SET:'$ZFIND($ZCONVERT($zcompile,"l"),"-noline_entry") $ZCOMPILE=$ZCOMPILE_" -noline_entry"
   DO @rtn@(cursorId,wrapInTp)

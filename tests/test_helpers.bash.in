@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -678,9 +678,9 @@ filter_file_path() {
 verify_no_octo_or_ydb_error() {
 	local file="$1"
 	[[ $(grep "\[ERROR\] " "$file" | wc -l) -eq 0 ]]
-	[[ $(grep "\%YDB\-E\-" "$file" | wc -l) -eq 0 ]]
-	[[ $(grep "\%YDB\-W\-" "$file" | wc -l) -eq 0 ]]
-	[[ $(grep "\%YDB\-F\-" "$file" | wc -l) -eq 0 ]]
+	[[ $(grep "%YDB-E-" "$file" | wc -l) -eq 0 ]]
+	[[ $(grep "%YDB-W-" "$file" | wc -l) -eq 0 ]]
+	[[ $(grep "%YDB-F-" "$file" | wc -l) -eq 0 ]]
 }
 
 # Compare output file against a reference file after first removing various commonly-changing details in output.

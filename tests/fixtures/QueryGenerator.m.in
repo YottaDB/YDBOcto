@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -201,7 +201,7 @@ genDuplicateTable(fileToReadName,subtestName)
 ;	outputSqlFile - This is the file to which the new table definition will be written to
 ;	subtestName - This value is used to form the new table name for the new table definition
 writeTableDefinition(inputSqlFile,outputSqlFile,subtestName)
-	new endingChars,offset,line,nlines,endingChars,offset,tableNameStart,tableNameEnd,tableName,restOfTheQueryStart
+	new offset,line,nlines,endingChars,tableNameStart,tableNameEnd,tableName,restOfTheQueryStart
 	new restOfTheQueryEnd,restOfTheQuery,exitLoop,columnNameAndTypeEnd,columnNameAndTypeStart,columnName,columnType
 	new columnNameAndType,finalColumnAndType,finalColumnName,finalColumnType,firstColumn,queryComplete,dropTableOutputFileName
 	set endingChars=");"
@@ -1623,7 +1623,7 @@ whereExpressionHelper(queryDepth,table,innerTable,randInt,result,whereType)
 	. set result=result_table_"."_chosenColumn_" BETWEEN "_$$chooseEntry(innerTable,chosenColumn)_" AND "_$$chooseEntry(innerTable,chosenColumn)
 
 	if (randInt=8) do
-	. new chosenColumn,string,i,randInt,i
+	. new chosenColumn,string,i,randInt
 	. ; Forces column to be of type "VARCHAR" as to do a string comparison
 	. set chosenColumn=$$getColumnOfType(innerTable,"VARCHAR")
 	. set string=""
@@ -1891,7 +1891,7 @@ groupbyClause(queryDepth)
 havingClause(queryDepth,clauseType)
 	quit:$random(2) ""	; Randomly generate EMPTY HAVING clause
 
-	new result,randInt,holder,count,randValue,table,count,chosenColumn,isAggrFuncColumn
+	new result,randInt,holder,count,randValue,table,chosenColumn,isAggrFuncColumn
 	set result=" HAVING "
 
 	set count=-1

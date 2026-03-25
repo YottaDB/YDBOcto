@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,8 +20,8 @@ RUN yum update -y  && \
 # Next line makes bats and R packages available
 RUN yum install -y epel-release
 # Note: following line is taken verbatim from developer_doc.rst
-RUN yum --enablerepo=powertools install -y bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
-RUN yum --enablerepo=powertools install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel openssl java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz curl
+RUN yum --enablerepo=crb install -y bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
+RUN yum --enablerepo=crb install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel openssl java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz
 
 # Ninja
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja

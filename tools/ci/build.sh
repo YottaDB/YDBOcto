@@ -27,11 +27,11 @@ autoupgrade_test_to_troubleshoot=$4 # specific CMake test name to troubleshoot
 case "$ID" in
 	ubuntu)
 		is_ubuntu="true"
-		is_rocky8="false"
+		is_rocky="false"
 		;;
 	rocky)
 		is_ubuntu="false"
-		is_rocky8="true"
+		is_rocky="true"
 		;;
 	*)
 		echo "unsupported distribution"
@@ -627,7 +627,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 
 	# Skip Clang-tidy checking with Rocky Linux as the version keeps getting upgraded and is not fixed, resulting in changing
 	# warnings, some of which are false positives. Clang-tidy on Ubuntu is good enough for now.
-	if ! $is_rocky8; then
+	if ! $is_rocky; then
 		echo "# Check for unexpected warning(s) from clang-tidy ..."
 		../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
 		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt sorted_clang_warnings.txt
@@ -654,7 +654,9 @@ if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
 	echo "# Start PostgreSQL Server"
 	if $is_ubuntu; then
 	  /etc/init.d/postgresql start
-	elif $is_rocky8; then
+	elif $is_rocky; then
+	  mkdir -p /var/run/postgresql
+	  chown postgres:postgres /var/run/postgresql
 	  su postgres -c 'pg_ctl -D /var/lib/pgsql/data initdb'
 	  su postgres -c 'pg_ctl -D /var/lib/pgsql/data start'
 	fi
@@ -700,7 +702,7 @@ if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
 	if $is_ubuntu; then
 		# Ubuntu
 		psql_conf=$(find /etc/postgresql -name "pg_hba.conf")
-	elif $is_rocky8; then
+	elif $is_rocky; then
 		# Rocky Linux
 		psql_conf=$(find /var/lib/pgsql -name "pg_hba.conf")
 	fi

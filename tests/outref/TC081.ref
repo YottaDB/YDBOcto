@@ -1,0 +1,33 @@
+
+-- TC081 : OCTO1101 : values() correctly resolves references to EXTRACT columns
+
+DROP TABLE IF EXISTS test;
+CREATE TABLE test (
+	id integer primary key,
+	f1 varchar PIECE 1,
+	ex1 varchar EXTRACT "$E(^test(keys(""id"")),1)",
+	ex2 varchar EXTRACT "$E(^test(keys(""id"")),2)",
+	v1 varchar EXTRACT "values(""ex1"")",
+	v2 varchar EXTRACT "values(""ex2"")",
+	v12 varchar EXTRACT "values(""ex1"")_"".""_values(""ex2"")"
+) GLOBAL "^test";
+
+select * from test;
+OCTO> DROP TABLE IF EXISTS test;
+DROP TABLE
+OCTO> CREATE TABLE test (
+	id integer primary key,
+	f1 varchar PIECE 1,
+	ex1 varchar EXTRACT "$E(^test(keys(""id"")),1)",
+	ex2 varchar EXTRACT "$E(^test(keys(""id"")),2)",
+	v1 varchar EXTRACT "values(""ex1"")",
+	v2 varchar EXTRACT "values(""ex2"")",
+	v12 varchar EXTRACT "values(""ex1"")_"".""_values(""ex2"")"
+) GLOBAL "^test";
+CREATE TABLE
+OCTO> select * from test;
+id|f1|ex1|ex2|v1|v2|v12
+1|one|o|n|o|n|o.n
+2|two|t|w|t|w|t.w
+(2 rows)
+OCTO> 

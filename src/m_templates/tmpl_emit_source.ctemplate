@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -149,69 +149,87 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 					%{}{{ config->global_names.cursor }}{}%
 					%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}","{{ column }}"){}%
 				} else {
-					char *source_global;
-					char *placeholder;
-					char *delim;
-
 					/* Note that a key column cannot be passed to a "values(...)" expression as an error
 					 * would have been issued at CREATE TABLE time in that case. Hence the assert below.
 					 */
 					assert((NULL == get_keyword(sql_column, PRIMARY_KEY)) && !sql_column->is_hidden_keycol);
 					assert(ValuesExpression == match);
-					if (NULL == sql_column->delim) {
-						delim = table->delim->v.keyword->v->v.value->v.string_literal;
+
+					/* Check if the referenced column is EXTRACT-based.
+					 * If so, emit the EXTRACT expression directly instead of using $PIECE.
+					 */
+					SqlOptionalKeyword *extract_keyword;
+					extract_keyword = get_keyword(sql_column, OPTIONAL_EXTRACT);
+					if (NULL != extract_keyword) {
+						/* Column is EXTRACT-based. Emit its EXTRACT expression directly,
+						 * which will recursively handle any nested values()/keys() calls.
+						 */
+						SqlValue *extract_value;
+						UNPACK_SQL_STATEMENT(extract_value, extract_keyword->v, value);
+						TMPL(tmpl_emit_source, table, extract_value->v.string_literal, table_name, \
+							unique_id, parm2, num_vars_to_match, form);
 					} else {
-						delim = sql_column->delim->v.value->v.string_literal;
-					}
+						/* Column is PIECE-based. Use the $PIECE(...) logic. */
+						char *source_global;
+						char *placeholder;
+						char *delim;
 
-					int num_keys;
-					SqlColumn *start_column, *cur_column, *key_column;
-
-					UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-					cur_column = start_column;
-					num_keys = 0;
-					key_column = NULL;
-					placeholder = NULL;
-					do {
-						if (IS_KEY_COLUMN(cur_column)) {
-							num_keys++;
-							key_column = cur_column;
+						if (NULL == sql_column->delim) {
+							delim = table->delim->v.keyword->v->v.value->v.string_literal;
+						} else {
+							delim = sql_column->delim->v.value->v.string_literal;
 						}
-						cur_column = cur_column->next;
-					} while (cur_column != start_column);
 
-					source_global = table->source->v.keyword->v->v.value->v.string_literal;
-					%{}$PIECE($GET({}%
-					if (1 < num_keys) {
-						// There are multiple key columns, so expand them programmatically
-						TMPL(tmpl_emit_source, table, source_global, table_name,	\
-							unique_id, parm2, MAX_KEY_COUNT, form);
-					} else {
-						assert(1 == num_keys);
-						assert(NULL != key_column);
-						// There is only one key column, so simply construct the node reference here
-						placeholder = strstr(source_global, "(");
-						*placeholder = '\0';
-						%{}{{ source_global }}({{ config->global_names.cursor }}{}%
-						%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }}{}%
-						%{},"{{ table_name }}"{}%
-						%{},"{{ key_column->columnName->v.value->v.string_literal }}")){}%
-					}
-					%{}){}%
-					if (DELIM_IS_LITERAL == delim[0]) {
-						%{},"{{ &delim[1] }}"{}%
-					} else {
-						// Omit quotation marks to allow calls to $CHAR
-						%{},{{ &delim[1] }}{}%
-					}
-					keyword = get_keyword(sql_column, OPTIONAL_PIECE);
-					if (NULL == keyword) {
-						%{},{{ sql_column->column_number-1|%d }}){}%
-					} else {
-						%{},{{ keyword->v->v.value->v.string_literal }}){}%
-					}
-					if (NULL != placeholder) {
-						*placeholder = '(';
+						int num_keys;
+						SqlColumn *start_column, *cur_column, *key_column;
+
+						UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+						cur_column = start_column;
+						num_keys = 0;
+						key_column = NULL;
+						placeholder = NULL;
+						do {
+							if (IS_KEY_COLUMN(cur_column)) {
+								num_keys++;
+								key_column = cur_column;
+							}
+							cur_column = cur_column->next;
+						} while (cur_column != start_column);
+
+						source_global = table->source->v.keyword->v->v.value->v.string_literal;
+						%{}$PIECE($GET({}%
+						if (1 < num_keys) {
+							// There are multiple key columns, so expand them programmatically
+							TMPL(tmpl_emit_source, table, source_global, table_name,	\
+								unique_id, parm2, MAX_KEY_COUNT, form);
+						} else {
+							assert(1 == num_keys);
+							assert(NULL != key_column);
+							// There is only one key column, so simply construct the node reference here
+							placeholder = strstr(source_global, "(");
+							*placeholder = '\0';
+							%{}{{ source_global }}({{ config->global_names.cursor }}{}%
+							%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }}{}%
+							%{},"{{ table_name }}"{}%
+							%{},"{{ key_column->columnName->v.value->v.string_literal }}")){}%
+						}
+						%{}){}%
+						if (DELIM_IS_LITERAL == delim[0]) {
+							%{},"{{ &delim[1] }}"{}%
+						} else {
+							// Omit quotation marks to allow calls to $CHAR
+							%{},{{ &delim[1] }}{}%
+						}
+						SqlOptionalKeyword *piece_keyword;
+						piece_keyword = get_keyword(sql_column, OPTIONAL_PIECE);
+						if (NULL == piece_keyword) {
+							%{},{{ sql_column->column_number-1|%d }}){}%
+						} else {
+							%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
+						}
+						if (NULL != placeholder) {
+							*placeholder = '(';
+						}
 					}
 				}
 				break;

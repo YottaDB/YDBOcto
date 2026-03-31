@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,11 +54,21 @@ ExpressionMatchType match_expression(char *start, char *column, int *expr_len, i
 			}
 		}
 	}
-	if ((NoMatchExpression == match) || (('(' != prev) && (',' != prev))) {
-		/* All `keys()` and `values()` expressions appear in place of keys on M variables. Accordingly, all such expressions
+	if (NoMatchExpression == match) {
+		return NoMatchExpression;
+	}
+
+	if ((KeysExpression == match) && (('(' != prev) && (',' != prev))) {
+		/* All `keys()` expressions appear in place of keys on M variables. Accordingly, all such expressions
 		 * must be preceded by either '(' (first key in GVN) or ',' (subsequent key in GVN). So, if neither of these
 		 * characters appears first in `start`, then we know immediately that no match is possible and set `match`
 		 * accordingly.
+		 */
+		return NoMatchExpression;
+	}
+
+	if ((ValuesExpression == match) && (('(' != prev) && (',' != prev) && ('_' != prev))) {
+		/* Ditto for values() clauses, but values can also be concatenated using _, so allow that.
 		 */
 		return NoMatchExpression;
 	}

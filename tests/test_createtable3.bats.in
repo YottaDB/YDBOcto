@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -272,5 +272,12 @@ teardown() {
 	echo "# Also verify that tables/function that were added to octo-seed.sql after YDBOcto#929 (23b2d60c) are still there" >> output.txt
 	load_fixture TC080.sql subtest novv
 	verify_output TC080 output.txt noinfo nodebug
+}
+
+@test "TC081 : OCTO1101 : values() correctly resolves references to EXTRACT columns" {
+	# Set up test data in the ^test global
+	$ydb_dist/yottadb -run %XCMD 'set ^test(1)="one",^test(2)="two"'
+	load_fixture TC081.sql subtest novv
+	verify_output TC081 output.txt
 }
 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,7 +11,7 @@
 #################################################################
 
 # Build Octo in octo-builder
-FROM yottadb/yottadb-base as octo-builder
+FROM yottadb/yottadb-base AS octo-builder
 
 ADD COPYING /tmp/octo/COPYING
 ADD README.md /tmp/octo/README.md
@@ -51,7 +51,7 @@ RUN cd /tmp/ && \
 RUN mkdir /tmp/octo/build && cd /tmp/octo/build && \
     cmake .. && make -j `getconf _NPROCESSORS_ONLN` install
 
-FROM yottadb/yottadb-base as octo-release
+FROM yottadb/yottadb-base AS octo-release
 # Copy to runtime
 # $ydb_dist/plugin/ydbposix.xc
 # $ydb_dist/plugin/libydbposix.so
@@ -74,7 +74,7 @@ COPY --from=octo-builder /opt/yottadb/current/plugin /opt/yottadb/current/plugin
 COPY --from=octo-builder /tmp/octo/tests/fixtures/northwind.* /opt/yottadb/current/plugin/octo/
 
 # Install required libraries for Octo/Rocto (note: NOT the dev versions)
-RUN apt-get update && apt-get install -y libreadline8 libconfig9 libicu70 libssl3
+RUN apt-get update && apt-get install -y libreadline8 libconfig9 libicu74 libssl3
 # Change octo.conf to accept connections from everywhere
 RUN cp /opt/yottadb/current/plugin/octo/octo.conf /data/octo.conf && \
     sed -i 's/address = "127.0.0.1"/address = "0.0.0.0"/' /data/octo.conf

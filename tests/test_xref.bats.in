@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -251,4 +251,92 @@ OCTO
 @test "TX11 : OCTO961 : Verify DISCARD XREFS table_name error cases" {
 	load_fixture TX11.sql subtest novv
 	verify_output TX11 output.txt
+}
+
+@test "TX12 : AIM93 : Verify operation of Octo with Extended References" {
+	echo "Test to verify using Octo with Extended References" | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo "Remove names table from Octo, as we plan to add it, but to a different database" | tee -a output.txt
+	octo <<OCTO 2>&1 | tee -a output.txt
+DROP TABLE IF EXISTS names;
+DROP TABLE IF EXISTS nameswithages;
+OCTO
+
+	echo | tee -a output.txt
+	echo "Create extended reference database with GLD extended.gld & load names into it" | tee -a output.txt
+	createdb 2 extended.gld
+	load_fixture names.sql "" "" "" extended.gld
+	load_fixture names.zwr "" "" "" extended.gld
+
+	echo | tee -a output.txt
+	echo "Set ^names(1) = \"Extended|Reference\"" | tee -a output.txt
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'set ^names(1)="Extended|Reference"'
+
+	echo | tee -a output.txt
+	echo "Run a couple of queries to verify functionality and create AIM index" | tee -a output.txt
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names;
+SELECT * FROM names WHERE lastName='Reference';
+OCTO
+
+	echo | tee -a output.txt
+	echo "AIM Data in local DB (should be empty): " | tee -a output.txt
+	ydb_gbldir=yottadb.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo "AIM Data in Extended DB: " | tee -a output.txt
+	ydb_gbldir=extended.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo -n "Octo Data in local DB: " | tee -a output.txt
+	ydb_gbldir=yottadb.gld yottadb -run %XCMD 'if $data(^%ydboctoocto),$data(^%ydboctoschema),$data(^%ydboctoseed) write "...found"' | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo -n "Octo Data in Extended DB (should be empty): " | tee -a output.txt
+	ydb_gbldir=extended.gld yottadb -run %XCMD "if '\$data(^%ydboctoocto),'\$data(^%ydboctoschema),'\$data(^%ydboctoseed) write \"...not found\"" | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo "Add ^names(10)=\"Claudius|Nero\" and verify it's in index" | tee -a output.txt
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'set ^names(10)="Claudius|Nero"'
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names;
+SELECT * FROM names WHERE lastName='Nero';
+OCTO
+
+	echo | tee -a output.txt
+	echo "Delete ^names(10) and verify it's gone" | tee -a output.txt
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'kill ^names(10)'
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names;
+SELECT * FROM names WHERE lastName='Nero';
+OCTO
+
+	echo | tee -a output.txt
+	echo "Verify that DROP TABLE works properly: " | tee -a output.txt
+	echo "AIM Data before DROP TABLE: " | tee -a output.txt
+	ydb_gbldir=extended.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+	ydb_gbldir=yottadb.gld octo <<< 'DROP TABLE names;' | tee -a output.txt
+	ydb_gbldir=yottadb.gld octo <<< 'DROP TABLE nameswithages;' | tee -a output.txt
+	echo "AIM Data after DROP TABLE (should be empty): " | tee -a output.txt
+	ydb_gbldir=extended.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	echo | tee -a output.txt
+	echo "Reload table and recreate index for next test (we just dropped the tables)" | tee -a output.txt
+	load_fixture names.sql "" "" "" extended.gld
+	load_fixture names.zwr "" "" "" extended.gld
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names;
+SELECT * FROM names WHERE lastName='Zero';
+OCTO
+
+	echo | tee -a output.txt
+	echo "Verify that DISCARD XREFS works properly" | tee -a output.txt
+	echo "AIM Data before DISCARD XREFS: " | tee -a output.txt
+	ydb_gbldir=extended.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+	ydb_gbldir=yottadb.gld octo <<< 'DISCARD XREFS;' | tee -a output.txt
+	echo "AIM Data after DISCARD XREFS (should be empty): " | tee -a output.txt
+	ydb_gbldir=extended.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	verify_output TX12 output.txt
 }

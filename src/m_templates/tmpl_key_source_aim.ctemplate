@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,8 +15,9 @@
 
 #include "template_helpers.h"
 
-// strlen("^") + Max length of aim name + strlen("()") + max number of pieces = 1MB as string (= $length(1024*1024))
-#define AIM_GLOBAL_MAX_LENGTH (1 + YDB_MAX_IDENT + 2 + INT20_TO_STRING_MAX)
+// strlen("^") + strlen("||") + strlen("\"\"") + PATH_MAX + NAME_MAX + Max length of aim name + strlen("()") + max number of pieces = 1MB as string (= $length(1024*1024))
+// This includes the specific characters needed for extended references
+#define AIM_GLOBAL_MAX_LENGTH (1 + 2 + 2 + PATH_MAX + NAME_MAX + YDB_MAX_IDENT + 2 + INT20_TO_STRING_MAX)
 
 /* This template gets the value of global ^%ydbAIMOctoCache("tableName","columnName",OCTOLIT_AIM_SUB_LOCATION)
  * This will look like this: "^%ydbAIMDXTIlxwLhDMDgDyahUM0VL0(2)"

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -316,6 +316,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}. IF subs(subn)'[":" SET subs(subn)=$ZWRITE(subs(subn)){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}SET base=$QSUBSCRIPT(global,0){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}NEW eref set eref=$QSUBSCRIPT(global,-1){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}IF eref'="" SET base="^|"""_eref_"""|"_$ZPIECE(base,"^",2){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}QUIT{}%
 			%{}`n{{ PLAN_LINE_START }}{}%

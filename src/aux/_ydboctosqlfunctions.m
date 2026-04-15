@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -26,6 +26,7 @@ ABS(num)
 REPLACE(src,from,to)
 	; If `src` is NULL return NULL
 	QUIT:$ZYISSQLNULL(src) $ZYSQLNULL
+	NEW i,j,k,len,n,res,ch,end,kstr,ich
 	; If `from` is NULL treat it as empty string
 	SET:$ZYISSQLNULL(from) from=""
 	; If `to` is NULL treat it as empty string

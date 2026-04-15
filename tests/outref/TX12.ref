@@ -1,0 +1,141 @@
+Test to verify using Octo with Extended References
+
+Remove names table from Octo, as we plan to add it, but to a different database
+DROP TABLE
+DROP TABLE
+
+Create extended reference database with GLD extended.gld & load names into it
+
+Set ^names(1) = "Extended|Reference"
+
+Run a couple of queries to verify functionality and create AIM index
+id|firstname|lastname
+0|Zero|Cool
+1|Extended|Reference
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+id|firstname|lastname
+1|Extended|Reference
+(1 row)
+
+AIM Data in local DB (should be empty): 
+
+AIM Data in Extended DB: 
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7="^names"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(0)="*YottaDB*"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1)=1
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2)="|"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#",4)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Cool",0)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Cool",5)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Killer",2)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Nikon",3)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Reference",1)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(3)="#01"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(4)="#01"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(5)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(6)="+^names(sub1=*) -command=set -name=%ydbERzGTIrQTVBoOhdanoKcC7S -xecute=<<"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""|"",i),q=""#""_$piece($ztvalue,""|"",i) do"_$C(10)_" . if p'=q zkill ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,p,sub1) set ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,q,sub1)="""""_$C(10)_" . else  set:'($zlength(q)-1) ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(7)="+^names(sub1=*) -command=kill -name=%ydbERzGTIrQTVBoOhdanoKcC7K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(8)="+^names(sub1=*) -command=zkill -name=%ydbERzGTIrQTVBoOhdanoKcC7Z -xecute=""for i=2 zkill ^|""""$PWD/extended.gld""""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,""""#""""_$piece($ztoldval,""""|"""",i),sub1)"""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(9)=1
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(10)=0
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(12)="+^names -command=kill -name=%ydbERzGTIrQTVBoOhdanoKcC70 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7("comment-2")="xref for table names column lastname"
+^%ydbAIMDxref("^names","^%ydbAIMDERzGTIrQTVBoOhdanoKcC7")=""
+
+Octo Data in local DB: ...found
+
+Octo Data in Extended DB (should be empty): ...not found
+
+Add ^names(10)="Claudius|Nero" and verify it's in index
+id|firstname|lastname
+0|Zero|Cool
+1|Extended|Reference
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+10|Claudius|Nero
+(7 rows)
+id|firstname|lastname
+10|Claudius|Nero
+(1 row)
+
+Delete ^names(10) and verify it's gone
+id|firstname|lastname
+0|Zero|Cool
+1|Extended|Reference
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+id|firstname|lastname
+(0 rows)
+
+Verify that DROP TABLE works properly: 
+AIM Data before DROP TABLE: 
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7="^names"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(0)="*YottaDB*"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1)=1
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2)="|"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#",4)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Cool",0)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Cool",5)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Killer",2)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Nikon",3)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Reference",1)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(3)="#01"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(4)="#01"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(5)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(6)="+^names(sub1=*) -command=set -name=%ydbERzGTIrQTVBoOhdanoKcC7S -xecute=<<"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""|"",i),q=""#""_$piece($ztvalue,""|"",i) do"_$C(10)_" . if p'=q zkill ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,p,sub1) set ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,q,sub1)="""""_$C(10)_" . else  set:'($zlength(q)-1) ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(7)="+^names(sub1=*) -command=kill -name=%ydbERzGTIrQTVBoOhdanoKcC7K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(8)="+^names(sub1=*) -command=zkill -name=%ydbERzGTIrQTVBoOhdanoKcC7Z -xecute=""for i=2 zkill ^|""""$PWD/extended.gld""""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,""""#""""_$piece($ztoldval,""""|"""",i),sub1)"""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(9)=1
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(10)=0
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(12)="+^names -command=kill -name=%ydbERzGTIrQTVBoOhdanoKcC70 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7("comment-2")="xref for table names column lastname"
+^%ydbAIMDxref("^names","^%ydbAIMDERzGTIrQTVBoOhdanoKcC7")=""
+DROP TABLE
+DROP TABLE
+AIM Data after DROP TABLE (should be empty): 
+
+Reload table and recreate index for next test (we just dropped the tables)
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+id|firstname|lastname
+(0 rows)
+
+Verify that DISCARD XREFS works properly
+AIM Data before DISCARD XREFS: 
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7="^names"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(0)="*YottaDB*"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(1)=1
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2)="|"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#",4)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Burn",1)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Cool",0)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Cool",5)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Killer",2)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,"#Nikon",3)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(3)="#01"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(4)="#01"
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(5)=""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(6)="+^names(sub1=*) -command=set -name=%ydbERzGTIrQTVBoOhdanoKcC7S -xecute=<<"_$C(10)_" for i=2 set p=""#""_$piece($ztoldval,""|"",i),q=""#""_$piece($ztvalue,""|"",i) do"_$C(10)_" . if p'=q zkill ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,p,sub1) set ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,q,sub1)="""""_$C(10)_" . else  set:'($zlength(q)-1) ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(7)="+^names(sub1=*) -command=kill -name=%ydbERzGTIrQTVBoOhdanoKcC7K -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(8)="+^names(sub1=*) -command=zkill -name=%ydbERzGTIrQTVBoOhdanoKcC7Z -xecute=""for i=2 zkill ^|""""$PWD/extended.gld""""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7(i,""""#""""_$piece($ztoldval,""""|"""",i),sub1)"""
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(9)=1
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(10)=0
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(12)="+^names -command=kill -name=%ydbERzGTIrQTVBoOhdanoKcC70 -xecute=<<"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDERzGTIrQTVBoOhdanoKcC7"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  kill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDERzGTIrQTVBoOhdanoKcC7("comment-2")="xref for table names column lastname"
+^%ydbAIMDxref("^names","^%ydbAIMDERzGTIrQTVBoOhdanoKcC7")=""
+AIM Data after DISCARD XREFS (should be empty): 

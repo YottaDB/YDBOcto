@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -66,9 +66,11 @@ discardXREFTable(tableName)
 	.  KILL ^%ydboctoocto("xref_status",tableName,column)
 	; Remove AIM data (xref and triggers) stored in the AIM global
 	DO
-	.  NEW aimgbl
+	.  NEW aimgbl,aimgbleref
 	.  SET column="" FOR  SET column=$ORDER(^%ydbAIMOctoCache(tableName,column))  QUIT:""=column  DO
+	. .  SET aimgbleref=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),-1)
 	. .  SET aimgbl=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0)
+	. .  IF ""'=aimgbleref SET aimgbl="^|"""_aimgbleref_"""|"_$ZPIECE(aimgbl,"^",2)
 	. .  DO UNXREFDATA^%YDBAIM(aimgbl)
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)
 	QUIT

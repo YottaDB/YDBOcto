@@ -186,18 +186,28 @@ copy_test_files() {
 
 # load_fixture <fixture name, relative to tests/fixtures
 load_fixture() {
-	fixture_name=$1
+	local fixture_name=$1
+	local destination_gld=$5
 	echo "Loading fixture $fixture_name"
 	if [[ $fixture_name == *.zwr ]]; then
 		# Determine the chset (M or UTF-8) to use from the extract file. It will be either "UTF-8" or "".
-		chset=`grep "MUPIP EXTRACT" @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name | awk '{print $4}'`
+		local chset=`grep "MUPIP EXTRACT" @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name | awk '{print $4}'`
 		# Keep LC_ALL as en_US.UTF8 (set in "init_test()" function) for both M and UTF-8 mode. That should work just fine.
-		ydb_chset=$chset $ydb_dist/mupip load @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+		local ydb_chset=$chset
+		if [[ -n $destination_gld ]]; then
+			local ydb_gbldir=$destination_gld
+		fi
+		$ydb_dist/mupip load @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
 	elif [[ $fixture_name == *.sql ]]; then
 		if [[ $2 == "subtest" ]]; then
 			cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
 			grep -v '^#' $fixture_name 2>&1 | tee -a output.txt	   # Filter out copyright from output
 			grep -vE '^-- |^#' $fixture_name > input.sql || [ $? = 1 ] # Filter out comment lines as they otherwise clutter the parse error output (if any)
+			if [[ -n $destination_gld ]]; then
+				mv input.sql $test_temp/$destination_gld.d/input.sql.orig
+				sed "s@GLOBAL \"^@GLOBAL \"^|\"\"$destination_gld\"\"|@Ig" $test_temp/$destination_gld.d/input.sql.orig > $test_temp/$destination_gld.d/input.sql
+				mv $test_temp/$destination_gld.d/input.sql ./input.sql
+			fi
 			if [[ $3 == "novv" ]]; then
 				octoflags="$4"
 			elif [[ $3 =~ "v" ]]; then	# Allow verbosity level to be passed directly
@@ -207,7 +217,14 @@ load_fixture() {
 			fi
 			octo $octoflags -p -f input.sql 2>&1 | tee -a output.txt
 		else
-			octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+			if [[ -n $destination_gld ]]; then
+				# In case of a seperate GLD file, modify the GLOBAL keyword to reference a table in the separate GLD file
+				cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $test_temp/$destination_gld.d
+				sed "s@GLOBAL \"^@GLOBAL \"^|\"\"$destination_gld\"\"|@Ig" $test_temp/$destination_gld.d/$fixture_name > $test_temp/$destination_gld.d/$fixture_name.ex
+				octo -f $test_temp/$destination_gld.d/$fixture_name.ex
+			else
+				octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+			fi
 		fi
 	else
 		echo "Unrecognized file extension: $fixture_name"
@@ -310,43 +327,57 @@ load_mysql_fixture() {
 }
 
 createdb() {
+	# $1 (optional) number of DBs to create. 1 or any other.
+	# #2 (optional) Create separate GDE. Used to test extended references.
+	#
 	# Need to have non-default key size specified as otherwise it won't fit
 	# VistA globals.  Technically, VistA only needs the M standard's
 	# maximum of 256 whereas the default maximum in GDE is 64. But the
 	# maximum possible key size of 1019 does not hurt.
-	export ydb_gbldir="yottadb.gld"
+	if [ -n "$2" ]; then
+		ydb_gbldir="$2"
+		mkdir $test_temp/${ydb_gbldir}.d
+		local db_dir=$test_temp/${ydb_gbldir}.d
+	else
+		ydb_gbldir="yottadb.gld"
+		local db_dir=$test_temp
+	fi
 	echo "ydb_gbldir: $ydb_gbldir"
+	echo "db_dir: $db_dir"
 	# Create two regions by default. One to hold application/user data. One to hold Octo internal data (%ydbocto* namespace)
 	# But if user specified number of regions explicitly (only allowed value currently is 1) then create 1 region only.
 	if [[ $1 == "1" ]]; then
 		$ydb_dist/yottadb -run ^GDE <<FILE
 		change -r DEFAULT -key_size=1019 -record_size=1048576
-		change -segment DEFAULT -file_name=$test_temp/mumps.dat
+		change -segment DEFAULT -file_name=$db_dir/mumps.dat
 		change -r DEFAULT -NULL_SUBSCRIPTS=true
 		exit
 FILE
 	else
 		$ydb_dist/yottadb -run ^GDE <<FILE
 change -region DEFAULT -null_subscripts=true -record_size=1048576 -key_size=1019
-change -segment DEFAULT -file_name="$test_temp/mumps.dat"
-add -segment OCTOSEG -file="$test_temp/octo.dat"
+change -segment DEFAULT -file_name="$db_dir/mumps.dat"
+add -segment OCTOSEG -file="$db_dir/octo.dat"
 add -region OCTOREG -dyn=OCTOSEG -null_subscripts=true -key_size=1019 -record_size=1048576
-add -segment AIMSEG -file="$test_temp/aim.dat" -access_method=MM -block_size=2048
+add -segment AIMSEG -file="$db_dir/aim.dat" -access_method=MM -block_size=2048
 add -region AIMREG -dyn=AIMSEG -nojournal -key_size=1019 -null_subscripts=always -record_size=2048
 add -name %ydbocto* -region=OCTOREG
 add -name %ydbAIM* -region=AIMREG
 exit
 FILE
 	fi
-	rm *.dat || true
+	rm $db_dir/*.dat || true
 	$ydb_dist/mupip create
+
+	# Restore the original global directory after the extended reference
+	export ydb_gbldir="yottadb.gld"
+
 	# Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
 	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
 	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
 	export ydb_dbfilext_syslog_disable=1
 
 	save_env_variables
-
 }
 
 gde_add_region() {

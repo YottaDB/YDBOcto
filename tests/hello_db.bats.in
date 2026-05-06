@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,72 +21,30 @@ teardown() {
 }
 
 @test "HDB01 : Can communicate and load data into Postgres & MySQL" {
+	# Postgres function to delete all tables in a database for a clean test run
+	cat >drop_all_tables.cmd <<-SQL_CODE
+		DO \$\$
+		DECLARE
+			r RECORD;
+		BEGIN
+			FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+				EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+			END LOOP;
+			FOR r IN (SELECT viewname FROM pg_views WHERE schemaname = 'public') LOOP
+				EXECUTE 'DROP VIEW IF EXISTS ' || quote_ident(r.viewname) || ' CASCADE';
+			END LOOP;
+		END \$\$;
+	SQL_CODE
+
 	skip_escape_sequence_sanitize=1	# skip RHEL7-specific escape_sequence_sanitize() call in verify_output()
 					# as we know it is not needed in this test and will let us run this test on RHEL7 too.
+
+
 	for db in mysql postgres
 	do
 		if [[ "mysql" == $db ]]; then
 			echo "SHOW TABLES;" > listdb.sql
 		else
-			# Delete various temporary tables from Postgres in case they were created by prior test runs
-			# and those tests failed before they could delete those temporary tables.
-			# Not deleting these could cause this test to fail due to presence of additional tables that
-			# this reference file is not aware of. But it is possible the database does not exist at all
-			# so check for that first.
-			if postgres_database_exists "names"; then
-				psql names -c 'DROP TABLE IF EXISTS TDFT01;' >& postgres.drop_table_TDFT01.out
-				psql names -c 'DROP TABLE IF EXISTS TDFT08;' >& postgres.drop_table_TDFT08.out
-				psql names -c 'DROP TABLE IF EXISTS TUT002,TUT002B' >& postgres.drop_table_TUT002.out
-				psql names -c 'DROP TABLE IF EXISTS TUT007' >& postgres.drop_table_TUT007.out
-				psql names -c 'DROP TABLE IF EXISTS TUT008' >& postgres.drop_table_TUT008.out
-				psql names -c 'DROP TABLE IF EXISTS TUT009;' >& postgres.drop_table_TUT009.out
-				psql names -c 'drop table if exists TTA005A,TTA005B;' >& postgres.drop_table_TTA005.out
-				psql names -c 'DROP TABLE IF EXISTS namesTQG03;' >& postgres.drop_table_TQG03_1.out
-				psql names -c 'DROP TABLE IF EXISTS namesTJC06;' >& postgres.drop_table_TJC06_1.out
-				psql names -c 'DROP TABLE IF EXISTS TOB20a,TOB20b,TOB20c;' >& postgres.drop_table_TOB20_1.out
-				psql names -c 'DROP VIEW IF EXISTS TCV0281;' >& postgres.drop_view_TCV0281.out
-				psql names -c 'DROP VIEW IF EXISTS TCV0282;' >& postgres.drop_view_TCV0282.out
-				psql names -c 'DROP VIEW IF EXISTS TCV0283;' >& postgres.drop_view_TCV0283.out
-				psql names -c 'DROP VIEW IF EXISTS TCV0284;' >& postgres.drop_view_TCV0284.out
-				psql names -c 'DROP VIEW IF EXISTS TCV0285;' >& postgres.drop_view_TCV0285.out
-			fi
-			if postgres_database_exists "nullcharnames"; then
-				psql names -c 'DROP TABLE IF EXISTS nullcharnamesTQG03;' >& postgres.drop_table_TQG03_2.out
-				psql names -c 'DROP TABLE IF EXISTS nullcharnamesTJC06;' >& postgres.drop_table_TJC06_2.out
-			fi
-			if postgres_database_exists "nameslastname"; then
-				psql names -c 'DROP TABLE IF EXISTS nameslastnameTQG03;' >& postgres.drop_table_TQG03_3.out
-			fi
-			if postgres_database_exists "composite"; then
-				psql composite -c 'DROP TABLE IF EXISTS TUT010' >& postgres.drop_table_TUT010.out
-				psql composite -c 'DROP TABLE IF EXISTS compositeTQG07;' >& postgres.drop_table_TQG07.out
-			fi
-			if postgres_database_exists "customers"; then
-				psql customers -c 'DROP TABLE IF EXISTS customersTQG01,ordersTQG01;' >& postgres.drop_table_TQG01.out
-				psql customers -c 'DROP TABLE IF EXISTS customersTJC04,ordersTJC04;' >& postgres.drop_table_TJC04.out
-				psql customers -c 'DROP TABLE IF EXISTS customersTF03;'                                    >& postgres.drop_table_TF03.out
-			fi
-			if postgres_database_exists "pastas"; then
-				psql pastas -c 'DROP TABLE IF EXISTS names4TQG02,pastasTQG02;' >& postgres.drop_table_TQG02.out
-				psql pastas -c 'DROP TABLE IF EXISTS names4TJC05,pastasTJC05;' >& postgres.drop_table_TJC05.out
-			fi
-			if postgres_database_exists "northwind"; then
-				for table in Categories nwCustomers Employees OrderDetails nwOrders Products Shippers Suppliers
-				do
-					psql northwind -c 'DROP TABLE IF EXISTS '$table'TQG04' &>> postgres.drop_table_TQG04.out
-					psql northwind -c 'DROP TABLE IF EXISTS '$table'TJC07' &>> postgres.drop_table_TJC07.out
-				done
-			fi
-			if postgres_database_exists "boolean"; then
-				psql boolean -c 'DROP TABLE IF EXISTS stock_availabilityTQG05;' >& postgres.drop_table_TQG05.out
-			fi
-			if postgres_database_exists "nullnames"; then
-				psql nullnames -c 'DROP TABLE IF EXISTS nullnamesTQG06;' >& postgres.drop_table_TQG06.out
-				psql nullnames -c 'DROP TABLE IF EXISTS nullnamesbTQG06;' >& postgres.drop_table_TQG06.out
-			fi
-			if postgres_database_exists "quotenames"; then
-				psql quotenames -c 'DROP TABLE IF EXISTS "quote namesTQG03";' >& postgres.drop_table_TQG03_4.out
-			fi
 			echo "\d" > listdb.sql
 		fi
 
@@ -98,14 +56,30 @@ teardown() {
 				# be crosschecked against them. So, skip the `quotenames` database when running against MySQL.
 				continue
 			fi
-			# If the database and/or table already exists, the `create_{mysql,postgres}_database` or
-			# `load_{mysql,postgres}_fixture` function invocations might return with a non-zero exit status due to the
-			# database being created by a different userid (implying current userid does not have permissions to run
-			# CREATE DATABASE) OR due to `\set ON_ERROR_STOP on` usage in the .sql script used by the
-			# `load_{mysql,postgres}_fixture` function etc.. Do not consider these as real errors hence the use of the `run`
-			# command below to avoid bats from treating this as an error.
+			# Clean databases created by prior test runs that terminated early
+			# as vestigal data causes unexpected test output, leading to test failures.
+			if [[ "mysql" == $db ]]; then
+				# In MySQL a user with DROP authority can drop a database owned by anyone, so do that for databases from previous test runs
+				# Skip the following command because it is slow and we don't usually need to start with fresh mysql databases
+				: # run_mysql "" <(echo "DROP DATABASE IF EXISTS $schema;") &> mysql.drop_database_$schema.out
+			else
+				# In Postgres a user cannot delete a table made by another user in a previous test run
+				# so instead of deleting the database, delete all tables in the database -- if the database exists
+				# Test if the database exists
+				if [[ $(psql -v ON_ERROR_STOP=1 -tAc "SELECT 1 FROM pg_database WHERE datname='$schema'") ]]; then
+					# Delete all tables in the database
+					psql -v ON_ERROR_STOP=1 $schema -f drop_all_tables.cmd >& postgres.drop_database_$schema.out
+				fi
+			fi
 			create_${db}_database "$schema" &> "$schema".${db}.create || true
-			load_${db}_fixture "$schema" ${db}-"$schema".sql "$schema".${db}.load || true
+			if [[ "postgres" == $db ]]; then
+				# Wrap sql file with BEGIN/COMMIT to speed up the commit by 4 seconds
+				# This is not done in the actual file because the files are sometimes loaded later into Octo, which fails on BEGIN/COMMIT
+				{ echo "BEGIN;"; cat @PROJECT_SOURCE_DIR@/tests/fixtures/${db}-"$schema".sql; echo "COMMIT;"; } |
+					psql "$schema" -v ON_ERROR_STOP=1 &> $1.psql.load || true
+			else
+				load_${db}_fixture "$schema" ${db}-"$schema".sql "$schema".${db}.load || true
+			fi
 			# This is needed for the QueryGenarator program. Load it once for each database.
 			# (QueryGenerator is used to generate random queries to compare Octo to Postgres)
 			if [[ "postgres" == $db ]]; then

@@ -150,4 +150,8 @@ cd doc/
 make clean
 ```
 
+## Deverloper documentation
+
+Documentation for development and testing of Octo is available in the [official documentation](https://docs.yottadb.com/Octo/developer_doc.html).
+
 *NOTE: Octo<sup>®</sup> is a registered trademark of YottaDB LLC.*

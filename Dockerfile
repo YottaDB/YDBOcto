@@ -10,6 +10,29 @@
 #								#
 #################################################################
 
+# Instructions:
+#   docker build -t rocto-image .
+#
+# To run the docker image containing a copy of the Northwind database, with the Rocto Daemon running on port 1337:
+#   docker run -d --rm -p 1337:1337 --name=rocto rocto-image
+#
+# You can pass a directory on your computer to keep the data in, so you won't lose it when you stop the docker container:
+#   docker run -d -v $HOME/mydata:/data --rm -p 1337:1337 --name=rocto rocto-image
+#
+# To access the data, you can use the Postgres client (or any other compatible client) like this (Username `ydb` password `ydbrocks`):
+#   PGPASSWORD=ydbrocks psql -U ydb -h localhost -p 1337
+#
+# To look at the Rocto log, you can type this:
+#   docker logs rocto
+#
+# To go to the shell, and access YottaDB or the Octo command line:
+#   docker exec -it rocto ydb    # access YottaDB
+#   docker exec -it rocto octo   # access Octo
+#
+# To stop the image, simply kill it, as it will autodelete after stopping. Your data will be kept if you mapped a directory on your computer:
+#   docker kill rocto
+
+
 # Build Octo in octo-builder
 FROM yottadb/yottadb-base AS octo-builder
 

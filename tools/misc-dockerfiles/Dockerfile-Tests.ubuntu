@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,7 @@
 # This file mirrors the pipeline set-up, but is not used by the
 # pipeline. It lets you run the pipeline tests locally.
 #
-# Insturctions:
+# Instructions:
 # docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0 OR docker run --rm --name mysql -e MARIADB_ROOT_PASSWORD=ydbrocks -d mariadb
 # docker build -f tools/misc-dockerfiles/Dockerfile-Tests.ubuntu -t tests-ubuntu .
 # docker run -it --link mysql --rm tests-ubuntu

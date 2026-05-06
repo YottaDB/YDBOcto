@@ -16,10 +16,14 @@ set -v
 set -x
 
 jobname=$1      # Could be "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky" or "test-auto-upgrade"
-subtaskname=$2  # Could be "force" or "none" in case jobname is "test-auto-upgrade"
-                # Could be "asan" for "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky"
+subtaskname=$2  # Could be "force" or "debug" (other values ignored) in case jobname is "test-auto-upgrade"
+                # Could be "asan" or "testonly" (other values ignored) for "make-rocky", "make-ubuntu", "make-tls-rocky", "make-tls-rocky"
+		# (testonly reduces setup time from almost 2 minutes to about 30 seconds by skipping per-commit checks)
 autoupgrade_old_commit=$3 # Git hash
 autoupgrade_test_to_troubleshoot=$4 # specific CMake test name to troubleshoot
+
+# Provide (optional) arguments for ctest so that specific tests can be selected when doing docker-based testing, e.g. regex '-R hello'
+CTEST_ARGS="${CTEST_ARGS:-}"
 
 # Determine if we are running on Ubuntu or Rocky Linux (Centos 8 successor)
 . /etc/os-release
@@ -177,18 +181,20 @@ if [[ "test-auto-upgrade" == $jobname ]]; then
 	wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 fi
 
-echo "# Check repo for unused outref files"
-pushd ../tests
-unused_outrefs=$(../tools/ci/find_unused_outrefs.sh)
-if [ "$unused_outrefs" != "" ]; then
-  echo " -> Unused outrefs found!"
-  echo "$unused_outrefs"
-  exit 1
+if [[ $subtaskname != "testonly" ]]; then
+	echo "# Check repo for unused outref files"
+	pushd ../tests
+	unused_outrefs=$(../tools/ci/find_unused_outrefs.sh)
+	if [ "$unused_outrefs" != "" ]; then
+	  echo " -> Unused outrefs found!"
+	  echo "$unused_outrefs"
+	  exit 1
+	fi
+	popd
 fi
-popd
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
-if [[ "test-auto-upgrade" != $jobname ]]; then
+if [[ "test-auto-upgrade" != $jobname && $subtaskname != "testonly" ]]; then
 	echo "# Check repo for unused test files"
 	pushd ../cmake
 	unused_tests=$(../tools/ci/find_unused_tests.sh)
@@ -597,7 +603,7 @@ fi
 compile_octo
 
 # If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
-if [[ "test-auto-upgrade" != $jobname ]]; then
+if [[ "test-auto-upgrade" != $jobname && $subtaskname != "testonly" ]]; then
 	echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
 	../tools/ci/sort_warnings.sh build_warnings.txt sorted_build_warnings.txt
 	echo " -> Checking for unexpected warning(s) while compiling ... "
@@ -638,7 +644,9 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 			compare ../tools/ci/clang_tidy_warnings-release.ref sorted_clang_warnings.txt clang_tidy_warnings.txt
 		fi
 	fi
+fi
 
+if [[ "test-auto-upgrade" != $jobname ]]; then
 	$build_tool install
 fi
 
@@ -722,7 +730,7 @@ PSQL
 	octo_keep_bats_dirs=1
 	export octo_keep_bats_dirs
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
-		ctest
+		ctest $CTEST_ARGS
 		exit_status=$?
 		if [[ "ON" == "$enable_coverage" ]]; then
 			# --gcov-ignore-parse-errors is needed because of https://github.com/gcovr/gcovr/issues/882, fixed in the latest gcovr
@@ -734,8 +742,8 @@ PSQL
 	else
 		# Ensure that `hello*` tests, e.g. `hello_psql.bats` and `hello_db.bats`, run before tests that depend on them in
 		# order to prevent failures when parallelizing test execution in test-auto-upgrade jobs, which use older commits.
-		ctest -R "hello"
-		ctest -R "test"
+		ctest -R "^hello_"
+		ctest -E "^hello_" $CTEST_ARGS
 		exit_status=$?
 	fi
 	echo " -> exit_status from ctest = $exit_status"
@@ -809,8 +817,8 @@ PSQL
 			cd ..
 		done
 	fi
-	# Restore verbose output now that for loop and bats-test.* usages (long/lots-of lines) are done
-	set -v
+	# Restore verbose command output now that for loop and bats-test.* usages (long/lots-of lines) are done
+	# but leave +v as-is because it makes results hard to find in the output due to the long if ... fi below
 	set -x
 fi
 
@@ -819,11 +827,9 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		echo '# Remove "bats-test*" directories corresponding to passed subtests (reduces pipeline artifact size)'
 		# Unset verbose mode as the below can print a very long line of output
 		# and pollute the pipeline console output
-		set +v
 		set +x
 		rm -rf $(cat passed_bats_dirs.txt)
 		# Restore verbose output now that for long line of output is done
-		set -v
 		set -x
 	fi
 else
@@ -1496,14 +1502,12 @@ FILE
 		cd ..
 	fi
 	# Set verbose mode back now that for loop is over (so we see each command as it gets executed)
-	set -v
 	set -x
 fi
 
 echo " -> exit $exit_status"
-# Unset verbose mode before printing summary of failure results if any
+# Unset verbose command mode before printing summary of failure results if any
 set +x
-set +v
 
 if [[ 0 != "$exit_status" ]]; then
 	if [[ "test-auto-upgrade" != "$jobname" ]]; then

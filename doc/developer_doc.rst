@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.       #
+.. # Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.       #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -274,15 +274,23 @@ Contributing
      cmake -D CMAKE_EXPORT_COMPILE_COMMANDS=ON ..
      clang-tidy ../src/octo_init.c  # replace octo_init.c with the file you want to check
 
-+++++++++++
-Dockerfiles
-+++++++++++
+++++++++++++++++++++++++
+Testing with Dockerfiles
+++++++++++++++++++++++++
 
- There are various Dockerfiles at the top of the source tree:
+ There are various Dockerfiles for running Octo or for unit-testing Octo in the following source tree locations:
 
-  - :code:`Dockerfile`
-  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.rocky`
-  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.ubuntu`
-  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.vista`
+  - :code:`Dockerfile` (for running Octo)
+  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.rocky` (for running unit tests)
+  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.ubuntu` (for running unit tests)
+  - :code:`tools/misc-dockerfiles/Dockerfile-Tests.vista` (for running unit tests)
 
- :code:`Dockerfile` builds a docker container suitable for use for using Octo in a testing capacity. The other files are all testing related, and are used to replicate the Gitlab pipelines. There are instructions at the top of each file for usage as well as current limitations.
+ :code:`Dockerfile` builds a docker container that runs a :code:`rocto` server or :code:`octo` shell in a testing capacity as described in the `README <https://gitlab.com/YottaDB/DBMS/YDBOcto#using-the-docker-images>`_. The other files are all for running unit tests, and are used to replicate the Gitlab testing pipelines. There are instructions and limitations at the top of each file. Alternatively, the following helper script may be used to build and run all unit tests using docker:
+
+  .. code-block:: bash
+
+     tools/misc-dockerfiles/dockertest [-h]
+
+  .. note::
+
+     Ensure that you have enough space in your docker root to run the :code:`Dockerfile-Tests` images. These images can grow large during testing (42GB at the time of writing; :code:`docker ps --size` reports up to 150GB but not all of it is real). In addition, if most tests fail, much more may be required (150GB at the time of writing).

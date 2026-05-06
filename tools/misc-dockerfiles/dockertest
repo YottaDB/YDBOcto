@@ -1,0 +1,73 @@
+#!/bin/bash
+#################################################################
+#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.
+# All rights reserved.
+#
+#       This source code contains the intellectual property
+#       of its copyright holder(s), and is made available
+#       under a license.  If you do not know the terms of
+#       the license, please stop and do not read further.
+#
+#################################################################
+
+# Run a test in docker just like the pipeline runs it
+
+progname="${0##*/}"
+
+help() {
+	echo "Run Octo unit tests inside a docker image, emulating the GitLab pipeline."
+	echo "Usage: $progname [make-* [asan|testonly] | test-auto-upgrade [force|debug] | kill | bash_cmd ]"
+	echo "Where:"
+	echo "       make-ubuntu (default) | make-rocky | make-tls-rocky | make-tls-rocky | test-auto-upgrade"
+	echo "                    These select different pipeline tests and are passed as args directly to tools/ci/build.sh."
+	echo "                    When the following argument is 'testonly', the setup time is a third (about 30 seconds)."
+	echo "                    The user is given an interactive prompt at the end to let them inspect the results,"
+	echo "                    e.g.: docker logs dockertest | less"
+	echo "       inspect    - connect to background dockertest daemon to inspect test results as they are produced"
+	echo "       kill       - stops and removes any running containers from a previous test run, including mysql container"
+	echo "       bash_cmd   - otherwise args are all passed to bash shell rather than tools/ci/build.sh"
+	echo "                      e.g.: $progname ls doc tools"
+	echo "Default action is 'make-ubuntu testonly' (or 'inspect' if the tests-ubuntu image is already running)."
+	echo
+	echo "Note: Environment variable CTEST_ARGS string is passed as arguments to 'ctest' in tools/ci/build.sh"
+	echo "      For example, to run only tests hello_*, specify regex: CTEST_ARGS='-R hello_' $progname"
+}
+
+# cd to directory of this script
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd $SCRIPT_DIR
+
+# Select default action:
+if [[ "$1" == "" ]]; then
+	set -- make-ubuntu testonly
+	[[ -z $(docker ps -q -f "name=dockertest") ]] || set -- inspect
+fi
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	help; exit
+elif [[ "$1" == "inspect" ]]; then
+	docker exec -it dockertest bash || { echo "Run '$0 -h' for help"; exit 1; }
+elif [[ "$1" == "kill" ]]; then
+	exec docker kill mysql dockertest 2>/dev/null
+elif [[ "$1" == "make-"* || "$1" == "test-auto-upgrade" ]]; then
+	# Run `bash` after test so we can inspect it on failure
+	set -- "tools/ci/build.sh $*; bash"
+fi
+
+set -e # exit on error
+
+# Update build of tests_ubuntu
+docker build -f $SCRIPT_DIR/Dockerfile-Tests.ubuntu -t tests-ubuntu .
+
+# Kill any previous test container
+docker rm -f dockertest  2>/dev/null || true
+
+# Start mysql container if it's not started
+if [[ `docker ps -q -f name=mysql` == "" ]]; then
+	docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0
+fi
+
+# Run the docker image and call the container 'dockertest'
+# Make it so that Ctrl-C doesn't exit the docker container but does halt the test so that we can check test results while its still alive.
+docker run -it --rm --name dockertest --link mysql -e CTEST_ARGS --entrypoint=bash tests-ubuntu -ic "trap 'pkill -SIGINT -P \$\$' SIGINT; $*"

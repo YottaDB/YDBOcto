@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,7 +19,7 @@
  *   -1 in case validation failed.
  *    0 otherwise (i.e. success).
  */
-int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key) {
+int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key, boolean_t is_table) {
 	char	 *ptr, *ptr_start;
 	char	 *start, *next;
 	int	  next_key_num;
@@ -74,6 +74,8 @@ int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int ma
 
 				int key_num;
 				key_num = atoi(value->v.string_literal);
+				// These asserts are valid even if we are checking a column, even if from another table unrelated
+				// to this table. We don't expect to have keys repeated.
 				assert(MAX_KEY_COUNT > key_num);
 				assert(key_num <= max_key);
 				if (key_num != next_key_num) {
@@ -93,7 +95,16 @@ int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int ma
 			ptr++;
 		}
 	}
-	if (next_key_num != (max_key + 1)) {
+
+	/* The following check ONLY applies if we are checking the GLOBAL keyword on a table, where it indeed has to match the
+	 * primary keys exactly. For columns, it's possible to use LESS keys than the full table. E.g.
+	 *
+	 * ^table(1)="value1"
+	 * ^table(1,1)="value2"
+	 *
+	 * The table may have two columns, but a column can be defined which only uses one key to get "value1". *
+	 */
+	if (is_table && (next_key_num != (max_key + 1))) {
 		ERROR(ERR_GLOBAL_MISSING_KEY_COLS, "");
 		return -1;
 	}

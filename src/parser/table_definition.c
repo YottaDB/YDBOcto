@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -1889,7 +1889,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				readonly_disallowed = TRUE; /* UNIQUE is only allowed for READWRITE table. Not READONLY. */
 				break;
 			case OPTIONAL_GLOBAL:;
-				ret = validate_global_keyword(cur_keyword, table, max_key);
+				ret = validate_global_keyword(cur_keyword, table, max_key, FALSE);
 				if (-1 == ret) {
 					return NULL;
 				}
@@ -2057,7 +2057,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		int		    ret;
 
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-		ret = validate_global_keyword(keyword, table, max_key);
+		ret = validate_global_keyword(keyword, table, max_key, TRUE);
 		if (-1 == ret) {
 			return NULL;
 		}

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -177,7 +177,6 @@ create table tmp (id integer primary key, firstname varchar GLOBAL "^names(value
 create table tmp (id integer primary key, firstname varchar GLOBAL "^names(values(""ID"")))") READONLY;
 
 -- Test of ERR_GLOBAL_MISSING_KEY_COLS error
-create table tmp (id integer primary key, firstname varchar GLOBAL "^names(1)") READONLY;
 create table tmp (id1 integer, id2 integer, primary key (id1, id2), firstname varchar GLOBAL "^names(1,keys(""ID1""))") READONLY;
 
 -- Test of ERR_GLOBAL_KEY_COLS_ORDER error

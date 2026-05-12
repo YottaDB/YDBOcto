@@ -1,0 +1,24 @@
+-- TC083 : OCTO1110 : values() correctly resolved referneces to PIECE columns with GLOBAL
+DROP TABLE IF EXISTS test;
+CREATE TABLE test (
+	id integer PRIMARY KEY,
+	f1 varchar PIECE 1,
+	f2 varchar GLOBAL "^test(keys(""id""),1)" PIECE 1,
+	v1 varchar EXTRACT "$EXTRACT(values(""f2""))"
+) GLOBAL "^test";
+
+select * from test;
+OCTO> DROP TABLE IF EXISTS test;
+DROP TABLE
+OCTO> CREATE TABLE test (
+	id integer PRIMARY KEY,
+	f1 varchar PIECE 1,
+	f2 varchar GLOBAL "^test(keys(""id""),1)" PIECE 1,
+	v1 varchar EXTRACT "$EXTRACT(values(""f2""))"
+) GLOBAL "^test";
+CREATE TABLE
+OCTO> select * from test;
+id|f1|f2|v1
+1|one|foo|f
+(1 row)
+OCTO> 

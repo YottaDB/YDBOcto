@@ -287,3 +287,10 @@ teardown() {
 	load_fixture TC082.sql subtest novv
 	verify_output TC082 output.txt
 }
+
+@test "TC083 : OCTO1110 : values() correctly resolved referneces to PIECE columns with GLOBAL" {
+	# Set up test data in the ^test global
+	$ydb_dist/yottadb -run %XCMD 'set ^test(1)="one",^test(1,1)="foo"'
+	load_fixture TC083.sql subtest novv
+	verify_output TC083 output.txt
+}

@@ -171,7 +171,6 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 					} else {
 						/* Column is PIECE-based. Use the $PIECE(...) logic. */
 						char *source_global;
-						char *placeholder;
 						char *delim;
 
 						if (NULL == sql_column->delim) {
@@ -180,39 +179,16 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 							delim = sql_column->delim->v.value->v.string_literal;
 						}
 
-						int num_keys;
-						SqlColumn *start_column, *cur_column, *key_column;
-
-						UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-						cur_column = start_column;
-						num_keys = 0;
-						key_column = NULL;
-						placeholder = NULL;
-						do {
-							if (IS_KEY_COLUMN(cur_column)) {
-								num_keys++;
-								key_column = cur_column;
-							}
-							cur_column = cur_column->next;
-						} while (cur_column != start_column);
-
-						source_global = table->source->v.keyword->v->v.value->v.string_literal;
+						SqlOptionalKeyword *global_keyword = get_keyword(sql_column, OPTIONAL_GLOBAL);
+						if (NULL == global_keyword) {
+							source_global = table->source->v.keyword->v->v.value->v.string_literal;
+						} else {
+							UNPACK_SQL_STATEMENT(value, global_keyword->v, value);
+							source_global = value->v.string_literal;
+						}
 						%{}$PIECE($GET({}%
-						if (1 < num_keys) {
-							// There are multiple key columns, so expand them programmatically
 							TMPL(tmpl_emit_source, table, source_global, table_name,	\
 								unique_id, parm2, MAX_KEY_COUNT, form);
-						} else {
-							assert(1 == num_keys);
-							assert(NULL != key_column);
-							// There is only one key column, so simply construct the node reference here
-							placeholder = strstr(source_global, "(");
-							*placeholder = '\0';
-							%{}{{ source_global }}({{ config->global_names.cursor }}{}%
-							%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }}{}%
-							%{},"{{ table_name }}"{}%
-							%{},"{{ key_column->columnName->v.value->v.string_literal }}")){}%
-						}
 						%{}){}%
 						if (DELIM_IS_LITERAL == delim[0]) {
 							%{},"{{ &delim[1] }}"{}%
@@ -226,9 +202,6 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 							%{},{{ sql_column->column_number-1|%d }}){}%
 						} else {
 							%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
-						}
-						if (NULL != placeholder) {
-							*placeholder = '(';
 						}
 					}
 				}

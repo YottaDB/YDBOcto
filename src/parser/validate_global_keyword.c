@@ -78,7 +78,12 @@ int validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int ma
 				// to this table. We don't expect to have keys repeated.
 				assert(MAX_KEY_COUNT > key_num);
 				assert(key_num <= max_key);
-				if (key_num != next_key_num) {
+				/* In a column, it's possible for the user to use the keys in a different global; we should not
+				 * enforce any expected order. While it possible for us to check if we are using the same global
+				 * and issue an error in that case, this use case is considered advanced and users can debug
+				 * their own column key resolution in that case rather than us issuing the error.
+				 */
+				if (is_table && (key_num != next_key_num)) {
 					ERROR(ERR_GLOBAL_KEY_COLS_ORDER, "");
 					return -1;
 				}

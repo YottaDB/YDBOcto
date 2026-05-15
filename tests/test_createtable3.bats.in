@@ -281,9 +281,9 @@ teardown() {
 	verify_output TC081 output.txt
 }
 
-@test "TC082 : OCTO1107 : ERR_GLOBAL_MISSING_KEY_COLS incorrectly issued with COLUMN globals" {
+@test "TC082 : OCTO1107 : ERR_GLOBAL_MISSING_KEY_COLS/ERR_GLOBAL_KEY_COLS_ORDER incorrectly issued with COLUMN globals" {
 	# Set up test data in the ^test global
-	$ydb_dist/yottadb -run %XCMD 'set ^test(1)="one",^test(1,1)="two"'
+	$ydb_dist/yottadb -run %XCMD 'set ^test(1)="a",^test(1,2)="b",^test2(2)="c"'
 	load_fixture TC082.sql subtest novv
 	verify_output TC082 output.txt
 }

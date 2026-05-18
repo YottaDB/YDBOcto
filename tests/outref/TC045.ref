@@ -29,7 +29,7 @@ CREATE TABLE
 ^%ydboctoschema("mytblreadonly6","text",0)="CREATE TABLE `mytblreadonly6` (`id` INTEGER CONSTRAINT ""mytblreadonly6_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoD37VDMuTJElVUtvo93nJeFH(keys(""""id""""))"" DELIM ""|"" READONLY;"
 ^%ydboctoschema("mytblreadonly7","text",0)="CREATE TABLE `mytblreadonly7` (`id` INTEGER CONSTRAINT ""mytblreadonly7_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDrshHMqPPntsLA1x0obLaJF(keys(""""id""""))"" DELIM ""|"" READWRITE;"
 ^%ydboctoschema("mytblreadonly8","text",0)="CREATE TABLE `mytblreadonly8` (`id` INTEGER CONSTRAINT ""mytblreadonly8_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDDPwVJKRojlZJ34IUtxBc3A(keys(""""id""""))"" DELIM ""|"" READONLY;"
-^%ydboctoschema("mytblreadonly9","text",0)="CREATE TABLE `mytblreadonly9` (`id` INTEGER, `id2` INTEGER, `firstname` VARCHAR(10) NOT NULL CONSTRAINT ""mytblreadonly9_firstname_key"" UNIQUE DELIM """",  CONSTRAINT ""mytblreadonly9_pkey"" PRIMARY KEY (id, id2)) GLOBAL ""^%ydboctoD7UYtuROkfr6PyOjsbWc0IH(keys(""""id""""),keys(""""id2""""))"" DELIM ""#"" READWRITE;"
+^%ydboctoschema("mytblreadonly9","text",0)="CREATE TABLE `mytblreadonly9` (`id` INTEGER, `id2` INTEGER, `firstname` VARCHAR(10) NOT NULL CONSTRAINT ""mytblreadonly9_firstname_key"" UNIQUE PIECE 1,  CONSTRAINT ""mytblreadonly9_pkey"" PRIMARY KEY (id, id2)) GLOBAL ""^%ydboctoD7UYtuROkfr6PyOjsbWc0IH(keys(""""id""""),keys(""""id2""""))"" DELIM ""#"" READWRITE;"
 # ----------------------------------
 # Test of [tabletype = "READWRITE"]
 # ----------------------------------
@@ -50,7 +50,7 @@ CREATE TABLE
 ^%ydboctoschema("mytblreadwrite6","text",0)="CREATE TABLE `mytblreadwrite6` (`id` INTEGER CONSTRAINT ""mytblreadwrite6_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDB6qhVlx7sIvCGoQY0CxkJE(keys(""""id""""))"" DELIM ""|"" READONLY;"
 ^%ydboctoschema("mytblreadwrite7","text",0)="CREATE TABLE `mytblreadwrite7` (`id` INTEGER CONSTRAINT ""mytblreadwrite7_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoD1yfUETJpPzxF3pabyjSH22(keys(""""id""""))"" DELIM ""|"" READWRITE;"
 ^%ydboctoschema("mytblreadwrite8","text",0)="CREATE TABLE `mytblreadwrite8` (`id` INTEGER CONSTRAINT ""mytblreadwrite8_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDatyjNVIwscDqoOBTDahG96(keys(""""id""""))"" DELIM ""|"" READWRITE;"
-^%ydboctoschema("mytblreadwrite9","text",0)="CREATE TABLE `mytblreadwrite9` (`id` INTEGER, `id2` INTEGER, `firstname` VARCHAR(10) NOT NULL CONSTRAINT ""mytblreadwrite9_firstname_key"" UNIQUE DELIM """",  CONSTRAINT ""mytblreadwrite9_pkey"" PRIMARY KEY (id, id2)) GLOBAL ""^%ydboctoDYbo5ufALFpPRkfUzkJcbG0(keys(""""id""""),keys(""""id2""""))"" DELIM ""#"" READWRITE;"
+^%ydboctoschema("mytblreadwrite9","text",0)="CREATE TABLE `mytblreadwrite9` (`id` INTEGER, `id2` INTEGER, `firstname` VARCHAR(10) NOT NULL CONSTRAINT ""mytblreadwrite9_firstname_key"" UNIQUE PIECE 1,  CONSTRAINT ""mytblreadwrite9_pkey"" PRIMARY KEY (id, id2)) GLOBAL ""^%ydboctoDYbo5ufALFpPRkfUzkJcbG0(keys(""""id""""),keys(""""id2""""))"" DELIM ""#"" READWRITE;"
 # ----------------------------------
 # Test of [tabletype = "UNSPECIFIED"]
 # ----------------------------------
@@ -71,4 +71,4 @@ CREATE TABLE
 ^%ydboctoschema("mytblunspecified6","text",0)="CREATE TABLE `mytblunspecified6` (`id` INTEGER CONSTRAINT ""mytblunspecified6_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDn25uDX1yzRNXBECk52sbHJ(keys(""""id""""))"" DELIM ""|"" READONLY;"
 ^%ydboctoschema("mytblunspecified7","text",0)="CREATE TABLE `mytblunspecified7` (`id` INTEGER CONSTRAINT ""mytblunspecified7_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDEzjYbWm5fPa0PwNTDTiQ9C(keys(""""id""""))"" DELIM ""|"" READWRITE;"
 ^%ydboctoschema("mytblunspecified8","text",0)="CREATE TABLE `mytblunspecified8` (`id` INTEGER CONSTRAINT ""mytblunspecified8_pkey"" PRIMARY KEY) GLOBAL ""^%ydboctoDZB0p6ZTBLieWQKw3oDJcA3(keys(""""id""""))"" DELIM ""|"" READWRITE;"
-^%ydboctoschema("mytblunspecified9","text",0)="CREATE TABLE `mytblunspecified9` (`id` INTEGER, `id2` INTEGER, `firstname` VARCHAR(10) NOT NULL CONSTRAINT ""mytblunspecified9_firstname_key"" UNIQUE DELIM """",  CONSTRAINT ""mytblunspecified9_pkey"" PRIMARY KEY (id, id2)) GLOBAL ""^%ydboctoDOQSwER8GvpHYJoGWWWDyIA(keys(""""id""""),keys(""""id2""""))"" DELIM ""#"" READWRITE;"
+^%ydboctoschema("mytblunspecified9","text",0)="CREATE TABLE `mytblunspecified9` (`id` INTEGER, `id2` INTEGER, `firstname` VARCHAR(10) NOT NULL CONSTRAINT ""mytblunspecified9_firstname_key"" UNIQUE PIECE 1,  CONSTRAINT ""mytblunspecified9_pkey"" PRIMARY KEY (id, id2)) GLOBAL ""^%ydboctoDOQSwER8GvpHYJoGWWWDyIA(keys(""""id""""),keys(""""id2""""))"" DELIM ""#"" READWRITE;"

@@ -1599,13 +1599,77 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 	}
 	assert(0 <= max_key);
 	/****************************************************************************
+	 * Pre-pass: if the table ends up with exactly one non-key column, record whether the user
+	 * explicitly specified PIECE or a non-empty column-level DELIM on that column. Used below
+	 * to guard the "1 == num_non_key_columns" DELIM "" optimization so it does not silently
+	 * strip user-specified keywords. See YDBOcto#1117.
+	 *
+	 * This loops needs to come before the next loop (see "ASSIGN PIECE LOOP" marker) to see
+	 * if any PIECE/DELIM was specified by the user. The next loop will auto-assign the
+	 * PIECE/DELIM if the user didn't specify them, and we won't know anymore after it if
+	 * the PIECE/DELIM was assigned by us or by the user.
+	 ****************************************************************************
+	 */
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	boolean_t user_piece_on_only_non_key_column = FALSE;
+	boolean_t user_nonempty_delim_on_only_non_key_column = FALSE;
+	{
+		int	   non_key_column_count = 0;
+		SqlColumn *single_non_key_column = NULL;
+		do {
+			if ((NULL != cur_column->columnName) && !IS_KEY_COLUMN(cur_column)) {
+				if (0 == non_key_column_count) {
+					single_non_key_column = cur_column;
+				}
+				non_key_column_count++;
+			}
+			cur_column = cur_column->next;
+		} while (cur_column != start_column);
+		if (1 == non_key_column_count) {
+			SqlOptionalKeyword *piece_keyword, *column_delim_keyword;
+			SqlStatement	   *effective_delim_value = NULL;
+
+			piece_keyword = get_keyword(single_non_key_column, OPTIONAL_PIECE);
+			if (NULL != piece_keyword) {
+				user_piece_on_only_non_key_column = TRUE;
+			}
+			/* A column-level DELIM (if any) overrides the table-level DELIM. Use the column-level
+			 * value when present; otherwise fall back to the table-level value. Either source counts
+			 * as user-specified.
+			 */
+			column_delim_keyword = get_keyword(single_non_key_column, OPTIONAL_DELIM);
+			if (NULL != column_delim_keyword) {
+				effective_delim_value = column_delim_keyword->v;
+			} else if (NULL != table->delim) {
+				effective_delim_value = table->delim->v.keyword->v;
+			}
+			if (NULL != effective_delim_value) {
+				SqlValue *delim_value;
+				char	 *delim_buf, delim_kind;
+
+				UNPACK_SQL_STATEMENT(delim_value, effective_delim_value, value);
+				delim_buf = delim_value->v.reference;
+				delim_kind = *delim_buf;
+				assert((DELIM_IS_DOLLAR_CHAR == delim_kind) || (DELIM_IS_LITERAL == delim_kind));
+				if (DELIM_IS_LITERAL == delim_kind) {
+					if ('\0' != *(delim_buf + 1)) {
+						user_nonempty_delim_on_only_non_key_column = TRUE;
+					}
+				} else {
+					user_nonempty_delim_on_only_non_key_column = TRUE;
+				}
+			}
+		}
+	}
+	/****************************************************************************
+	 * ASSIGN PIECE LOOP
+	 *
 	 * Assign column PIECE numbers to non-key columns if not explicitly specified.
 	 * Also assign "column_number" to all columns (key or non-key). Later used by hash_canonical_query.
 	 * This is safe to do now that all key columns (if any) have been determined at this point.
 	 ****************************************************************************
 	 */
-	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-	cur_column = start_column;
 	column_number = 0;
 	piece_number = 1;
 	dependencies = NULL;
@@ -1994,11 +2058,15 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		}
 		cur_column = cur_column->next;
 	} while (cur_column != start_column);
-	if (1 == num_non_key_columns) {
+	if ((1 == num_non_key_columns) && !user_piece_on_only_non_key_column && !user_nonempty_delim_on_only_non_key_column) {
 		/* Only one non-key column in the table. If so, check if column-level PIECE number (if any specified) is 1
 		 * and if column-level GLOBAL keyword is not specified.  If so remove any column-level DELIM (if specified)
 		 * and instead add a new column-level DELIM "" keyword. This will ensure no $PIECE gets generated in physical
 		 * plan to extract this column (small optimization).
+		 *
+		 * Skip this optimization if the user explicitly specified PIECE or a non-empty column-level DELIM
+		 * on that column. Otherwise the user's intent (extract one piece of a multi-piece global value) is
+		 * silently lost. See YDBOcto#1117.
 		 */
 		SqlOptionalKeyword *global_keyword;
 

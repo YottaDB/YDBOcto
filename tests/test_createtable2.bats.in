@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -314,6 +314,8 @@ OCTO
 }
 
 @test "TC046 : OCTO502 : Allow READWRITE table with column-level DELIM of \"\" if there is only 1 non-primary-key column" {
+	# Populate ^test for the YDBOcto#1117 subtests appended to TC046.sql.
+	$ydb_dist/yottadb -run %XCMD 'set ^test(1)="abc`def`ghi",^test(2)="xyz`123"'
 	load_fixture TC046.sql subtest novv
 	verify_output TC046 output.txt
 }

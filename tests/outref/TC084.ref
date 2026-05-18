@@ -1,0 +1,1111 @@
+# TC084-S0 : Baseline -- no SKIP/SKIPCONDITION; shows the full ^skiptest contents
+-- Baseline: maps ^skiptest with no SKIP/SKIPCONDITION so we see the unfiltered data.
+CREATE TABLE skiptest_s0 (
+  id VARCHAR(16) PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+SELECT * FROM skiptest_s0 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s0 (
+  id VARCHAR(16) PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s0 ORDER BY id;
+id|name
+1|one
+100|hundred
+101|hundred-one
+2|two
+200|two-hundred
+99|ninety-nine
+A|a
+B|b
+C|c
+x,y|xy
+(10 rows)
+OCTO> 
+
+# TC084-S1 : SKIP keyword drops listed numeric subscripts
+CREATE TABLE skiptest_s1 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIP '99,100,101',
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s1 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s1 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIP '99,100,101',
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s1 ORDER BY id;
+id|name
+1|one
+2|two
+200|two-hundred
+(3 rows)
+OCTO> 
+
+# TC084-S2 : SKIP with quoted alphabetic values
+-- SKIP with quoted alphabetic values: skip subscripts "A" and "B" (string literals).
+CREATE TABLE skiptest_s2 (
+  id VARCHAR(16) PRIMARY KEY SKIP '"A","B"',
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+SELECT * FROM skiptest_s2 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s2 (
+  id VARCHAR(16) PRIMARY KEY SKIP '"A","B"',
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s2 ORDER BY id;
+id|name
+1|one
+100|hundred
+101|hundred-one
+2|two
+200|two-hundred
+99|ninety-nine
+C|c
+x,y|xy
+(8 rows)
+OCTO> 
+
+# TC084-S3 : SKIP value contains a comma inside double quotes; comma must NOT be treated as a separator
+-- Quote-aware comma parsing: the comma inside "x,y" must NOT be treated as a
+-- list separator. The list below has two elements: "x,y" and "C".
+CREATE TABLE skiptest_s3 (
+  id VARCHAR(16) PRIMARY KEY SKIP '"x,y","C"',
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+SELECT * FROM skiptest_s3 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s3 (
+  id VARCHAR(16) PRIMARY KEY SKIP '"x,y","C"',
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s3 ORDER BY id;
+id|name
+1|one
+100|hundred
+101|hundred-one
+2|two
+200|two-hundred
+99|ninety-nine
+A|a
+B|b
+(8 rows)
+OCTO> 
+
+# TC084-S4 : SKIPCONDITION uses an M pattern match to keep only numeric subscripts
+CREATE TABLE skiptest_s4 (
+  id VARCHAR(16) PRIMARY KEY SKIPCONDITION "keys(""id"")'?1N.N",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s4 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s4 (
+  id VARCHAR(16) PRIMARY KEY SKIPCONDITION "keys(""id"")'?1N.N",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s4 ORDER BY id;
+id|name
+1|one
+100|hundred
+101|hundred-one
+2|two
+200|two-hundred
+99|ninety-nine
+(6 rows)
+OCTO> 
+
+# TC084-S5 : SKIPCONDITION uses keys() to reference the key column
+CREATE TABLE skiptest_s5 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIPCONDITION "(keys(""id"")>50)&(keys(""id"")<200)",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s5 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s5 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIPCONDITION "(keys(""id"")>50)&(keys(""id"")<200)",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s5 ORDER BY id;
+id|name
+1|one
+2|two
+200|two-hundred
+(3 rows)
+OCTO> 
+
+# TC084-S6 : SKIP and SKIPCONDITION combined on the same column
+CREATE TABLE skiptest_s6 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIP '99' SKIPCONDITION "keys(""id"")=100",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s6 ORDER BY id;
+OCTO> CREATE TABLE skiptest_s6 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIP '99' SKIPCONDITION "keys(""id"")=100",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s6 ORDER BY id;
+id|name
+1|one
+2|two
+101|hundred-one
+200|two-hundred
+(4 rows)
+OCTO> 
+
+# TC084-S7 : SKIP and SKIPCONDITION values are arbitrary M expressions, not just literals
+-- SKIP and SKIPCONDITION accept arbitrary M expressions (not just literals).
+-- The codegen for SKIP emits each comma-separated piece verbatim inside
+-- $SELECT(<key>=<piece>:1,...); the codegen for SKIPCONDITION emits the
+-- expression verbatim inside QUIT:(<expr>) after keys(...) substitution --
+-- so any valid M expression is honored at runtime.
+--
+-- Uses the shared ^skiptest seed:
+--   1, 2, 99, 100, 101, 200, "A", "B", "C", "x,y".
+--
+-- SKIP "$LENGTH(""ab"")" evaluates to 2 at runtime, so the subscript whose
+-- string value equals 2 (i.e. id=2) is dropped.  The first SELECT proves
+-- that SKIP'd value is computed by M, not parsed by Octo.
+CREATE TABLE skiptest_s7a (
+  id VARCHAR(8) PRIMARY KEY SKIP "$LENGTH(""ab"")",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s7a ORDER BY id;
+
+-- SKIPCONDITION "$LENGTH(keys(""id""))>2" -- arbitrary M boolean expression
+-- referencing the key column.  M $LENGTH of the subscript value is computed
+-- per row; rows with subscript length > 2 are dropped.  Of the ten seed
+-- subscripts, the three-character ones ("100", "101", "200", "x,y") are
+-- filtered out, leaving 1, 2, 99, "A", "B", "C".
+CREATE TABLE skiptest_s7b (
+  id VARCHAR(8) PRIMARY KEY SKIPCONDITION "$LENGTH(keys(""id""))>2",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s7b ORDER BY id;
+
+-- Combined: SKIP value is a parenthesized M arithmetic expression and
+-- SKIPCONDITION is a comparison against $LENGTH of another M expression.
+-- Confirms the two filters compose when each is an M expression rather
+-- than a literal.  Note the parentheses around the SKIP expression --
+-- because the SKIP piece is emitted verbatim on the right-hand side of
+-- "<key>=<piece>", M's strict left-to-right evaluation would otherwise
+-- bind the "=" before the trailing arithmetic.  The "1+1" form below
+-- evaluates to 2 at runtime so the row with id=2 is dropped.  The
+-- SKIPCONDITION additionally drops the four three-character subscripts
+-- ("100", "101", "200", "x,y"), leaving 1, 99, "A", "B", "C".
+CREATE TABLE skiptest_s7c (
+  id VARCHAR(8) PRIMARY KEY SKIP "(1+1)" SKIPCONDITION "$LENGTH(keys(""id""))>2",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s7c ORDER BY id;
+OCTO> --
+--
+CREATE TABLE skiptest_s7a (
+  id VARCHAR(8) PRIMARY KEY SKIP "$LENGTH(""ab"")",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s7a ORDER BY id;
+id|name
+1|one
+100|hundred
+101|hundred-one
+200|two-hundred
+99|ninety-nine
+A|a
+B|b
+C|c
+x,y|xy
+(9 rows)
+OCTO> CREATE TABLE skiptest_s7b (
+  id VARCHAR(8) PRIMARY KEY SKIPCONDITION "$LENGTH(keys(""id""))>2",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s7b ORDER BY id;
+id|name
+1|one
+2|two
+99|ninety-nine
+A|a
+B|b
+C|c
+(6 rows)
+OCTO> CREATE TABLE skiptest_s7c (
+  id VARCHAR(8) PRIMARY KEY SKIP "(1+1)" SKIPCONDITION "$LENGTH(keys(""id""))>2",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_s7c ORDER BY id;
+id|name
+1|one
+99|ninety-nine
+A|a
+B|b
+C|c
+(5 rows)
+OCTO> 
+
+# TC084-M0 : Multi-level baseline -- composite key, no SKIP/SKIPCONDITION; shows full ^skiptestmulti
+-- Multi-level baseline: composite PRIMARY KEY, no SKIP/SKIPCONDITION.
+-- Shows the full ^skiptestmulti contents that TC084-M1..12 will filter.
+CREATE TABLE skiptest_m0 (
+  region VARCHAR(8)  PRIMARY KEY,
+  id     INTEGER     KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+SELECT * FROM skiptest_m0 ORDER BY region, id;
+OCTO> CREATE TABLE skiptest_m0 (
+  region VARCHAR(8)  PRIMARY KEY,
+  id     INTEGER     KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_m0 ORDER BY region, id;
+region|id|name
+east|1|east-one
+east|2|east-two
+west|1|west-one
+west|2|west-two
+west|3|west-three
+(5 rows)
+OCTO> 
+
+# TC084-M1 : Multi-level SKIP on outer key (drops the "east" region)
+-- Multi-level SKIP: drop the "east" region; both id rows under it disappear.
+CREATE TABLE skiptest_m1 (
+  region VARCHAR(8)  PRIMARY KEY SKIP '"east"',
+  id     INTEGER     KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+SELECT * FROM skiptest_m1 ORDER BY region, id;
+OCTO> CREATE TABLE skiptest_m1 (
+  region VARCHAR(8)  PRIMARY KEY SKIP '"east"',
+  id     INTEGER     KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_m1 ORDER BY region, id;
+region|id|name
+west|1|west-one
+west|2|west-two
+west|3|west-three
+(3 rows)
+OCTO> 
+
+# TC084-M2 : Multi-level SKIPCONDITION on inner key (drops id=2 rows under every region)
+-- Multi-level SKIPCONDITION: drop any row where the inner id equals 2.
+CREATE TABLE skiptest_m2 (
+  region VARCHAR(8)  PRIMARY KEY,
+  id     INTEGER     KEY NUM 1 SKIPCONDITION "keys(""id"")=2",
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+SELECT * FROM skiptest_m2 ORDER BY region, id;
+OCTO> CREATE TABLE skiptest_m2 (
+  region VARCHAR(8)  PRIMARY KEY,
+  id     INTEGER     KEY NUM 1 SKIPCONDITION "keys(""id"")=2",
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_m2 ORDER BY region, id;
+region|id|name
+east|1|east-one
+west|1|west-one
+west|3|west-three
+(3 rows)
+OCTO> 
+
+# TC084-M3 : Multi-level SKIP + SKIPCONDITION combined; QUIT emitted at each nested FOR-DO depth
+-- Multi-level SKIP + SKIPCONDITION combined: drop "east" region at the outer
+-- loop AND any inner id=2 at the inner loop. The codegen emits a QUIT line in
+-- each nested FOR-DO body at its own dot depth.
+CREATE TABLE skiptest_m3 (
+  region VARCHAR(8)  PRIMARY KEY SKIP '"east"',
+  id     INTEGER     KEY NUM 1 SKIPCONDITION "keys(""id"")=2",
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+SELECT * FROM skiptest_m3 ORDER BY region, id;
+OCTO> CREATE TABLE skiptest_m3 (
+  region VARCHAR(8)  PRIMARY KEY SKIP '"east"',
+  id     INTEGER     KEY NUM 1 SKIPCONDITION "keys(""id"")=2",
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_m3 ORDER BY region, id;
+region|id|name
+west|1|west-one
+west|3|west-three
+(2 rows)
+OCTO> 
+
+# TC084-W0 : SELECT WHERE on a SKIP-filtered table (WHERE + SKIP coexist)
+-- WHERE on a SKIP-filtered table. The planner may push the WHERE down into
+-- the FOR-loop's QUIT condition; we want to confirm SKIP's QUIT line and the
+-- WHERE filter coexist without interfering. Targets skiptest_s1 (SKIP 99,100,101).
+SELECT * FROM skiptest_s1 WHERE id = 2 ORDER BY id;
+SELECT * FROM skiptest_s1 WHERE id = 99 ORDER BY id;
+SELECT * FROM skiptest_s1 WHERE id > 50 ORDER BY id;
+OCTO> SELECT * FROM skiptest_s1 WHERE id = 2 ORDER BY id;
+id|name
+2|two
+(1 row)
+OCTO> SELECT * FROM skiptest_s1 WHERE id = 99 ORDER BY id;
+id|name
+(0 rows)
+OCTO> SELECT * FROM skiptest_s1 WHERE id > 50 ORDER BY id;
+id|name
+200|two-hundred
+(1 row)
+OCTO> 
+
+# TC084-W1 : SELECT WHERE on a SKIPCONDITION-filtered table (WHERE + SKIPCONDITION coexist)
+-- WHERE on a SKIPCONDITION-filtered table. The SKIPCONDITION drops the
+-- 50<id<200 range; the WHERE narrows further. Targets skiptest_s5.
+SELECT * FROM skiptest_s5 WHERE id = 200 ORDER BY id;
+SELECT * FROM skiptest_s5 WHERE id < 100 ORDER BY id;
+SELECT * FROM skiptest_s5 WHERE id BETWEEN 1 AND 100 ORDER BY id;
+OCTO> SELECT * FROM skiptest_s5 WHERE id = 200 ORDER BY id;
+id|name
+200|two-hundred
+(1 row)
+OCTO> SELECT * FROM skiptest_s5 WHERE id < 100 ORDER BY id;
+id|name
+1|one
+2|two
+(2 rows)
+OCTO> SELECT * FROM skiptest_s5 WHERE id BETWEEN 1 AND 100 ORDER BY id;
+id|name
+1|one
+2|two
+(2 rows)
+OCTO> 
+
+# TC084-W2 : SELECT WHERE on a multi-level SKIP+SKIPCONDITION table
+-- WHERE on a multi-level SKIP+SKIPCONDITION table. Both keys are filtered by
+-- the table definition and by the WHERE clause simultaneously. Targets
+-- skiptest_m3 (outer SKIP "east", inner SKIPCONDITION id=2).
+SELECT * FROM skiptest_m3 WHERE region = 'west' ORDER BY region, id;
+SELECT * FROM skiptest_m3 WHERE id > 1 ORDER BY region, id;
+SELECT * FROM skiptest_m3 WHERE region = 'west' AND id = 3 ORDER BY region, id;
+SELECT * FROM skiptest_m3 WHERE region = 'east' ORDER BY region, id;
+OCTO> SELECT * FROM skiptest_m3 WHERE region = 'west' ORDER BY region, id;
+region|id|name
+west|1|west-one
+west|3|west-three
+(2 rows)
+OCTO> SELECT * FROM skiptest_m3 WHERE id > 1 ORDER BY region, id;
+region|id|name
+west|3|west-three
+(1 row)
+OCTO> SELECT * FROM skiptest_m3 WHERE region = 'west' AND id = 3 ORDER BY region, id;
+region|id|name
+west|3|west-three
+(1 row)
+OCTO> SELECT * FROM skiptest_m3 WHERE region = 'east' ORDER BY region, id;
+region|id|name
+(0 rows)
+OCTO> 
+
+# TC084-J0 : INNER / LEFT / RIGHT / FULL JOIN with a SKIP-filtered table
+-- JOIN coverage. skiptest_s1 has SKIP '99,100,101' (single-level numeric range
+-- 0..$CHAR(0)) so its visible rows are {1, 2, 200}. skipref is an unfiltered
+-- helper table whose row set is {1, 2, 3, 99, 200}. The expected JOIN behavior
+-- below verifies that the SKIP-filter is honored on each side of every JOIN
+-- shape: rows the planner has dropped because of SKIP must not surface as
+-- inner-side matches, nor as non-NULL rows in OUTER JOIN output.
+CREATE TABLE skipref (id INTEGER PRIMARY KEY, label VARCHAR(16)) GLOBAL "^skipref" READONLY;
+
+-- Baseline rows of each table, shown so the JOIN reasoning below is verifiable
+-- without having to mentally re-apply the SKIP filter.
+-- skipref has no filter; rows {1, 2, 3, 99, 200}.
+SELECT * FROM skipref ORDER BY id;
+-- skiptest_s1 has SKIP '99,100,101' over numeric range 0..$CHAR(0); rows {1, 2, 200}.
+SELECT * FROM skiptest_s1 ORDER BY id;
+
+-- INNER JOIN: only rows present on both sides; expect {1, 2, 200}.
+SELECT skipref.id, skipref.label, skiptest_s1.name
+  FROM skipref INNER JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skipref.id;
+
+-- LEFT JOIN (skipref <- skiptest_s1): all rows of skipref; right side NULL where
+-- skiptest_s1 drops/lacks the id. Expect 99 to have NULL name (filtered out).
+SELECT skipref.id, skipref.label, skiptest_s1.name
+  FROM skipref LEFT JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skipref.id;
+
+-- RIGHT JOIN: all rows of skiptest_s1; left side NULL where skipref lacks the id.
+-- skiptest_s1 yields {1, 2, 200}; all are present in skipref.
+SELECT skipref.id, skipref.label, skiptest_s1.name
+  FROM skipref RIGHT JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skiptest_s1.id;
+
+-- FULL JOIN: union of both sides with NULLs on unmatched. Expect 99 with NULL
+-- name, and any skiptest_s1-only ids with NULL label.
+SELECT skipref.id, skipref.label, skiptest_s1.id, skiptest_s1.name
+  FROM skipref FULL JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skipref.id, skiptest_s1.id;
+OCTO> CREATE TABLE skipref (id INTEGER PRIMARY KEY, label VARCHAR(16)) GLOBAL "^skipref" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skipref ORDER BY id;
+id|label
+1|alpha
+2|beta
+3|gamma
+99|ninety9
+200|twohundred
+(5 rows)
+OCTO> SELECT * FROM skiptest_s1 ORDER BY id;
+id|name
+1|one
+2|two
+200|two-hundred
+(3 rows)
+OCTO> SELECT skipref.id, skipref.label, skiptest_s1.name
+  FROM skipref INNER JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skipref.id;
+id|label|name
+1|alpha|one
+2|beta|two
+200|twohundred|two-hundred
+(3 rows)
+OCTO> SELECT skipref.id, skipref.label, skiptest_s1.name
+  FROM skipref LEFT JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skipref.id;
+id|label|name
+1|alpha|one
+2|beta|two
+3|gamma|
+99|ninety9|
+200|twohundred|two-hundred
+(5 rows)
+OCTO> SELECT skipref.id, skipref.label, skiptest_s1.name
+  FROM skipref RIGHT JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skiptest_s1.id;
+id|label|name
+1|alpha|one
+2|beta|two
+200|twohundred|two-hundred
+(3 rows)
+OCTO> SELECT skipref.id, skipref.label, skiptest_s1.id, skiptest_s1.name
+  FROM skipref FULL JOIN skiptest_s1 ON skipref.id = skiptest_s1.id
+  ORDER BY skipref.id, skiptest_s1.id;
+id|label|id|name
+1|alpha|1|one
+2|beta|2|two
+3|gamma||
+99|ninety9||
+200|twohundred|200|two-hundred
+(5 rows)
+OCTO> 
+
+# ^skipmax raw seed (used by TC084-MAX0/MAX1, TC084-AIM0/AIM1/AIM2, TC084-AIMW0/AIMW1)
+-- Show the raw, unfiltered contents of ^skipmax (used by TC084-MAX0, TC084-MAX1,
+-- TC084-AIM0, TC084-AIM1, TC084-AIM2, TC084-AIMW0, and TC084-AIMW1).
+-- Each fixture below maps a SKIP'd or SKIPCONDITION'd subset of these rows --
+-- comparing this listing to the SELECT * inside each subsequent fixture makes
+-- the effect of SKIP / SKIPCONDITION easy to see in code review.
+CREATE TABLE skipmax_show (
+  id   INTEGER PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skipmax" READONLY;
+SELECT * FROM skipmax_show ORDER BY id;
+DROP TABLE skipmax_show;
+OCTO> CREATE TABLE skipmax_show (
+  id   INTEGER PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skipmax" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skipmax_show ORDER BY id;
+id|name
+1|apple
+2|banana
+50|cherry
+99|zebra
+100|yam
+(5 rows)
+OCTO> DROP TABLE skipmax_show;
+DROP TABLE
+OCTO> 
+
+# TC084-MAX0 : YDBOcto#617 MAX/MIN on the key column honors SKIP
+-- The YDBOcto#617 MAX/MIN optimization replaces the FOR-loop scan with a single
+-- $ORDER call. Without the OCTO1109 fix to tmpl_tablejoin_octo617_optimize, that
+-- single call lands on a SKIP-filtered subscript silently and returns it as the
+-- MAX/MIN. The codegen now wraps that $ORDER in a re-ordering FOR that walks
+-- past SKIP'd values, so MAX/MIN honor SKIP.
+--
+-- ^skipmax is seeded with 5 numeric subscripts {1,2,50,99,100}. SKIP '50,99,100'
+-- removes the upper three rows, leaving {1, 2}. So MAX(id) must be 2 and MIN(id)
+-- must be 1 -- two distinct values, so a buggy implementation that returns the
+-- pre-SKIP MAX of 100 cannot pass the test by accident.
+CREATE TABLE skiptest_max0 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100',
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_max0 ORDER BY id;
+SELECT max(id) FROM skiptest_max0;
+SELECT min(id) FROM skiptest_max0;
+SELECT max(id), min(id) FROM skiptest_max0;
+OCTO> --
+CREATE TABLE skiptest_max0 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100',
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_max0 ORDER BY id;
+id|name
+1|apple
+2|banana
+(2 rows)
+OCTO> SELECT max(id) FROM skiptest_max0;
+max
+2
+(1 row)
+OCTO> SELECT min(id) FROM skiptest_max0;
+min
+1
+(1 row)
+OCTO> SELECT max(id), min(id) FROM skiptest_max0;
+max|min
+2|1
+(1 row)
+OCTO> 
+
+# TC084-MAX1 : YDBOcto#617 MAX/MIN on the key column honors SKIPCONDITION
+-- Same as TC084-MAX0 but uses SKIPCONDITION instead of SKIP. SKIPCONDITION skips
+-- numeric subscripts > 2, so after filtering only rows {1, 2} remain. MAX(id)
+-- must be 2 and MIN(id) must be 1 -- pre-SKIP MAX would be 100, so this is a
+-- meaningful regression check.
+CREATE TABLE skiptest_max1 (
+  id   INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>2",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_max1 ORDER BY id;
+SELECT max(id) FROM skiptest_max1;
+SELECT min(id) FROM skiptest_max1;
+SELECT max(id), min(id) FROM skiptest_max1;
+OCTO> CREATE TABLE skiptest_max1 (
+  id   INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>2",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_max1 ORDER BY id;
+id|name
+1|apple
+2|banana
+(2 rows)
+OCTO> SELECT max(id) FROM skiptest_max1;
+max
+2
+(1 row)
+OCTO> SELECT min(id) FROM skiptest_max1;
+min
+1
+(1 row)
+OCTO> SELECT max(id), min(id) FROM skiptest_max1;
+max|min
+2|1
+(1 row)
+OCTO> 
+
+# TC084-MAX2 : YDBOcto#617 MAX/MIN on the key column honors SKIP + SKIPCONDITION combined
+-- SKIP and SKIPCONDITION combined on the key column, exercised through
+-- YDBOcto#617's key-column MAX/MIN one-shot $ORDER path (not the AIM-xref
+-- path; the AIM-xref path with both filters is exercised separately in
+-- TC084-AIM2 via max(name)/min(name)).  A value is filtered when it appears
+-- in the SKIP list OR matches the SKIPCONDITION predicate -- the OCTO617
+-- loop QUITs only on a value that passes both filters (a "keeper").
+--
+-- ^skipmax = {1, 2, 50, 99, 100}.  SKIP '50' filters {50};
+-- SKIPCONDITION "keys(""id"")>90" filters {99, 100}.  Together they remove
+-- {50, 99, 100}, leaving {1, 2}.  So MAX(id) = 2 and MIN(id) = 1 -- pre-
+-- filter MAX(id) = 100, so the MAX result is the distinctive proof that
+-- both filter forms are being applied (an implementation that honored only
+-- SKIP would still return 100; one that honored only SKIPCONDITION would
+-- return 50; only the correct combined behavior returns 2).
+CREATE TABLE skiptest_max2 (
+  id   INTEGER PRIMARY KEY SKIP '50' SKIPCONDITION "keys(""id"")>90",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_max2 ORDER BY id;
+SELECT max(id) FROM skiptest_max2;
+SELECT min(id) FROM skiptest_max2;
+SELECT max(id), min(id) FROM skiptest_max2;
+OCTO> --
+CREATE TABLE skiptest_max2 (
+  id   INTEGER PRIMARY KEY SKIP '50' SKIPCONDITION "keys(""id"")>90",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_max2 ORDER BY id;
+id|name
+1|apple
+2|banana
+(2 rows)
+OCTO> SELECT max(id) FROM skiptest_max2;
+max
+2
+(1 row)
+OCTO> SELECT min(id) FROM skiptest_max2;
+min
+1
+(1 row)
+OCTO> SELECT max(id), min(id) FROM skiptest_max2;
+max|min
+2|1
+(1 row)
+OCTO> 
+
+# TC084-AIM0 : AIM-xref path honors SKIP on the key column
+-- AIM-xref path of YDBOcto#617 optimization: MAX/MIN of a non-key column
+-- automatically activates the AIM cross-reference. The AIM xref still indexes
+-- SKIP-filtered subscripts, so without the OCTO1109 codegen fix the
+-- optimization could return a column value belonging to a SKIP'd row.
+--
+-- ^skipmax is seeded with five rows whose names sort {apple, banana, cherry,
+-- yam, zebra} corresponding to ids {1, 2, 50, 100, 99}. SKIP '50,99,100' filters
+-- out {cherry, yam, zebra}, leaving {1:apple, 2:banana}. So MAX(name) must be
+-- 'banana' and MIN(name) must be 'apple' -- a buggy implementation that ignored
+-- SKIP on the key column would return 'zebra' for MAX, so the two distinct
+-- expected values exercise SKIP filtering in the AIM-xref path.
+CREATE TABLE skiptest_aim0 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100',
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_aim0 ORDER BY id;
+SELECT max(name) FROM skiptest_aim0;
+SELECT min(name) FROM skiptest_aim0;
+OCTO> --
+CREATE TABLE skiptest_aim0 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100',
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aim0 ORDER BY id;
+id|name
+1|apple
+2|banana
+(2 rows)
+OCTO> SELECT max(name) FROM skiptest_aim0;
+max
+banana
+(1 row)
+OCTO> SELECT min(name) FROM skiptest_aim0;
+min
+apple
+(1 row)
+OCTO> 
+
+# TC084-AIM1 : AIM-xref path honors SKIPCONDITION on the key column
+-- AIM-xref path of YDBOcto#617 optimization combined with SKIPCONDITION (not
+-- just SKIP). The key column's LVN is the walking variable of the AIM inner
+-- FOR, so the keys("id") substitution inside the SKIPCONDITION expression
+-- naturally reads the candidate AIM key being tested on each iteration --
+-- no extra "SET <key-col-lvn>=<aim-iterator>" command is needed.
+-- The user-supplied condition is "keys(""id"")>2" -- with
+-- ^skipmax = {1:apple, 2:banana, 50:cherry, 99:zebra, 100:yam}, the rows whose
+-- id > 2 are filtered, leaving {1:apple, 2:banana}. Expected: max(name) =
+-- 'banana', min(name) = 'apple'.
+CREATE TABLE skiptest_aim1 (
+  id   INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>2",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_aim1 ORDER BY id;
+SELECT max(name) FROM skiptest_aim1;
+SELECT min(name) FROM skiptest_aim1;
+OCTO> CREATE TABLE skiptest_aim1 (
+  id   INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>2",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aim1 ORDER BY id;
+id|name
+1|apple
+2|banana
+(2 rows)
+OCTO> SELECT max(name) FROM skiptest_aim1;
+max
+banana
+(1 row)
+OCTO> SELECT min(name) FROM skiptest_aim1;
+min
+apple
+(1 row)
+OCTO> 
+
+# TC084-AIM2 : SKIP + SKIPCONDITION combined on key column; exercises the OR-combinator in both the key-column path and the AIM-xref inner FOR
+-- SKIP and SKIPCONDITION combined on the same key column, exercising the
+-- '$SELECT(...,1:0)!(<cond>)' OR-combinator we emit in both the key-column
+-- path and the AIM-xref path of the YDBOcto#617 optimization. SKIP filters
+-- the discrete value 50; SKIPCONDITION filters subscripts > 90 (i.e. 99 and
+-- 100). Together they remove {50, 99, 100} from ^skipmax = {1, 2, 50, 99, 100},
+-- leaving {1:apple, 2:banana}.
+--
+-- max(id)/min(id) exercise the key-column path; max(name)/min(name) exercise
+-- the AIM-xref path. Both must apply the same combined filter.
+CREATE TABLE skiptest_aim2 (
+  id   INTEGER PRIMARY KEY SKIP '50' SKIPCONDITION "keys(""id"")>90",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_aim2 ORDER BY id;
+SELECT max(id) FROM skiptest_aim2;
+SELECT min(id) FROM skiptest_aim2;
+SELECT max(name) FROM skiptest_aim2;
+SELECT min(name) FROM skiptest_aim2;
+OCTO> --
+CREATE TABLE skiptest_aim2 (
+  id   INTEGER PRIMARY KEY SKIP '50' SKIPCONDITION "keys(""id"")>90",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aim2 ORDER BY id;
+id|name
+1|apple
+2|banana
+(2 rows)
+OCTO> SELECT max(id) FROM skiptest_aim2;
+max
+2
+(1 row)
+OCTO> SELECT min(id) FROM skiptest_aim2;
+min
+1
+(1 row)
+OCTO> SELECT max(name) FROM skiptest_aim2;
+max
+banana
+(1 row)
+OCTO> SELECT min(name) FROM skiptest_aim2;
+min
+apple
+(1 row)
+OCTO> 
+
+# ^skipdupe raw seed (used by TC084-AIM3)
+-- Show the raw, unfiltered contents of ^skipdupe (used by TC084-AIM3).
+-- The shape of this seed -- multiple keys per col_value, two col_values whose
+-- keys are all SKIP'd by TC084-AIM3 -- is what stresses the AIM-xref inner-FOR
+-- and outer-FOR re-ordering.
+CREATE TABLE skipdupe_show (
+  id   INTEGER PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skipdupe" READONLY;
+SELECT * FROM skipdupe_show ORDER BY id;
+DROP TABLE skipdupe_show;
+OCTO> CREATE TABLE skipdupe_show (
+  id   INTEGER PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skipdupe" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skipdupe_show ORDER BY id;
+id|name
+1|apple
+2|apple
+50|cherry
+99|cherry
+100|cherry
+200|zebra
+(6 rows)
+OCTO> DROP TABLE skipdupe_show;
+DROP TABLE
+OCTO> 
+
+# TC084-AIM3 : AIM-xref stress -- multiple SKIP'd keys per col_value, multiple SKIP'd col_values
+-- AIM-xref path stress test: multiple underlying keys per AIM col_value, with
+-- some SKIP'd and some not. The AIM xref for ^skipdupe will have these entries
+-- (one per row, third subscript = underlying id):
+--   ^aim(0,"#apple",1)  ^aim(0,"#apple",2)
+--   ^aim(0,"#cherry",50)  ^aim(0,"#cherry",99)  ^aim(0,"#cherry",100)
+--   ^aim(0,"#zebra",200)
+-- SKIP '50,99,100,200' on id leaves only the two "apple" rows valid.
+--
+-- For MAX(name), the outer FOR starts at "#zebra" (largest col_value); inner
+-- walks key 200, all SKIP'd, falls through; outer re-orders to "#cherry"; inner
+-- walks 50->99->100, all SKIP'd; outer re-orders to "#apple"; inner finds key 1
+-- (non-SKIP'd) and exits. Expected MAX = 'apple'.
+--
+-- This exercises: (1) inner FOR walking past three consecutive SKIP'd keys at
+-- the same col_value, (2) outer FOR re-ordering past two col_values whose every
+-- underlying key is SKIP'd, and (3) the inner FOR exiting with the key
+-- column's LVN reset to "" -- the signal back to the outer FOR that this
+-- col_value is unreachable (the outer FOR's QUIT predicate reads that same
+-- LVN).
+CREATE TABLE skiptest_aim3 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100,200',
+  name VARCHAR(64)
+) GLOBAL "^skipdupe";
+SELECT * FROM skiptest_aim3 ORDER BY id;
+SELECT max(name) FROM skiptest_aim3;
+SELECT min(name) FROM skiptest_aim3;
+OCTO> --
+--
+CREATE TABLE skiptest_aim3 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100,200',
+  name VARCHAR(64)
+) GLOBAL "^skipdupe";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aim3 ORDER BY id;
+id|name
+1|apple
+2|apple
+(2 rows)
+OCTO> SELECT max(name) FROM skiptest_aim3;
+max
+apple
+(1 row)
+OCTO> SELECT min(name) FROM skiptest_aim3;
+min
+apple
+(1 row)
+OCTO> 
+
+# ^skipnull raw seed (used by TC084-AIM4)
+-- Show the raw, unfiltered contents of ^skipnull (used by TC084-AIM4).
+-- Row 2 has an empty `name` -- AIM indexes that under the "#" NULL
+-- representation subscript and the AIM-SKIP loop body's NULL-rep QUIT is
+-- responsible for skipping it during MAX/MIN computation.
+CREATE TABLE skipnull_show (
+  id   INTEGER PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skipnull" READONLY;
+SELECT * FROM skipnull_show ORDER BY id;
+DROP TABLE skipnull_show;
+OCTO> CREATE TABLE skipnull_show (
+  id   INTEGER PRIMARY KEY,
+  name VARCHAR(64)
+) GLOBAL "^skipnull" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM skipnull_show ORDER BY id;
+id|name
+1|apple
+2|
+3|zebra
+(3 rows)
+OCTO> DROP TABLE skipnull_show;
+DROP TABLE
+OCTO> 
+
+# TC084-AIM4 : AIM-xref with a NULL column value (NULL-representation gate)
+-- AIM-xref path with a NULL column value indexed by AIM. ^skipnull is seeded
+-- with rows {1:apple, 2:"", 3:zebra}. Row 2 has an empty name; AIM stores
+-- string columns under the "#"+colvalue subscript, so the empty-name row
+-- ends up under "#" (the AIM NULL representation).  The DO body's
+-- QUIT:""=$$aimsubs2strcolval(%ydboctoexpr) line decodes "#" back to "" and
+-- exits the DO body, leaving the key column's LVN at "" so the outer FOR sees
+-- "no keeper here" and re-orders past this col_value.  This is how the AIM
+-- optimization implements the SQL rule that aggregates ignore NULL.
+--
+-- With SKIP '3' on id, row 3 (zebra) is filtered out. Row 2 has a NULL name
+-- which the AIM NULL-rep QUIT skips. So MAX(name) and MIN(name) should both
+-- return 'apple' (the only row with a non-NULL, non-SKIP'd name).
+CREATE TABLE skiptest_aim4 (
+  id   INTEGER PRIMARY KEY SKIP '3',
+  name VARCHAR(64)
+) GLOBAL "^skipnull";
+SELECT * FROM skiptest_aim4 ORDER BY id;
+SELECT max(name) FROM skiptest_aim4;
+SELECT min(name) FROM skiptest_aim4;
+OCTO> --
+CREATE TABLE skiptest_aim4 (
+  id   INTEGER PRIMARY KEY SKIP '3',
+  name VARCHAR(64)
+) GLOBAL "^skipnull";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aim4 ORDER BY id;
+id|name
+1|apple
+2|
+(2 rows)
+OCTO> SELECT max(name) FROM skiptest_aim4;
+max
+apple
+(1 row)
+OCTO> SELECT min(name) FROM skiptest_aim4;
+min
+apple
+(1 row)
+OCTO> 
+
+# TC084-AIMW0 : AIM-as-row-scan -- SELECT * WHERE non_key_column = <value> on a SKIP-filtered table
+-- AIM-as-row-scan: `SELECT * ... WHERE non_key_column = <value>` activates the
+-- AIM cross-reference to find candidate rows by walking the column index
+-- (rather than scanning the table FOR loop). When SKIP / SKIPCONDITION is set
+-- on the key column, each candidate key the AIM walk surfaces must still be
+-- filtered, or the query returns rows from SKIP'd subscripts via the AIM path.
+--
+-- This is a different code path from TC084-AIM0 / TC084-AIM1 (which exercise
+-- the OCTO617 MAX/MIN one-shot AIM walk).  TC084-AIMW0 exercises AIM as a
+-- row-scan index for a `SELECT *` query with a `WHERE name = ...` predicate.
+--
+-- ^skipmax rows are {1:apple, 2:banana, 50:cherry, 99:zebra, 100:yam} with
+-- SKIP '50,99,100' filtering the upper three ids. So:
+--   WHERE name='apple'  -> matches id=1   -> NOT SKIP'd -> 1 row.
+--   WHERE name='cherry' -> matches id=50  -> SKIP'd     -> 0 rows.
+--   WHERE name='zebra'  -> matches id=99  -> SKIP'd     -> 0 rows.
+--   WHERE name='yam'    -> matches id=100 -> SKIP'd     -> 0 rows.
+--   WHERE name='banana' -> matches id=2   -> NOT SKIP'd -> 1 row.
+CREATE TABLE skiptest_aimw0 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100',
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_aimw0 WHERE name = 'apple' ORDER BY id;
+SELECT * FROM skiptest_aimw0 WHERE name = 'cherry' ORDER BY id;
+SELECT * FROM skiptest_aimw0 WHERE name = 'zebra' ORDER BY id;
+SELECT * FROM skiptest_aimw0 WHERE name = 'yam' ORDER BY id;
+SELECT * FROM skiptest_aimw0 WHERE name = 'banana' ORDER BY id;
+OCTO> --
+--
+CREATE TABLE skiptest_aimw0 (
+  id   INTEGER PRIMARY KEY SKIP '50,99,100',
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aimw0 WHERE name = 'apple' ORDER BY id;
+id|name
+1|apple
+(1 row)
+OCTO> SELECT * FROM skiptest_aimw0 WHERE name = 'cherry' ORDER BY id;
+id|name
+(0 rows)
+OCTO> SELECT * FROM skiptest_aimw0 WHERE name = 'zebra' ORDER BY id;
+id|name
+(0 rows)
+OCTO> SELECT * FROM skiptest_aimw0 WHERE name = 'yam' ORDER BY id;
+id|name
+(0 rows)
+OCTO> SELECT * FROM skiptest_aimw0 WHERE name = 'banana' ORDER BY id;
+id|name
+2|banana
+(1 row)
+OCTO> 
+
+# TC084-AIMW1 : AIM-as-row-scan + SKIPCONDITION on the key column
+-- AIM-as-row-scan + SKIPCONDITION: same code path as TC084-AIMW0 but with the
+-- predicate form of the filter.  SKIPCONDITION on the key column drops every
+-- key whose id > 2, so any AIM-surfaced candidate beyond id=2 must be filtered
+-- inside the row-scan DO body.
+--
+-- ^skipmax rows are {1:apple, 2:banana, 50:cherry, 99:zebra, 100:yam} with
+-- SKIPCONDITION "keys(""id"")>2". So:
+--   WHERE name='apple'  -> id=1   -> kept -> 1 row.
+--   WHERE name='banana' -> id=2   -> kept -> 1 row.
+--   WHERE name='cherry' -> id=50  -> dropped -> 0 rows.
+--   WHERE name='zebra'  -> id=99  -> dropped -> 0 rows.
+--   WHERE name='yam'    -> id=100 -> dropped -> 0 rows.
+CREATE TABLE skiptest_aimw1 (
+  id   INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>2",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+SELECT * FROM skiptest_aimw1 WHERE name = 'apple' ORDER BY id;
+SELECT * FROM skiptest_aimw1 WHERE name = 'banana' ORDER BY id;
+SELECT * FROM skiptest_aimw1 WHERE name = 'cherry' ORDER BY id;
+SELECT * FROM skiptest_aimw1 WHERE name = 'zebra' ORDER BY id;
+SELECT * FROM skiptest_aimw1 WHERE name = 'yam' ORDER BY id;
+OCTO> --
+CREATE TABLE skiptest_aimw1 (
+  id   INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>2",
+  name VARCHAR(64)
+) GLOBAL "^skipmax";
+CREATE TABLE
+OCTO> SELECT * FROM skiptest_aimw1 WHERE name = 'apple' ORDER BY id;
+id|name
+1|apple
+(1 row)
+OCTO> SELECT * FROM skiptest_aimw1 WHERE name = 'banana' ORDER BY id;
+id|name
+2|banana
+(1 row)
+OCTO> SELECT * FROM skiptest_aimw1 WHERE name = 'cherry' ORDER BY id;
+id|name
+(0 rows)
+OCTO> SELECT * FROM skiptest_aimw1 WHERE name = 'zebra' ORDER BY id;
+id|name
+(0 rows)
+OCTO> SELECT * FROM skiptest_aimw1 WHERE name = 'yam' ORDER BY id;
+id|name
+(0 rows)
+OCTO> 
+
+# TC084-ERR0 : Error -- values() is not allowed inside SKIPCONDITION
+-- Expect ERR_VALUES_NOT_ALLOWED_IN_START_END since values() is not allowed in SKIPCONDITION.
+CREATE TABLE skiptest_err0 (
+  id INTEGER PRIMARY KEY SKIPCONDITION "values(""name"")=""skip""",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_START_END: values() usage not allowed in START/END/SKIPCONDITION keywords (only keys() usage allowed)
+OCTO> CREATE TABLE skiptest_err0 (
+  id INTEGER PRIMARY KEY SKIPCONDITION "values(""name"")=""skip""",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+OCTO> 
+
+# TC084-ERR1 : Error -- SKIP requires a non-empty list
+-- Expect a syntax error: the grammar's ddl_str_literal_value non-terminal rejects
+-- an empty string literal, so SKIP '' is caught at parse time before validation runs.
+CREATE TABLE skiptest_err1 (
+  id INTEGER PRIMARY KEY SKIP '',
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected EMPTY_STRING, expecting LITERAL or DOUBLE_QUOTE_LITERAL
+LINE 2:2:   id INTEGER PRIMARY KEY SKIP '',
+                                         ^
+OCTO> CREATE TABLE skiptest_err1 (
+  id INTEGER PRIMARY KEY SKIP '',
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+OCTO> 
+
+# TC084-ERR2 : Error -- forward keys() reference in SKIPCONDITION (inner-key slot not yet set)
+-- Forward keys() reference: SKIPCONDITION is on "region" (KEY NUM 0) but references
+-- keys("id") where "id" is KEY NUM 1. At the point the region-level QUIT fires, the
+-- inner $ORDER has not yet set the "id" key's local-variable slot, so a runtime
+-- LVUNDEF would occur. Expect ERR_KEYS_FORWARD_REFERENCE at CREATE TABLE time.
+CREATE TABLE skiptest_err2 (
+  region VARCHAR(8)  PRIMARY KEY SKIPCONDITION "keys(""id"")=2",
+  id     INTEGER     KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+[ERROR]: ERR_KEYS_FORWARD_REFERENCE: keys("id") cannot be used in START/END/SKIPCONDITION of column "region" because "id" is iterated at a deeper key level
+OCTO> CREATE TABLE skiptest_err2 (
+  region VARCHAR(8)  PRIMARY KEY SKIPCONDITION "keys(""id"")=2",
+  id     INTEGER     KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+OCTO> 
+
+# Inspect generated M plans for the dotted QUIT lines emitted by SKIP/SKIPCONDITION
+    . QUIT:($LENGTH(%ydboctocursor(cursorId,"keys",1,"skiptest_s7b","id"))>2)
+    . QUIT:($LENGTH(%ydboctocursor(cursorId,"keys",1,"skiptest_s7c","id"))>2)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_aim0","id")=50:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aim0","id")=99:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aim0","id")=100:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_aim2","id")=50:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_aim3","id")=50:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aim3","id")=99:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aim3","id")=100:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aim3","id")=200:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_aim4","id")=3:1,1:0)
+    . . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_aimw0","id")=50:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aimw0","id")=99:1,%ydboctocursor(cursorId,"keys",1,"skiptest_aimw0","id")=100:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_m1","region")="east":1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_m3","region")="east":1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_max0","id")=50:1,%ydboctocursor(cursorId,"keys",1,"skiptest_max0","id")=99:1,%ydboctocursor(cursorId,"keys",1,"skiptest_max0","id")=100:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_max2","id")=50:1,1:0)
+    . . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")=99:1,%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")=100:1,%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")=101:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")=99:1,%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")=100:1,%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")=101:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s2","id")="A":1,%ydboctocursor(cursorId,"keys",1,"skiptest_s2","id")="B":1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s3","id")="x,y":1,%ydboctocursor(cursorId,"keys",1,"skiptest_s3","id")="C":1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s6","id")=99:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s7a","id")=$LENGTH("ab"):1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",1,"skiptest_s7c","id")=(1+1):1,1:0)
+    . . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")=99:1,%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")=100:1,%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")=101:1,1:0)
+    . QUIT:$SELECT(%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")=99:1,%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")=100:1,%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")=101:1,1:0)
+    . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_aim1","id")>2)
+    . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_aim2","id")>90)
+    . . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_aimw1","id")>2)
+    . . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_m2","id")=2)
+    . . . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_m3","id")=2)
+    . . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_m3","id")=2)
+    . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_max1","id")>2)
+    . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_max2","id")>90)
+    . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_s4","id")'?1N.N)
+    . . QUIT:((%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")>50)&(%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")<200))
+    . QUIT:((%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")>50)&(%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")<200))
+    . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_s6","id")=100)

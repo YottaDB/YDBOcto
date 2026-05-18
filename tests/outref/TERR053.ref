@@ -1,0 +1,8 @@
+
+-- TERR053 : OCTO1109 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error triggered via SKIPCONDITION
+
+CREATE TABLE TERR053 (keycol1 INTEGER PRIMARY KEY SKIPCONDITION "values(""keycol2"")=""skip""", keycol2 INTEGER);
+
+[ERROR]: ERR_VALUES_NOT_ALLOWED_IN_START_END: values() usage not allowed in START/END/SKIPCONDITION keywords (only keys() usage allowed)
+OCTO> CREATE TABLE TERR053 (keycol1 INTEGER PRIMARY KEY SKIPCONDITION "values(""keycol2"")=""skip""", keycol2 INTEGER);
+OCTO> 

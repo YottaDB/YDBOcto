@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -55,18 +55,29 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 			af_type = af->type;
 			if (aggr_column == key_column) {
 				if (LP_AGGREGATE_FUNCTION_MIN != af_type) {
-					keyword = get_keyword(key_column, OPTIONAL_ENDPOINT);
-					if (NULL != keyword) {
-						UNPACK_SQL_STATEMENT(value, keyword->v, value);
-						str = value->v.string_literal;
-						%{}SET {}%
-						%{}{{ PP_YDB_OCTO_EXPR }}={}%
-						%{}{{ str }}{}%
-						%{}`n{{ PLAN_LINE_START }}{}%
-						TMPL(tmpl_print_dots, dot_count);
-						%{}IF '$DATA({}%
-						TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
-						%{}) {}%
+					/* The MAX pre-check below tries the ENDPOINT value directly via $DATA
+					 * and (if present) skips the subsequent $ORDER. With SKIP / SKIPCONDITION
+					 * on the key column the ENDPOINT subscript may itself be filtered out,
+					 * so we'd silently emit a SKIP'd value as the MAX. Bypass this pre-check
+					 * when either keyword is present.
+					 */
+					boolean_t skip_or_cond;
+					skip_or_cond = ((NULL != get_keyword(key_column, OPTIONAL_SKIP))
+					                || (NULL != get_keyword(key_column, OPTIONAL_SKIPCONDITION)));
+					if (!skip_or_cond) {
+						keyword = get_keyword(key_column, OPTIONAL_ENDPOINT);
+						if (NULL != keyword) {
+							UNPACK_SQL_STATEMENT(value, keyword->v, value);
+							str = value->v.string_literal;
+							%{}SET {}%
+							%{}{{ PP_YDB_OCTO_EXPR }}={}%
+							%{}{{ str }}{}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}IF '$DATA({}%
+							TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+							%{}) {}%
+						}
 					}
 				}
 			}
@@ -82,6 +93,7 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 		}
 
 		boolean_t		is_non_key_column = FALSE;
+		boolean_t		has_skip_or_cond;
 		char			*direction;
 		enum EmitSourceForm	emit_type;
 		if (LP_AGGREGATE_FUNCTION_MIN == af_type) {
@@ -91,33 +103,297 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 			emit_type = EmitSourceForm_Octo617Max;
 			direction = "-1";
 		}
-		%{}SET {}%
-		%{}{{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
-		if ((NULL == aggr_column) || (aggr_column == key_column)) {
-			TMPL(tmpl_key_source, pplan, key, emit_type);
-		} else {
+		/* When SKIP / SKIPCONDITION is set on the key column the next code block emits a
+		 * FOR loop that walks the global / AIM xref using the standard M $ORDER idiom
+		 * (set-order-then-quit-on-empty), with %ydboctoexpr threaded through as the
+		 * iterator.  The FOR's first iteration starts from %ydboctoexpr="" so the very
+		 * first $ORDER call returns the boundary subscript (largest for MAX, smallest
+		 * for MIN).  For non-SKIP cases we keep the historical one-shot SET=$ORDER
+		 * (used directly as the answer, or as the second clause of the MAX pre-check
+		 * `IF '$DATA(...) SET ...` above).
+		 */
+		has_skip_or_cond = ((NULL != get_keyword(key_column, OPTIONAL_SKIP))
+		                    || (NULL != get_keyword(key_column, OPTIONAL_SKIPCONDITION)));
+		if ((NULL != aggr_column) && (aggr_column != key_column)) {
 			is_non_key_column = TRUE;
-			TMPL(tmpl_key_source_aim, tableName, columnName);
-			%{},""){}%
 		}
-		%{},{{ direction }}){}%
+		%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		if (has_skip_or_cond) {
+			/* SKIP / SKIPCONDITION: seed %ydboctoexpr="" so the FOR loop below can
+			 * use it as the gvref subscript on its first iteration without tripping
+			 * LVUNDEF (the surrounding octoPlan1 NEWs %ydboctoexpr, leaving it
+			 * undefined here). */
+			%{}""{}%
+		} else {
+			%{}$ORDER({}%
+			if (!is_non_key_column) {
+				TMPL(tmpl_key_source, pplan, key, emit_type);
+			} else {
+				/* AIM source emits `^aim(N` (no close paren); add `,""` plus the
+				 * close paren that finishes the gvref before $ORDER's direction. */
+				TMPL(tmpl_key_source_aim, tableName, columnName);
+				%{},""){}%
+			}
+			%{},{{ direction }}){}%
+		}
 		%{}`n{{ PLAN_LINE_START }}{}%
+
+		/* If the key column has SKIP / SKIPCONDITION and we are iterating the underlying
+		 * global directly (i.e. not the AIM-xref path), wrap the walk in a FOR loop that
+		 * starts from %ydboctoexpr="" (set above) and walks past any filtered subscripts
+		 * using a "not-skipped" QUIT predicate.
+		 *
+		 * Generated plan (for MAX with SKIP '99,100' on key column "id"):
+		 *     FOR  SET {{ EXPR }}=$ORDER(<src>,-1) QUIT:({{ EXPR }}="")  QUIT:'(<skip-test>)
+		 *
+		 * This follows the canonical M $ORDER walk idiom: SET=$ORDER first, QUIT-if-empty
+		 * right after, then body.
+		 *
+		 * The "<skip-test>" reads truthy when the current subscript should be skipped:
+		 *   - SKIP only:           $SELECT(<EXPR>=v1:1,<EXPR>=v2:1,...,1:0)
+		 *   - SKIPCONDITION only:  (<cond-with-keys()-substituted-to-EXPR>)
+		 *   - both:                $SELECT(...)!(<cond>)
+		 *
+		 * The trailing $DATA / range-bound check (emitted below) handles the case where
+		 * the loop exhausts all subscripts (EXPR="") and naturally suppresses the output.
+		 *
+		 * The AIM-xref path (is_non_key_column == TRUE) needs a different shape -- a
+		 * nested walk over the AIM keys -- and is handled inside the is_non_key_column
+		 * branch below.
+		 */
+		if (!is_non_key_column) {
+			SqlOptionalKeyword	*skip_kw, *cond_kw;
+
+			skip_kw = get_keyword(key_column, OPTIONAL_SKIP);
+			cond_kw = get_keyword(key_column, OPTIONAL_SKIPCONDITION);
+			if ((NULL != skip_kw) || (NULL != cond_kw)) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}FOR  SET {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+				TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+				%{},{{ direction }}) QUIT:({{ PP_YDB_OCTO_EXPR }}="")  QUIT:'({}%
+
+				if (NULL != skip_kw) {
+					char		*list, *piece_start, *p;
+					boolean_t	in_quotes;
+					int		piece_len;
+
+					UNPACK_SQL_STATEMENT(value, skip_kw->v, value);
+					list = value->v.string_literal;
+
+					%{}$SELECT({}%
+					in_quotes = FALSE;
+					piece_start = list;
+					p = list;
+					while (TRUE) {
+						char		ch;
+						boolean_t	at_separator;
+
+						ch = *p;
+						at_separator = (('\0' == ch) || ((',' == ch) && !in_quotes));
+						if (at_separator) {
+							piece_len = (int)(p - piece_start);
+							if (0 < piece_len) {
+								char *q;
+								%{}{{ PP_YDB_OCTO_EXPR }}={}%
+								for (q = piece_start; q < p; q++) {
+									%{}{{ *q|%c }}{}%
+								}
+								%{}:1,{}%
+							}
+							if ('\0' == ch) {
+								break;
+							}
+							piece_start = p + 1;
+						} else if ('"' == ch) {
+							in_quotes = !in_quotes;
+						}
+						p++;
+					}
+					%{}1:0){}%
+				}
+				if (NULL != cond_kw) {
+					char	*cond;
+
+					if (NULL != skip_kw) {
+						%{}!{}%
+					}
+					UNPACK_SQL_STATEMENT(value, cond_kw->v, value);
+					cond = value->v.string_literal;
+					%{}({}%
+					{
+						SqlValue *table_name_value;
+						char	 *table_name;
+
+						UNPACK_SQL_STATEMENT(table_name_value, key->table->tableName, value);
+						table_name = table_name_value->v.string_literal;
+						TMPL(tmpl_emit_source, key->table, cond, table_name, key->unique_id,
+							(void *)0, MAX_KEY_COUNT, EmitSourceForm_Octo617);
+					}
+					%{}){}%
+				}
+				%{}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
+		}
+
 		TMPL(tmpl_print_dots, dot_count);
 		if (is_non_key_column) {
-			%{}SET:$DATA({}%
-			TMPL(tmpl_key_source_aim, tableName, columnName);
-			%{},{{ PP_YDB_OCTO_EXPR }}))&(""={}%
-			if (IS_COLUMN_STRING_TYPE(aggr_column)) {
-				%{}$$aimsubs2strcolval^%%ydboctoplanhelpers({}%
-			}
-			%{}{{ PP_YDB_OCTO_EXPR }}{}%
-			if (IS_COLUMN_STRING_TYPE(aggr_column)) {
+			SqlOptionalKeyword	*aim_skip_kw, *aim_cond_kw;
+
+			aim_skip_kw = get_keyword(key_column, OPTIONAL_SKIP);
+			aim_cond_kw = get_keyword(key_column, OPTIONAL_SKIPCONDITION);
+
+			if ((NULL == aim_skip_kw) && (NULL == aim_cond_kw)) {
+				/* Original AIM path (no SKIP/SKIPCONDITION): one-shot NULL re-order.
+				 * Re-emit the SET:$DATA(...)&("==conv(...)) ... = $ORDER(...) that handles
+				 * the case where the initial $ORDER landed on a NULL-representation col_value.
+				 */
+				%{}SET:$DATA({}%
+				TMPL(tmpl_key_source_aim, tableName, columnName);
+				%{},{{ PP_YDB_OCTO_EXPR }}))&(""={}%
+				if (IS_COLUMN_STRING_TYPE(aggr_column)) {
+					%{}$$aimsubs2strcolval^%%ydboctoplanhelpers({}%
+				}
+				%{}{{ PP_YDB_OCTO_EXPR }}{}%
+				if (IS_COLUMN_STRING_TYPE(aggr_column)) {
+					%{}){}%
+				}
+				%{}) {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+				TMPL(tmpl_key_source_aim, tableName, columnName);
+				%{},{{ PP_YDB_OCTO_EXPR }}),{{ direction }}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			} else {
+				/* AIM path + SKIP / SKIPCONDITION on the key column: walk col_values, and
+				 * for each, walk the AIM's third subscript (the underlying table key)
+				 * looking for a non-SKIP'd one. If found, exit. If not, re-order the outer
+				 * to the next col_value.
+				 *
+				 * The cursor LVN for the key column (emitted by tmpl_key) is reused as the
+				 * inner walking variable. The cursor is what `keys("col")` substitutes to
+				 * for SKIPCONDITION anyway, so SKIPCONDITION reads its current value
+				 * naturally; SKIP-only also tests against the cursor LVN directly.  The
+				 * outer FOR's `QUIT:cursor'=""` thus reads "" when the inner walk found
+				 * nothing (re-order) and a non-empty key when it found a keeper (exit).
+				 *
+				 * Each DO iteration:
+				 *   line 1: reset the cursor to "" so the outer FOR sees a defined value
+				 *           even when the NULL-rep gate fires on line 2 below.
+				 *   line 2: a QUIT that fires when this col_value is the AIM
+				 *           NULL representation (decoded as "").  When it fires the DO
+				 *           body exits with cursor="" and the outer FOR re-orders, which
+				 *           is how SQL aggregates ignore NULL inputs.
+				 *   line 3: standard M $ORDER walk -- $ORDER first, QUIT-if-exhausted,
+				 *           then test the SKIP / SKIPCONDITION predicate.
+				 *
+				 * The pre-existing one-shot NULL re-order is skipped here because line 2's
+				 * QUIT handles the same case for every iteration of the outer FOR.
+				 */
+				TMPL(tmpl_print_dots, dot_count);
+				%{}FOR  SET {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+				TMPL(tmpl_key_source_aim, tableName, columnName);
+				%{},{{ PP_YDB_OCTO_EXPR }}),{{ direction }}) QUIT:({{ PP_YDB_OCTO_EXPR }}="")  DO  QUIT:{}%
+				TMPL(tmpl_key, key);
+				%{}'=""{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+
+				/* DO body line 1: reset the cursor so the outer FOR's QUIT predicate has
+				 * a defined value if the NULL-rep gate on line 2 fires (or if the inner
+				 * FOR on line 3 exhausts without finding a keeper). */
+				TMPL(tmpl_print_dots, dot_count + 1);
+				%{}SET {}%
+				TMPL(tmpl_key, key);
+				%{}=""{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+
+				/* DO body line 2: QUIT (exit DO body) when this col_value decodes to "",
+				 * the AIM NULL representation.  No $DATA() check is needed: %ydboctoexpr
+				 * came from $ORDER on this same tree, so the col_value node is guaranteed
+				 * to exist. */
+				TMPL(tmpl_print_dots, dot_count + 1);
+				%{}QUIT:""={}%
+				if (IS_COLUMN_STRING_TYPE(aggr_column)) {
+					%{}$$aimsubs2strcolval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+				} else {
+					%{}{{ PP_YDB_OCTO_EXPR }}{}%
+				}
+				%{}`n{{ PLAN_LINE_START }}{}%
+
+				/* DO body line 3: standard M $ORDER walk -- advance cursor, QUIT if
+				 * exhausted (cursor=""), then QUIT if the current cursor passes the
+				 * SKIP / SKIPCONDITION predicate (i.e. is a "keeper"). */
+				TMPL(tmpl_print_dots, dot_count + 1);
+				%{}FOR  SET {}%
+				TMPL(tmpl_key, key);
+				%{}=$ORDER({}%
+				TMPL(tmpl_key_source_aim, tableName, columnName);
+				%{},{{ PP_YDB_OCTO_EXPR }},{}%
+				TMPL(tmpl_key, key);
+				%{})) QUIT:({}%
+				TMPL(tmpl_key, key);
+				%{}="")  QUIT:'({}%
+
+					if (NULL != aim_skip_kw) {
+						char		*list, *piece_start, *p;
+						boolean_t	in_quotes;
+						int		piece_len;
+
+						UNPACK_SQL_STATEMENT(value, aim_skip_kw->v, value);
+						list = value->v.string_literal;
+
+						%{}$SELECT({}%
+						in_quotes = FALSE;
+						piece_start = list;
+						p = list;
+						while (TRUE) {
+							char		ch;
+							boolean_t	at_separator;
+
+							ch = *p;
+							at_separator = (('\0' == ch) || ((',' == ch) && !in_quotes));
+							if (at_separator) {
+								piece_len = (int)(p - piece_start);
+								if (0 < piece_len) {
+									char *q;
+									TMPL(tmpl_key, key);
+									%{}={}%
+									for (q = piece_start; q < p; q++) {
+										%{}{{ *q|%c }}{}%
+									}
+									%{}:1,{}%
+								}
+								if ('\0' == ch) {
+									break;
+								}
+								piece_start = p + 1;
+							} else if ('"' == ch) {
+								in_quotes = !in_quotes;
+							}
+							p++;
+						}
+						%{}1:0){}%
+					}
+					if (NULL != aim_cond_kw) {
+						char		*cond;
+						SqlValue	*table_name_value;
+						char		*table_name_str;
+
+						if (NULL != aim_skip_kw) {
+							%{}!{}%
+						}
+						UNPACK_SQL_STATEMENT(value, aim_cond_kw->v, value);
+						cond = value->v.string_literal;
+						%{}({}%
+						UNPACK_SQL_STATEMENT(table_name_value, key->table->tableName, value);
+						table_name_str = table_name_value->v.string_literal;
+						TMPL(tmpl_emit_source, key->table, cond, table_name_str,
+							key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Value);
+						%{}){}%
+					}
+
 				%{}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
 			}
-			%{}) {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
-			TMPL(tmpl_key_source_aim, tableName, columnName);
-			%{},{{ PP_YDB_OCTO_EXPR }}),{{ direction }}){}%
-			%{}`n{{ PLAN_LINE_START }}{}%
+
 			TMPL(tmpl_print_dots, dot_count);
 			if (IS_COLUMN_STRING_TYPE(aggr_column)) {
 				%{}SET {{ PP_YDB_OCTO_EXPR }}(1)={}%

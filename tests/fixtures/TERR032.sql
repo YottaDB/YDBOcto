@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,6 +35,12 @@ CREATE TABLE abcd (id INTEGER STARTINCLUDE) READWRITE;
 
 -- Test of READWRITE with column-level END
 CREATE TABLE abcd (id INTEGER END 100) READWRITE;
+
+-- Test of READWRITE with column-level SKIP
+CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIP '1,2') READWRITE;
+
+-- Test of READWRITE with column-level SKIPCONDITION
+CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")=1") READWRITE;
 
 -- Test of READWRITE explicitly specified and column-level DELIM that is not ""
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a") READWRITE;

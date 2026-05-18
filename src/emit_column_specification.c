@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -129,6 +129,17 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ENDPOINT \"%s\"", buffer2);
+			break;
+		case OPTIONAL_SKIP:
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " SKIP \"%s\"", buffer2);
+			break;
+		case OPTIONAL_SKIPCONDITION:
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " SKIPCONDITION \"%s\"",
+								    buffer2);
 			break;
 		case OPTIONAL_GENERATED_ALWAYS_IDENTITY:
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " GENERATED ALWAYS AS IDENTITY");

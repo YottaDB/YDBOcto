@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,28 +9,10 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-doc/_build/
-build*/
-doc/make.bat
-.tags
-.tags1
-*/*.sc*
-cscope.*
-gen_cscope.sh
-\#*\#
-**/*~
-TAGS
-*.swp
-*.pyc
-*.orig
-tags
-.dir-locals.el
-.vscode/
-data/
-Testing/
-
-roctolist.md
-src/gtmcrypt/
-tests/fixtures/*.o
-CLAUDE.local.md
+-- Quote-aware comma parsing: the comma inside "x,y" must NOT be treated as a
+-- list separator. The list below has two elements: "x,y" and "C".
+CREATE TABLE skiptest_s3 (
+  id VARCHAR(16) PRIMARY KEY SKIP '"x,y","C"',
+  name VARCHAR(64)
+) GLOBAL "^skiptest" READONLY;
+SELECT * FROM skiptest_s3 ORDER BY id;

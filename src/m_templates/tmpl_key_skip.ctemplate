@@ -1,0 +1,112 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "template_helpers.h"
+
+/* Emits zero or more dotted "QUIT:<cond>" lines inside the body of a FOR loop,
+ * implementing column-level SKIP and SKIPCONDITION keywords. A `QUIT` inside the
+ * loop's DO scope skips the current subscript without terminating the surrounding FOR.
+ *
+ * The caller must already have emitted the FOR header and the opening "  DO\n<line-prefix>";
+ * this template emits the leading dots, the QUIT line, and a trailing newline + prefix
+ * for each keyword present. If neither keyword is set, this template emits nothing.
+ *
+ * `dot_count` is the dot depth of lines inside the FOR body (i.e. caller's outer
+ * dot_count + 1).
+ */
+TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count) {
+	SqlOptionalKeyword	*skip_kw, *cond_kw;
+	SqlValue		*value;
+	SqlTable		*table;
+	char			*table_name;
+
+	if (NULL == key->column) {
+		return;
+	}
+	skip_kw = get_keyword(key->column, OPTIONAL_SKIP);
+	cond_kw = get_keyword(key->column, OPTIONAL_SKIPCONDITION);
+	if ((NULL == skip_kw) && (NULL == cond_kw)) {
+		return;
+	}
+	assert(NULL != key->table);
+	table = key->table;
+	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+	table_name = value->v.string_literal;
+
+	if (NULL != skip_kw) {
+		/* Emit: <dots>QUIT:$SELECT(<key>=v1:1,<key>=v2:1,...,1:0)\n<line-prefix>
+		 * The SKIP argument is a comma-separated list of M values. Split on commas
+		 * that are not inside an M double-quoted string.
+		 */
+		char		*list, *piece_start, *p;
+		boolean_t	in_quotes;
+		int		piece_len;
+
+		UNPACK_SQL_STATEMENT(value, skip_kw->v, value);
+		list = value->v.string_literal;
+
+		TMPL(tmpl_print_dots, dot_count);
+		%{}QUIT:$SELECT({}%
+
+		in_quotes = FALSE;
+		piece_start = list;
+		p = list;
+		while (TRUE) {
+			char ch = *p;
+			boolean_t at_separator = (('\0' == ch) || ((',' == ch) && !in_quotes));
+			if (at_separator) {
+				piece_len = (int)(p - piece_start);
+				/* Skip empty pieces (e.g. trailing comma); should not occur after
+				 * the parser-level non-empty check, but be defensive. */
+				if (0 < piece_len) {
+					TMPL(tmpl_key, key);
+					%{}={}%
+					/* Emit the piece verbatim. */
+					{
+						char *q;
+						for (q = piece_start; q < p; q++) {
+							%{}{{ *q|%c }}{}%
+						}
+					}
+					%{}:1,{}%
+				}
+				if ('\0' == ch) {
+					break;
+				}
+				piece_start = p + 1;
+			} else if ('"' == ch) {
+				in_quotes = !in_quotes;
+			}
+			p++;
+		}
+		%{}1:0)`n{{ PLAN_LINE_START }}{}%
+	}
+
+	if (NULL != cond_kw) {
+		/* Emit: <dots>QUIT:(<expr-with-keys()-expanded>)\n<line-prefix> */
+		char *cond;
+		UNPACK_SQL_STATEMENT(value, cond_kw->v, value);
+		cond = value->v.string_literal;
+
+		TMPL(tmpl_print_dots, dot_count);
+		%{}QUIT:({}%
+		TMPL(tmpl_emit_source, table, cond, table_name, key->unique_id, (void *)0,
+			MAX_KEY_COUNT, EmitSourceForm_Value);
+		%{})`n{{ PLAN_LINE_START }}{}%
+	}
+	return;
+}
+%{}

@@ -1960,8 +1960,20 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				readwrite_disallowed = TRUE;
 				break;
 			case OPTIONAL_START:
+				/* keys() inside START is emitted verbatim into the generated M (the codegen
+				 * does not substitute it with the cursor LVN the way END/SKIPCONDITION do),
+				 * so the deeper-level forward-reference check does not apply. Pass NULL for
+				 * cur_column to skip that check; the existing IS_KEY_COLUMN / values() checks
+				 * still run.
+				 */
+				ret = validate_start_end_keyword(cur_keyword, table, NULL);
+				if (-1 == ret) {
+					return NULL;
+				}
+				readwrite_disallowed = TRUE;
+				break;
 			case OPTIONAL_END:;
-				ret = validate_start_end_keyword(cur_keyword, table);
+				ret = validate_start_end_keyword(cur_keyword, table, cur_column);
 				if (-1 == ret) {
 					return NULL;
 				}
@@ -1979,6 +1991,28 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				break;
 			case OPTIONAL_STARTINCLUDE:
 			case OPTIONAL_ENDPOINT:
+				readwrite_disallowed = TRUE;
+				break;
+			case OPTIONAL_SKIPCONDITION:
+				if (!IS_KEY_COLUMN(cur_column)) {
+					assert(NULL != cur_column->columnName);
+					UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
+					ERROR(ERR_SKIP_NEEDS_KEY_COLUMN, "SKIPCONDITION", columnName1->v.string_literal);
+					return NULL;
+				}
+				ret = validate_start_end_keyword(cur_keyword, table, cur_column);
+				if (-1 == ret) {
+					return NULL;
+				}
+				readwrite_disallowed = TRUE;
+				break;
+			case OPTIONAL_SKIP:
+				if (!IS_KEY_COLUMN(cur_column)) {
+					assert(NULL != cur_column->columnName);
+					UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
+					ERROR(ERR_SKIP_NEEDS_KEY_COLUMN, "SKIP", columnName1->v.string_literal);
+					return NULL;
+				}
 				readwrite_disallowed = TRUE;
 				break;
 			case OPTIONAL_DELIM:

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -22,4 +22,8 @@ CREATE TABLE abcd (id INTEGER UNIQUE) READONLY;
 -- Test of CHECK constraint with READONLY implicitly assumed (due to the column-level EXTRACT keyword)
 CREATE TABLE abcd (id INTEGER PRIMARY KEY CHECK (id < 10), datetime INTEGER EXTRACT "$ZHOROLOG");
 CREATE TABLE abcd (id INTEGER PRIMARY KEY, datetime INTEGER EXTRACT "$ZHOROLOG" CHECK (datetime < id));
+-- OCTO1109: Test of CHECK constraint with READONLY implicitly assumed (due to the column-level SKIP keyword)
+CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIP '99' CHECK (id < 100)) GLOBAL "^abcd";
+-- OCTO1109: Test of CHECK constraint with READONLY implicitly assumed (due to the column-level SKIPCONDITION keyword)
+CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")>90" CHECK (id < 100)) GLOBAL "^abcd";
 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,27 +10,7 @@
 #								#
 #################################################################
 
-doc/_build/
-build*/
-doc/make.bat
-.tags
-.tags1
-*/*.sc*
-cscope.*
-gen_cscope.sh
-\#*\#
-**/*~
-TAGS
-*.swp
-*.pyc
-*.orig
-tags
-.dir-locals.el
-.vscode/
-data/
-Testing/
+-- TERR053 : OCTO1109 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error triggered via SKIPCONDITION
 
-roctolist.md
-src/gtmcrypt/
-tests/fixtures/*.o
-CLAUDE.local.md
+CREATE TABLE TERR053 (keycol1 INTEGER PRIMARY KEY SKIPCONDITION "values(""keycol2"")=""skip""", keycol2 INTEGER);
+

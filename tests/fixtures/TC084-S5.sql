@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,28 +9,8 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-doc/_build/
-build*/
-doc/make.bat
-.tags
-.tags1
-*/*.sc*
-cscope.*
-gen_cscope.sh
-\#*\#
-**/*~
-TAGS
-*.swp
-*.pyc
-*.orig
-tags
-.dir-locals.el
-.vscode/
-data/
-Testing/
-
-roctolist.md
-src/gtmcrypt/
-tests/fixtures/*.o
-CLAUDE.local.md
+CREATE TABLE skiptest_s5 (
+  id INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIPCONDITION "(keys(""id"")>50)&(keys(""id"")<200)",
+  name VARCHAR(64)
+) GLOBAL "^skiptest";
+SELECT * FROM skiptest_s5 ORDER BY id;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -433,5 +433,25 @@ OCTO
 @test "TERR052 : OCTO929 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error" {
 	load_fixture TERR052.sql subtest novv
 	verify_output TERR052 output.txt
+}
+
+@test "TERR053 : OCTO1109 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error triggered via SKIPCONDITION" {
+	load_fixture TERR053.sql subtest novv
+	verify_output TERR053 output.txt
+}
+
+@test "TERR054 : OCTO1109 : Test ERR_SKIP_NEEDS_KEY_COLUMN error" {
+	load_fixture TERR054.sql subtest novv
+	verify_output TERR054 output.txt
+}
+
+@test "TERR055 : OCTO1109 : Test ERR_KEYS_FORWARD_REFERENCE error in END and SKIPCONDITION" {
+	# Seed a two-level global so a SELECT against a forward-ref table is able to
+	# enter the inner $ORDER body. Without the OCTO1109 validation the CREATE
+	# TABLE succeeds and the SELECT trips a runtime %YDB-E-LVUNDEF -- with the
+	# validation, the CREATE TABLE itself is rejected before any SELECT runs.
+	$ydb_dist/yottadb -run %XCMD 'set ^skiptestmulti("east",1)="east-one",^skiptestmulti("east",2)="east-two"'
+	load_fixture TERR055.sql subtest novv
+	verify_output TERR055 output.txt
 }
 

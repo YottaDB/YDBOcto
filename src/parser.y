@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -222,6 +222,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SET
 %token SHOW
 %token SIMILAR
+%token SKIP
+%token SKIPCONDITION
 %token SMALLINT
 %token SOME
 %token START
@@ -2036,6 +2038,22 @@ column_definition_tail
     }
   | ENDPOINT ddl_str_literal_value column_definition_tail {
        MALLOC_KEYWORD_STMT($$, OPTIONAL_ENDPOINT);
+       ($$)->v.keyword->v = $ddl_str_literal_value;
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | SKIP ddl_str_literal_value column_definition_tail {
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_SKIP);
+       ($$)->v.keyword->v = $ddl_str_literal_value;
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | SKIPCONDITION ddl_str_literal_value column_definition_tail {
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_SKIPCONDITION);
        ($$)->v.keyword->v = $ddl_str_literal_value;
 
        SqlOptionalKeyword *keyword;

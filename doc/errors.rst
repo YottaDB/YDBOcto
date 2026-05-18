@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -585,6 +585,14 @@ ERR_GROUP_BY_SUB_QUERY
   Text: Subqueries are not supported in GROUP BY
 
   Description/Action: This error is generated when a subquery is present in :code:`GROUP BY`. PSQL Error Code: 42803
+
++++++++++++++++++++++++++++
+ERR_KEYS_FORWARD_REFERENCE
++++++++++++++++++++++++++++
+
+  Text: keys("xxx") cannot be used in START/END/SKIPCONDITION of column "xxx" because "xxx" is iterated at a deeper key level
+
+  Description/Action: This error is generated when a :code:`keys()` usage inside a :code:`START`, :code:`END`, or :code:`SKIPCONDITION` keyword refers to a key column whose :code:`KEY NUM` is greater than the :code:`KEY NUM` of the column on which the keyword is specified. At the point the keyword's M expression executes, the inner :code:`$ORDER` loop has not yet bound the deeper key's local-variable slot, so a runtime :code:`LVUNDEF` would occur. Move the keyword to the deeper key column, or change the :code:`keys()` reference to an outer (or same-level) key column. PSQL Error Code: 42P10
 
 +++++++++++++++++++++++++++
 ERR_KEYS_NEEDS_A_KEY_COLUMN
@@ -1293,6 +1301,14 @@ ERR_SETOPER_TYPE_MISMATCH
   Description/Action: This error is generated when the two operands of a SET operation are of different types. PSQL Error Code: 42601
 
 ++++++++++++++++++++++++++
+ERR_SKIP_NEEDS_KEY_COLUMN
+++++++++++++++++++++++++++
+
+  Text: xxx keyword can only be specified on a KEY column (column "xxx")
+
+  Description/Action: This error is generated when a :code:`SKIP` or :code:`SKIPCONDITION` keyword is applied to a non-key column. Both keywords filter iterations of the :code:`$ORDER` FOR loop emitted for a key column, so they have no meaning on a non-key column. Move the keyword to the column that has :code:`PRIMARY KEY` or :code:`KEY NUM`. PSQL Error Code: 42P10
+
+++++++++++++++++++++++++++
 ERR_SUBQUERY_ONE_COLUMN
 ++++++++++++++++++++++++++
 
@@ -1616,9 +1632,9 @@ ERR_VALUES_NOT_ALLOWED_IN_GLOBAL
 ERR_VALUES_NOT_ALLOWED_IN_START_END
 ++++++++++++++++++++++++++++++++++++
 
-  Text: values() usage not allowed in START/END keywords (only keys() usage allowed)
+  Text: values() usage not allowed in START/END/SKIPCONDITION keywords (only keys() usage allowed)
 
-  Description/Action: This error is generated when a :code:`values()` is used as part of a :code:`START` or :code:`END` keyword in a :code:`CREATE TABLE` command. Only key columns should be specified in those keywords and they should use the :code:`keys()` syntax, not the :code:`values()` syntax. PSQL Error Code: 42P10
+  Description/Action: This error is generated when a :code:`values()` is used as part of a :code:`START`, :code:`END`, or :code:`SKIPCONDITION` keyword in a :code:`CREATE TABLE` command. Only key columns should be specified in those keywords and they should use the :code:`keys()` syntax, not the :code:`values()` syntax. PSQL Error Code: 42P10
 
 +++++++++++++++++++++
 ERR_VARCHAR_TOO_LONG

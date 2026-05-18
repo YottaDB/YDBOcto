@@ -25,6 +25,12 @@ CREATE TABLE abcd (id INTEGER STARTINCLUDE) READWRITE;
 -- Test of READWRITE with column-level END
 CREATE TABLE abcd (id INTEGER END 100) READWRITE;
 
+-- Test of READWRITE with column-level SKIP
+CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIP '1,2') READWRITE;
+
+-- Test of READWRITE with column-level SKIPCONDITION
+CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")=1") READWRITE;
+
 -- Test of READWRITE explicitly specified and column-level DELIM that is not ""
 CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a") READWRITE;
 
@@ -55,6 +61,10 @@ OCTO> CREATE TABLE abcd (id INTEGER START 0) READWRITE;
 OCTO> CREATE TABLE abcd (id INTEGER STARTINCLUDE) READWRITE;
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 OCTO> CREATE TABLE abcd (id INTEGER END 100) READWRITE;
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+OCTO> CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIP '1,2') READWRITE;
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+OCTO> CREATE TABLE abcd (id INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")=1") READWRITE;
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
 OCTO> CREATE TABLE abcd (id INTEGER, firstname VARCHAR DELIM "a") READWRITE;
 [ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword

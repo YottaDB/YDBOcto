@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -547,6 +547,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			}
 			%{} DO{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
+			/* Emit column-level SKIP/SKIPCONDITION filter inside the just-opened DO
+			 * for the key-fix code path (used when the WHERE clause pins the key to
+			 * a specific value or constrains it to a range). Without this, the
+			 * optimized direct-lookup / range-scan would bypass the QUIT lines that
+			 * `tmpl_key_skip` emits for the normal FOR-loop path and SKIP /
+			 * SKIPCONDITION would silently fail to filter.
+			 */
+			TMPL(tmpl_key_skip, key, dot_count + 1);
 			dot_count++;
 			continue;
 		}
@@ -613,6 +621,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
 		}
 		%{}  DO`n{{ PLAN_LINE_START }}{}%
+		/* Emit any column-level SKIP / SKIPCONDITION filter for this key as a
+		 * dotted "QUIT:<cond>" line inside the FOR body. The dot depth inside the
+		 * body is one more than the depth at which the FOR header was emitted.
+		 */
+		TMPL(tmpl_key_skip, key, dot_count + 1);
 		if (NULL != save_key) {
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		}

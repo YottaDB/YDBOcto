@@ -294,3 +294,240 @@ teardown() {
 	load_fixture TC083.sql subtest novv
 	verify_output TC083 output.txt
 }
+
+@test "TC084 : OCTO1109 : SKIP and SKIPCONDITION column-level keywords" {
+
+	# ===============================================================
+	# Section S: Single-level SKIP / SKIPCONDITION on the primary key
+	# ===============================================================
+	# Seed ^skiptest with three kinds of subscripts so the S-tests below
+	# can exercise the SKIP-list parser against each:
+	#   numeric subscripts  (S1 drops {99, 100, 101}),
+	#   alphabetic subscripts "A"/"B"/"C"  (S2 SKIPs string values),
+	#   subscript "x,y" containing a literal comma  (S3 confirms the
+	#     parser treats commas inside double quotes as part of the value,
+	#     not separators).
+	$ydb_dist/yottadb -run %XCMD 'set ^skiptest(1)="one",^skiptest(2)="two",^skiptest(99)="ninety-nine",^skiptest(100)="hundred",^skiptest(101)="hundred-one",^skiptest(200)="two-hundred",^skiptest("A")="a",^skiptest("B")="b",^skiptest("C")="c",^skiptest("x,y")="xy"'
+
+	echo "# TC084-S0 : Baseline -- no SKIP/SKIPCONDITION; shows the full ^skiptest contents" | tee -a output.txt
+	load_fixture TC084-S0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S1 : SKIP keyword drops listed numeric subscripts" | tee -a output.txt
+	load_fixture TC084-S1.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S2 : SKIP with quoted alphabetic values" | tee -a output.txt
+	load_fixture TC084-S2.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S3 : SKIP value contains a comma inside double quotes; comma must NOT be treated as a separator" | tee -a output.txt
+	load_fixture TC084-S3.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S4 : SKIPCONDITION uses an M pattern match to keep only numeric subscripts" | tee -a output.txt
+	load_fixture TC084-S4.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S5 : SKIPCONDITION uses keys() to reference the key column" | tee -a output.txt
+	load_fixture TC084-S5.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S6 : SKIP and SKIPCONDITION combined on the same column" | tee -a output.txt
+	load_fixture TC084-S6.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-S7 : SKIP and SKIPCONDITION values are arbitrary M expressions, not just literals" | tee -a output.txt
+	load_fixture TC084-S7.sql subtest novv
+
+
+	# ===============================================================
+	# Section M: Multi-level (composite key) SKIP / SKIPCONDITION
+	# ===============================================================
+	# Seed ^skiptestmulti -- two-subscript global with two regions ("east",
+	# "west") and ids underneath each.  Exercises the nested FOR-DO emit
+	# where tmpl_key_skip fires at each key's dot depth.
+	$ydb_dist/yottadb -run %XCMD 'set ^skiptestmulti("east",1)="east-one",^skiptestmulti("east",2)="east-two",^skiptestmulti("west",1)="west-one",^skiptestmulti("west",2)="west-two",^skiptestmulti("west",3)="west-three"'
+
+	echo "" | tee -a output.txt
+	echo "# TC084-M0 : Multi-level baseline -- composite key, no SKIP/SKIPCONDITION; shows full ^skiptestmulti" | tee -a output.txt
+	load_fixture TC084-M0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-M1 : Multi-level SKIP on outer key (drops the \"east\" region)" | tee -a output.txt
+	load_fixture TC084-M1.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-M2 : Multi-level SKIPCONDITION on inner key (drops id=2 rows under every region)" | tee -a output.txt
+	load_fixture TC084-M2.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-M3 : Multi-level SKIP + SKIPCONDITION combined; QUIT emitted at each nested FOR-DO depth" | tee -a output.txt
+	load_fixture TC084-M3.sql subtest novv
+
+
+	# ===============================================================
+	# Section W: SELECT WHERE on a SKIP/SKIPCONDITION-filtered table
+	# ===============================================================
+	# Reuses tables created above (skiptest_s1, skiptest_s5, skiptest_m3).
+	# Each WHERE exercises the planner's key-fix path (direct lookup for
+	# equality, computed-range scan for inequalities).  tmpl_key_skip is
+	# spliced into BOTH the normal FOR-loop body AND the key-fix DO body,
+	# so the filter is honored in the optimized lookups too.
+
+	echo "" | tee -a output.txt
+	echo "# TC084-W0 : SELECT WHERE on a SKIP-filtered table (WHERE + SKIP coexist)" | tee -a output.txt
+	load_fixture TC084-W0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-W1 : SELECT WHERE on a SKIPCONDITION-filtered table (WHERE + SKIPCONDITION coexist)" | tee -a output.txt
+	load_fixture TC084-W1.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-W2 : SELECT WHERE on a multi-level SKIP+SKIPCONDITION table" | tee -a output.txt
+	load_fixture TC084-W2.sql subtest novv
+
+
+	# ===============================================================
+	# Section J: JOIN against a SKIP-filtered table
+	# ===============================================================
+	# Seed ^skipref (helper table; ids {1, 2, 3, 99, 200} -- 99 is in
+	# skiptest_s1's SKIP list, the rest will join cleanly).
+	$ydb_dist/yottadb -run %XCMD 'set ^skipref(1)="alpha",^skipref(2)="beta",^skipref(3)="gamma",^skipref(99)="ninety9",^skipref(200)="twohundred"'
+
+	echo "" | tee -a output.txt
+	echo "# TC084-J0 : INNER / LEFT / RIGHT / FULL JOIN with a SKIP-filtered table" | tee -a output.txt
+	load_fixture TC084-J0.sql subtest novv
+
+
+	# ===============================================================
+	# Section MAX: OCTO617 MIN/MAX optimization on the key column
+	# ===============================================================
+	# Seed ^skipmax (numeric subscripts, alphabetic values).  The 5-row
+	# layout {1:apple, 2:banana, 50:cherry, 99:zebra, 100:yam} is shared by
+	# every test in the MAX, AIM, and AIMW sections below.  In every test
+	# the filter (whether SKIP '50,99,100', SKIPCONDITION "keys(""id"")>2",
+	# or both combined) drops {50, 99, 100} and keeps {1, 2}, so MAX and
+	# MIN are distinct values for the key column AND for the alphabetic
+	# column -- a buggy implementation that ignored the filter would
+	# silently return identical MAX and MIN and look correct by accident.
+	$ydb_dist/yottadb -run %XCMD 'set ^skipmax(1)="apple",^skipmax(2)="banana",^skipmax(50)="cherry",^skipmax(99)="zebra",^skipmax(100)="yam"'
+
+	echo "" | tee -a output.txt
+	echo "# ^skipmax raw seed (used by TC084-MAX0/MAX1, TC084-AIM0/AIM1/AIM2, TC084-AIMW0/AIMW1)" | tee -a output.txt
+	load_fixture TC084-skipmax-show.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-MAX0 : YDBOcto#617 MAX/MIN on the key column honors SKIP" | tee -a output.txt
+	load_fixture TC084-MAX0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-MAX1 : YDBOcto#617 MAX/MIN on the key column honors SKIPCONDITION" | tee -a output.txt
+	load_fixture TC084-MAX1.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-MAX2 : YDBOcto#617 MAX/MIN on the key column honors SKIP + SKIPCONDITION combined" | tee -a output.txt
+	load_fixture TC084-MAX2.sql subtest novv
+
+
+	# ===============================================================
+	# Section AIM: OCTO617 MIN/MAX on a non-key column (AIM-xref path)
+	# ===============================================================
+	# MAX/MIN on a non-key column transparently activates the AIM cross-
+	# reference.  AIM0..AIM2 reuse ^skipmax seeded above; AIM3 and AIM4 add
+	# specialized seed globals to stress shapes ^skipmax can't produce
+	# (multiple keys per col_value, and NULL/empty values).
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIM0 : AIM-xref path honors SKIP on the key column" | tee -a output.txt
+	load_fixture TC084-AIM0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIM1 : AIM-xref path honors SKIPCONDITION on the key column" | tee -a output.txt
+	load_fixture TC084-AIM1.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIM2 : SKIP + SKIPCONDITION combined on key column; exercises the OR-combinator in both the key-column path and the AIM-xref inner FOR" | tee -a output.txt
+	load_fixture TC084-AIM2.sql subtest novv
+
+	# Seed ^skipdupe for the AIM stress test.  "cherry" maps to keys
+	# {50, 99, 100} (all SKIP'd) and "zebra" maps to {200} (also SKIP'd),
+	# so the AIM inner FOR has to walk past multiple SKIP'd keys at the
+	# same col_value AND the outer FOR has to re-order past two col_values
+	# whose keys are entirely SKIP'd before landing on "apple".
+	$ydb_dist/yottadb -run %XCMD 'set ^skipdupe(1)="apple",^skipdupe(2)="apple",^skipdupe(50)="cherry",^skipdupe(99)="cherry",^skipdupe(100)="cherry",^skipdupe(200)="zebra"'
+
+	echo "" | tee -a output.txt
+	echo "# ^skipdupe raw seed (used by TC084-AIM3)" | tee -a output.txt
+	load_fixture TC084-skipdupe-show.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIM3 : AIM-xref stress -- multiple SKIP'd keys per col_value, multiple SKIP'd col_values" | tee -a output.txt
+	load_fixture TC084-AIM3.sql subtest novv
+
+	# Seed ^skipnull with an empty-name row.  AIM indexes that under the
+	# "#" NULL-representation subscript (see $$strcolval2aimsubs in
+	# ^%ydboctoplanhelpers).  Exercises the QUIT:""=$$aimsubs2strcolval(...)
+	# line in the AIM-SKIP DO body -- without it, MIN(name) would land on
+	# the NULL-rep subscript first and return "" instead of skipping NULLs
+	# the way SQL aggregates do.
+	$ydb_dist/yottadb -run %XCMD 'set ^skipnull(1)="apple",^skipnull(2)="",^skipnull(3)="zebra"'
+
+	echo "" | tee -a output.txt
+	echo "# ^skipnull raw seed (used by TC084-AIM4)" | tee -a output.txt
+	load_fixture TC084-skipnull-show.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIM4 : AIM-xref with a NULL column value (NULL-representation gate)" | tee -a output.txt
+	load_fixture TC084-AIM4.sql subtest novv
+
+
+	# ===============================================================
+	# Section AIMW: AIM as a row-scan index for `WHERE non_key = value`
+	# ===============================================================
+	# Distinct code path from the OCTO617 single-$ORDER walk in the AIM
+	# section above.  Here AIM is used as a row-scan index: a SELECT *
+	# WHERE on a non-key column activates AIM to find candidate rows,
+	# and each candidate's key column still has to pass SKIP/SKIPCONDITION
+	# in the row body.  Reuses ^skipmax seeded by the MAX section above.
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIMW0 : AIM-as-row-scan -- SELECT * WHERE non_key_column = <value> on a SKIP-filtered table" | tee -a output.txt
+	load_fixture TC084-AIMW0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-AIMW1 : AIM-as-row-scan + SKIPCONDITION on the key column" | tee -a output.txt
+	load_fixture TC084-AIMW1.sql subtest novv
+
+
+	# ===============================================================
+	# Section ERR: Parse-time / CREATE TABLE error cases
+	# ===============================================================
+
+	echo "" | tee -a output.txt
+	echo "# TC084-ERR0 : Error -- values() is not allowed inside SKIPCONDITION" | tee -a output.txt
+	load_fixture TC084-ERR0.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-ERR1 : Error -- SKIP requires a non-empty list" | tee -a output.txt
+	load_fixture TC084-ERR1.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# TC084-ERR2 : Error -- forward keys() reference in SKIPCONDITION (inner-key slot not yet set)" | tee -a output.txt
+	load_fixture TC084-ERR2.sql subtest novv
+
+
+	# ===============================================================
+	# Plan inspection -- dotted QUIT lines emitted by tmpl_key_skip
+	# ===============================================================
+	echo "" | tee -a output.txt
+	echo "# Inspect generated M plans for the dotted QUIT lines emitted by SKIP/SKIPCONDITION" | tee -a output.txt
+	# SKIP emits "QUIT:$SELECT(...)"; SKIPCONDITION emits "QUIT:(<keys()-expanded-expr>)".
+	# Both lines live at one extra dot depth inside the FOR-DO body.  Grep for both
+	# so the reference file captures the codegen shape.
+	# Match only the QUIT lines emitted by tmpl_key_skip (they reference %ydboctocursor).
+	# Excludes the planner's range-bound QUITs in the key-fix path (which use %ydboctozkeyfix).
+	grep -hE '^[[:space:]]+(\. )+QUIT:.*%ydboctocursor' _ydboctoP*.m | sort -u | tee -a output.txt
+
+	verify_output TC084 output.txt
+}

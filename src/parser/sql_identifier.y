@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -147,6 +147,8 @@ sql_identifier_minus_more
   | ROLLBACK { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "rollback"); }
   | SET { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "set"); }
   | SHOW { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "show"); }
+  | SKIP { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "skip"); }
+  | SKIPCONDITION { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "skipcondition"); }
   | SMALLINT { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "smallint"); }
   | START { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "start"); }
   | STARTINCLUDE { SQL_VALUE_STATEMENT($$, STRING_LITERAL, "startinclude"); }

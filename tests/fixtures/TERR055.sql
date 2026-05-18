@@ -1,0 +1,44 @@
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+-- TERR055 : OCTO1109 : Test ERR_KEYS_FORWARD_REFERENCE error in END and SKIPCONDITION
+--
+-- A forward keys() reference is one where the END or SKIPCONDITION keyword is
+-- hung on a key column at KEY NUM N but the keys("col") expression names a
+-- column whose KEY NUM is greater than N. END and SKIPCONDITION are emitted
+-- through tmpl_emit_source, which substitutes keys("col") with a reference to
+-- the deeper key's local-variable slot. The inner $ORDER has not yet bound
+-- that slot at the point the keyword's M expression executes, so without the
+-- validation introduced for OCTO1109 the CREATE TABLE compiles cleanly and
+-- only surfaces as a runtime %YDB-E-LVUNDEF when the table is queried. With
+-- the validation, both cases are rejected at CREATE TABLE time with
+-- ERR_KEYS_FORWARD_REFERENCE.
+--
+-- START is intentionally not exercised here: keys() is not substituted in
+-- START (the literal text is emitted verbatim into the generated M), so the
+-- forward-reference check does not apply to it.
+
+-- Case 1: END on outer key references the inner key.
+CREATE TABLE TERR055a (
+  region VARCHAR(8) PRIMARY KEY END "keys(""id"")=99",
+  id     INTEGER    KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+SELECT * FROM TERR055a ORDER BY region, id;
+
+-- Case 2: SKIPCONDITION on outer key references the inner key.
+CREATE TABLE TERR055b (
+  region VARCHAR(8) PRIMARY KEY SKIPCONDITION "keys(""id"")=2",
+  id     INTEGER    KEY NUM 1,
+  name   VARCHAR(64)
+) GLOBAL "^skiptestmulti(keys(""region""),keys(""id""))" READONLY;
+SELECT * FROM TERR055b ORDER BY region, id;

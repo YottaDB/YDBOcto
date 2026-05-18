@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -136,7 +136,9 @@ ERROR_DEF(ERR_KEYS_NEEDS_A_KEY_COLUMN, "Column \"%s\" specified using keys() in 
 ERROR_DEF(ERR_VALUES_NEEDS_A_NON_KEY_COLUMN, "Column \"%s\" specified using values() in EXTRACT/GLOBAL keyword is a KEY column", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_EXTRACT_CANNOT_BE_KEY_COLUMN, "Column \"%s\" cannot be a computed/extract column and key column at same time", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_VALUES_NOT_ALLOWED_IN_GLOBAL, "values() usage not allowed in GLOBAL keyword (only keys() usage allowed)", PSQL_Code_Invalid_Table_Definition)
-ERROR_DEF(ERR_VALUES_NOT_ALLOWED_IN_START_END, "values() usage not allowed in START/END keywords (only keys() usage allowed)", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_VALUES_NOT_ALLOWED_IN_START_END, "values() usage not allowed in START/END/SKIPCONDITION keywords (only keys() usage allowed)", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_SKIP_NEEDS_KEY_COLUMN, "%s keyword can only be specified on a KEY column (column \"%s\")", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_KEYS_FORWARD_REFERENCE, "keys(\"%s\") cannot be used in START/END/SKIPCONDITION of column \"%s\" because \"%s\" is iterated at a deeper key level", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_GLOBAL_KEY_COLS_ORDER, "GLOBAL keyword does not specify the KEY columns in the right order", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_GLOBAL_MISSING_KEY_COLS, "GLOBAL keyword does not specify all KEY column(s)", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TABLE_READONLY, "%s not allowed on READONLY table \"%s\". Only allowed on READWRITE tables.", PSQL_Code_Syntax_Error)

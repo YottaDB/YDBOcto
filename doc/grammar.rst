@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2025 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2026 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -990,7 +990,7 @@ optional_keyword
 
   .. code-block:: none
 
-     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | NOT NULL | PIECE | READONLY | READWRITE | START | STARTINCLUDE ]
+     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | KEY NUM | NOT NULL | PIECE | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE ]
 
   The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -1085,6 +1085,32 @@ optional_keyword
   |              |                    |               | And a :code:`DROP TABLE` command on a :code:`READWRITE` table drops the table  |                              |                                                           |
   |              |                    |               | and deletes/kills the underlying mapping global variable nodes.                |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | SKIP         | M expression list  | Column        | A comma-separated list of M expressions whose values are skipped during        | Not applicable               | Not specified                                             |
+  |              |                    |               | $ORDER iteration. The current subscript is silently dropped (no row produced)  |                              |                                                           |
+  |              |                    |               | when its value equals any list element. Each list element may be any valid M   |                              |                                                           |
+  |              |                    |               | expression -- an M numeric or string literal, an M local variable reference,   |                              |                                                           |
+  |              |                    |               | an M intrinsic function call (e.g. :code:`$LENGTH("ab")`), an M extrinsic      |                              |                                                           |
+  |              |                    |               | call (e.g. :code:`$$skipfn^lib(arg)`), or any combination thereof. The         |                              |                                                           |
+  |              |                    |               | expression is emitted verbatim into the generated M plan on the right-hand     |                              |                                                           |
+  |              |                    |               | side of an :code:`=` comparison against the subscript value, and is evaluated  |                              |                                                           |
+  |              |                    |               | by M for every iteration of the FOR loop. Element commas inside an M double-   |                              |                                                           |
+  |              |                    |               | quoted string (e.g. :code:`"A,B"`) are not treated as separators. Quote        |                              |                                                           |
+  |              |                    |               | string values yourself, e.g. :code:`SKIP '"X","Y"'`; numeric values may be     |                              |                                                           |
+  |              |                    |               | unquoted, e.g. :code:`SKIP '99,100,101'`; arbitrary M expressions are written  |                              |                                                           |
+  |              |                    |               | verbatim, e.g. :code:`SKIP "$LENGTH(""ab"")"` (drops the subscript whose       |                              |                                                           |
+  |              |                    |               | value equals 2). Because M evaluates expressions strictly left to right with   |                              |                                                           |
+  |              |                    |               | no operator precedence, parenthesize any list element that combines operators  |                              |                                                           |
+  |              |                    |               | (e.g. write :code:`SKIP "(1+1)"` rather than :code:`SKIP "1+1"`) so the        |                              |                                                           |
+  |              |                    |               | comparison binds correctly after substitution into :code:`<key>=<piece>`.      |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | SKIPCONDITION| Boolean M          | Column        | A boolean M expression evaluated for each subscript; when TRUE, the subscript  | Not applicable               | Not specified                                             |
+  |              | expression         |               | is skipped (no row produced) and $ORDER continues with the next value. The     |                              |                                                           |
+  |              |                    |               | expression may be any valid M boolean expression -- M numeric or string        |                              |                                                           |
+  |              |                    |               | literals, M local variable references, comparisons, pattern matches, M         |                              |                                                           |
+  |              |                    |               | intrinsic or extrinsic function calls, and any combination thereof are all     |                              |                                                           |
+  |              |                    |               | permitted. The expression may reference key columns of the current table via   |                              |                                                           |
+  |              |                    |               | :code:`keys("colname")` exactly like END. :code:`values()` is not allowed.     |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | START        | Command expression | Column        | Indicates where to start a FOR loop (using                                     | Not applicable               | :code:`""`                                                |
   |              |                    |               | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_)  |                              |                                                           |
   |              |                    |               | for a given key column in the table.                                           |                              |                                                           |
@@ -1105,7 +1131,7 @@ optional_keyword
 
   A table will become :code:`READONLY` under the following conditions:
 
-    * If END, ENDPOINT, EXTRACT, SOURCE, START, or STARTINCLUDE keywords are used in the CREATE statement
+    * If END, ENDPOINT, EXTRACT, SKIP, SKIPCONDITION, SOURCE, START, or STARTINCLUDE keywords are used in the CREATE statement
     * If the DELIM keyword is specified in the first non-key column and has a value other than :code:`""`
     * If the PIECE number is not the same as the column number (first column is 1, second column is 2, etc.)
     * If the GLOBAL keyword is specified with subscripts that are not in a format compatible with READWRITE
@@ -1243,6 +1269,18 @@ Examples
      GLOBAL "^Orders";
 
   In the above example STARTINCLUDE is used with START and END. In this case the FOR loop for `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ includes the START value of the key column as the first iteration of the loop. Note that in the above example, the column name :code:`OrderID` is specified inside double quotes. This lets the column name be taken as is (with the mixed case lettering) and so we can use :code:`keys()` syntax with the mixed case column name.
+
+  .. code-block:: SQL
+
+     CREATE TABLE Orders
+     ("OrderID" INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)' SKIP '99,100,101' SKIPCONDITION "keys(""OrderID"")'?1N.N",
+      CustomerID INTEGER,
+      EmployeeID INTEGER,
+      OrderDate VARCHAR(16),
+      ShipperID INTEGER)
+     GLOBAL "^Orders";
+
+  In the above example, :code:`SKIP` and :code:`SKIPCONDITION` further filter the subscripts that the :code:`START 0 ENDPOINT '$CHAR(0)'` range would otherwise produce as rows. :code:`SKIP '99,100,101'` drops subscripts 99, 100, and 101 from the result. :code:`SKIPCONDITION "keys(""OrderID"")'?1N.N"` additionally skips any subscript that does not match the M pattern :code:`1N.N` (i.e. a numeric value). Each :code:`SKIP` / :code:`SKIPCONDITION` is compiled into a :code:`QUIT:<cond>` line in the body of the generated :code:`FOR` loop so the loop continues past skipped subscripts without terminating. Note that the values supplied to both :code:`SKIP` and :code:`SKIPCONDITION` are arbitrary M expressions, not just literals: :code:`SKIP "$LENGTH(""ab"")"` drops the subscript whose value equals :code:`2`, and :code:`SKIPCONDITION "$$skipfn^lib(keys(""OrderID""))"` drops any subscript for which the M extrinsic call returns a truthy value. Because M evaluates expressions strictly left to right with no operator precedence, parenthesize any :code:`SKIP` list element that combines operators (e.g. write :code:`SKIP "(1+1)"` rather than :code:`SKIP "1+1"`) so the surrounding :code:`<key>=<piece>` comparison binds correctly. As with :code:`START` and :code:`END`, the use of :code:`SKIP` or :code:`SKIPCONDITION` forces the table to :code:`READONLY`. Note that, as with the :code:`STARTINCLUDE` example above, the column name :code:`OrderID` is specified inside double quotes so the mixed case lettering is preserved and the :code:`keys("OrderID")` reference resolves to the same column.
 
   .. code-block:: SQL
 

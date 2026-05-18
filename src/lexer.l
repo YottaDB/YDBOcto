@@ -1,7 +1,7 @@
 %{
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -232,6 +232,8 @@ int save_yylloc_first_line;
 (?i:SIMILAR) { return SIMILAR; }
 (?i:SHOW) { return SHOW; }
 (?i:SMALLINT) { return SMALLINT; }
+(?i:SKIP) { return SKIP; }
+(?i:SKIPCONDITION) { return SKIPCONDITION; }
 (?i:SOME) { return SOME; }
 (?i:START) { return START; }
 (?i:STARTINCLUDE) { return STARTINCLUDE; }

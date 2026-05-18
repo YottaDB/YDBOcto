@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -361,6 +361,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_DATE_TIME_FILEMAN,
 	OPTIONAL_DATE_TIME_ZUT,
 	OPTIONAL_DATE_TIME_TEXT,
+	OPTIONAL_SKIP,
+	OPTIONAL_SKIPCONDITION,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {

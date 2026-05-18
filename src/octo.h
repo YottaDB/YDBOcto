@@ -1564,7 +1564,7 @@ int  compare_column_count_and_column_type_of_tables(SqlColumnAlias *first_column
 int  validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValueType orig_child_type[2],
 					      ParseContext *parse_context);
 int  validate_global_keyword(SqlOptionalKeyword *keyword, SqlTable *table, int max_key, boolean_t is_table);
-int  validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table);
+int  validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table, SqlColumn *cur_column);
 int  validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, OptionalKeyword internal_format, char *text_format);
 int  set_date_time_format_from_datestyle(char *date_style_value);
 

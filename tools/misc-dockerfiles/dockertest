@@ -58,7 +58,7 @@ fi
 set -e # exit on error
 
 # Update build of tests_ubuntu
-docker build -f $SCRIPT_DIR/Dockerfile-Tests.ubuntu -t tests-ubuntu .
+docker build -f Dockerfile-Tests.ubuntu -t tests-ubuntu ../..
 
 # Kill any previous test container
 docker rm -f dockertest  2>/dev/null || true

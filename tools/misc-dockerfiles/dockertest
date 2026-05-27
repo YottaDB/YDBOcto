@@ -47,12 +47,15 @@ fi
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
 	help; exit
 elif [[ "$1" == "inspect" ]]; then
-	docker exec -it dockertest bash || { echo "Run '$0 -h' for help"; exit 1; }
+	shift
+	# Run in docker with $r pointing to the latest test results
+	exec docker exec -it dockertest bash -c "export r=\$(ls -dt build/bats-test.* 2>/dev/null | head -n1); bash $*" || { echo "Run '$0 -h' for help"; exit 1; }
 elif [[ "$1" == "kill" ]]; then
 	exec docker kill mysql dockertest 2>/dev/null
 elif [[ "$1" == "make-"* || "$1" == "test-auto-upgrade" ]]; then
 	# Run `bash` after test so we can inspect it on failure
-	set -- "tools/ci/build.sh $*; bash"
+	# Make $r point to the latest test results
+	set -- "tools/ci/build.sh $*; bash -c 'export r=\$(ls -dt build/bats-test.* 2>/dev/null | head -n1); bash'"
 fi
 
 set -e # exit on error
@@ -70,4 +73,6 @@ fi
 
 # Run the docker image and call the container 'dockertest'
 # Make it so that Ctrl-C doesn't exit the docker container but does halt the test so that we can check test results while its still alive.
-docker run -it --rm --name dockertest --link mysql -e CTEST_ARGS --entrypoint=bash tests-ubuntu -ic "trap 'pkill -SIGINT -P \$\$' SIGINT; $*"
+exec docker run -it --rm --name dockertest --link mysql \
+	-e CTEST_ARGS \
+	--entrypoint=bash tests-ubuntu -ic "trap 'pkill -SIGINT -P \$\$' SIGINT; $*"

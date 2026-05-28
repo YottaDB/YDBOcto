@@ -1,14 +1,11 @@
 # YDB Octo
 
-[![pipeline status](https://gitlab.com/YottaDB/DBMS/YDBOcto/badges/master/pipeline.svg)](https://gitlab.com/YottaDB/DBMS/YDBOcto/commits/master)
-
 Octo<sup>®</sup> is a SQL database engine whose tables are stored in YottaDB global variables (i.e., YottaDB hierarchical key-value nodes). Octo is installed as a YottaDB plugin.
 
-Homepage: https://gitlab.com/YottaDB/DBMS/YDBOcto
+- Homepage: https://gitlab.com/YottaDB/DBMS/YDBOcto
+- Documentation: https://docs.yottadb.com/Octo/
 
-Documentation: https://docs.yottadb.com/Octo/
-
-Octo requires [YottaDB](https://gitlab.com/YottaDB/DB/YDB) r1.34 or greater. Installing and configuring YottaDB is described on its [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
+Octo requires [YottaDB](https://gitlab.com/YottaDB/DB/YDB) r1.34 or greater. Installing and configuring YottaDB is described in its [user documentation](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
 
 *NOTE: Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement.*
 
@@ -20,12 +17,15 @@ Install prerequisite packages:
 # Ubuntu
 sudo apt update && sudo apt install -y --no-install-recommends build-essential cmake bison flex libreadline-dev libssl-dev wget ca-certificates file libelf-dev curl git pkg-config libicu-dev libconfig-dev
 
-# Rocky Linux
-sudo yum --enablerepo=powertools install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget findutils procps file openssl-devel postgresql
+# Rocky Linux 9 / 10
+sudo yum --enablerepo=crb install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget findutils procps file openssl-devel jansson
 
-# RHEL 8
-sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-sudo yum install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget findutils procps file openssl-devel postgresql
+# RHEL 9 / 10 (on RHEL 10, use rhel-10 in the repo name below)
+sudo subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
+sudo yum install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget findutils procps file openssl-devel jansson
+
+# SUSE (SLES 15 / openSUSE Leap 15)
+sudo zypper install -y gcc make cmake bison flex readline-devel git libconfig-devel pkg-config libicu-devel wget which findutils procps file gawk libopenssl-devel libjansson4
 ```
 
 Install YottaDB, Octo, and the required POSIX plugin all together:
@@ -154,4 +154,4 @@ make clean
 
 Documentation for development and testing of Octo is available in the [official documentation](https://docs.yottadb.com/Octo/developer_doc.html).
 
-*NOTE: Octo<sup>®</sup> is a registered trademark of YottaDB LLC.*
+**Octo is a registered trademark and wordmark of YottaDB LLC.** If you use, or distribute, a binary version built from unmodified Octo source code, you may refer to that software as Octo as long as you acknowledge the trademark / wordmark. If you modify the source code in any way, you may not refer to it as Octo unless you have explicit written permission to do so from YottaDB LLC.

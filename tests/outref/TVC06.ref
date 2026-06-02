@@ -37,6 +37,7 @@ octoPlan2(cursorId)
     . SET col(1)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),1)
     . SET col(1)=+col(1)
     . SET col(2)=%ydboctocursor(cursorId,"keys",1,"","",%ydboctocursor(cursorId,"keys",1,"",""),2)
+    . SET col(2)=$SELECT($ZYISSQLNULL(col(2)):col(2),1:$$ForceBoolean^%ydboctoplanhelpers(col(2)))
     . SET ^%ydboctoDCmBaHZ9r47JGHQicNKZ6HJ(col(0))=$$colvalue2piecevalue^%ydboctoplanhelpers(col(1))_"|"_$$colvalue2piecevalue^%ydboctoplanhelpers(col(2))
     . IF $INCREMENT(%ydboctocursor(cursorId,"RowCount")) ; Increment count of inserted records
     QUIT

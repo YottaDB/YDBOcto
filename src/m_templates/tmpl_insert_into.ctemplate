@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -159,6 +159,24 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 						GET_LP_ALLOW_NULL(cur_lp_col_list, cur_lp_col_list, 1, LP_COLUMN_LIST);
 						src_colnum++;
 					} while (NULL != cur_lp_col_list);
+					if (col_is_specified) {
+						/* "cur_column" was found at position "src_colnum" (1-based) in the specified
+						 * target column list, which corresponds to the same position in the source
+						 * VALUES/SELECT column list. Look up that source column's type so the
+						 * type-specific conversions below (date/time, boolean, integer/numeric
+						 * canonicalization) run for it. Without this, "src_cur_cla_type" stays
+						 * UNKNOWN_SqlValueType and the source value is stored without the needed
+						 * conversion (YDBOcto#1120). Mirrors the "NULL == lp_col_list" branch above.
+						 */
+						SqlColumnListAlias *src_value_cla;
+						int		    src_pos;
+
+						src_value_cla = src_start_cla;
+						for (src_pos = 1; src_pos < src_colnum; src_pos++) {
+							src_value_cla = src_value_cla->next;
+						}
+						src_cur_cla_type = src_value_cla->type;
+					}
 				}
 				/* The below expression helps avoid duplication of code for handling IDENTITY column in case where
 				 * insert columns are explicitely specified and not specified.
@@ -324,9 +342,27 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 							break;
 						}
 						break;
-					case NUL_TYPE:
 					case BOOLEAN_TYPE:
-						/* No checks are currently done/deemed-necessary for these types.
+						switch(src_cur_cla_type) {
+						case BOOLEAN_VALUE:
+							/* A boolean value supplied as a bind parameter arrives as its raw text
+							 * (e.g. the Postgres JDBC driver's "setBoolean" sends "true"/"false"), not
+							 * Octo's internal "1"/"0" form, so canonicalize it with ForceBoolean. This is
+							 * a no-op for boolean literals (already "1"/"0" from parse-time conversion) and
+							 * for column-to-column sources (already stored canonical), and a NULL value is
+							 * preserved as-is. This mirrors how INTEGER_TYPE above canonicalizes its
+							 * INTEGER_LITERAL sources with "+" (YDBOcto#1119).
+							 */
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})=$SELECT($ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})):{{ PP_COL }}({{ cur_column->column_number|%d }}),1:$$ForceBoolean^%%ydboctoplanhelpers({{ PP_COL }}({{ cur_column->column_number|%d }}))){}%
+							break;
+						default:
+							break;
+						}
+						break;
+					case NUL_TYPE:
+						/* No checks are currently done/deemed-necessary for this type.
 						 * Will add them as the need arises.
 						 */
 						break;

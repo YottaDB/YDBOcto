@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,6 +23,9 @@ SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 		break;
 	case PSQL_TypeOid_numeric:
 		return NUMERIC_LITERAL;
+		break;
+	case PSQL_TypeOid_bool:
+		return BOOLEAN_VALUE;
 		break;
 	case PSQL_TypeOid_varchar:
 		return STRING_LITERAL;

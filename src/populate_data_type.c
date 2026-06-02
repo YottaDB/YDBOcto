@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -1037,7 +1037,16 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 			}
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
-			*type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
+			if (UNKNOWN_SqlDataType == column->data_type_struct.data_type) {
+				/* This is a VALUES table column whose value is an extended-query bind parameter with
+				 * no client-specified data type. Its type has not yet been resolved (that happens
+				 * against the target column's type in "check_column_lists_for_type_match()"), so
+				 * report it as a parameter until then (YDBOcto#1119).
+				 */
+				*type = PARAMETER_VALUE;
+			} else {
+				*type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
+			}
 		}
 		break;
 	case column_list_STATEMENT:
@@ -1192,7 +1201,19 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 				column = start_column;
 				colno = 0;
 				do {
-					column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
+					if (PARAMETER_VALUE == type_array[colno]) {
+						/* This column's value is an extended-query bind parameter whose data type
+						 * was not specified by the client (e.g. the Postgres JDBC driver's
+						 * "setTimestamp" sends an unspecified type OID). Leave the column's data
+						 * type unset; it is resolved from the target column's type in
+						 * "check_column_lists_for_type_match()", the same way Postgres infers an
+						 * unspecified parameter type from the context it is used in (YDBOcto#1119).
+						 */
+						assert(UNKNOWN_SqlDataType == column->data_type_struct.data_type);
+					} else {
+						column->data_type_struct.data_type
+						    = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
+					}
 					column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
 					column->data_type_struct.scale = SCALE_UNSPECIFIED;
 					column->data_type_struct.size_or_precision_parameter_index = 0;

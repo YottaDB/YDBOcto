@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,8 @@ setup() {
 	load_fixture names.zwr
 	# Start and stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
 	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
-	test_port=$(start_rocto 1400 --allowschemachanges)	# Need --allowschemachanges as we run CREATE TABLE commands
+	# Need --allowschemachanges as we run CREATE TABLE commands, and --readwrite as TII12 inserts via rocto
+	test_port=$(start_rocto 1400 --allowschemachanges --readwrite)
 }
 
 teardown() {
@@ -127,4 +128,9 @@ teardown() {
 	echo '# Should see no lines containing "mval" in the below output' >> output.txt
 	grep -E "INSERT|octoPlan|mval" _ydboctoP*.m >> output.txt
 	verify_output TII11 output.txt
+}
+
+@test "TII12 : OCTO1119 : Prepared INSERT with setTimestamp and setBoolean bind parameters" {
+	run_java TII12 $test_port > output.txt 2>&1 || true
+	verify_output TII12 output.txt nodatetimefilter
 }

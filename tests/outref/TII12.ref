@@ -1,0 +1,36 @@
+YDBOcto#1119 : INSERT via JDBC prepared statement using setTimestamp() and setBoolean()
+--------------------------------------------------------------------------------------------
+Before the fix this INSERT aborted with ERR_UNKNOWN_KEYWORD_STATE and closed the connection
+(the JDBC driver reported SQLSTATE 08006 then 08003), so no rows were inserted. The driver
+sends parameter type OID 0 (unspecified) for setTimestamp() and OID 16 (bool) for setBoolean(),
+neither of which Octo resolved. After the fix the rows insert and read back correctly.
+
+Table  : create table tii12 (id integer primary key, name varchar(20), ts timestamp, flag boolean)
+Insert : insert into tii12 (id, name, ts, flag) values (?, ?, ?, ?)
+
+Binding : id=1, name='alice', setTimestamp('2026-06-01 13:00:00'), setBoolean(true)
+  --> INSERT 1 row
+Binding : id=2, name='bob', setTimestamp('2024-12-31 12:00:00'), setBoolean(false)
+  --> INSERT 1 row
+
+Reading back : select id, name, ts, flag from tii12 order by id
+1|alice|2026-06-01 13:00:00|t
+2|bob|2024-12-31 12:00:00|f
+
+Probing other JDBC setter / data-type combinations (each in its own connection):
+  setLong       -> INTEGER     OK     : INSERT 1, read back 42
+  setShort      -> INTEGER     OK     : INSERT 1, read back 7
+  setByte       -> INTEGER     OK     : INSERT 1, read back 5
+  setTime       -> TIME        OK     : INSERT 1, read back 13:45:00
+  setTimestamp(.frac) -> TIMESTAMP OK     : INSERT 1, read back 2026-06-02 13:45:30.123
+  setString(unspec) -> INTEGER OK     : INSERT 1, read back 42
+  setString(unspec) -> NUMERIC OK     : INSERT 1, read back 3.14
+  setString(unspec) -> BOOLEAN OK     : INSERT 1, read back t
+  setString(unspec) -> DATE    OK     : INSERT 1, read back 2026-06-02
+  setString(unspec) -> TIMESTAMP OK     : INSERT 1, read back 2026-06-02 13:45:30
+
+Unresolvable unspecified-type parameters (clean error expected; connection must survive):
+  INSERT..SELECT setTimestamp()    clean error : 42804 ERROR: Column "val" is of type TIMESTAMP but expression is of type PARAMETER
+  INSERT..SELECT setTimestamp()    still alive : select 1 -> 1
+  SELECT ? UNION SELECT 1 (unspec) clean error : 42601 ERROR: UNION types PARAMETER and INTEGER cannot be matched
+  SELECT ? UNION SELECT 1 (unspec) still alive : select 1 -> 1

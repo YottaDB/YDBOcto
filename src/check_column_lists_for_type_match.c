@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -145,6 +145,77 @@ int fix_value_stmt_to_boolean_in_table_values(SqlStatement *val, int col, boolea
 	assert(STRING_TYPE == column->data_type_struct.data_type);
 	column->data_type_struct.data_type = BOOLEAN_TYPE;
 	return 0;
+}
+
+/* This function is invoked when a value being inserted into a column of type "target_type" is an extended-query
+ * bind parameter whose data type was not specified by the client (its type remained PARAMETER_VALUE; e.g. the
+ * Postgres JDBC driver sends an unspecified type OID for "setTimestamp()", and for every "setString()" when its
+ * "stringtype=unspecified" connection option is in use). It resolves the parameter to the target column's type --
+ * whatever that type is -- the same way Postgres infers an unspecified parameter type from the context it is used
+ * in. "cla" is the source column (of the VALUES table "val") being type checked against the target column.
+ *
+ * After resolution the parameter is in exactly the state it would be in had the client specified the target
+ * type's OID in the "Parse" message:
+ *	- The VALUES table column's data type (left unset by "populate_data_type()" for this case) is set to the
+ *	  SqlDataType equivalent of "target_type". This happens for every target type.
+ *	- A date/time parameter value additionally gets its type set to "target_type" and its format noted as text,
+ *	  because date/time code generation needs those on the value itself to include the conversion routines.
+ *	  Values of all other types keep their PARAMETER_VALUE type (their code generation works off the parameter
+ *	  index alone). Both exactly mirror what "populate_data_type()" does when the client does specify the OID.
+ */
+void fix_parameter_value_to_target_type_in_table_values(SqlStatement *val, SqlColumnListAlias *cla, SqlValueType target_type) {
+	assert(table_value_STATEMENT == val->type);
+
+	/* Determine which column number of the VALUES table the source column "cla" corresponds to */
+	SqlColumnList  *cla_column_list;
+	SqlColumnAlias *column_alias;
+	SqlColumn      *column;
+	int		col;
+
+	UNPACK_SQL_STATEMENT(cla_column_list, cla->column_list, column_list);
+	UNPACK_SQL_STATEMENT(column_alias, cla_column_list->value, column_alias);
+	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+	col = column->column_number;
+
+	SqlTableValue *tv;
+	UNPACK_SQL_STATEMENT(tv, val, table_value);
+
+	int	     colno;
+	SqlRowValue *row_value, *start_row_value;
+	UNPACK_SQL_STATEMENT(row_value, tv->row_value_stmt, row_value);
+	start_row_value = row_value;
+
+	/* Walk every row of the VALUES table. In each row, advance to the value in column number "col"
+	 * and, if that value is a date/time parameter, note the type it has now been resolved to.
+	 */
+	do {
+		SqlColumnList *start_column_list, *cur_column_list;
+
+		UNPACK_SQL_STATEMENT(start_column_list, row_value->value_list, column_list);
+		cur_column_list = start_column_list;
+		for (colno = 1; colno != col; colno++) {
+			cur_column_list = cur_column_list->next;
+		}
+		if (value_STATEMENT == cur_column_list->value->type) {
+			SqlValue *value;
+
+			UNPACK_SQL_STATEMENT(value, cur_column_list->value, value);
+			if ((PARAMETER_VALUE == value->type) && IS_DATE_TIME_TYPE(target_type)) {
+				value->type = target_type;
+				// Parameter value can only be in text format
+				value->date_time_format_type = OPTIONAL_DATE_TIME_TEXT;
+			}
+		}
+		row_value = row_value->next;
+	} while (row_value != start_row_value);
+
+	/* The type of this VALUES table column is now known; record it */
+	column = tv->column_stmt->v.column;
+	for (colno = 1; colno != col; colno++) {
+		column = column->next;
+	}
+	assert(UNKNOWN_SqlDataType == column->data_type_struct.data_type);
+	column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(target_type);
 }
 
 /* Checks 2 column lists for type match and does a few other things depending on input type.
@@ -424,6 +495,29 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 				default:
 					is_type_mismatch = TRUE;
 					break;
+				}
+				break;
+			case PARAMETER_VALUE:
+				/* An extended-query bind parameter whose data type was not specified by the client
+				 * (e.g. the Postgres JDBC driver's "setTimestamp" sends an unspecified type OID).
+				 * For an INSERT whose source is a VALUES table, resolve the parameter to the target
+				 * column's type, the same way Postgres infers an unspecified parameter type from the
+				 * context it is used in (YDBOcto#1119). The bound value (which arrives in text
+				 * format) is then converted/validated by the same generated M code that handles a
+				 * parameter whose type the client did specify.
+				 */
+				if (!is_set_operation && (table_value_STATEMENT == insert_src_type)) {
+					fix_parameter_value_to_target_type_in_table_values(src_table_alias->table, cur_cla[0],
+											   right_type);
+					cur_cla[0]->type = right_type;
+					is_type_mismatch = FALSE;
+				} else {
+					/* A SET operation or a non-VALUES INSERT source: there is no VALUES table
+					 * column through which to resolve the parameter's type, so report a type
+					 * mismatch (a clean error, instead of the pre-YDBOcto#1119
+					 * ERR_UNKNOWN_KEYWORD_STATE FATAL that closed the connection).
+					 */
+					is_type_mismatch = TRUE;
 				}
 				break;
 			case NUL_VALUE:

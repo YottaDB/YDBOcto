@@ -391,6 +391,7 @@ _ydboctoP*.m:    . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoex
 _ydboctoP*.m:;  select * from TOB20f order by id desc limit 2
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc
 _ydboctoP*.m:;  select * from TOB20e order by id
+_ydboctoP*.m:    . SET col(1)=$SELECT($ZYISSQLNULL(col(1)):col(1),1:$$ForceBoolean^%ydboctoplanhelpers(col(1)))
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id asc
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc, n2.id desc

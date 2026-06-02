@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -90,6 +90,7 @@ if("${FULL_TEST_SUITE}")
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC020.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC022.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC023.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TII12.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TBCR002.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multi_query.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multiple_query_files.java

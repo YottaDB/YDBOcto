@@ -657,8 +657,12 @@ int check_column_lists_for_type_match(SqlStatement *stmt, ParseContext *parse_co
 				cla1_type = type_mismatch_cla[1]->type;
 				cl1 = NULL; // Avoid [-Wmaybe-uninitialized] warning
 			} else {
-
-				cl1 = (SqlColumnList *)cur_cla[1];
+				/* Use "type_mismatch_cla[1]" (the column recorded when the mismatch was detected),
+				 * not "cur_cla[1]" which has wrapped back to the first column of the INSERT column
+				 * list by the time the loop exits. Otherwise the error names the wrong column and its
+				 * type (YDBOcto#1121).
+				 */
+				cl1 = (SqlColumnList *)type_mismatch_cla[1];
 				UNPACK_SQL_STATEMENT(column, cl1->value, column);
 				cla1_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
 			}

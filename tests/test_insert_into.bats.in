@@ -134,3 +134,8 @@ teardown() {
 	run_java TII12 $test_port > output.txt 2>&1 || true
 	verify_output TII12 output.txt nodatetimefilter
 }
+
+@test "TII13 : OCTO1121 : INSERT type-mismatch error names the column that actually mismatched" {
+	load_fixture TII13.sql subtest novv
+	verify_output TII13 output.txt
+}

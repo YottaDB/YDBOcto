@@ -1,0 +1,77 @@
+
+-- Reproduction of YDBOcto#1128: a column defined with the EXTRACT keyword whose
+-- expression embeds keys(...) issued a ZYSQLNULLNOTVALID runtime error when the
+-- column was on the unmatched (NULL-valued) side of a LEFT JOIN:
+--   %YDB-E-ZYSQLNULLNOTVALID, $ZYSQLNULL cannot be used as ... gvn subscript
+--
+-- "reqs" is the LEFT (driver) table.  "results" is the RIGHT (readonly) table.
+-- Two columns of "results" read piece 2 of the same node, ^X(reg_num), in
+-- different ways:
+--   * specnum uses the column-level GLOBAL/PIECE keywords.  This access is
+--     guarded against NULL keys and correctly returns NULL for an unmatched row.
+--   * ext_specnum uses EXTRACT.  Before the fix this access was emitted
+--     unguarded, so an unmatched LEFT JOIN row (all of whose key lvns are set
+--     to $ZYSQLNULL) evaluated $PIECE($GET(^X($ZYSQLNULL)),"|",2) and errored.
+
+CREATE TABLE reqs (reg_num VARCHAR(20) PRIMARY KEY, patient VARCHAR(30)) GLOBAL "^X(keys(""reg_num""))" DELIM "|" READONLY;
+
+CREATE TABLE results (
+	reg_num VARCHAR(20),
+	test_index INTEGER,
+	test_code VARCHAR(20) PIECE 1,
+	specnum VARCHAR(20) GLOBAL "^X(keys(""reg_num""))" DELIM "|" PIECE 2,
+	ext_specnum VARCHAR(20) EXTRACT "$PIECE($GET(^X(keys(""reg_num""))),""|"",2)",
+	PRIMARY KEY (reg_num, test_index)
+) GLOBAL "^Y(keys(""reg_num""),keys(""test_index""))" DELIM "|" READONLY;
+
+-- Show the contents of both tables so a human reviewer can see the data the JOIN runs on.
+-- reqs has REG1 and REG2; results has a row only for REG1.
+SELECT * FROM reqs;
+SELECT * FROM results;
+
+-- REG2 has no ^Y row, so it is an unmatched right row: results.* must come back NULL.
+SELECT * FROM reqs r LEFT JOIN results t ON r.reg_num = t.reg_num ORDER BY r.reg_num;
+OCTO> --
+
+CREATE TABLE reqs (reg_num VARCHAR(20) PRIMARY KEY, patient VARCHAR(30)) GLOBAL "^X(keys(""reg_num""))" DELIM "|" READONLY;
+CREATE TABLE
+OCTO> CREATE TABLE results (
+	reg_num VARCHAR(20),
+	test_index INTEGER,
+	test_code VARCHAR(20) PIECE 1,
+	specnum VARCHAR(20) GLOBAL "^X(keys(""reg_num""))" DELIM "|" PIECE 2,
+	ext_specnum VARCHAR(20) EXTRACT "$PIECE($GET(^X(keys(""reg_num""))),""|"",2)",
+	PRIMARY KEY (reg_num, test_index)
+) GLOBAL "^Y(keys(""reg_num""),keys(""test_index""))" DELIM "|" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM reqs;
+reg_num|patient
+REG1|Alice
+REG2|Bob
+(2 rows)
+OCTO> SELECT * FROM results;
+reg_num|test_index|test_code|specnum|ext_specnum
+REG1|1|CBC|B26|B26
+(1 row)
+OCTO> SELECT * FROM reqs r LEFT JOIN results t ON r.reg_num = t.reg_num ORDER BY r.reg_num;
+reg_num|patient|reg_num|test_index|test_code|specnum|ext_specnum
+REG1|Alice|REG1|1|CBC|B26|B26
+REG2|Bob|||||
+(2 rows)
+OCTO> 
+
+Excerpts of the generated M plan follow (octoLeftJoin code and the ^X(reg_num) column accesses).
+Non-key column names do not appear in generated M. The two piece-2 reads of ^X in table "results" are
+told apart by where the $SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:...) guard sits relative to the $PIECE:
+   specnum (GLOBAL/PIECE): guard is INSIDE $PIECE   -> $PIECE($SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:$GET(^X(<key lvn>))),"|",2)
+   ext_specnum (EXTRACT):  guard WRAPS the whole expr -> $SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:$PIECE($GET(^X(<key lvn>)),"|",2))
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"reqs","reg_num")=$ORDER(^X(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num")="")  DO
+    . . . DO octoLeftJoin2
+    . . SET %ydboctocursor(cursorId,"keys",2,"results","reg_num")=$ZYSQLNULL
+    . . SET %ydboctocursor(cursorId,"keys",2,"results","test_index")=$ZYSQLNULL
+    . . DO octoLeftJoin2
+octoLeftJoin2;
+    . SET %ydboctoexpr=$PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num")):$ZYSQLNULL,1:$GET(^X(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num")))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"results","reg_num")):$ZYSQLNULL,1:$GET(^Y(%ydboctocursor(cursorId,"keys",2,"results","reg_num"),%ydboctocursor(cursorId,"keys",2,"results","test_index")))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$PIECE($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"results","reg_num")):$ZYSQLNULL,1:$GET(^X(%ydboctocursor(cursorId,"keys",2,"results","reg_num")))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"results","reg_num")):$ZYSQLNULL,1:$PIECE($GET(^X(%ydboctocursor(cursorId,"keys",2,"results","reg_num"))),"|",2)) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL

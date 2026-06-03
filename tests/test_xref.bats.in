@@ -340,3 +340,17 @@ OCTO
 
 	verify_output TX12 output.txt
 }
+
+@test "TX14 : OCTO1128 : ZYSQLNULLNOTVALID error from EXTRACT column on the NULL side of a LEFT JOIN" {
+	load_fixture TX14.zwr
+	load_fixture TX14.sql subtest novv
+	# Capture the generated octoLeftJoin code so the materialization of the "specnum" and "ext_specnum" columns is visible
+	echo "" | tee -a output.txt
+	echo "Excerpts of the generated M plan follow (octoLeftJoin code and the ^X(reg_num) column accesses)." | tee -a output.txt
+	echo 'Non-key column names do not appear in generated M. The two piece-2 reads of ^X in table "results" are' | tee -a output.txt
+	echo 'told apart by where the $SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:...) guard sits relative to the $PIECE:' | tee -a output.txt
+	echo '   specnum (GLOBAL/PIECE): guard is INSIDE $PIECE   -> $PIECE($SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:$GET(^X(<key lvn>))),"|",2)' | tee -a output.txt
+	echo '   ext_specnum (EXTRACT):  guard WRAPS the whole expr -> $SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:$PIECE($GET(^X(<key lvn>)),"|",2))' | tee -a output.txt
+	grep -hE 'octoLeftJoin|ZYSQLNULL|\^X\(' $(grep -l octoLeftJoin _ydboctoP*.m) >> output.txt
+	verify_output TX14 output.txt
+}

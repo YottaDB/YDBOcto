@@ -1,0 +1,5 @@
+YottaDB MUPIP EXTRACT
+02-JUN-2026  00:00:00 ZWR
+^X("REG1")="Alice|B26"
+^X("REG2")="Bob|C27"
+^Y("REG1",1)="CBC|x"

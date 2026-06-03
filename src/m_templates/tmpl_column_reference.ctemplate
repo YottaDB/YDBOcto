@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -219,16 +219,29 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	boolean_t	skipped_dollar_get;
 	skipped_dollar_get = TRUE;
 	/* All non-extract references get $GET. Add $PIECE for if piece number specified. */
+	if (!is_trigger && !is_extract && (NULL != piece)) {
+		%{}$PIECE({}%
+	}
+
+	/* If this plan contains a LEFT JOIN (and no RIGHT/FULL JOIN), "key_lvn_can_be_zysqlnull" is set
+	 * (YDBOcto#1006) and this column's table can be the unmatched (NULL-valued) side of the join for the
+	 * current output row. In that case ALL key lvns of the table hold $ZYSQLNULL, and using one of them
+	 * (as a gvn subscript of the table's global, of a column-level GLOBAL, or through a "keys(...)"
+	 * reference inside an EXTRACT expression) would issue a ZYSQLNULLNOTVALID runtime error (YDBOcto#1128).
+	 * Since every column on the NULL side of the join is NULL anyway, short-circuit the entire column
+	 * access (non-EXTRACT and EXTRACT alike) to $ZYSQLNULL by first checking one key lvn of this table
+	 * (all key lvns of an unmatched row are set to $ZYSQLNULL together, so checking one key is enough).
+	 */
+	boolean_t	zysqlnull_guard;
+	zysqlnull_guard = (!is_trigger && pplan->key_lvn_can_be_zysqlnull);
+	if (zysqlnull_guard) {
+		%{}$SELECT($ZYISSQLNULL({}%
+		assert(matching_key->unique_id == unique_id);
+		TMPL(tmpl_key, matching_key);
+		%{}):$ZYSQLNULL,1:{}%
+	}
+
 	if (!is_trigger && !is_extract) {
-		if (NULL != piece) {
-			%{}$PIECE({}%
-		}
-		if (pplan->key_lvn_can_be_zysqlnull) {
-			%{}$SELECT($ZYISSQLNULL({}%
-			assert(matching_key->unique_id == unique_id);
-			TMPL(tmpl_key, matching_key);
-			%{}):$ZYSQLNULL,1:{}%
-		}
 		/* If the current query/command is guaranteed to be running inside TSTART/TCOMMIT fence, then we
 		 * do not need to wrap the database access around a "$GET" call. Otherwise we need to or else we
 		 * could encounter GVUNDEF errors due to concurrent updates after we did the "$ORDER" in the preceding
@@ -241,6 +254,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			%{}$GET({}%
 		}
 	}
+
 	if (is_extract && (NULL != column_alias->extract_lp)) {
 		assert(LP_FUNCTION_CALL == column_alias->extract_lp->type);
 		/* This EXTRACT specification references a SQL function call, in which case its logical plan must be expanded
@@ -253,19 +267,17 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 					(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	}
 	if (!is_trigger) {
-		if (!is_extract) {
-			if (!skipped_dollar_get) {
-				%{}){}%
-			}
-			if (pplan->key_lvn_can_be_zysqlnull) {
-				%{}){}%	/* closing paren for "$SELECT($ZYISSQLNULL" */
-			}
-			if (NULL != piece) {
-				if (is_dollar_char) {
-					%{},{{ delim }},{{ piece }}){}%
-				} else {
-					%{},"{{ delim }}",{{ piece }}){}%
-				}
+		if (!is_extract && !skipped_dollar_get) {
+			%{}){}%	/* closing paren for "$GET" */
+		}
+		if (zysqlnull_guard) {
+			%{}){}%	/* closing paren for "$SELECT($ZYISSQLNULL" */
+		}
+		if (!is_extract && (NULL != piece)) {
+			if (is_dollar_char) {
+				%{},{{ delim }},{{ piece }}){}%
+			} else {
+				%{},"{{ delim }}",{{ piece }}){}%
 			}
 		}
 		if (!dot_count) {

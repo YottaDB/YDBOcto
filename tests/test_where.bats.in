@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -329,4 +329,53 @@ OCTO
 	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
 
 	verify_output TW28 output.txt
+}
+
+@test "TW29 : OCTO1124 : WHERE on a column whose GLOBAL maps different keys than the primary key" {
+	# Each TW29-N.sql defines one case: a table whose non-key column's GLOBAL keyword references the
+	# primary-key columns in some shape, followed by an unfiltered SELECT * and a WHERE filter on that
+	# column. The shapes (relative to the table's primary key) are:
+	#   1) a leading prefix in primary-key order (uses the cross reference; was 0 rows before #1124),
+	#   2) all primary-key columns present but reordered (uses the cross reference, advancing keys in the
+	#      column's global order; silently returned swapped rows before #1124),
+	#   3) a non-prefix subset that skips a key column (cross reference declined; full scan filters correctly),
+	#   4) a different global name than the table's rows, all primary-key columns in order (cross reference
+	#      built on the column's own global; every key advanced from it),
+	#   5) a different global name than the table's rows, leading-prefix coverage (cross reference on the
+	#      column's global plus key iteration over the table's own, separate global).
+	# See tests/fixtures/TW29-1.* .. TW29-5.* for the per-case data, schemas and descriptions.
+	#
+	# For each case: load the case's global data (TW29-N.zwr), then run the case's SQL (echoing the schema
+	# and both query results), then inspect the WHERE query's generated M plan to show its key iteration.
+	# $ORDER/$DATA over ^%ydbAIMD* is the AIM cross reference; $ORDER over the table's own global advances
+	# primary-key columns the cross reference does not cover (or the whole row when the cross reference is
+	# declined). The plans are deleted after each case.
+	tw29_case() { # $1 = case base name (e.g. TW29-1)
+		load_fixture $1.zwr
+		load_fixture $1.sql subtest novv
+
+		# The WHERE query's plan is the generated _ydboctoP*.m whose header comment contains "WHERE".
+		local where_plan
+		where_plan=$(grep -lE '^;.*WHERE' _ydboctoP*.m)
+		if grep -hqE '\^%ydbAIMD' "$where_plan"; then
+			echo "# Key iteration in the WHERE query plan -- uses the AIM cross reference." | tee -a output.txt
+			echo "# (\$ORDER/\$DATA over ^%ydbAIMD* iterate the cross reference; \$ORDER over the table" | tee -a output.txt
+			echo "#  global iterates primary-key columns the cross reference does not cover.)" | tee -a output.txt
+		else
+			echo "# Key iteration in the WHERE query plan -- no AIM cross reference, full table scan" | tee -a output.txt
+			echo "# (\$ORDER over the table global only)." | tee -a output.txt
+		fi
+		grep -hE '\$ORDER\(\^|\$DATA\(\^%ydbAIMD' "$where_plan" | tee -a output.txt
+		echo | tee -a output.txt
+
+		rm -f _ydboctoP*.m
+	}
+
+	tw29_case TW29-1
+	tw29_case TW29-2
+	tw29_case TW29-3
+	tw29_case TW29-4
+	tw29_case TW29-5
+
+	verify_output TW29 output.txt
 }

@@ -1,0 +1,7 @@
+YottaDB MUPIP EXTRACT
+02-JUN-2026  00:00:00 ZWR
+^ORD(1)="Alice"
+^ORD(1,1)="Widget"
+^ORD(1,2)="Gadget"
+^ORD(2)="Bob"
+^ORD(2,1)="Gizmo"

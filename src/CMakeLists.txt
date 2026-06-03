@@ -215,6 +215,7 @@ add_library(libocto OBJECT
   get_mem_usage.c
   get_mval_len.c
   get_num_cols_in_table_alias.c
+  get_keys_in_global.c
   get_group_by_fields.c
   get_row_count_from_cursorId.c
   get_psql_type_from_sqlvaluetype.c

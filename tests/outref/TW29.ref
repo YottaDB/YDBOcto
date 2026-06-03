@@ -1,0 +1,218 @@
+
+-- TW29 Case 1 (YDBOcto#1124) : the column's global maps a LEADING PREFIX of the primary key, in
+-- primary-key order. "customer" is recorded once per order at the shallower node ^ORD(order_id); each line
+-- item is a deeper node ^ORD(order_id,line_id). The cross reference advances order_id (its only key); the
+-- remaining primary-key column line_id is advanced from the table's own global ^ORD(order_id,line_id).
+-- This is the case that returned 0 rows before the #1124 fix.
+CREATE TABLE order_lines (
+ order_id INTEGER,
+ line_id INTEGER,
+ customer VARCHAR(20) GLOBAL "^ORD(keys(""order_id""))" PIECE 1,
+ item VARCHAR(20) PIECE 1,
+ PRIMARY KEY (order_id, line_id)
+) GLOBAL "^ORD" READONLY;
+
+-- Unfiltered : confirms the data is present (customer resolved per order).
+SELECT * FROM order_lines ORDER BY order_id, line_id;
+
+-- Filtered : WHERE on the cross-referenced column. Expect the two order 1 rows.
+SELECT * FROM order_lines WHERE customer = 'Alice' ORDER BY order_id, line_id;
+OCTO> CREATE TABLE order_lines (
+ order_id INTEGER,
+ line_id INTEGER,
+ customer VARCHAR(20) GLOBAL "^ORD(keys(""order_id""))" PIECE 1,
+ item VARCHAR(20) PIECE 1,
+ PRIMARY KEY (order_id, line_id)
+) GLOBAL "^ORD" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|customer|item
+1|1|Alice|Widget
+1|2|Alice|Gadget
+2|1|Bob|Gizmo
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE customer = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|customer|item
+1|1|Alice|Widget
+1|2|Alice|Gadget
+(2 rows)
+OCTO> 
+# Key iteration in the WHERE query plan -- uses the AIM cross reference.
+# ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
+#  global iterates primary-key columns the cross reference does not cover.)
+    SET %ydboctocursor(cursorId,"keys",1,"order_lines","customer")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")) IF $DATA(^%ydbAIMD1dXn5zflkAfzjsiXPOsK6G(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"order_lines","order_id")=$ORDER(^%ydbAIMD1dXn5zflkAfzjsiXPOsK6G(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")),%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order_lines","line_id")=$ORDER(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"),%ydboctocursor(cursorId,"keys",1,"order_lines","line_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")="")  DO
+
+
+-- TW29 Case 2 (YDBOcto#1124) : the column's global lists ALL primary-key columns, but in a DIFFERENT order
+-- than the primary key. The primary key is (a, b) but "val" maps to ^GV(keys("b"),keys("a")). Every
+-- primary-key subscript is present in the cross reference, so it is used: the keys are advanced in the
+-- column's global order (b, then a) so each cross-reference subscript binds to the right column. (Before
+-- the #1124 fix this silently returned a row with a and b swapped.)
+CREATE TABLE revkeys (
+ a INTEGER,
+ b INTEGER,
+ val VARCHAR(20) GLOBAL "^GV(keys(""b""),keys(""a""))" PIECE 1,
+ PRIMARY KEY (a, b)
+) GLOBAL "^GROW" READONLY;
+
+-- Unfiltered : confirms the data is present.
+SELECT * FROM revkeys ORDER BY a, b;
+
+-- Filtered : WHERE on the reordered-all-keys column. Must match the unfiltered row exactly.
+SELECT * FROM revkeys WHERE val = 'hello' ORDER BY a, b;
+OCTO> CREATE TABLE revkeys (
+ a INTEGER,
+ b INTEGER,
+ val VARCHAR(20) GLOBAL "^GV(keys(""b""),keys(""a""))" PIECE 1,
+ PRIMARY KEY (a, b)
+) GLOBAL "^GROW" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM revkeys ORDER BY a, b;
+a|b|val
+1|2|hello
+(1 row)
+OCTO> SELECT * FROM revkeys WHERE val = 'hello' ORDER BY a, b;
+a|b|val
+1|2|hello
+(1 row)
+OCTO> 
+# Key iteration in the WHERE query plan -- uses the AIM cross reference.
+# ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
+#  global iterates primary-key columns the cross reference does not cover.)
+    SET %ydboctocursor(cursorId,"keys",1,"revkeys","val")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"revkeys","val")) IF $DATA(^%ydbAIMDAsNSmD2X05A0PGeNtjgOH0(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"revkeys","val")))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"revkeys","b")=$ORDER(^%ydbAIMDAsNSmD2X05A0PGeNtjgOH0(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"revkeys","val")),%ydboctocursor(cursorId,"keys",1,"revkeys","b"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"revkeys","b")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"revkeys","a")=$ORDER(^%ydbAIMDAsNSmD2X05A0PGeNtjgOH0(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"revkeys","val")),%ydboctocursor(cursorId,"keys",1,"revkeys","b"),%ydboctocursor(cursorId,"keys",1,"revkeys","a"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"revkeys","a")="")  DO
+
+
+-- TW29 Case 3 (YDBOcto#1124) : the column's global maps a NON-PREFIX subset of the primary key (it skips a
+-- key column). The primary key is (a, b, c) but "val" maps to ^GS(keys("a"),keys("c")), skipping b. Octo
+-- declines the cross reference and falls back to a full scan that filters correctly. (Before the #1124 fix
+-- this silently returned wrong rows.)
+CREATE TABLE gapkeys (
+ a INTEGER,
+ b INTEGER,
+ c INTEGER,
+ val VARCHAR(20) GLOBAL "^GS(keys(""a""),keys(""c""))" PIECE 1,
+ PRIMARY KEY (a, b, c)
+) GLOBAL "^GROWB" READONLY;
+
+-- Unfiltered : confirms the data is present.
+SELECT * FROM gapkeys ORDER BY a, b, c;
+
+-- Filtered : WHERE on the gap-subset column. Must match the unfiltered row exactly.
+SELECT * FROM gapkeys WHERE val = 'hit' ORDER BY a, b, c;
+OCTO> CREATE TABLE gapkeys (
+ a INTEGER,
+ b INTEGER,
+ c INTEGER,
+ val VARCHAR(20) GLOBAL "^GS(keys(""a""),keys(""c""))" PIECE 1,
+ PRIMARY KEY (a, b, c)
+) GLOBAL "^GROWB" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM gapkeys ORDER BY a, b, c;
+a|b|c|val
+1|2|3|hit
+(1 row)
+OCTO> SELECT * FROM gapkeys WHERE val = 'hit' ORDER BY a, b, c;
+a|b|c|val
+1|2|3|hit
+(1 row)
+OCTO> 
+# Key iteration in the WHERE query plan -- no AIM cross reference, full table scan
+# ($ORDER over the table global only).
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"gapkeys","a")=$ORDER(^GROWB(%ydboctocursor(cursorId,"keys",1,"gapkeys","a"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"gapkeys","a")="")  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"gapkeys","b")=$ORDER(^GROWB(%ydboctocursor(cursorId,"keys",1,"gapkeys","a"),%ydboctocursor(cursorId,"keys",1,"gapkeys","b"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"gapkeys","b")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"gapkeys","c")=$ORDER(^GROWB(%ydboctocursor(cursorId,"keys",1,"gapkeys","a"),%ydboctocursor(cursorId,"keys",1,"gapkeys","b"),%ydboctocursor(cursorId,"keys",1,"gapkeys","c"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"gapkeys","c")="")  DO
+
+
+-- TW29 Case 4 (YDBOcto#1124) : the column's global uses a DIFFERENT global name than the table's rows, and
+-- lists ALL primary-key columns in primary-key order. The rows live in ^SEAT(event_id,seat_id); "holder" is
+-- stored in a separate global ^HOLDER(event_id,seat_id). Every primary-key subscript is in the cross
+-- reference, so all keys are advanced from it (the cross reference is built on ^HOLDER, not ^SEAT); no key
+-- is advanced from the table's own global.
+CREATE TABLE seats (
+ event_id INTEGER,
+ seat_id INTEGER,
+ holder VARCHAR(20) GLOBAL "^HOLDER(keys(""event_id""),keys(""seat_id""))" PIECE 1,
+ price VARCHAR(10) PIECE 1,
+ PRIMARY KEY (event_id, seat_id)
+) GLOBAL "^SEAT" READONLY;
+
+-- Unfiltered : confirms the data is present.
+SELECT * FROM seats ORDER BY event_id, seat_id;
+
+-- Filtered : WHERE on the column stored in a different global (all keys present, in order).
+SELECT * FROM seats WHERE holder = 'Alice' ORDER BY event_id, seat_id;
+OCTO> CREATE TABLE seats (
+ event_id INTEGER,
+ seat_id INTEGER,
+ holder VARCHAR(20) GLOBAL "^HOLDER(keys(""event_id""),keys(""seat_id""))" PIECE 1,
+ price VARCHAR(10) PIECE 1,
+ PRIMARY KEY (event_id, seat_id)
+) GLOBAL "^SEAT" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM seats ORDER BY event_id, seat_id;
+event_id|seat_id|holder|price
+10|1|Alice|50
+10|2|Bob|75
+(2 rows)
+OCTO> SELECT * FROM seats WHERE holder = 'Alice' ORDER BY event_id, seat_id;
+event_id|seat_id|holder|price
+10|1|Alice|50
+(1 row)
+OCTO> 
+# Key iteration in the WHERE query plan -- uses the AIM cross reference.
+# ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
+#  global iterates primary-key columns the cross reference does not cover.)
+    SET %ydboctocursor(cursorId,"keys",1,"seats","holder")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"seats","holder")) IF $DATA(^%ydbAIMDCuhCpHwEeAQ9T3uze4cg61(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"seats","holder")))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"seats","event_id")=$ORDER(^%ydbAIMDCuhCpHwEeAQ9T3uze4cg61(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"seats","holder")),%ydboctocursor(cursorId,"keys",1,"seats","event_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"seats","event_id")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"seats","seat_id")=$ORDER(^%ydbAIMDCuhCpHwEeAQ9T3uze4cg61(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"seats","holder")),%ydboctocursor(cursorId,"keys",1,"seats","event_id"),%ydboctocursor(cursorId,"keys",1,"seats","seat_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"seats","seat_id")="")  DO
+
+
+-- TW29 Case 5 (YDBOcto#1124) : the column's global uses a DIFFERENT global name than the table's rows, and
+-- lists a LEADING PREFIX of the primary key. The rows live in ^O(cust_id,order_id); "region" is a
+-- per-customer attribute in a separate global ^CUSTREGION(cust_id). cust_id is advanced from the cross
+-- reference (built on ^CUSTREGION), while the remaining primary-key column order_id is advanced from the
+-- table's own global ^O(cust_id,order_id).
+CREATE TABLE orders2 (
+ cust_id INTEGER,
+ order_id INTEGER,
+ region VARCHAR(20) GLOBAL "^CUSTREGION(keys(""cust_id""))" PIECE 1,
+ amount VARCHAR(10) PIECE 1,
+ PRIMARY KEY (cust_id, order_id)
+) GLOBAL "^O" READONLY;
+
+-- Unfiltered : confirms the data is present.
+SELECT * FROM orders2 ORDER BY cust_id, order_id;
+
+-- Filtered : WHERE on the column stored in a different global (leading-prefix coverage).
+SELECT * FROM orders2 WHERE region = 'West' ORDER BY cust_id, order_id;
+OCTO> CREATE TABLE orders2 (
+ cust_id INTEGER,
+ order_id INTEGER,
+ region VARCHAR(20) GLOBAL "^CUSTREGION(keys(""cust_id""))" PIECE 1,
+ amount VARCHAR(10) PIECE 1,
+ PRIMARY KEY (cust_id, order_id)
+) GLOBAL "^O" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM orders2 ORDER BY cust_id, order_id;
+cust_id|order_id|region|amount
+100|1|West|20
+100|2|West|30
+200|1|East|40
+(3 rows)
+OCTO> SELECT * FROM orders2 WHERE region = 'West' ORDER BY cust_id, order_id;
+cust_id|order_id|region|amount
+100|1|West|20
+100|2|West|30
+(2 rows)
+OCTO> 
+# Key iteration in the WHERE query plan -- uses the AIM cross reference.
+# ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
+#  global iterates primary-key columns the cross reference does not cover.)
+    SET %ydboctocursor(cursorId,"keys",1,"orders2","region")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders2","region")) IF $DATA(^%ydbAIMDa1wgJA1seWWIgpeFXY5VG3(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"orders2","region")))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","cust_id")=$ORDER(^%ydbAIMDa1wgJA1seWWIgpeFXY5VG3(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"orders2","region")),%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","order_id")=$ORDER(^O(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"),%ydboctocursor(cursorId,"keys",1,"orders2","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","order_id")="")  DO
+

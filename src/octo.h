@@ -422,7 +422,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 41
+#define FMT_PLAN_DEFINITION 42
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
@@ -1437,6 +1437,7 @@ SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword)
 char		   *get_keyword_name(enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
+int		    get_keys_in_global(char *global_source, SqlTable *table, SqlColumn **key_columns);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int  get_row_count_from_cursorId(ydb_long_t cursorId);
 int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);

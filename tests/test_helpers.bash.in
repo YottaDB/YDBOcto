@@ -95,6 +95,9 @@ init_test() {
 	# wrong (due to the absence of files like "CreateEnv.err" which would have "No space" error in case the disk is full etc.).
 	export TMPDIR="$PWD"
 	source @YOTTADB_INCLUDE_DIRS@/ydb_env_set || true
+	# Ensure all tests use the same yottadb binaries since many tests do not prefix e.g. yottadb with $ydb_dist/
+	# ydb_env_set almost does this, but unfortunately adds $ydb_dist to the end rather than the beginning of $PATH
+	export PATH="$ydb_dist:$PATH"
 	unset TMPDIR
 	# If "ydb_dist" env var is not set, it means "ydb_env_set" call above failed. If so, exit.
 	# But before that save env vars (would have otherwise been done in a later "createdb" call.
@@ -381,7 +384,7 @@ add -name %ydbAIM* -region=AIMREG
 exit
 FILE
 	fi
-	rm $db_dir/*.dat || true
+	rm -f $db_dir/*.dat || true
 	$ydb_dist/mupip create
 
 	# Restore the original global directory after the extended reference

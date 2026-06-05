@@ -111,7 +111,7 @@ Configure PostgreSQL and MySQL/MariaDB
   .. code-block:: bash
 
      sudo mysql <<MYSQL
-     CREATE USER '$USER'@'localhost' IDENTIFIED BY 'ydbrocks';
+     CREATE USER IF NOT EXISTS '$USER'@'localhost' IDENTIFIED BY 'ydbrocks';
      GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO '$USER'@'localhost' WITH GRANT OPTION;
      FLUSH PRIVILEGES;
      MYSQL

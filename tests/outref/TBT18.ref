@@ -1,0 +1,24 @@
+
+CREATE TABLE tbt18 (product_id INT PRIMARY KEY, name VARCHAR, available BOOLEAN) GLOBAL "^tbt18" DELIM "|" READONLY;
+-- Referencing the BOOLEAN column forces an AIM xref build on `available`. Before OCTO1131, ForceBoolean
+-- returned $ZYSQLNULL for any value it did not recognize as a boolean, and AIM died with ZYSQLNULLNOTVALID
+-- at xrefdata^%YDBAIM when it used that as a global variable subscript. After the fix the xref builds cleanly:
+--   * an empty piece (^tbt18(300)="gizmo|") maps to the empty string, i.e. SQL NULL
+--   * any other unrecognized value (^tbt18(600)="doohickey|not a boolean") maps to 0, i.e. FALSE
+-- The NULL row appears in neither result below; the unrecognized-value row appears only under `= FALSE`.
+SELECT * FROM tbt18 WHERE available = TRUE;
+SELECT * FROM tbt18 WHERE available = FALSE;
+OCTO> CREATE TABLE tbt18 (product_id INT PRIMARY KEY, name VARCHAR, available BOOLEAN) GLOBAL "^tbt18" DELIM "|" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM tbt18 WHERE available = TRUE;
+product_id|name|available
+100|widget|t
+400|thing|t
+(2 rows)
+OCTO> SELECT * FROM tbt18 WHERE available = FALSE;
+product_id|name|available
+200|gadget|f
+500|sprocket|f
+600|doohickey|f
+(3 rows)
+OCTO> 

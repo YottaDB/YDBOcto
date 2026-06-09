@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -741,16 +741,16 @@ initBoolMap
 	SET %ydboctoStr2Bool("no")=0
 	SET %ydboctoStr2Bool("n")=0
 	SET %ydboctoStr2Bool("0")=0
+	SET %ydboctoStr2Bool("")=""
 	QUIT
 
 ; Following routine is invoked to process a boolean type column of a readonly table and it converts string in `val` to 1 or 0.
-; Invalid values return ZYSQLNULL.
 ; Note:
 ; * Refer to `%ydboctoStr2Bool` subscripts and its values to know which string is mapped to which value.
 ForceBoolean(val)
 	DO:'$DATA(%ydboctoStr2Bool) initBoolMap
 	SET val=$ZCONVERT(val,"L")
-	QUIT $SELECT($DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:$ZYSQLNULL)
+	QUIT $SELECT($DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:0)
 
 max(isString,a,b)
 	; return the greatest of a and b

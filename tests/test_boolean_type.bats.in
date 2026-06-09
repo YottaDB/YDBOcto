@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -191,4 +191,16 @@ teardown() {
 
 @test "TBT17 : OCTO1064 : Test that boolean literals in all cases are accepted" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT17.sql "trim_trailing_zeroes"
+}
+
+@test "TBT18 : OCTO1131 : AIM xref on a BOOLEAN readonly column with empty/unrecognized values builds without ZYSQLNULLNOTVALID" {
+	# A GLOBAL-mapped (READONLY) table with a BOOLEAN column makes Octo emit the AIM xref with
+	# force="$$ForceBoolean^%ydboctoplanhelpers(...)" (see tmpl_physical_plan.ctemplate). The BOOLEAN column
+	# is piece 2 of a delimited global. Before OCTO1131, ForceBoolean returned $ZYSQLNULL for any value it
+	# did not recognize as a boolean, and AIM died with ZYSQLNULLNOTVALID at xrefdata^%YDBAIM. After the fix
+	# an empty piece (^tbt18(300)) maps to SQL NULL and any other unrecognized value (^tbt18(600)) maps to
+	# FALSE, so the xref builds cleanly.
+	load_fixture TBT18.zwr
+	load_fixture TBT18.sql subtest novv
+	verify_output TBT18 output.txt
 }

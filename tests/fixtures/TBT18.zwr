@@ -1,0 +1,8 @@
+YottaDB MUPIP EXTRACT
+09-JUN-2026  00:00:00 ZWR
+^tbt18(100)="widget|1"
+^tbt18(200)="gadget|0"
+^tbt18(300)="gizmo|"
+^tbt18(400)="thing|1"
+^tbt18(500)="sprocket|0"
+^tbt18(600)="doohickey|not a boolean"

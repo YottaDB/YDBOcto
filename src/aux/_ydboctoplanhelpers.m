@@ -748,6 +748,7 @@ initBoolMap
 ; Note:
 ; * Refer to `%ydboctoStr2Bool` subscripts and its values to know which string is mapped to which value.
 ForceBoolean(val)
+	QUIT:$ZYISSQLNULL(val) val
 	DO:'$DATA(%ydboctoStr2Bool) initBoolMap
 	SET val=$ZCONVERT(val,"L")
 	QUIT $SELECT($DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:0)

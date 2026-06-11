@@ -204,3 +204,17 @@ teardown() {
 	load_fixture TBT18.sql subtest novv
 	verify_output TBT18 output.txt
 }
+
+@test "TBT19 : OCTO1131 : ForceBoolean preserves SQL NULL for a NULL-extended readonly BOOLEAN column" {
+	# A BOOLEAN column of a READONLY table is run through $$ForceBoolean^%ydboctoplanhelpers in the
+	# generated plan. TBT19.sql defines such a table (`savail`, mapped over the same ^stockAvailable
+	# global as the readwrite `stock_availability` -- the readwrite version never emits ForceBoolean
+	# and so does NOT reproduce this). A LEFT JOIN whose ON clause (`alias1.available > TRUE`) can never
+	# match always NULL-extends `alias1`, so `alias1.available IS NOT NULL` must be FALSE (`f`) on every
+	# row. That predicate hits ForceBoolean at an *unwrapped* call site (no trailing
+	# `SET:(""=expr) expr=$ZYSQLNULL` guard). Before ForceBoolean was fixed to preserve SQL NULL, the
+	# $ZYSQLNULL input came back as a plain empty string, `'$ZYISSQLNULL("")` was TRUE, and every row
+	# wrongly printed `t` instead of `f`.
+	load_fixture TBT19.sql subtest novv
+	verify_output TBT19 output.txt
+}

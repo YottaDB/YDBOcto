@@ -1,6 +1,6 @@
 /****************************************************************
  * 								*
- * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  * 								*
  * This source code contains the intellectual property		*
@@ -127,17 +127,29 @@ void load_readline_history(void) {
 	INFO(INFO_READLINE_NOTIFY_LOAD_COUNT, history_length);
 }
 
+/* Free memory allocated to config->octo_history (calloc in set_readline_file) and NULL it out so that a
+ * second call (should one ever happen) is a harmless no-op rather than a double free. Called on every
+ * save_readline_history() exit path that got past the initial NULL check.
+ * NB: Private function to this file
+ */
+static void free_octo_history(void) {
+	free((void *)config->octo_history);
+	config->octo_history = NULL;
+}
+
 /* Save history into history file in config->octo_history, trimming as needed */
 void save_readline_history(void) {
 	int result;
 
-	// We couldn't resolve the file, so quit
+	// We couldn't resolve the file, so quit (nothing was allocated, so nothing to free)
 	if (NULL == config->octo_history)
 		return;
 
 	// We shouldn't store anything as octo_history_max_length is zero
-	if (0 == config->octo_history_max_length)
+	if (0 == config->octo_history_max_length) {
+		free_octo_history();
 		return;
+	}
 
 	INFO(INFO_READLINE_NOTIFY_SAVE, "");
 
@@ -161,12 +173,48 @@ void save_readline_history(void) {
 	 * in INPUTRC, there is no way to perform the calculation of how many previous entries there were and how many
 	 * will be discarded. Therefore, the previous message is now not shown.
 	 */
-	history_truncate_file(config->octo_history, config->octo_history_max_length - history_lines_added);
+	result = history_truncate_file(config->octo_history, config->octo_history_max_length - history_lines_added);
 	INFO(INFO_READLINE_NOTIFY_SAVE_COUNT, history_lines_added);
 
-	// If nothing to append, return
-	if (0 == history_lines_added)
+	/* Some distro readline builds ship a broken `history_truncate_file()`. The one observed here is SUSE's
+	 * `libreadline7-7.0-150400.27.6.1`: its `bsc1245199.patch` (a backport of upstream readline commit
+	 * 64b2b7c0, for bsc#1245199 "histfile missing timestamp for the oldest record") drops `O_CREAT` from the
+	 * temp-file open, turning `O_WRONLY|O_CREAT|O_TRUNC` into `O_WRONLY|O_TRUNC`. Since `history_tempfile()`
+	 * only builds the name `<file>-<pid>.tmp` and never creates it, that open always fails with ENOENT and
+	 * `history_truncate_file()` returns a non-zero errno WITHOUT trimming the file. Verified via strace and by
+	 * disassembly (the temp-file open passes flags 0x201 = O_WRONLY|O_TRUNC, with the O_CREAT bit 0x40 absent).
+	 * Current upstream readline keeps `O_CREAT`, so this is specific to that pinned SUSE build. On such a
+	 * build, a pre-existing, over-the-limit history file is never shrunk, and the `append_history()` call below
+	 * would only grow it.
+	 *
+	 * When the truncate failed AND the in-memory history genuinely exceeds the configured cap
+	 * (history_length > octo_history_max_length), fall back to rewriting the whole file from the in-memory
+	 * buffer instead of appending. That guard matters: it guarantees the last octo_history_max_length entries
+	 * are all present in memory, so stifling to the cap and rewriting reproduces exactly the trimmed file that
+	 * the (working) truncate-plus-append path would have produced -- even when `history-size` is set in INPUTRC.
+	 * It also naturally leaves the "history file is allowed to grow" cases (e.g. a small `history-size` with a
+	 * large octo_history_max_length) on the append path below, since there the in-memory history never exceeds
+	 * the cap.
+	 */
+	if ((0 != result) && (history_length > config->octo_history_max_length)) {
+		// Keep only the last octo_history_max_length entries, then escape embedded newlines before writing
+		stifle_history(config->octo_history_max_length);
+		encode_decode_history(ENCODE);
+
+		result = write_history(config->octo_history);
+		if (0 != result)
+			WARNING(WARN_READLINE_SAVE_FAIL, config->octo_history);
+
+		// Rewrite fallback is complete (whether or not it warned); skip the append-based path
+		free_octo_history();
 		return;
+	}
+
+	// If nothing to append, we are done
+	if (0 == history_lines_added) {
+		free_octo_history();
+		return;
+	}
 
 	/* Shrink down the history buffer to the entries we are gonna save before
 	 * we encode/decode them so we don't encode entries we aren't gonna save.
@@ -178,15 +226,11 @@ void save_readline_history(void) {
 
 	// Now append the current session's history
 	result = append_history(history_lines_added, config->octo_history);
-	if (0 != result) {
+	if (0 != result)
 		WARNING(WARN_READLINE_SAVE_FAIL, config->octo_history);
-		return;
-	}
 
-	/* We are done with history processing. Free memory allocated to
-	 * config->octo_history (calloc in set_readline_file)
-	 */
-	free((void *)config->octo_history);
+	// We are done with history processing
+	free_octo_history();
 }
 
 /* Return readline history file into variable config->octo_history.

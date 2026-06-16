@@ -783,6 +783,11 @@ verify_output() {
 	#        ^%ydbAIMDuAwRJbyqDiW78aZmOOKGGE(0)="*YottaDB*"
 	# This sed is too complicated, I won't try to explain it.
 	sed -i 's/\(\^%ydbAIMD.*(0)=\).*/\1"*YottaDB*"/g' clean_output.txt
+	# Convert PROJECT_BINARY_DIR references to generic ones.
+	# Must run BEFORE the PROJECT_SOURCE_DIR filter below: in an in-tree build the binary directory is
+	# a subdirectory of the source directory (e.g. SRCDIR/build), so normalizing the source directory first
+	# would strip the prefix and leave the build path only partially substituted.
+	sed -i 's,'@PROJECT_BINARY_DIR@',BUILDDIR,g' clean_output.txt
 	# Convert PROJECT_SOURCE_DIR references to generic one
 	sed -i 's,'@PROJECT_SOURCE_DIR@',SRCDIR,g' clean_output.txt
 	# Convert YDB C source file/line references to generic one

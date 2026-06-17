@@ -1146,6 +1146,9 @@ optional_keyword
 Examples
 ~~~~~~~~~~~
 
+Mapping a global to a table
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
   .. code-block:: SQL
 
      CREATE TABLE Orders
@@ -1170,6 +1173,9 @@ Examples
      GLOBAL "^Orders";
 
   This example is similar to the last, except that the nodes of :code:`^Orders` are strings whose pieces are separated by :code:`"^"`, e.g., :code:`^Orders(535088)="9015^57^2021-08-26^17"`.
+
+Primary keys and column mapping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   .. code-block:: SQL
 
@@ -1207,6 +1213,9 @@ Examples
 
   In the above example, ^AuthorNames has records like :code:`^Names(1)="Dahl^Roald"` and :code:`^Names(2)="Blyton^Enid"`.
 
+READONLY and READWRITE tables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
   .. code-block:: SQL
 
      CREATE TABLE Orders
@@ -1232,6 +1241,9 @@ Examples
      READWRITE;
 
   In the above example, the :code:`Orders` table is set to be :code:`READWRITE`. If the :code:`Orders` table is DROPped then the underlying mapped global variable nodes (:code:`^Orders`) will be deleted.
+
+Selecting which subscripts are mapped
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   .. code-block:: SQL
 
@@ -1282,6 +1294,9 @@ Examples
 
   In the above example, :code:`SKIP` and :code:`SKIPCONDITION` further filter the subscripts that the :code:`START 0 ENDPOINT '$CHAR(0)'` range would otherwise produce as rows. :code:`SKIP '99,100,101'` drops subscripts 99, 100, and 101 from the result. :code:`SKIPCONDITION "keys(""OrderID"")'?1N.N"` additionally skips any subscript that does not match the M pattern :code:`1N.N` (i.e. a numeric value). Each :code:`SKIP` / :code:`SKIPCONDITION` is compiled into a :code:`QUIT:<cond>` line in the body of the generated :code:`FOR` loop so the loop continues past skipped subscripts without terminating. Note that the values supplied to both :code:`SKIP` and :code:`SKIPCONDITION` are arbitrary M expressions, not just literals: :code:`SKIP "$LENGTH(""ab"")"` drops the subscript whose value equals :code:`2`, and :code:`SKIPCONDITION "$$skipfn^lib(keys(""OrderID""))"` drops any subscript for which the M extrinsic call returns a truthy value. Because M evaluates expressions strictly left to right with no operator precedence, parenthesize any :code:`SKIP` list element that combines operators (e.g. write :code:`SKIP "(1+1)"` rather than :code:`SKIP "1+1"`) so the surrounding :code:`<key>=<piece>` comparison binds correctly. As with :code:`START` and :code:`END`, the use of :code:`SKIP` or :code:`SKIPCONDITION` forces the table to :code:`READONLY`. Note that, as with the :code:`STARTINCLUDE` example above, the column name :code:`OrderID` is specified inside double quotes so the mixed case lettering is preserved and the :code:`keys("OrderID")` reference resolves to the same column.
 
+Computed columns with EXTRACT
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
   .. code-block:: SQL
 
      CREATE TABLE extractnames (
@@ -1314,6 +1329,58 @@ Examples
   In the above example, ``EXTRACT`` is used to define a computed column using a SQL function, in this case ``CONCAT()``.
 
   In this example, the ``fullname`` column calls ``CONCAT()`` with the ``firstName`` and ``lastName`` columns of the table, along with a string literal containing a space. Similarly, the ``nameandnumber`` column calls ``CONCAT()`` with the ``lastName`` column and the ``id`` column, which is typecast as a ``VARCHAR`` for compatibility with ``CONCAT()``, which requires string type arguments.
+
+Indexing NULL data with AIMTYPE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  Consider a table whose data for one row is spread across multiple subscript levels of a global, e.g. :code:`^EMP`:
+
+  .. code-block:: none
+
+     ^EMP(1,0)="Alice^Cardiology"
+     ^EMP(1,"EMAIL")="alice@hosp.org"
+     ^EMP(2,0)="Bob^Cardiology"
+     ^EMP(3,0)="Carol"
+     ^EMP(3,"EMAIL")="carol@hosp.org"
+
+  .. code-block:: SQL
+
+     CREATE TABLE employee
+     (emp_id INTEGER PRIMARY KEY,
+      department VARCHAR GLOBAL "^EMP(keys(""emp_id""),0)" PIECE 2,
+      email VARCHAR GLOBAL "^EMP(keys(""emp_id""),""EMAIL"")" PIECE 1)
+     GLOBAL "^EMP(keys(""emp_id""))"
+     AIMTYPE 1
+     DELIM "^"
+     READONLY;
+
+  A :code:`WHERE` filter on a non-key column (:code:`department` or :code:`email`) causes Octo to build an AIM cross-reference on that column. A column value can be SQL NULL in two different ways here:
+
+    * :code:`department` is the second :code:`^`-piece of the :code:`^EMP(id,0)` node. For :code:`emp_id` 3 (Carol) that node exists (:code:`^EMP(3,0)="Carol"`) but has no second piece, so :code:`department` is NULL. This is a *missing piece*.
+    * :code:`email` lives on a separate :code:`^EMP(id,"EMAIL")` node. For :code:`emp_id` 2 (Bob) that node does not exist at all, so :code:`email` is NULL. This is a *missing node*.
+
+  By default (:code:`AIMTYPE 0`), AIM only indexes nodes that actually exist:
+
+    * The *missing piece* case still works. The :code:`^EMP(id,0)` node exists, so :code:`WHERE department IS NULL` finds Carol.
+    * The *missing node* case does not work. :code:`^EMP(2,"EMAIL")` does not exist, so Bob is left out of the cross-reference. :code:`WHERE email IS NULL` then returns no rows, even though Bob's :code:`email` is genuinely NULL.
+
+  Specifying :code:`AIMTYPE 1` tells AIM to treat an absent node as a NULL value and index it, so :code:`WHERE email IS NULL` correctly returns Bob. The following table compares the two settings for this data:
+
+  .. list-table::
+     :header-rows: 1
+
+     * - Query
+       - With ``AIMTYPE 1``
+       - Default (``AIMTYPE 0``)
+     * - ``WHERE department IS NULL``
+       - returns Carol
+       - returns Carol
+     * - ``WHERE email IS NULL``
+       - returns Bob
+       - returns no rows (incorrect)
+     * - ``WHERE email = 'carol@hosp.org'``
+       - returns Carol
+       - returns Carol
 
 For more advanced DDL mapping examples, see :ref:`advanced-global-mapping`.
 

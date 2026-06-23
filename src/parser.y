@@ -145,6 +145,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token DEFAULT
 %token DELETE
 %token DELIM
+%token DELIMS
 %token DESC
 %token DISCARD
 %token DISTINCT
@@ -210,6 +211,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token PARENLESS_FUNCTION
 %token PARTITION
 %token PIECE
+%token PIECES
 %token PREPARE
 %token PRIMARY
 %token READONLY
@@ -1710,66 +1712,155 @@ delim_specification
 	dqinit(($$)->v.keyword);
      }
   | DELIM LEFT_PAREN delim_char_list RIGHT_PAREN {
-	SqlStatement			*char_list_literal;
-	SqlDelimiterCharacterList	*start_delim_char_list, *cur_delim_char_list;
-	char				*c, *temp, *str_lit;
-	int				copied, len_used, len_alloc, num_args;
+	SqlStatement	*char_list_literal;
 
-	MALLOC_KEYWORD_STMT($$, OPTIONAL_DELIM);
-	len_alloc = INT8_TO_STRING_MAX * 8;
-	str_lit = octo_cmalloc(memory_chunks, len_alloc);
-	str_lit[0] = DELIM_IS_DOLLAR_CHAR;	// Use first byte as a flag to indicate that DELIM is a $CHAR list
-	len_used = 1;
-	SQL_VALUE_STATEMENT(char_list_literal, DELIM_VALUE, str_lit);
-	c = &str_lit[1];
-
-	// Need to allocate space to store string for full $CHAR call
-	UNPACK_SQL_STATEMENT(start_delim_char_list, $delim_char_list, delim_char_list);
-	cur_delim_char_list = start_delim_char_list;
-	copied = snprintf(c, INT16_TO_STRING_MAX, "$CHAR(");
-	len_used += copied;
-	assert(INT16_TO_STRING_MAX > copied);
-	c += copied;
-	num_args = 0;
-	do {
-		/* Expand allocation if there's not enough space for another value.
-		 * Note that it is acceptable here to do a new allocation without freeing the previous one
-		 * as the items allocated with octo_cmalloc are automatically freed after query execution is complete (or cancelled)
-		 */
-		if (INT8_TO_STRING_MAX > len_alloc - len_used) {
-			len_alloc *= 2;
-			temp = str_lit;
-			str_lit = octo_cmalloc(memory_chunks, len_alloc);
-			memcpy(str_lit, temp, len_used);
-			c = str_lit;
-			c+= len_used;
-		}
-		copied = snprintf(c, INT8_TO_STRING_MAX, "%d", cur_delim_char_list->character);
-		assert(INT8_TO_STRING_MAX > copied);
-		c += copied;
-		len_used += copied;
-		cur_delim_char_list = cur_delim_char_list->next;
-		if(start_delim_char_list != cur_delim_char_list) {
-			copied = snprintf(c, 3, ",");
-			assert(3 > copied);
-			c += copied;
-			len_used += copied;
-		}
-		num_args++;
-	} while (cur_delim_char_list != start_delim_char_list);
-	if (DOLLAR_CHAR_MAX_ARGS < num_args) {
-		ERROR(ERR_TOO_MANY_DELIM_CHARS, num_args, DOLLAR_CHAR_MAX_ARGS);
+	/* "DELIM (c1,c2,...)" assembles a SINGLE delimiter from the given character codes via $CHAR. */
+	char_list_literal = build_dollar_char_delim_value($delim_char_list);
+	if (NULL == char_list_literal) {
+		/* ERR_TOO_MANY_DELIM_CHARS already issued by the builder */
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}
-	copied = snprintf(c, 2, ")");
-	assert(2 > copied);
-	c += copied;
-	*c = '\0';
-	char_list_literal->v.value->v.string_literal = str_lit;
-
+	MALLOC_KEYWORD_STMT($$, OPTIONAL_DELIM);
 	($$)->v.keyword->v = char_list_literal;
 	dqinit(($$)->v.keyword);
+    }
+  | DELIMS LEFT_PAREN delim_literal_value_list RIGHT_PAREN {
+	/* Chained per-level delimiter specification (YDBOcto#1108), e.g. DELIMS ("^","~").
+	 * This is a separate keyword from DELIM so that it never collides with the existing
+	 * "DELIM (65,66)" form (where the integer list assembles a SINGLE delimiter via $CHAR).
+	 * It produces an OPTIONAL_DELIM keyword whose value is a value_list_STATEMENT, so that all
+	 * existing column DELIM machinery (column->delim, emit, persistence) handles it uniformly.
+	 */
+	SqlValueList	*value_list;
+
+	MALLOC_KEYWORD_STMT($$, OPTIONAL_DELIM);
+	UNPACK_SQL_STATEMENT(value_list, $delim_literal_value_list, value_list);
+	if (value_list->next == value_list) {
+		/* Single-element list (e.g. DELIMS ("^")). Collapse to a plain value_STATEMENT so that
+		 * it behaves identically to the bare DELIM "^" form for all downstream consumers.
+		 */
+		($$)->v.keyword->v = value_list->value;
+	} else {
+		($$)->v.keyword->v = $delim_literal_value_list;
+	}
+	dqinit(($$)->v.keyword);
+    }
+  ;
+
+/* A comma-separated list of string-literal delimiters, e.g. "^","~". Each element carries the same
+ * "is_dollar_char" flag byte prefix that the single DELIM "x" form uses. Builds a value_list_STATEMENT.
+ */
+delim_literal_value_list
+  : delim_literal_value {
+	SQL_VALUE_LIST_STATEMENT($$, $delim_literal_value);
+    }
+  | delim_literal_value_list COMMA delim_literal_value {
+	SqlStatement	*elem;
+	SqlValueList	*list_head, *new_node;
+
+	SQL_VALUE_LIST_STATEMENT(elem, $delim_literal_value);
+	$$ = $1;
+	UNPACK_SQL_STATEMENT(list_head, $$, value_list);
+	UNPACK_SQL_STATEMENT(new_node, elem, value_list);
+	dqappend(list_head, new_node);
+    }
+  ;
+
+/* A single delimiter element inside a DELIMS (...) list. It is one of:
+ *   - a single- or double-quoted string literal (a plain literal delimiter), or
+ *   - a "$CHAR(c1,c2,...)" / "$C(c1,c2,...)" intrinsic (a delimiter given by character codes).
+ * The two alternatives start with distinct tokens (ddl_str_literal_value vs INTRINSIC_FUNCTION), so there
+ * is no grammar conflict. Unlike the DELIM (...) form, a $CHAR delimiter here must be written explicitly as
+ * "$C(..)" because a bare integer inside DELIMS (..) is a literal string delimiter, not a character code.
+ */
+delim_literal_value
+  : delim_str_literal_value {
+	char	*with_flag_byte, *str_lit;
+	size_t	length;
+
+	$$ = $delim_str_literal_value;
+	str_lit = ($$)->v.value->v.string_literal;
+	length = strlen(str_lit) + 2;	// "is_dollar_char" byte and a null terminator
+	with_flag_byte = octo_cmalloc(memory_chunks, length);
+	with_flag_byte[0] = DELIM_IS_LITERAL;	// Use first byte as a flag to indicate that DELIM is NOT a $CHAR list
+	snprintf(&with_flag_byte[1], length-1, "%s", str_lit);
+	($$)->v.value->v.string_literal = with_flag_byte;
+    }
+  | INTRINSIC_FUNCTION LEFT_PAREN delim_char_list RIGHT_PAREN {
+	SqlValue	*intrinsic_value;
+	char		*intrinsic_name;
+
+	/* The lexer returns the whole "$name" (lowercased) as the INTRINSIC_FUNCTION value. Only $CHAR (which
+	 * may be abbreviated $C) is meaningful as a delimiter; reject any other intrinsic.
+	 */
+	UNPACK_SQL_STATEMENT(intrinsic_value, $INTRINSIC_FUNCTION, value);
+	intrinsic_name = intrinsic_value->v.string_literal;
+	if (strcmp(intrinsic_name, "$char") && strcmp(intrinsic_name, "$c")) {
+		ERROR(ERR_DELIMS_INVALID_INTRINSIC, intrinsic_name);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	$$ = build_dollar_char_delim_value($delim_char_list);
+	if (NULL == $$) {
+		/* ERR_TOO_MANY_DELIM_CHARS already issued by the builder */
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+    }
+  ;
+
+/* Like "ddl_str_literal_value" but STRICT: a DELIMS delimiter written as a bare number (e.g. DELIMS (1)) is
+ * rejected rather than silently coerced to the string "1" (YDBOcto#1108). A DELIMS delimiter must be an
+ * explicit quoted string (or, via the INTRINSIC_FUNCTION alternative of "delim_literal_value", a $CHAR(..)
+ * intrinsic). Only the older single "DELIM 1" form keeps the number-to-string coercion for backward
+ * compatibility; DELIMS is stricter because a bare number silently becoming the delimiter is surprising.
+ */
+delim_str_literal_value
+  : LITERAL {
+	SqlStatement	*ret = $LITERAL;
+
+	ret->loc = yyloc;
+	if (value_STATEMENT != ret->type) {
+		assert(FALSE);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	if (STRING_LITERAL != ret->v.value->type) {
+		/* A NUMERIC_LITERAL / INTEGER_LITERAL (a bare number) -- or any other non-string literal -- is not
+		 * a valid DELIMS delimiter. Reject it (unlike "ddl_str_literal_value", which would coerce it).
+		 */
+		ERROR(ERR_DELIMS_NUMERIC, ret->v.value->v.string_literal);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	$$ = ret;
+    }
+  | DOUBLE_QUOTE_LITERAL {
+	/* A double-quoted string delimiter, e.g. DELIMS ("^"). It is always a STRING_LITERAL. */
+	SqlStatement	*ret = $DOUBLE_QUOTE_LITERAL;
+
+	ret->loc = yyloc;
+	assert(value_STATEMENT == ret->type);
+	assert(STRING_LITERAL == ret->v.value->type);
+	$$ = ret;
+    }
+  ;
+
+/* A comma-separated list of integer PIECE numbers, e.g. 5,3 (YDBOcto#1108). Builds a value_list_STATEMENT. */
+piece_int_list
+  : ddl_int_literal_value {
+	SQL_VALUE_LIST_STATEMENT($$, $ddl_int_literal_value);
+    }
+  | piece_int_list COMMA ddl_int_literal_value {
+	SqlStatement	*elem;
+	SqlValueList	*list_head, *new_node;
+
+	SQL_VALUE_LIST_STATEMENT(elem, $ddl_int_literal_value);
+	$$ = $1;
+	UNPACK_SQL_STATEMENT(list_head, $$, value_list);
+	UNPACK_SQL_STATEMENT(new_node, elem, value_list);
+	dqappend(list_head, new_node);
     }
   ;
 
@@ -1968,6 +2059,30 @@ column_definition_tail
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
+  | PIECES LEFT_PAREN piece_int_list RIGHT_PAREN column_definition_tail {
+       /* Chained (piece-of-piece) specification (YDBOcto#1108), e.g. PIECES (5,3). This is a separate
+	* keyword from the single-valued PIECE so that the surface syntax stays symmetric with DELIM/DELIMS.
+	* It produces an OPTIONAL_PIECE keyword whose value is a value_list_STATEMENT, so all existing PIECE
+	* machinery handles it uniformly.
+	*/
+       SqlOptionalKeyword *keyword;
+       SqlValueList	  *value_list;
+
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_PIECE);
+       keyword = $$->v.keyword;
+       UNPACK_SQL_STATEMENT(value_list, $piece_int_list, value_list);
+       if (value_list->next == value_list) {
+		/* Single-element list (e.g. PIECES (5)). Collapse to a plain value_STATEMENT so that it
+		 * behaves identically to the bare PIECE 5 form for all downstream consumers.
+		 */
+		keyword->v = value_list->value;
+       } else {
+		keyword->v = $piece_int_list;
+       }
+
+       UNPACK_SQL_STATEMENT(keyword, $5, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
   | delim_specification column_definition_tail {
        $$ = $delim_specification;
 
@@ -1975,15 +2090,22 @@ column_definition_tail
        SqlValue *value;
        UNPACK_SQL_STATEMENT(keyword, $delim_specification, keyword);
        if (NULL != keyword->v) {
-	       UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	       if ((DELIM_IS_LITERAL != value->v.string_literal[0]) || (0 < strlen(&value->v.string_literal[1]))) {
-		 /* Append the DELIM to the keyword list in `column_definition_tail) so that the correct $PIECE number is used in M
-		  * plans. However, this should only be done when the DELIM is not an empty string literal, i.e. not `""`.
-		  *
-		  * In that case, do not append the DELIM to the keyword list, so that the column level DELIM invalidates
-		  * any $PIECE specified and fetches entire node.
+	       if (value_list_STATEMENT == keyword->v->type) {
+		 /* Chained DELIM ("x","y",...). A multi-element delim list is never an empty delimiter, so always
+		  * append it to the keyword list (the empty-DELIM special case below cannot apply here).
 		  */
 		 dqappend(($2)->v.keyword, ($$)->v.keyword);
+	       } else {
+		 UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		 if ((DELIM_IS_LITERAL != value->v.string_literal[0]) || (0 < strlen(&value->v.string_literal[1]))) {
+		   /* Append the DELIM to the keyword list in `column_definition_tail) so that the correct $PIECE number is used in M
+		    * plans. However, this should only be done when the DELIM is not an empty string literal, i.e. not `""`.
+		    *
+		    * In that case, do not append the DELIM to the keyword list, so that the column level DELIM invalidates
+		    * any $PIECE specified and fetches entire node.
+		    */
+		   dqappend(($2)->v.keyword, ($$)->v.keyword);
+		 }
 	       }
 	}
     }

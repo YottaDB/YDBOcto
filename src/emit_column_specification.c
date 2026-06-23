@@ -76,9 +76,29 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 		case OPTIONAL_PIECE:
 			DEBUG_ONLY(assert(!empty_delim_seen));
 			DEBUG_ONLY(piece_seen = TRUE);
-			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " PIECE %s", buffer2);
+			if (value_list_STATEMENT == cur_keyword->v->type) {
+				/* Multi-level (piece-of-piece) specification (YDBOcto#1108). Emit "PIECES (n1,n2,...)". */
+				SqlValueList *start_value_list, *cur_value_list;
+				char	     *sep;
+
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " PIECES (");
+				UNPACK_SQL_STATEMENT(start_value_list, cur_keyword->v, value_list);
+				cur_value_list = start_value_list;
+				sep = "";
+				do {
+					UNPACK_SQL_STATEMENT(value, cur_value_list->value, value);
+					m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+					INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s%s", sep,
+										    buffer2);
+					sep = ",";
+					cur_value_list = cur_value_list->next;
+				} while (cur_value_list != start_value_list);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");
+			} else {
+				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+				m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " PIECE %s", buffer2);
+			}
 			break;
 		case OPTIONAL_GLOBAL:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
@@ -86,6 +106,38 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " GLOBAL \"%s\"", buffer2);
 			break;
 		case OPTIONAL_DELIM:
+			if (value_list_STATEMENT == cur_keyword->v->type) {
+				/* Multi-level (piece-of-piece) delimiters (YDBOcto#1108). Emit DELIMS (d1,d2,...).
+				 * A literal element is emitted double-quoted ("d"); a $CHAR element is emitted verbatim
+				 * (e.g. $CHAR(63)), which re-parses as the "$C(..)" form of a DELIMS element.
+				 */
+				SqlValueList *start_value_list, *cur_value_list;
+				char	     *sep;
+
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " DELIMS (");
+				UNPACK_SQL_STATEMENT(start_value_list, cur_keyword->v, value_list);
+				cur_value_list = start_value_list;
+				sep = "";
+				do {
+					UNPACK_SQL_STATEMENT(value, cur_value_list->value, value);
+					delim = value->v.reference;
+					ch = *delim;
+					delim++; /* Skip first byte to get actual delimiter */
+					assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
+					if (DELIM_IS_DOLLAR_CHAR == ch) {
+						INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "%s%s",
+											    sep, delim);
+					} else {
+						m_escape_string2(&buffer2, &buffer2_size, delim);
+						INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr,
+											    "%s\"%s\"", sep, buffer2);
+					}
+					sep = ",";
+					cur_value_list = cur_value_list->next;
+				} while (cur_value_list != start_value_list);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, ")");
+				break;
+			}
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			delim = value->v.reference;
 			ch = *delim;

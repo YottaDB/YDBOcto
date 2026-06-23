@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -175,6 +175,29 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				}
 				cur_column_list = cur_column_list->next;
 			} while (cur_column_list != start_column_list);
+		}
+		break;
+	case value_list_STATEMENT:;
+		/* Chained PIECE/DELIM value list (YDBOcto#1108). Same format as column_list_STATEMENT above.
+		 * Note: A column (and hence its keyword value lists) is returned as-is above and not copied, so this
+		 * case is defensive: it keeps a deep copy correct should some future caller copy a value list directly.
+		 */
+		SqlValueList *start_value_list, *cur_value_list, *new_value_list;
+
+		UNPACK_SQL_STATEMENT(start_value_list, stmt, value_list);
+		if (start_value_list) {
+			cur_value_list = start_value_list;
+			do {
+				OCTO_CMALLOC_STRUCT(new_value_list, SqlValueList);
+				dqinit(new_value_list);
+				new_value_list->value = copy_sql_statement(cur_value_list->value);
+				if (NULL == ret->v.value_list) {
+					ret->v.value_list = new_value_list;
+				} else {
+					dqappend(new_value_list, ret->v.value_list);
+				}
+				cur_value_list = cur_value_list->next;
+			} while (cur_value_list != start_value_list);
 		}
 		break;
 	case column_list_alias_STATEMENT:

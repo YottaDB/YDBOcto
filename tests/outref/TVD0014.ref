@@ -1,0 +1,74 @@
+-- TVD0014 : YDBOcto#1108 : piece-of-piece over VistA Lab "CH" chemistry results
+-- Each per-test result lives at ^LR(LRDFN,"CH",INVDT,TEST) = "<1>^<2>^<3>^...^<11>" (top level "^"-delimited).
+-- Pieces 3 (workload) and 5 (reference ranges/units) are themselves "!"-sub-delimited, so the columns that
+-- read them use DELIMS ("^","!") PIECES (<top>,<sub>) == $PIECE($PIECE(node,"^",<top>),"!",<sub>).
+CREATE TABLE `LAB_CHEM_RESULT`(
+ `LRDFN`  INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)',
+ `INVDT`  NUMERIC KEY NUM 1 START 0 ENDPOINT '$CHAR(0)',
+ `TEST`   INTEGER KEY NUM 2 START 0 ENDPOINT '$CHAR(0)',
+ `RESULT_VALUE`      VARCHAR PIECE 1,
+ `RESULT_FLAG`       VARCHAR PIECE 2,
+ `NATIONAL_LAB_CODE` VARCHAR DELIMS ("^","!") PIECES (3,1),
+ `RESULT_NLT_CODE`   VARCHAR DELIMS ("^","!") PIECES (3,2),
+ `LOINC_CODE`        VARCHAR DELIMS ("^","!") PIECES (3,3),
+ `WORKLOAD_SUFFIX`   VARCHAR DELIMS ("^","!") PIECES (3,4),
+ `TEST_IEN_FILE_60`  INTEGER DELIMS ("^","!") PIECES (3,7),
+ `VERIFYING_TECH`    INTEGER PIECE 4,
+ `SITE_SPECIMEN`     INTEGER DELIMS ("^","!") PIECES (5,1),
+ `REFERENCE_LOW`     VARCHAR DELIMS ("^","!") PIECES (5,2),
+ `REFERENCE_HIGH`    VARCHAR DELIMS ("^","!") PIECES (5,3),
+ `CRITICAL_LOW`      VARCHAR DELIMS ("^","!") PIECES (5,4),
+ `CRITICAL_HIGH`     VARCHAR DELIMS ("^","!") PIECES (5,5),
+ `UNITS`             VARCHAR DELIMS ("^","!") PIECES (5,7),
+ `DELTA_CHECK_TYPE`  VARCHAR DELIMS ("^","!") PIECES (5,8),
+ `DELTA_VALUE`       VARCHAR DELIMS ("^","!") PIECES (5,9),
+ `DEFAULT_VALUE`     VARCHAR DELIMS ("^","!") PIECES (5,10),
+ `THERAPEUTIC_LOW`   VARCHAR DELIMS ("^","!") PIECES (5,11),
+ `THERAPEUTIC_HIGH`  VARCHAR DELIMS ("^","!") PIECES (5,12),
+ `INSTITUTION`       INTEGER PIECE 9,
+ `EQUIPMENT_ID`      VARCHAR PIECE 11
+)
+GLOBAL "^LR(keys(""lrdfn""),""CH"",keys(""invdt""),keys(""test""))"
+DELIM "^"
+READONLY;
+
+select * from LAB_CHEM_RESULT WHERE LRDFN=27 AND RESULT_FLAG='H*';
+OCTO> CREATE TABLE `LAB_CHEM_RESULT`(
+ `LRDFN`  INTEGER PRIMARY KEY START 0 ENDPOINT '$CHAR(0)',
+ `INVDT`  NUMERIC KEY NUM 1 START 0 ENDPOINT '$CHAR(0)',
+ `TEST`   INTEGER KEY NUM 2 START 0 ENDPOINT '$CHAR(0)',
+ `RESULT_VALUE`      VARCHAR PIECE 1,
+ `RESULT_FLAG`       VARCHAR PIECE 2,
+ `NATIONAL_LAB_CODE` VARCHAR DELIMS ("^","!") PIECES (3,1),
+ `RESULT_NLT_CODE`   VARCHAR DELIMS ("^","!") PIECES (3,2),
+ `LOINC_CODE`        VARCHAR DELIMS ("^","!") PIECES (3,3),
+ `WORKLOAD_SUFFIX`   VARCHAR DELIMS ("^","!") PIECES (3,4),
+ `TEST_IEN_FILE_60`  INTEGER DELIMS ("^","!") PIECES (3,7),
+ `VERIFYING_TECH`    INTEGER PIECE 4,
+ `SITE_SPECIMEN`     INTEGER DELIMS ("^","!") PIECES (5,1),
+ `REFERENCE_LOW`     VARCHAR DELIMS ("^","!") PIECES (5,2),
+ `REFERENCE_HIGH`    VARCHAR DELIMS ("^","!") PIECES (5,3),
+ `CRITICAL_LOW`      VARCHAR DELIMS ("^","!") PIECES (5,4),
+ `CRITICAL_HIGH`     VARCHAR DELIMS ("^","!") PIECES (5,5),
+ `UNITS`             VARCHAR DELIMS ("^","!") PIECES (5,7),
+ `DELTA_CHECK_TYPE`  VARCHAR DELIMS ("^","!") PIECES (5,8),
+ `DELTA_VALUE`       VARCHAR DELIMS ("^","!") PIECES (5,9),
+ `DEFAULT_VALUE`     VARCHAR DELIMS ("^","!") PIECES (5,10),
+ `THERAPEUTIC_LOW`   VARCHAR DELIMS ("^","!") PIECES (5,11),
+ `THERAPEUTIC_HIGH`  VARCHAR DELIMS ("^","!") PIECES (5,12),
+ `INSTITUTION`       INTEGER PIECE 9,
+ `EQUIPMENT_ID`      VARCHAR PIECE 11
+)
+GLOBAL "^LR(keys(""lrdfn""),""CH"",keys(""invdt""),keys(""test""))"
+DELIM "^"
+READONLY;
+CREATE TABLE
+OCTO> select * from LAB_CHEM_RESULT WHERE LRDFN=27 AND RESULT_FLAG='H*';
+lrdfn|invdt|test|result_value|result_flag|national_lab_code|result_nlt_code|loinc_code|workload_suffix|test_ien_file_60|verifying_tech|site_specimen|reference_low|reference_high|critical_low|critical_high|units|delta_check_type|delta_value|default_value|therapeutic_low|therapeutic_high|institution|equipment_id
+27|6949291.8968|2|350|H*|84330.0000|||3096|175|11743|72|60|110|50|300|mg/dL||||||500|
+27|6949681.984076|2|310|H*|84330.0000|||3096|175|11748|72|60|110|50|300|mg/dL||||||500|
+27|6949681.984076|132|17.5|H*|81323.0000|||3096|440|11748|72|0|8.9||15|U/L||||||500|
+27|6969570.894999|2|321|H*||||3096||20364|72|60|123|50|300|mg/dL||||||500|
+27|6999477.92|2|400|H*|84330.0000|||||11748|72|60|123|50|300|mg/dL||||||500|
+(5 rows)
+OCTO> 

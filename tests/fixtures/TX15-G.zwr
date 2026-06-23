@@ -1,0 +1,8 @@
+YottaDB MUPIP EXTRACT UTF-8
+01-JAN-2026  00:00:00 ZWR
+^ppu1(1)="a䀀b|c䀀d"
+^ppu1(2)="A䀀B|C䀀D"
+^ppu2(1)="p上下q|r上下s"
+^ppu2(2)="P上下Q|R上下S"
+^ppu3(1)="mY上n|oY上p"
+^ppu3(2)="MY上N|OY上P"

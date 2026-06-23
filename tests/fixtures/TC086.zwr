@@ -1,0 +1,13 @@
+YottaDB MUPIP EXTRACT
+01-JAN-2026  00:00:00 ZWR
+^addr(0)="Zero Cool|123 Main^Apt 4^NYC^NY|555-1234"
+^addr(1)="Acid Burn|45 Oak^^Boston^MA|555-5678"
+^addr(2)="Lord Nikon|9 Elm^Suite 1^Reno^NV|555-9999"
+^addrm(0)="Zero Cool||123 Main~~Apt 4~~NYC~~NY||555-1234"
+^addrm(1)="Acid Burn||45 Oak~~~~Boston~~MA||555-5678"
+^addrdeep(0)="A|B^C~D:E:TARGET0~G^H|I"
+^addrdeep(1)="A|B^C~D:E:TARGET1~G^H|I"
+^dgrade(0)="Ada|Lovelace"
+^dgrade(1)="Alan|Turing"
+^dgradet(0)="Grace^Hopper"
+^dgradet(1)="Edsger^Dijkstra"

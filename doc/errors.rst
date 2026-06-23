@@ -330,6 +330,30 @@ ERR_DDL_LITERAL
 
   Description/Action: This error is emitted when a literal of an invalid type is used in a DDL keyword specification. PSQL Error Code: 42601
 
++++++++++++++++++++++++++++++
+ERR_DELIMS_INVALID_INTRINSIC
++++++++++++++++++++++++++++++
+
+  Text: Only the $CHAR (abbreviated $C) intrinsic function is accepted in a DELIMS specification (got: xxx)
+
+  Description/Action: This error is issued when an intrinsic function other than :code:`$CHAR` (or its abbreviation :code:`$C`) is used as a delimiter element in a chained :code:`DELIMS (..)` specification. Inside :code:`DELIMS (..)`, a character-code delimiter must be written explicitly as :code:`$C(n)` / :code:`$CHAR(n)`; use a quoted string for a literal delimiter. PSQL Error Code: 42601
+
+++++++++++++++++++
+ERR_DELIMS_NUMERIC
+++++++++++++++++++
+
+  Text: A DELIMS delimiter must be a quoted string or the $CHAR (abbreviated $C) intrinsic, not a bare number (got: xxx)
+
+  Description/Action: This error is issued when a delimiter element in a chained :code:`DELIMS (..)` specification is written as a bare number (e.g. :code:`DELIMS (1)`). Unlike the single :code:`DELIM` form, which coerces a number to its string form, :code:`DELIMS (..)` requires each delimiter to be an explicit quoted string (or a :code:`$C(n)` / :code:`$CHAR(n)` intrinsic for a character-code delimiter). Quote the delimiter (e.g. :code:`DELIMS ("1")`) or use :code:`$C(n)`. PSQL Error Code: 42601
+
++++++++++++++++++++++++
+ERR_DELIMS_TABLE_LEVEL
++++++++++++++++++++++++
+
+  Text: Chained DELIMS (..) is only valid at the column level, paired with a PIECES (..) specification
+
+  Description/Action: This error is issued when a multi-element :code:`DELIMS (..)` (chained delimiters) is specified at the table level. Chained delimiters describe the per-level delimiters of a single piece-of-piece column and must be paired with that column's :code:`PIECES (..)`, so they are only accepted at the column level. Move the :code:`DELIMS (..)` onto the column. PSQL Error Code: 42601
+
 ++++++++++++++++++++++++
 ERR_DOLLAR_SYNTAX
 ++++++++++++++++++++++++
@@ -1129,6 +1153,14 @@ ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME
   Text: '%%' is only allowed at the beginning of an M label or routine name.
 
   Description/Action: This error is generated when a user attempts to map a SQL function to an improperly formatted M extrinsic function name. PSQL Error Code: 42601
+
++++++++++++++++++++++++++++++++
+ERR_PIECE_DELIM_COUNT_MISMATCH
++++++++++++++++++++++++++++++++
+
+  Text: Number of DELIMS values (xxx) does not match number of PIECES values (xxx)
+
+  Description/Action: This error is generated when a column uses the chained (piece-of-piece) :code:`DELIMS (..) PIECES (..)` form but the number of delimiters does not equal the number of piece numbers. Each piece level must have its own explicitly specified delimiter; no default delimiter is used for additional levels. Supply one delimiter per piece level. PSQL Error Code: 42601
 
 ++++++++++++++++++++++
 ERR_PLAN_HASH_FAILED

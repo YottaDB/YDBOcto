@@ -152,6 +152,7 @@ int save_yylloc_first_line;
 (?i:DEFAULT) { return DEFAULT; }
 (?i:DELETE) { return DELETE; }
 (?i:DELIM) { return DELIM; }
+(?i:DELIMS) { return DELIMS; }
 (?i:DESC) { return DESC; }
 (?i:DISCARD) { return DISCARD; }
 (?i:DISTINCT) { return DISTINCT; }
@@ -219,6 +220,7 @@ int save_yylloc_first_line;
 (?i:PACK) { return PACK; }
 (?i:PARTITION) { return PARTITION; }
 (?i:PIECE) { return PIECE; }
+(?i:PIECES) { return PIECES; }
 (?i:PREPARE) { return PREPARE; }
 (?i:PRIMARY) { return PRIMARY; }
 (?i:READONLY) { return READONLY; }

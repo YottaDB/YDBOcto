@@ -1,0 +1,574 @@
+
+# === Section A : WHERE / IS NULL on a 2-level string column (street) ===
+# Data loaded into ^ppaddr:
+^ppaddr(0)="Zero|123 Main^NYC|p0"
+^ppaddr(1)="Acid|45 Oak^Boston|p1"
+^ppaddr(2)="Lord|9 Elm^Reno|p2"
+^ppaddr(3)="Neo|^Zion|p3"
+-- ^ppaddr nodes are "name|street^city|phone"; street/city are extracted two levels deep.
+-- Row id 3 ("Neo|^Zion|p3") has an EMPTY "^"-subpiece for street, so its street extracts to NULL.
+CREATE TABLE ppaddr (
+	id INTEGER PRIMARY KEY,
+	street VARCHAR DELIMS ("|","^") PIECES (2,1),
+	city VARCHAR DELIMS ("|","^") PIECES (2,2)
+) GLOBAL "^ppaddr(keys(""id""))";
+-- Extracted view (no conditions):
+SELECT * FROM ppaddr ORDER BY id;
+-- WHERE builds/uses the AIM cross-reference (expect id 1):
+SELECT * FROM ppaddr WHERE street = '45 Oak';
+-- Empty extracted subpiece -> NULL: IS NULL finds id 3, IS NOT NULL excludes it:
+SELECT id, street, city FROM ppaddr WHERE street IS NULL;
+SELECT id, street, city FROM ppaddr WHERE street IS NOT NULL ORDER BY id;
+OCTO> CREATE TABLE ppaddr (
+	id INTEGER PRIMARY KEY,
+	street VARCHAR DELIMS ("|","^") PIECES (2,1),
+	city VARCHAR DELIMS ("|","^") PIECES (2,2)
+) GLOBAL "^ppaddr(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppaddr ORDER BY id;
+id|street|city
+0|123 Main|NYC
+1|45 Oak|Boston
+2|9 Elm|Reno
+3||Zion
+(4 rows)
+OCTO> SELECT * FROM ppaddr WHERE street = '45 Oak';
+id|street|city
+1|45 Oak|Boston
+(1 row)
+OCTO> SELECT id, street, city FROM ppaddr WHERE street IS NULL;
+id|street|city
+3||Zion
+(1 row)
+OCTO> SELECT id, street, city FROM ppaddr WHERE street IS NOT NULL ORDER BY id;
+id|street|city
+0|123 Main|NYC
+1|45 Oak|Boston
+2|9 Elm|Reno
+(3 rows)
+OCTO> 
+# AIM index for street (subscript = full nested value, '#'-prefixed for string collation):
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#",3)=""
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#123 Main",0)=""
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#45 Oak",1)=""
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#9 Elm",2)=""
+# The table is READONLY, so update the underlying global: ^ppaddr(1) '45 Oak' -> '999 New St'
+-- Run after ^ppaddr(1) is updated directly (the table is READONLY). The AIM trigger re-derives the
+-- chained value, so the index tracks the change: '45 Oak' is now gone and '999 New St' is found.
+SELECT * FROM ppaddr WHERE street = '45 Oak';
+SELECT * FROM ppaddr WHERE street = '999 New St';
+OCTO> SELECT * FROM ppaddr WHERE street = '45 Oak';
+id|street|city
+(0 rows)
+OCTO> SELECT * FROM ppaddr WHERE street = '999 New St';
+id|street|city
+1|999 New St|Boston
+(1 row)
+OCTO> 
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#",3)=""
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#123 Main",0)=""
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#9 Elm",2)=""
+^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#999 New St",1)=""
+
+# === Section B : MIN/MAX off the AIM index (string; 2-level and 3-level) ===
+# Data loaded into ^ppfruit and ^ppfruit3:
+^ppfruit(0)="x|Mango^a|z"
+^ppfruit(1)="x|Apple^b|z"
+^ppfruit(2)="x|Cherry^c|z"
+^ppfruit3(0)="a|b^c~Mango~e^f|g"
+^ppfruit3(1)="a|b^c~Apple~e^f|g"
+^ppfruit3(2)="a|b^c~Cherry~e^f|g"
+-- MIN/MAX reads straight off the AIM index (YDBOcto#617); "#"-prefixed string subscripts collate
+-- lexically. ^ppfruit is "x|<fruit>^<extra>|z"; expect lo=Apple, hi=Mango.
+CREATE TABLE ppfruit (id INTEGER PRIMARY KEY, fruit VARCHAR DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppfruit(keys(""id""))";
+SELECT * FROM ppfruit ORDER BY id;
+SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM ppfruit;
+-- Same, 3 levels deep: ^ppfruit3 is "a|b^c~<fruit>~e^f|g".
+CREATE TABLE ppfruit3 (id INTEGER PRIMARY KEY, fruit VARCHAR DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppfruit3(keys(""id""))";
+SELECT * FROM ppfruit3 ORDER BY id;
+SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM ppfruit3;
+OCTO> CREATE TABLE ppfruit (id INTEGER PRIMARY KEY, fruit VARCHAR DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppfruit(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppfruit ORDER BY id;
+id|fruit
+0|Mango
+1|Apple
+2|Cherry
+(3 rows)
+OCTO> SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM ppfruit;
+lo|hi
+Apple|Mango
+(1 row)
+OCTO> CREATE TABLE ppfruit3 (id INTEGER PRIMARY KEY, fruit VARCHAR DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppfruit3(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppfruit3 ORDER BY id;
+id|fruit
+0|Mango
+1|Apple
+2|Cherry
+(3 rows)
+OCTO> SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM ppfruit3;
+lo|hi
+Apple|Mango
+(1 row)
+OCTO> 
+# AIM index for fruit (2-level table, then 3-level table):
+^%ydbAIMDauUpB6nG4BYB4FUiPhBd0D(2,"#Apple",1)=""
+^%ydbAIMDauUpB6nG4BYB4FUiPhBd0D(2,"#Cherry",2)=""
+^%ydbAIMDauUpB6nG4BYB4FUiPhBd0D(2,"#Mango",0)=""
+^%ydbAIMDumhQX4yRpYmSpFJ3I5QHG3(2,"#Apple",1)=""
+^%ydbAIMDumhQX4yRpYmSpFJ3I5QHG3(2,"#Cherry",2)=""
+^%ydbAIMDumhQX4yRpYmSpFJ3I5QHG3(2,"#Mango",0)=""
+
+# === Section C : type conversions composed with the extraction (DATE / BOOLEAN / INTEGER) ===
+# Data loaded into ^ppdt, ^ppdt3, ^ppflag, ^ppflag3, ^ppqty:
+^ppdt(0)="x|2020-01-15^a|z"
+^ppdt(1)="x|1999-12-31^b|z"
+^ppdt(2)="x|2020-01-15^c|z"
+^ppdt3(0)="a|b^c~2020-01-15~e^f|g"
+^ppdt3(1)="a|b^c~1999-12-31~e^f|g"
+^ppdt3(2)="a|b^c~2020-01-15~e^f|g"
+^ppflag(0)="x|true^a|z"
+^ppflag(1)="x|false^b|z"
+^ppflag(2)="x|true^c|z"
+^ppflag3(0)="a|b^c~true~e^f|g"
+^ppflag3(1)="a|b^c~false~e^f|g"
+^ppflag3(2)="a|b^c~true~e^f|g"
+^ppqty(0)="x|30^a|z"
+^ppqty(1)="x|5^b|z"
+^ppqty(2)="x|100^c|z"
+^ppqty(3)="x|7^d|z"
+-- The AIM transform composes the piece-of-piece extraction with the column's OWN conversion. Each
+-- conversion is shown at 2 levels ("x|<v>^<extra>|z") and 3 levels ("a|b^c~<v>~e^f|g").
+
+-- DATE -> Transform2UnixTime. Expect ids 0 and 2 for 2020-01-15.
+CREATE TABLE ppdt (id INTEGER PRIMARY KEY, dob DATE DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppdt(keys(""id""))";
+SELECT * FROM ppdt ORDER BY id;
+SELECT * FROM ppdt WHERE dob = date'2020-01-15' ORDER BY id;
+CREATE TABLE ppdt3 (id INTEGER PRIMARY KEY, dob DATE DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppdt3(keys(""id""))";
+SELECT * FROM ppdt3 ORDER BY id;
+SELECT * FROM ppdt3 WHERE dob = date'2020-01-15' ORDER BY id;
+
+-- BOOLEAN -> ForceBoolean. Expect ids 0 and 2 for TRUE.
+CREATE TABLE ppflag (id INTEGER PRIMARY KEY, flag BOOLEAN DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppflag(keys(""id""))";
+SELECT * FROM ppflag ORDER BY id;
+SELECT * FROM ppflag WHERE flag = TRUE ORDER BY id;
+CREATE TABLE ppflag3 (id INTEGER PRIMARY KEY, flag BOOLEAN DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppflag3(keys(""id""))";
+SELECT * FROM ppflag3 ORDER BY id;
+SELECT * FROM ppflag3 WHERE flag = TRUE ORDER BY id;
+
+-- INTEGER -> no conversion (numeric, not lexical, collation). MIN/MAX give 5/100, not the lexical 100/7.
+CREATE TABLE ppqty (id INTEGER PRIMARY KEY, qty INTEGER DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppqty(keys(""id""))";
+SELECT * FROM ppqty ORDER BY id;
+SELECT * FROM ppqty WHERE qty = 100 ORDER BY id;
+SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM ppqty;
+OCTO> CREATE TABLE ppdt (id INTEGER PRIMARY KEY, dob DATE DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppdt(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppdt ORDER BY id;
+id|dob
+0|2020-01-15
+1|1999-12-31
+2|2020-01-15
+(3 rows)
+OCTO> SELECT * FROM ppdt WHERE dob = date'2020-01-15' ORDER BY id;
+id|dob
+0|2020-01-15
+2|2020-01-15
+(2 rows)
+OCTO> CREATE TABLE ppdt3 (id INTEGER PRIMARY KEY, dob DATE DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppdt3(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppdt3 ORDER BY id;
+id|dob
+0|2020-01-15
+1|1999-12-31
+2|2020-01-15
+(3 rows)
+OCTO> SELECT * FROM ppdt3 WHERE dob = date'2020-01-15' ORDER BY id;
+id|dob
+0|2020-01-15
+2|2020-01-15
+(2 rows)
+OCTO> CREATE TABLE ppflag (id INTEGER PRIMARY KEY, flag BOOLEAN DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppflag(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppflag ORDER BY id;
+id|flag
+0|t
+1|f
+2|t
+(3 rows)
+OCTO> SELECT * FROM ppflag WHERE flag = TRUE ORDER BY id;
+id|flag
+0|t
+2|t
+(2 rows)
+OCTO> CREATE TABLE ppflag3 (id INTEGER PRIMARY KEY, flag BOOLEAN DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppflag3(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppflag3 ORDER BY id;
+id|flag
+0|t
+1|f
+2|t
+(3 rows)
+OCTO> SELECT * FROM ppflag3 WHERE flag = TRUE ORDER BY id;
+id|flag
+0|t
+2|t
+(2 rows)
+OCTO> CREATE TABLE ppqty (id INTEGER PRIMARY KEY, qty INTEGER DELIMS ("|","^") PIECES (2,1)) GLOBAL "^ppqty(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppqty ORDER BY id;
+id|qty
+0|30
+1|5
+2|100
+3|7
+(4 rows)
+OCTO> SELECT * FROM ppqty WHERE qty = 100 ORDER BY id;
+id|qty
+2|100
+(1 row)
+OCTO> SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM ppqty;
+lo|hi
+5|100
+(1 row)
+OCTO> 
+# AIM index: date -> unix-time, boolean -> 0/1, integer -> raw number (all non-'#'):
+^%ydbAIMDQJc2PDytZmPMYjV5PJpt1C(2,946598400000000,1)=""
+^%ydbAIMDQJc2PDytZmPMYjV5PJpt1C(2,1579046400000000,0)=""
+^%ydbAIMDQJc2PDytZmPMYjV5PJpt1C(2,1579046400000000,2)=""
+^%ydbAIMDSNqVHDaR0w3ODCRzTK593I(2,0,1)=""
+^%ydbAIMDSNqVHDaR0w3ODCRzTK593I(2,1,0)=""
+^%ydbAIMDSNqVHDaR0w3ODCRzTK593I(2,1,2)=""
+^%ydbAIMDixwGeqNXRsY2SLDTW5pR5E(2,946598400000000,1)=""
+^%ydbAIMDixwGeqNXRsY2SLDTW5pR5E(2,1579046400000000,0)=""
+^%ydbAIMDixwGeqNXRsY2SLDTW5pR5E(2,1579046400000000,2)=""
+^%ydbAIMDjmtVgFom8OCygPUiv7rx66(2,5,1)=""
+^%ydbAIMDjmtVgFom8OCygPUiv7rx66(2,7,3)=""
+^%ydbAIMDjmtVgFom8OCygPUiv7rx66(2,30,0)=""
+^%ydbAIMDjmtVgFom8OCygPUiv7rx66(2,100,2)=""
+^%ydbAIMDqQJNl71IBVtDuF75GOkZBE(2,0,1)=""
+^%ydbAIMDqQJNl71IBVtDuF75GOkZBE(2,1,0)=""
+^%ydbAIMDqQJNl71IBVtDuF75GOkZBE(2,1,2)=""
+
+# === Section D : AIMTYPE 1 / type 3 -- missing source node indexed as NULL ===
+# Data loaded into ^v3 and ^v33 (id 1 has no 'D' node, so its dob is a missing node):
+^v3(0,0)="r0"
+^v3(0,"D")="x|2020-01-15^a|z"
+^v3(1,0)="r1"
+^v3(2,0)="r2"
+^v3(2,"D")="x|2020-01-15^c|z"
+^v33(0,0)="r0"
+^v33(0,"D")="a|b^c~2020-01-15~e^f|g"
+^v33(1,0)="r1"
+^v33(2,0)="r2"
+^v33(2,"D")="a|b^c~2020-01-15~e^f|g"
+-- AIMTYPE 1 + DATE -> AIM type 3. "dob" lives on a SEPARATE node ^v3(id,"D"); the base node ^v3(id,0)
+-- marks each row. id 1 has NO "D" node, so its dob is a MISSING node, which type 3 indexes as NULL
+-- (so "WHERE dob IS NULL" finds id 1).
+CREATE TABLE v3 (
+	id INTEGER PRIMARY KEY,
+	dob DATE GLOBAL "^v3(keys(""id""),""D"")" DELIMS ("|","^") PIECES (2,1)
+) GLOBAL "^v3(keys(""id""))" AIMTYPE 1 READONLY;
+SELECT * FROM v3 ORDER BY id;
+SELECT * FROM v3 WHERE dob = date'2020-01-15' ORDER BY id;
+SELECT * FROM v3 WHERE dob IS NULL ORDER BY id;
+
+-- Same, but the dob value is 3 levels deep within ^v33(id,"D") = "a|b^c~<date>~e^f|g".
+CREATE TABLE v33 (
+	id INTEGER PRIMARY KEY,
+	dob DATE GLOBAL "^v33(keys(""id""),""D"")" DELIMS ("|","^","~") PIECES (2,2,2)
+) GLOBAL "^v33(keys(""id""))" AIMTYPE 1 READONLY;
+SELECT * FROM v33 ORDER BY id;
+SELECT * FROM v33 WHERE dob = date'2020-01-15' ORDER BY id;
+SELECT * FROM v33 WHERE dob IS NULL ORDER BY id;
+OCTO> CREATE TABLE v3 (
+	id INTEGER PRIMARY KEY,
+	dob DATE GLOBAL "^v3(keys(""id""),""D"")" DELIMS ("|","^") PIECES (2,1)
+) GLOBAL "^v3(keys(""id""))" AIMTYPE 1 READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM v3 ORDER BY id;
+id|dob
+0|2020-01-15
+1|
+2|2020-01-15
+(3 rows)
+OCTO> SELECT * FROM v3 WHERE dob = date'2020-01-15' ORDER BY id;
+id|dob
+0|2020-01-15
+2|2020-01-15
+(2 rows)
+OCTO> SELECT * FROM v3 WHERE dob IS NULL ORDER BY id;
+id|dob
+1|
+(1 row)
+OCTO> CREATE TABLE v33 (
+	id INTEGER PRIMARY KEY,
+	dob DATE GLOBAL "^v33(keys(""id""),""D"")" DELIMS ("|","^","~") PIECES (2,2,2)
+) GLOBAL "^v33(keys(""id""))" AIMTYPE 1 READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM v33 ORDER BY id;
+id|dob
+0|2020-01-15
+1|
+2|2020-01-15
+(3 rows)
+OCTO> SELECT * FROM v33 WHERE dob = date'2020-01-15' ORDER BY id;
+id|dob
+0|2020-01-15
+2|2020-01-15
+(2 rows)
+OCTO> SELECT * FROM v33 WHERE dob IS NULL ORDER BY id;
+id|dob
+1|
+(1 row)
+OCTO> 
+# AIM index for dob (the missing-node row id 1 is indexed as NULL):
+^%ydbAIMDPYXY03A0A9vmUBZ3NX3TC0(2,"",1)=""
+^%ydbAIMDPYXY03A0A9vmUBZ3NX3TC0(2,1579046400000000,0)=""
+^%ydbAIMDPYXY03A0A9vmUBZ3NX3TC0(2,1579046400000000,2)=""
+^%ydbAIMDw3JtIpbAco5WmwcnRg9OIA(2,"",1)=""
+^%ydbAIMDw3JtIpbAco5WmwcnRg9OIA(2,1579046400000000,0)=""
+^%ydbAIMDw3JtIpbAco5WmwcnRg9OIA(2,1579046400000000,2)=""
+
+# === Section E : WHERE on a 3-level-deep piece-of-piece column ===
+# Data loaded into ^ppv3:
+^ppv3(0)="A|B^C~Alpha~G^H|I"
+^ppv3(1)="A|B^C~Beta~G^H|I"
+^ppv3(2)="A|B^C~Alpha~G^H|I"
+-- A 3-level-deep column: AIM indexes the inner "|" piece and the transform applies the two outer levels
+-- ("^" then "~"). Each ^ppv3 node is "A|B^C~<v>~G^H|I", so v = $P($P($P(node,"|",2),"^",2),"~",2).
+-- Expect ids 0 and 2 for 'Alpha'.
+CREATE TABLE ppv3 (id INTEGER PRIMARY KEY, v VARCHAR DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppv3(keys(""id""))";
+SELECT * FROM ppv3 ORDER BY id;
+SELECT * FROM ppv3 WHERE v = 'Alpha' ORDER BY id;
+OCTO> CREATE TABLE ppv3 (id INTEGER PRIMARY KEY, v VARCHAR DELIMS ("|","^","~") PIECES (2,2,2)) GLOBAL "^ppv3(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppv3 ORDER BY id;
+id|v
+0|Alpha
+1|Beta
+2|Alpha
+(3 rows)
+OCTO> SELECT * FROM ppv3 WHERE v = 'Alpha' ORDER BY id;
+id|v
+0|Alpha
+2|Alpha
+(2 rows)
+OCTO> 
+# AIM index for v (keyed on the fully extracted 3-level value):
+^%ydbAIMDANa4q1RAuSvgZwPQ7EBjEG(2,"#Alpha",0)=""
+^%ydbAIMDANa4q1RAuSvgZwPQ7EBjEG(2,"#Alpha",2)=""
+^%ydbAIMDANa4q1RAuSvgZwPQ7EBjEG(2,"#Beta",1)=""
+
+# === Section F : delimiter edge cases ($CHAR delimiter; separators as delimiters) ===
+# Data loaded into ^ppcaddr and ^ppsep:
+^ppcaddr(0)="Zero|123 Main^NYC|p0"
+^ppcaddr(1)="Acid|45 Oak^Boston|p1"
+^ppcaddr(2)="Lord|9 Elm^Reno|p2"
+^ppsep(0)="x|Alpha.a:b/c"
+^ppsep(1)="x|Beta.a:b/c"
+^ppsep(2)="x|Alpha.d:e/f"
+-- Delimiter edge cases in the AIM path.
+
+-- (1) $CHAR delimiter: ^ppcaddr uses $C(124)="|" (inner) and $C(94)="^" (outer). The inner delimiter is
+--     passed to XREFDATA verbatim as $CHAR(124); the resulting index is identical to the literal form.
+CREATE TABLE ppcaddr (id INTEGER PRIMARY KEY, street VARCHAR DELIMS ($C(124),$C(94)) PIECES (2,1)) GLOBAL "^ppcaddr(keys(""id""))";
+SELECT * FROM ppcaddr ORDER BY id;
+SELECT * FROM ppcaddr WHERE street = '45 Oak' ORDER BY id;
+
+-- (2) The AIM transform receives the OUTER delimiter levels as a single string ("spec") in which "/"
+--     separates the levels, ":" separates a level's piece number from its delimiter, and "." separates the
+--     character codes of a multi-character delimiter. The potential issue: if a delimiter were written into
+--     that spec as a literal character, a delimiter that itself IS "/", ":" or "." would be
+--     indistinguishable from those structural separators, so the spec would split at the wrong place and
+--     extract the wrong piece. This is avoided by encoding every delimiter as its decimal character code,
+--     preceded by a one-letter tag ("Z" = byte codes / decode with $ZCHAR, "C" = code points / decode with
+--     $CHAR): "/"=47, ":"=58, "."=46 are literal delimiters, so the spec is "1:Z47/1:Z58/1:Z46" -- only
+--     digits, the separators and the tag letters, so no delimiter can look like a separator. This test
+--     deliberately uses those three characters as the outer delimiters to prove the encoding is
+--     collision-free. Each ^ppsep node is "x|<v>.a:b/c"; v extracts to Alpha/Beta/Alpha.
+CREATE TABLE ppsep (id INTEGER PRIMARY KEY, v VARCHAR DELIMS ("|","/",":",".") PIECES (2,1,1,1)) GLOBAL "^ppsep(keys(""id""))";
+SELECT * FROM ppsep ORDER BY id;
+SELECT * FROM ppsep WHERE v = 'Alpha' ORDER BY id;
+OCTO> CREATE TABLE ppcaddr (id INTEGER PRIMARY KEY, street VARCHAR DELIMS ($C(124),$C(94)) PIECES (2,1)) GLOBAL "^ppcaddr(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppcaddr ORDER BY id;
+id|street
+0|123 Main
+1|45 Oak
+2|9 Elm
+(3 rows)
+OCTO> SELECT * FROM ppcaddr WHERE street = '45 Oak' ORDER BY id;
+id|street
+1|45 Oak
+(1 row)
+OCTO> CREATE TABLE ppsep (id INTEGER PRIMARY KEY, v VARCHAR DELIMS ("|","/",":",".") PIECES (2,1,1,1)) GLOBAL "^ppsep(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppsep ORDER BY id;
+id|v
+0|Alpha
+1|Beta
+2|Alpha
+(3 rows)
+OCTO> SELECT * FROM ppsep WHERE v = 'Alpha' ORDER BY id;
+id|v
+0|Alpha
+2|Alpha
+(2 rows)
+OCTO> 
+# The inner $CHAR delimiter is emitted into XREFDATA verbatim as a $CHAR() expression:
+$CHAR(124)
+# AIM index (ppcaddr keyed like the literal form; ppsep extracts 'Alpha'/'Beta' correctly):
+^%ydbAIMDANwmDMwdeCaZlEmMQ3qOBL(2,"#123 Main",0)=""
+^%ydbAIMDANwmDMwdeCaZlEmMQ3qOBL(2,"#45 Oak",1)=""
+^%ydbAIMDANwmDMwdeCaZlEmMQ3qOBL(2,"#9 Elm",2)=""
+^%ydbAIMDlhEsphURANqYk4Tl9bNmLG(2,"#Alpha",0)=""
+^%ydbAIMDlhEsphURANqYk4Tl9bNmLG(2,"#Alpha",2)=""
+^%ydbAIMDlhEsphURANqYk4Tl9bNmLG(2,"#Beta",1)=""
+
+# === Section G : multi-byte UTF-8 delimiters (char / string / char+ascii mix) ===
+# Data loaded into ^ppu1 (char delim), ^ppu2 (string delim), ^ppu3 (char+ascii mix):
+^ppu1(1)="a䀀b|c䀀d"
+^ppu1(2)="A䀀B|C䀀D"
+^ppu2(1)="p上下q|r上下s"
+^ppu2(2)="P上下Q|R上下S"
+^ppu3(1)="mY上n|oY上p"
+^ppu3(2)="MY上N|OY上P"
+-- Multi-byte UTF-8 delimiters in the AIM (piece-of-piece) path (YDBOcto#1108). A literal delimiter is
+-- encoded into the AIM transform spec by its BYTE codes and rebuilt with $ZCHAR, so a multi-byte UTF-8
+-- delimiter is reproduced exactly (rebuilding those byte codes with $CHAR would treat each byte as a Unicode
+-- code point and produce a different string in UTF-8 mode). Each table below is READONLY (piece-of-piece),
+-- so every WHERE builds and reads the AIM cross-reference. SELECT * (the direct read-side $PIECE) is shown
+-- first as a baseline.
+
+-- (1) Multi-byte UTF-8 CHARACTER as a delimiter. "䀀" is U+4000 (bytes E4.80.80). ^ppu1 nodes are
+--     "<v1>䀀<v2>|<v3>䀀<v4>": ascii "|" and the multi-byte "䀀" appear as inner AND outer delimiters.
+CREATE TABLE ppu_char (id INTEGER PRIMARY KEY,
+	v1 VARCHAR DELIMS ("|","䀀") PIECES (1,1),
+	v2 VARCHAR DELIMS ("|","䀀") PIECES (1,2),
+	v3 VARCHAR DELIMS ("|","䀀") PIECES (2,1),
+	v4 VARCHAR DELIMS ("|","䀀") PIECES (2,2)
+) GLOBAL "^ppu1(keys(""id""))";
+SELECT * FROM ppu_char ORDER BY id;
+SELECT * FROM ppu_char WHERE v1 = 'a';
+SELECT * FROM ppu_char WHERE v2 = 'b';
+SELECT * FROM ppu_char WHERE v3 = 'c';
+SELECT * FROM ppu_char WHERE v4 = 'd';
+-- "䀀" as the INNER (first) delimiter, ascii "|" as the outer:
+CREATE TABLE ppu_charin (id INTEGER PRIMARY KEY,
+	w1 VARCHAR DELIMS ("䀀","|") PIECES (1,1),
+	w2 VARCHAR DELIMS ("䀀","|") PIECES (2,1)
+) GLOBAL "^ppu1(keys(""id""))";
+SELECT * FROM ppu_charin ORDER BY id;
+SELECT * FROM ppu_charin WHERE w2 = 'b';
+
+-- (2) Multi-byte UTF-8 STRING as a delimiter. "上下" is two multi-byte characters (U+4E0A U+4E0B, bytes
+--     E4.B8.8A E4.B8.8B). ^ppu2 nodes are "<a>上下<b>|<c>上下<d>": inner "|", outer multi-char "上下".
+CREATE TABLE ppu_str (id INTEGER PRIMARY KEY,
+	a VARCHAR DELIMS ("|","上下") PIECES (1,1),
+	b VARCHAR DELIMS ("|","上下") PIECES (2,2)
+) GLOBAL "^ppu2(keys(""id""))";
+SELECT * FROM ppu_str ORDER BY id;
+SELECT * FROM ppu_str WHERE a = 'p';
+SELECT * FROM ppu_str WHERE b = 's';
+
+-- (3) MIX of a multi-byte UTF-8 character and an ascii character in one delimiter. The delimiter "Y上" is
+--     ascii "Y" (byte 89) followed by "上" (bytes E4.B8.8A). ^ppu3 nodes are "<c>Y上<d>|<e>Y上<f>".
+CREATE TABLE ppu_mix (id INTEGER PRIMARY KEY,
+	c VARCHAR DELIMS ("|","Y上") PIECES (1,1),
+	d VARCHAR DELIMS ("|","Y上") PIECES (1,2)
+) GLOBAL "^ppu3(keys(""id""))";
+SELECT * FROM ppu_mix ORDER BY id;
+SELECT * FROM ppu_mix WHERE c = 'm';
+SELECT * FROM ppu_mix WHERE d = 'n';
+OCTO> CREATE TABLE ppu_char (id INTEGER PRIMARY KEY,
+	v1 VARCHAR DELIMS ("|","䀀") PIECES (1,1),
+	v2 VARCHAR DELIMS ("|","䀀") PIECES (1,2),
+	v3 VARCHAR DELIMS ("|","䀀") PIECES (2,1),
+	v4 VARCHAR DELIMS ("|","䀀") PIECES (2,2)
+) GLOBAL "^ppu1(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppu_char ORDER BY id;
+id|v1|v2|v3|v4
+1|a|b|c|d
+2|A|B|C|D
+(2 rows)
+OCTO> SELECT * FROM ppu_char WHERE v1 = 'a';
+id|v1|v2|v3|v4
+1|a|b|c|d
+(1 row)
+OCTO> SELECT * FROM ppu_char WHERE v2 = 'b';
+id|v1|v2|v3|v4
+1|a|b|c|d
+(1 row)
+OCTO> SELECT * FROM ppu_char WHERE v3 = 'c';
+id|v1|v2|v3|v4
+1|a|b|c|d
+(1 row)
+OCTO> SELECT * FROM ppu_char WHERE v4 = 'd';
+id|v1|v2|v3|v4
+1|a|b|c|d
+(1 row)
+OCTO> CREATE TABLE ppu_charin (id INTEGER PRIMARY KEY,
+	w1 VARCHAR DELIMS ("䀀","|") PIECES (1,1),
+	w2 VARCHAR DELIMS ("䀀","|") PIECES (2,1)
+) GLOBAL "^ppu1(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppu_charin ORDER BY id;
+id|w1|w2
+1|a|b
+2|A|B
+(2 rows)
+OCTO> SELECT * FROM ppu_charin WHERE w2 = 'b';
+id|w1|w2
+1|a|b
+(1 row)
+OCTO> CREATE TABLE ppu_str (id INTEGER PRIMARY KEY,
+	a VARCHAR DELIMS ("|","上下") PIECES (1,1),
+	b VARCHAR DELIMS ("|","上下") PIECES (2,2)
+) GLOBAL "^ppu2(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppu_str ORDER BY id;
+id|a|b
+1|p|s
+2|P|S
+(2 rows)
+OCTO> SELECT * FROM ppu_str WHERE a = 'p';
+id|a|b
+1|p|s
+(1 row)
+OCTO> SELECT * FROM ppu_str WHERE b = 's';
+id|a|b
+1|p|s
+(1 row)
+OCTO> CREATE TABLE ppu_mix (id INTEGER PRIMARY KEY,
+	c VARCHAR DELIMS ("|","Y上") PIECES (1,1),
+	d VARCHAR DELIMS ("|","Y上") PIECES (1,2)
+) GLOBAL "^ppu3(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM ppu_mix ORDER BY id;
+id|c|d
+1|m|n
+2|M|N
+(2 rows)
+OCTO> SELECT * FROM ppu_mix WHERE c = 'm';
+id|c|d
+1|m|n
+(1 row)
+OCTO> SELECT * FROM ppu_mix WHERE d = 'n';
+id|c|d
+1|m|n
+(1 row)
+OCTO> 
+# AIM transform specs: a literal multi-byte delimiter is tagged Z (byte codes, rebuilt with $ZCHAR):
+"1:C94"
+"1:Z124"
+"1:Z228.128.128"
+"1:Z228.184.138.228.184.139"
+"1:Z47/1:Z58/1:Z46"
+"1:Z89.228.184.138"
+"1:Z94"
+"2:Z228.128.128"
+"2:Z228.184.138.228.184.139"
+"2:Z89.228.184.138"
+"2:Z94/2:Z126"

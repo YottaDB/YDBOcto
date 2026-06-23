@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -256,4 +256,9 @@ teardown() {
 @test "TVD0013 : OCTO1069 : Test Outer joins with Computed Fields" {
 	load_fixture TVD0013.sql subtest novv
 	verify_output TVD0013 output.txt
+}
+
+@test "TVD0014 : YDBOcto1108 : piece-of-piece extraction over VistA Lab CH chemistry results" {
+	load_fixture TVD0014.sql subtest novv
+	verify_output TVD0014 output.txt
 }

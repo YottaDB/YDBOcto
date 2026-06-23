@@ -30,11 +30,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	SqlValue		*value;
 	SqlTableAlias		*table_alias;
 	SqlOptionalKeyword	*keyword;
+	SqlOptionalKeyword	*piece_keyword;
 	SqlKey			*key, *matching_key;
 	char			*table_name, *delim;
 	char			*piece = NULL, *source;
 	unsigned int		i;
 	boolean_t		is_extract, is_dollar_char;
+	boolean_t		is_multi_level_piece;	/* YDBOcto#1108: TRUE for a piece-of-piece (chained) column */
 	PhysicalPlan		*cur_plan, *matching_plan;
 	int			unique_id;
 
@@ -71,7 +73,11 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
-	SET_DELIM_AND_IS_DOLLAR_CHAR(table, column, is_trigger, delim, is_dollar_char);	/* sets "delim" and "is_dollar_char" */
+	/* Sets "delim" and "is_dollar_char". YDBOcto#1108: a multi-level (piece-of-piece) column carries its
+	 * per-level delimiters as a "value_list_STATEMENT"; the macro yields "delim" = NULL in that case (the
+	 * per-level delimiters are walked together with the PIECE list when emitting the nested $PIECE calls below).
+	 */
+	SET_DELIM_AND_IS_DOLLAR_CHAR(table, column, is_trigger, delim, is_dollar_char);
 	/* If a key exists for current column, use key value (using "tmpl_key") rather than column value (using "tmpl_emit_source").
 	 * Note that a key can exist for key columns and non-key columns (in case the non-key column had its value fixed using
 	 * an xref key). In case of a key column, we have to always go through "tmpl_key" (this is because key columns are not
@@ -147,10 +153,20 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	} while (NULL != cur_plan);
 	/* Check for EXTRACT or GLOBAL/PIECE, and assemble it ourselves based on table_alias->source */
 	/* It is possible for PIECE keyword to be missing in non-key columns that have DELIM of "" */
-	keyword = get_keyword(column, OPTIONAL_PIECE);
-	if (NULL != keyword) {
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		piece = value->v.string_literal;
+	piece_keyword = get_keyword(column, OPTIONAL_PIECE);
+	is_multi_level_piece = FALSE;
+	if (NULL != piece_keyword) {
+		if (value_list_STATEMENT == piece_keyword->v->type) {
+			/* YDBOcto#1108: Multi-level (piece-of-piece) column. The PIECE and DELIMS values are parallel
+			 * value lists walked together below to emit nested $PIECE(...) calls. The single-value "piece"
+			 * variable is not used in this case.
+			 */
+			is_multi_level_piece = TRUE;
+			piece = NULL;
+		} else {
+			UNPACK_SQL_STATEMENT(value, piece_keyword->v, value);
+			piece = value->v.string_literal;
+		}
 	} else {
 		piece = NULL;
 	}
@@ -163,6 +179,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		}
 	} else {
 		assert(NULL == piece); /* A column cannot be a piece and an extract column at the same time */
+		assert(!is_multi_level_piece);
 		is_extract = TRUE;
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -219,8 +236,15 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	boolean_t	skipped_dollar_get;
 	skipped_dollar_get = TRUE;
 	/* All non-extract references get $GET. Add $PIECE for if piece number specified. */
-	if (!is_trigger && !is_extract && (NULL != piece)) {
-		%{}$PIECE({}%
+	if (!is_trigger && !is_extract) {
+		if (is_multi_level_piece) {
+			/* YDBOcto#1108: Emit one "$PIECE(" opener per nesting level (the matching ",delim,piece)"
+			 * closers are emitted, in the same order, by "tmpl_piece_of_piece_close" after the source below).
+			 */
+			TMPL(tmpl_piece_of_piece_open, piece_keyword->v);
+		} else if (NULL != piece) {
+			%{}$PIECE({}%
+		}
 	}
 
 	/* If this plan contains a LEFT JOIN (and no RIGHT/FULL JOIN), "key_lvn_can_be_zysqlnull" is set
@@ -273,7 +297,12 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		if (zysqlnull_guard) {
 			%{}){}%	/* closing paren for "$SELECT($ZYISSQLNULL" */
 		}
-		if (!is_extract && (NULL != piece)) {
+		if (!is_extract && is_multi_level_piece) {
+			/* YDBOcto#1108: Emit one ",delim,piece)" closer per nesting level, matching the "$PIECE("
+			 * openers emitted by "tmpl_piece_of_piece_open" above (innermost level = list head first).
+			 */
+			TMPL(tmpl_piece_of_piece_close, column->delim, piece_keyword->v);
+		} else if (!is_extract && (NULL != piece)) {
 			if (is_dollar_char) {
 				%{},{{ delim }},{{ piece }}){}%
 			} else {

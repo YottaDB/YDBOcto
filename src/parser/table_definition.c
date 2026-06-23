@@ -123,6 +123,32 @@
 		}                                                                                   \
 	}
 
+/* Returns the number of values represented by a PIECE/DELIM keyword value "stmt" (YDBOcto#1108):
+ *	0 if "stmt" is NULL (keyword absent),
+ *	1 if "stmt" is a single value (value_STATEMENT),
+ *	N if "stmt" is a chained list of N values (value_list_STATEMENT, i.e. PIECES (..) or DELIMS (..)).
+ */
+static int get_piece_delim_value_count(SqlStatement *stmt) {
+	int	      count;
+	SqlValueList *start_value_list, *cur_value_list;
+
+	if (NULL == stmt) {
+		return 0;
+	}
+	if (value_list_STATEMENT != stmt->type) {
+		assert(value_STATEMENT == stmt->type);
+		return 1;
+	}
+	UNPACK_SQL_STATEMENT(start_value_list, stmt, value_list);
+	count = 0;
+	cur_value_list = start_value_list;
+	do {
+		count++;
+		cur_value_list = cur_value_list->next;
+	} while (cur_value_list != start_value_list);
+	return count;
+}
+
 /* Function invoked by the rule named "table_definition" in src/parser.y (parses the CREATE TABLE command).
  * Returns
  *	non-NULL pointer to SqlStatement structure on success
@@ -1433,6 +1459,16 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			break;
 		}
 		case OPTIONAL_DELIM:
+			if ((NULL != cur_keyword->v) && (value_list_STATEMENT == cur_keyword->v->type)) {
+				/* YDBOcto#1108: A multi-element DELIMS (..) (chained delimiters) reached the table level.
+				 * It only makes sense at the column level, paired with that column's PIECES (..) chain,
+				 * so reject it here. Note: a single-element DELIMS ("x") collapses to a plain value at
+				 * parse time and is treated like a normal table-level DELIM "x", so it does not get here.
+				 */
+				ERROR(ERR_DELIMS_TABLE_LEVEL, "");
+				yyerror(&cur_keyword->v->loc, NULL, NULL, NULL, NULL, NULL);
+				return NULL;
+			}
 			options |= DELIM;
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
@@ -1645,19 +1681,24 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				effective_delim_value = table->delim->v.keyword->v;
 			}
 			if (NULL != effective_delim_value) {
-				SqlValue *delim_value;
-				char	 *delim_buf, delim_kind;
+				if (value_list_STATEMENT == effective_delim_value->type) {
+					/* Chained DELIMS (..) list (YDBOcto#1108) is always a non-empty delimiter. */
+					user_nonempty_delim_on_only_non_key_column = TRUE;
+				} else {
+					SqlValue *delim_value;
+					char	 *delim_buf, delim_kind;
 
-				UNPACK_SQL_STATEMENT(delim_value, effective_delim_value, value);
-				delim_buf = delim_value->v.reference;
-				delim_kind = *delim_buf;
-				assert((DELIM_IS_DOLLAR_CHAR == delim_kind) || (DELIM_IS_LITERAL == delim_kind));
-				if (DELIM_IS_LITERAL == delim_kind) {
-					if ('\0' != *(delim_buf + 1)) {
+					UNPACK_SQL_STATEMENT(delim_value, effective_delim_value, value);
+					delim_buf = delim_value->v.reference;
+					delim_kind = *delim_buf;
+					assert((DELIM_IS_DOLLAR_CHAR == delim_kind) || (DELIM_IS_LITERAL == delim_kind));
+					if (DELIM_IS_LITERAL == delim_kind) {
+						if ('\0' != *(delim_buf + 1)) {
+							user_nonempty_delim_on_only_non_key_column = TRUE;
+						}
+					} else {
 						user_nonempty_delim_on_only_non_key_column = TRUE;
 					}
-				} else {
-					user_nonempty_delim_on_only_non_key_column = TRUE;
 				}
 			}
 		}
@@ -1683,18 +1724,25 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		keyword = get_keyword(cur_column, OPTIONAL_DELIM);
 		delim_is_empty = FALSE;
 		if (NULL != keyword) {
-			char *delim, ch;
-
 			cur_column->delim = keyword->v;
-			/* Check if DELIM is "". If so, ignore any PIECE specifications as we want the entire node. */
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			delim = value->v.reference;
-			ch = *delim;
-			assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
-			if (DELIM_IS_LITERAL == ch) {
-				delim++; /* skip first byte to get actual delimiter */
+			if (value_list_STATEMENT == keyword->v->type) {
+				/* Chained DELIMS (..) list (YDBOcto#1108). A multi-element delimiter list is never the
+				 * empty delimiter, so "delim_is_empty" stays FALSE and the single-delimiter inspection
+				 * (which checks for DELIM "") is skipped.
+				 */
+			} else {
+				char *delim, ch;
+
+				/* Check if DELIM is "". If so, ignore any PIECE specifications as we want the entire node. */
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				delim = value->v.reference;
 				ch = *delim;
-				delim_is_empty = ('\0' == ch);
+				assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
+				if (DELIM_IS_LITERAL == ch) {
+					delim++; /* skip first byte to get actual delimiter */
+					ch = *delim;
+					delim_is_empty = ('\0' == ch);
+				}
 			}
 		} else {
 			assert(NULL == cur_column->delim);
@@ -1837,6 +1885,27 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		 */
 		piece_keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		remove_piece_keyword = FALSE;
+
+		/* YDBOcto#1108: For a chained (piece-of-piece) column, the number of PIECES (..) values must equal the
+		 * number of DELIMS (..) values. Each piece level must have its own explicitly specified delimiter;
+		 * no default delimiter is used for additional levels.
+		 * This check is skipped for EXTRACT columns and for DELIM "" columns, since in both those cases any
+		 * PIECE specification is ignored/removed below (matching the single-level behavior).
+		 */
+		if ((NULL != cur_column->columnName) && !is_extract && !delim_is_empty) {
+			SqlOptionalKeyword *delim_keyword;
+			int		    piece_count, delim_count;
+
+			delim_keyword = get_keyword(cur_column, OPTIONAL_DELIM);
+			piece_count = get_piece_delim_value_count((NULL != piece_keyword) ? piece_keyword->v : NULL);
+			delim_count = get_piece_delim_value_count((NULL != delim_keyword) ? delim_keyword->v : NULL);
+			if (((1 < piece_count) || (1 < delim_count)) && (piece_count != delim_count)) {
+				ERROR(ERR_PIECE_DELIM_COUNT_MISMATCH, delim_count, piece_count);
+				yyerror(&cur_column->columnName->loc, NULL, NULL, NULL, NULL, NULL);
+				return NULL;
+			}
+		}
+
 		if (NULL != cur_column->columnName) {
 			if (!cur_column->is_hidden_keycol) {
 				column_number++;
@@ -2064,8 +2133,23 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			 * If so delete the PIECE keyword as it is ignored.
 			 */
 			SqlValue *lcl_value;
+			boolean_t is_multi_level_piece;
 
-			if (NULL != delim_keyword) {
+			/* YDBOcto#1108: A multi-level (piece-of-piece) column has a value_list_STATEMENT for its PIECE
+			 * and/or DELIMS keyword value. Writing a value back into a nested $PIECE is not supported, so
+			 * such a column makes the whole table READWRITE-incompatible. Setting the table-level
+			 * "readwrite_disallowed" flag (as GLOBAL/EXTRACT/START/END columns already do) resolves the
+			 * table to READONLY -- or issues ERR_READWRITE_DISALLOWED if the user explicitly asked for
+			 * READWRITE. The single-value DELIM ""/PIECE-in-order checks below do not apply to a multi-level
+			 * column (its values are lists, not scalars), so they are skipped.
+			 */
+			is_multi_level_piece = ((NULL != piece_keyword) && (value_list_STATEMENT == piece_keyword->v->type))
+					       || ((NULL != delim_keyword) && (value_list_STATEMENT == delim_keyword->v->type));
+			if (is_multi_level_piece) {
+				readwrite_disallowed = TRUE;
+			}
+
+			if (!is_multi_level_piece && (NULL != delim_keyword)) {
 				boolean_t delim_is_empty;
 				char	 *delim, ch;
 
@@ -2097,7 +2181,7 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 			}
 			num_non_key_columns++;
 			piece_number++;
-			if (NULL != piece_keyword) {
+			if (!is_multi_level_piece && (NULL != piece_keyword)) {
 				/* Disallow if PIECE number (explicit or implicit) is not in order */
 				UNPACK_SQL_STATEMENT(lcl_value, piece_keyword->v, value);
 				assert(INTEGER_LITERAL == lcl_value->type);

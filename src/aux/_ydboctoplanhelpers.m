@@ -753,6 +753,62 @@ ForceBoolean(val)
 	SET val=$ZCONVERT(val,"L")
 	QUIT $SELECT($DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:0)
 
+PieceOfPieceXform(val,spec,conv,dtype,dtformat,txtfmt)
+	; AIM transformation function for a piece-of-piece (chained DELIMS/PIECES) column (YDBOcto#1108).
+	; AIM has already extracted the inner (first) piece $PIECE(node,delim1,piece1) into "val". "spec"
+	; describes the remaining (outer) levels (level 2..N) as a "/"-separated list of "piece:<tag><c1.c2..>"
+	; where the delimiter is given by its character codes and <tag> is a single letter that selects how the
+	; delimiter is rebuilt from those codes (so "spec" contains only digits, the separators "/" ":" "." and
+	; the tag letters; it is therefore safe to embed in the generated M source):
+	;   "Z" - the codes are BYTE values (a literal delimiter): rebuild with $ZCHAR so a multi-byte UTF-8
+	;         delimiter is reproduced exactly (rebuilding with $CHAR would treat each byte as a Unicode code
+	;         point and yield a different string in UTF-8 mode).
+	;   "C" - the codes are Unicode CODE POINTS (a "DELIMS ($C(..))" delimiter): rebuild with $CHAR, exactly
+	;         as the read-side plan emits "$CHAR(..)" verbatim (so both honor the runtime chset identically).
+	; Applying the levels left to right reproduces $PIECE($PIECE(..$PIECE(node,delim1,piece1)..,delimN,pieceN),
+	; i.e. the piece-of-piece extraction is done first (innermost).
+	;
+	; "conv" then selects the SAME post-extraction conversion AIM would otherwise apply on its own, so a
+	; piece-of-piece column that is also a date/boolean/string column composes both transforms (AIM applies
+	; only one transformation function per index, so they are chained here):
+	;   "s" - string column: apply strcolval2aimsubs (the "#" prefix). AIM's transformation (type 2) and
+	;         its forced-string-order flag share one parameter, so a string transform loses forced string
+	;         ordering; restoring the "#" here matches what the read-side plan looks up.
+	;   "d" - date/time column: apply Transform2UnixTime(val,dtype,dtformat,txtfmt) (READONLY tables only).
+	;   "b" - boolean column: apply ForceBoolean(val) (READONLY tables only).
+	;   ""  - no conversion (e.g. an integer/numeric column): index the raw extracted value.
+	; AIM indexes (and, via its trigger, re-derives) the value returned here whenever the node changes.
+	;
+	; Examples ("val" is the inner piece AIM already extracted; the returned value is what gets indexed):
+	;   val="45 Oak^Boston"   spec="1:Z94"       conv="s"  ->  "#45 Oak"
+	;        one outer level: $ZCHAR(94)="^", so $PIECE(val,"^",1)="45 Oak", then the "#" string prefix.
+	;   val="B^C~Alpha~G^H"   spec="2:Z94/2:Z126" conv="s" ->  "#Alpha"
+	;        two outer levels: $PIECE(val,"^",2)="C~Alpha~G", then $PIECE("C~Alpha~G","~",2)="Alpha".
+	;   val="100^c"           spec="1:Z94"       conv=""   ->  100
+	;        integer column: $PIECE(val,"^",1)="100", and no conversion is applied.
+	;   val="x/y"             spec="1:Z47"       conv="s"  ->  "#x"
+	;        the delimiter "/" is itself code 47, so it never clashes with the spec's "/" level separator.
+	;   val="a<U+4E0A>b"      spec="1:Z228.184.138" conv="s" -> "#a"
+	;        literal multi-byte UTF-8 delimiter "<U+4E0A>": $ZCHAR(228,184,138) reproduces its 3 bytes exactly.
+	QUIT:$ZYISSQLNULL(val) val
+	NEW i,j,level,piece,codes,tag,delim
+	; "spec" is pure ASCII (digits, the "/" ":" "." separators, and the tag letter), so it is parsed with the
+	; byte-wise $Z* functions ($ZPIECE/$ZLENGTH/$ZEXTRACT). They behave identically to the char-wise forms on
+	; ASCII but carry no chset dependence.
+	FOR i=1:1:$ZLENGTH(spec,"/") DO
+	. SET level=$ZPIECE(spec,"/",i),piece=$ZPIECE(level,":",1),codes=$ZPIECE(level,":",2)
+	. ; first char of "codes" is the tag: "Z" -> byte codes (rebuild via $ZCHAR), "C" -> code points (via $CHAR)
+	. SET tag=$ZEXTRACT(codes),codes=$ZEXTRACT(codes,2,$ZLENGTH(codes)),delim=""
+	. IF tag="Z" FOR j=1:1:$ZLENGTH(codes,".") SET delim=delim_$ZCHAR($ZPIECE(codes,".",j))
+	. ELSE  FOR j=1:1:$ZLENGTH(codes,".") SET delim=delim_$CHAR($ZPIECE(codes,".",j))
+	. ; The split below must stay the CHAR-wise $PIECE (not $ZPIECE): unlike "spec", "val" is the column data
+	. ; and can be a UTF-8 string. The read-side plan and %YDBAIM both extract pieces char-wise, so char-wise
+	. ; $PIECE here keeps the indexed value identical to what the read side computes. (For valid UTF-8 the two
+	. ; are byte-identical anyway, since UTF-8 is self-synchronizing; they would only differ on a global node
+	. ; that is not valid UTF-8, where char-wise keeps the index and the read side consistent.)
+	. SET val=$PIECE(val,delim,piece)
+	QUIT $SELECT(conv="s":$$strcolval2aimsubs(val),conv="d":$$Transform2UnixTime(val,dtype,dtformat,txtfmt),conv="b":$$ForceBoolean(val),1:val)
+
 max(isString,a,b)
 	; return the greatest of a and b
 	; uses lexicographical sorting if `isString` is true; otherwise uses numerical sorting

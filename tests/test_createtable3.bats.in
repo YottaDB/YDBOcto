@@ -568,3 +568,54 @@ OCTO
 	grep -v "generated from" output.txt > output_nosyslog.txt && mv output_nosyslog.txt output.txt
 	verify_output TC085 output.txt noinfo nodebug
 }
+
+@test "TC086 : OCTO1108 : CREATE TABLE piece-of-piece extraction via DELIMS (..) PIECES (..)" {
+	load_fixture TC086.zwr
+
+	# =====================================================================
+	# Section A : two-level extraction & delimiter spellings
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section A : two-level extraction & delimiter spellings ===" | tee -a output.txt
+	echo "# Data loaded into ^addr and ^addrm:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^addr,^addrm' 2>&1 | tee -a output.txt
+	load_fixture TC086-A.sql subtest novv
+
+	# =====================================================================
+	# Section B : deeper nesting (3- and 4-level chains)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section B : deeper nesting (3- and 4-level chains) ===" | tee -a output.txt
+	echo "# Data loaded into ^addrdeep:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^addrdeep' 2>&1 | tee -a output.txt
+	load_fixture TC086-B.sql subtest novv
+
+	# =====================================================================
+	# Section C : single-element DELIMS/PIECES downgrades to DELIM/PIECE
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section C : single-element DELIMS/PIECES downgrades to DELIM/PIECE ===" | tee -a output.txt
+	echo "# Data loaded into ^dgrade and ^dgradet:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^dgrade,^dgradet' 2>&1 | tee -a output.txt
+	load_fixture TC086-C.sql subtest novv
+
+	# =====================================================================
+	# Section D : error cases (each CREATE TABLE is expected to fail)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section D : error cases ===" | tee -a output.txt
+	load_fixture TC086-D.sql subtest novv
+
+	# ---------------------------------------------------------------------
+	# Codegen + round-trip checks over the tables created in Sections A-C
+	# ---------------------------------------------------------------------
+	echo "" | tee -a output.txt
+	echo "# Generated nested \$PIECE calls (piece-of-piece codegen -- Sections A/B):" | tee -a output.txt
+	grep -hoE '\$PIECE\(\$PIECE\(.*,[^,]+,[0-9]\)' _ydboctoP*.m | sort -u | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Stored text table definitions (round-trip; a single-element list downgrades to DELIM/PIECE):" | tee -a output.txt
+	$ydb_dist/mupip extract tc086.ext >& /dev/null
+	grep -hE '\^%ydboctoschema\("(addr[a-z_0-9]*|downgrade[a-z_0-9]*)","text"' tc086.ext | tee -a output.txt
+
+	verify_output TC086 output.txt
+}

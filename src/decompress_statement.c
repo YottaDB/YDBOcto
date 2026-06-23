@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -439,6 +439,23 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			cur_column_list->next->prev = cur_column_list;
 			cur_column_list = cur_column_list->next;
 		} while (cur_column_list != start_column_list);
+		break;
+	case value_list_STATEMENT:;
+		/* Chained PIECE/DELIM value list (YDBOcto#1108). Same format as column_list_STATEMENT above. */
+		SqlValueList *start_value_list, *cur_value_list;
+
+		UNPACK_SQL_STATEMENT(start_value_list, stmt, value_list);
+		cur_value_list = start_value_list;
+		do {
+			CALL_DECOMPRESS_HELPER(cur_value_list->value, out, out_length);
+			if (cur_value_list->next == 0) {
+				cur_value_list->next = start_value_list;
+			} else {
+				cur_value_list->next = R2A(cur_value_list->next);
+			}
+			cur_value_list->next->prev = cur_value_list;
+			cur_value_list = cur_value_list->next;
+		} while (cur_value_list != start_value_list);
 		break;
 	case cas_STATEMENT:;
 		SqlCaseStatement *cas;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -380,6 +380,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 	case set_STATEMENT:
 	case show_STATEMENT:
 	case no_data_STATEMENT:
+	case value_list_STATEMENT:
 	case delim_char_list_STATEMENT:
 	case index_STATEMENT:
 	case join_type_STATEMENT:

@@ -89,26 +89,39 @@
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
-/* Sets output parameters "DELIM" and "IS_DOLLAR_CHAR" based on input parameters "TABLE" "COLUMN" and "IS_TRIGGER" */
-#define SET_DELIM_AND_IS_DOLLAR_CHAR(TABLE, COLUMN, IS_TRIGGER, DELIM, IS_DOLLAR_CHAR)      \
-	{                                                                                   \
-		SqlValue *value;                                                            \
-                                                                                            \
-		if (COLUMN->delim) {                                                        \
-			UNPACK_SQL_STATEMENT(value, COLUMN->delim, value);                  \
-			DELIM = value->v.string_literal;                                    \
-			IS_DOLLAR_CHAR = (DELIM_IS_DOLLAR_CHAR == DELIM[0] ? TRUE : FALSE); \
-			DELIM = &value->v.string_literal[1];                                \
-		} else if (TABLE->delim) {                                                  \
-			UNPACK_SQL_STATEMENT(keyword, TABLE->delim, keyword);               \
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);                     \
-			DELIM = value->v.string_literal;                                    \
-			IS_DOLLAR_CHAR = (DELIM_IS_DOLLAR_CHAR == DELIM[0] ? TRUE : FALSE); \
-			DELIM = &value->v.string_literal[1];                                \
-		} else {                                                                    \
-			IS_DOLLAR_CHAR = FALSE;                                             \
-			DELIM = (IS_TRIGGER ? NULL : COLUMN_DELIMITER);                     \
-		}                                                                           \
+/* Sets output parameters "DELIM" and "IS_DOLLAR_CHAR" based on input parameters "TABLE" "COLUMN" and "IS_TRIGGER".
+ *
+ * YDBOcto#1108: A piece-of-piece (chained "DELIMS (..) PIECES (..)") column carries its per-level delimiters as a
+ * "value_list_STATEMENT" (not a single "value_STATEMENT"). Those per-level delimiters are walked together with the
+ * PIECE list when emitting the nested "$PIECE(...)" calls, so the single-valued "DELIM"/"IS_DOLLAR_CHAR" do not apply.
+ * The macro handles that case itself (yielding DELIM=NULL) so callers need no special-case code around it.
+ */
+#define SET_DELIM_AND_IS_DOLLAR_CHAR(TABLE, COLUMN, IS_TRIGGER, DELIM, IS_DOLLAR_CHAR)              \
+	{                                                                                           \
+		SqlValue *value;                                                                    \
+                                                                                                    \
+		if (COLUMN->delim) {                                                                \
+			if (value_list_STATEMENT == COLUMN->delim->type) {                          \
+				/* Piece-of-piece column: per-level delimiters live in the value    \
+				 * list, handled by the nested "$PIECE(...)" emission logic. */     \
+				DELIM = NULL;                                                       \
+				IS_DOLLAR_CHAR = FALSE;                                             \
+			} else {                                                                    \
+				UNPACK_SQL_STATEMENT(value, COLUMN->delim, value);                  \
+				DELIM = value->v.string_literal;                                    \
+				IS_DOLLAR_CHAR = (DELIM_IS_DOLLAR_CHAR == DELIM[0] ? TRUE : FALSE); \
+				DELIM = &value->v.string_literal[1];                                \
+			}                                                                           \
+		} else if (TABLE->delim) {                                                          \
+			UNPACK_SQL_STATEMENT(keyword, TABLE->delim, keyword);                       \
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);                             \
+			DELIM = value->v.string_literal;                                            \
+			IS_DOLLAR_CHAR = (DELIM_IS_DOLLAR_CHAR == DELIM[0] ? TRUE : FALSE);         \
+			DELIM = &value->v.string_literal[1];                                        \
+		} else {                                                                            \
+			IS_DOLLAR_CHAR = FALSE;                                                     \
+			DELIM = (IS_TRIGGER ? NULL : COLUMN_DELIMITER);                             \
+		}                                                                                   \
 	}
 
 /* Macro to set a lvn to track which column numbers have had their "PP_COL(i)" fields initialized in generated M code.
@@ -234,6 +247,11 @@ TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, Logi
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, void *parm2, int keys_to_match,
 	 enum EmitSourceForm form);
+/* YDBOcto#1108: piece-of-piece (chained DELIMS/PIECES) nested-$PIECE emission, shared by "tmpl_column_reference"
+ * and "tmpl_emit_source". "open" emits the "$PIECE(" openers; "close" emits the ",<delim>,<piece>)" closers.
+ */
+TEMPLATE(tmpl_piece_of_piece_open, SqlStatement *piece_list);
+TEMPLATE(tmpl_piece_of_piece_close, SqlStatement *delim_list, SqlStatement *piece_list);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_order_by_key, int num_cols);

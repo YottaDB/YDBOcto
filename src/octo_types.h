@@ -133,6 +133,20 @@ typedef void *yyscan_t;
 		DEST = lcl_ret;                                        \
 	}
 
+/* Allocates a value_list_STATEMENT wrapping a single-element SqlValueList whose value is VALUE_STMT
+ * (a value_STATEMENT). Used (YDBOcto#1108) to build chained PIECE/DELIM specifications.
+ */
+#define SQL_VALUE_LIST_STATEMENT(DEST, VALUE_STMT)                   \
+	{                                                            \
+		SqlStatement *lcl_ret;                               \
+                                                                     \
+		SQL_STATEMENT(lcl_ret, value_list_STATEMENT);        \
+		MALLOC_STATEMENT(lcl_ret, value_list, SqlValueList); \
+		dqinit(lcl_ret->v.value_list);                       \
+		lcl_ret->v.value_list->value = (VALUE_STMT);         \
+		DEST = lcl_ret;                                      \
+	}
+
 /* Shamelessly stolen from mlkdef.h in YottaDB */
 /* convert relative pointer to absolute pointer */
 #define R2A(X) (void *)(((unsigned char *)&(X)) + ((size_t)X))
@@ -208,6 +222,7 @@ typedef enum SqlStatementType {
 	dynamic_sql_STATEMENT,
 	discard_xrefs_STATEMENT,
 	rollback_STATEMENT,
+	value_list_STATEMENT,
 	invalid_STATEMENT, // Keep invalid_STATEMENT at the end
 } SqlStatementType;
 
@@ -780,6 +795,16 @@ typedef struct SqlDelimiterCharacterList {
 	dqcreate(SqlDelimiterCharacterList);
 } SqlDelimiterCharacterList;
 
+/* A doubly-linked list of values. Used (YDBOcto#1108) to represent a chained PIECE specification
+ * (e.g. "PIECE 5,3") and its matching chained DELIM specification (e.g. DELIM "^","~") on a column.
+ * Each "value" is a value_STATEMENT. A single PIECE/DELIM continues to use a plain value_STATEMENT;
+ * only the multi-level (comma-separated) form produces a value_list_STATEMENT wrapping a SqlValueList.
+ */
+typedef struct SqlValueList {
+	struct SqlStatement *value; /* a value_STATEMENT */
+	dqcreate(SqlValueList);
+} SqlValueList;
+
 /**
  * Effectively provides a list of tables that may or may not be joined
  */
@@ -1202,6 +1227,7 @@ typedef struct SqlStatement {
 		struct SqlDeleteFromStatement *delete_from;
 		struct SqlUpdateStatement     *update;
 		struct SqlDiscardXrefs	      *discard_xrefs;
+		struct SqlValueList	      *value_list; /* corresponding to value_list_STATEMENT */
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	invalid_STATEMENT
 		 */

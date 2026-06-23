@@ -170,38 +170,57 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 							unique_id, parm2, num_vars_to_match, form);
 					} else {
 						/* Column is PIECE-based. Use the $PIECE(...) logic. */
-						char *source_global;
-						char *delim;
+						char		   *source_global;
+						SqlOptionalKeyword *global_keyword, *piece_keyword;
+						boolean_t	    col_is_multi_level_piece;
 
-						if (NULL == sql_column->delim) {
-							delim = table->delim->v.keyword->v->v.value->v.string_literal;
-						} else {
-							delim = sql_column->delim->v.value->v.string_literal;
-						}
-
-						SqlOptionalKeyword *global_keyword = get_keyword(sql_column, OPTIONAL_GLOBAL);
+						global_keyword = get_keyword(sql_column, OPTIONAL_GLOBAL);
 						if (NULL == global_keyword) {
 							source_global = table->source->v.keyword->v->v.value->v.string_literal;
 						} else {
 							UNPACK_SQL_STATEMENT(value, global_keyword->v, value);
 							source_global = value->v.string_literal;
 						}
-						%{}$PIECE($GET({}%
-							TMPL(tmpl_emit_source, table, source_global, table_name,	\
-								unique_id, parm2, MAX_KEY_COUNT, form);
-						%{}){}%
-						if (DELIM_IS_LITERAL == delim[0]) {
-							%{},"{{ &delim[1] }}"{}%
-						} else {
-							// Omit quotation marks to allow calls to $CHAR
-							%{},{{ &delim[1] }}{}%
-						}
-						SqlOptionalKeyword *piece_keyword;
 						piece_keyword = get_keyword(sql_column, OPTIONAL_PIECE);
-						if (NULL == piece_keyword) {
-							%{},{{ sql_column->column_number-1|%d }}){}%
+						col_is_multi_level_piece
+						    = (NULL != piece_keyword) && (value_list_STATEMENT == piece_keyword->v->type);
+						if (col_is_multi_level_piece) {
+							/* YDBOcto#1108: Multi-level (piece-of-piece) column. Emit one "$PIECE(" opener
+							 * per nesting level, then $GET(source), then one ,"<delim>",<piece>) closer per
+							 * level (innermost = list head first). The opener/closer emission is shared with
+							 * "tmpl_column_reference" (a direct column reference); here it wraps a "values(col)"
+							 * reference nested inside another column's expression.
+							 */
+							assert(NULL != sql_column->delim);
+							TMPL(tmpl_piece_of_piece_open, piece_keyword->v);
+							%{}$GET({}%
+								TMPL(tmpl_emit_source, table, source_global, table_name,	\
+									unique_id, parm2, MAX_KEY_COUNT, form);
+							%{}){}%
+							TMPL(tmpl_piece_of_piece_close, sql_column->delim, piece_keyword->v);
 						} else {
-							%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
+							char *delim;
+
+							if (NULL == sql_column->delim) {
+								delim = table->delim->v.keyword->v->v.value->v.string_literal;
+							} else {
+								delim = sql_column->delim->v.value->v.string_literal;
+							}
+							%{}$PIECE($GET({}%
+								TMPL(tmpl_emit_source, table, source_global, table_name,	\
+									unique_id, parm2, MAX_KEY_COUNT, form);
+							%{}){}%
+							if (DELIM_IS_LITERAL == delim[0]) {
+								%{},"{{ &delim[1] }}"{}%
+							} else {
+								// Omit quotation marks to allow calls to $CHAR
+								%{},{{ &delim[1] }}{}%
+							}
+							if (NULL == piece_keyword) {
+								%{},{{ sql_column->column_number-1|%d }}){}%
+							} else {
+								%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
+							}
 						}
 					}
 				}

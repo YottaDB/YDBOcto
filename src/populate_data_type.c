@@ -1474,6 +1474,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 	case set_STATEMENT:
 	case show_STATEMENT:
 	case no_data_STATEMENT:
+	case value_list_STATEMENT:
 	case delim_char_list_STATEMENT:
 	case index_STATEMENT:
 	case data_type_struct_STATEMENT:

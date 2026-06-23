@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -483,6 +483,20 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			hash_canonical_query(state, cur_cl->value, status); // SqlValue or SqlColumnAlias
 			cur_cl = cur_cl->next;
 		} while (cur_cl != start_cl);
+		break;
+	case value_list_STATEMENT:;
+		/* Chained PIECE/DELIM value list (YDBOcto#1108). Reached via "cur_column->delim" and the
+		 * OPTIONAL_PIECE/OPTIONAL_DELIM column keyword values for a chained (piece-of-piece) column.
+		 */
+		SqlValueList *start_vl, *cur_vl;
+
+		UNPACK_SQL_STATEMENT(start_vl, stmt, value_list);
+		cur_vl = start_vl;
+		do {
+			ADD_INT_HASH(state, value_list_STATEMENT);
+			hash_canonical_query(state, cur_vl->value, status);
+			cur_vl = cur_vl->next;
+		} while (cur_vl != start_vl);
 		break;
 	case column_list_alias_STATEMENT:
 		hash_canonical_query_column_list_alias(state, stmt, status, FALSE); // FALSE so we do not loop

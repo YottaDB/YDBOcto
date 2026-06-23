@@ -990,7 +990,7 @@ optional_keyword
 
   .. code-block:: none
 
-     [ AIMTYPE | DELIM | END | ENDPOINT | EXTRACT | GLOBAL | ITERATOR | KEY NUM | NOT NULL | PIECE | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE | VIRTUAL ]
+     [ AIMTYPE | DELIM | DELIMS | END | ENDPOINT | EXTRACT | GLOBAL | ITERATOR | KEY NUM | NOT NULL | PIECE | PIECES | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE | VIRTUAL ]
 
   The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -1011,6 +1011,27 @@ optional_keyword
   |              |                    |               | level, an empty delimiter string (:code:`DELIM ""`) is allowed. In this        |                              |                                                           |
   |              |                    |               | case, the entire global variable node value is returned as the column value    |                              |                                                           |
   |              |                    |               | (i.e. no :code:`$PIECE` is performed).                                         |                              |                                                           |
+  |              |                    |               | A delimiter may also be given as a parenthesized, comma-separated list of      |                              |                                                           |
+  |              |                    |               | ASCII integer codes (e.g. :code:`DELIM (9, 9)` or :code:`DELIM (65, 66)`); the |                              |                                                           |
+  |              |                    |               | codes are assembled into a single (possibly multi-byte) delimiter via          |                              |                                                           |
+  |              |                    |               | :code:`$CHAR`. This single-delimiter form is distinct from the :code:`DELIMS`  |                              |                                                           |
+  |              |                    |               | keyword, which lists one delimiter per piece-of-piece level.                   |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | DELIMS       | Literal list       | Column        | A parenthesized, comma-separated list of delimiters used together with         | DELIM, PIECE                 | Not applicable                                            |
+  |              |                    |               | :code:`PIECES` to obtain a column value nested at more than one delimiter      |                              |                                                           |
+  |              |                    |               | level (a piece-of-piece). The :code:`DELIMS` and :code:`PIECES` lists are      |                              |                                                           |
+  |              |                    |               | paired by position and applied innermost-first: the first pair is applied to   |                              |                                                           |
+  |              |                    |               | the global variable node value, the next pair to that result, and so on,       |                              |                                                           |
+  |              |                    |               | generating nested :code:`$PIECE` calls. Each :code:`DELIMS` element is a       |                              |                                                           |
+  |              |                    |               | single- or double-quoted string (which may be multiple characters) or a        |                              |                                                           |
+  |              |                    |               | :code:`$CHAR`/:code:`$C` intrinsic giving the delimiter by character code.     |                              |                                                           |
+  |              |                    |               | This differs from the :code:`DELIM` parenthesized form (whose integers are     |                              |                                                           |
+  |              |                    |               | ASCII codes assembled into one delimiter via :code:`$CHAR`): inside            |                              |                                                           |
+  |              |                    |               | :code:`DELIMS`, a bare (unquoted) number is rejected. Use a quoted string      |                              |                                                           |
+  |              |                    |               | for a literal delimiter, or :code:`$C(..)` for a character code. The number    |                              |                                                           |
+  |              |                    |               | of :code:`DELIMS` values must equal the number of :code:`PIECES` values. A     |                              |                                                           |
+  |              |                    |               | multi-level (piece-of-piece) column makes the table :code:`READONLY`. See the  |                              |                                                           |
+  |              |                    |               | examples later in this document.                                               |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | END          | Boolean expression | Table         | A condition that is tested to see if the cursor has gone past the last record  | Not applicable               | :code:`""=keys(0)`                                        |
   |              |                    |               | in the table. If the condition evaluates to TRUE then that is considered past  |                              |                                                           |
@@ -1082,6 +1103,12 @@ optional_keyword
   |              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                           |
   |              |                    |               | on the value to obtain the value. See also :code:`DELIM` keyword for the       |                              |                                                           |
   |              |                    |               | delimiter string that is used in the :code:`$PIECE`.                           |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | PIECES       | Integer list       | Column        | A parenthesized, comma-separated list of piece numbers paired by position with | PIECE, DELIM                 | Not applicable                                            |
+  |              |                    |               | :code:`DELIMS` to obtain a column value nested at more than one delimiter      |                              |                                                           |
+  |              |                    |               | level (a piece-of-piece). Each piece number selects the piece at its delimiter |                              |                                                           |
+  |              |                    |               | level. See the :code:`DELIMS` keyword above and the examples later in this     |                              |                                                           |
+  |              |                    |               | document.                                                                      |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | READONLY     | Not applicable     | Table         | Specifies that the table maps to an existing YottaDB global variable           | Not applicable               | :code:`tabletype` setting in :code:`octo.conf`            |
   |              |                    |               | and allows use of various keywords like :code:`START`, :code:`END` etc.        |                              |                                                           |
@@ -1155,6 +1182,7 @@ optional_keyword
     * If the PIECE number is not the same as the column number (first column is 1, second column is 2, etc.)
     * If the GLOBAL keyword is specified with subscripts that are not in a format compatible with READWRITE
     * If the ITERATOR keyword is specified on any column
+    * If a column uses the chained (piece-of-piece) :code:`DELIMS (..) PIECES (..)` form
 
   If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
@@ -1222,16 +1250,24 @@ Primary keys and column mapping
 
   In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln|Abraham"` and :code:`^Names(2)="Obama|Barack"`.
 
+Extracting a nested piece (DELIMS / PIECES)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  When a column value is itself nested inside more than one level of delimited data, the :code:`DELIMS (..)` / :code:`PIECES (..)` form extracts it directly, without resorting to a hand-written :code:`EXTRACT "$PIECE(...)"` expression.
+
   .. code-block:: SQL
 
-     CREATE TABLE AuthorNames
-     (ID INTEGER PRIMARY KEY,
-      LName VARCHAR ,
-      FName VARCHAR EXTRACT "$PIECE(^AuthorNames(keys(""id"")),""^"",2)")
-     DELIM "^"
-     GLOBAL "^AuthorNames";
+     CREATE TABLE Customers
+     (CustomerID INTEGER PRIMARY KEY,
+      Street VARCHAR DELIMS ("|","^") PIECES (2,1),
+      City   VARCHAR DELIMS ("|","^") PIECES (2,2))
+     GLOBAL "^Customers";
 
-  In the above example, ^AuthorNames has records like :code:`^Names(1)="Dahl^Roald"` and :code:`^Names(2)="Blyton^Enid"`.
+  In the above example, the nodes of :code:`^Customers` look like :code:`^Customers(1)="Acme|45 Oak^Boston"`. The :code:`Street` and :code:`City` columns are nested two levels deep: the address is the 2nd :code:`"|"`-delimited piece (:code:`"45 Oak^Boston"`), and within that the street is the 1st :code:`"^"`-piece and the city is the 2nd. The two lists are paired by position and applied innermost-first, so :code:`Street` generates :code:`$PIECE($PIECE($GET(node),"|",2),"^",1)` and :code:`City` generates :code:`$PIECE($PIECE($GET(node),"|",2),"^",2)`. This is equivalent to, but more concise than, writing the nested :code:`$PIECE` calls by hand in an :code:`EXTRACT` expression.
+
+  The number of :code:`DELIMS` values must equal the number of :code:`PIECES` values, and any column using this form makes the table :code:`READONLY`. A :code:`DELIMS` element may be a multi-character string or a :code:`$CHAR` / :code:`$C` intrinsic, so the same table could be written with :code:`DELIMS ($C(124),$C(94))` (since :code:`$C(124)` is :code:`"|"` and :code:`$C(94)` is :code:`"^"`). The form extends to any depth, e.g. :code:`DELIMS ("|","^","~") PIECES (2,2,2)` extracts a value three levels deep. See the :code:`DELIMS` / :code:`PIECES` rows in the optional keyword table above for the full description.
+
+  A single-element list is a special case that downgrades to the plain :code:`DELIM` / :code:`PIECE` form: :code:`DELIMS ("|") PIECES (2)` is exactly equivalent to :code:`DELIM "|" PIECE 2` (it collapses to that representation). Such a column is therefore *not* a piece-of-piece column -- it generates a single :code:`$PIECE`, counts toward the default piece number like an ordinary :code:`PIECE`, and does not by itself force the table :code:`READONLY`. Only a multi-level (two-or-more-element) chain does. The same downgrade applies at the table level: a single-element table-level :code:`DELIMS ("^")` is accepted and is equivalent to :code:`DELIM "^"`. A multi-element table-level :code:`DELIMS (..)`, by contrast, is an error (:code:`ERR_DELIMS_TABLE_LEVEL`), since a table has a single default delimiter and the chained per-level form is meaningful only at the column level (paired with :code:`PIECES`).
 
 READONLY and READWRITE tables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

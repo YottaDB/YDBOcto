@@ -1,0 +1,58 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* YDBOcto#1108: Emits the closers matching the "$PIECE(" openers from "tmpl_piece_of_piece_open()" for a
+ * piece-of-piece (chained "DELIMS (..) PIECES (..)") column -- one ",<delim>,<piece>)" per nesting level,
+ * walking the DELIMS and PIECES value lists in lockstep (innermost level = list head first). A literal
+ * delimiter is emitted quoted (,"<delim>",<piece>)); a $CHAR delimiter (from "DELIMS ($C(..))") is emitted
+ * unquoted (,<$CHAR(..)>,<piece>)), exactly like the single-piece "is_dollar_char" case elsewhere.
+ *
+ * Shared by the same two codegen paths as "tmpl_piece_of_piece_open()" (see that template's comment).
+ *
+ * "delim_list" is the column's OPTIONAL_DELIM keyword value and "piece_list" its OPTIONAL_PIECE keyword value;
+ * both are "value_list_STATEMENT"s of equal length (guaranteed at CREATE TABLE time).
+ */
+TEMPLATE(tmpl_piece_of_piece_close, SqlStatement *delim_list, SqlStatement *piece_list) {
+	SqlValueList	*start_delim_list, *cur_delim_list, *start_piece_list, *cur_piece_list;
+
+	UNPACK_SQL_STATEMENT(start_delim_list, delim_list, value_list);
+	UNPACK_SQL_STATEMENT(start_piece_list, piece_list, value_list);
+	cur_delim_list = start_delim_list;
+	cur_piece_list = start_piece_list;
+	do {
+		SqlValue	*delim_value, *piece_value;
+		char		*delim_literal;
+		boolean_t	delim_is_dollar_char;
+
+		UNPACK_SQL_STATEMENT(delim_value, cur_delim_list->value, value);
+		UNPACK_SQL_STATEMENT(piece_value, cur_piece_list->value, value);
+		delim_literal = delim_value->v.string_literal;
+		delim_is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim_literal[0]);
+		/* "&delim_literal[1]" skips the leading "is_dollar_char" flag byte to get the delimiter text. */
+		if (delim_is_dollar_char) {
+			%{},{{ &delim_literal[1] }},{{ piece_value->v.string_literal }}){}%
+		} else {
+			%{},"{{ &delim_literal[1] }}",{{ piece_value->v.string_literal }}){}%
+		}
+		cur_delim_list = cur_delim_list->next;
+		cur_piece_list = cur_piece_list->next;
+	} while (cur_delim_list != start_delim_list);
+	return;
+}
+%{}

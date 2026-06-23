@@ -18,6 +18,98 @@
 // Adding one below for null terminator as LIT_LEN does not include it.
 #define OCTO_AIM_XREF_COMMENT_MAXSIZE (LIT_LEN(OCTO_AIM_XREF_COMMENT) + 1 /* null */ - 4 /* strlen("%s")*2 */ +  OCTO_MAX_IDENT * 2)
 
+/* Builds the AIM transformation "outer levels" spec for a piece-of-piece (chained DELIMS/PIECES) column
+ * (YDBOcto#1108). The chained DELIMS/PIECES value lists have N (>= 2) elements; level 1 (the inner piece)
+ * is passed to XREFDATA^%YDBAIM by the caller, which AIM extracts. This returns the remaining levels 2..N
+ * as a "/"-separated list of "piece:<tag><c1.c2..>" where the delimiter is encoded by its decimal character
+ * codes and <tag> is a single letter that tells the M-side decoder how to rebuild the delimiter:
+ *      'Z' - the codes are BYTE values (a literal delimiter, emitted here byte-by-byte). The decoder uses
+ *            $ZCHAR so a multi-byte UTF-8 delimiter is reproduced exactly (rebuilding those byte codes with
+ *            $CHAR would treat each byte as a Unicode code point and yield a different string in UTF-8 mode).
+ *      'C' - the codes are Unicode CODE POINTS (a "DELIMS ($C(..))" delimiter, whose code points are copied
+ *            through verbatim). The decoder uses $CHAR, exactly as the read-side plan emits "$CHAR(..)"
+ *            verbatim -- so both honor the runtime chset (M vs UTF-8) the same way.
+ * The spec therefore contains only digits, the separators "/" ":" "." and the tag letters, which is safe to
+ * embed as a literal in the generated M source. The matching M-side decoder is
+ * "PieceOfPieceXform^%ydboctoplanhelpers". Allocated with octo_cmalloc (freed when query execution completes).
+ */
+static char *get_piece_of_piece_outer_spec(SqlValueList *delim_list, SqlValueList *piece_list) {
+	SqlValueList *cur_delim, *cur_piece;
+	SqlValue     *tmp_value;
+	char	     *spec, *out;
+	int	      alloc_size, remaining;
+	boolean_t     first_level;
+
+	/* Upper bound: per level, the piece number (INT32_TO_STRING_MAX) + ':' + the tag letter + up to 4 bytes
+	 * per delimiter character ("255.") + a '/' separator, plus a null terminator. */
+	alloc_size = 1;
+	cur_delim = delim_list;
+	do {
+		UNPACK_SQL_STATEMENT(tmp_value, cur_delim->value, value);
+		alloc_size += INT32_TO_STRING_MAX + 3 + ((int)strlen(tmp_value->v.string_literal) * 4) + 1;
+		cur_delim = cur_delim->next;
+	} while (cur_delim != delim_list);
+	spec = octo_cmalloc(memory_chunks, alloc_size);
+	out = spec;
+	remaining = alloc_size;
+
+	cur_delim = delim_list->next; /* skip level 1 (the inner piece, passed to XREFDATA separately) */
+	cur_piece = piece_list->next;
+	first_level = TRUE;
+	while (cur_delim != delim_list) {
+		SqlValue *delim_value, *piece_value;
+		char	 *delim, flag, *piece;
+		int	  copied;
+
+		UNPACK_SQL_STATEMENT(delim_value, cur_delim->value, value);
+		UNPACK_SQL_STATEMENT(piece_value, cur_piece->value, value);
+		delim = delim_value->v.string_literal;
+		flag = delim[0];
+		delim++; /* skip the flag byte to get the delimiter text */
+		piece = piece_value->v.string_literal;
+
+		/* Emit "<sep>piece:<tag>": tag 'C' for a $CHAR delimiter (code points, decode with $CHAR), 'Z' for a
+		 * literal delimiter (byte codes, decode with $ZCHAR -- byte-exact for multi-byte UTF-8; YDBOcto#1108). */
+		copied = snprintf(out, remaining, "%s%s:%c", (first_level ? "" : "/"), piece,
+				  ((DELIM_IS_DOLLAR_CHAR == flag) ? 'C' : 'Z'));
+		assert(copied < remaining);
+		out += copied;
+		remaining -= copied;
+		first_level = FALSE;
+
+		if (DELIM_IS_DOLLAR_CHAR == flag) {
+			/* "$CHAR(c1,c2,..)": copy the codes verbatim, turning the commas into dots. */
+			char *delim_ptr;
+
+			delim_ptr = delim + (sizeof("$CHAR(") - 1);
+			while (('\0' != *delim_ptr) && (')' != *delim_ptr)) {
+				assert(remaining > 1);
+				*out++ = ((',' == *delim_ptr) ? '.' : *delim_ptr);
+				delim_ptr++;
+				remaining--;
+			}
+		} else {
+			/* literal delimiter: emit each byte's decimal character code, dot-separated. */
+			char	 *delim_ptr;
+			boolean_t first_code;
+
+			first_code = TRUE;
+			for (delim_ptr = delim; '\0' != *delim_ptr; delim_ptr++) {
+				copied = snprintf(out, remaining, "%s%d", (first_code ? "" : "."),
+						  (unsigned char)*delim_ptr);
+				assert(copied < remaining);
+				out += copied;
+				remaining -= copied;
+				first_code = FALSE;
+			}
+		}
+		cur_delim = cur_delim->next;
+		cur_piece = cur_piece->next;
+	}
+	*out = '\0';
+	return spec;
+}
+
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 	unsigned int		cur_key;
 	int			dot_count;
@@ -61,6 +153,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		char			*piece;
 		char			comment[OCTO_AIM_XREF_COMMENT_MAXSIZE];
 		int			aim_type;
+		boolean_t		is_multi_level_piece; /* YDBOcto#1108: TRUE for a piece-of-piece column */
+		char			*outer_spec;	      /* the piece-of-piece transform's outer-levels spec */
 
 		// Get table, column, table name, column name
 		table = pplan->outputKey->table;
@@ -72,16 +166,43 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 
 		// Get Piece
 		keyword = get_keyword(column, OPTIONAL_PIECE);
+		is_multi_level_piece = FALSE;
+		outer_spec = NULL;
 		if (NULL != keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			piece = value->v.string_literal;
+			if (value_list_STATEMENT == keyword->v->type) {
+				/* YDBOcto#1108: Piece-of-piece column. AIM is given the INNER (first) piece below
+				 * (delim/piece), so it watches/extracts the right node; the remaining (outer) levels
+				 * are applied as an AIM transformation function (see the type==2 path below). Here we
+				 * grab the inner piece # and build the outer-levels spec for that transform.
+				 */
+				SqlValueList *piece_list, *delim_list;
+
+				is_multi_level_piece = TRUE;
+				UNPACK_SQL_STATEMENT(piece_list, keyword->v, value_list);
+				UNPACK_SQL_STATEMENT(value, piece_list->value, value); /* inner (first) piece */
+				piece = value->v.string_literal;
+				assert(NULL != column->delim);
+				UNPACK_SQL_STATEMENT(delim_list, column->delim, value_list);
+				outer_spec = get_piece_of_piece_outer_spec(delim_list, piece_list);
+			} else {
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				piece = value->v.string_literal;
+			}
 		} else {
 			piece = NULL;
 		}
 
 		// Get Delimiter
 		if (column->delim) {
-			UNPACK_SQL_STATEMENT(value, column->delim, value);
+			if (value_list_STATEMENT == column->delim->type) {
+				/* Piece-of-piece column: use the INNER (first) delimiter for the AIM piece. */
+				SqlValueList *delim_list;
+
+				UNPACK_SQL_STATEMENT(delim_list, column->delim, value_list);
+				UNPACK_SQL_STATEMENT(value, delim_list->value, value);
+			} else {
+				UNPACK_SQL_STATEMENT(value, column->delim, value);
+			}
 			delim = value->v.string_literal;
 			is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
 			delim = &value->v.string_literal[1];
@@ -146,7 +267,42 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			// Add arguments needed by AIM
 			%{},0,0,1,0,{}%		// nmonly, zpiece, omitfix, stat
 			// Add type argument for AIM based on the following conditions
-			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
+			if (is_multi_level_piece) {
+				/* YDBOcto#1108: Piece-of-piece column. AIM extracted the inner piece (delim/piece passed
+				 * above); PieceOfPieceXform applies the remaining outer levels FIRST and then the column's
+				 * date/boolean/string conversion (composed here, since AIM applies only ONE transformation
+				 * function per index). AIM thus indexes the full converted value (direct WHERE/MIN/MAX
+				 * lookup) and re-derives it via its trigger. "outer_spec" carries the outer (delim,piece)
+				 * levels; the doubled quotes escape the inner string arguments. This must stay in sync with
+				 * the matching branch in the nmonly=1 call below (the AIM global name hashes the transform).
+				 */
+				boolean_t is_date_col, is_bool_col;
+
+				is_date_col = (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type));
+				is_bool_col = (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type));
+				// AIM "type": 3 for a vista date column (extra NULL handling), else 2 (transformation function).
+				if (is_date_col && aim_type) {
+					%{}3,{}%
+				} else {
+					%{}2,{}%
+				}
+				%{}"$$PieceOfPieceXform^%%ydboctoplanhelpers(,""{{ outer_spec }}"",{}%
+				if (is_date_col) {
+					%{}""d""{}%
+					TMPL(tmpl_print_date_time_to_unix_time_args,
+					     get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE),
+					     column->data_type_struct.format, FALSE, TRUE);
+				} else if (is_bool_col) {
+					%{}""b""{}%
+				} else if (is_column_string_type) {
+					%{}""s""{}%
+				} else {
+					%{}""""{}%	// no conversion (e.g. integer/numeric column)
+				}
+				%{})"{}%
+				// Close XREF call
+				%{}){}%
+			} else if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
 				if (aim_type) {
 					// This is a vista column it needs additional NULL handling from AIM along with the date/time tranformation function. `type` argument of 3 enables
 					// both. Pass that here.
@@ -240,7 +396,36 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			// Add arguments needed by AIM
 			%{},1,0,1,0,{}%		// nmonly, zpiece, omitfix, stat
 			// Add type argument for AIM based on the following conditions
-			if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
+			// NB: The type/transform here must match the nmonly=0 (build) call above, since the AIM
+			// global name returned by this nmonly=1 call (and cached for the read-side plan) hashes them.
+			if (is_multi_level_piece) {
+				/* YDBOcto#1108: Piece-of-piece column. Must match the build (nmonly=0) branch above. */
+				boolean_t is_date_col, is_bool_col;
+
+				is_date_col = (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type));
+				is_bool_col = (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type));
+				if (is_date_col && aim_type) {
+					%{}3,{}%
+				} else {
+					%{}2,{}%
+				}
+				%{}"$$PieceOfPieceXform^%%ydboctoplanhelpers(,""{{ outer_spec }}"",{}%
+				if (is_date_col) {
+					%{}""d""{}%
+					TMPL(tmpl_print_date_time_to_unix_time_args,
+					     get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE),
+					     column->data_type_struct.format, FALSE, TRUE);
+				} else if (is_bool_col) {
+					%{}""b""{}%
+				} else if (is_column_string_type) {
+					%{}""s""{}%
+				} else {
+					%{}""""{}%
+				}
+				%{})"{}%
+				// Close XREF call
+				%{}){}%
+			} else if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
 				if (aim_type) {
 					// This is a vista column it needs additional NULL handling from AIM along with the date/time tranformation function. `type` argument of 3 enables
 					// both. Pass that here.

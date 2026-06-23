@@ -354,3 +354,121 @@ OCTO
 	grep -hE 'octoLeftJoin|ZYSQLNULL|\^X\(' $(grep -l octoLeftJoin _ydboctoP*.m) >> output.txt
 	verify_output TX14 output.txt
 }
+
+@test "TX15 : OCTO1108 : piece-of-piece (DELIMS/PIECES) AIM cross-reference" {
+	# Section D (AIMTYPE 1) needs null subscripts disabled on the region (see TW28); Sections C and D
+	# convert dates to unix-time, so fix TZ so those index values are deterministic. The whole test is
+	# verified with "nodatetimefilter" so the literal dates are checked (not normalized to "DATE").
+	# killAIMData^aimutils is called at each section boundary so every AIM index dump shows only the
+	# tables created in that section.
+	mupip set -null_subscripts=never -region DEFAULT
+	export TZ="UTC"
+	load_fixture TX15.zwr
+
+	# =====================================================================
+	# Section A : 2-level string column -- SELECT *, WHERE, IS NULL, and the
+	#             trigger-maintained index when the underlying global changes
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section A : WHERE / IS NULL on a 2-level string column (street) ===" | tee -a output.txt
+	echo "# Data loaded into ^ppaddr:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^ppaddr' 2>&1 | tee -a output.txt
+	load_fixture TX15-A.sql subtest novv
+	echo "# AIM index for street (subscript = full nested value, '#'-prefixed for string collation):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	echo "# The table is READONLY, so update the underlying global: ^ppaddr(1) '45 Oak' -> '999 New St'" | tee -a output.txt
+	yottadb -run %XCMD 'set ^ppaddr(1)="Acid|999 New St^Boston|p1"' 2>&1 | tee -a output.txt
+	load_fixture TX15-A2.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section B : MIN/MAX off the AIM index (string; 2-level and 3-level)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section B : MIN/MAX off the AIM index (string; 2-level and 3-level) ===" | tee -a output.txt
+	echo "# Data loaded into ^ppfruit and ^ppfruit3:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^ppfruit,^ppfruit3' 2>&1 | tee -a output.txt
+	load_fixture TX15-B.sql subtest novv
+	echo "# AIM index for fruit (2-level table, then 3-level table):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section C : the transform composes the extraction with the column's own
+	#             conversion -- DATE, BOOLEAN, INTEGER (2- and 3-level)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section C : type conversions composed with the extraction (DATE / BOOLEAN / INTEGER) ===" | tee -a output.txt
+	echo "# Data loaded into ^ppdt, ^ppdt3, ^ppflag, ^ppflag3, ^ppqty:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^ppdt,^ppdt3,^ppflag,^ppflag3,^ppqty' 2>&1 | tee -a output.txt
+	load_fixture TX15-C.sql subtest novv
+	echo "# AIM index: date -> unix-time, boolean -> 0/1, integer -> raw number (all non-'#'):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section D : AIMTYPE 1 + DATE (AIM type 3) -- a missing source node is
+	#             indexed as NULL (WHERE dob IS NULL finds it)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section D : AIMTYPE 1 / type 3 -- missing source node indexed as NULL ===" | tee -a output.txt
+	echo "# Data loaded into ^v3 and ^v33 (id 1 has no 'D' node, so its dob is a missing node):" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^v3,^v33' 2>&1 | tee -a output.txt
+	load_fixture TX15-D.sql subtest novv
+	echo "# AIM index for dob (the missing-node row id 1 is indexed as NULL):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section E : a 3-level column whose transform carries TWO outer levels
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section E : WHERE on a 3-level-deep piece-of-piece column ===" | tee -a output.txt
+	echo "# Data loaded into ^ppv3:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^ppv3' 2>&1 | tee -a output.txt
+	load_fixture TX15-E.sql subtest novv
+	echo "# AIM index for v (keyed on the fully extracted 3-level value):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section F : delimiter edge cases -- a $CHAR delimiter, and outer
+	#             delimiters that are the spec's own separators (/ : .)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section F : delimiter edge cases (\$CHAR delimiter; separators as delimiters) ===" | tee -a output.txt
+	echo "# Data loaded into ^ppcaddr and ^ppsep:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^ppcaddr,^ppsep' 2>&1 | tee -a output.txt
+	load_fixture TX15-F.sql subtest novv
+	echo "# The inner \$CHAR delimiter is emitted into XREFDATA verbatim as a \$CHAR() expression:" | tee -a output.txt
+	grep -h 'XREFDATA^%YDBAIM' _ydboctoX*.m | grep -oE '[$]CHAR[(][0-9]+[)]' | sort -u | tee -a output.txt
+	echo "# AIM index (ppcaddr keyed like the literal form; ppsep extracts 'Alpha'/'Beta' correctly):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,"#' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section G : multi-byte UTF-8 delimiters (character / string / mix).
+	#             A literal delimiter is byte-encoded into the AIM spec and
+	#             rebuilt with $ZCHAR, so a multi-byte UTF-8 delimiter works.
+	# =====================================================================
+	# The zwrite dump and the echoed DDL below emit multi-byte UTF-8 into the output; their continuation bytes
+	# fall in 0x80-0x9F, which verify_output's RHEL7 escape-sequence sanitizer (escape_sequence_sanitize.pl)
+	# strips (meant for C1 terminal control codes), corrupting the delimiters. This test has no expect/terminal
+	# escape sequences, so skip that sanitizer for it.
+	skip_escape_sequence_sanitize=1
+	echo "" | tee -a output.txt
+	echo "# === Section G : multi-byte UTF-8 delimiters (char / string / char+ascii mix) ===" | tee -a output.txt
+	# The multi-byte test data lives in TX15-G.zwr (a .zwr is exempt from the "no UTF-8 in source" pre-commit
+	# check, unlike this .bats file). Dump it with zwrite, forcing UTF-8 for that one command so the raw
+	# multi-byte characters render the same regardless of the random chset the rest of the subtest runs in
+	# (an M-mode zwrite would byte-escape them). The SELECT values extracted below are ascii either way.
+	load_fixture TX15-G.zwr
+	echo "# Data loaded into ^ppu1 (char delim), ^ppu2 (string delim), ^ppu3 (char+ascii mix):" | tee -a output.txt
+	env ydb_chset=UTF-8 ydb_routines="$ydb_dist/utf8/libyottadbutil.so" yottadb -run %XCMD 'zwrite ^ppu1,^ppu2,^ppu3' 2>&1 | tee -a output.txt
+	load_fixture TX15-G.sql subtest novv
+	echo "# AIM transform specs: a literal multi-byte delimiter is tagged Z (byte codes, rebuilt with \$ZCHAR):" | tee -a output.txt
+	grep -hoE '"[0-9]+:[ZC][0-9.]+(/[0-9]+:[ZC][0-9.]+)*"' _ydboctoX*.m | sort -u | tee -a output.txt
+
+	verify_output TX15 output.txt nodatetimefilter noinfo nodebug
+}

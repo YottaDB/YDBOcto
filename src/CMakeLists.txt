@@ -297,6 +297,7 @@ add_library(libocto OBJECT
   parse_tree_optimize.c
   parser/aggregate_function.c
   parser/between_predicate.c
+  parser/build_dollar_char_delim_value.c
   parser/cast_specification.c
   parser/copy_correlation_specification_aliases.c
   parser/create_sql_column_list.c
@@ -534,6 +535,8 @@ set(template_files
   ${template_dir}/tmpl_order_by_key.ctemplate
   ${template_dir}/tmpl_order_by_sort.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
+  ${template_dir}/tmpl_piece_of_piece_close.ctemplate
+  ${template_dir}/tmpl_piece_of_piece_open.ctemplate
   ${template_dir}/tmpl_populate_output_key.ctemplate
   ${template_dir}/tmpl_print_dots.ctemplate
   ${template_dir}/tmpl_print_date_time_addition.ctemplate

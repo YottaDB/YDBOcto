@@ -413,7 +413,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 23
+#define FMT_BINARY_DEFINITION 24
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -422,7 +422,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 44
+#define FMT_PLAN_DEFINITION 45
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
@@ -1532,6 +1532,7 @@ SqlStatement *alloc_keyword_of_type(OptionalKeyword keyword_type);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
 SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp);
+SqlStatement	   *build_dollar_char_delim_value(SqlStatement *delim_char_list_stmt);
 int	      copy_correlation_specification_aliases(SqlTableAlias *table_alias);
 SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, SqlStatement *scale);
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);

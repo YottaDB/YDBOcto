@@ -1,0 +1,41 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* YDBOcto#1108: Emits the "$PIECE(" openers for a piece-of-piece (chained "DELIMS (..) PIECES (..)") column --
+ * one opener per nesting level. The matching ",<delim>,<piece>)" closers are emitted, in the same order
+ * (innermost level = list head first), by "tmpl_piece_of_piece_close()" after the source expression.
+ *
+ * This is shared by the two codegen paths that read such a column: "tmpl_column_reference" (a direct column
+ * reference in a SELECT list / WHERE clause) and "tmpl_emit_source" (a "values(col)" reference nested inside
+ * another column's expression). Both must emit the same nested "$PIECE(...)" shape.
+ *
+ * "piece_list" is the column's OPTIONAL_PIECE keyword value: a "value_list_STATEMENT" with one PIECE per level.
+ */
+TEMPLATE(tmpl_piece_of_piece_open, SqlStatement *piece_list) {
+	SqlValueList	*start_piece_list, *cur_piece_list;
+
+	UNPACK_SQL_STATEMENT(start_piece_list, piece_list, value_list);
+	cur_piece_list = start_piece_list;
+	do {
+		%{}$PIECE({}%
+		cur_piece_list = cur_piece_list->next;
+	} while (cur_piece_list != start_piece_list);
+	return;
+}
+%{}

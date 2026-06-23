@@ -1,0 +1,429 @@
+
+# === Section A : two-level extraction & delimiter spellings ===
+# Data loaded into ^addr and ^addrm:
+^addr(0)="Zero Cool|123 Main^Apt 4^NYC^NY|555-1234"
+^addr(1)="Acid Burn|45 Oak^^Boston^MA|555-5678"
+^addr(2)="Lord Nikon|9 Elm^Suite 1^Reno^NV|555-9999"
+^addrm(0)="Zero Cool||123 Main~~Apt 4~~NYC~~NY||555-1234"
+^addrm(1)="Acid Burn||45 Oak~~~~Boston~~MA||555-5678"
+-- Two-level extraction: ^addr nodes are "name|street^apt^city^state|phone"; the address (the 2nd
+-- "|"-piece) is itself "^"-delimited. The same delimiters can be spelled several equivalent ways -- all
+-- of the tables below extract identical values; they differ only in how the delimiter is written (and how
+-- the stored text definition round-trips it).
+
+-- Literal delimiters ("|","^"):
+CREATE TABLE addr (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR(40) PIECE 1,
+	street VARCHAR(40) DELIMS ("|","^") PIECES (2,1),
+	apt VARCHAR(40) DELIMS ("|","^") PIECES (2,2),
+	city VARCHAR(40) DELIMS ("|","^") PIECES (2,3),
+	state VARCHAR(40) DELIMS ("|","^") PIECES (2,4),
+	phone VARCHAR(40) PIECE 3
+) GLOBAL "^addr(keys(""id""))";
+\d addr;
+SELECT * FROM addr ORDER BY id;
+
+-- Single-quoted delimiters behave identically to the double-quoted form:
+CREATE TABLE addr_squote (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ('|','^') PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+\d addr_squote;
+SELECT * FROM addr_squote ORDER BY id;
+
+-- $C(124) is "|": a char-code delimiter. The stored text definition round-trips it as $CHAR(124):
+CREATE TABLE addr_char (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($C(124),"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+\d addr_char;
+SELECT * FROM addr_char ORDER BY id;
+
+-- Multi-character delimiters ("||","~~") on ^addrm ("name||street~~apt~~city~~state||phone"):
+CREATE TABLE addr_multichar (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("||","~~") PIECES (2,1), city VARCHAR(40) DELIMS ("||","~~") PIECES (2,3)) GLOBAL "^addrm(keys(""id""))";
+\d addr_multichar;
+SELECT * FROM addr_multichar ORDER BY id;
+
+-- $CHAR(124,124) is the two-character delimiter "||", so this is equivalent to addr_multichar's street:
+CREATE TABLE addr_charmulti (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($CHAR(124,124),"~~") PIECES (2,1)) GLOBAL "^addrm(keys(""id""))";
+\d addr_charmulti;
+SELECT * FROM addr_charmulti ORDER BY id;
+OCTO> CREATE TABLE addr (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR(40) PIECE 1,
+	street VARCHAR(40) DELIMS ("|","^") PIECES (2,1),
+	apt VARCHAR(40) DELIMS ("|","^") PIECES (2,2),
+	city VARCHAR(40) DELIMS ("|","^") PIECES (2,3),
+	state VARCHAR(40) DELIMS ("|","^") PIECES (2,4),
+	phone VARCHAR(40) PIECE 3
+) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE
+OCTO> \d addr;
+Table "addr" stored in Global: ^addr(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+name|VARCHAR(40)|||
+street|VARCHAR(40)|||
+apt|VARCHAR(40)|||
+city|VARCHAR(40)|||
+state|VARCHAR(40)|||
+phone|VARCHAR(40)|||
+Indexes:
+    "addr_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^addr(id)
+OCTO> SELECT * FROM addr ORDER BY id;
+id|name|street|apt|city|state|phone
+0|Zero Cool|123 Main|Apt 4|NYC|NY|555-1234
+1|Acid Burn|45 Oak||Boston|MA|555-5678
+2|Lord Nikon|9 Elm|Suite 1|Reno|NV|555-9999
+(3 rows)
+OCTO> CREATE TABLE addr_squote (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ('|','^') PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE
+OCTO> \d addr_squote;
+Table "addr_squote" stored in Global: ^addr(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+street|VARCHAR(40)|||
+Indexes:
+    "addr_squote_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^addr(id)
+OCTO> SELECT * FROM addr_squote ORDER BY id;
+id|street
+0|123 Main
+1|45 Oak
+2|9 Elm
+(3 rows)
+OCTO> CREATE TABLE addr_char (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($C(124),"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE
+OCTO> \d addr_char;
+Table "addr_char" stored in Global: ^addr(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+street|VARCHAR(40)|||
+Indexes:
+    "addr_char_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^addr(id)
+OCTO> SELECT * FROM addr_char ORDER BY id;
+id|street
+0|123 Main
+1|45 Oak
+2|9 Elm
+(3 rows)
+OCTO> CREATE TABLE addr_multichar (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("||","~~") PIECES (2,1), city VARCHAR(40) DELIMS ("||","~~") PIECES (2,3)) GLOBAL "^addrm(keys(""id""))";
+CREATE TABLE
+OCTO> \d addr_multichar;
+Table "addr_multichar" stored in Global: ^addrm(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+street|VARCHAR(40)|||
+city|VARCHAR(40)|||
+Indexes:
+    "addr_multichar_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^addrm(id)
+OCTO> SELECT * FROM addr_multichar ORDER BY id;
+id|street|city
+0|123 Main|NYC
+1|45 Oak|Boston
+(2 rows)
+OCTO> CREATE TABLE addr_charmulti (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($CHAR(124,124),"~~") PIECES (2,1)) GLOBAL "^addrm(keys(""id""))";
+CREATE TABLE
+OCTO> \d addr_charmulti;
+Table "addr_charmulti" stored in Global: ^addrm(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+street|VARCHAR(40)|||
+Indexes:
+    "addr_charmulti_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^addrm(id)
+OCTO> SELECT * FROM addr_charmulti ORDER BY id;
+id|street
+0|123 Main
+1|45 Oak
+(2 rows)
+OCTO> 
+
+# === Section B : deeper nesting (3- and 4-level chains) ===
+# Data loaded into ^addrdeep:
+^addrdeep(0)="A|B^C~D:E:TARGET0~G^H|I"
+^addrdeep(1)="A|B^C~D:E:TARGET1~G^H|I"
+-- Deeper nesting: 3-level and 4-level chains. Each ^addrdeep node is "A|B^C~D:E:TARGETn~G^H|I", so
+-- p3 = $P($P($P(node,"|",2),"^",2),"~",2) = "D:E:TARGETn" and p4 applies one more ":" level = "TARGETn".
+CREATE TABLE addr_deep (
+	id INTEGER PRIMARY KEY,
+	p3 VARCHAR(40) DELIMS ("|","^","~") PIECES (2,2,2),
+	p4 VARCHAR(40) DELIMS ("|","^","~",":") PIECES (2,2,2,3)
+) GLOBAL "^addrdeep(keys(""id""))";
+\d addr_deep;
+SELECT * FROM addr_deep ORDER BY id;
+OCTO> CREATE TABLE addr_deep (
+	id INTEGER PRIMARY KEY,
+	p3 VARCHAR(40) DELIMS ("|","^","~") PIECES (2,2,2),
+	p4 VARCHAR(40) DELIMS ("|","^","~",":") PIECES (2,2,2,3)
+) GLOBAL "^addrdeep(keys(""id""))";
+CREATE TABLE
+OCTO> \d addr_deep;
+Table "addr_deep" stored in Global: ^addrdeep(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+p3|VARCHAR(40)|||
+p4|VARCHAR(40)|||
+Indexes:
+    "addr_deep_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^addrdeep(id)
+OCTO> SELECT * FROM addr_deep ORDER BY id;
+id|p3|p4
+0|D:E:TARGET0|TARGET0
+1|D:E:TARGET1|TARGET1
+(2 rows)
+OCTO> 
+
+# === Section C : single-element DELIMS/PIECES downgrades to DELIM/PIECE ===
+# Data loaded into ^dgrade and ^dgradet:
+^dgrade(0)="Ada|Lovelace"
+^dgrade(1)="Alan|Turing"
+^dgradet(0)="Grace^Hopper"
+^dgradet(1)="Edsger^Dijkstra"
+-- A single-element DELIMS (..) / PIECES (..) is collapsed (in the parser) to the plain DELIM / PIECE form,
+-- so it is NOT a piece-of-piece column: a single (non-nested) $PIECE is generated, and the column counts
+-- toward the default piece number exactly like an explicit PIECE. downgrade_col (written with DELIMS/PIECES)
+-- and downgrade_col_plain (written with DELIM/PIECE) therefore produce byte-identical stored definitions.
+-- The trailing "extra" column has no PIECE and follows explicit-piece columns, so it exercises the default
+-- piece-counting path (it gets the same piece number in both). Both are READONLY because the first non-key
+-- column has an explicit DELIM -- an existing rule that applies the same way to DELIM and to DELIMS.
+CREATE TABLE downgrade_col (
+	id INTEGER PRIMARY KEY,
+	fn VARCHAR(40) DELIMS ("|") PIECES (1),
+	ln VARCHAR(40) DELIMS ("|") PIECES (2),
+	extra VARCHAR(40)
+) GLOBAL "^dgrade(keys(""id""))";
+\d downgrade_col;
+SELECT * FROM downgrade_col ORDER BY id;
+
+CREATE TABLE downgrade_col_plain (
+	id INTEGER PRIMARY KEY,
+	fn VARCHAR(40) DELIM "|" PIECE 1,
+	ln VARCHAR(40) DELIM "|" PIECE 2,
+	extra VARCHAR(40)
+) GLOBAL "^dgrade(keys(""id""))";
+\d downgrade_col_plain;
+SELECT * FROM downgrade_col_plain ORDER BY id;
+
+-- The downgrade also applies at the TABLE level: a single-element table-level DELIMS ("^") is accepted and
+-- is equivalent to DELIM "^". downgrade_tbl (DELIMS) and downgrade_tbl_plain (DELIM) round-trip identically.
+CREATE TABLE downgrade_tbl (id INTEGER PRIMARY KEY, fn VARCHAR(40), ln VARCHAR(40)) GLOBAL "^dgradet(keys(""id""))" DELIMS ("^");
+\d downgrade_tbl;
+SELECT * FROM downgrade_tbl ORDER BY id;
+
+CREATE TABLE downgrade_tbl_plain (id INTEGER PRIMARY KEY, fn VARCHAR(40), ln VARCHAR(40)) GLOBAL "^dgradet(keys(""id""))" DELIM "^";
+\d downgrade_tbl_plain;
+SELECT * FROM downgrade_tbl_plain ORDER BY id;
+
+-- An empty delimiter is a pre-existing special case: DELIM "" invalidates any PIECE and fetches the ENTIRE
+-- node (no $PIECE is generated). A single-element DELIMS ("") collapses (in the parser) to that same empty
+-- DELIM "" form, so it too drops the PIECE and fetches the whole node -- it never reaches the multi-element
+-- (piece-of-piece) code path. downgrade_empty (DELIMS ("")) and downgrade_empty_plain (DELIM "") therefore
+-- extract the whole "fn|ln" node identically and round-trip to byte-identical stored definitions.
+CREATE TABLE downgrade_empty (id INTEGER PRIMARY KEY, whole VARCHAR(40) DELIMS ("") PIECES (2)) GLOBAL "^dgrade(keys(""id""))";
+\d downgrade_empty;
+SELECT * FROM downgrade_empty ORDER BY id;
+
+CREATE TABLE downgrade_empty_plain (id INTEGER PRIMARY KEY, whole VARCHAR(40) DELIM "" PIECE 2) GLOBAL "^dgrade(keys(""id""))";
+\d downgrade_empty_plain;
+SELECT * FROM downgrade_empty_plain ORDER BY id;
+OCTO> CREATE TABLE downgrade_col (
+	id INTEGER PRIMARY KEY,
+	fn VARCHAR(40) DELIMS ("|") PIECES (1),
+	ln VARCHAR(40) DELIMS ("|") PIECES (2),
+	extra VARCHAR(40)
+) GLOBAL "^dgrade(keys(""id""))";
+CREATE TABLE
+OCTO> \d downgrade_col;
+Table "downgrade_col" stored in Global: ^dgrade(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+fn|VARCHAR(40)|||
+ln|VARCHAR(40)|||
+extra|VARCHAR(40)|||
+Indexes:
+    "downgrade_col_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^dgrade(id)
+OCTO> SELECT * FROM downgrade_col ORDER BY id;
+id|fn|ln|extra
+0|Ada|Lovelace|Ada
+1|Alan|Turing|Alan
+(2 rows)
+OCTO> CREATE TABLE downgrade_col_plain (
+	id INTEGER PRIMARY KEY,
+	fn VARCHAR(40) DELIM "|" PIECE 1,
+	ln VARCHAR(40) DELIM "|" PIECE 2,
+	extra VARCHAR(40)
+) GLOBAL "^dgrade(keys(""id""))";
+CREATE TABLE
+OCTO> \d downgrade_col_plain;
+Table "downgrade_col_plain" stored in Global: ^dgrade(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+fn|VARCHAR(40)|||
+ln|VARCHAR(40)|||
+extra|VARCHAR(40)|||
+Indexes:
+    "downgrade_col_plain_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^dgrade(id)
+OCTO> SELECT * FROM downgrade_col_plain ORDER BY id;
+id|fn|ln|extra
+0|Ada|Lovelace|Ada
+1|Alan|Turing|Alan
+(2 rows)
+OCTO> CREATE TABLE downgrade_tbl (id INTEGER PRIMARY KEY, fn VARCHAR(40), ln VARCHAR(40)) GLOBAL "^dgradet(keys(""id""))" DELIMS ("^");
+CREATE TABLE
+OCTO> \d downgrade_tbl;
+Table "downgrade_tbl" stored in Global: ^dgradet(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+fn|VARCHAR(40)|||
+ln|VARCHAR(40)|||
+Indexes:
+    "downgrade_tbl_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^dgradet(id)
+OCTO> SELECT * FROM downgrade_tbl ORDER BY id;
+id|fn|ln
+0|Grace|Hopper
+1|Edsger|Dijkstra
+(2 rows)
+OCTO> CREATE TABLE downgrade_tbl_plain (id INTEGER PRIMARY KEY, fn VARCHAR(40), ln VARCHAR(40)) GLOBAL "^dgradet(keys(""id""))" DELIM "^";
+CREATE TABLE
+OCTO> \d downgrade_tbl_plain;
+Table "downgrade_tbl_plain" stored in Global: ^dgradet(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+fn|VARCHAR(40)|||
+ln|VARCHAR(40)|||
+Indexes:
+    "downgrade_tbl_plain_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^dgradet(id)
+OCTO> SELECT * FROM downgrade_tbl_plain ORDER BY id;
+id|fn|ln
+0|Grace|Hopper
+1|Edsger|Dijkstra
+(2 rows)
+OCTO> CREATE TABLE downgrade_empty (id INTEGER PRIMARY KEY, whole VARCHAR(40) DELIMS ("") PIECES (2)) GLOBAL "^dgrade(keys(""id""))";
+CREATE TABLE
+OCTO> \d downgrade_empty;
+Table "downgrade_empty" stored in Global: ^dgrade(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+whole|VARCHAR(40)|||
+Indexes:
+    "downgrade_empty_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^dgrade(id)
+OCTO> SELECT * FROM downgrade_empty ORDER BY id;
+id|whole
+0|Ada|Lovelace
+1|Alan|Turing
+(2 rows)
+OCTO> CREATE TABLE downgrade_empty_plain (id INTEGER PRIMARY KEY, whole VARCHAR(40) DELIM "" PIECE 2) GLOBAL "^dgrade(keys(""id""))";
+CREATE TABLE
+OCTO> \d downgrade_empty_plain;
+Table "downgrade_empty_plain" stored in Global: ^dgrade(id) : Type = READWRITE
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+whole|VARCHAR(40)|||
+Indexes:
+    "downgrade_empty_plain_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^dgrade(id)
+OCTO> SELECT * FROM downgrade_empty_plain ORDER BY id;
+id|whole
+0|Ada|Lovelace
+1|Alan|Turing
+(2 rows)
+OCTO> 
+
+# === Section D : error cases ===
+-- Error cases. Each CREATE TABLE below is expected to fail with the noted error.
+
+-- 2 DELIMS values but only 1 PIECES value -> ERR_PIECE_DELIM_COUNT_MISMATCH:
+CREATE TABLE err_count_delims (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|","^") PIECES (2)) GLOBAL "^addr(keys(""id""))";
+
+-- 1 DELIMS value but 2 PIECES values -> ERR_PIECE_DELIM_COUNT_MISMATCH:
+CREATE TABLE err_count_pieces (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+
+-- A non-$CHAR intrinsic inside DELIMS -> ERR_DELIMS_INVALID_INTRINSIC:
+CREATE TABLE err_intrinsic (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($EXTRACT(1),"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+
+-- Concatenation (or any non-$CHAR M expression) inside DELIMS -> ERR_PARSE_FAILED:
+CREATE TABLE err_concat (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($C(124)_"|","^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+
+-- A piece-of-piece column forces READONLY, so an explicit READWRITE is rejected -> ERR_READWRITE_DISALLOWED:
+CREATE TABLE err_readwrite (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|","^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))" READWRITE;
+
+-- A multi-element DELIMS (..) is only valid at the column level, not the table level -> ERR_DELIMS_TABLE_LEVEL:
+CREATE TABLE err_table_delims (id INTEGER PRIMARY KEY, street VARCHAR(40) PIECE 2) GLOBAL "^addr(keys(""id""))" DELIMS ("^","~");
+
+-- A bare (unquoted) number as a DELIMS delimiter -> ERR_DELIMS_NUMERIC. A DELIMS delimiter must be a quoted
+-- string or a $C(..) intrinsic; the number must not be silently coerced to a string (unlike the older single
+-- DELIM form). Rejected as the first element, as a later element, on its own, and for a non-integer number:
+CREATE TABLE err_delims_int1 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (1,"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE err_delims_int2 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|",2) PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE err_delims_int3 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (5) PIECES (1)) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE err_delims_num  (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (1.5,"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+
+-- A negative number is also rejected, but earlier and via a different path: "-5" lexes as a MINUS token
+-- followed by "5", and a DELIMS element cannot start with MINUS, so it fails to parse (ERR_PARSE_FAILED,
+-- "unexpected MINUS") before reaching the ERR_DELIMS_NUMERIC check. Either way it is rejected:
+CREATE TABLE err_delims_neg1 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (-5,"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+CREATE TABLE err_delims_neg2 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (-5) PIECES (1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_PIECE_DELIM_COUNT_MISMATCH: Number of DELIMS values (2) does not match number of PIECES values (1)
+LINE 2:1: ...ims (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|","^")...
+                                          ^^^^^^
+OCTO> CREATE TABLE err_count_delims (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|","^") PIECES (2)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_PIECE_DELIM_COUNT_MISMATCH: Number of DELIMS values (1) does not match number of PIECES values (2)
+LINE 4:1: ...ces (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|") PIE...
+                                          ^^^^^^
+OCTO> CREATE TABLE err_count_pieces (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_DELIMS_INVALID_INTRINSIC: Only the $CHAR (abbreviated $C) intrinsic function is accepted in a DELIMS specification (got: $extract)
+LINE 6:1: ...treet VARCHAR(40) DELIMS ($EXTRACT(1),"^") PIECES (2,1)) GLOBAL...
+                                       ^^^^^^^^^^^
+OCTO> CREATE TABLE err_intrinsic (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($EXTRACT(1),"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting COMMA or RIGHT_PAREN
+LINE 8:1: ...eet VARCHAR(40) DELIMS ($C(124)_"|","^") PIECES (2,1)) GLOBAL "...
+                                            ^
+OCTO> CREATE TABLE err_concat (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ($C(124)_"|","^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+OCTO> CREATE TABLE err_readwrite (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|","^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))" READWRITE;
+[ERROR]: ERR_DELIMS_TABLE_LEVEL: Chained DELIMS (..) is only valid at the column level, paired with a PIECES (..) specification
+OCTO> CREATE TABLE err_table_delims (id INTEGER PRIMARY KEY, street VARCHAR(40) PIECE 2) GLOBAL "^addr(keys(""id""))" DELIMS ("^","~");
+[ERROR]: ERR_DELIMS_NUMERIC: A DELIMS delimiter must be a quoted string or the $CHAR (abbreviated $C) intrinsic, not a bare number (got: 1)
+LINE 14:1: ...EY, street VARCHAR(40) DELIMS (1,"^") PIECES (2,1)) GLOBAL "^ad...
+                                             ^
+OCTO> CREATE TABLE err_delims_int1 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (1,"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_DELIMS_NUMERIC: A DELIMS delimiter must be a quoted string or the $CHAR (abbreviated $C) intrinsic, not a bare number (got: 2)
+LINE 15:1: ...street VARCHAR(40) DELIMS ("|",2) PIECES (2,1)) GLOBAL "^addr(k...
+                                             ^
+OCTO> CREATE TABLE err_delims_int2 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS ("|",2) PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_DELIMS_NUMERIC: A DELIMS delimiter must be a quoted string or the $CHAR (abbreviated $C) intrinsic, not a bare number (got: 5)
+LINE 16:1: ...EY, street VARCHAR(40) DELIMS (5) PIECES (1)) GLOBAL "^addr(key...
+                                             ^
+OCTO> CREATE TABLE err_delims_int3 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (5) PIECES (1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_DELIMS_NUMERIC: A DELIMS delimiter must be a quoted string or the $CHAR (abbreviated $C) intrinsic, not a bare number (got: 1.5)
+LINE 17:1: ...Y, street VARCHAR(40) DELIMS (1.5,"^") PIECES (2,1)) GLOBAL "^a...
+                                            ^^^
+OCTO> CREATE TABLE err_delims_num  (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (1.5,"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected MINUS, expecting INTRINSIC_FUNCTION or LITERAL or DOUBLE_QUOTE_LITERAL
+LINE 19:1: ...EY, street VARCHAR(40) DELIMS (-5,"^") PIECES (2,1)) GLOBAL "^a...
+                                             ^
+OCTO> CREATE TABLE err_delims_neg1 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (-5,"^") PIECES (2,1)) GLOBAL "^addr(keys(""id""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected MINUS, expecting INTRINSIC_FUNCTION or LITERAL or DOUBLE_QUOTE_LITERAL
+LINE 20:1: ...EY, street VARCHAR(40) DELIMS (-5) PIECES (1)) GLOBAL "^addr(ke...
+                                             ^
+OCTO> CREATE TABLE err_delims_neg2 (id INTEGER PRIMARY KEY, street VARCHAR(40) DELIMS (-5) PIECES (1)) GLOBAL "^addr(keys(""id""))";
+OCTO> 
+
+# Generated nested $PIECE calls (piece-of-piece codegen -- Sections A/B):
+$PIECE($PIECE($GET(^addrm(%ydboctocursor(cursorId,"keys",1,"addr_charmulti","id"))),$CHAR(124,124),2),"~~",1)
+$PIECE($PIECE($GET(^addrm(%ydboctocursor(cursorId,"keys",1,"addr_multichar","id"))),"||",2),"~~",1)
+$PIECE($PIECE($GET(^addrm(%ydboctocursor(cursorId,"keys",1,"addr_multichar","id"))),"||",2),"~~",3)
+$PIECE($PIECE($GET(^addr(%ydboctocursor(cursorId,"keys",1,"addr_char","id"))),$CHAR(124),2),"^",1)
+$PIECE($PIECE($GET(^addr(%ydboctocursor(cursorId,"keys",1,"addr","id"))),"|",2),"^",1)
+$PIECE($PIECE($GET(^addr(%ydboctocursor(cursorId,"keys",1,"addr","id"))),"|",2),"^",2)
+$PIECE($PIECE($GET(^addr(%ydboctocursor(cursorId,"keys",1,"addr","id"))),"|",2),"^",3)
+$PIECE($PIECE($GET(^addr(%ydboctocursor(cursorId,"keys",1,"addr","id"))),"|",2),"^",4)
+$PIECE($PIECE($GET(^addr(%ydboctocursor(cursorId,"keys",1,"addr_squote","id"))),"|",2),"^",1)
+$PIECE($PIECE($PIECE($GET(^addrdeep(%ydboctocursor(cursorId,"keys",1,"addr_deep","id"))),"|",2),"^",2),"~",2)
+$PIECE($PIECE($PIECE($PIECE($GET(^addrdeep(%ydboctocursor(cursorId,"keys",1,"addr_deep","id"))),"|",2),"^",2),"~",2),":",3)
+
+# Stored text table definitions (round-trip; a single-element list downgrades to DELIM/PIECE):
+^%ydboctoschema("addr","text",0)="CREATE TABLE `addr` (`id` INTEGER CONSTRAINT ""addr_pkey"" PRIMARY KEY, `name` VARCHAR(40) PIECE 1, `street` VARCHAR(40) DELIMS (""|"",""^"") PIECES (2,1), `apt` VARCHAR(40) DELIMS (""|"",""^"") PIECES (2,2), `city` VARCHAR(40) DELIMS (""|"",""^"") PIECES (2,3), `state` VARCHAR(40) DELIMS (""|"",""^"") PIECES (2,4), `phone` VARCHAR(40) PIECE 3) GLOBAL ""^addr(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("addr_char","text",0)="CREATE TABLE `addr_char` (`id` INTEGER CONSTRAINT ""addr_char_pkey"" PRIMARY KEY, `street` VARCHAR(40) DELIMS ($CHAR(124),""^"") PIECES (2,1)) GLOBAL ""^addr(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("addr_charmulti","text",0)="CREATE TABLE `addr_charmulti` (`id` INTEGER CONSTRAINT ""addr_charmulti_pkey"" PRIMARY KEY, `street` VARCHAR(40) DELIMS ($CHAR(124,124),""~~"") PIECES (2,1)) GLOBAL ""^addrm(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("addr_deep","text",0)="CREATE TABLE `addr_deep` (`id` INTEGER CONSTRAINT ""addr_deep_pkey"" PRIMARY KEY, `p3` VARCHAR(40) DELIMS (""|"",""^"",""~"") PIECES (2,2,2), `p4` VARCHAR(40) DELIMS (""|"",""^"",""~"","":"") PIECES (2,2,2,3)) GLOBAL ""^addrdeep(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("addr_multichar","text",0)="CREATE TABLE `addr_multichar` (`id` INTEGER CONSTRAINT ""addr_multichar_pkey"" PRIMARY KEY, `street` VARCHAR(40) DELIMS (""||"",""~~"") PIECES (2,1), `city` VARCHAR(40) DELIMS (""||"",""~~"") PIECES (2,3)) GLOBAL ""^addrm(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("addr_squote","text",0)="CREATE TABLE `addr_squote` (`id` INTEGER CONSTRAINT ""addr_squote_pkey"" PRIMARY KEY, `street` VARCHAR(40) DELIMS (""|"",""^"") PIECES (2,1)) GLOBAL ""^addr(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("downgrade_col","text",0)="CREATE TABLE `downgrade_col` (`id` INTEGER CONSTRAINT ""downgrade_col_pkey"" PRIMARY KEY, `fn` VARCHAR(40) DELIM ""|"" PIECE 1, `ln` VARCHAR(40) DELIM ""|"" PIECE 2, `extra` VARCHAR(40) PIECE 1) GLOBAL ""^dgrade(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("downgrade_col_plain","text",0)="CREATE TABLE `downgrade_col_plain` (`id` INTEGER CONSTRAINT ""downgrade_col_plain_pkey"" PRIMARY KEY, `fn` VARCHAR(40) DELIM ""|"" PIECE 1, `ln` VARCHAR(40) DELIM ""|"" PIECE 2, `extra` VARCHAR(40) PIECE 1) GLOBAL ""^dgrade(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("downgrade_empty","text",0)="CREATE TABLE `downgrade_empty` (`id` INTEGER CONSTRAINT ""downgrade_empty_pkey"" PRIMARY KEY, `whole` VARCHAR(40) DELIM """") GLOBAL ""^dgrade(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("downgrade_empty_plain","text",0)="CREATE TABLE `downgrade_empty_plain` (`id` INTEGER CONSTRAINT ""downgrade_empty_plain_pkey"" PRIMARY KEY, `whole` VARCHAR(40) DELIM """") GLOBAL ""^dgrade(keys(""""id""""))"" DELIM ""|"" READWRITE;"
+^%ydboctoschema("downgrade_tbl","text",0)="CREATE TABLE `downgrade_tbl` (`id` INTEGER CONSTRAINT ""downgrade_tbl_pkey"" PRIMARY KEY, `fn` VARCHAR(40) PIECE 1, `ln` VARCHAR(40) PIECE 2) GLOBAL ""^dgradet(keys(""""id""""))"" DELIM ""^"" READWRITE;"
+^%ydboctoschema("downgrade_tbl_plain","text",0)="CREATE TABLE `downgrade_tbl_plain` (`id` INTEGER CONSTRAINT ""downgrade_tbl_plain_pkey"" PRIMARY KEY, `fn` VARCHAR(40) PIECE 1, `ln` VARCHAR(40) PIECE 2) GLOBAL ""^dgradet(keys(""""id""""))"" DELIM ""^"" READWRITE;"

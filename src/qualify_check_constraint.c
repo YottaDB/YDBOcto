@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -692,6 +692,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 	case set_STATEMENT:
 	case show_STATEMENT:
 	case no_data_STATEMENT:
+	case value_list_STATEMENT:
 	case delim_char_list_STATEMENT:
 	case index_STATEMENT:
 	case data_type_struct_STATEMENT:

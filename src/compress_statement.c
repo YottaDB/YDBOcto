@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -661,6 +661,28 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length, 
 				A2R(new_column_list->next);
 			}
 		} while (cur_column_list != start_column_list);
+		break;
+	case value_list_STATEMENT:;
+		/* Chained PIECE/DELIM value list (YDBOcto#1108). Same format as column_list_STATEMENT above. */
+		SqlValueList *start_value_list, *cur_value_list, *new_value_list;
+
+		new_value_list = NULL; /* needed to avoid [-Wmaybe-uninitialized] warning on the "out == NULL" sizing pass */
+		UNPACK_SQL_STATEMENT(start_value_list, stmt, value_list);
+		cur_value_list = start_value_list;
+		do {
+			if (NULL != out) {
+				new_value_list = ((void *)&out[*out_length]);
+				memcpy(new_value_list, cur_value_list, sizeof(SqlValueList));
+				new_value_list->next = new_value_list->prev = NULL;
+			}
+			*out_length += sizeof(SqlValueList);
+			CALL_COMPRESS_HELPER(r, cur_value_list->value, new_value_list->value, out, out_length);
+			cur_value_list = cur_value_list->next;
+			if ((NULL != out) && (cur_value_list != start_value_list)) {
+				new_value_list->next = ((void *)&out[*out_length]);
+				A2R(new_value_list->next);
+			}
+		} while (cur_value_list != start_value_list);
 		break;
 	case cas_STATEMENT:;
 		SqlCaseStatement *cas, *new_cas;

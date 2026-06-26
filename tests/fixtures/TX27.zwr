@@ -1,0 +1,8 @@
+YottaDB MUPIP EXTRACT
+29-OCT-2026  00:00:00 ZWR
+^ORD(1,1)="Widget"
+^ORD(1,2)="Gadget"
+^ORD(2,1,"NOTE")="see attached"
+^GCND(1,"A")="alpha"
+^GCND(2,"B")="not the node the table declares"
+^GCND(3,"A")="gamma"

@@ -1,0 +1,164 @@
+# zwrite ^G
+^G(1,1)="line"
+^G(1,2)="line"
+^G(2,1)="line"
+# zwrite ^H
+^H(1)="Alice"
+^H(1,1)="first note"
+OCTO> -- TX24 : YDBAIM#96 : columns stored in a DIFFERENT global from the rows.
+
+-- The primary key is (order_id, line_id) and the rows live in ^G. Neither column lives there:
+
+--   * "cust" -> ^H(keys("order_id"))                    : a different global, and keyed by only the
+--                                                         FIRST key column, so one value is shared
+--                                                         by every line of an order.
+--   * "note" -> ^H(keys("order_id"),keys("line_id"))    : a different global at the same key depth
+--                                                         as the row, one value per row.
+
+-- Writing either node cannot bring a row into existence - rows are in ^G - so a column global here
+-- says nothing at all about which rows exist. That is precisely what a decoupled record anchor is
+-- for, and it is the pair of cases YDBAIM#96 calls cases 4 and 3.
+
+-- AIMTYPE 1 derived its idea of a row from the COLUMN's own global, so both failed, and they
+-- failed differently:
+
+--   * "cust" has one subscript, and type=1 required at least two   -> %YDBAIM-F-NOSUBS
+--   * "note" has two, but the last one varies rather than being a
+--     fixed literal, which type=1 also required                    -> %YDBAIM-F-SUBERR1
+
+-- With the table's GLOBAL as the record specification, both are indexed.
+
+-- The data below gives each column a genuine missing-node NULL: order 2 has no ^H(2) at all, and
+-- only row (1,1) has a note.
+CREATE TABLE order_lines (
+ order_id INTEGER,
+ line_id INTEGER,
+ cust VARCHAR(20) GLOBAL "^H(keys(""order_id""))" PIECE 1,
+ note VARCHAR(30) GLOBAL "^H(keys(""order_id""),keys(""line_id""))" PIECE 1,
+ PRIMARY KEY (order_id, line_id)
+) GLOBAL "^G" AIMTYPE 1 DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- Unfiltered: three rows, all in ^G. cust is NULL for order 2; note is NULL for all but (1,1).
+SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|first note
+1|2|Alice|
+2|1||
+(3 rows)
+OCTO> -- WHERE on "cust", a different global keyed by a PREFIX of the primary key. Correct answer is
+-- (2,1).
+SELECT * FROM order_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+2|1||
+(1 row)
+OCTO> -- WHERE on "note", a different global at the row's own key depth. Correct answer is (1,2) and
+-- (2,1).
+SELECT * FROM order_lines WHERE note IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|2|Alice|
+2|1||
+(2 rows)
+OCTO> 
+
+-- Re-asked after each change to ^G or ^H. The rows live in ^G and both indexed columns live in
+-- ^H, so the two sides of the anchor are in different globals: a write to ^H must move a row
+-- that ^G defines, and a write to ^G must pick up a value that only ^H holds. Writing ^H where
+-- ^G has no row must not invent one.
+-- The changes are made in M, as an application would (Octo never writes a READONLY table), so
+-- from here on the triggers maintain the index, not the bulk build. Each direction is checked
+-- separately below, since the two sides of the anchor are in different globals.
+# Value side, other global: order 2 stops being a NULL cust.
+# set ^H(2)="Bob"
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|first note
+1|2|Alice|
+2|1|Bob|
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE note IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|2|Alice|
+2|1|Bob|
+(2 rows)
+OCTO> 
+# Record side: a new row in ^G must pick up the cust that ^H already holds.
+# set ^G(2,2)="line"
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|first note
+1|2|Alice|
+2|1|Bob|
+2|2|Bob|
+(4 rows)
+OCTO> SELECT * FROM order_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE note IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|2|Alice|
+2|1|Bob|
+2|2|Bob|
+(3 rows)
+OCTO> 
+# Value side at the row key depth: (1,1) loses its note but keeps existing.
+# zkill ^H(1,1)
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|
+1|2|Alice|
+2|1|Bob|
+2|2|Bob|
+(4 rows)
+OCTO> SELECT * FROM order_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE note IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|
+1|2|Alice|
+2|1|Bob|
+2|2|Bob|
+(4 rows)
+OCTO> 
+# Record side: the row goes away, so it must leave every index built on it.
+# zkill ^G(1,2)
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|
+2|1|Bob|
+2|2|Bob|
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE note IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|
+2|1|Bob|
+2|2|Bob|
+(3 rows)
+OCTO> 
+# A value in ^H with no row in ^G at all. Writing the column global must not invent a row.
+# set ^H(3,1)="orphan note"
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|
+2|1|Bob|
+2|2|Bob|
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE note IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust|note
+1|1|Alice|
+2|1|Bob|
+2|2|Bob|
+(3 rows)
+OCTO> 
+
+# verify_aim_rebuild : 5 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical

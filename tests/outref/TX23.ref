@@ -1,0 +1,117 @@
+# zwrite ^ORD
+^ORD(1,1)="Widget"
+^ORD(1,2)="Gadget"
+^ORD(2,1,"NOTE")="see attached"
+OCTO> -- TX23 : YDBAIM#96 : a column stored AT the row's own depth.
+
+-- The primary key is (order_id, line_id), so a row is ^ORD(order_id,line_id). The "item" column has
+-- no column-level GLOBAL, so it inherits the table's - the row node itself - and is a piece of it:
+
+--   * "item" -> ^ORD(order_id,line_id) PIECE 1
+
+-- No column of this table carries a GLOBAL of its own, so the schema declares exactly ONE node per
+-- row. Octo therefore defines a row here as "that node holds a value", and cross references the
+-- column as AIM type 0, which indexes precisely the nodes holding a value. The two definitions are
+-- chosen together in tmpl_physical_plan / tmpl_tablejoin and only agree together.
+
+-- What that costs is row (2,1) below. It carries no value and exists solely because of the
+-- undeclared child ^ORD(2,1,"NOTE"), so under this rule it is not a row at all - it disappears from
+-- the unfiltered SELECT as well as from "WHERE item IS NULL". The alternative was to keep the
+-- decoupled record anchor for every table so that (2,1) stays a row with a NULL "item". That is
+-- not correct: nothing in the schema declares ^ORD(2,1,"NOTE"), so nothing in the schema makes
+-- (2,1) a row. It would also put record-side triggers on every table, firing on every write.
+
+-- The anchor is still used wherever a column can be absent while its row is not: any column below
+-- the row, in another global, or in another database. See TX22, TX24 and TX26.
+CREATE TABLE order_lines (
+ order_id INTEGER,
+ line_id INTEGER,
+ item VARCHAR(20) PIECE 1,
+ PRIMARY KEY (order_id, line_id)
+) GLOBAL "^ORD" AIMTYPE 1 DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- Unfiltered: the row universe from a full table scan. Row (2,1) is absent - the one node the
+-- schema declares for it, ^ORD(2,1), holds no value.
+SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|1|Widget
+1|2|Gadget
+(2 rows)
+OCTO> -- WHERE on "item". No row has a NULL "item", and the answer agrees with the scan above: the
+-- cross reference and the full scan share one definition of a row.
+SELECT * FROM order_lines WHERE item IS NULL ORDER BY order_id, line_id;
+order_id|line_id|item
+(0 rows)
+OCTO> 
+
+-- Both questions re-asked: the row universe as a full table scan sees it, then the same
+-- table filtered through the cross reference. They must agree after every change to ^ORD.
+-- The changes are made in M, as an application would (Octo never writes a READONLY table), so
+-- from here on the SET and ZKILL triggers maintain the index, not the bulk build.
+# (2,1) was not a row - it held no value. Give it one: it becomes a row in both.
+# set ^ORD(2,1)="Rewired^x"
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|1|Widget
+1|2|Gadget
+2|1|Rewired
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE item IS NULL ORDER BY order_id, line_id;
+order_id|line_id|item
+(0 rows)
+OCTO> 
+# A new row whose PIECE 1 is empty. A missing PIECE of a node that exists is still NULL.
+# set ^ORD(4,1)="^only-a-second-piece"
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|1|Widget
+1|2|Gadget
+2|1|Rewired
+4|1|
+(4 rows)
+OCTO> SELECT * FROM order_lines WHERE item IS NULL ORDER BY order_id, line_id;
+order_id|line_id|item
+4|1|
+(1 row)
+OCTO> 
+# Take a row value away outright: the row leaves both.
+# zkill ^ORD(1,1)
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|2|Gadget
+2|1|Rewired
+4|1|
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE item IS NULL ORDER BY order_id, line_id;
+order_id|line_id|item
+4|1|
+(1 row)
+OCTO> 
+# An undeclared node and nothing else: a row in neither.
+# set ^ORD(5,1,"NOTE")="undeclared node only"
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|2|Gadget
+2|1|Rewired
+4|1|
+(3 rows)
+OCTO> SELECT * FROM order_lines WHERE item IS NULL ORDER BY order_id, line_id;
+order_id|line_id|item
+4|1|
+(1 row)
+OCTO> 
+# Value gone but the NOTE child remains, so the node is STILL in the tree - and stops being a row.
+# zkill ^ORD(2,1)
+OCTO> SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|2|Gadget
+4|1|
+(2 rows)
+OCTO> SELECT * FROM order_lines WHERE item IS NULL ORDER BY order_id, line_id;
+order_id|line_id|item
+4|1|
+(1 row)
+OCTO> 
+
+# verify_aim_rebuild : 2 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical

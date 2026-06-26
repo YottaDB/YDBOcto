@@ -60,9 +60,9 @@ octoPlan1(cursorId)
     SET %ydboctoin0(%ydboctoexpr)=""
     SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
 --
-    . SET %ydboctocursor(cursorId,"keys",1,"order1","status")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order1","status")) IF $DATA(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"order1","status"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"order1","status")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order1","status")) IF $DATA(^%ydbAIMDvKN8hDTekfFjodwGN4oWAG(3,%ydboctocursor(cursorId,"keys",1,"order1","status"))) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")=0
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")=$ORDER(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"order1","status"),%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))!(%ydboctocursor(cursorId,"keys",1,"order1","order1_id")=""))  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")=$ORDER(^%ydbAIMDvKN8hDTekfFjodwGN4oWAG(3,%ydboctocursor(cursorId,"keys",1,"order1","status"),%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))!(%ydboctocursor(cursorId,"keys",1,"order1","order1_id")=""))  DO
 --
     QUIT
 
@@ -72,6 +72,6 @@ octoPlan2(cursorId)
     SET %ydboctoin0(%ydboctoexpr)=""
     SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
 --
-    . SET %ydboctocursor(cursorId,"keys",1,"order1","status")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order1","status")) IF $DATA(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"order1","status"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"order1","status")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order1","status")) IF $DATA(^%ydbAIMDvKN8hDTekfFjodwGN4oWAG(3,%ydboctocursor(cursorId,"keys",1,"order1","status"))) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")=0
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")=$ORDER(^%ydbAIMDkhryjZbAGBxsFRR7PrVfA4(3,%ydboctocursor(cursorId,"keys",1,"order1","status"),%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))!(%ydboctocursor(cursorId,"keys",1,"order1","order1_id")=""))  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order1","order1_id")=$ORDER(^%ydbAIMDvKN8hDTekfFjodwGN4oWAG(3,%ydboctocursor(cursorId,"keys",1,"order1","status"),%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))) QUIT:('(%ydboctocursor(cursorId,"keys",1,"order1","order1_id"))!(%ydboctocursor(cursorId,"keys",1,"order1","order1_id")=""))  DO

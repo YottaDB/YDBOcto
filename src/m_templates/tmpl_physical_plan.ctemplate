@@ -152,7 +152,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		char			*delim;
 		char			*piece;
 		char			comment[OCTO_AIM_XREF_COMMENT_MAXSIZE];
-		int			aim_type;
 		boolean_t		is_multi_level_piece; /* YDBOcto#1108: TRUE for a piece-of-piece column */
 		char			*outer_spec;	      /* the piece-of-piece transform's outer-levels spec */
 
@@ -245,13 +244,34 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		source = value->v.string_literal;
 
-		// Get AIM metadata type
-		aim_type = 0; //Default
-		if (table->aim_type) {
-			UNPACK_SQL_STATEMENT(keyword, table->aim_type, keyword);
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			aim_type = atoi(value->v.string_literal);
-		}
+		/* Does this cross reference need a decoupled record anchor? See the block comment below. */
+		boolean_t needs_anchor;
+		needs_anchor = !table_columns_all_on_row_node(table);
+
+		/* YDBAIM#96: the AIM "type" is no longer chosen by the user. The table-level AIMTYPE keyword is
+		 * still parsed and still round-trips through emit_create_table(), but nothing reads it here any
+		 * more; it is accepted purely so existing DDL keeps loading.
+		 *
+		 * What it used to select was whether a row whose value node is ABSENT gets indexed as SQL NULL.
+		 * That is not a preference: a row exists because the TABLE's global reference says so, not
+		 * because any one column happens to have a node, so "absent means NULL" is simply what SQL
+		 * means. AIMTYPE 0 - the default, and so the overwhelming majority of tables - therefore gave
+		 * wrong answers to "WHERE col IS NULL" whenever a row was missing that column's node, and
+		 * AIMTYPE 1 was the manual opt-out from being wrong.
+		 *
+		 * So a cross reference is built as type 4 (6 when composed with a transformation function):
+		 * a DECOUPLED RECORD ANCHOR on the table's own global reference, alongside the column's
+		 * value spec. Row existence then comes from the same place a full table scan gets it, which
+		 * is what makes the cross reference and the scan agree.
+		 *
+		 * The exception is a table whose columns ALL take their value from the row node itself -
+		 * no column carries a GLOBAL of its own, so each is a piece of that one node. There the
+		 * schema declares exactly one node per row, and "tmpl_tablejoin" scans such a table by
+		 * requiring that node to hold a value. Type 0 (2 with a transformation function) indexes
+		 * precisely the nodes that hold a value, so it already agrees with that scan, and the
+		 * anchor would only add record-side triggers that fire on every write. A missing PIECE of
+		 * a node that exists is still indexed as NULL by type 0, so nothing is lost.
+		 */
 
 		// Create comment
 		snprintf(comment, OCTO_AIM_XREF_COMMENT_MAXSIZE, OCTO_AIM_XREF_COMMENT, tableName, columnName);
@@ -261,10 +281,19 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		if ('^' == pplan->outputKey->xref_prefix[0]) {
 			%{}NEW base,subs DO baseSubs(.base,.subs){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
+			if (needs_anchor) {
+				%{}NEW recbase,recsub DO recSubs(.recbase,.recsub){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (0 here),{}%
 			%{} zpiece (always 0), omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{};   stat (0 for now), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};   transformation function is used - so that a row whose value node is absent{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};   is still indexed, under NULL; the record anchor comes from recSubs),{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
 			%{};   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise){}%
 
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -282,8 +311,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 
 			// Add arguments needed by AIM: nmonly (0=build), zpiece, omitfix, stat
 			%{},0,0,1,0,{}%
-			// Add the AIM metadata type + transformation-function argument, then close the XREFDATA call.
-			TMPL(tmpl_xref_type_transform, table, column, aim_type, is_multi_level_piece, outer_spec, substr_spec);
+			/* Add the AIM metadata type, the transformation-function argument (if any) and the
+			 * record anchor arguments (if needed), then close the XREFDATA call.
+			 */
+			TMPL(tmpl_xref_type_transform, table, column, needs_anchor, is_multi_level_piece, outer_spec, substr_spec);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -326,10 +357,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW base,subs DO baseSubs(.base,.subs){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
+			if (needs_anchor) {
+				%{}NEW recbase,recsub DO recSubs(.recbase,.recsub){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (1 here), zpiece (always 0),{}%
 			%{} omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{};   stat (0 for now), AIM Metadata Type (depending if the table has it specified or not){}%
+			%{};   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};   transformation function is used - so that a row whose value node is absent{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{};   is still indexed, under NULL; the record anchor comes from recSubs),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW aimglobal SET aimglobal=$$XREFDATA^%%YDBAIM(base,.subs{}%
 			if (is_dollar_char) {
@@ -346,7 +385,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{},1,0,1,0,{}%
 			// Same type + transform as the nmonly=0 build call above (one template keeps them in sync; the
 			// AIM global name returned by this nmonly=1 call, and cached for the read-side plan, hashes them).
-			TMPL(tmpl_xref_type_transform, table, column, aim_type, is_multi_level_piece, outer_spec, substr_spec);
+			TMPL(tmpl_xref_type_transform, table, column, needs_anchor, is_multi_level_piece, outer_spec, substr_spec);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%
@@ -399,6 +438,169 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{};{}%
 			%{}`n{}%
+			// Private entry point recSubs (YDBAIM#96): the DECOUPLED RECORD ANCHOR.
+			//
+			// baseSubs above says where the COLUMN VALUE lives. recSubs says where a ROW lives,
+			// which for Octo is always the table's own global reference - the thing a full table
+			// scan walks. Handing AIM both lets it index a NULL for a column whose node is absent
+			// while the row still exists, no matter where that column sits relative to the row.
+			//
+			// Emitted only when the cross reference asks for an anchor. A table whose columns all
+			// live on the row node declares exactly one node per row, is scanned by requiring that
+			// node to hold a value, and is cross referenced as type 0 - which indexes exactly the
+			// nodes holding a value - so it needs no anchor and no record-side triggers at all.
+			//
+			// The anchor's DEPTH is the row's own subscript count plus K, K being how far the
+			// deepest column reaches BELOW the row inside the row's own global. AIM watches every
+			// level down to that depth, because a row can be created or destroyed by a write at
+			// any of them and a trigger only ever fires on the node actually written. K is a
+			// property of the table, so every column's cross reference on a table gets the same
+			// anchor.
+			//
+			// The depth goes in the ROOT of recsub (YottaDB/Util/YDBAIM#96). The levels below the
+			// row are simply left unnamed - AIM takes an unnamed level to vary and name nothing.
+			// They used to be spelled as trailing recsub(n)="*" entries, which produced the very
+			// same subscript match as ":" and differed only in not counting as a key column; the
+			// depth says it once, and unambiguously.
+			//
+			// K is computed in M rather than in C for the same reason baseSubs computes the
+			// subscript count in M: $QLENGTH of a $NAME is exact, whereas counting subscripts in C
+			// means parsing keys(...), nested parentheses and quoted literals out of a string.
+			if (needs_anchor) {
+				SqlColumn	   *start_column, *cur_column;
+				SqlOptionalKeyword *col_keyword;
+				char		   *row_source;
+				char		  **seen_source;
+				int		    num_seen, num_columns, prior;
+
+				UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				row_source = value->v.string_literal;
+
+				%{}`nrecSubs:(recbase,recsub) ; Private entry point for use by other labels in this routine{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; The RECORD ANCHOR: where a ROW lives, as against where this column's VALUE lives{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; (baseSubs above). Giving AIM both is what lets a row whose value node is absent{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; be indexed as SQL NULL rather than left out of the cross reference altogether.{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; The anchor's depth is the row's subscript count plus K, K being how far the{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; table's deepest column reaches below the row within the row's own global. AIM{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; watches every level down to it, because a row can come into or go out of{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; existence by a write at any of them and a trigger fires only for the node{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; actually written.{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW rowref SET rowref=$NAME({}%
+				TMPL(tmpl_emit_source, table, row_source, tableName, pplan->outputKey->unique_id,	\
+					(void *)0, MAX_KEY_COUNT, EmitSourceForm_AIM);
+				%{}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW rowdepth SET rowdepth=$QLENGTH(rowref){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW subn FOR subn=1:1:rowdepth DO{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}. SET recsub(subn)=$QSUBSCRIPT(rowref,subn){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}. IF recsub(subn)'[":" SET recsub(subn)=$ZWRITE(recsub(subn)){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}SET recbase=$QSUBSCRIPT(rowref,0){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW receref SET receref=$QSUBSCRIPT(rowref,-1){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}IF receref'="" SET recbase="^|"""_receref_"""|"_$ZPIECE(recbase,"^",2){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW colref,k SET k=0{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; one measurement per DISTINCT column global; K is their maximum{}%
+
+				/* Emit one recSpan call per DISTINCT column global reference.
+				 *
+				 * recSpan only folds a column's depth into a running maximum, so measuring the
+				 * same global reference twice cannot change K. Columns sharing a node are the
+				 * norm rather than the exception - a VistA table routinely maps dozens of
+				 * columns to pieces of one node - and this block is regenerated in the xref
+				 * plan of every indexed column of the table, so emitting the duplicates once
+				 * cost hundreds of identical lines per plan.
+				 *
+				 * Two kinds of column are skipped outright:
+				 *   - one with no GLOBAL of its own, or one naming the table's own global
+				 *     reference: its value node IS the row, so it reaches zero levels below
+				 *     the row and recSpan would quit on its first depth test;
+				 *   - an EXTRACT column, which has no global reference to measure.
+				 *
+				 * De-duplication is by source text. Two spellings of the same node would
+				 * survive as separate entries, which costs a redundant line and nothing else.
+				 */
+				UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+				num_columns = 0;
+				cur_column = start_column;
+				do {
+					num_columns++;
+					cur_column = cur_column->next;
+				} while (cur_column != start_column);
+
+				seen_source = (char **)octo_cmalloc(memory_chunks, sizeof(char *) * num_columns);
+				num_seen = 0;
+
+				cur_column = start_column;
+				do {
+					col_keyword = get_keyword(cur_column, OPTIONAL_EXTRACT);
+					if (NULL == col_keyword) {
+						col_keyword = get_keyword(cur_column, OPTIONAL_GLOBAL);
+						if (NULL != col_keyword) {
+							char *col_source;
+
+							UNPACK_SQL_STATEMENT(value, col_keyword->v, value);
+							col_source = value->v.string_literal;
+
+							for (prior = 0; prior < num_seen; prior++) {
+								if (0 == strcmp(col_source, seen_source[prior])) {
+									break;
+								}
+							}
+							if ((prior == num_seen) && (0 != strcmp(col_source, row_source))) {
+								seen_source[num_seen++] = col_source;
+								%{}`n{{ PLAN_LINE_START }}{}%
+								%{}SET colref=$NAME({}%
+								TMPL(tmpl_emit_source, table, col_source,	\
+									tableName, pplan->outputKey->unique_id,	\
+									(void *)0, MAX_KEY_COUNT, EmitSourceForm_AIM);
+								%{}) DO recSpan{}%
+							}
+						}
+					}
+					cur_column = cur_column->next;
+				} while (cur_column != start_column);
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}SET recsub=rowdepth+k ; the anchor's DEPTH: AIM watches every level down to it{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}QUIT{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{};{}%
+				%{}`nrecSpan ; fold one column's depth below the row into k{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; a column in another global or another database is a value anchor: writing it{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; cannot bring a row into existence, so it says nothing about how deep a row runs{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}QUIT:$QSUBSCRIPT(colref,0)'=$QSUBSCRIPT(rowref,0){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}QUIT:$QSUBSCRIPT(colref,-1)'=$QSUBSCRIPT(rowref,-1){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}QUIT:$QLENGTH(colref)'>rowdepth{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}SET:$QLENGTH(colref)-rowdepth>k k=$QLENGTH(colref)-rowdepth{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}QUIT{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{};{}%
+				%{}`n{}%
+			}
 		} else { // This is table kept in a local variable, e.g. pg_settings
 			/* If this is a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice.
 			 * The completion marker is the "xref_status" node this plan SETs below, once the cross reference is built.

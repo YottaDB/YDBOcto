@@ -19,6 +19,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	SqlKey			*key, *save_key, *fixed_xref_key;
 	unsigned int		total_keys, key_start;
 	int			left_table_id;
+	boolean_t		needs_row_guard; /* YDBAIM#96: emit a "QUIT:'($DATA(<row node>)#10)" on this key */
+	boolean_t		drop_xref_output_key; /* Right-join second half: scan the table, not the cross reference */
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*limit_keyword;
 	LogicalPlan		*right_tablejoin;
@@ -568,12 +570,25 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					TMPL(tmpl_key, key);
 					%{}){}%
 				}
-				%{} IF $DATA({}%
-				TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
-				if (key->is_cross_reference_key) {
-					fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
+				%{} IF {}%
+				if (key_needs_row_existence_guard(pplan, key, cur_key, total_keys, FALSE)) {
+					/* YDBAIM#96 row-existence guard, the fixed-key form. A table scan rejects a node
+					 * that holds only descendants with a "QUIT:'($DATA(<row node>)#10)" in its FOR loop
+					 * (below); a key the WHERE clause fixes by =, IN or a range has no such loop and
+					 * probes the key's node here instead, so the probe itself tests the row node with
+					 * "#10", or "WHERE id = 2" would find a row that "SELECT *" does not. The row node
+					 * is not always the node the key's subscript names, see "tmpl_row_exists". The
+					 * cross reference form below needs none: an index entry exists only for a row.
+					 */
+					TMPL(tmpl_row_exists, key);
+				} else {
+					%{}$DATA({}%
+					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+					if (key->is_cross_reference_key) {
+						fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
+					}
+					%{}){}%
 				}
-				%{}){}%
 				if (NULL != limit_keyword) {
 					TMPL(tmpl_limit_check, limit_keyword, "&", ">" PP_YDB_OCTO_ZLIMIT);
 						/* Note: literal concatenation in last parameter above */
@@ -720,7 +735,19 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		if (key->is_cross_reference_key && right_join_second_half) {
 			continue;
 		}
-		if (right_join_second_half && (NULL != key->cross_reference_output_key)) {
+		/* The second half of a right join walks the table's own global instead of the cross
+		 * reference, so that it can visit the rows the first half did not match. That is done by
+		 * clearing "cross_reference_output_key" for the duration of the emission below.
+		 */
+		drop_xref_output_key = (right_join_second_half && (NULL != key->cross_reference_output_key));
+		/* YDBAIM#96 row-existence guard. Decided HERE, ahead of that clearing: afterwards the
+		 * field reads NULL whether or not this key is advanced from a cross reference, and the
+		 * guard would be emitted for a key that should not carry one. "drop_xref_output_key" tells
+		 * the decision which of the two it is looking at. The guard itself is emitted further
+		 * down, once the FOR loop it attaches to has been generated.
+		 */
+		needs_row_guard = key_needs_row_existence_guard(pplan, key, cur_key, total_keys, drop_xref_output_key);
+		if (drop_xref_output_key) {
 			/* Temporarily save cross-reference output key and clear it to generate correct key loop
 			 * for second half of the right join.
 			 */
@@ -802,6 +829,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		 * body is one more than the depth at which the FOR header was emitted.
 		 */
 		TMPL(tmpl_key_skip, key, dot_count + 1);
+		/* YDBAIM#96 row-existence guard, decided above. Rejects a node that $ORDER yields but
+		 * that holds only descendants, so that the scan and the type 0 cross reference agree on
+		 * which rows exist. See "key_needs_row_existence_guard".
+		 */
+		if (needs_row_guard) {
+			/* The node tested is the row node, the table's GLOBAL with every key bound, which is not
+			 * always the node this FOR loop iterates: see "tmpl_row_exists".
+			 */
+			TMPL(tmpl_print_dots, dot_count + 1);
+			%{}QUIT:'({}%
+			TMPL(tmpl_row_exists, key);
+			%{}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		if (NULL != save_key) {
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		}

@@ -419,6 +419,7 @@ OCTO>
  select min(3*2) from names;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select max(id) is null from TAF06octoc;
 ---------------------------------------------------------
@@ -427,7 +428,9 @@ OCTO>
  select max(n1.id) from names n1, names n2;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
    . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+   . . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",2,"names","id")))#10)
 ---------------------------------------------------------
  select min(id) from TAF06octorw8;
 ---------------------------------------------------------
@@ -448,6 +451,7 @@ OCTO>
  select max(id) from names having min(id) > 6;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select min(id) from TAF06octoro1;
 ---------------------------------------------------------
@@ -464,6 +468,7 @@ OCTO>
  select firstname from names;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select max(id) from TAF06octod;
 ---------------------------------------------------------
@@ -484,6 +489,7 @@ OCTO>
  select max(id) from names group by firstname;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select min(id) from TAF06octoro7;
 ---------------------------------------------------------
@@ -550,6 +556,7 @@ OCTO>
  select min(id+2) from names;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select max(id) from TAF06octorw5;
 ---------------------------------------------------------
@@ -579,6 +586,7 @@ OCTO>
  select sum(id) from names;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select min(id) from TAF06octorw2;
 ---------------------------------------------------------
@@ -619,7 +627,7 @@ OCTO>
  select max(id) from names where id < 4;
 ---------------------------------------------------------
    IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0,1)) FOR  SET %ydboctozkeyfix(1,0)=$ORDER(^names(%ydboctozkeyfix(1,0))) QUIT:(%ydboctozkeyfix(1,0)="")!(%ydboctozkeyfix(1,0)'<%ydboctozkeyfix(1,0,1))  DO
-   . SET %ydboctocursor(cursorId,"keys",1,"names","id")=%ydboctozkeyfix(1,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","id")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) DO
+   . SET %ydboctocursor(cursorId,"keys",1,"names","id")=%ydboctozkeyfix(1,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","id")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10 DO
 ---------------------------------------------------------
  select min(id) from TAF06octorw3;
 ---------------------------------------------------------
@@ -635,14 +643,17 @@ OCTO>
    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",5,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
    FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",2,"names","id")))#10)
 ---------------------------------------------------------
  select max(id) from names group by id;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
 ---------------------------------------------------------
  select 1 from names order by max(id+2);
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+   . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
 ---------------------------------------------------------

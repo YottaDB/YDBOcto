@@ -339,12 +339,12 @@ id|dob
 (1 row)
 OCTO> 
 # AIM index for dob (the missing-node row id 1 is indexed as NULL):
-^%ydbAIMDPYXY03A0A9vmUBZ3NX3TC0(2,"",1)=""
-^%ydbAIMDPYXY03A0A9vmUBZ3NX3TC0(2,1579046400000000,0)=""
-^%ydbAIMDPYXY03A0A9vmUBZ3NX3TC0(2,1579046400000000,2)=""
-^%ydbAIMDw3JtIpbAco5WmwcnRg9OIA(2,"",1)=""
-^%ydbAIMDw3JtIpbAco5WmwcnRg9OIA(2,1579046400000000,0)=""
-^%ydbAIMDw3JtIpbAco5WmwcnRg9OIA(2,1579046400000000,2)=""
+^%ydbAIMDfChnMPq7I6VPiqt21FQJ5H(2,"",1)=""
+^%ydbAIMDfChnMPq7I6VPiqt21FQJ5H(2,1579046400000000,0)=""
+^%ydbAIMDfChnMPq7I6VPiqt21FQJ5H(2,1579046400000000,2)=""
+^%ydbAIMDnz2Df4qgSel7reO8U9Y858(2,"",1)=""
+^%ydbAIMDnz2Df4qgSel7reO8U9Y858(2,1579046400000000,0)=""
+^%ydbAIMDnz2Df4qgSel7reO8U9Y858(2,1579046400000000,2)=""
 
 # === Section E : WHERE on a 3-level-deep piece-of-piece column ===
 # Data loaded into ^ppv3:
@@ -675,19 +675,19 @@ lo|hi
 (1 row)
 OCTO> 
 # AIM index: SQL NULL (missing node AND empty piece) under the column's NULL marker -- '#' for VARCHAR, bare "" for DATE/BOOLEAN/INTEGER; real string values '#'-prefixed:
-^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,"",2)=""
-^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,"",3)=""
-^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,946598400000000,1)=""
-^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,1579046400000000,0)=""
-^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,"",2)=""
-^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,"",3)=""
-^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,5,1)=""
-^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,30,0)=""
-^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#",2)=""
-^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#",3)=""
-^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#Kyoto",1)=""
-^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#Ryazan",0)=""
-^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,"",2)=""
-^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,"",3)=""
-^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,0,1)=""
-^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,1,0)=""
+^%ydbAIMDPMoXHQGTvdh6JMEXIgZF70(2,"",2)=""
+^%ydbAIMDPMoXHQGTvdh6JMEXIgZF70(2,"",3)=""
+^%ydbAIMDPMoXHQGTvdh6JMEXIgZF70(2,0,1)=""
+^%ydbAIMDPMoXHQGTvdh6JMEXIgZF70(2,1,0)=""
+^%ydbAIMDU8TU3JJLD8L2Z3VahfMd6H(2,"",2)=""
+^%ydbAIMDU8TU3JJLD8L2Z3VahfMd6H(2,"",3)=""
+^%ydbAIMDU8TU3JJLD8L2Z3VahfMd6H(2,946598400000000,1)=""
+^%ydbAIMDU8TU3JJLD8L2Z3VahfMd6H(2,1579046400000000,0)=""
+^%ydbAIMDVknrIkt8nHPEiF7Tc1nC7L(2,"",2)=""
+^%ydbAIMDVknrIkt8nHPEiF7Tc1nC7L(2,"",3)=""
+^%ydbAIMDVknrIkt8nHPEiF7Tc1nC7L(2,5,1)=""
+^%ydbAIMDVknrIkt8nHPEiF7Tc1nC7L(2,30,0)=""
+^%ydbAIMDoJp5W9qGfta4ss4cviEqHH(2,"#",2)=""
+^%ydbAIMDoJp5W9qGfta4ss4cviEqHH(2,"#",3)=""
+^%ydbAIMDoJp5W9qGfta4ss4cviEqHH(2,"#Kyoto",1)=""
+^%ydbAIMDoJp5W9qGfta4ss4cviEqHH(2,"#Ryazan",0)=""

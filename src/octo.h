@@ -456,7 +456,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 58
+#define FMT_PLAN_DEFINITION 59
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
@@ -1586,6 +1586,11 @@ int  set_date_time_format_from_datestyle(char *date_style_value);
 int  validate_iterator_keyword(SqlColumn *cur_column, SqlTable *table);
 
 boolean_t table_has_hidden_column(SqlTable *table);
+/* TRUE when no column carries a GLOBAL keyword of its own, i.e. every column is a piece of the
+ * table's row node. Decides both the row-existence guard in "tmpl_tablejoin" and whether
+ * "tmpl_physical_plan" needs a decoupled AIM record anchor.
+ */
+boolean_t table_columns_all_on_row_node(SqlTable *table);
 
 // Updates a runtime parameter value in `pg_catalog.pg_settings`. Executed for SQL SET commands.
 int set_parameter_in_pg_settings(char *variable, char *value);

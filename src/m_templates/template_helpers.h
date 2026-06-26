@@ -255,6 +255,7 @@ TEMPLATE(tmpl_key_finish, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count);
 TEMPLATE(tmpl_key_start_endpoint, SqlKey *key, int dot_count, boolean_t use_zkeyfix, int cur_key);
+TEMPLATE(tmpl_row_exists, SqlKey *key);
 TEMPLATE(tmpl_key_dollardata_check, PhysicalPlan *pplan, SqlKey *key, boolean_t is_derived_column);
 // Outputs: '%ydboctocursor(cursorId,PP_KEYS,key->unique_id,tableName,columnName)'
 TEMPLATE(tmpl_key, SqlKey *key);
@@ -282,7 +283,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 TEMPLATE(tmpl_piece_of_piece_open, SqlStatement *piece_list);
 TEMPLATE(tmpl_piece_of_piece_close, SqlStatement *delim_list, SqlStatement *piece_list);
 TEMPLATE(tmpl_substr_close, char *substr_spec);
-TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, int aim_type, boolean_t is_multi_level_piece,
+TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, boolean_t needs_anchor, boolean_t is_multi_level_piece,
 	 char *outer_spec, char *substr_spec);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);

@@ -92,11 +92,12 @@ else()
 	set(fetch_ydbaim 1)
 endif()
 if(fetch_ydbaim)
-	# Fixed commit (the YDBAIM master of 2026-09-29 at the time of this writing); see the YDBPosix GIT_TAG note above.
+	# Fixed commit (the YDBAIM master of 2026-10-29, the first with record specifications, YDBAIM#96, which this
+	# branch needs); see the YDBPosix GIT_TAG note above.
 	# Update it when a newer YDBAIM matters to Octo.
 	FetchContent_Declare(YDBAIM
 		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBAIM.git
-		GIT_TAG	       487dc864edbde440767c3a294004920644cde120
+		GIT_TAG	       7ceaa8f59f091c974c2cb1ddd9cdbcd032ba2fc5
 		)
 	FetchContent_MakeAvailable(YDBAIM)
 	# The following sets ydbaim_BINARY_DIR, where _ydbaim.so (and utf8/_ydbaim.so) are built
@@ -374,6 +375,7 @@ add_library(libocto OBJECT
   physical/ctx_label.c
   physical/generate_physical_plan.c
   physical/get_num_key_cols_in_set_clause.c
+  physical/key_needs_row_existence_guard.c
   physical/get_physical_plan_from_unique_id.c
   physical/get_physical_plan_and_key_for_unique_id.c
   physical/get_setoper_mlabref.c
@@ -409,6 +411,7 @@ add_library(libocto OBJECT
   store_table_or_view_in_pg_class.c
   store_view_dependencies.c
   store_table_dependencies.c
+  table_columns_all_on_row_node.c
   table_has_hidden_column.c
   traverse_where_clause.c
   truncate_tables.c
@@ -596,6 +599,7 @@ set(template_files
   ${template_dir}/tmpl_order_by_key.ctemplate
   ${template_dir}/tmpl_order_by_sort.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
+  ${template_dir}/tmpl_row_exists.ctemplate
   ${template_dir}/tmpl_piece_of_piece_close.ctemplate
   ${template_dir}/tmpl_piece_of_piece_open.ctemplate
   ${template_dir}/tmpl_populate_output_key.ctemplate

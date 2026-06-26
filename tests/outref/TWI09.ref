@@ -41,7 +41,7 @@ octoPlan1(cursorId)
     SET %ydboctoin0(%ydboctoexpr)=""
     SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
     . SET %ydboctoexpr=%ydboctoin0
-    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","id")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"names","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"names","id")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10 DO
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
     . . SET %ydboctocursor(cursorId,"keys",2,"names","lastname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"names","lastname")) IF $DATA(^%ydbAIMDERzGTIrQTVBoOhdanoKcC7(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",2,"names","lastname")))) DO
     . . . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
@@ -72,6 +72,7 @@ octoPlan1(cursorId)
     ZKILL %ydboctocursor(cursorId,"keys",1,"names","id")
     SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",2,"names","id")))#10)
     . DO:'$DATA(%ydboctoz(1,%ydboctocursor(cursorId,"keys",2,"names","id")))
     . . SET %ydboctoexpr=1
     . . SET %ydboctoexpr(1)=0
@@ -128,7 +129,7 @@ octoPlan1(cursorId)
     . . . SET %ydboctoz(2)=0
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"orders","order_id")
     . . . SET %ydboctoexpr=+%ydboctoexpr
-    . . . SET %ydboctocursor(cursorId,"keys",2,"customers","customer_id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"customers","customer_id")) IF $DATA(^customers(%ydboctocursor(cursorId,"keys",2,"customers","customer_id"))) DO
+    . . . SET %ydboctocursor(cursorId,"keys",2,"customers","customer_id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"customers","customer_id")) IF $DATA(^customers(%ydboctocursor(cursorId,"keys",2,"customers","customer_id")))#10 DO
     . . . . SET %ydboctoz(2)=1
     . . . . DO octoLeftJoin2
     . . . DO:0=%ydboctoz(2)

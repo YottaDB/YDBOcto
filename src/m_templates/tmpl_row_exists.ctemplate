@@ -1,0 +1,49 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "template_helpers.h"
+
+/* Emits the M expression that is true when the row of "key"'s table exists: "$DATA(<row node>)#10", the row node
+ * being the table's GLOBAL with every key column bound to its current value, in full, constants included
+ * (YDBAIM#96, see "key_needs_row_existence_guard"). A node that holds only descendants ($DATA 10) is not a row.
+ * The row node is not always the node the key's own subscript names:
+ *
+ *   GLOBAL "^names(keys(""id""))"          row node ^names(id): the key's level
+ *   GLOBAL "^GCND(keys(""id""),""A"")"      row node ^GCND(id,"A"): the key's level, ^GCND(id), holds only
+ *                                           descendants even for a row that exists
+ *
+ * so the test is made on this node and not on the one a FOR loop iterates or a WHERE clause fixes. The callers
+ * are in "tmpl_tablejoin": "QUIT:'(<this>)" in the FOR loop of a table scan, and "IF <this>" where the WHERE
+ * clause fixes the key. Every key column of the table is bound at the point of the call: the test belongs on
+ * the table's last key, which is where "key_needs_row_existence_guard" places it.
+ */
+TEMPLATE(tmpl_row_exists, SqlKey *key) {
+	SqlTable		*table;
+	SqlOptionalKeyword	*keyword;
+	SqlValue		*value;
+	char			*table_name, *source;
+
+	table = key->table;
+	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+	table_name = value->v.string_literal;
+	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	source = value->v.string_literal;
+	%{}$DATA({}%
+	TMPL(tmpl_emit_source, table, source, table_name, key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Value);
+	%{})#10{}%
+}
+%{}

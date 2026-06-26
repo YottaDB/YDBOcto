@@ -1,0 +1,266 @@
+# zwrite ^USER
+^USER(1,0)="Alice"
+^USER(1,1,"DEPT")="Cardiology"
+^USER(1,"EMAIL")="alice@example.com"
+^USER(2,0)="Bob"
+^USER(3,"EMAIL")="carol@example.com"
+^USER(4)="Dave"
+OCTO> -- TX22 : YDBAIM#96 : columns stored at more than one depth below the row.
+
+-- The primary key is (id), so a row is ^USER(id). This table stores its columns at two different
+-- depths beneath that row:
+
+--   * "name"  -> ^USER(id,0)          : one level down, the FileMan-style "0" node.
+--   * "email" -> ^USER(id,"EMAIL")    : one level down, keyed by a fixed subscript. This is the
+--                                       shape the AIMTYPE documentation uses for its example.
+--   * "dept"  -> ^USER(id,1,"DEPT")   : TWO levels down. Nothing in the documentation covers this,
+--                                       but Octo accepts it and builds a cross reference for it.
+
+-- Four rows, chosen so that each of AIM's blind spots is visible:
+
+--   * id 1 : has all three nodes.
+--   * id 2 : has ^USER(2,0) only. Both "email" and "dept" are missing-node SQL NULLs.
+--   * id 3 : has ^USER(3,"EMAIL") only. "name" and "dept" are missing-node NULLs.
+--   * id 4 : has a value on the ROW NODE ITSELF, ^USER(4)="Dave", and no children at all.
+--            It is a row by any full-table-scan definition, and all three columns are NULL.
+
+-- The row universe Octo enumerates is $ORDER over ^USER(id), which finds all four. Before AIM had a
+-- record specification, a cross reference derived the row from the column's own value node, and the
+-- disagreement was a silent wrong answer rather than an error:
+
+--   * by default (AIM type=0) a row without the node had no index entry at all, so WHERE <column>
+--     IS NULL found nothing, for any of the three columns.
+--   * with AIMTYPE 1 (AIM type=1) the row was the PARENT of the value node. For "name" and "email",
+--     one level down, that parent is ^USER(id), the row itself, so they were right. "dept" is two
+--     levels down, so its parent level was ^USER(id,1), which only id 1 has: ids 2, 3 and 4 were
+--     absent from the index and WHERE dept IS NULL found none of them.
+
+-- With a record specification (AIM type=4) the row universe is ^USER(id) with the levels below it
+-- watched, so it matches the full table scan and every one of these rows is found.
+CREATE TABLE users (
+ id INTEGER PRIMARY KEY,
+ name VARCHAR(20) GLOBAL "^USER(keys(""id""),0)" PIECE 1,
+ email VARCHAR(30) GLOBAL "^USER(keys(""id""),""EMAIL"")" PIECE 1,
+ dept VARCHAR(20) GLOBAL "^USER(keys(""id""),1,""DEPT"")" PIECE 1
+) GLOBAL "^USER" AIMTYPE 1 DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- Unfiltered: the row universe from a full table scan. All four ids are rows, including id 4 whose
+-- only data is the value on the row node itself.
+SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|Cardiology
+2|Bob||
+3||carol@example.com|
+4|||
+(4 rows)
+OCTO> -- WHERE on "email", a column one level below the row. Correct answer is ids 2 and 4: none by default
+-- before this change, both with AIMTYPE 1.
+SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+2|Bob||
+4|||
+(2 rows)
+OCTO> -- WHERE on "dept", a column TWO levels below the row. Correct answer is ids 2, 3 and 4: none before
+-- this change, by default or with AIMTYPE 1, which treated ^USER(id,1) as the row.
+SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+2|Bob||
+3||carol@example.com|
+4|||
+(3 rows)
+OCTO> -- WHERE on "name", one level below the row. Correct answer is ids 3 and 4.
+SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+3||carol@example.com|
+4|||
+(2 rows)
+OCTO> 
+
+-- Every question TX22.sql asks, re-asked. The first is the row universe as a full table scan
+-- sees it; the other three are that same table filtered through a cross reference, one per
+-- column, at each of the depths this table stores columns at. They must agree after every
+-- change to ^USER: a row in the scan is a row in all three indexes, and a NULL is a NULL.
+-- The changes are made in M, as an application would (Octo never writes a READONLY table), so
+-- from here on the triggers maintain the index, not the bulk build. This is the table worth doing
+-- that to: its columns sit at two different depths below the row, so the record anchor spans two
+-- levels and AIM plants a record trigger pair at each. A row created or destroyed by a write at
+-- either depth is noticed only if the anchor spans that far, and an anchor one level too short
+-- still builds a perfectly correct index and then silently stops maintaining it, which no
+-- build-and-assert test can see.
+# A new row whose ONLY node is TWO levels below the row - the deepest level the anchor spans.
+# set ^USER(5,1,"DEPT")="Neurology"
+OCTO> SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|Cardiology
+2|Bob||
+3||carol@example.com|
+4|||
+5|||Neurology
+(5 rows)
+OCTO> SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+2|Bob||
+4|||
+5|||Neurology
+(3 rows)
+OCTO> SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+2|Bob||
+3||carol@example.com|
+4|||
+(3 rows)
+OCTO> SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+3||carol@example.com|
+4|||
+5|||Neurology
+(3 rows)
+OCTO> 
+# Value side, one level down: a column that was a missing-node NULL is given a value.
+# set ^USER(2,"EMAIL")="bob@example.com"
+OCTO> SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|Cardiology
+2|Bob|bob@example.com|
+3||carol@example.com|
+4|||
+5|||Neurology
+(5 rows)
+OCTO> SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+4|||
+5|||Neurology
+(2 rows)
+OCTO> SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+2|Bob|bob@example.com|
+3||carol@example.com|
+4|||
+(3 rows)
+OCTO> SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+3||carol@example.com|
+4|||
+5|||Neurology
+(3 rows)
+OCTO> 
+# Value side, two levels down: the deepest column goes, but the row has other nodes and survives.
+# zkill ^USER(1,1,"DEPT")
+OCTO> SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+3||carol@example.com|
+4|||
+5|||Neurology
+(5 rows)
+OCTO> SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+4|||
+5|||Neurology
+(2 rows)
+OCTO> SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+3||carol@example.com|
+4|||
+(4 rows)
+OCTO> SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+3||carol@example.com|
+4|||
+5|||Neurology
+(3 rows)
+OCTO> 
+# Row born by writing the ROW NODE itself, with no column nodes at all: a row, every column NULL.
+# set ^USER(6)="Eve"
+OCTO> SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+3||carol@example.com|
+4|||
+5|||Neurology
+6|||
+(6 rows)
+OCTO> SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+4|||
+5|||Neurology
+6|||
+(3 rows)
+OCTO> SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+3||carol@example.com|
+4|||
+6|||
+(5 rows)
+OCTO> SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+3||carol@example.com|
+4|||
+5|||Neurology
+6|||
+(4 rows)
+OCTO> 
+# Row 4 was only ever a value on the row node. Take that away and the row goes with it.
+# zkill ^USER(4)
+OCTO> SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+3||carol@example.com|
+5|||Neurology
+6|||
+(5 rows)
+OCTO> SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+5|||Neurology
+6|||
+(2 rows)
+OCTO> SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+3||carol@example.com|
+6|||
+(4 rows)
+OCTO> SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+3||carol@example.com|
+5|||Neurology
+6|||
+(3 rows)
+OCTO> 
+# KILL of a whole subtree rather than ZKILL of one node: the recursive-KILL triggers must decompose it.
+# kill ^USER(3)
+OCTO> SELECT * FROM users ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+5|||Neurology
+6|||
+(4 rows)
+OCTO> SELECT * FROM users WHERE email IS NULL ORDER BY id;
+id|name|email|dept
+5|||Neurology
+6|||
+(2 rows)
+OCTO> SELECT * FROM users WHERE dept IS NULL ORDER BY id;
+id|name|email|dept
+1|Alice|alice@example.com|
+2|Bob|bob@example.com|
+6|||
+(3 rows)
+OCTO> SELECT * FROM users WHERE name IS NULL ORDER BY id;
+id|name|email|dept
+5|||Neurology
+6|||
+(2 rows)
+OCTO> 
+
+# verify_aim_rebuild : 12 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical

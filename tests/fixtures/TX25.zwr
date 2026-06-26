@@ -1,0 +1,6 @@
+YottaDB MUPIP EXTRACT
+02-JUN-2026  00:00:00 ZWR
+^EVT(1,0)="Alice"
+^EVT(1,"ACT")="1"
+^EVT(2,0)="Bob"
+^EVT(3)="Carol"

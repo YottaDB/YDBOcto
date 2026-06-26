@@ -1,0 +1,8 @@
+YottaDB MUPIP EXTRACT
+02-JUN-2026  00:00:00 ZWR
+^USER(1,0)="Alice"
+^USER(1,1,"DEPT")="Cardiology"
+^USER(1,"EMAIL")="alice@example.com"
+^USER(2,0)="Bob"
+^USER(3,"EMAIL")="carol@example.com"
+^USER(4)="Dave"

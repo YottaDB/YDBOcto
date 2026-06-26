@@ -994,12 +994,11 @@ optional_keyword
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | Keyword      | Type               | Range         | Purpose                                                                        | Overrides                    | Default Value                                             |
   +==============+====================+===============+================================================================================+==============================+===========================================================+
-  | AIMTYPE      | Integer Literal    | Table         | By default, when Octo uses a YottaDB component called AIM to created indexes,  |                              | :code:`0`                                                 |
-  |              |                    |               | it does not include NULL data in the index. This can only happen when the data |                              |                                                           |
-  |              |                    |               | stored by Octo is on multiple levels, such as VistA data. Specifying "1" for a |                              |                                                           |
-  |              |                    |               | table means that we want data that is stored on other levels but is not        |                              |                                                           |
-  |              |                    |               | currently present to be considered NULL. If you specify "1", the region housing|                              |                                                           |
-  |              |                    |               | the table MUST have NULL subscripts in globals disabled.                       |                              |                                                           |
+  | AIMTYPE      | Integer Literal    | Table         | Deprecated and ignored. It is still accepted, and still preserved by table     |                              | :code:`0`                                                 |
+  |              |                    |               | definition round-trips, so existing DDL keeps loading unchanged - but it no    |                              |                                                           |
+  |              |                    |               | longer affects anything. Octo now decides how AIM indexes each column from     |                              |                                                           |
+  |              |                    |               | where that column is stored relative to the table's row, and always indexes    |                              |                                                           |
+  |              |                    |               | an absent node as SQL NULL.                                                    |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | DELIM        | Literal            | Table, Column | Represents the delimiter string to be used in                                  | table/default DELIM setting  | :code:`"|"`                                               |
   |              |                    |               | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                                           |
@@ -1316,8 +1315,6 @@ Extracting a character range (SUBSTR)
 
   In the above example, the nodes of :code:`^Patients` look like :code:`^Patients(1)="John Doe|19630115"`. The :code:`Initial` column generates :code:`$EXTRACT($PIECE($GET(node),"|",1),1)` (i.e. :code:`"J"`), and :code:`BirthYear` generates :code:`$EXTRACT($PIECE($GET(node),"|",2),1,4)` (i.e. :code:`1963`). :code:`SUBSTR` also composes with the chained :code:`DELIMS (..) PIECES (..)` form described above, in which case the character range applies to the innermost extracted piece.
 
-  A whole-node :code:`SUBSTR` column reads a node (e.g. :code:`^Patients(1,0)` above) that can be absent for an existing row, in which case the column value is SQL NULL. As with any other column, by default such rows are not included in the cross reference, so an indexed :code:`WHERE .. IS NULL` lookup does not find them; specifying table-level :code:`AIMTYPE 1` includes them (see `Indexing NULL data with AIMTYPE`_ below). Note that :code:`AIMTYPE 1` requires the node named by the column-level :code:`GLOBAL` to end in a fixed subscript (as :code:`^Patients(keys(""PatientID""),0)` does) and the global's region(s) to disallow null subscripts.
-
   Any column using :code:`SUBSTR` makes the table :code:`READONLY`. A :code:`SUBSTR` column cannot also specify the :code:`EXTRACT` keyword, and a non-empty :code:`DELIM` / :code:`DELIMS` on a :code:`SUBSTR` column is an error unless a :code:`PIECE` / :code:`PIECES` specification is also present (a delimiter with no piece to apply it to is ambiguous).
 
 READONLY and READWRITE tables
@@ -1511,58 +1508,6 @@ Finding out the EXTRACT or ITERATOR context
   * Both are meaningful only inside an ``EXTRACT`` or ``ITERATOR`` expression. Called from anywhere else -- including from a ``CREATE FUNCTION`` extrinsic invoked in a ``SELECT`` list -- they return the empty string rather than a stale name. A ``CREATE FUNCTION`` extrinsic can take columns from several tables, so there is no single owning column to report.
 
   * The context is established only for an expression that directly calls an M function, i.e. one containing an extrinsic (:code:`$$`), an external call (:code:`$&`) or indirection (:code:`@`). M code reached any other way is not covered: a :code:`$INCREMENT(^GBL)` in the expression can fire a trigger on :code:`^GBL`, and that trigger's M code reports the empty string for both. This is deliberate, as such an expression would otherwise pay for a context it almost never reads.
-
-Indexing NULL data with AIMTYPE
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  Consider a table whose data for one row is spread across multiple subscript levels of a global, e.g. :code:`^EMP`:
-
-  .. code-block:: none
-
-     ^EMP(1,0)="Alice^Cardiology"
-     ^EMP(1,"EMAIL")="alice@hosp.org"
-     ^EMP(2,0)="Bob^Cardiology"
-     ^EMP(3,0)="Carol"
-     ^EMP(3,"EMAIL")="carol@hosp.org"
-
-  .. code-block:: SQL
-
-     CREATE TABLE employee
-     (emp_id INTEGER PRIMARY KEY,
-      department VARCHAR GLOBAL "^EMP(keys(""emp_id""),0)" PIECE 2,
-      email VARCHAR GLOBAL "^EMP(keys(""emp_id""),""EMAIL"")" PIECE 1)
-     GLOBAL "^EMP(keys(""emp_id""))"
-     AIMTYPE 1
-     DELIM "^"
-     READONLY;
-
-  A :code:`WHERE` filter on a non-key column (:code:`department` or :code:`email`) causes Octo to build an AIM cross-reference on that column. A column value can be SQL NULL in two different ways here:
-
-    * :code:`department` is the second :code:`^`-piece of the :code:`^EMP(id,0)` node. For :code:`emp_id` 3 (Carol) that node exists (:code:`^EMP(3,0)="Carol"`) but has no second piece, so :code:`department` is NULL. This is a *missing piece*.
-    * :code:`email` lives on a separate :code:`^EMP(id,"EMAIL")` node. For :code:`emp_id` 2 (Bob) that node does not exist at all, so :code:`email` is NULL. This is a *missing node*.
-
-  By default (:code:`AIMTYPE 0`), AIM only indexes nodes that actually exist:
-
-    * The *missing piece* case still works. The :code:`^EMP(id,0)` node exists, so :code:`WHERE department IS NULL` finds Carol.
-    * The *missing node* case does not work. :code:`^EMP(2,"EMAIL")` does not exist, so Bob is left out of the cross-reference. :code:`WHERE email IS NULL` then returns no rows, even though Bob's :code:`email` is genuinely NULL.
-
-  Specifying :code:`AIMTYPE 1` tells AIM to treat an absent node as a NULL value and index it, so :code:`WHERE email IS NULL` correctly returns Bob. The following table compares the two settings for this data:
-
-  .. list-table::
-     :header-rows: 1
-
-     * - Query
-       - With ``AIMTYPE 1``
-       - Default (``AIMTYPE 0``)
-     * - ``WHERE department IS NULL``
-       - returns Carol
-       - returns Carol
-     * - ``WHERE email IS NULL``
-       - returns Bob
-       - returns no rows (incorrect)
-     * - ``WHERE email = 'carol@hosp.org'``
-       - returns Carol
-       - returns Carol
 
 For more advanced DDL mapping examples, see :ref:`advanced-global-mapping`.
 
@@ -3988,8 +3933,7 @@ A more advanced example showing custom iteration in VistA:
         PRIMARY KEY (PHARMACY_PATIENT_ID, PHARMACY_PATIENT_UNIT_DOSE_ID)
         )
         GLOBAL "^PS(55,keys(""pharmacy_patient_id""),5,keys(""pharmacy_patient_unit_dose_id""))" READONLY
-        DELIM "^"
-        AIMTYPE 1;
+        DELIM "^";
 
 where ``KBANPSG`` M routine is defined as:
 

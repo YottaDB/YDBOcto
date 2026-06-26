@@ -32,13 +32,13 @@ DROP FUNCTION
 OCTO> CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^modulo;
 CREATE FUNCTION
 OCTO> SELECT id, MODULO(id,2) FROM names;
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "modulo",%YDB-E-FILENOTFND, File modulo.m not found,%YDB-E-FILENOTFND, File modulo.o not found
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+15^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "modulo",%YDB-E-FILENOTFND, File modulo.m not found,%YDB-E-FILENOTFND, File modulo.o not found
 OCTO> DROP FUNCTION MODULO(INTEGER, INTEGER);
 DROP FUNCTION
 OCTO> CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^mOdUlO;
 CREATE FUNCTION
 OCTO> SELECT id, MODULO(id,2) FROM names;
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+14^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "mOdUlO",%YDB-E-FILENOTFND, File mOdUlO.m not found,%YDB-E-FILENOTFND, File mOdUlO.o not found
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,octoPlan1+15^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "mOdUlO",%YDB-E-FILENOTFND, File mOdUlO.m not found,%YDB-E-FILENOTFND, File mOdUlO.o not found
 OCTO> DROP FUNCTION MODULO(INTEGER, INTEGER);
 DROP FUNCTION
 OCTO> 

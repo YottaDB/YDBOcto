@@ -333,8 +333,9 @@ OCTO
 	# primary-key columns in some shape, followed by an unfiltered SELECT * and a WHERE filter on that
 	# column. The shapes (relative to the table's primary key) are:
 	#   1) a leading prefix in primary-key order (uses the cross reference; was 0 rows before #1124),
-	#   2) all primary-key columns present but reordered (uses the cross reference, advancing keys in the
-	#      column's global order; silently returned swapped rows before #1124),
+	#   2) all primary-key columns present but reordered (cross reference declined; full scan filters
+	#      correctly. #1124 used to accept this shape by advancing keys in the column's global order, but
+	#      YDBAIM#96's record anchor binds key subscripts positionally and cannot honour a reordering),
 	#   3) a non-prefix subset that skips a key column (cross reference declined; full scan filters correctly),
 	#   4) a different global name than the table's rows, all primary-key columns in order (cross reference
 	#      built on the column's own global; every key advanced from it),

@@ -164,6 +164,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
     SET %ydboctocursor(cursorId,"keys",3,"test","%yo_keycol")=""
     FOR  SET %ydboctocursor(cursorId,"keys",3,"test","%yo_keycol")=$ORDER(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",3,"test","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"test","%yo_keycol")="")  DO
+    . QUIT:'($DATA(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",3,"test","%yo_keycol")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42
@@ -178,6 +179,7 @@ octoPlan2(cursorId)
     NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(6)=0 KILL %ydboctocursor(cursorId,"keys",6,"","")
     SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=$ORDER(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(6))  DO
+    . QUIT:'($DATA(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$SELECT('$DATA(%ydboctocursor(cursorId,"keys",3,"test","%yo_keycol")):$ZYSQLNULL,1:$GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",3,"test","%yo_keycol")))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -201,6 +203,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -291,6 +294,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
@@ -344,8 +348,10 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",4,"","")
     SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=$ORDER(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")="")  DO
+    . QUIT:'($DATA(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")))#10)
     . SET %ydboctocursor(cursorId,"keys",2,"names","id")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"names","id")="")  DO
+    . . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",2,"names","id")))#10)
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42
@@ -376,6 +382,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=$ORDER(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")="")  DO
+    . QUIT:'($DATA(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -459,6 +466,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -507,6 +515,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog SET %ydboctozlimit(6)=0 KILL %ydboctocursor(cursorId,"keys",6,"","")
     SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -557,6 +566,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=$ORDER(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")="")  DO
+    . QUIT:'($DATA(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$GET(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -604,6 +614,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
     . SET %ydboctoexpr=1
     . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozdistinct(3,$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",2)),$$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1)))))
     . DO:%ydboctoexpr
@@ -637,6 +648,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr,%ydboctog SET %ydboctozlimit(6)=0 KILL %ydboctocursor(cursorId,"keys",6,"","")
     SET %ydboctocursor(cursorId,"keys",1,"names","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"names","id")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"names","id")="")  DO
+    . QUIT:'($DATA(^names(%ydboctocursor(cursorId,"keys",1,"names","id")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"names","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
@@ -720,6 +732,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")=$ORDER(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")="")  DO
+    . QUIT:'($DATA(^%ydboctoD5wMIlvjjFxqqShZd97oEED(%ydboctocursor(cursorId,"keys",1,"test","%yo_keycol")))#10)
     . SET %ydboctoexpr=1
     . DO:%ydboctoexpr
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42

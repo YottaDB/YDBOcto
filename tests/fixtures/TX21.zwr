@@ -1,0 +1,11 @@
+YottaDB MUPIP EXTRACT
+02-JUN-2026  00:00:00 ZWR
+^ORD(1)="Alice"
+^ORD(1,1,0)="Widget"
+^ORD(1,1,"SHIP")="Express"
+^ORD(1,2,0)="Gadget"
+^ORD(1,2,"SHIP")="Standard"
+^ORD(2)="Bob"
+^ORD(2,1,0)="Gizmo"
+^ORD(3,1,0)="Sprocket"
+^ORD(3,1,"SHIP")="Express"

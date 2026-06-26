@@ -1,0 +1,177 @@
+# Create extended reference database extended.gld and put ^H into it
+# zwrite ^G (local: the rows)
+^G(1,1)="line"
+^G(1,2)="line"
+^G(2,1)="line"
+# zwrite ^H (extended: the column; note there is no ^H(2))
+^H(1)="Alice"
+OCTO> -- TX26 : YDBAIM#96 : the rows and a column in DIFFERENT DATABASES.
+
+-- TX24 split the column away from the rows by GLOBAL NAME (^G versus ^H). This splits them by
+-- DATABASE as well, which is the case Octo will actually meet in the field: a table whose rows
+-- are local but one of whose columns is fetched through an extended reference.
+
+--   * rows       -> ^G(keys("order_id"),keys("line_id"))       : this database
+--   * "cust"     -> ^["extended.gld"]H(keys("order_id"))       : another database, and keyed by
+--                                                                only the FIRST key column
+
+-- TX12 already covers a table that lives ENTIRELY in an extended-reference database; there the
+-- cross reference simply follows the table and one database holds everything. Here the two are
+-- genuinely apart, so whichever database the cross reference lands in, its triggers have to reach
+-- across to the other one - the value trigger to ask whether a row still exists, the record
+-- trigger to read the column.
+
+-- This needs a record specification for the same reason TX24 does: writing ^H says nothing about
+-- which rows exist, so AIM cannot derive the row from the column's own global. (AIMTYPE 1 failed
+-- here as on TX24's "cust", with %YDBAIM-F-NOSUBS: one subscript where it demanded two.)
+
+-- The data gives "cust" a genuine missing-node NULL: there is no ^H(2) in the extended database
+-- at all, so order 2's rows must come back with cust NULL rather than being dropped.
+CREATE TABLE xorder_lines (
+ order_id INTEGER,
+ line_id INTEGER,
+ cust VARCHAR(20) GLOBAL "^[""extended.gld""]H(keys(""order_id""))" PIECE 1,
+ PRIMARY KEY (order_id, line_id)
+) GLOBAL "^G" AIMTYPE 1 DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- Unfiltered: three rows, all from the LOCAL ^G. cust is Alice for order 1's two lines and NULL
+-- for order 2, whose ^H(2) does not exist in the extended database.
+SELECT * FROM xorder_lines ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|Alice
+1|2|Alice
+2|1|
+(3 rows)
+OCTO> -- WHERE on the column that lives in the other database. Correct answer is (2,1).
+SELECT * FROM xorder_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust
+2|1|
+(1 row)
+OCTO> -- And the complement, which must find the two rows of order 1.
+SELECT * FROM xorder_lines WHERE cust = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|Alice
+1|2|Alice
+(2 rows)
+OCTO> 
+
+-- Re-asked after each change, whichever database the change was made in. The rows are in the
+-- local ^G and "cust" is in ^H in extended.gld, so the record-side triggers and the value-side
+-- triggers live in different DATABASES. Each has to fire on a write to its own database and
+-- reach across to read the other.
+-- The changes are made in M, as an application would (Octo never writes a READONLY table), so
+-- from here on the triggers maintain the index, not the bulk build. Note which gld each step
+-- runs under: that is the point of the step.
+# Value side, in the OTHER database: order 2 stops being a NULL cust.
+# [extended.gld] set ^H(2)="Bob"
+OCTO> SELECT * FROM xorder_lines ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|Alice
+1|2|Alice
+2|1|Bob
+(3 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust
+(0 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|Alice
+1|2|Alice
+(2 rows)
+OCTO> 
+# Record side, local: a new row must pick up the cust that only the other database holds.
+# [yottadb.gld] set ^G(2,2)="line"
+OCTO> SELECT * FROM xorder_lines ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|Alice
+1|2|Alice
+2|1|Bob
+2|2|Bob
+(4 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust
+(0 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|Alice
+1|2|Alice
+(2 rows)
+OCTO> 
+# Value side, other database: both rows of order 1 become NULL cust at once.
+# [extended.gld] zkill ^H(1)
+OCTO> SELECT * FROM xorder_lines ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|
+1|2|
+2|1|Bob
+2|2|Bob
+(4 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|1|
+1|2|
+(2 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|cust
+(0 rows)
+OCTO> 
+# Record side, local: the row goes, and must leave an index that lives in the other database.
+# [yottadb.gld] zkill ^G(1,1)
+OCTO> SELECT * FROM xorder_lines ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|2|
+2|1|Bob
+2|2|Bob
+(3 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|2|
+(1 row)
+OCTO> SELECT * FROM xorder_lines WHERE cust = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|cust
+(0 rows)
+OCTO> 
+# A value in the other database with no row here at all: it must not invent a row.
+# [extended.gld] set ^H(9)="Ghost"
+OCTO> SELECT * FROM xorder_lines ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|2|
+2|1|Bob
+2|2|Bob
+(3 rows)
+OCTO> SELECT * FROM xorder_lines WHERE cust IS NULL ORDER BY order_id, line_id;
+order_id|line_id|cust
+1|2|
+(1 row)
+OCTO> SELECT * FROM xorder_lines WHERE cust = 'Alice' ORDER BY order_id, line_id;
+order_id|line_id|cust
+(0 rows)
+OCTO> 
+# AIM data in the LOCAL database
+# AIM data in the EXTENDED database
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I="^H"
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(0)="*YottaDB*"
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(1)=1
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(1,"#",1)=""
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(1,"#Bob",2)=""
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(2)="^"
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(3)="#1"
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(4)="#1"
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(5)=""
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(6)="+^H(sub1=*) -command=set -name=%ydbxm51YDQS3D1M1unpghmN7IS -xecute=<<"_$C(10)_" set alive=0,rq=$name(^|""$PWD/yottadb.gld""|G(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^|""$PWD/yottadb.gld""|G(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<2)&($qlength(rp)'>2) alive=1 set:'alive rp=$query(@rp)"_$C(10)_" quit:'alive   for i=1 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i) do"_$C(10)_" . if p'=q zkill ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,p,sub1) set ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,q,sub1)="""""_$C(10)_" . else  set:q=""#"" ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(7)="+^H(sub1=*) -command=kill -name=%ydbxm51YDQS3D1M1unpghmN7IK -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(8)="+^H(sub1=*) -command=zkill -name=%ydbxm51YDQS3D1M1unpghmN7IZ -xecute=<<"_$C(10)_" set alive=0,rq=$name(^|""$PWD/yottadb.gld""|G(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^|""$PWD/yottadb.gld""|G(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<2)&($qlength(rp)'>2) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  for i=1 zkill ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,""#""_$piece($ztoldval,""^"",i),sub1) set:alive ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(9)=1
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(10)=0
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(12)="+^H -command=kill -name=%ydbxm51YDQS3D1M1unpghmN7I0 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(51)="+^G(sub1=*,sub2=*) -command=kill -name=%ydbxm51YDQS3D1M1unpghmN7IrK -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(53)="+^G -command=kill -name=%ydbxm51YDQS3D1M1unpghmN7Ir0 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(54)="+^G(sub1=*) -command=kill -name=%ydbxm51YDQS3D1M1unpghmN7Ir1 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(99)="$PWD/yottadb.gld"
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(102)="+^G(sub1=*,sub2=*) -command=set -name=%ydbxm51YDQS3D1M1unpghmN7IS1 -xecute="" for i=1 set ^|""""$PWD/extended.gld""""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,""""#""""_$piece($get(^|""""$PWD/extended.gld""""|H(sub1)),""""^"""",i),sub1)="""""""""""
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I(142)="+^G(sub1=*,sub2=*) -command=zkill -name=%ydbxm51YDQS3D1M1unpghmN7IZ1 -xecute=<<"_$C(10)_"  set alive=0,rq=$name(^|""$PWD/yottadb.gld""|G(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^|""$PWD/yottadb.gld""|G(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<2)&($qlength(rp)'>2)&(rp'=$name(^|""$PWD/yottadb.gld""|G(sub1,sub2))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  if 'alive for i=1 zkill ^|""$PWD/extended.gld""|%ydbAIMDxm51YDQS3D1M1unpghmN7I(i,""#""_$piece($get(^|""$PWD/extended.gld""|H(sub1)),""^"",i),sub1)"_$C(10)
+^%ydbAIMDxm51YDQS3D1M1unpghmN7I("comment-1")="xref for table xorder_lines column cust"
+^%ydbAIMDxref("^H","^%ydbAIMDxm51YDQS3D1M1unpghmN7I")=""
+
+# verify_aim_rebuild : 2 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical

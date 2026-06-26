@@ -15,30 +15,37 @@
 #include "template_helpers.h"
 
 /* Emits the trailing arguments of an XREFDATA^%YDBAIM call: the AIM metadata "type" argument, the optional
- * transformation-function argument, and the closing ")" of the XREFDATA call.
+ * transformation-function argument, the decoupled record anchor arguments (when the table needs one), and the
+ * closing ")" of the XREFDATA call.
  *
  * A column is indexed either directly (no transform) or through a single AIM transformation function that
  * composes everything AIM must apply so that it indexes the same value the read-side plans look up (AIM allows
  * only ONE transform per index):
- *      - piece-of-piece (chained DELIMS/PIECES, YDBOcto#1108): "PieceOfPieceXform" applies the outer piece
- *        levels ("outer_spec"), then the column's date/boolean/string conversion, then (for a DELIMS/PIECES +
- *        SUBSTR column) the "substr_spec" $EXTRACT range.
- *      - SUBSTR whole-node/single-piece (YDBOcto#763/#764): "SubstrXform" applies the "substr_spec" $EXTRACT
- *        range, then the column's date/boolean/string conversion.
- *      - DATE/TIME (non-readwrite): "Transform2UnixTime".
- *      - BOOLEAN (non-readwrite): "ForceBoolean".
- *      - anything else: no transform; the "type" and "forceStrOrder" arguments are emitted directly.
+ *	- piece-of-piece (chained DELIMS/PIECES, YDBOcto#1108): "PieceOfPieceXform" applies the outer piece
+ *	  levels ("outer_spec"), then the column's date/boolean/string conversion, then (for a DELIMS/PIECES +
+ *	  SUBSTR column) the "substr_spec" $EXTRACT range.
+ *	- SUBSTR whole-node/single-piece (YDBOcto#763/#764): "SubstrXform" applies the "substr_spec" $EXTRACT
+ *	  range, then the column's date/boolean/string conversion.
+ *	- DATE/TIME (non-readwrite): "Transform2UnixTime".
+ *	- BOOLEAN (non-readwrite): "ForceBoolean".
+ *	- anything else: no transform; the "type" and "forceStrOrder" arguments are emitted directly.
  *
- * "type" is 2 (transform only) or 3 (transform + missing-node NULL indexing) when a transform is present; the
- * table's AIMTYPE selects between them ("aim_type" non-zero -> 3). Without a transform, the table's raw AIMTYPE
- * is emitted along with "forceStrOrder" (1 for STRING columns so canonical strings order correctly).
+ * YDBAIM#96: the "type" is not a user preference any more (the AIMTYPE keyword is deprecated). It says whether
+ * the cross reference carries a DECOUPLED RECORD ANCHOR, i.e. whether a row whose value node is ABSENT is still
+ * indexed (as SQL NULL) off the table's own global reference. "needs_anchor" (see the block comment at the
+ * XREFDATA call site in "tmpl_physical_plan") decides that, so:
+ *	- with a transformation function : type 6 with an anchor, type 2 without.
+ *	- without one			: type 4 with an anchor, type 0 without, followed by "forceStrOrder"
+ *					  (1 for STRING type columns so canonical strings order correctly).
+ * When an anchor is used, the record global/subscripts computed by the "recSubs" entry point are passed after
+ * the "comment" argument, which Octo does not use here (hence the doubled comma).
  *
  * Called from BOTH XREFDATA emissions in "tmpl_physical_plan" (the nmonly=0 build call and the nmonly=1 metadata
  * call). Sharing one template keeps them identical, which matters because the AIM global name returned by the
  * nmonly=1 call (and cached for the read-side plan) hashes the type/transform.
  */
-TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, int aim_type, boolean_t is_multi_level_piece, \
-	 char *outer_spec, char *substr_spec) {
+TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, boolean_t needs_anchor, \
+	 boolean_t is_multi_level_piece, char *outer_spec, char *substr_spec) {
 	boolean_t	is_column_string_type;
 	boolean_t	is_date_col;
 	boolean_t	is_bool_col;
@@ -48,9 +55,9 @@ TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, int aim_t
 	is_bool_col = (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type));
 
 	if (is_multi_level_piece || (NULL != substr_spec) || is_date_col || is_bool_col) {
-		/* Transform-function index: type 2 (transform only) or 3 (transform + missing-node NULL indexing). */
-		if (aim_type) {
-			%{}3,{}%
+		/* Transform-function index: type 6 (transform + decoupled record anchor) or 2 (transform only). */
+		if (needs_anchor) {
+			%{}6,{}%
 		} else {
 			%{}2,{}%
 		}
@@ -98,12 +105,24 @@ TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, int aim_t
 		}
 
 		%{})"{}%	// close the transformation function
-		%{}){}%		// close the XREFDATA call
 	} else {
-		/* No transform: emit the raw AIM metadata type and the forceStrOrder flag, then close XREFDATA. */
-		%{}{{ aim_type|%d }},{}%
-		%{}{{ is_column_string_type|%d }}){}%
+		/* No transform: emit the AIM metadata type (4 with a record anchor, 0 without) and the
+		 * forceStrOrder flag.
+		 */
+		if (needs_anchor) {
+			%{}4,{}%
+		} else {
+			%{}0,{}%
+		}
+		%{}{{ is_column_string_type|%d }}{}%
 	}
+
+	/* The record global/subscripts follow "comment", which Octo does not use here. */
+	if (needs_anchor) {
+		%{},,recbase,.recsub{}%
+	}
+
+	%{}){}%	// close the XREFDATA call
 
 	return;
 }

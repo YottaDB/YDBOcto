@@ -66,6 +66,7 @@ told apart by where the $SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:...) guard 
    specnum (GLOBAL/PIECE): guard is INSIDE $PIECE   -> $PIECE($SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:$GET(^X(<key lvn>))),"|",2)
    ext_specnum (EXTRACT):  guard WRAPS the whole expr -> $SELECT($ZYISSQLNULL(<key lvn>):$ZYSQLNULL,1:$PIECE($GET(^X(<key lvn>)),"|",2))
     FOR  SET %ydboctocursor(cursorId,"keys",1,"reqs","reg_num")=$ORDER(^X(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num")="")  DO
+    . QUIT:'($DATA(^X(%ydboctocursor(cursorId,"keys",1,"reqs","reg_num")))#10)
     . . . DO octoLeftJoin2
     . . SET %ydboctocursor(cursorId,"keys",2,"results","reg_num")=$ZYSQLNULL
     . . SET %ydboctocursor(cursorId,"keys",2,"results","test_index")=$ZYSQLNULL

@@ -79,13 +79,13 @@ octoPlan1(cursorId)
     FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
     . SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","dobf")="")  DO
+    . . QUIT:'($DATA(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf")))#10)
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"dater","id")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"dater","dobf"),17,36,"%Y-%m-%d")
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from test;
@@ -104,13 +104,13 @@ octoPlan1(cursorId)
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","id")=$ORDER(^test(%ydboctocursor(cursorId,"keys",1,"test","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","id")="")  DO
     . SET %ydboctocursor(cursorId,"keys",1,"test","fname")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"test","fname")=$ORDER(^test(%ydboctocursor(cursorId,"keys",1,"test","id"),%ydboctocursor(cursorId,"keys",1,"test","fname"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","fname")="")  DO
+    . . QUIT:'($DATA(^test(%ydboctocursor(cursorId,"keys",1,"test","id"),%ydboctocursor(cursorId,"keys",1,"test","fname")))#10)
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"test","id")
     . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"test","fname")
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from test where id =0;
@@ -131,11 +131,11 @@ octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",1,"test","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"test","id")) IF $DATA(^test(%ydboctocursor(cursorId,"keys",1,"test","id"))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"test","fname")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"test","fname")=$ORDER(^test(%ydboctocursor(cursorId,"keys",1,"test","id"),%ydboctocursor(cursorId,"keys",1,"test","fname"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","fname")="")  DO
+    . . QUIT:'($DATA(^test(%ydboctocursor(cursorId,"keys",1,"test","id"),%ydboctocursor(cursorId,"keys",1,"test","fname")))#10)
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"test","id")
-    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from dater where id=0;
@@ -156,11 +156,11 @@ octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",1,"dater","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"dater","id")) IF $DATA(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","dobf")="")  DO
+    . . QUIT:'($DATA(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf")))#10)
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"dater","id")
-    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from dater where dobf=date'2023-01-02';
@@ -179,13 +179,13 @@ octoPlan1(cursorId)
     FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
     . SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","dobf")="")  DO
+    . . QUIT:'($DATA(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf")))#10)
     . . SET %ydboctoexpr=1
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"dater","dobf"),17,36,"%Y-%m-%d")
     . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
     . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
-    . . DO:%ydboctoexpr
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from test where fname='first';
@@ -203,7 +203,7 @@ octoPlan1(cursorId)
     SET %ydboctocursor(cursorId,"keys",1,"test","id")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"test","id")=$ORDER(^test(%ydboctocursor(cursorId,"keys",1,"test","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"test","id")="")  DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-    . SET %ydboctocursor(cursorId,"keys",1,"test","fname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"test","fname")) IF $DATA(^test(%ydboctocursor(cursorId,"keys",1,"test","id"),%ydboctocursor(cursorId,"keys",1,"test","fname"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"test","fname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"test","fname")) IF $DATA(^test(%ydboctocursor(cursorId,"keys",1,"test","id"),%ydboctocursor(cursorId,"keys",1,"test","fname")))#10 DO
     . . SET %ydboctoexpr=1
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42

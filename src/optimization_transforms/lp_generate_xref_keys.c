@@ -41,18 +41,22 @@
  *
  * The cross reference (AIM or raw xref) indexes the global that "column" itself is mapped to, and stores one
  * subscript per "keys(...)" in that global, in the order the global lists them. The remaining primary-key
- * columns (if any) live on a deeper node of the table's own global. Two shapes can use the cross reference:
+ * columns (if any) live on a deeper node of the table's own global. Exactly one shape can use it:
  *
- *   1) The column's global lists a LEADING PREFIX of the primary key, in primary-key order. The listed keys
- *      are advanced from the cross reference; the deeper primary-key columns are advanced from the table's
- *      own global. (A value stored once on a parent node shared by its child rows is this shape.)
+ *   The column's global lists a LEADING PREFIX of the primary key, IN PRIMARY-KEY ORDER. The listed keys are
+ *   advanced from the cross reference; the deeper primary-key columns are advanced from the table's own
+ *   global. (A value stored once on a parent node shared by its child rows is this shape.) A global listing
+ *   every primary-key column in primary-key order is the full-length case of this and needs nothing extra.
  *
- *   2) The column's global lists ALL primary-key columns, possibly in a different order. Every primary-key
- *      subscript is present in the cross reference, so it is still used; the keys are created in the column's
- *      global key order so that each cross-reference subscript binds to the right primary-key column.
+ * Every other shape is declined. That covers a subset which skips a primary-key column, and also all the
+ * primary-key columns present but in an order other than the primary key's.
  *
- * Any other shape -- a subset of the primary key that is not a leading prefix (it skips a primary-key
- * column) -- would bind cross-reference subscripts to the wrong columns, so it is declined.
+ * The reordered case used to be accepted (YDBOcto#1124), by advancing the keys in the column's global order
+ * so each cross-reference subscript bound to the right column. That worked while the cross reference was
+ * built from the column's own global alone. YDBAIM#96 additionally gives it a record anchor on the TABLE's
+ * global, so that a row whose value node is absent can be indexed as SQL NULL; AIM binds the anchor's key
+ * subscripts to the value spec's POSITIONALLY, and cannot do otherwise, because it is handed ":" marks and
+ * never knows which column each one stands for.
  *
  * A column with no GLOBAL mapping (or a bare, unsubscripted global, which Octo auto-fills with all primary-key
  * subscripts) is a piece of the table's row at full primary-key depth, so all primary-key columns are covered.
@@ -63,8 +67,7 @@ static int get_xref_advance_keys(SqlColumn *column, SqlTable *table, SqlColumn *
 	SqlOptionalKeyword *global_keyword;
 	SqlValue	   *value;
 	SqlColumn	   *global_key_columns[MAX_KEY_COUNT];
-	int		    num_keys, cur_key, pkey;
-	boolean_t	    is_leading_prefix, found;
+	int		    num_keys, cur_key;
 
 	/* Get the ordered list of primary-key columns the column's own global references ("global_key_columns"
 	 * / "num_keys"). A column with no GLOBAL keyword, or a bare unsubscripted global, maps to the table's row
@@ -88,38 +91,18 @@ static int get_xref_advance_keys(SqlColumn *column, SqlTable *table, SqlColumn *
 		return -1;
 	}
 
-	/* The cross reference can drive the iteration in two shapes (see the function header): a leading prefix
-	 * of the primary key in primary-key order (Shape 1), or all primary-key columns in any order (Shape 2).
+	/* The cross reference can drive the iteration in exactly one shape (see the function header): a leading
+	 * prefix of the primary key, in primary-key order. Anything else is declined.
 	 */
-	is_leading_prefix = TRUE;
 	for (cur_key = 0; cur_key < num_keys; cur_key++) {
 		if (global_key_columns[cur_key] != key_columns[cur_key]) {
-			is_leading_prefix = FALSE;
-			break;
-		}
-	}
-	if (!is_leading_prefix) {
-		/* Not a leading prefix: usable only if the global lists every primary-key column (Shape 2). If any
-		 * primary-key column is missing -- because the global skips it, or lists fewer keys than the primary
-		 * key -- the cross reference lacks a subscript, so decline.
-		 */
-		for (pkey = 0; pkey <= max_key; pkey++) {
-			found = FALSE;
-			for (cur_key = 0; cur_key < num_keys; cur_key++) {
-				if (global_key_columns[cur_key] == key_columns[pkey]) {
-					found = TRUE;
-					break;
-				}
-			}
-			if (!found) {
-				return -1;
-			}
+			return -1;
 		}
 	}
 
-	/* The first "num_keys" primary-key columns are advanced from the cross reference, in the column's global
-	 * order. Any remaining primary-key columns (Shape 1 only) are advanced from the table's own global, in
-	 * primary-key order.
+	/* The first "num_keys" primary-key columns are advanced from the cross reference. Any remaining
+	 * primary-key columns are advanced from the table's own global. Both runs are in primary-key order,
+	 * which the loop above has just established for the first of them.
 	 */
 	for (cur_key = 0; cur_key < num_keys; cur_key++) {
 		advance_key_columns[cur_key] = global_key_columns[cur_key];

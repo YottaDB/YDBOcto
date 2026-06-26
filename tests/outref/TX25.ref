@@ -1,0 +1,168 @@
+# zwrite ^EVT
+^EVT(1,0)="Alice"
+^EVT(1,"ACT")=1
+^EVT(2,0)="Bob"
+^EVT(3)="Carol"
+OCTO> -- TX25 : YDBAIM#96 : a column with a transformation function.
+
+-- When a READONLY column needs a conversion before it can be indexed - a BOOLEAN through
+-- $$ForceBoolean, a date through $$Transform2UnixTime, a piece-of-piece through
+-- $$PieceOfPieceXform - Octo asks AIM to store the CONVERTED value. That is AIM type=2, and
+-- composed with a record specification it becomes type=6.
+
+-- This test is TX22's structure reduced to one column, so that the transformation path is
+-- exercised rather than re-tested:
+
+--   * "active" -> ^EVT(keys("id"),"ACT") PIECE 1, declared BOOLEAN
+
+-- Rows:
+
+--   * id 1 : ^EVT(1,"ACT")="1"     -> active is true
+--   * id 2 : ^EVT(2,0)="Bob"       -> no ACT node; active is a missing-node NULL
+--   * id 3 : ^EVT(3)="Carol"       -> a value on the row node and no children at all; active is
+--                                     also a missing-node NULL, but there is no node at the
+--                                     indexed depth for type=3 to notice
+
+-- WHERE active IS NULL must return ids 2 and 3, the same as a full table scan: the NULL bucket
+-- holds the transformation applied to the empty string, so IS NULL keeps working.
+CREATE TABLE events (
+ id INTEGER PRIMARY KEY,
+ name VARCHAR(20) GLOBAL "^EVT(keys(""id""),0)" PIECE 1,
+ active BOOLEAN GLOBAL "^EVT(keys(""id""),""ACT"")" PIECE 1
+) GLOBAL "^EVT" AIMTYPE 1 DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- Unfiltered: the row universe from a full table scan, all three ids.
+SELECT * FROM events ORDER BY id;
+id|name|active
+1|Alice|t
+2|Bob|
+3||
+(3 rows)
+OCTO> -- WHERE on the transformed column. Correct answer is ids 2 and 3.
+SELECT * FROM events WHERE active IS NULL ORDER BY id;
+id|name|active
+2|Bob|
+3||
+(2 rows)
+OCTO> 
+
+-- Re-asked after each change to ^EVT. "active" is a BOOLEAN, so AIM indexes it through a
+-- transformation function - type 6 rather than 4. The transform has to be applied by the
+-- triggers on every write, not only by the initial scan, and it has to be applied to the
+-- absent node as well: a row with no ^EVT(id,"ACT") is SQL NULL, not FALSE.
+-- The changes are made in M, as an application would (Octo never writes a READONLY table), so
+-- from here on the triggers maintain the index, not the bulk build.
+# A NULL becomes FALSE: the transform must run in the trigger, not just the scan.
+# set ^EVT(2,"ACT")="0"
+OCTO> SELECT * FROM events ORDER BY id;
+id|name|active
+1|Alice|t
+2|Bob|f
+3||
+(3 rows)
+OCTO> SELECT * FROM events WHERE active IS NULL ORDER BY id;
+id|name|active
+3||
+(1 row)
+OCTO> SELECT * FROM events WHERE active = TRUE ORDER BY id;
+id|name|active
+1|Alice|t
+(1 row)
+OCTO> SELECT * FROM events WHERE active = FALSE ORDER BY id;
+id|name|active
+2|Bob|f
+(1 row)
+OCTO> 
+# A new row born by writing the transformed column itself.
+# set ^EVT(4,"ACT")="1"
+OCTO> SELECT * FROM events ORDER BY id;
+id|name|active
+1|Alice|t
+2|Bob|f
+3||
+4||t
+(4 rows)
+OCTO> SELECT * FROM events WHERE active IS NULL ORDER BY id;
+id|name|active
+3||
+(1 row)
+OCTO> SELECT * FROM events WHERE active = TRUE ORDER BY id;
+id|name|active
+1|Alice|t
+4||t
+(2 rows)
+OCTO> SELECT * FROM events WHERE active = FALSE ORDER BY id;
+id|name|active
+2|Bob|f
+(1 row)
+OCTO> 
+# The transformed column goes but the row survives: back to NULL, not FALSE.
+# zkill ^EVT(1,"ACT")
+OCTO> SELECT * FROM events ORDER BY id;
+id|name|active
+1|Alice|
+2|Bob|f
+3||
+4||t
+(4 rows)
+OCTO> SELECT * FROM events WHERE active IS NULL ORDER BY id;
+id|name|active
+1|Alice|
+3||
+(2 rows)
+OCTO> SELECT * FROM events WHERE active = TRUE ORDER BY id;
+id|name|active
+4||t
+(1 row)
+OCTO> SELECT * FROM events WHERE active = FALSE ORDER BY id;
+id|name|active
+2|Bob|f
+(1 row)
+OCTO> 
+# A value the transformation function has to normalize rather than index verbatim.
+# set ^EVT(3,"ACT")="not-a-boolean"
+OCTO> SELECT * FROM events ORDER BY id;
+id|name|active
+1|Alice|
+2|Bob|f
+3||f
+4||t
+(4 rows)
+OCTO> SELECT * FROM events WHERE active IS NULL ORDER BY id;
+id|name|active
+1|Alice|
+(1 row)
+OCTO> SELECT * FROM events WHERE active = TRUE ORDER BY id;
+id|name|active
+4||t
+(1 row)
+OCTO> SELECT * FROM events WHERE active = FALSE ORDER BY id;
+id|name|active
+2|Bob|f
+3||f
+(2 rows)
+OCTO> 
+# KILL of a whole row: the recursive-KILL triggers must decompose it.
+# kill ^EVT(2)
+OCTO> SELECT * FROM events ORDER BY id;
+id|name|active
+1|Alice|
+3||f
+4||t
+(3 rows)
+OCTO> SELECT * FROM events WHERE active IS NULL ORDER BY id;
+id|name|active
+1|Alice|
+(1 row)
+OCTO> SELECT * FROM events WHERE active = TRUE ORDER BY id;
+id|name|active
+4||t
+(1 row)
+OCTO> SELECT * FROM events WHERE active = FALSE ORDER BY id;
+id|name|active
+3||f
+(1 row)
+OCTO> 
+
+# verify_aim_rebuild : 3 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical

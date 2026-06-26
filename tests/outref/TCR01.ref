@@ -23,8 +23,8 @@ ydb=# \q
 # Also cerify that JOBEXAM file contains the M-stack as expected
 # -------------------------------------------------------------------------------------------
 HANGTIME+5^HANGTIME    ($ZINTERRUPT) 
-octoPlan1+11^%ydboctoPRoNQccJIcyp4cZOM37uj69
-octoPlan1+5^%ydboctoPRoNQccJIcyp4cZOM37uj69
+octoPlan1+13^%ydboctoPRoNQccJIcyp4cZOM37uj69
+octoPlan1+6^%ydboctoPRoNQccJIcyp4cZOM37uj69
 octoPlan1+3^%ydboctoPRoNQccJIcyp4cZOM37uj69
 octoPlan0+3^%ydboctoPRoNQccJIcyp4cZOM37uj69
 run+8^%ydboctoselect

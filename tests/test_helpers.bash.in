@@ -824,6 +824,52 @@ verify_no_octo_or_ydb_error() {
 #       <outref> is typically the test code and is used to locate the outref file in path `outref/<outref>.ref`
 #       <options> suppress filter out different aspects of output.txt as defined in the for loop at the end
 #       sort must be the last option, if provided, and sorts the output file
+# verify_aim_rebuild <sql file> [global directory ...]
+#
+# Assert that the cross references the triggers have been maintaining are exactly what a build from
+# scratch over the same data produces. The trigger path and the bulk build are two implementations
+# of one definition of a row, so any difference is a defect in one of them, and this sees it even
+# when no query in the test happens to ask the question that would. It is the Octo counterpart of
+# the t4rebld helper in YDBAIM's own test suite.
+#
+# The index entries of every AIM global are written out, DISCARD XREFS removes every cross reference
+# with its triggers, the sql file - whose queries must touch every cross reference the test built -
+# rebuilds them, and the entries are written out again and compared. Only the entries are compared:
+# AIM's metadata carries a build timestamp and so differs by construction (zwriteAIMIndex^aimutils).
+# octo and yottadb run in the caller's environment. When the AIM globals live in more than one
+# database, name every global directory to compare, relative to the test directory, and set
+# ydb_gbldir for octo the usual way. The verdict goes to output.txt, so the reference holds it.
+verify_aim_rebuild() {
+	local sqlfile=$1
+	shift
+	local glds=("$@")
+	aim_index_entries() {
+		local gld
+		if [[ ${#glds[@]} -eq 0 ]]; then
+			yottadb -run zwriteAIMIndex^aimutils
+		else
+			for gld in "${glds[@]}"; do
+				echo "# $gld"
+				ydb_gbldir=$gld yottadb -run zwriteAIMIndex^aimutils
+			done
+		fi
+	}
+	aim_index_entries > aim_triggered.txt
+	octo <<< 'DISCARD XREFS;' > aim_rebuild.log 2>&1
+	octo -f "$sqlfile" >> aim_rebuild.log 2>&1
+	aim_index_entries > aim_rebuilt.txt
+	echo "" >> output.txt
+	echo "# verify_aim_rebuild : $(grep -c '^\^' aim_triggered.txt) index entries maintained by the triggers, against a rebuild from scratch" | tee -a output.txt
+	if ! grep -q '^\^' aim_triggered.txt; then
+		echo "# FAIL : no cross reference entries to compare" | tee -a output.txt
+	elif diff aim_triggered.txt aim_rebuilt.txt > aim_rebuild.diff; then
+		echo "# PASS : identical" | tee -a output.txt
+	else
+		echo "# FAIL : they differ (< triggers, > rebuild)" | tee -a output.txt
+		tee -a output.txt < aim_rebuild.diff
+	fi
+}
+
 verify_output() {
 	# We had cases where loading octo-seed.sql in "createdb()" issued a "ERR_CANNOT_CREATE_FUNCTION" error but
 	# the test passed inspite of that because that output went to stderr.txt whereas the test only looked at output.txt.
@@ -889,6 +935,9 @@ verify_output() {
 	#        ^%ydbAIMDuAwRJbyqDiW78aZmOOKGGE(0)="*YottaDB*"
 	# This sed is too complicated, I won't try to explain it.
 	sed -i 's/\(\^%ydbAIMD.*(0)=\).*/\1"*YottaDB*"/g' clean_output.txt
+	# AIM reports errors as LABEL+offset^%YDBAIM, and the offset shifts whenever AIM itself changes,
+	# which says nothing about Octo. Normalize it so the reference survives an AIM version bump.
+	sed -i -E 's/([A-Za-z0-9%]+)\+[0-9]+\^%YDBAIM/\1+NN^%YDBAIM/g' clean_output.txt
 	# Convert PROJECT_BINARY_DIR references to generic ones.
 	# Must run BEFORE the PROJECT_SOURCE_DIR filter below: in an in-tree build the binary directory is
 	# a subdirectory of the source directory (e.g. SRCDIR/build), so normalizing the source directory first

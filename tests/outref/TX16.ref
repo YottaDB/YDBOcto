@@ -37,9 +37,9 @@ id|address
 (1 row)
 OCTO> 
 # AIM index for address (pnum slot 0 = whole node; subscript = $EXTRACT'ed value, '#'-prefixed):
-^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#123 Main Str",0)=""
-^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#45 Oak Avenu",1)=""
-^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#9 Elm Suite ",2)=""
+^%ydbAIMDe1prVlCnvFPB04gmReIWE3(0,"#123 Main Str",0)=""
+^%ydbAIMDe1prVlCnvFPB04gmReIWE3(0,"#45 Oak Avenu",1)=""
+^%ydbAIMDe1prVlCnvFPB04gmReIWE3(0,"#9 Elm Suite ",2)=""
 # The table is READONLY, so update the underlying global directly:
 #   set ^sxwn(1,0)="999 New Street" ; zkill ^sxwn(2,0)
 -- Run after ^sxwn(1,0) is updated and ^sxwn(2,0) is zkilled directly (the table is READONLY).
@@ -65,9 +65,9 @@ id
 2
 (1 row)
 OCTO> 
-^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#",2)=""
-^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#123 Main Str",0)=""
-^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#999 New Stre",1)=""
+^%ydbAIMDe1prVlCnvFPB04gmReIWE3(0,"#",2)=""
+^%ydbAIMDe1prVlCnvFPB04gmReIWE3(0,"#123 Main Str",0)=""
+^%ydbAIMDe1prVlCnvFPB04gmReIWE3(0,"#999 New Stre",1)=""
 
 # === Section B : MIN/MAX off the AIM index (whole-node and PIECE-based) ===
 # Data loaded into ^sxmm and ^sxmmp:
@@ -129,9 +129,9 @@ Apple|Mango
 (1 row)
 OCTO> 
 # AIM index for fruit (whole-node table, then PIECE-based table):
-^%ydbAIMDIjIFVNhsDbRSrxSWHk1jJ1(0,"#Apple",1)=""
-^%ydbAIMDIjIFVNhsDbRSrxSWHk1jJ1(0,"#Cherr",2)=""
-^%ydbAIMDIjIFVNhsDbRSrxSWHk1jJ1(0,"#Mango",0)=""
+^%ydbAIMD3KAooBCWSQrMnu87sBJNI5(0,"#Apple",1)=""
+^%ydbAIMD3KAooBCWSQrMnu87sBJNI5(0,"#Cherr",2)=""
+^%ydbAIMD3KAooBCWSQrMnu87sBJNI5(0,"#Mango",0)=""
 ^%ydbAIMDL2l6o2oSyi4iK9qyUNYzB3(2,"#Apple",1)=""
 ^%ydbAIMDL2l6o2oSyi4iK9qyUNYzB3(2,"#Cherr",2)=""
 ^%ydbAIMDL2l6o2oSyi4iK9qyUNYzB3(2,"#Mango",0)=""
@@ -253,25 +253,25 @@ lo|hi
 OCTO> 
 # AIM index for code (subscript = chars 2-4 of piece 2, '#'-prefixed) and for the ^sxpcg
 # columns (the AIMTYPE 1 NULL rows appear under the bare "" subscript):
-^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,"",2)=""
-^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,"",3)=""
-^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,0,1)=""
-^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,1,0)=""
+^%ydbAIMD8oxpNJfiEtOjfqUR6xjU56(2,"#",2)=""
+^%ydbAIMD8oxpNJfiEtOjfqUR6xjU56(2,"#",3)=""
+^%ydbAIMD8oxpNJfiEtOjfqUR6xjU56(2,"#111",0)=""
+^%ydbAIMD8oxpNJfiEtOjfqUR6xjU56(2,"#222",1)=""
+^%ydbAIMDAyCvE7egQV3PGpeGEO7VHF(2,"",2)=""
+^%ydbAIMDAyCvE7egQV3PGpeGEO7VHF(2,"",3)=""
+^%ydbAIMDAyCvE7egQV3PGpeGEO7VHF(2,946598400000000,1)=""
+^%ydbAIMDAyCvE7egQV3PGpeGEO7VHF(2,1579046400000000,0)=""
+^%ydbAIMDSyyPHsvYAbKZfIfFqnn317(2,"",2)=""
+^%ydbAIMDSyyPHsvYAbKZfIfFqnn317(2,"",3)=""
+^%ydbAIMDSyyPHsvYAbKZfIfFqnn317(2,0,1)=""
+^%ydbAIMDSyyPHsvYAbKZfIfFqnn317(2,1,0)=""
 ^%ydbAIMDVATGBnGZASjPUuBn7n4hGI(2,"#123",0)=""
 ^%ydbAIMDVATGBnGZASjPUuBn7n4hGI(2,"#123",2)=""
 ^%ydbAIMDVATGBnGZASjPUuBn7n4hGI(2,"#678",1)=""
-^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,"",2)=""
-^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,"",3)=""
-^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,5,1)=""
-^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,30,0)=""
-^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#",2)=""
-^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#",3)=""
-^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#111",0)=""
-^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#222",1)=""
-^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,"",2)=""
-^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,"",3)=""
-^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,946598400000000,1)=""
-^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,1579046400000000,0)=""
+^%ydbAIMDa5y27vST3SxGKX0T6Jz29E(2,"",2)=""
+^%ydbAIMDa5y27vST3SxGKX0T6Jz29E(2,"",3)=""
+^%ydbAIMDa5y27vST3SxGKX0T6Jz29E(2,5,1)=""
+^%ydbAIMDa5y27vST3SxGKX0T6Jz29E(2,30,0)=""
 
 # === Section D : type conversions composed with the extraction (DATE / BOOLEAN / INTEGER) ===
 # Data loaded into ^sxdt, ^sxfl, ^sxqty, ^sxnul (^sxnul id 2 is missing all data nodes; id 3's extractions are all empty):
@@ -452,31 +452,31 @@ lo|hi
 OCTO> 
 # AIM index: date -> unix-time, boolean -> 0/1, integer -> raw number (all non-'#');
 # the AIMTYPE 1 table's missing nodes appear under the bare "" subscript:
-^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,"",2)=""
-^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,"",3)=""
-^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,5,1)=""
-^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,30,0)=""
+^%ydbAIMD5KRguBJROcxeUkr3xxwv53(0,"",2)=""
+^%ydbAIMD5KRguBJROcxeUkr3xxwv53(0,"",3)=""
+^%ydbAIMD5KRguBJROcxeUkr3xxwv53(0,946598400000000,1)=""
+^%ydbAIMD5KRguBJROcxeUkr3xxwv53(0,1579046400000000,0)=""
+^%ydbAIMD9LT162RoZskW5kc1EyrH68(0,946598400000000,1)=""
+^%ydbAIMD9LT162RoZskW5kc1EyrH68(0,1579046400000000,0)=""
+^%ydbAIMD9LT162RoZskW5kc1EyrH68(0,1579046400000000,2)=""
+^%ydbAIMDBkhSNy1lBeWMRnrRftWoK7(0,"#",2)=""
+^%ydbAIMDBkhSNy1lBeWMRnrRftWoK7(0,"#",3)=""
+^%ydbAIMDBkhSNy1lBeWMRnrRftWoK7(0,"#111",0)=""
+^%ydbAIMDBkhSNy1lBeWMRnrRftWoK7(0,"#222",1)=""
 ^%ydbAIMDSlYCNubnq9CRhg3hLPMEI4(2,5,1)=""
 ^%ydbAIMDSlYCNubnq9CRhg3hLPMEI4(2,30,0)=""
 ^%ydbAIMDSlYCNubnq9CRhg3hLPMEI4(2,100,2)=""
-^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,"",2)=""
-^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,"",3)=""
-^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,946598400000000,1)=""
-^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,1579046400000000,0)=""
-^%ydbAIMDh2ATT5nSJwXMPbCWTqffEB(0,946598400000000,1)=""
-^%ydbAIMDh2ATT5nSJwXMPbCWTqffEB(0,1579046400000000,0)=""
-^%ydbAIMDh2ATT5nSJwXMPbCWTqffEB(0,1579046400000000,2)=""
-^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,"",2)=""
-^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,"",3)=""
-^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,0,1)=""
-^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,1,0)=""
+^%ydbAIMDdIPviUKHac692iIhWCR30G(0,"",2)=""
+^%ydbAIMDdIPviUKHac692iIhWCR30G(0,"",3)=""
+^%ydbAIMDdIPviUKHac692iIhWCR30G(0,5,1)=""
+^%ydbAIMDdIPviUKHac692iIhWCR30G(0,30,0)=""
+^%ydbAIMDdLlPXvoMzaScXtAeLEuO4E(0,"",2)=""
+^%ydbAIMDdLlPXvoMzaScXtAeLEuO4E(0,"",3)=""
+^%ydbAIMDdLlPXvoMzaScXtAeLEuO4E(0,0,1)=""
+^%ydbAIMDdLlPXvoMzaScXtAeLEuO4E(0,1,0)=""
 ^%ydbAIMDoUHaz84QRfSNpWmyIhAt68(2,0,1)=""
 ^%ydbAIMDoUHaz84QRfSNpWmyIhAt68(2,1,0)=""
 ^%ydbAIMDoUHaz84QRfSNpWmyIhAt68(2,1,2)=""
-^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#",2)=""
-^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#",3)=""
-^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#111",0)=""
-^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#222",1)=""
 
 # === Section E : WHERE on a DELIMS/PIECES + SUBSTR column (city3) ===
 # Data loaded into ^sxpp and ^sxppg (^sxppg id 2 is missing all data nodes; id 3's pieces/ranges are empty):
@@ -591,43 +591,43 @@ lo|hi
 (1 row)
 OCTO> 
 # AIM index for city3 (keyed on the $EXTRACT of the innermost extracted piece):
-^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,"",2)=""
-^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,"",3)=""
-^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,5,1)=""
-^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,30,0)=""
-^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,"",2)=""
-^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,"",3)=""
-^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,0,1)=""
-^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,1,0)=""
-^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#",2)=""
-^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#",3)=""
-^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#Kyo",1)=""
-^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#Rya",0)=""
-^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,"",2)=""
-^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,"",3)=""
-^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,946598400000000,1)=""
-^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,1579046400000000,0)=""
+^%ydbAIMD75LloHl6dkHRsuQpVQmG95(2,"",2)=""
+^%ydbAIMD75LloHl6dkHRsuQpVQmG95(2,"",3)=""
+^%ydbAIMD75LloHl6dkHRsuQpVQmG95(2,946598400000000,1)=""
+^%ydbAIMD75LloHl6dkHRsuQpVQmG95(2,1579046400000000,0)=""
+^%ydbAIMDQHBodnDTbe6XaQgDpUloE4(2,"#",2)=""
+^%ydbAIMDQHBodnDTbe6XaQgDpUloE4(2,"#",3)=""
+^%ydbAIMDQHBodnDTbe6XaQgDpUloE4(2,"#Kyo",1)=""
+^%ydbAIMDQHBodnDTbe6XaQgDpUloE4(2,"#Rya",0)=""
+^%ydbAIMDUOWJHpVLVbnqzII6Dp5rL6(2,"",2)=""
+^%ydbAIMDUOWJHpVLVbnqzII6Dp5rL6(2,"",3)=""
+^%ydbAIMDUOWJHpVLVbnqzII6Dp5rL6(2,5,1)=""
+^%ydbAIMDUOWJHpVLVbnqzII6Dp5rL6(2,30,0)=""
+^%ydbAIMDfIGwDyDiPIsTmRMQ4jsrI2(2,"",2)=""
+^%ydbAIMDfIGwDyDiPIsTmRMQ4jsrI2(2,"",3)=""
+^%ydbAIMDfIGwDyDiPIsTmRMQ4jsrI2(2,0,1)=""
+^%ydbAIMDfIGwDyDiPIsTmRMQ4jsrI2(2,1,0)=""
 ^%ydbAIMDhtozd9cocd4AwCwrzcyn5G(2,"#Boi",2)=""
 ^%ydbAIMDhtozd9cocd4AwCwrzcyn5G(2,"#Bos",0)=""
 ^%ydbAIMDhtozd9cocd4AwCwrzcyn5G(2,"#Ren",1)=""
 
 # Emitted XREFDATA calls (build entry point; one per xref'd SUBSTR column):
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-10"",""d"",17,36,""%Y-%m-%d"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-12"",""s"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-5"",""s"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""4-5"","""")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""4-6"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""1-10"",""d"",17,36,""%Y-%m-%d"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""1-12"",""s"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""1-5"",""s"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""4-5"","""")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""4-6"",""s"")",,recbase,.recsub)
 NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""s"",,,,""1-3"")")
 NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""1-5"",""s"")")
 NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")")
 NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""s"")")
 NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""4-6"","""")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"","""",,,,""4-5"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""b"",,,,""2-4"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""d"",17,36,""%Y-%m-%d"",""1-10"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""s"",,,,""1-3"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-10"",""d"",17,36,""%Y-%m-%d"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""s"")")
-NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""4-5"","""")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"","""",,,,""4-5"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""b"",,,,""2-4"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""d"",17,36,""%Y-%m-%d"",""1-10"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""s"",,,,""1-3"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""1-10"",""d"",17,36,""%Y-%m-%d"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""s"")",,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,6,"$$SubstrXform^%ydboctoplanhelpers(,""4-5"","""")",,recbase,.recsub)

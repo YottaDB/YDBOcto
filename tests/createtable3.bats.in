@@ -527,7 +527,8 @@ teardown() {
 	# so the reference file captures the codegen shape.
 	# Match only the QUIT lines emitted by tmpl_key_skip (they reference %ydboctocursor).
 	# Excludes the planner's range-bound QUITs in the key-fix path (which use %ydboctozkeyfix).
-	grep -hE '^[[:space:]]+(\. )+QUIT:.*%ydboctocursor' _ydboctoP*.m | sort -u | tee -a output.txt
+	# The YDBAIM#96 row-existence guard (QUIT:'($DATA(<row node>)#10)) is a QUIT line on the cursor too; leave it out
+	grep -hE '^[[:space:]]+(\. )+QUIT:.*%ydboctocursor' _ydboctoP*.m | grep -v '#10)$' | sort -u | tee -a output.txt
 
 	verify_output TC084 output.txt
 }

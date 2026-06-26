@@ -1,0 +1,90 @@
+# zwrite ^ORD,^GCND
+^ORD(1,1)="Widget"
+^ORD(1,2)="Gadget"
+^ORD(2,1,"NOTE")="see attached"
+^GCND(1,"A")="alpha"
+^GCND(2,"B")="not the node the table declares"
+^GCND(3,"A")="gamma"
+OCTO> -- TX27 : YDBAIM#96 : a key fixed by the WHERE clause tests the row node the same way the scan does.
+
+-- Both tables declare exactly one node per row, so a row exists when that node holds a value
+-- (see TX23), and a table scan rejects a node that is in the tree only through descendants:
+-- its FOR loop carries a "QUIT:'($DATA(<row node>)#10)". A key that the WHERE clause fixes with
+-- =, IN or a range has no such loop: it probes the key's node directly. That probe must ask the
+-- same question of the same node, or "WHERE id = 2" finds a row that "SELECT *" does not.
+
+-- order_lines: rows at ^ORD(order_id,line_id). (2,1) holds no value; it is in the tree only
+-- because of the undeclared child ^ORD(2,1,"NOTE"). Not a row.
+CREATE TABLE order_lines (
+ order_id INTEGER,
+ line_id INTEGER,
+ item VARCHAR(20) PIECE 1,
+ PRIMARY KEY (order_id, line_id)
+) GLOBAL "^ORD" DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- episodes: rows at ^GCND(id,"A"), a constant subscript BELOW the key. For id 2 that node is
+-- absent; ^GCND(2) exists only through ^GCND(2,"B"), which the table does not declare. Not a row,
+-- and the node to test is ^GCND(2,"A"), not ^GCND(2).
+CREATE TABLE episodes (
+ id INTEGER PRIMARY KEY,
+ note VARCHAR(40) PIECE 1
+) GLOBAL "^GCND(keys(""id""),""A"")" DELIM "^" READONLY;
+CREATE TABLE
+OCTO> -- The scans: the row universe each table has.
+SELECT * FROM order_lines ORDER BY order_id, line_id;
+order_id|line_id|item
+1|1|Widget
+1|2|Gadget
+(2 rows)
+OCTO> SELECT * FROM episodes ORDER BY id;
+id|note
+1|alpha
+3|gamma
+(2 rows)
+OCTO> -- The same tables with a key fixed by =, by IN and by a range. Every answer must be a subset of
+-- the scan above it: (2,1) and id 2 never appear.
+SELECT * FROM order_lines WHERE order_id = 2 AND line_id = 1;
+order_id|line_id|item
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE order_id = 2 AND line_id IN (1,2);
+order_id|line_id|item
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE order_id = 2 AND line_id > 0;
+order_id|line_id|item
+(0 rows)
+OCTO> SELECT * FROM order_lines WHERE order_id = 1 AND line_id = 2;
+order_id|line_id|item
+1|2|Gadget
+(1 row)
+OCTO> SELECT * FROM episodes WHERE id = 2;
+id|note
+(0 rows)
+OCTO> SELECT * FROM episodes WHERE id IN (1,2,3);
+id|note
+1|alpha
+3|gamma
+(2 rows)
+OCTO> SELECT * FROM episodes WHERE id >= 2;
+id|note
+3|gamma
+(1 row)
+OCTO> SELECT * FROM episodes WHERE id < 3 ORDER BY id DESC;
+id|note
+1|alpha
+(1 row)
+OCTO> SELECT * FROM episodes WHERE id = 3;
+id|note
+3|gamma
+(1 row)
+OCTO> 
+
+# row node tests in the generated plans
+. QUIT:'($DATA(^GCND(%ydboctocursor(cursorId,"keys",1,"episodes","id"),"A"))#10)
+. . QUIT:'($DATA(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"),%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")))#10)
+. SET %ydboctocursor(cursorId,"keys",1,"episodes","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"episodes","id")) IF $DATA(^GCND(%ydboctocursor(cursorId,"keys",1,"episodes","id"),"A"))#10 DO
+SET %ydboctocursor(cursorId,"keys",1,"episodes","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"episodes","id")) IF $DATA(^GCND(%ydboctocursor(cursorId,"keys",1,"episodes","id"),"A"))#10 DO
+. SET %ydboctocursor(cursorId,"keys",1,"episodes","id")=%ydboctozkeyfix(1,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"episodes","id")) IF $DATA(^GCND(%ydboctocursor(cursorId,"keys",1,"episodes","id"),"A"))#10 DO
+. . SET %ydboctocursor(cursorId,"keys",1,"order_lines","line_id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")) IF $DATA(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"),%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")))#10 DO
+. SET %ydboctocursor(cursorId,"keys",1,"order_lines","line_id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")) IF $DATA(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"),%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")))#10 DO
+. . SET %ydboctocursor(cursorId,"keys",1,"order_lines","line_id")=%ydboctozkeyfix(1,1) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")) IF $DATA(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"),%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")))#10 DO
+SET %ydboctocursor(cursorId,"keys",1,"order_lines","order_id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id")) IF $DATA(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"))) DO

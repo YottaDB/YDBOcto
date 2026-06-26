@@ -205,4 +205,12 @@ void	  ctx_label_reset(void);
 void	  ctx_label_emit(FILE *memstream);
 DEBUG_ONLY(boolean_t ctx_label_list_is_empty(void);)
 
+/* YDBAIM#96. Decides whether "tmpl_tablejoin" emits a row-existence guard on this key. Must be
+ * called before the temporary clearing of "cross_reference_output_key" that is done for the
+ * second half of a right join, with "xref_output_key_ignored" saying whether that clearing is
+ * about to happen; see the comment on the function itself.
+ */
+boolean_t key_needs_row_existence_guard(PhysicalPlan *pplan, SqlKey *key, unsigned int cur_key, unsigned int total_keys,
+					boolean_t xref_output_key_ignored);
+
 #endif

@@ -96,9 +96,6 @@ OCTO
 }
 
 @test "TX05 : OCTO657 : Octo-AIM regression where NULLs are missed because data that doesn't exist isn't indexed" {
-        # Type 1 does not work will any region that has null enabled
-        # Normally, Octo testing framework has nulls enabled even for DEFAULT region
-	mupip set -null_subscripts=never -region DEFAULT
 	$ydb_dist/yottadb -run %XCMD 'kill ^x set ^x(1,1)="a",^x(2,0)=""'
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX05.sql .
 	octo -f TX05.sql 2>&1 | tee -a output.txt
@@ -106,10 +103,6 @@ OCTO
 }
 
 @test "TX06 : Test AIMTYPE 1 on CREATE TABLE" {
-        # Type 1 does not work will any region that has null enabled
-        # Normally, Octo testing framework has nulls enabled even for DEFAULT region
-	mupip set -null_subscripts=never -region DEFAULT
-
 	# Note that this SQL DDL does not use ENDPOINT, and therefore, has some weird data
 	# that looks like this:
 	# ^%ydbAIMDDolRlgd8xujbnMBgUv9VCA(1,"","AMASTERVUID")=""
@@ -361,7 +354,6 @@ OCTO
 	# verified with "nodatetimefilter" so the literal dates are checked (not normalized to "DATE").
 	# killAIMData^aimutils is called at each section boundary so every AIM index dump shows only the
 	# tables created in that section.
-	mupip set -null_subscripts=never -region DEFAULT
 	export TZ="UTC"
 	load_fixture TX15.zwr
 
@@ -510,7 +502,6 @@ OCTO
 	# The AIM dump greps are anchored to the start of the data nodes (^%ydbAIMD*(pnum,...)):
 	# AIM stores its trigger DEFINITIONS in the same global, and their -xecute bodies contain
 	# "(0," so an unanchored grep would leak those (long, hash-named) lines into the output.
-	mupip set -null_subscripts=never -region DEFAULT
 	export TZ="UTC"
 	load_fixture TX16.zwr
 
@@ -653,4 +644,247 @@ OCTO
 
 		verify_output TX16_utf8 output.txt noinfo nodebug
 	fi
+}
+
+@test "TX21 : YDBAIM#96 : a column whose GLOBAL maps a parent subscript of the primary key" {
+	load_fixture TX21.zwr
+	# Show the data being mapped: "customer" is stored once per order on the parent node ^ORD(order_id);
+	# each line item is a child node ^ORD(order_id,line_id).
+	echo "# zwrite ^ORD" >> output.txt
+	yottadb -run %XCMD 'zwrite ^ORD' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX21.sql > TX21_input.sql
+	octo -p -f TX21_input.sql 2>&1 | tee -a output.txt
+
+	# The re-ask fixture's commentary goes into the output once; each step then runs only its queries
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX21b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX21b.sql > TX21b_input.sql
+	tx21step() {	# $1 = M command to apply, $2 = what it demonstrates
+		echo "# $2" >> output.txt
+		echo "# $1" >> output.txt
+		yottadb -run %XCMD "$1"
+		octo -p -f TX21b_input.sql 2>&1 | tee -a output.txt
+	}
+	tx21step 'set ^ORD(3)="Carol"' \
+		'A value appears on the parent node: every row of order 3 stops being a NULL customer.'
+	tx21step 'set ^ORD(1,3,0)="Sprocket"' \
+		'A new line under an existing order must inherit the customer written before it existed.'
+	tx21step 'zkill ^ORD(1)' \
+		'The parent value goes away: every row of order 1 becomes a NULL customer at once.'
+	tx21step 'set ^ORD(2,1,"SHIP")="Overnight"' \
+		'Value side, below the row: a missing-node NULL is given a value.'
+	tx21step 'kill ^ORD(3)' \
+		'KILL of a whole order: its rows leave, and so does the parent value they shared.'
+
+	verify_aim_rebuild TX21b_input.sql
+
+	verify_output TX21 output.txt
+}
+
+@test "TX22 : YDBAIM#96 : columns at more than one depth below the row" {
+	load_fixture TX22.zwr
+	# Show the data being mapped. Note id 4, whose only data is the value on the row node itself,
+	# and id 1, the only row with a node at the depth "dept" is indexed at.
+	echo "# zwrite ^USER" >> output.txt
+	yottadb -run %XCMD 'zwrite ^USER' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX22.sql > TX22_input.sql
+	octo -p -f TX22_input.sql 2>&1 | tee -a output.txt
+
+	# The re-ask fixture's commentary goes into the output once; each step then runs only its queries
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX22b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX22b.sql > TX22b_input.sql
+	tx22step() {	# $1 = M command to apply, $2 = what it demonstrates
+		echo "# $2" >> output.txt
+		echo "# $1" >> output.txt
+		yottadb -run %XCMD "$1"
+		octo -p -f TX22b_input.sql 2>&1 | tee -a output.txt
+	}
+	tx22step 'set ^USER(5,1,"DEPT")="Neurology"' \
+		'A new row whose ONLY node is TWO levels below the row - the deepest level the anchor spans.'
+	tx22step 'set ^USER(2,"EMAIL")="bob@example.com"' \
+		'Value side, one level down: a column that was a missing-node NULL is given a value.'
+	tx22step 'zkill ^USER(1,1,"DEPT")' \
+		'Value side, two levels down: the deepest column goes, but the row has other nodes and survives.'
+	tx22step 'set ^USER(6)="Eve"' \
+		'Row born by writing the ROW NODE itself, with no column nodes at all: a row, every column NULL.'
+	tx22step 'zkill ^USER(4)' \
+		'Row 4 was only ever a value on the row node. Take that away and the row goes with it.'
+	tx22step 'kill ^USER(3)' \
+		'KILL of a whole subtree rather than ZKILL of one node: the recursive-KILL triggers must decompose it.'
+
+	verify_aim_rebuild TX22b_input.sql
+
+	verify_output TX22 output.txt
+}
+
+@test "TX23 : YDBAIM#96 : a column stored at the row's own depth uses AIM type 0, and the scan agrees" {
+	load_fixture TX23.zwr
+	# Row (2,1) has no value of its own. It is in the tree only because of ^ORD(2,1,"NOTE"),
+	# a node the table does not declare.
+	echo "# zwrite ^ORD" >> output.txt
+	yottadb -run %XCMD 'zwrite ^ORD' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX23.sql > TX23_input.sql
+	octo -p -f TX23_input.sql 2>&1 | tee -a output.txt
+
+	# The re-ask fixture's commentary goes into the output once; each step then runs only its queries
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX23b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX23b.sql > TX23b_input.sql
+	tx23step() {	# $1 = M command to apply, $2 = what it demonstrates
+		echo "# $2" >> output.txt
+		echo "# $1" >> output.txt
+		yottadb -run %XCMD "$1"
+		octo -p -f TX23b_input.sql 2>&1 | tee -a output.txt
+	}
+	tx23step 'set ^ORD(2,1)="Rewired^x"' \
+		'(2,1) was not a row - it held no value. Give it one: it becomes a row in both.'
+	tx23step 'set ^ORD(4,1)="^only-a-second-piece"' \
+		'A new row whose PIECE 1 is empty. A missing PIECE of a node that exists is still NULL.'
+	tx23step 'zkill ^ORD(1,1)' \
+		'Take a row value away outright: the row leaves both.'
+	tx23step 'set ^ORD(5,1,"NOTE")="undeclared node only"' \
+		'An undeclared node and nothing else: a row in neither.'
+	tx23step 'zkill ^ORD(2,1)' \
+		'Value gone but the NOTE child remains, so the node is STILL in the tree - and stops being a row.'
+
+	verify_aim_rebuild TX23b_input.sql
+
+	verify_output TX23 output.txt
+}
+
+@test "TX24 : YDBAIM#96 : columns stored in a different global from the rows" {
+	load_fixture TX24.zwr
+	# Rows live in ^G; both columns live in ^H, so neither column global says which rows exist.
+	echo "# zwrite ^G" >> output.txt
+	yottadb -run %XCMD 'zwrite ^G' 2>&1 | tee -a output.txt
+	echo "# zwrite ^H" >> output.txt
+	yottadb -run %XCMD 'zwrite ^H' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX24.sql > TX24_input.sql
+	octo -p -f TX24_input.sql 2>&1 | tee -a output.txt
+
+	# The re-ask fixture's commentary goes into the output once; each step then runs only its queries
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX24b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX24b.sql > TX24b_input.sql
+	tx24step() {	# $1 = M command to apply, $2 = what it demonstrates
+		echo "# $2" >> output.txt
+		echo "# $1" >> output.txt
+		yottadb -run %XCMD "$1"
+		octo -p -f TX24b_input.sql 2>&1 | tee -a output.txt
+	}
+	tx24step 'set ^H(2)="Bob"' \
+		'Value side, other global: order 2 stops being a NULL cust.'
+	tx24step 'set ^G(2,2)="line"' \
+		'Record side: a new row in ^G must pick up the cust that ^H already holds.'
+	tx24step 'zkill ^H(1,1)' \
+		'Value side at the row key depth: (1,1) loses its note but keeps existing.'
+	tx24step 'zkill ^G(1,2)' \
+		'Record side: the row goes away, so it must leave every index built on it.'
+	tx24step 'set ^H(3,1)="orphan note"' \
+		'A value in ^H with no row in ^G at all. Writing the column global must not invent a row.'
+
+	verify_aim_rebuild TX24b_input.sql
+
+	verify_output TX24 output.txt
+}
+
+@test "TX25 : YDBAIM#96 : a column with a transformation function (type=6)" {
+	load_fixture TX25.zwr
+	# id 3 has a value on the row node and no children, so there is no node at the indexed depth.
+	echo "# zwrite ^EVT" >> output.txt
+	yottadb -run %XCMD 'zwrite ^EVT' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX25.sql > TX25_input.sql
+	octo -p -f TX25_input.sql 2>&1 | tee -a output.txt
+
+	# The re-ask fixture's commentary goes into the output once; each step then runs only its queries
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX25b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX25b.sql > TX25b_input.sql
+	tx25step() {	# $1 = M command to apply, $2 = what it demonstrates
+		echo "# $2" >> output.txt
+		echo "# $1" >> output.txt
+		yottadb -run %XCMD "$1"
+		octo -p -f TX25b_input.sql 2>&1 | tee -a output.txt
+	}
+	tx25step 'set ^EVT(2,"ACT")="0"' \
+		'A NULL becomes FALSE: the transform must run in the trigger, not just the scan.'
+	tx25step 'set ^EVT(4,"ACT")="1"' \
+		'A new row born by writing the transformed column itself.'
+	tx25step 'zkill ^EVT(1,"ACT")' \
+		'The transformed column goes but the row survives: back to NULL, not FALSE.'
+	tx25step 'set ^EVT(3,"ACT")="not-a-boolean"' \
+		'A value the transformation function has to normalize rather than index verbatim.'
+	tx25step 'kill ^EVT(2)' \
+		'KILL of a whole row: the recursive-KILL triggers must decompose it.'
+
+	verify_aim_rebuild TX25b_input.sql
+
+	verify_output TX25 output.txt
+}
+
+@test "TX26 : YDBAIM#96 : the rows and a column in different DATABASES" {
+	# Rows in the LOCAL database; the "cust" column in an extended-reference database.
+	# TX12 covers a table living entirely in an extended database - there one database holds
+	# both the table and its cross reference. Here they are genuinely split, so the cross
+	# reference has to reach across a database boundary in both directions.
+	yottadb -run %XCMD 'set ^G(1,1)="line",^G(1,2)="line",^G(2,1)="line"'
+
+	echo "# Create extended reference database extended.gld and put ^H into it" >> output.txt
+	createdb 2 extended.gld
+	ydb_gbldir=extended.gld yottadb -run %XCMD 'set ^H(1)="Alice"'
+
+	echo "# zwrite ^G (local: the rows)" >> output.txt
+	ydb_gbldir=yottadb.gld yottadb -run %XCMD 'zwrite ^G' 2>&1 | tee -a output.txt
+	echo "# zwrite ^H (extended: the column; note there is no ^H(2))" >> output.txt
+	ydb_gbldir=extended.gld yottadb -run %XCMD 'zwrite ^H' 2>&1 | tee -a output.txt
+
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX26.sql > TX26_input.sql
+	ydb_gbldir=yottadb.gld octo -p -f TX26_input.sql 2>&1 | tee -a output.txt
+
+	# The re-ask fixture's commentary goes into the output once; each step then runs only its queries
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX26b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TX26b.sql > TX26b_input.sql
+	tx26step() {	# $1 = gld to apply the change under, $2 = M command, $3 = what it demonstrates
+		echo "# $3" >> output.txt
+		echo "# [$1] $2" >> output.txt
+		ydb_gbldir=$1 yottadb -run %XCMD "$2"
+		ydb_gbldir=yottadb.gld octo -p -f TX26b_input.sql 2>&1 | tee -a output.txt
+	}
+	tx26step extended.gld 'set ^H(2)="Bob"' \
+		'Value side, in the OTHER database: order 2 stops being a NULL cust.'
+	tx26step yottadb.gld 'set ^G(2,2)="line"' \
+		'Record side, local: a new row must pick up the cust that only the other database holds.'
+	tx26step extended.gld 'zkill ^H(1)' \
+		'Value side, other database: both rows of order 1 become NULL cust at once.'
+	tx26step yottadb.gld 'zkill ^G(1,1)' \
+		'Record side, local: the row goes, and must leave an index that lives in the other database.'
+	tx26step extended.gld 'set ^H(9)="Ghost"' \
+		'A value in the other database with no row here at all: it must not invent a row.'
+
+	echo "# AIM data in the LOCAL database" >> output.txt
+	ydb_gbldir=yottadb.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+	echo "# AIM data in the EXTENDED database" >> output.txt
+	ydb_gbldir=extended.gld yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	ydb_gbldir=yottadb.gld verify_aim_rebuild TX26b_input.sql yottadb.gld extended.gld
+
+	verify_output TX26 output.txt
+}
+
+@test "TX27 : YDBAIM#96 : a key fixed by the WHERE clause tests the row node as the scan does" {
+	load_fixture TX27.zwr
+	echo "# zwrite ^ORD,^GCND" >> output.txt
+	yottadb -run %XCMD 'zwrite ^ORD,^GCND' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX27.sql > TX27_input.sql
+	octo -p -f TX27_input.sql 2>&1 | tee -a output.txt
+
+	# The generated probes and guards of the row nodes, one line each: a key fixed by the WHERE
+	# clause must test the full row node with "#10", as the scan's FOR loop does.
+	echo "" >> output.txt
+	echo "# row node tests in the generated plans" >> output.txt
+	grep -h -E '\$DATA\(\^(ORD|GCND)\(' _ydboctoP*.m | sed 's/^[[:space:]]*//' | sort -u | tee -a output.txt
+
+	verify_output TX27 output.txt
 }

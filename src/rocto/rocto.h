@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -73,7 +73,10 @@
  */
 #define PSQL_NULL -1
 
-#define PORTAL_SUSPENDED -2
+/* Note: the GENERIC_ERROR, SOCK_OP_OK, SOCK_OP_FAIL, SOCK_OP_SHUTDOWN, PORTAL_SUSPENDED and QUERY_CANCELED return
+ * codes now live in "octo.h" (which this header includes transitively) because "run_query.c" also participates in
+ * this return code protocol and cannot include this rocto-specific header.
+ */
 
 // Define column format codes for use when returning row data.
 // For the derivation of these values, see the `Bind` entry at https://www.postgresql.org/docs/11/protocol-message-formats.html

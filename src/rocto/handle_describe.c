@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,7 +29,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	ydb_buffer_t	      routine_buf, filename_buf, tag_buf;
 	ydb_buffer_t	      describe_subs[5];
 	uint32_t	      found = 0;
-	int32_t		      status;
+	int32_t		      status, result = 0;
 	char		      filename[OCTO_PATH_MAX];
 	char		      routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
 	char		      tag_str[INT32_TO_STRING_MAX];
@@ -48,9 +48,12 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		LOG_LOCAL_ONLY(TRACE, INFO_ROCTO_PARAMETER_DESCRIPTION_SENT, describe->name);
 		parm_description = make_parameter_description(describe->name, session);
 		if (NULL == parm_description)
-			return 1;
-		send_message(session, (BaseMessage *)(&parm_description->type));
+			return GENERIC_ERROR;
+		result = send_message(session, (BaseMessage *)(&parm_description->type));
 		free(parm_description);
+		if (SOCK_OP_SHUTDOWN == result) {
+			return result;
+		}
 		YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &describe_subs[2])
 	} else {
 		YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &describe_subs[2])
@@ -60,7 +63,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	status = ydb_data_s(&describe_subs[0], 3, &describe_subs[1], &found);
 	YDB_ERROR_CHECK(status);
 	if ((YDB_OK != status) || (0 == found)) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	/* Retrieve command tag to find out which type of operation.
@@ -72,7 +75,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
 	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
@@ -80,7 +83,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	    && (invalid_STATEMENT >= temp_long)) {
 		command_tag = (int32_t)temp_long;
 	} else {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	switch (command_tag) {
 	case insert_STATEMENT:
@@ -89,7 +92,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	case set_STATEMENT:
 		/* No row descriptions for INSERT INTO, DELETE FROM, UPDATE or SET. Send a NoData message in that case. */
 		no_data = make_no_data();
-		send_message(session, (BaseMessage *)(&no_data->type));
+		result = send_message(session, (BaseMessage *)(&no_data->type));
 		free(no_data);
 		break;
 	case show_STATEMENT: {
@@ -108,7 +111,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(&parm_value_buf);
-			return 1;
+			return GENERIC_ERROR;
 		}
 		parm_value_buf.buf_addr[parm_value_buf.len_used] = '\0'; /* null-terminated buffer needed below */
 
@@ -119,7 +122,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		status = handle_query_response(&stmt, 0, (void *)&parms, NULL, PSQL_Describe);
 		YDB_FREE_BUFFER(&parm_value_buf);
 		if (YDB_OK != status) {
-			return 1;
+			return status;
 		}
 		break;
 	}
@@ -130,13 +133,13 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &routine_buf);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			return 1;
+			return GENERIC_ERROR;
 		}
 		routine_buf.buf_addr[routine_buf.len_used] = '\0';
 		status = strncmp(OCTOLIT_NONE, routine_buf.buf_addr, MAX_ROUTINE_LEN);
 		if (0 == status) {
 			no_data = make_no_data();
-			send_message(session, (BaseMessage *)(&no_data->type));
+			result = send_message(session, (BaseMessage *)(&no_data->type));
 			free(no_data);
 		} else {
 			/* The below call updates "filename" to be the full path including "routine_name" at the end */
@@ -144,23 +147,25 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			if (status) {
 				/* Error message would have already been issued in above function call. Just return non-zero status.
 				 */
-				return 1;
+				return GENERIC_ERROR;
 			}
 			YDB_STRING_TO_BUFFER(filename, &filename_buf);
 			description = get_plan_row_description(&filename_buf);
 			if (NULL != description) {
-				send_message(session, (BaseMessage *)(&description->type));
-				if ('S' == describe->item) {
-					TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
-				} else {
-					TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "portal", describe->name);
+				result = send_message(session, (BaseMessage *)(&description->type));
+				if (SOCK_OP_OK == result) {
+					if ('S' == describe->item) {
+						TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
+					} else {
+						TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "portal", describe->name);
+					}
 				}
 				free(description);
 			} else {
-				return 1;
+				return GENERIC_ERROR;
 			}
 		}
 		break;
 	}
-	return 0;
+	return result;
 }

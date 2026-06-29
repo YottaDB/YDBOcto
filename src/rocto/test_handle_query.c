@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -80,7 +80,7 @@ static void test_query_length_equals_zero(void **state) {
 	result = handle_query(query, &session);
 
 	free(query);
-	assert_int_equal(result, 1);
+	assert_int_equal(result, 0);	// An empty query is not an error scenario, so expect a 0 return value
 }
 
 static void test_query_length_greater_than_max(void **state) {
@@ -112,7 +112,7 @@ static void test_query_length_greater_than_max(void **state) {
 	free(query);
 }
 
-static void test_run_query_result_equals_negative_one(void **state) {
+static void test_run_query_result_equals_query_canceled(void **state) {
 	Query	    *query;
 	RoctoSession session;
 	char	    *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
@@ -126,14 +126,14 @@ static void test_run_query_result_equals_negative_one(void **state) {
 	query->data[query_length] = '\0';
 	query->query = query->data;
 
-	will_return(__wrap_run_query, -1);
+	will_return(__wrap_run_query, QUERY_CANCELED);
 	result = handle_query(query, &session);
 
-	assert_int_equal(result, -1);
+	assert_int_equal(result, QUERY_CANCELED);
 	free(query);
 }
 
-// Also cannot equal -1, as that would trigger the same thing as the test above
+// Also cannot equal QUERY_CANCELED, as that would trigger the same thing as the test above
 static void test_run_query_result_does_not_equal_zero(void **state) {
 	Query	    *query;
 	RoctoSession session;
@@ -161,7 +161,7 @@ int main(void) {
 	    cmocka_unit_test(test_valid_input),
 	    cmocka_unit_test(test_query_length_equals_zero),
 	    cmocka_unit_test(test_query_length_greater_than_max),
-	    cmocka_unit_test(test_run_query_result_equals_negative_one),
+	    cmocka_unit_test(test_run_query_result_equals_query_canceled),
 	    cmocka_unit_test(test_run_query_result_does_not_equal_zero),
 	};
 	int status = cmocka_run_group_tests(tests, NULL, NULL);

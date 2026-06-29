@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -41,7 +41,7 @@ int get_user_permissions(RoctoSession *session) {
 	status = ydb_get_s(&session_subs[0], 1, &session_subs[1], &user_subs[2]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	user_subs[2].buf_addr[user_subs[2].len_used] = '\0';
 	YDB_STRING_TO_BUFFER(OCTOLIT_PERMISSIONS, &user_subs[3]);
@@ -53,7 +53,7 @@ int get_user_permissions(RoctoSession *session) {
 	status = ydb_get_s(&user_subs[0], 3, &user_subs[1], &permissions_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	permissions_buf.buf_addr[permissions_buf.len_used] = '\0';
 
@@ -63,7 +63,7 @@ int get_user_permissions(RoctoSession *session) {
 		session->permissions = (int32_t)temp_long;
 	} else {
 		FATAL(ERR_ROCTO_PERMISSIONS_LOOKUP_FAILED, username);
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Add username to session struct for later use in error messages

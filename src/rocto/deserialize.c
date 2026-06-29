@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,7 +60,7 @@ char *byte_to_hex(char c, char *hex) {
 // Convert raw MD5 hash to hex string
 int32_t md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len) {
 	if (hex_len < MD5_HEX_LEN) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	int32_t i, j;
 	for (i = 0, j = 0; i < MD5_DIGEST_LENGTH; i++, j += 2) { // MD5 digest length == 16

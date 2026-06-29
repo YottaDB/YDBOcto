@@ -536,7 +536,14 @@ wait_for_rocto_server_pids_to_die() {
 	ps --no-headers --ppid $listener_pid | grep rocto | awk '{print $1}' | while read server_pid; do
 		# Wait for rocto server process to actually die
 		echo " `date -Ins` : Waiting for server PID [$server_pid] to die" >> wait_for_rocto_server_pids_to_die.out
-		tail --pid=$server_pid -f /dev/null
+		if ! timeout 300s tail --pid="$server_pid" -f /dev/null; then
+			echo "# TEST-E-HANG: Terminating hung rocto server with PID $server_pid"
+			kill "$server_pid" 2>/dev/null || true
+			if ! timeout 60s tail --pid="$server_pid" -f /dev/null; then
+				kill -9 "$server_pid" 2>/dev/null || true
+			fi
+			exit 1
+		fi
 	done
 	echo " `date -Ins` : Server PIDs wait : DONE" >> wait_for_rocto_server_pids_to_die.out
 }
@@ -663,6 +670,30 @@ run_java() {
 		echo "error: $psql_jar does not exist. Cannot continue."
 	fi
 	java -classpath $psql_jar:@PROJECT_BINARY_DIR@/src/jocto.jar $1 $2 "$query" $4 $5 $6
+}
+
+run_java_bg() {
+	strip_sql_comments $3
+	if [[ $1 == "run_query" ]] || [[ $1 == "portal_suspended" ]]; then
+		# Only append ".sql" for queries derived from fixtures, not for generated queries
+		if [[ -f $3 ]]; then
+			query=$(cat $3)
+		else
+			query=$(cat $3.sql)
+		fi
+	elif [[ $1 == "run_multi_query" ]]; then
+		query=$3.sql
+	elif [[ $1 == "run_multiple_query_files" ]]; then
+		query=$3
+	else
+		query=""
+	fi
+	psql_jar="@PROJECT_BINARY_DIR@/postgresql.jar"
+	if ! [ -e "$psql_jar" ]; then
+		echo "error: $psql_jar does not exist. Cannot continue."
+	fi
+	java -classpath $psql_jar:@PROJECT_BINARY_DIR@/src/jocto.jar $1 $2 "$query" $4 $5 $6 &>> java.out &
+	echo $! > java.pid
 }
 
 strip_psql_header() {

@@ -1834,6 +1834,14 @@ INFO_ROCTO_CLEAN_DISCONNECT
 
   Description/Action: This message indicates that a Rocto connection has been closed cleanly. PSQL Error Code: 00000
 
+++++++++++++++++++++++++++++++++++++++
+ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT
+++++++++++++++++++++++++++++++++++++++
+
+  Text: Client disconnected unexpectedly
+
+  Description/Action: This message indicates that a Rocto connection has been closed unexpectedly, e.g. due to client termination. PSQL Error Code: 08000
+
 +++++++++++++++++++++++
 ERR_ROCTO_COLUMN_VALUE
 +++++++++++++++++++++++

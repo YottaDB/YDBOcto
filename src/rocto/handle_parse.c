@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,7 +40,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	ydb_buffer_t	   sql_expression, routine_buffer, tag_buffer, offset_buffer, num_parms_buffer;
 	ydb_buffer_t	   parm_type_buffer, cur_parm_value_buffer;
 	uint32_t	   data_ret;
-	int32_t		   status, cur_type;
+	int32_t		   status, cur_type, result;
 	int32_t		  *parse_context_array;
 	int16_t		   cur_parm, cur_parm_temp, cur_bind_parm, cur_bind_parm_temp;
 	char		   cursor_str[INT64_TO_STRING_MAX], cur_parm_str[INT16_TO_STRING_MAX];
@@ -74,13 +74,13 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	status = ydb_data_s(&statement_subs[0], 3, &statement_subs[1], &data_ret);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	if (0 < data_ret) {
 		status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			return 1;
+			return GENERIC_ERROR;
 		}
 	}
 	YDB_STRING_TO_BUFFER(parse->query, &sql_expression);
@@ -89,7 +89,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	status = ydb_set_s(&statement_subs[0], 3, &statement_subs[1], &sql_expression);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Store query in input buffer
@@ -128,7 +128,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Prepare cursor buffers
@@ -150,7 +150,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Store command tag
@@ -167,7 +167,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, ...)
@@ -186,7 +186,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
-		return 1;
+		return GENERIC_ERROR;
 	}
 	// Store total number of parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, OCTOLIT_ALL)
 	OCTO_INT16_TO_BUFFER(parse_context.total_parms, &num_parms_buffer);
@@ -200,7 +200,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
-		return 1;
+		return GENERIC_ERROR;
 	}
 	switch (parse_context.command_tag) {
 	case select_STATEMENT:
@@ -225,7 +225,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	case discard_xrefs_STATEMENT:
 		/* Queries are of type SET, SHOW, CREATE TABLE, DISCARD ALL etc. They don't have any plans. Just return. */
 		response = make_parse_complete();
-		send_message(session, (BaseMessage *)(&response->type));
+		result = send_message(session, (BaseMessage *)(&response->type));
 		free(response);
 		// The cursor is no longer needed as there are no parameters to extract for later binding
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
@@ -233,7 +233,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
-		return 0;
+		return result;
 	case index_STATEMENT: /* This is currently unimplemented and is hence placed alongside the "default:" case */
 	default:
 		assert(FALSE);
@@ -278,7 +278,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
-				return 1;
+				return GENERIC_ERROR;
 			}
 			// Store parameter start offset
 			OCTO_INT32_TO_BUFFER(parse_context.parm_start[cur_bind_parm], &offset_buffer);
@@ -287,7 +287,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
-				return 1;
+				return GENERIC_ERROR;
 			}
 			// Store parameter end offset
 			OCTO_INT32_TO_BUFFER(parse_context.parm_end[cur_bind_parm], &offset_buffer);
@@ -296,7 +296,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
-				return 1;
+				return GENERIC_ERROR;
 			}
 			cur_bind_parm++;
 		} else {
@@ -314,13 +314,13 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
-				return 1;
+				return GENERIC_ERROR;
 			}
 			status = ydb_set_s(&all_parms_subs[0], 6, &all_parms_subs[1], &cur_parm_value_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
-				return 1;
+				return GENERIC_ERROR;
 			}
 		}
 	}
@@ -333,8 +333,8 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 	YDB_ERROR_CHECK(status);
 	response = make_parse_complete();
-	send_message(session, (BaseMessage *)(&response->type));
+	result = send_message(session, (BaseMessage *)(&response->type));
 	free(response);
 
-	return 0;
+	return result;
 }

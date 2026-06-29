@@ -459,7 +459,7 @@ int main(int argc, char **argv) {
 		int rocto_err = 0;
 		base_message = read_message(&rocto_session, &buffer, &buffer_size, &rocto_err);
 		if (NULL == base_message) {
-			if (-2 != rocto_err) {
+			if (SOCK_OP_SHUTDOWN != rocto_err) {
 				ERROR(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
 			}
 			free(startup_message->parameters);
@@ -486,8 +486,13 @@ int main(int argc, char **argv) {
 
 		// Ok
 		authok = make_authentication_ok();
-		send_message(&rocto_session, (BaseMessage *)(&authok->type));
+		status = send_message(&rocto_session, (BaseMessage *)(&authok->type));
 		free(authok);
+		if (SOCK_OP_SHUTDOWN == status) {
+			free(startup_message->parameters);
+			free(startup_message);
+			break;
+		}
 
 		// Enter the main loop
 		session_id_buffer = &(ydb_buffers[1]);

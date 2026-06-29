@@ -63,6 +63,21 @@
 #define DELIM_IS_LITERAL     1
 #define DELIM_IS_DOLLAR_CHAR 2
 
+/* Return codes used to bubble up the outcome of a socket operation (i.e. send()/recv(), or their TLS equivalents) from
+ * "send_bytes()"/"read_bytes()" to their callers so that a client disconnect can be distinguished from other errors and
+ * handled conditionally. These live here, rather than in "rocto/rocto.h", because "run_query.c" also participates in
+ * this return code protocol (it forwards the status of its callback, which may be "handle_query_response()") and cannot
+ * include that rocto-specific header. Note that these values must remain mutually exclusive.
+ */
+#define GENERIC_ERROR	 1  // Uncategorized error, e.g. YottaDB API call failed, C library call failed, etc.
+#define SOCK_OP_OK	 0  // No socket error
+#define SOCK_OP_FAIL	 -1 // Socket error
+#define SOCK_OP_SHUTDOWN -2 // Distinguish scenarios that require the server to shutdown, e.g. client disconnect or
+			    // fatal errors. Error messages are issued where encountered, so it is not necessary to
+			    // distinguish the specific scenario requiring shutdown using this macro.
+#define PORTAL_SUSPENDED -3 // SQL portal suspended, per PSQL extended query protocol
+#define QUERY_CANCELED	 -4 // SQL query cancelled by client request
+
 /* Default buffer length to use when creating new buffers. Such buffers will be expanded as needed, so a comparatively small number
  * can be used initially.
  */

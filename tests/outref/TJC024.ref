@@ -1,0 +1,6 @@
+# Run big query (TPC032) using Java in the background
+# Kill Java to prompt the rocto server to exit
+# Wait for rocto server to die
+# Check for ERR_ROCTO_SEND_FAILED messages. Expect none.
+# Check for ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT message from send_bytes(). Expect one.
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT: Client disconnected unexpectedly

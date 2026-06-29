@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,7 +31,7 @@ int set_parameter(char *var, char *val) {
 	if (0 != strcmp(var, "datestyle")) {
 		status = set_parameter_in_pg_settings(var, val);
 		if (YDB_OK != status) {
-			return 1;
+			return GENERIC_ERROR;
 		}
 	} else {
 		const char *old_date_style = config->datestyle;
@@ -50,7 +50,7 @@ int set_parameter(char *var, char *val) {
 				int lcl_status = set_date_time_format_from_datestyle(non_const_datestyle);
 				assert(!lcl_status);
 				UNUSED(lcl_status);
-				return 1;
+				return GENERIC_ERROR;
 			}
 		} else {
 			// retain old datestyle value
@@ -85,7 +85,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				status
 				    = set_parameter(runtime_variable_stmt->v.string_literal, runtime_value_stmt->v.string_literal);
 				if (YDB_OK != status) {
-					return 1;
+					return GENERIC_ERROR;
 				}
 			} else if (PSQL_Parse == msg_type) {
 				/* Caller is "handle_parse()" (extended query protocol). Set up prepared statement lvns for
@@ -107,14 +107,14 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
-					return 1;
+					return GENERIC_ERROR;
 				}
 				YDB_STRING_TO_BUFFER(OCTOLIT_VALUE, &statement_subs[4]);
 				YDB_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer);
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
-					return 1;
+					return GENERIC_ERROR;
 				}
 			} else {
 				/* Caller is "handle_execute()" (extended query protocol). SET the runtime variable using the
@@ -140,7 +140,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					YDB_FREE_BUFFER(&name_buffer);
-					return 1;
+					return GENERIC_ERROR;
 				}
 				YDB_STRING_TO_BUFFER(OCTOLIT_VALUE, &statement_subs[4]);
 				OCTO_MALLOC_NULL_TERMINATED_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
@@ -154,7 +154,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				if (YDB_OK != status) {
 					YDB_FREE_BUFFER(&name_buffer);
 					YDB_FREE_BUFFER(&value_buffer);
-					return 1;
+					return GENERIC_ERROR;
 				}
 
 				name_buffer.buf_addr[name_buffer.len_used] = '\0';
@@ -163,7 +163,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_FREE_BUFFER(&name_buffer);
 				YDB_FREE_BUFFER(&value_buffer);
 				if (YDB_OK != status) {
-					return 1;
+					return GENERIC_ERROR;
 				}
 			}
 			return 0;
@@ -194,7 +194,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &value_buffer);
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
-					return 1;
+					return GENERIC_ERROR;
 				}
 				return 0;
 			}
@@ -222,8 +222,11 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				row_desc_parm.type_modifier = ROWDESC_DEFAULT_TYPE_MODIFIER;
 				row_desc_parm.format_code = ROWDESC_DEFAULT_FORMAT_CODE;
 				row_description = make_row_description(&row_desc_parm, 1);
-				send_message(session, (BaseMessage *)(&row_description->type));
+				result = send_message(session, (BaseMessage *)(&row_description->type));
 				free(row_description);
+				if (SOCK_OP_SHUTDOWN == result) {
+					return result;
+				}
 			}
 			if (PSQL_Describe == msg_type) {
 				return 0;
@@ -251,7 +254,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					YDB_FREE_BUFFER(&name_buffer);
-					return 1;
+					return GENERIC_ERROR;
 				}
 				name_buffer.buf_addr[name_buffer.len_used] = '\0';
 				variable_name = name_buffer.buf_addr;
@@ -271,18 +274,18 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				YDB_FREE_BUFFER(&name_buffer);
 			}
 			if (NULL == variable_value) {
-				return 1;
+				return GENERIC_ERROR;
 			}
 			/* Send DataRow */
 			data_row_parms.value = value_buffer.buf_addr;
 			data_row_parms.length = value_buffer.len_used;
 			data_row_parms.format = TEXT_FORMAT;
 			data_row = make_data_row(&data_row_parms, 1, NULL);
-			send_message(parms->session, (BaseMessage *)(&data_row->type));
+			result = send_message(parms->session, (BaseMessage *)(&data_row->type));
 			free(data_row);
 			free(variable_value);
 			parms->data_sent = TRUE;
-			return 0;
+			return result;
 		}
 		parms->data_sent = TRUE; /* Note: In case of INSERT INTO, DELETE FROM, UPDATE etc. we do not send data rows but
 					  * set this variable to TRUE even in that case as one caller function "handle_execute"
@@ -299,10 +302,13 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 				plan_name_buffer.len_alloc = plan_name_buffer.len_used = strnlen(plan_name, OCTO_PATH_MAX);
 				row_description = get_plan_row_description(&plan_name_buffer);
 				if (NULL == row_description) {
-					return 1;
+					return GENERIC_ERROR;
 				}
-				send_message(parms->session, (BaseMessage *)(&row_description->type));
+				result = send_message(parms->session, (BaseMessage *)(&row_description->type));
 				free(row_description);
+				if (SOCK_OP_SHUTDOWN == result) {
+					return result;
+				}
 			}
 			// Send back row data
 			result = send_result_rows(cursorId, parms, plan_name); /* Note: updates parms.row_count */

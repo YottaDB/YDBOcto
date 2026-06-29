@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,7 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 	assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX is enough to store any format code
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status)
-		return 1;
+		return GENERIC_ERROR;
 	value_buffer->buf_addr[value_buffer->len_used] = '\0';
 
 	tmp_long = strtol(value_buffer->buf_addr, NULL, 10);
@@ -46,7 +46,7 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 		*col_data_type = (int32_t)tmp_long;
 	} else {
 		ERROR(ERR_LIBCALL_WITH_ARG, "strtol()", value_buffer->buf_addr);
-		return 1;
+		return GENERIC_ERROR;
 	}
 	return 0;
 }
@@ -65,7 +65,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	char cur_column_str[INT16_TO_STRING_MAX];
 	char cur_row_str[INT32_TO_STRING_MAX];
 
-	int	     status;
+	int	     status, result = 0;
 	DataRow	    *data_row;
 	DataRowParm *data_row_parms, *cur_row_parms;
 	int16_t	    *col_format_codes = NULL;
@@ -99,7 +99,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_DATABASE_FILES_OOS, "");
-		return 1;
+		return GENERIC_ERROR;
 	}
 	cursor_subs[3].buf_addr[cursor_subs[3].len_used] = '\0';
 
@@ -110,7 +110,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_DATABASE_FILES_OOS, "");
-		return 1;
+		return GENERIC_ERROR;
 	}
 	value_buffer.buf_addr[value_buffer.len_used] = '\0';
 	tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
@@ -119,7 +119,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 		num_columns = (int16_t)tmp_long;
 	} else {
 		ERROR(ERR_LIBCALL, "strtol");
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Retrieve the total number of rows for the given output key.
@@ -131,7 +131,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	} else {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			return 1;
+			return GENERIC_ERROR;
 		} else {
 			total_rows_buffer.buf_addr[total_rows_buffer.len_used] = '\0';
 			// Convert row ID from M string to integer
@@ -142,7 +142,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 				total_rows = (int32_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");
-				return 1;
+				return GENERIC_ERROR;
 			}
 		}
 	}
@@ -176,7 +176,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 		assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX should be enough to store the number of row formats
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			return 1;
+			return GENERIC_ERROR;
 		}
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
@@ -186,7 +186,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			num_format_codes = (int16_t)tmp_long;
 		} else {
 			ERROR(ERR_LIBCALL, "strtol");
-			return 1;
+			return GENERIC_ERROR;
 		}
 		// If the number of format codes is 0 or 1, a single format is used for all column:
 		//	Number of codes == 0: All are text format
@@ -202,7 +202,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX is enough to store any format code
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				return 1;
+				return GENERIC_ERROR;
 			}
 			value_buffer.buf_addr[value_buffer.len_used] = '\0';
 			tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
@@ -212,7 +212,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 				global_column_format = (int16_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");
-				return 1;
+				return GENERIC_ERROR;
 			}
 			if (1 == global_column_format) { // Client requested binary format, so we need the column data types
 				OCTO_SET_BUFFER(portal_subs[5], cur_column_str);
@@ -227,7 +227,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 					status = get_column_type_oid(plan_meta, &value_buffer, &col_data_types[cur_column]);
 					if (0 != status) {
 						free(col_data_types);
-						return 1;
+						return GENERIC_ERROR;
 					}
 				}
 			}
@@ -237,7 +237,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			if (num_format_codes != num_columns) {
 				ERROR(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "send_result_rows", parms->parm_name,
 				      num_columns, num_format_codes);
-				return 1;
+				return GENERIC_ERROR;
 			}
 			// Unique format codes were specified for all result for all columns, retrieve them
 			OCTO_SET_BUFFER(portal_subs[5], cur_column_str);
@@ -254,7 +254,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 				if (YDB_OK != status) {
 					free(col_data_types);
 					free(col_format_codes);
-					return 1;
+					return GENERIC_ERROR;
 				}
 				value_buffer.buf_addr[value_buffer.len_used] = '\0';
 				tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
@@ -266,7 +266,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 					ERROR(ERR_LIBCALL, "strtol");
 					free(col_data_types);
 					free(col_format_codes);
-					return 1;
+					return GENERIC_ERROR;
 				}
 				// Retrieve the type OID for each column, as this is needed to convert some types to binary format
 				YDB_STRING_TO_BUFFER(OCTOLIT_DATA_TYPE, &plan_meta[5]);
@@ -274,7 +274,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 				if (0 != status) {
 					free(col_data_types);
 					free(col_format_codes);
-					return 1;
+					return GENERIC_ERROR;
 				}
 			}
 		}
@@ -292,7 +292,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			if (YDB_OK != status) {
 				free(col_data_types);
 				free(col_format_codes);
-				return 1;
+				return GENERIC_ERROR;
 			}
 			value_buffer.buf_addr[value_buffer.len_used] = '\0';
 			tmp_long = strtol(value_buffer.buf_addr, NULL, 10);
@@ -304,7 +304,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 				ERROR(ERR_LIBCALL, "strtol");
 				free(col_data_types);
 				free(col_format_codes);
-				return 1;
+				return GENERIC_ERROR;
 			}
 			assert(total_rows >= rows_remaining);
 			cur_row = total_rows - rows_remaining;
@@ -340,7 +340,7 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 			free(data_row_parms);
 			free(col_data_types);
 			free(col_format_codes);
-			return 1;
+			return GENERIC_ERROR;
 		}
 		assert(0 < data_row_parms_alloc_len);
 		buff = (unsigned char *)row_value_buffer.buf_addr;
@@ -391,8 +391,11 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 		}
 		// Send row data to client
 		data_row = make_data_row(data_row_parms, cur_column, col_data_types);
-		send_message(parms->session, (BaseMessage *)(&data_row->type));
+		result = send_message(parms->session, (BaseMessage *)(&data_row->type));
 		free(data_row);
+		if (SOCK_OP_SHUTDOWN == result) {
+			break;
+		}
 		// Move to the next index
 		cur_row++;
 		parms->row_count++;
@@ -403,20 +406,23 @@ int send_result_rows(ydb_long_t cursorId, void *_parms, char *plan_name) {
 	free(col_format_codes);
 
 	// Cleanup tables
-	if (0 == rows_remaining) {
+	if ((SOCK_OP_SHUTDOWN == result) || (0 == rows_remaining)) {
 		YDB_FREE_BUFFER(&row_value_buffer);
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status)
-			return 1;
+		if (YDB_OK != status) {
+			// Prefer SOCK_OP_SHUTDOWN if it occurred, since in that case the server should shutdown. If there was
+			// an error in ydb_delete_s, then the client may still be connected and so no shutdown is needed.
+			return ((SOCK_OP_SHUTDOWN == result) ? SOCK_OP_SHUTDOWN : GENERIC_ERROR);
+		}
 	} else {
 		OCTO_INT32_TO_BUFFER(rows_remaining, &row_value_buffer);
 		status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &row_value_buffer);
 		YDB_FREE_BUFFER(&row_value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
-			return 1;
+			return GENERIC_ERROR;
 		return PORTAL_SUSPENDED; // Signal there are rows remaining to be sent.
 	}
-	return 0;
+	return result;
 }

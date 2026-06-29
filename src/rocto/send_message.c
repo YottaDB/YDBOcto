@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,14 +26,16 @@
 #include "message_formats.h"
 
 int send_message(RoctoSession *session, BaseMessage *message) {
-	int32_t result = 0;
+	int32_t result;
 
 	TRACE(INFO_ENTERING_FUNCTION, "send_message");
 	TRACE(INFO_SEND_MESSAGE, message->type, ntohl(message->length));
 
 	// +1 for message type indicator
 	result = send_bytes(session, (char *)message, ntohl(message->length) + 1);
-	if (0 != result)
+	// Only report an error if the client is still connected. If SOCK_OP_SHUTDOWN was returned,
+	// then the disconnect will have already been reported locally by send_bytes().
+	if (SOCK_OP_FAIL == result)
 		ERROR(ERR_ROCTO_SEND_FAILED, message->type);
 	return result;
 }

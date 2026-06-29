@@ -600,3 +600,42 @@ OCTO
 	# Starting a fresh listener gives "stop_rocto" a live pid and a valid "rocto.pid"/"rocto.port" to clean up.
 	start_rocto $test_port
 }
+
+@test "TPC032 : OCTO1081 : Rocto exits and closes the connection when client unexpectedly disconnects" {
+	load_fixture northwind.zwr
+	load_fixture northwind.sql
+	# Fixture uses Northwind database to help construct long running query with lots of return data
+	strip_sql_comments TPC032.sql
+	echo "# Run psql without the run_psql helper so that the process can be backgrounded" >> output.txt
+	PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$test_port" < TPC032.sql &>> output.txt &
+	echo "# Get the PSQL pid" >> output.txt
+	psql_pid=$!
+	echo $psql_pid > psql.pid
+	# Wait until rocto begins processing the query before terminating that client to ensure that
+	# the client disconnects at a time when rocto will not detect the disconnection via the `select()`
+	# call in `rocto_main_loop()` and cleanly disconnect.
+	max_wait=300	# Wait up to 3 seconds
+	while [[ $max_wait -gt 0 ]]; do
+		if grep -q INFO_GENERATING_XREF rocto.log; then
+			break
+		fi
+		sleep 0.01
+		max_wait=$(( max_wait - 1 ))
+	done
+	if [[ $max_wait -le 0 ]]; then
+		echo "Timed out waiting for INFO_GENERATING_XREF message in rocto.log"
+		exit 1
+	fi
+	echo "# Kill PSQL to prompt the rocto server to exit" >> output.txt
+	kill -9 $psql_pid || true
+	echo "# Wait for rocto server to die" >> output.txt
+	wait_for_rocto_server_pids_to_die
+	# Fail the test if ERR_ROCTO_SEND_FAILED was issued, indicating that rocto continued
+	# attempting to send queries after the client exited
+	echo "# Check for ERR_ROCTO_SEND_FAILED messages. Expect none." >> output.txt
+	log=$(cat rocto.log)
+	[[ ! "$log" =~ "ERR_ROCTO_SEND_FAILED" ]]
+	echo "# Check for ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT message from send_bytes(). Expect one." >> output.txt
+	grep -E "send_bytes.*ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT" rocto.log >> output.txt
+	verify_output TPC032 output.txt nodebug psql
+}

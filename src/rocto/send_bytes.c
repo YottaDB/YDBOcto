@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,16 +35,26 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 		if (result <= 0) {
 			if (-1 == result) {
 				tls_errno = gtm_tls_errno();
-				if (ECONNRESET == tls_errno || EPIPE == tls_errno) {
-					return 1;
-				} else if (-1 == tls_errno) {
+				if (-1 == tls_errno) {
+					// A -1 value signals that SSL_ERROR_SSL occurred. According to the OpenSSL docs
+					// at https://docs.openssl.org/3.0/man3/SSL_get_error/#return-values:
+					//	A non-recoverable, fatal error in the SSL library occurred, usually a protocol error.
+					//	The OpenSSL error queue contains more information on the error. If this error occurs
+					//	then no further I/O operations should be performed on the connection and
+					//	SSL_shutdown() must not be called.
+					// So, treat that case as a client disconnect so that the server exits and no more messages
+					// are sent to the client.
 					err_str = GTM_TLS_GET_ERROR(session->tls_socket);
-					ERROR(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
+					LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_TLS_WRITE_FAILED, err_str);
+					return SOCK_OP_SHUTDOWN;
+				} else if (ECONNRESET == tls_errno || EPIPE == tls_errno) {
+					LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT, "");
+					return SOCK_OP_SHUTDOWN;
 				} else {
 					ERROR(ERR_SYSCALL, "ydb_tls_send()", tls_errno, strerror(tls_errno));
 				}
 			}
-			return 1;
+			return SOCK_OP_FAIL;
 		}
 #endif
 	} else {
@@ -58,15 +68,15 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 							      */
 					continue;
 				}
-				if (errno == ECONNRESET)
-					return 1;
-				if (errno == EPIPE)
-					return 1;
+				if (ECONNRESET == errno || EPIPE == errno) {
+					LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT, "");
+					return SOCK_OP_SHUTDOWN;
+				}
 				ERROR(ERR_SYSCALL, "send", errno, strerror(errno));
-				return 1;
+				return SOCK_OP_FAIL;
 			}
 			written_so_far += written_now;
 		}
 	}
-	return 0;
+	return SOCK_OP_OK;
 }

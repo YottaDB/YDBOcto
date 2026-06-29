@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,7 @@ int read_bytes(RoctoSession *session, char **buffer, int32_t *buffer_size, int32
 
 	if (0 > bytes_to_read) {
 		ERROR(ERR_INVALID_READ_SIZE, bytes_to_read);
-		return -1;
+		return GENERIC_ERROR;
 	}
 	if ((allow_resize) && (bytes_to_read > *buffer_size)) {
 		free(*buffer);
@@ -63,13 +63,14 @@ int read_bytes(RoctoSession *session, char **buffer, int32_t *buffer_size, int32
 							      * EINTR) in a deferred but timely fashion.
 							      */
 					continue;
-				} else if (tls_errno == ECONNRESET) {
-					errno = ECONNRESET;
-					INFO(INFO_ROCTO_CLEAN_DISCONNECT, "");
-					return -2;
+				} else if ((ECONNRESET == tls_errno ) || (EPIPE == tls_errno)) {
+					errno = tls_errno;
+					// Do not try to send an error to a non-existent client
+					LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT, "");
+					return SOCK_OP_SHUTDOWN;
 				} else {
 					ERROR(ERR_ROCTO_TLS_READ_FAILED, err_str);
-					return -1;
+					return SOCK_OP_FAIL;
 				}
 			}
 			read_so_far += read_now;
@@ -79,22 +80,26 @@ int read_bytes(RoctoSession *session, char **buffer, int32_t *buffer_size, int32
 		while (read_so_far < bytes_to_read) {
 			read_now = recv(session->connection_fd, &((*buffer)[read_so_far]), bytes_to_read - read_so_far, 0);
 			if (read_now < 0) {
-				if (EINTR == errno) {
+				if ((ECONNRESET == errno) || (EPIPE == errno)) {
+					LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT, "");
+					return SOCK_OP_SHUTDOWN;
+				} else if (EINTR == errno) {
 					ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
 							      * EINTR) in a deferred but timely fashion.
 							      */
 					continue;
 				}
 				ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
-				return -1;
+				return SOCK_OP_FAIL;
 			} else if (read_now == 0) {
-				// This means the socket was cleanly closed
-				INFO(INFO_ROCTO_CLEAN_DISCONNECT, "");
-				return -2;
+				// This means the socket was cleanly closed. Do not try to send a notification to a
+				// non-existent client, as that would just trigger another failed send attempt.
+				LOG_LOCAL_ONLY(INFO, INFO_ROCTO_CLEAN_DISCONNECT, "");
+				return SOCK_OP_SHUTDOWN;
 			}
 			read_so_far += read_now;
 		}
 	}
 
-	return 0;
+	return SOCK_OP_OK;
 }

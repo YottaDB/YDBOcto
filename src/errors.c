@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -264,6 +264,8 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 				break;
 			}
 			err = make_error_response(err_level, err_code_map[error], full_err_str, 0);
+			// Discard return value since octo_log() doesn't return a value and no additional action is needed if a send
+			// fails here.
 			send_message(&rocto_session, (BaseMessage *)(&err->type));
 			free_error_response(err);
 			rocto_session.sending_message = FALSE;

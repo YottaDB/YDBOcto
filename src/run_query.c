@@ -330,7 +330,10 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			canceled = is_query_canceled(callback);
 			if (canceled) {
 				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-				return -1;
+				/* Use QUERY_CANCELED (and not a literal -1) so that this remains distinguishable from
+				 * SOCK_OP_FAIL, which the callback status forwarded below can also evaluate to.
+				 */
+				return QUERY_CANCELED;
 			}
 		}
 		assert(!config->is_rocto || (NULL != parms));
@@ -339,7 +342,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		status = (*callback)(&stmt, cursorId, parms, filename, msg_type);
 		if (0 != status) {
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-			return 1;
+			/* Return the callback status as is (instead of a flattened 1) so that a rocto client
+			 * disconnect detected while sending result rows (SOCK_OP_SHUTDOWN) is propagated to
+			 * "rocto_main_loop()" instead of being reported as a generic error. Note that the non-rocto
+			 * callback ("print_temporary_table()") only ever returns 0 or 1 for this statement type, so
+			 * this does not alter the exit status of the "octo" command line utility.
+			 */
+			return status;
 		}
 		// Deciding to free the select_STATEMENT etc. must be done by the caller, as they may want to rerun it or send
 		// row descriptions hence the decision to not free the memory_chunk below.
@@ -1451,7 +1460,15 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		cursorId = atol(cursor_ydb_buff.buf_addr);
 		status = (*callback)(result, cursorId, parms, NULL, msg_type);
 		if (YDB_OK != status) {
-			CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, NULL, NULL, query_lock, &cursor_ydb_buff);
+			CLEANUP_AND_RETURN_COMMON(memory_chunks, NULL, NULL, query_lock, &cursor_ydb_buff);
+			/* In the rocto case, return the callback status as is so that a client disconnect
+			 * (SOCK_OP_SHUTDOWN) is propagated to "rocto_main_loop()" instead of being reported as a
+			 * generic error. In the non-rocto case, the callback ("print_temporary_table()") can return a
+			 * raw YDB error code for this statement type, so keep flattening that to 1. Otherwise it would
+			 * become the exit status of the "octo" command line utility, which truncates it modulo 256 and
+			 * so could misreport a failure as a success.
+			 */
+			return (config->is_rocto ? status : 1);
 		}
 		break;
 	case index_STATEMENT:

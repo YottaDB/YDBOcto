@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -45,6 +45,10 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
 endmacro(ADD_UNIT_TEST_WITH_OPTIONS)
 
 if("${FULL_TEST_SUITE}" MATCHES "ON")
+	set(functions_to_wrap recv gtm_tls_recv gtm_tls_errno gtm_tls_get_error octo_log)
+	ADD_UNIT_TEST_WITH_OPTIONS(test_read_bytes src/rocto/test_read_bytes "${functions_to_wrap}")
+	set(functions_to_wrap send gtm_tls_send gtm_tls_errno gtm_tls_get_error octo_log)
+	ADD_UNIT_TEST_WITH_OPTIONS(test_send_bytes src/rocto/test_send_bytes "${functions_to_wrap}")
 	ADD_UNIT_TEST_WITH_OPTIONS(test_read_bind src/rocto/test_read_bind "")
 	set(functions_to_wrap read_bytes)
 	ADD_UNIT_TEST_WITH_OPTIONS(test_read_startup_message src/rocto/test_read_startup_message "${functions_to_wrap}")

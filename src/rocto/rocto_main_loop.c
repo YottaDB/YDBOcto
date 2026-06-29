@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -77,9 +77,10 @@ int rocto_main_loop(RoctoSession *session) {
 			ready_for_query = make_ready_for_query(in_sql_transaction ? PSQL_TransactionStatus_TRANSACTION
 										  : PSQL_TransactionStatus_IDLE);
 			result = send_message(session, (BaseMessage *)(&ready_for_query->type));
-			if (result)
-				break;
 			free(ready_for_query);
+			if ((SOCK_OP_SHUTDOWN == result) || (GENERIC_ERROR == result)) {
+				break;
+			} // Ignore SOCK_OP_FAIL (transient network failures)
 		}
 		int32_t rocto_err = 0;
 		// Note that read_message will automatically resize the buffer as needed and update buffer_size accordingly
@@ -98,9 +99,10 @@ int rocto_main_loop(RoctoSession *session) {
 				break;
 			result = handle_query(query, session);
 			free(query);
-			if (0 != result) {
+			if (SOCK_OP_SHUTDOWN == result) {
+				terminated = TRUE;
 				break;
-			}
+			} // Ignore SOCK_OP_FAIL (transient network failures)
 			break;
 		// Begin Extended Query message types
 		case PSQL_Parse:
@@ -115,10 +117,13 @@ int rocto_main_loop(RoctoSession *session) {
 				free(parse->parm_data_types);
 			}
 			free(parse);
-			if (1 == result) {
+			if (GENERIC_ERROR == result) {
 				extended_query_error = TRUE;
 				break;
-			}
+			} else if (SOCK_OP_SHUTDOWN == result) {
+				terminated = TRUE;
+				break;
+			} // Ignore SOCK_OP_FAIL (transient network failures)
 			break;
 		case PSQL_Bind:
 			bind = read_bind(message);
@@ -129,10 +134,13 @@ int rocto_main_loop(RoctoSession *session) {
 			result = handle_bind(bind, session);
 			free(bind->parms);
 			free(bind);
-			if (1 == result) {
+			if (GENERIC_ERROR == result) {
 				extended_query_error = TRUE;
 				break;
-			}
+			} else if (SOCK_OP_SHUTDOWN == result) {
+				terminated = TRUE;
+				break;
+			} // Ignore SOCK_OP_FAIL (transient network failures)
 			break;
 		case PSQL_Describe:
 			describe = read_describe(message);
@@ -142,10 +150,13 @@ int rocto_main_loop(RoctoSession *session) {
 			}
 			result = handle_describe(describe, session);
 			free(describe);
-			if (1 == result) {
+			if (GENERIC_ERROR == result) {
 				extended_query_error = TRUE;
 				break;
-			}
+			} else if (SOCK_OP_SHUTDOWN == result) {
+				terminated = TRUE;
+				break;
+			} // Ignore SOCK_OP_FAIL (transient network failures)
 			break;
 		case PSQL_Execute:
 			execute = read_execute(message);
@@ -158,10 +169,13 @@ int rocto_main_loop(RoctoSession *session) {
 			// result rows remain to be sent.
 			result = handle_execute(execute, session, &cursorId);
 			free(execute);
-			if (1 == result) { // Catch failure from send_message, if any
+			if (GENERIC_ERROR == result) {
 				extended_query_error = TRUE;
 				break;
-			}
+			} else if (SOCK_OP_SHUTDOWN == result) {
+				terminated = TRUE;
+				break;
+			} // Ignore SOCK_OP_FAIL (transient network failures)
 			break;
 		case PSQL_Sync:
 			// After a Sync we can send ReadyForQuery again, as the extended query exchange is complete

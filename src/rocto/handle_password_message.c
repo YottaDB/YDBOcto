@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	result = strncmp(password_message->password, MD5_PREFIX, MD5_PREFIX_LEN);
 	if (result != 0) {
 		FATAL(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", MD5_PREFIX);
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Retrieve username from StartupMessage
@@ -48,7 +48,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	}
 	if (cur_parm == startup_message->num_parameters) {
 		ERROR(ERR_ROCTO_MISSING_USERNAME, "handle_password_message");
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Retrieve user info from database
@@ -66,12 +66,12 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	if (YDB_ERR_GVUNDEF == result) {
 		ERROR(ERR_ROCTO_USER_LOOKUP, "handle_password_message", "user info", username);
 		YDB_FREE_BUFFER(&user_info_subs);
-		return 1;
+		return GENERIC_ERROR;
 	}
 	YDB_ERROR_CHECK(result);
 	if (YDB_OK != result) {
 		YDB_FREE_BUFFER(&user_info_subs);
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Extract password hash
@@ -86,7 +86,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	YDB_FREE_BUFFER(&user_info_subs);
 	if (0 == buf_len) {
 		FATAL(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	// Concatenate stored hash with temporary 4-byte salt
@@ -101,13 +101,13 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	result = md5_to_hex(hash_buf, md5_hex, MD5_HEX_LEN);
 	if (0 != result) {
 		FATAL(ERR_ROCTO_HASH_CONVERSION, "handle_password_message", "md5 hash", "hexadecimal string");
-		return 1;
+		return GENERIC_ERROR;
 	}
 	// Compare final hash of stored password against hash sent by client
 	result = strncmp(md5_hex, &password_message->password[3], MD5_HEX_LEN); // Exclude "md5" prefix
 	if (0 != result) {
 		FATAL(ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
-		return 1;
+		return GENERIC_ERROR;
 	}
 	// Note down that user authenticated successfully without notifying the client,
 	// as the client doesn't expect any notifications during authentication
@@ -123,7 +123,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	result = ydb_set_s(&session_subs[0], 1, &session_subs[1], &user_subs[2]);
 	YDB_ERROR_CHECK(result);
 	if (YDB_OK != result) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	return 0;

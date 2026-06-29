@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	ydb_long_t	    result;
 	boolean_t	    canceled = FALSE;
 	long int	    temp_long;
-	int32_t		    status, tmp_status;
+	int32_t		    status, tmp_status, ret = 0;
 	int16_t		    num_parms, cur_parm, cur_parm_temp;
 	char		    filename[OCTO_PATH_MAX], routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
 	char		    tag_str[INT32_TO_STRING_MAX], num_parms_str[INT16_TO_STRING_MAX];
@@ -62,14 +62,14 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &routine_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	routine_buffer.buf_addr[routine_buffer.len_used] = '\0';
 	/* The below call updates "filename" to be the full path including "routine_name" at the end */
 	status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_buffer.buf_addr[1]);
 	if (status) {
 		/* Error message would have already been issued in above function call. Just return non-zero status. */
-		return 1;
+		return GENERIC_ERROR;
 	}
 	// Retrieve command tag from portal
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_TAG, &portal_subs[4]);
@@ -77,7 +77,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		return 1;
+		return GENERIC_ERROR;
 	}
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
 	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
@@ -85,7 +85,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	    && (invalid_STATEMENT >= temp_long)) {
 		command_tag = (int32_t)temp_long;
 	} else {
-		return 1;
+		return GENERIC_ERROR;
 	}
 
 	/* Skip plan execution
@@ -104,7 +104,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &num_parms_buf);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			return 1;
+			return GENERIC_ERROR;
 		}
 		num_parms_buf.buf_addr[num_parms_buf.len_used] = '\0';
 		result = strtol(num_parms_buf.buf_addr, NULL, 10);
@@ -112,7 +112,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			num_parms = (int16_t)result;
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")
-			return 1;
+			return GENERIC_ERROR;
 		}
 
 		// Create a new cursor
@@ -147,7 +147,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 					YDB_ERROR_CHECK(status);
 				}
 				YDB_FREE_BUFFER(&parm_buf);
-				return 1;
+				return GENERIC_ERROR;
 			}
 			parm_buf.buf_addr[parm_buf.len_used] = '\0';
 			// Store parameter value on cursor
@@ -161,7 +161,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 					YDB_ERROR_CHECK(status);
 				}
 				YDB_FREE_BUFFER(&parm_buf);
-				return 1;
+				return GENERIC_ERROR;
 			}
 		}
 		/* Check if Execute message has specified a non-zero max_data_to_send. If so, transfer this to the LIMIT
@@ -180,7 +180,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					YDB_FREE_BUFFER(&parm_buf);
-					return 1;
+					return GENERIC_ERROR;
 				}
 			}
 		}
@@ -197,7 +197,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
-			return 1;
+			return GENERIC_ERROR;
 		}
 		// Check for cancel requests
 		if (config->is_rocto) {
@@ -206,7 +206,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 				YDB_ERROR_CHECK(status);
-				return -1;
+				return QUERY_CANCELED;
 			}
 		}
 		stmt.type = command_tag; /* needed by "handle_query_response" to know which message to handle */
@@ -218,7 +218,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status)
-				return 1;
+				return GENERIC_ERROR;
 			else
 				status = tmp_status;
 		}
@@ -253,23 +253,29 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		LOG_LOCAL_ONLY(INFO, INFO_EXECUTION_DONE, "");
 		command_complete = make_command_complete(command_tag, parms.row_count);
 		if (NULL != command_complete) {
-			send_message(session, (BaseMessage *)(&command_complete->type));
+			ret = send_message(session, (BaseMessage *)(&command_complete->type));
 			free(command_complete);
+		}
+		if (SOCK_OP_SHUTDOWN == ret) {
+			return ret;
 		}
 		*cursorId = -1;			 // Reset the cursor
 	} else if (PORTAL_SUSPENDED == status) { // Not all rows sent, save cursor and issue PortalSuspended
 		portal_suspended = make_portal_suspended();
 		assert(NULL != portal_suspended);
-		send_message(session, (BaseMessage *)(&portal_suspended->type));
+		ret = send_message(session, (BaseMessage *)(&portal_suspended->type));
 		free(portal_suspended);
+		if (SOCK_OP_SHUTDOWN == ret) {
+			return ret;
+		}
 	} else {		// Error occurred
 		*cursorId = -1; // Reset the cursor
-		return 1;
+		return status;
 	}
 	if (!parms.data_sent) {
 		empty = make_empty_query_response();
-		send_message(session, (BaseMessage *)(&empty->type));
+		ret = send_message(session, (BaseMessage *)(&empty->type));
 		free(empty);
 	}
-	return 0;
+	return ret;
 }

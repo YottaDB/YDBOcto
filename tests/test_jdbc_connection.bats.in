@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -253,4 +253,42 @@ teardown() {
 @test "TJC023 : OCTO1041 : Bind parameter test with mismatching value and coerce type" {
 	run_java TJC023 $test_port > output.txt 2>&1 || true
 	verify_output TJC023 output.txt nodebug noinfo
+}
+
+@test "TJC024 : OCTO1081 : Rocto exits and closes the connection when it has a send error using the extended query protocol" {
+	stop_rocto
+	# Fixture uses Northwind database to help construct long running query with lots of return data
+	load_fixture northwind.zwr
+	load_fixture northwind.sql
+
+	test_port=$(start_rocto $test_port verbose)
+	echo "# Run big query (TPC032) using Java in the background" >> output.txt
+	run_java_bg run_query $test_port TPC032.sql useextended
+	# Wait until rocto begins processing the query before terminating that client to ensure that
+	# the client disconnects at a time when rocto will not detect the disconnection via the `select()`
+	# call in `rocto_main_loop()` and cleanly disconnect.
+	max_wait=300	# Wait up to 3 seconds
+	while [[ $max_wait -gt 0 ]]; do
+		if grep -q INFO_GENERATING_XREF rocto.log; then
+			break
+		fi
+		sleep 0.01
+		max_wait=$(( max_wait - 1 ))
+	done
+	if [[ $max_wait -le 0 ]]; then
+		echo "Timed out waiting for INFO_GENERATING_XREF message in rocto.log"
+		exit 1
+	fi
+	echo "# Kill Java to prompt the rocto server to exit" >> output.txt
+	kill -9 $(cat java.pid) || true
+	echo "# Wait for rocto server to die" >> output.txt
+	wait_for_rocto_server_pids_to_die
+	# Fail the test if ERR_ROCTO_SEND_FAILED was issued, indicating that rocto continued
+	# attempting to send queries after the client exited
+	echo "# Check for ERR_ROCTO_SEND_FAILED messages. Expect none." >> output.txt
+	log=$(cat rocto.log)
+	[[ ! "$log" =~ "ERR_ROCTO_SEND_FAILED" ]]
+	echo "# Check for ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT message from send_bytes(). Expect one." >> output.txt
+	grep -E "send_bytes.*ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT" rocto.log >> output.txt
+	verify_output TJC024 output.txt nodebug psql
 }

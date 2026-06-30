@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,52 +15,66 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "octo.h"
 
-/* The command string below is approximately 50 characters in length, so combine with INT64_TO_STRING_MAX to get total length of the
- * command string.
+/* The first whitespace-separated field of "/proc/self/statm" is the process's total program size
+ * (virtual size) in pages. Multiplying by the page size (and dividing by 1024) yields the same value as
+ * "ps -p <pid> -o vsize" in KiB, but without spawning a shell/ps/cut/tr pipeline to obtain it.
  */
-#define COMMAND_STRING "ps -p %d -o vsize | cut -d ' ' -f 2 | tr -d '\\n'"
-#define COMMAND_LEN    (sizeof(COMMAND_STRING) + INT64_TO_STRING_MAX)
+#define PROC_SELF_STATM "/proc/self/statm"
 
-// Returns the amount of memory used by the current process
+// Returns the virtual memory size (in KiB) used by the current process
 int64_t get_mem_usage(void) {
-	FILE   *fp;
-	char	mem_used[INT64_TO_STRING_MAX];
-	int64_t ret;
+	int	statm_fd;
 	int	save_errno;
-	char   *status;
-	char	command[COMMAND_LEN];
+	ssize_t bytes_read;
+	long	page_size;
+	long	vsize_pages;
+	/* "/proc/self/statm" holds 7 space-separated numbers; this is far more than enough to hold them. */
+	char statm_buf[128];
 
-	snprintf(command, sizeof(command), COMMAND_STRING, getpid());
-
-	fp = popen(command, "r");
-	if (fp == NULL) {
-		ERROR(ERR_SYSCALL_WITH_ARG, "popen()", errno, strerror(errno), command);
+	statm_fd = open(PROC_SELF_STATM, O_RDONLY);
+	if (-1 == statm_fd) {
+		ERROR(ERR_SYSCALL_WITH_ARG, "open()", errno, strerror(errno), PROC_SELF_STATM);
 		return -1;
 	}
 
+	/* Read with read() (not fgets()) so a YDB signal that interrupts the read can be handled and the read
+	 * resumed cleanly. read() distinguishes data (>0), EOF (0), and an interrupted call (-1 with EINTR),
+	 * unlike fgets() which returns NULL for both EOF and interruption and can lose already-read data.
+	 * "/proc/self/statm" is a tiny pseudo-file, so a single successful read() returns all of it.
+	 */
 	do {
-		status = fgets(mem_used, INT64_TO_STRING_MAX, fp);
-		if (NULL != status)
-			break;
+		bytes_read = read(statm_fd, statm_buf, sizeof(statm_buf) - 1);
+		if (0 <= bytes_read)
+			break; /* read the stats line (bytes_read == 0 would be an unexpected empty file) */
 		if (EINTR != errno)
-			break;
-		ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
-				      * EINTR) in a deferred but timely fashion.
-				      */
+			break;	     /* a real read() error; reported after the file is closed below */
+		ydb_eintr_handler(); /* interrupted by a deferred YDB signal; handle it and resume the read */
 	} while (TRUE);
 	save_errno = errno;
-	pclose(fp);
-	if (NULL == status) {
-		ERROR(ERR_SYSCALL, "fgets", save_errno, strerror(save_errno))
+
+	close(statm_fd);
+
+	if (0 >= bytes_read) {
+		ERROR(ERR_SYSCALL, "read", save_errno, strerror(save_errno))
+		return -1;
+	}
+	statm_buf[bytes_read] = '\0';
+
+	page_size = sysconf(_SC_PAGESIZE);
+	if (-1 == page_size) {
+		ERROR(ERR_SYSCALL, "sysconf", errno, strerror(errno))
 		return -1;
 	}
 
-	ret = strtol(mem_used, NULL, 10);
-	if ((LONG_MAX != ret) && (LONG_MIN != ret) && (0 <= ret)) {
-		return ret;
+	/* First field of "/proc/self/statm" is the virtual size in pages; convert to KiB to match "ps". */
+	vsize_pages = strtol(statm_buf, NULL, 10);
+	if ((LONG_MAX != vsize_pages) && (LONG_MIN != vsize_pages) && (0 <= vsize_pages)) {
+		return (int64_t)vsize_pages * page_size / 1024;
 	} else {
 		ERROR(ERR_LIBCALL, "strtol")
 		return -1;

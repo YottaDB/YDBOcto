@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -58,12 +58,36 @@ teardown() {
   load_fixture northwind.zwr
   test_port=$(start_rocto 1444 verbose)
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TMU0*.sql .
+  num_query_files=$(ls TMU0*.sql | wc -l)
   for queryfile in $(ls TMU0*.sql); do
     run_java run_multi_query $test_port "${queryfile%.*}" &> output.txt
   done
 
+  # Each forked "rocto" server child logs one "INFO_MEMORY_USAGE: Memory usage at process exit" line to
+  # "rocto.log", but only AFTER its client connection has closed (see the block guarded by
+  # "TRACE >= config->verbosity_level" in "src/rocto.c"). That logging is asynchronous to the JDBC client
+  # process exit, so a child can still be writing its line when the loop above finishes. If we ran
+  # "stop_rocto" (a "mupip stop" that also tears down the lingering children) and grepped "rocto.log" right
+  # away, one of the expected memory-usage lines could be missing, leaving "set2_mem"/"set3_mem" below empty.
+  # So wait (bounded) until all expected memory-usage lines have been flushed before stopping rocto.
+  for retry in $(seq 1 150); do	# poll for up to ~15 seconds
+    if [[ "$(grep -c "Memory usage" rocto.log)" -ge "$num_query_files" ]]; then
+      break
+    fi
+    sleep 0.1s
+  done
+
   stop_rocto
   grep "Memory usage" rocto.log > mem_messages.log
+
+  # If a child still never logged its memory usage (e.g. it was torn down before flushing its line),
+  # stop here with a clear diagnostic. Otherwise the empty "setN_mem" values below turn the arithmetic into
+  # a confusing "syntax error: operand expected" that hides the real cause.
+  num_mem_lines=$(wc -l < mem_messages.log)
+  if [[ "$num_mem_lines" -lt "$num_query_files" ]]; then
+    echo "TMU02 error: expected $num_query_files \"Memory usage\" lines in rocto.log but found $num_mem_lines" >&2
+    return 1
+  fi
 
   set1_mem=$(sed -n '1p' < mem_messages.log | cut -d' ' -f 12)
   set2_mem=$(sed -n '2p' < mem_messages.log | cut -d' ' -f 12)

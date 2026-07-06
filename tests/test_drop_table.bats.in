@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -170,4 +170,48 @@ OCTO
 	load_fixture TDT09.sql subtest novv
 	verify_output TDT09 output.txt
 	unset ydb_noundef
+}
+
+@test "TDT10 : OCTO1135 : DROP of a READWRITE table whose GLOBAL is an extended reference must not overflow tableGVNAME" {
+	# OCTO1135: On DROP (and TRUNCATE) of a READWRITE table, Octo copied the portion of the
+	# table's GLOBAL specification that precedes the first '(' into a fixed-size stack buffer
+	# "char tableGVNAME[YDB_MAX_IDENT + 2]" (i.e. 31 + 2 = 33 bytes) using the
+	# POPULATE_GVN_BUFFER_FROM_TABLE() macro (callers: "run_query.c" and
+	# "truncate_tables.c").  A bare global name fits in 33 bytes, but an *extended*
+	# global reference of the form ^[""gld""]global does not, so the memcpy() inside the macro
+	# smashed the stack.
+	#
+	# Reported crash (fresh install): dropping a table whose GLOBAL was
+	#   "^[""$basedir/globals/rep/rep.gld""]ReplicationQueue(...)"
+	# produced a glibc _FORTIFY_SOURCE abort -- "*** buffer overflow detected ***" -> SIGABRT
+	# (signal 6).  Under ASAN it is a stack-buffer-overflow at the memcpy() in the macro.
+	#
+	# The pre-'(' portion below -- ^[""extended.gld""]ReplicationQueueTableForTest -- is 45 bytes,
+	# comfortably larger than the 33-byte tableGVNAME buffer, so it reliably triggers the overflow.
+
+	# A separate database reachable only through an extended reference (mirrors TX12's setup).
+	createdb 2 extended.gld
+
+	# Seed one row so the DROP has real data to KILL in the extended DB.
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'set ^ReplicationQueueTableForTest("f.mjl",1)="0"'
+
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+CREATE TABLE replication.queuethree (
+	journalfilename VARCHAR(20),
+	address NUMERIC,
+	processed BOOLEAN,
+	PRIMARY KEY (journalfilename, address)
+) GLOBAL "^[""extended.gld""]ReplicationQueueTableForTest(keys(""journalfilename""),keys(""address""))" DELIM (0) READWRITE;
+OCTO
+
+	# DROP the table: exercises the (now-fixed) overflow site and the extended-reference data KILL.
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+DROP TABLE replication.queuethree;
+OCTO
+
+	# The DROP succeeds and the underlying data global in the extended DB is gone.
+	echo -n "data exists in extended DB after DROP (expect 0): " | tee -a output.txt
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'write $data(^ReplicationQueueTableForTest),!' | tee -a output.txt
+
+	verify_output TDT10 output.txt
 }

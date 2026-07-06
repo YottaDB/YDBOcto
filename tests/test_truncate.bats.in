@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -62,4 +62,45 @@ teardown() {
 @test "TT05 : OCTO211 : TRUNCATE issue's an error if the object is not table" {
 	load_fixture TT05_errors.sql subtest
 	verify_output TT05_errors output.txt noinfo nodebug
+}
+
+@test "TT06 : OCTO1135 : TRUNCATE of a READWRITE table whose GLOBAL is an extended reference must not overflow tableGVNAME" {
+	# OCTO1135 (TRUNCATE sibling of TDT10): TRUNCATE of a READWRITE table with an extended-reference
+	# GLOBAL used to (a) overflow the fixed 33-byte "tableGVNAME" buffer while copying the pre-'('
+	# portion of the GLOBAL (a stack-buffer-overflow under ASAN, a _FORTIFY_SOURCE abort in a
+	# release build), and (b) silently fail to delete the data even without the overflow, because it
+	# deleted via "ydb_delete_s()", which rejects an extended reference with %YDB-E-INVVARNAME.
+	# Both are fixed: POPULATE_GVN_BUFFER_FROM_TABLE() no longer copies into a fixed buffer, and
+	# "truncate_tables.c" now KILLs the data through the "_ydboctoKillGvnTree" M call-in (KILL @gvn),
+	# exactly like DROP TABLE, so M name indirection resolves the extended reference. Hence the
+	# outref below shows the extended-DB data gone ($data=0) after TRUNCATE.
+	#
+	# This needs its own test (separate from the DROP case in TDT10) because the historical overflow
+	# aborted the process, so a TRUNCATE case could not share a test body with a DROP case.
+
+	# A separate database reachable only through an extended reference (mirrors TX12's setup).
+	createdb 2 extended.gld
+
+	# Seed one row so TRUNCATE has real data in the extended DB.
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'set ^ReplicationQueueTableForTest("f.mjl",1)="0"'
+
+	# Same 45-byte pre-'(' portion as TDT10 (this length used to overflow the fixed tableGVNAME buffer).
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+CREATE TABLE replication.queuethree (
+	journalfilename VARCHAR(20),
+	address NUMERIC,
+	processed BOOLEAN,
+	PRIMARY KEY (journalfilename, address)
+) GLOBAL "^[""extended.gld""]ReplicationQueueTableForTest(keys(""journalfilename""),keys(""address""))" DELIM (0) READWRITE;
+OCTO
+
+	# TRUNCATE the table: exercises the (now-fixed) overflow site and the extended-reference data KILL.
+	ydb_gbldir=yottadb.gld octo <<OCTO 2>&1 | tee -a output.txt
+TRUNCATE TABLE replication.queuethree;
+OCTO
+
+	echo -n "data exists in extended DB after TRUNCATE (expect 0): " | tee -a output.txt
+	ydb_gbldir=extended.gld $ydb_dist/yottadb -run %XCMD 'write $data(^ReplicationQueueTableForTest),!' | tee -a output.txt
+
+	verify_output TT06 output.txt
 }

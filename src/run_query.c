@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -448,13 +448,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
-		ydb_tpfnptr_t tpfn;
-		tpfn = (ydb_tpfnptr_t)&truncate_table_tp_callback_fn;
-		status = ydb_tp_s(tpfn, result, NULL, 0, NULL);
+		/* TRUNCATE removes the row data by KILLing each table's data global through a top-level M
+		 * call-in (see "truncate_tables"), like DROP TABLE. Running the KILL through M lets name
+		 * indirection resolve an extended-reference GLOBAL.
+		 */
+		status = truncate_tables(result);
 		if (YDB_OK == status) {
 			PRINT_COMMAND_TAG(TRUNCATE_TABLE_COMMAND_TAG);
 		} else {
-			assert(YDB_TP_ROLLBACK == status);
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
@@ -639,7 +640,6 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				CLEANUP_AND_RETURN_WITH_ERROR(memory_chunks, buffer, spcfc_buffer, query_lock, &cursor_ydb_buff);
 			}
 
-			char tableGVNAME[YDB_MAX_IDENT + 2]; // + 2: One for ^, one for null byte. YDB_MAX_IDENT does not include ^.
 			ydb_buffer_t	     gvname_buff;
 			enum OptionalKeyword retention = NO_KEYWORD;
 			if (drop_table_STATEMENT == result_type) {
@@ -657,7 +657,7 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 				 * in them. Hence the below assert.
 				 */
 				assert(!config->in_auto_load_octo_seed);
-				POPULATE_GVN_BUFFER_FROM_TABLE(gvname_buff, table, tableGVNAME);
+				POPULATE_GVN_BUFFER_FROM_TABLE(gvname_buff, table);
 			} else {
 				YDB_STRING_TO_BUFFER("", &gvname_buff);
 			}

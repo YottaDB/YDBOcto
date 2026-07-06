@@ -19,6 +19,16 @@
 %ydboctoDiscard	;
 	QUIT
 
+killGvnTree(gvnlist)	;
+	; KILL the data subtrees of the globals in "gvnlist", a comma-separated list of
+	; M global variable names each of which may be an extended reference such as ^|"gld"|name.
+	; Used by TRUNCATE TABLE
+	QUIT:gvnlist=""
+	TSTART ()
+	KILL @gvnlist
+	TCOMMIT
+	QUIT
+
 discardALL	;
 	; Discard plans, xrefs and triggers for ALL tables
 	; Discard plans for ALL views

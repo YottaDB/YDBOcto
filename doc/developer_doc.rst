@@ -250,6 +250,8 @@ Running all the tests
 
  Bats tests directories for passed tests are deleted by default; if you wish to keep them, ``export octo_keep_bats_dirs=1``.
 
+ To stress-test Octo's support for extended global references, export :code:`OCTO_TEST_EXTREF=1` before running the tests. When it is set, :code:`createdb()` additionally creates a database reachable only through an extended reference, and :code:`load_fixture()` rewrites each fixture table's :code:`GLOBAL` keyword to point into it, so a full :code:`ctest` run exercises the extended-reference code paths for every fixture-loaded table. This is a fuzzing aid rather than a clean pass: many tests report reference-output differences because the extended reference now appears in generated plans and :code:`\d` output, so the signal to look for is genuine failures such as crashes, AddressSanitizer errors, or plan-compilation errors. The variable defaults to unset and has no effect on a normal test run.
+
 -------------
 Contributing
 -------------

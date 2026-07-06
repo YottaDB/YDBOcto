@@ -366,7 +366,7 @@ add_library(libocto OBJECT
   store_table_dependencies.c
   table_has_hidden_column.c
   traverse_where_clause.c
-  truncate_table_tp_callback_fn.c
+  truncate_tables.c
   unary_operation_data_type_check.c
   validate_table_asterisk_binary_operation.c
   view_definition.c

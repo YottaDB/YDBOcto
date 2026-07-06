@@ -194,6 +194,15 @@ copy_test_files() {
 load_fixture() {
 	local fixture_name=$1
 	local destination_gld=$5
+	# "All tables are extended reference tables" sweep: when "OCTO_TEST_EXTREF" is set (and the
+	# caller did not request a specific destination gld), default every fixture to load its data
+	# and rewrite its GLOBAL keyword into the extended-reference database created by createdb().
+	# This turns every fixture-loaded table into an extended-reference table so that a full
+	# "ctest" run exercises the extended-reference code paths throughout. An explicit 5th arg
+	# still overrides this (e.g. TX12 passing its own gld).
+	if [[ -z "$destination_gld" && -n "$OCTO_TEST_EXTREF" ]]; then
+		destination_gld="${OCTO_TEST_EXTREF_GLD:-extref.gld}"
+	fi
 	echo "Loading fixture $fixture_name"
 	if [[ $fixture_name == *.zwr ]]; then
 		# Determine the chset (M or UTF-8) to use from the extract file. It will be either "UTF-8" or "".
@@ -382,6 +391,16 @@ FILE
 	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
 	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
 	export ydb_dbfilext_syslog_disable=1
+
+	# "All tables are extended reference tables" sweep: when "OCTO_TEST_EXTREF" is set, additionally
+	# create a separate database reachable only through an extended reference. "load_fixture()"
+	# defaults every fixture's data + GLOBAL keyword into this gld (see there), so a full "ctest"
+	# run exercises the extended-reference code paths for every fixture-loaded table.
+	# The "-z $2" guard restricts this to the default createdb: it skips the recursive call just
+	# below (which passes $2) and any explicit "createdb 2 <gld>" a test makes on its own.
+	if [[ -n "$OCTO_TEST_EXTREF" && -z "$2" ]]; then
+		createdb "" "${OCTO_TEST_EXTREF_GLD:-extref.gld}"
+	fi
 
 	save_env_variables
 }

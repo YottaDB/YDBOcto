@@ -1072,7 +1072,16 @@ typedef enum DDLDependencyType {
 		}                                                                                              \
 	}
 
-#define POPULATE_GVN_BUFFER_FROM_TABLE(GVN_BUFFER, TABLE, GVN_STR)                                                 \
+/* Points GVN_BUFFER (a "ydb_buffer_t") at the global-variable-name portion of TABLE's GLOBAL keyword: everything in
+ * "value->v.reference" up to (but not including) the first '(' that starts the subscript list. Used by the DROP TABLE
+ * and TRUNCATE TABLE code paths to identify the global whose row data is to be KILLed.
+ *
+ * GVN_BUFFER is a length-bounded view into "value->v.reference"; nothing is copied. The GLOBAL keyword can be an
+ * extended reference (e.g. ^[""$basedir/x.gld""]glvn) of unbounded length, so a length-bounded view into the original
+ * string is used. Both consumers, "ydb_delete_s()" and "ydb_ci()", honor "len_used" and do not require the buffer to be
+ * null terminated, and the SqlTable outlives GVN_BUFFER at both call sites.
+ */
+#define POPULATE_GVN_BUFFER_FROM_TABLE(GVN_BUFFER, TABLE)                                                          \
 	{                                                                                                          \
 		SqlOptionalKeyword *keyword;                                                                       \
 		char		   *gvname, *firstsub;                                                             \
@@ -1087,9 +1096,9 @@ typedef enum DDLDependencyType {
 			assert(FALSE);                                                                             \
 			YDB_STRING_TO_BUFFER(gvname, &(GVN_BUFFER));                                               \
 		} else {                                                                                           \
-			memcpy(GVN_STR, gvname, firstsub - gvname);                                                \
-			GVN_STR[firstsub - gvname] = '\0';                                                         \
-			YDB_STRING_TO_BUFFER(GVN_STR, &(GVN_BUFFER));                                              \
+			(GVN_BUFFER).buf_addr = gvname;                                                            \
+			(GVN_BUFFER).len_used = (unsigned int)(firstsub - gvname);                                 \
+			(GVN_BUFFER).len_alloc = (GVN_BUFFER).len_used;                                            \
 		}                                                                                                  \
 	}
 
@@ -1443,7 +1452,7 @@ int  get_row_count_from_cursorId(ydb_long_t cursorId);
 int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);
 void print_result_row(FILE *memstream, ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
-int  truncate_table_tp_callback_fn(SqlStatement *truncate_stmt);
+int		    truncate_tables(SqlStatement *truncate_stmt);
 
 /**
  * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering

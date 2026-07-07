@@ -710,6 +710,29 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 					}
 				}
 			}
+			/* OCTO1122: Validate that the table's GLOBAL can be accessed before storing the table
+			 * definition. A GLOBAL can be an extended reference (e.g. ^[""x.gld""]glvn) whose global
+			 * directory the user typed incorrectly (a ".dat" database file instead of a ".gld" global
+			 * directory file) or that does not exist. Such a table cannot be queried and, if READWRITE,
+			 * cannot even be dropped later, because DROP TABLE does a "KILL @global" that forces YottaDB to
+			 * resolve the extended reference and fails. So reject the bad GLOBAL here at CREATE TABLE time
+			 * instead. The check is a simple $DATA(@global) done through the "_ydboctoValidateGlobal" M
+			 * call-in (the SimpleAPI cannot be used here as it rejects extended references). If the global
+			 * cannot be accessed, "ydb_ci()" returns a YDB error (e.g. %YDB-E-ZGBLDIRACC naming the
+			 * offending global directory file); report it and abort the CREATE TABLE.
+			 * This is skipped during auto-load of octo-seed and the YDBOcto#929 auto-upgrade: those paths
+			 * recreate tables whose GLOBALs were already validated at their original CREATE.
+			 */
+			if (!config->in_auto_load_octo_seed && !config->is_auto_upgrade_octo929) {
+				ydb_buffer_t global_buff;
+
+				POPULATE_GVN_BUFFER_FROM_TABLE(global_buff, table);
+				ci_param1.address = global_buff.buf_addr;
+				ci_param1.length = global_buff.len_used;
+				status = ydb_ci("_ydboctoValidateGlobal", &ci_param1);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock,
+								 &cursor_ydb_buff);
+			}
 			memstream = open_memstream(&buffer, &buffer_size);
 			if (NULL == memstream) {
 				ERROR(ERR_SYSCALL_WITH_ARG, "open_memstream()", errno, strerror(errno), "memstream");

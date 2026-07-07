@@ -531,3 +531,40 @@ teardown() {
 
 	verify_output TC084 output.txt
 }
+
+@test "TC085 : OCTO1122 : CREATE TABLE rejects a GLOBAL whose extended reference cannot be accessed" {
+	# A GLOBAL keyword can be an extended reference ^["file.gld"]glvn (or ^|"file.gld"|glvn) where the
+	# text inside the brackets names a global directory (.gld) file. If that file cannot be opened as a
+	# .gld -- the user pointed it at a .dat database file, or (as here) at a path that does not exist --
+	# the resulting table is unusable: it cannot be queried, and a READWRITE table cannot even be DROPped
+	# afterwards, because DROP TABLE does a "KILL @global" that fails to resolve the reference (YDBOcto#1122).
+	# Octo now validates the GLOBAL at CREATE TABLE time with a $DATA(@global) probe (via the
+	# "_ydboctoValidateGlobal" M call-in). The probe fails with the underlying YottaDB error (ZGBLDIRACC
+	# here), which aborts the CREATE, so the bad table is never created in the first place. Both READWRITE
+	# and READONLY tables are validated.
+
+	echo "# 1. READWRITE CREATE whose GLOBAL is an extended reference to a NON-EXISTENT .gld -> error, CREATE aborts" > output.txt
+	octo <<OCTO 2>&1 | tee -a output.txt
+create table badq (id integer primary key, val varchar) global "^[""nonexistent.gld""]BadQ(keys(""id""))" readwrite;
+OCTO
+
+	echo "# 2. The rejected CREATE left nothing behind: the same table name creates cleanly with a valid GLOBAL" >> output.txt
+	octo <<OCTO 2>&1 | tee -a output.txt
+create table badq (id integer primary key, val varchar);
+OCTO
+
+	echo "# 3. A READONLY table with the same unresolvable extended reference is rejected too" >> output.txt
+	octo <<OCTO 2>&1 | tee -a output.txt
+create table roq (id integer primary key, val varchar) global "^[""nonexistent.gld""]RoQ(keys(""id""))" readonly;
+OCTO
+
+	# The ZGBLDIRACC error number changed from 150374122 to 418809578 across YottaDB versions (see TERR001),
+	# so normalize it for a version-independent reference.
+	sed -i 's/150374122/418809578/' output.txt
+	# YottaDB auto-logs the ZGBLDIRACC (inaccessible .gld) to the syslog. Locally the syslog goes to
+	# journald and is not seen, but in the pipeline (a docker container) it goes to stderr and the
+	# "2>&1 | tee -a" above captures it. That line carries a PID and a non-deterministic "generated
+	# from 0x..." address, so strip it before comparing -- same approach as TERR001.
+	grep -v "generated from" output.txt > output_nosyslog.txt && mv output_nosyslog.txt output.txt
+	verify_output TC085 output.txt noinfo nodebug
+}

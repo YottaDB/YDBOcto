@@ -1,0 +1,6 @@
+# 1. READWRITE CREATE whose GLOBAL is an extended reference to a NON-EXISTENT .gld -> error, CREATE aborts
+[ERROR]: ERR_YOTTADB: YottaDB error: 418809578,validateGlobal+11^%ydboctoCreateTable,%YDB-E-ZGBLDIRACC, Cannot access global directory $PWD/nonexistent.gld.  Retaining $PWD/yottadb.gld.,%SYSTEM-E-ENO2, No such file or directory
+# 2. The rejected CREATE left nothing behind: the same table name creates cleanly with a valid GLOBAL
+CREATE TABLE
+# 3. A READONLY table with the same unresolvable extended reference is rejected too
+[ERROR]: ERR_YOTTADB: YottaDB error: 418809578,validateGlobal+11^%ydboctoCreateTable,%YDB-E-ZGBLDIRACC, Cannot access global directory $PWD/nonexistent.gld.  Retaining $PWD/yottadb.gld.,%SYSTEM-E-ENO2, No such file or directory

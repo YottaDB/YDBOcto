@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2022-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,6 +17,7 @@
 set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
+  aux/_ydboctoCreateTable.m
   aux/_ydboctoDiscard.m
   aux/_ydboctofCONCAT.m
   aux/_ydboctofCURRENTTIME.m

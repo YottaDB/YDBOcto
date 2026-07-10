@@ -1,0 +1,110 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Emits the trailing arguments of an XREFDATA^%YDBAIM call: the AIM metadata "type" argument, the optional
+ * transformation-function argument, and the closing ")" of the XREFDATA call.
+ *
+ * A column is indexed either directly (no transform) or through a single AIM transformation function that
+ * composes everything AIM must apply so that it indexes the same value the read-side plans look up (AIM allows
+ * only ONE transform per index):
+ *      - piece-of-piece (chained DELIMS/PIECES, YDBOcto#1108): "PieceOfPieceXform" applies the outer piece
+ *        levels ("outer_spec"), then the column's date/boolean/string conversion, then (for a DELIMS/PIECES +
+ *        SUBSTR column) the "substr_spec" $EXTRACT range.
+ *      - SUBSTR whole-node/single-piece (YDBOcto#763/#764): "SubstrXform" applies the "substr_spec" $EXTRACT
+ *        range, then the column's date/boolean/string conversion.
+ *      - DATE/TIME (non-readwrite): "Transform2UnixTime".
+ *      - BOOLEAN (non-readwrite): "ForceBoolean".
+ *      - anything else: no transform; the "type" and "forceStrOrder" arguments are emitted directly.
+ *
+ * "type" is 2 (transform only) or 3 (transform + missing-node NULL indexing) when a transform is present; the
+ * table's AIMTYPE selects between them ("aim_type" non-zero -> 3). Without a transform, the table's raw AIMTYPE
+ * is emitted along with "forceStrOrder" (1 for STRING columns so canonical strings order correctly).
+ *
+ * Called from BOTH XREFDATA emissions in "tmpl_physical_plan" (the nmonly=0 build call and the nmonly=1 metadata
+ * call). Sharing one template keeps them identical, which matters because the AIM global name returned by the
+ * nmonly=1 call (and cached for the read-side plan) hashes the type/transform.
+ */
+TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, int aim_type, boolean_t is_multi_level_piece, \
+	 char *outer_spec, char *substr_spec) {
+	boolean_t	is_column_string_type;
+	boolean_t	is_date_col;
+	boolean_t	is_bool_col;
+
+	is_column_string_type = IS_COLUMN_STRING_TYPE(column);
+	is_date_col = (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type));
+	is_bool_col = (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type));
+
+	if (is_multi_level_piece || (NULL != substr_spec) || is_date_col || is_bool_col) {
+		/* Transform-function index: type 2 (transform only) or 3 (transform + missing-node NULL indexing). */
+		if (aim_type) {
+			%{}3,{}%
+		} else {
+			%{}2,{}%
+		}
+
+		if (is_multi_level_piece || (NULL != substr_spec)) {
+			if (is_multi_level_piece) {
+				%{}"$$PieceOfPieceXform^%%ydboctoplanhelpers(,""{{ outer_spec }}"",{}%
+			} else {
+				%{}"$$SubstrXform^%%ydboctoplanhelpers(,""{{ substr_spec }}"",{}%
+			}
+
+			/* Compose the column's own date/boolean/string conversion after the piece/$EXTRACT step. */
+			if (is_date_col) {
+				%{}""d""{}%
+				TMPL(tmpl_print_date_time_to_unix_time_args,
+				     get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE),
+				     column->data_type_struct.format, FALSE, TRUE);
+			} else if (is_bool_col) {
+				%{}""b""{}%
+			} else if (is_column_string_type) {
+				%{}""s""{}%
+			} else {
+				%{}""""{}%	// no conversion (e.g. integer/numeric column)
+			}
+
+			if (is_multi_level_piece && (NULL != substr_spec)) {
+				/* DELIMS/PIECES + SUBSTR: the SUBSTR range is PieceOfPieceXform's trailing "substrspec"
+				 * argument, applied after the outer piece levels. The date branch already emitted
+				 * arguments 4-6 (dtype/dtformat/txtfmt); the others skip them with empty arguments.
+				 */
+				if (is_date_col) {
+					%{},""{{ substr_spec }}""{}%
+				} else {
+					%{},,,,""{{ substr_spec }}""{}%
+				}
+			}
+		} else if (is_date_col) {
+			%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
+			TMPL(tmpl_print_date_time_to_unix_time_args,
+			     get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE),
+			     column->data_type_struct.format, FALSE, TRUE);
+		} else {
+			assert(is_bool_col);
+			%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
+		}
+
+		%{})"{}%	// close the transformation function
+		%{}){}%		// close the XREFDATA call
+	} else {
+		/* No transform: emit the raw AIM metadata type and the forceStrOrder flag, then close XREFDATA. */
+		%{}{{ aim_type|%d }},{}%
+		%{}{{ is_column_string_type|%d }}){}%
+	}
+
+	return;
+}
+%{}

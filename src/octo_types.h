@@ -379,7 +379,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_SKIP,
 	OPTIONAL_SKIPCONDITION,
 	OPTIONAL_ITERATOR,
-	OPTIONAL_VIRTUAL
+	OPTIONAL_VIRTUAL,
+	OPTIONAL_SUBSTR
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {

@@ -1,0 +1,133 @@
+# Data loaded into ^ux (piece 1 is the value, piece 2 names the case):
+^ux(1)="Xé日Y|mixed"
+^ux(2)="日本語|cjk"
+^ux(3)="abcdef|ascii"
+^ux(4)="|empty"
+-- TX17 : YDBOcto#763/#764 : AIM cross reference over a multi-byte SUBSTR column (UTF-8 only)
+--
+-- TC088 shows the READ side extracts characters rather than bytes. This checks that the AIM
+-- index agrees: AIM stores what "SubstrXform" returns, and that transform runs $EXTRACT in the
+-- same process (hence the same chset) as the read side. If the two ever disagreed, an indexed
+-- lookup would silently miss rows that a full scan finds.
+--
+-- ^ux piece 1 is the value, piece 2 names the case:
+--   mixed  "Xé日Y"   1-, 2- and 3-byte characters in one value
+--   cjk    "日本語"   all 3-byte characters
+--   ascii  "abcdef"  characters and bytes coincide
+--   empty  ""        extraction is empty, i.e. SQL NULL
+CREATE TABLE ux (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR PIECE 2,
+	head3	VARCHAR PIECE 1 SUBSTR 1-3
+) GLOBAL "^ux(keys(""id""))" READONLY;
+
+-- Builds the cross reference, then answers from it. The literal is multi-byte, so this only
+-- matches if the indexed subscript was built with character (not byte) extraction.
+select label from ux where head3 = 'Xé日';
+select label from ux where head3 = '日本語';
+
+-- MIN/MAX read straight off the AIM index (YDBOcto#617). Ordering is by the "#"-prefixed
+-- subscript, i.e. M collation over the UTF-8 bytes: X(0x58) < a(0x61) < 日(0xE697A5).
+select MIN(head3) as LO, MAX(head3) as HI from ux;
+
+-- The empty extraction is SQL NULL and is indexed under the same "#" marker a plain string
+-- column uses, so an indexed IS NULL finds it and IS NOT NULL excludes it.
+select label from ux where head3 is null;
+select label from ux where head3 is not null order by label;
+OCTO> --
+--
+CREATE TABLE ux (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR PIECE 2,
+	head3	VARCHAR PIECE 1 SUBSTR 1-3
+) GLOBAL "^ux(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> select label from ux where head3 = 'Xé日';
+label
+mixed
+(1 row)
+OCTO> select label from ux where head3 = '日本語';
+label
+cjk
+(1 row)
+OCTO> select MIN(head3) as LO, MAX(head3) as HI from ux;
+lo|hi
+Xé日|日本語
+(1 row)
+OCTO> select label from ux where head3 is null;
+label
+empty
+(1 row)
+OCTO> select label from ux where head3 is not null order by label;
+label
+ascii
+cjk
+mixed
+(3 rows)
+OCTO> 
+
+# AIM index subscripts ("#" + the 3-character extraction; NULL for the empty piece):
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#",4)=""
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#Xé日",1)=""
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#abc",3)=""
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#日本語",2)=""
+
+# The transformation function AIM was given for this column:
+SubstrXform^%ydboctoplanhelpers(,""1-3"",""s"")
+
+# Trigger maintenance. Change the underlying global directly:
+#   SET   ^ux(1) : the mixed-width value becomes three 3-byte characters
+#   ZKILL ^ux(2) : the "cjk" row goes away
+^ux(1)="東京都|mixed"
+^ux(3)="abcdef|ascii"
+^ux(4)="|empty"
+-- Run after ^ux is changed directly (the table is READONLY). Until now only AIM's initial
+-- SCAN had seen multi-byte data; these queries exercise the TRIGGER path, which is separate
+-- code in %YDBAIM and re-derives the indexed value by calling SubstrXform itself. The trigger
+-- must land on the same character boundary the scan did.
+--
+--   SET   ^ux(1) : "Xé日Y" -> "東京都", so the indexed extraction changes from Xé日 to 東京都
+--   ZKILL ^ux(2) : the "cjk" row goes away, so 日本語 is no longer indexed
+
+-- The old extraction is gone and the new one is found; both literals are multi-byte, so a
+-- trigger that counted bytes instead of characters would fail to match either.
+select label from ux where head3 = 'Xé日';
+select label from ux where head3 = '東京都';
+
+-- The zkilled row is no longer indexed under its old value.
+select label from ux where head3 = '日本語';
+
+-- Whole-table view after both changes.
+select label, head3 from ux order by label;
+
+-- MIN/MAX re-read off the maintained index. 東(0xE6...) sorts above a(0x61), so the maximum
+-- is now 東京都 and the minimum is the remaining ASCII row.
+select MIN(head3) as LO, MAX(head3) as HI from ux;
+OCTO> --
+
+select label from ux where head3 = 'Xé日';
+label
+(0 rows)
+OCTO> select label from ux where head3 = '東京都';
+label
+mixed
+(1 row)
+OCTO> select label from ux where head3 = '日本語';
+label
+(0 rows)
+OCTO> select label, head3 from ux order by label;
+label|head3
+ascii|abc
+empty|
+mixed|東京都
+(3 rows)
+OCTO> select MIN(head3) as LO, MAX(head3) as HI from ux;
+lo|hi
+abc|東京都
+(1 row)
+OCTO> 
+
+# AIM index after the trigger maintained it (3 characters again, not 3 bytes):
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#",4)=""
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#abc",3)=""
+^%ydbAIMDfnx0p3J7Raw3EKfKmUdOB7(1,"#東京都",1)=""

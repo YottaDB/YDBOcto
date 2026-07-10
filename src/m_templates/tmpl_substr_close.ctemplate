@@ -1,0 +1,52 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include <string.h>
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* YDBOcto#763/#764: Emits the closer matching a "$EXTRACT(" opener for a SUBSTR column. The "$EXTRACT(" opener
+ * itself is emitted inline by the caller (before the column's source or $PIECE openers), so that SUBSTR slices
+ * the piece/node value BEFORE any date/time/boolean/NULL conversion wraps it.
+ *
+ * "substr_spec" is the normalized specification string stored on the OPTIONAL_SUBSTR keyword at CREATE TABLE
+ * time: either "start" (single character position, e.g. "2") or "start-end" (an inclusive character range,
+ * e.g. "1-12"). It emits ",start)" or ",start,end)" respectively.
+ *
+ * Shared by "tmpl_column_reference" (regular column fetch) and "tmpl_emit_source" (values(..) re-derivation).
+ */
+TEMPLATE(tmpl_substr_close, char *substr_spec) {
+	char *dash;
+
+	dash = strchr(substr_spec, '-');
+	if (NULL == dash) {
+		%{},{{ substr_spec }}){}%
+	} else {
+		char	start_text[32]; /* the spec was validated as two "long" values at CREATE TABLE time so it fits */
+		int	start_length;
+		char	*end_text;
+
+		start_length = (int)(dash - substr_spec);
+		assert(start_length < (int)sizeof(start_text));
+		memcpy(start_text, substr_spec, start_length);
+		start_text[start_length] = '\0';
+		end_text = dash + 1;
+		%{},{{ start_text }},{{ end_text }}){}%
+	}
+	return;
+}
+%{}

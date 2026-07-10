@@ -242,6 +242,7 @@ int save_yylloc_first_line;
 (?i:SOME) { return SOME; }
 (?i:START) { return START; }
 (?i:STARTINCLUDE) { return STARTINCLUDE; }
+(?i:SUBSTR) { return SUBSTR; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
 (?i:TEXT) { return TEXT; }

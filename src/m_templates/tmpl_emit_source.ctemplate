@@ -184,6 +184,23 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 						piece_keyword = get_keyword(sql_column, OPTIONAL_PIECE);
 						col_is_multi_level_piece
 						    = (NULL != piece_keyword) && (value_list_STATEMENT == piece_keyword->v->type);
+
+						/* YDBOcto#763/#764: If the referenced column is a SUBSTR column, its "$EXTRACT("
+						 * wraps the $PIECE/$GET emission below (matching "tmpl_column_reference"); the
+						 * ",start[,end])" closer is emitted by "tmpl_substr_close" at the bottom.
+						 */
+						SqlOptionalKeyword *col_substr_keyword;
+						char		   *col_substr_spec;
+
+						col_substr_keyword = get_keyword(sql_column, OPTIONAL_SUBSTR);
+						if (NULL != col_substr_keyword) {
+							UNPACK_SQL_STATEMENT(value, col_substr_keyword->v, value);
+							col_substr_spec = value->v.string_literal;
+							%{}$EXTRACT({}%
+						} else {
+							col_substr_spec = NULL;
+						}
+
 						if (col_is_multi_level_piece) {
 							/* YDBOcto#1108: Multi-level (piece-of-piece) column. Emit one "$PIECE(" opener
 							 * per nesting level, then $GET(source), then one ,"<delim>",<piece>) closer per
@@ -198,6 +215,15 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 									unique_id, parm2, MAX_KEY_COUNT, form);
 							%{}){}%
 							TMPL(tmpl_piece_of_piece_close, sql_column->delim, piece_keyword->v);
+						} else if ((NULL == piece_keyword) && (NULL != col_substr_spec)) {
+							/* YDBOcto#763/#764: Whole-node SUBSTR column (its implicit DELIM "" removed any
+							 * PIECE keyword). $EXTRACT applies to the entire node, so emit only $GET(source)
+							 * here; the $PIECE branch below would wrongly slice it into pieces.
+							 */
+							%{}$GET({}%
+								TMPL(tmpl_emit_source, table, source_global, table_name,	\
+									unique_id, parm2, MAX_KEY_COUNT, form);
+							%{}){}%
 						} else {
 							char *delim;
 
@@ -221,6 +247,11 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 							} else {
 								%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
 							}
+						}
+
+						if (NULL != col_substr_spec) {
+							/* YDBOcto#763/#764: closer for the "$EXTRACT(" opener emitted above */
+							TMPL(tmpl_substr_close, col_substr_spec);
 						}
 					}
 				}

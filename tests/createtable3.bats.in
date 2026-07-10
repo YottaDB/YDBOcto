@@ -619,3 +619,111 @@ OCTO
 
 	verify_output TC086 output.txt
 }
+
+@test "TC087 : OCTO763 : CREATE TABLE SUBSTR keyword (\$EXTRACT character ranges)" {
+	load_fixture TC087.zwr
+
+	# =====================================================================
+	# Section A : whole-node SUBSTR (column-level GLOBAL optional)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section A : whole-node SUBSTR (column-level GLOBAL optional) ===" | tee -a output.txt
+	echo "# Data loaded into ^subwn:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^subwn' 2>&1 | tee -a output.txt
+	load_fixture TC087-A.sql subtest novv
+
+	# =====================================================================
+	# Section B : PIECE + SUBSTR (default and explicit DELIM)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section B : PIECE + SUBSTR (default and explicit DELIM) ===" | tee -a output.txt
+	echo "# Data loaded into ^subpc and ^subpcd:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^subpc,^subpcd' 2>&1 | tee -a output.txt
+	load_fixture TC087-B.sql subtest novv
+
+	# =====================================================================
+	# Section C : types, DELIMS/PIECES, values() references, LEFT JOIN
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section C : types, DELIMS/PIECES, values() references, LEFT JOIN ===" | tee -a output.txt
+	echo "# Data loaded into ^subtyp, ^subtypx, ^subpp, ^subval, ^subval2:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^subtyp,^subtypx,^subpp,^subval,^subval2' 2>&1 | tee -a output.txt
+	load_fixture TC087-C.sql subtest novv
+
+	# =====================================================================
+	# Section D : error cases (each CREATE TABLE is expected to fail)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section D : error cases ===" | tee -a output.txt
+	load_fixture TC087-D.sql subtest novv
+
+	# ---------------------------------------------------------------------
+	# Codegen + round-trip checks over the tables created in Sections A-C
+	# ---------------------------------------------------------------------
+	echo "" | tee -a output.txt
+	echo "# Generated \$EXTRACT calls (SUBSTR codegen -- Sections A-C):" | tee -a output.txt
+	grep -hoE '\$EXTRACT\([^ ]*' _ydboctoP*.m | sort -u | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Stored text table definitions (round-trip; the whole-node form appends DELIM \"\" after GLOBAL):" | tee -a output.txt
+	$ydb_dist/mupip extract tc087.ext >& /dev/null
+	grep -hE '\^%ydboctoschema\("sub[a-z_0-9]*","text"' tc087.ext | tee -a output.txt
+
+	# nodatetimefilter: the literal extracted dates ARE the point of the SUBSTR 1-10 checks in Section C
+	verify_output TC087 output.txt nodatetimefilter
+
+	# =====================================================================
+	# Section E : SUBSTR extracts characters, not bytes, under UTF-8 (UTF-8 only)
+	# =====================================================================
+	# SUBSTR maps to M $EXTRACT, which counts CHARACTERS when ydb_chset is UTF-8 and BYTES when
+	# it is M. Every extracted value below differs between the two, so it can only run in UTF-8
+	# (same idiom as TUT008). "init_test" picks the chset at random, so this section runs only
+	# on the UTF-8 runs and is verified against its own TC087_utf8.ref.
+	if [[ $ydb_chset == "UTF-8" ]]; then
+		# Resume from the already-verified output, and clear the plans built by Sections A-C: the
+		# $EXTRACT grep below must show only the ^u1/^u2/^u3 tables created here.
+		mv output.txt output_noutf8.txt
+		rm -f _ydboctoP*.m _ydboctoP*.o
+
+		# The multi-byte data is built with $ZCHAR so that THIS file stays pure ASCII: the pre-commit
+		# hook rejects UTF-8 characters in source files and exempts only .sql/.zwr/.ref/.md/.rst.
+		# The multi-byte literals that the queries compare against live in the .sql fixtures.
+		#   X=88  e-acute=195,169  CJK day=230,151,165  CJK book=230,156,172  CJK language=232,170,158  Y=89
+		yottadb -run %XCMD 'set ^u1(1)=$ZCHAR(88,195,169,230,151,165,89)_"|mixed"'
+		yottadb -run %XCMD 'set ^u1(2)=$ZCHAR(230,151,165,230,156,172,232,170,158)_"|cjk"'
+		yottadb -run %XCMD 'set ^u1(3)="abcdef|ascii",^u1(4)=$ZCHAR(195,169)_"|short",^u1(5)="|empty"'
+		yottadb -run %XCMD 'set ^u2(1,0)=$ZCHAR(88,195,169,230,151,165,89),^u2(1,1)="mixed"'
+		yottadb -run %XCMD 'set ^u2(2,0)=$ZCHAR(230,151,165,230,156,172,232,170,158),^u2(2,1)="cjk"'
+		yottadb -run %XCMD 'set ^u2(3,0)="abcdef",^u2(3,1)="ascii"'
+		yottadb -run %XCMD 'set ^u3(1)="a|"_$ZCHAR(88,195,169,230,151,165,89)_"^b|mixed"'
+		yottadb -run %XCMD 'set ^u3(2)="a|"_$ZCHAR(230,151,165,230,156,172,232,170,158)_"^b|cjk"'
+		yottadb -run %XCMD 'set ^u3(3)="a|abcdef^b|ascii"'
+
+		# =====================================================================
+		# Section A : PIECE + SUBSTR character boundaries
+		# =====================================================================
+		echo "" | tee -a output.txt
+		echo "# === PIECE + SUBSTR counts characters ===" | tee -a output.txt
+		echo "# Data loaded into ^u1 (piece 1 is the value, piece 2 names the case):" | tee -a output.txt
+		yottadb -run %XCMD 'zwrite ^u1' 2>&1 | tee -a output.txt
+		load_fixture TC087-E.sql subtest novv
+
+		# =====================================================================
+		# Section B : whole-node SUBSTR and DELIMS/PIECES + SUBSTR
+		# =====================================================================
+		echo "" | tee -a output.txt
+		echo "# === whole-node and DELIMS/PIECES SUBSTR ===" | tee -a output.txt
+		echo "# Data loaded into ^u2 (whole node + label node) and ^u3 (two delimiter levels):" | tee -a output.txt
+		yottadb -run %XCMD 'zwrite ^u2,^u3' 2>&1 | tee -a output.txt
+		load_fixture TC087-E2.sql subtest novv
+
+		# ---------------------------------------------------------------------
+		# Codegen: the same $EXTRACT calls serve both chsets; only their runtime
+		# meaning changes. Recorded here so the shapes are visible in the ref.
+		# ---------------------------------------------------------------------
+		echo "" | tee -a output.txt
+		echo "# Generated \$EXTRACT calls:" | tee -a output.txt
+		grep -hoE '\$EXTRACT\([^ ]*' _ydboctoP*.m | sort -u | tee -a output.txt
+
+		verify_output TC087_utf8 output.txt
+	fi
+}

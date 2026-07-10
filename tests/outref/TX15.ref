@@ -52,11 +52,19 @@ OCTO>
 ^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#123 Main",0)=""
 ^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#45 Oak",1)=""
 ^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#9 Elm",2)=""
-# The table is READONLY, so update the underlying global: ^ppaddr(1) '45 Oak' -> '999 New St'
--- Run after ^ppaddr(1) is updated directly (the table is READONLY). The AIM trigger re-derives the
--- chained value, so the index tracks the change: '45 Oak' is now gone and '999 New St' is found.
+# The table is READONLY, so change the underlying global directly. Both trigger paths:
+#   SET   ^ppaddr(1) : street '45 Oak' -> '999 New St'
+#   ZKILL ^ppaddr(2) : the whole row goes away, so street '9 Elm' is unindexed
+-- Run after ^ppaddr(1) is updated and ^ppaddr(2) is zkilled directly (the table is READONLY).
+-- The AIM trigger re-derives the chained value, so the index tracks both kinds of change:
+--   SET  : id 1's old street '45 Oak' is gone and its new street '999 New St' is found;
+--   ZKILL: id 2's node is gone, so its street '9 Elm' is no longer indexed and the row
+--          disappears from the table altogether (the whole node was removed, not just the
+--          extracted piece, so this is a row deletion rather than a transition to NULL).
 SELECT * FROM ppaddr WHERE street = '45 Oak';
 SELECT * FROM ppaddr WHERE street = '999 New St';
+SELECT * FROM ppaddr WHERE street = '9 Elm';
+SELECT * FROM ppaddr ORDER BY id;
 OCTO> SELECT * FROM ppaddr WHERE street = '45 Oak';
 id|street|city
 (0 rows)
@@ -64,10 +72,18 @@ OCTO> SELECT * FROM ppaddr WHERE street = '999 New St';
 id|street|city
 1|999 New St|Boston
 (1 row)
+OCTO> SELECT * FROM ppaddr WHERE street = '9 Elm';
+id|street|city
+(0 rows)
+OCTO> SELECT * FROM ppaddr ORDER BY id;
+id|street|city
+0|123 Main|NYC
+1|999 New St|Boston
+3||Zion
+(3 rows)
 OCTO> 
 ^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#",3)=""
 ^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#123 Main",0)=""
-^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#9 Elm",2)=""
 ^%ydbAIMDe4NLPxAbRXsxWuKHa8eHL0(2,"#999 New St",1)=""
 
 # === Section B : MIN/MAX off the AIM index (string; 2-level and 3-level) ===
@@ -572,3 +588,106 @@ OCTO>
 "2:Z228.184.138.228.184.139"
 "2:Z89.228.184.138"
 "2:Z94/2:Z126"
+
+# === Section H : AIMTYPE 1 IS NULL matrix (missing node + empty piece, every type) ===
+# ^ppnul id 2 is missing all typed nodes; id 3's inner pieces are all empty; both are NULL:
+^ppnul(0,0)="r0"
+^ppnul(0,1)="A|12 Elm^Ryazan|z"
+^ppnul(0,2)="a|x^2020-01-15|z"
+^ppnul(0,3)="a|x^yes|z"
+^ppnul(0,4)="a|x^30|z"
+^ppnul(1,0)="r1"
+^ppnul(1,1)="B|9 Oak^Kyoto|z"
+^ppnul(1,2)="a|x^1999-12-31|z"
+^ppnul(1,3)="a|x^no|z"
+^ppnul(1,4)="a|x^5|z"
+^ppnul(2,0)="r2"
+^ppnul(3,0)="r3"
+^ppnul(3,1)="C|x^|z"
+^ppnul(3,2)="a|x^|z"
+^ppnul(3,3)="a|x^|z"
+^ppnul(3,4)="a|x^|z"
+-- AIMTYPE 1 + DELIMS/PIECES (no SUBSTR), for every data type -- the IS NULL matrix (YDBOcto#1108 fix
+-- riding on #763/#764). Every ^ppnul row has its (id,0) node; id 2 has NONE of the four typed data
+-- nodes (MISSING nodes, indexed as NULL by AIM metadata type 3) and id 3 has all four nodes but each
+-- inner piece comes back EMPTY (empty piece-of-piece extraction). Both flavors are SQL NULL, indexed
+-- under the bare "" subscript, so every indexed IS NULL lookup returns ids 2 and 3 and MIN/MAX skip
+-- both. (Before this commit these string/boolean/integer piece-of-piece columns used AIM type 2 and
+-- indexed an empty piece under "#", so IS NULL missed the missing-node rows.)
+CREATE TABLE ppnul (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^ppnul(keys(""id""),0)",
+	city VARCHAR DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),1)",
+	dob DATE DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),2)",
+	flag BOOLEAN DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),3)",
+	qty INTEGER DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),4)"
+) GLOBAL "^ppnul(keys(""id""))" AIMTYPE 1 READONLY;
+SELECT * FROM ppnul ORDER BY id;
+SELECT id, city FROM ppnul WHERE city = 'Kyoto';
+SELECT id FROM ppnul WHERE city IS NULL ORDER BY id;
+SELECT id FROM ppnul WHERE dob IS NULL ORDER BY id;
+SELECT id FROM ppnul WHERE flag IS NULL ORDER BY id;
+SELECT id FROM ppnul WHERE qty IS NULL ORDER BY id;
+SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM ppnul;
+OCTO> CREATE TABLE ppnul (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^ppnul(keys(""id""),0)",
+	city VARCHAR DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),1)",
+	dob DATE DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),2)",
+	flag BOOLEAN DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),3)",
+	qty INTEGER DELIMS ("|","^") PIECES (2,2) GLOBAL "^ppnul(keys(""id""),4)"
+) GLOBAL "^ppnul(keys(""id""))" AIMTYPE 1 READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM ppnul ORDER BY id;
+id|rowname|city|dob|flag|qty
+0|r0|Ryazan|2020-01-15|t|30
+1|r1|Kyoto|1999-12-31|f|5
+2|r2||||
+3|r3||||
+(4 rows)
+OCTO> SELECT id, city FROM ppnul WHERE city = 'Kyoto';
+id|city
+1|Kyoto
+(1 row)
+OCTO> SELECT id FROM ppnul WHERE city IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM ppnul WHERE dob IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM ppnul WHERE flag IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM ppnul WHERE qty IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM ppnul;
+lo|hi
+5|30
+(1 row)
+OCTO> 
+# AIM index: SQL NULL (missing node AND empty piece) under the column's NULL marker -- '#' for VARCHAR, bare "" for DATE/BOOLEAN/INTEGER; real string values '#'-prefixed:
+^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,"",2)=""
+^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,"",3)=""
+^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,946598400000000,1)=""
+^%ydbAIMD1wdCEzQN6bEWtCILOZrsH2(2,1579046400000000,0)=""
+^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,"",2)=""
+^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,"",3)=""
+^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,5,1)=""
+^%ydbAIMDNN8F8AjY8vduGwLizCiAIC(2,30,0)=""
+^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#",2)=""
+^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#",3)=""
+^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#Kyoto",1)=""
+^%ydbAIMDjXmwnND7pzE9sP2ZkbOcC3(2,"#Ryazan",0)=""
+^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,"",2)=""
+^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,"",3)=""
+^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,0,1)=""
+^%ydbAIMDztXKmKpj8wxuRcbcXapa95(2,1,0)=""

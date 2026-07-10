@@ -375,11 +375,13 @@ OCTO
 	yottadb -run %XCMD 'zwrite ^ppaddr' 2>&1 | tee -a output.txt
 	load_fixture TX15-A.sql subtest novv
 	echo "# AIM index for street (subscript = full nested value, '#'-prefixed for string collation):" | tee -a output.txt
-	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
-	echo "# The table is READONLY, so update the underlying global: ^ppaddr(1) '45 Oak' -> '999 New St'" | tee -a output.txt
-	yottadb -run %XCMD 'set ^ppaddr(1)="Acid|999 New St^Boston|p1"' 2>&1 | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
+	echo "# The table is READONLY, so change the underlying global directly. Both trigger paths:" | tee -a output.txt
+	echo "#   SET   ^ppaddr(1) : street '45 Oak' -> '999 New St'" | tee -a output.txt
+	echo "#   ZKILL ^ppaddr(2) : the whole row goes away, so street '9 Elm' is unindexed" | tee -a output.txt
+	yottadb -run %XCMD 'set ^ppaddr(1)="Acid|999 New St^Boston|p1" zkill ^ppaddr(2)' 2>&1 | tee -a output.txt
 	load_fixture TX15-A2.sql subtest novv
-	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
 	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
 
 	# =====================================================================
@@ -391,7 +393,7 @@ OCTO
 	yottadb -run %XCMD 'zwrite ^ppfruit,^ppfruit3' 2>&1 | tee -a output.txt
 	load_fixture TX15-B.sql subtest novv
 	echo "# AIM index for fruit (2-level table, then 3-level table):" | tee -a output.txt
-	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
 	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
 
 	# =====================================================================
@@ -404,7 +406,7 @@ OCTO
 	yottadb -run %XCMD 'zwrite ^ppdt,^ppdt3,^ppflag,^ppflag3,^ppqty' 2>&1 | tee -a output.txt
 	load_fixture TX15-C.sql subtest novv
 	echo "# AIM index: date -> unix-time, boolean -> 0/1, integer -> raw number (all non-'#'):" | tee -a output.txt
-	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
 	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
 
 	# =====================================================================
@@ -417,7 +419,7 @@ OCTO
 	yottadb -run %XCMD 'zwrite ^v3,^v33' 2>&1 | tee -a output.txt
 	load_fixture TX15-D.sql subtest novv
 	echo "# AIM index for dob (the missing-node row id 1 is indexed as NULL):" | tee -a output.txt
-	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
 	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
 
 	# =====================================================================
@@ -429,7 +431,7 @@ OCTO
 	yottadb -run %XCMD 'zwrite ^ppv3' 2>&1 | tee -a output.txt
 	load_fixture TX15-E.sql subtest novv
 	echo "# AIM index for v (keyed on the fully extracted 3-level value):" | tee -a output.txt
-	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '\(2,' | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
 	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
 
 	# =====================================================================
@@ -464,6 +466,191 @@ OCTO
 	load_fixture TX15-G.sql subtest novv
 	echo "# AIM transform specs: a literal multi-byte delimiter is tagged Z (byte codes, rebuilt with \$ZCHAR):" | tee -a output.txt
 	grep -hoE '"[0-9]+:[ZC][0-9.]+(/[0-9]+:[ZC][0-9.]+)*"' _ydboctoX*.m | sort -u | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section H : AIMTYPE 1 IS NULL matrix (all data types; no SUBSTR). Both
+	#             NULL flavors -- a MISSING source node (id 2) and an EMPTY
+	#             inner piece (id 3) -- index under the COLUMN'S OWN NULL
+	#             marker, so every indexed IS NULL returns ids 2,3 and MIN/MAX
+	#             skip both (YDBOcto#1108 fix, sharing the #763/#764 SUBSTR
+	#             machinery). The marker is whatever the column's AIM transform
+	#             maps "" to: "#" for a string column (strcolval2aimsubs) and a
+	#             bare "" for DATE/BOOLEAN/INTEGER. AIM applies that same
+	#             transform to a missing node's NULL, so a string
+	#             column's two NULL flavors and a plain string column's NULL all
+	#             collate on the one "#" marker the read side probes.
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section H : AIMTYPE 1 IS NULL matrix (missing node + empty piece, every type) ===" | tee -a output.txt
+	echo "# ^ppnul id 2 is missing all typed nodes; id 3's inner pieces are all empty; both are NULL:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^ppnul' 2>&1 | tee -a output.txt
+	load_fixture TX15-H.sql subtest novv
+	echo "# AIM index: SQL NULL (missing node AND empty piece) under the column's NULL marker -- '#' for VARCHAR, bare \"\" for DATE/BOOLEAN/INTEGER; real string values '#'-prefixed:" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
 
 	verify_output TX15 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TX16 : OCTO764 : SUBSTR AIM cross-reference" {
+	# Tables whose SUBSTR columns read a node with a FIXED last subscript (e.g. ^gbl(id,0))
+	# carry AIMTYPE 1: their xrefs then use AIM metadata type 3, which indexes a row
+	# whose source node is MISSING as NULL, so indexed IS NULL lookups find such rows. AIM
+	# applies the column's transformation function to that NULL, so the marker is
+	# the transform of "" -- "#" for a string column (strcolval2aimsubs), a bare "" for
+	# DATE/BOOLEAN/INTEGER. A present node whose SUBSTR extraction is empty lands on the same
+	# marker, so both NULL flavors collate together and with a plain string column's NULL.
+	# AIM only accepts type 3 for that shape and needs null subscripts
+	# disabled on the region (see TX15/TW28). Section D converts a date to
+	# unix time, so fix TZ so the indexed values are deterministic. The whole test is verified with
+	# "nodatetimefilter" so the literal dates are checked (not normalized to "DATE").
+	# killAIMData^aimutils is called at each section boundary so every AIM index dump shows only
+	# the tables created in that section.
+	# The AIM dump greps are anchored to the start of the data nodes (^%ydbAIMD*(pnum,...)):
+	# AIM stores its trigger DEFINITIONS in the same global, and their -xecute bodies contain
+	# "(0," so an unanchored grep would leak those (long, hash-named) lines into the output.
+	mupip set -null_subscripts=never -region DEFAULT
+	export TZ="UTC"
+	load_fixture TX16.zwr
+
+	# =====================================================================
+	# Section A : whole-node SUBSTR -- WHERE builds the index (empty separator,
+	#             no piece number), and the trigger maintains it on SET/ZKILL
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section A : WHERE on a whole-node SUBSTR column (address) ===" | tee -a output.txt
+	echo "# Data loaded into ^sxwn:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^sxwn' 2>&1 | tee -a output.txt
+	load_fixture TX16-A.sql subtest novv
+	echo "# AIM index for address (pnum slot 0 = whole node; subscript = \$EXTRACT'ed value, '#'-prefixed):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(0,' | tee -a output.txt
+	echo "# The table is READONLY, so update the underlying global directly:" | tee -a output.txt
+	echo "#   set ^sxwn(1,0)=\"999 New Street\" ; zkill ^sxwn(2,0)" | tee -a output.txt
+	yottadb -run %XCMD 'set ^sxwn(1,0)="999 New Street" zkill ^sxwn(2,0)' 2>&1 | tee -a output.txt
+	load_fixture TX16-A2.sql subtest novv
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(0,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section B : MIN/MAX off the AIM index (whole-node and PIECE-based)
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section B : MIN/MAX off the AIM index (whole-node and PIECE-based) ===" | tee -a output.txt
+	echo "# Data loaded into ^sxmm and ^sxmmp:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^sxmm,^sxmmp' 2>&1 | tee -a output.txt
+	load_fixture TX16-B.sql subtest novv
+	echo "# AIM index for fruit (whole-node table, then PIECE-based table):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\((0|2),' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section C : PIECE + SUBSTR -- AIM extracts the piece, SubstrXform slices it
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section C : WHERE on a PIECE + SUBSTR column (code) ===" | tee -a output.txt
+	echo "# Data loaded into ^sxpc and ^sxpcg (^sxpcg id 2 is missing all data nodes; id 3's extractions are all empty):" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^sxpc,^sxpcg' 2>&1 | tee -a output.txt
+	load_fixture TX16-C.sql subtest novv
+	echo "# AIM index for code (subscript = chars 2-4 of piece 2, '#'-prefixed) and for the ^sxpcg" | tee -a output.txt
+	echo "# columns (the AIMTYPE 1 NULL rows appear under the bare \"\" subscript):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section D : the transform composes the extraction with the column's own
+	#             conversion -- DATE, BOOLEAN, INTEGER
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section D : type conversions composed with the extraction (DATE / BOOLEAN / INTEGER) ===" | tee -a output.txt
+	echo "# Data loaded into ^sxdt, ^sxfl, ^sxqty, ^sxnul (^sxnul id 2 is missing all data nodes; id 3's extractions are all empty):" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^sxdt,^sxfl,^sxqty,^sxnul' 2>&1 | tee -a output.txt
+	load_fixture TX16-D.sql subtest novv
+	echo "# AIM index: date -> unix-time, boolean -> 0/1, integer -> raw number (all non-'#');" | tee -a output.txt
+	echo "# the AIMTYPE 1 table's missing nodes appear under the bare \"\" subscript:" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\((0|2),' | tee -a output.txt
+	yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+	# =====================================================================
+	# Section E : DELIMS/PIECES + SUBSTR -- PieceOfPieceXform carries the SUBSTR
+	#             specification as its trailing argument
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "# === Section E : WHERE on a DELIMS/PIECES + SUBSTR column (city3) ===" | tee -a output.txt
+	echo "# Data loaded into ^sxpp and ^sxppg (^sxppg id 2 is missing all data nodes; id 3's pieces/ranges are empty):" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^sxpp,^sxppg' 2>&1 | tee -a output.txt
+	load_fixture TX16-E.sql subtest novv
+	echo "# AIM index for city3 (keyed on the \$EXTRACT of the innermost extracted piece):" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(2,' | tee -a output.txt
+
+	# ---------------------------------------------------------------------
+	# The XREFDATA call shapes over all sections: whole-node = empty separator +
+	# empty piece slot; SubstrXform composes the conversion; PieceOfPieceXform
+	# carries the SUBSTR spec as its trailing argument
+	# ---------------------------------------------------------------------
+	echo "" | tee -a output.txt
+	echo "# Emitted XREFDATA calls (build entry point; one per xref'd SUBSTR column):" | tee -a output.txt
+	grep -h 'SET aimglobal=\$\$XREFDATA' _ydboctoX*.m | grep ',0,0,1,0,' | sed 's/^[[:space:]]*//' | sort -u | tee -a output.txt
+
+	verify_output TX16 output.txt nodatetimefilter noinfo nodebug
+
+	# =====================================================================
+	# Section F : multi-byte SUBSTR over the AIM index (UTF-8 only)
+	# =====================================================================
+	# TC088 (test_createtable3.bats.in) covers the READ side over multi-byte data; this covers
+	# the INDEX side: AIM stores whatever SubstrXform returns, and that transform runs $EXTRACT
+	# in the same process (hence the same chset) as the read side, so the two must agree on
+	# character boundaries. Only observable under UTF-8, and "init_test" picks the chset at
+	# random, so this section runs only on the UTF-8 runs and is verified against its own
+	# TX16_utf8.ref; the M-mode runs stop at the TX16 verify_output above.
+	if [[ $ydb_chset == "UTF-8" ]]; then
+		# Resume from the already-verified output, and clear the AIM data and xref plans built by
+		# Sections A-E: the "(1," dump and the SubstrXform grep below must show only ^ux.
+		mv output.txt output_noutf8.txt
+		yottadb -run killAIMData^aimutils
+		rm -f _ydboctoX*.m _ydboctoX*.o
+
+		# Built with $ZCHAR so this file stays pure ASCII (the pre-commit hook rejects UTF-8 in
+		# source; the multi-byte literals compared against live in the .sql fixture).
+		#   X=88  e-acute=195,169  CJK day=230,151,165  CJK book=230,156,172  CJK language=232,170,158  Y=89
+		yottadb -run %XCMD 'set ^ux(1)=$ZCHAR(88,195,169,230,151,165,89)_"|mixed"'
+		yottadb -run %XCMD 'set ^ux(2)=$ZCHAR(230,151,165,230,156,172,232,170,158)_"|cjk"'
+		yottadb -run %XCMD 'set ^ux(3)="abcdef|ascii",^ux(4)="|empty"'
+
+		echo "# Data loaded into ^ux (piece 1 is the value, piece 2 names the case):" | tee -a output.txt
+		yottadb -run %XCMD 'zwrite ^ux' 2>&1 | tee -a output.txt
+		load_fixture TX16-F.sql subtest novv
+
+		# The indexed subscripts themselves: each is "#" followed by the first THREE CHARACTERS of
+		# the value, so "mixed" indexes 7 bytes' worth of value as 3 characters. A byte-based
+		# extraction would index a truncated (and invalid) UTF-8 sequence here instead.
+		echo "" | tee -a output.txt
+		echo "# AIM index subscripts (\"#\" + the 3-character extraction; NULL for the empty piece):" | tee -a output.txt
+		yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(1,' | tee -a output.txt
+
+		echo "" | tee -a output.txt
+		echo "# The transformation function AIM was given for this column:" | tee -a output.txt
+		grep -hoE 'SubstrXform\^%ydboctoplanhelpers[(],""[0-9-]*"",""[a-z]*""[)]' _ydboctoX*.m | sort -u | tee -a output.txt
+
+		# Everything above exercised AIM's initial SCAN. The trigger path is separate code in
+		# %YDBAIM and re-derives the value by calling SubstrXform itself, so change the underlying
+		# global directly (the table is READONLY) and confirm the maintained index still lands on
+		# character boundaries.
+		echo "" | tee -a output.txt
+		echo "# Trigger maintenance. Change the underlying global directly:" | tee -a output.txt
+		echo "#   SET   ^ux(1) : the mixed-width value becomes three 3-byte characters" | tee -a output.txt
+		echo "#   ZKILL ^ux(2) : the \"cjk\" row goes away" | tee -a output.txt
+		# The replacement value is the 3-character place name written 230,157,177 / 228,186,172 /
+		# 233,131,189 in UTF-8 (Tokyo Metropolis), so the extraction is 3 characters / 9 bytes.
+		yottadb -run %XCMD 'set ^ux(1)=$ZCHAR(230,157,177,228,186,172,233,131,189)_"|mixed" zkill ^ux(2)'
+		yottadb -run %XCMD 'zwrite ^ux' 2>&1 | tee -a output.txt
+		load_fixture TX16-F2.sql subtest novv
+
+		echo "" | tee -a output.txt
+		echo "# AIM index after the trigger maintained it (3 characters again, not 3 bytes):" | tee -a output.txt
+		yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(1,' | tee -a output.txt
+		yottadb -run killAIMData^aimutils 2>&1 | tee -a output.txt
+
+		verify_output TX16_utf8 output.txt noinfo nodebug
+	fi
 }

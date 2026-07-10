@@ -1,0 +1,505 @@
+
+# === Section A : whole-node SUBSTR (column-level GLOBAL optional) ===
+# Data loaded into ^subwn:
+^subwn(0)="Zero Cool|555-1234"
+^subwn(0,0)="123 Main Street"
+^subwn(1)="Acid Burn|555-5678"
+^subwn(1,0)="45 Oak Avenue"
+^subwn(2)="Lord Nikon|555-9999"
+^subwn(2,0)="9 Elm Suite 100"
+-- TC087 : OCTO763 : Whole-node SUBSTR: with no PIECE/PIECES, the character range applies to an entire
+-- global node. A column-level GLOBAL is optional: when present it points SUBSTR at that node (here the
+-- address lives on its own ^subwn(id,0) node); when absent SUBSTR reads the table's own node ^subwn(id)
+-- ("name|phone"), the same node a PIECE column reads. SUBSTR forces the table READONLY (no explicit
+-- READONLY keyword below).
+
+CREATE TABLE subwn (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR PIECE 1,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^subwn(keys(""id""),0)",
+	initial VARCHAR SUBSTR 1 GLOBAL "^subwn(keys(""id""),0)"
+) GLOBAL "^subwn(keys(""id""))" AIMTYPE 1;
+-- \d shows Type = READONLY (forced by SUBSTR):
+\d subwn;
+SELECT * FROM subwn ORDER BY id;
+
+-- Round-trip spelling: the stored text definition appends the implicit DELIM "" AFTER the GLOBAL
+-- (keywords after an explicit DELIM "" are dropped by the parser, so the order below is the one
+-- the text definition emits). This table must behave identically to subwn's address column:
+CREATE TABLE subwn_rt (
+	id INTEGER PRIMARY KEY,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^subwn(keys(""id""),0)" DELIM ""
+) GLOBAL "^subwn(keys(""id""))" AIMTYPE 1;
+\d subwn_rt;
+SELECT * FROM subwn_rt ORDER BY id;
+
+-- Whole-node SUBSTR with NO column-level GLOBAL: the range reads the table's own node ^subwn(id)
+-- ("name|phone"), not the ^subwn(id,0) subnode subwn reads above. A column-level GLOBAL is optional
+-- for the whole-node form. \d shows the appended DELIM "".
+CREATE TABLE subwn_tn (
+	id INTEGER PRIMARY KEY,
+	head9 VARCHAR SUBSTR 1-9
+) GLOBAL "^subwn(keys(""id""))";
+\d subwn_tn;
+SELECT * FROM subwn_tn ORDER BY id;
+-- The no-GLOBAL whole-node form is cross-referenced like any other SUBSTR column: a WHERE on it builds
+-- and uses an AIM index (rather than a full scan) just like the column-GLOBAL form does.
+SELECT id FROM subwn_tn WHERE head9 = 'Acid Burn' ORDER BY id;
+OCTO> CREATE TABLE subwn (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR PIECE 1,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^subwn(keys(""id""),0)",
+	initial VARCHAR SUBSTR 1 GLOBAL "^subwn(keys(""id""),0)"
+) GLOBAL "^subwn(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> \d subwn;
+Table "subwn" stored in Global: ^subwn(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+name|VARCHAR|||
+address|VARCHAR|||
+initial|VARCHAR|||
+Indexes:
+    "subwn_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^subwn(id)
+OCTO> SELECT * FROM subwn ORDER BY id;
+id|name|address|initial
+0|Zero Cool|123 Main Str|1
+1|Acid Burn|45 Oak Avenu|4
+2|Lord Nikon|9 Elm Suite |9
+(3 rows)
+OCTO> CREATE TABLE subwn_rt (
+	id INTEGER PRIMARY KEY,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^subwn(keys(""id""),0)" DELIM ""
+) GLOBAL "^subwn(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> \d subwn_rt;
+Table "subwn_rt" stored in Global: ^subwn(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+address|VARCHAR|||
+Indexes:
+    "subwn_rt_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^subwn(id)
+OCTO> SELECT * FROM subwn_rt ORDER BY id;
+id|address
+0|123 Main Str
+1|45 Oak Avenu
+2|9 Elm Suite 
+(3 rows)
+OCTO> CREATE TABLE subwn_tn (
+	id INTEGER PRIMARY KEY,
+	head9 VARCHAR SUBSTR 1-9
+) GLOBAL "^subwn(keys(""id""))";
+CREATE TABLE
+OCTO> \d subwn_tn;
+Table "subwn_tn" stored in Global: ^subwn(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+head9|VARCHAR|||
+Indexes:
+    "subwn_tn_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^subwn(id)
+OCTO> SELECT * FROM subwn_tn ORDER BY id;
+id|head9
+0|Zero Cool
+1|Acid Burn
+2|Lord Niko
+(3 rows)
+OCTO> SELECT id FROM subwn_tn WHERE head9 = 'Acid Burn' ORDER BY id;
+id
+1
+(1 row)
+OCTO> 
+
+# === Section B : PIECE + SUBSTR (default and explicit DELIM) ===
+# Data loaded into ^subpc and ^subpcd:
+^subpc(0)="John Doe|1963-01-15|A1234"
+^subpc(1)="Jane Roe|1984-11-02|B5678"
+^subpc(2)="Al Pha|1990-05-06|C9"
+^subpc(3)="Bo Vine|1971|D0"
+^subpcd(0)="X^JOHNDOE"
+^subpcd(1)="Y^JANEROE"
+-- TC087 : OCTO763 : PIECE + SUBSTR: the character range applies to the extracted piece value.
+-- ^subpc nodes are "name|birthdate|idcode". Row 2 has a short idcode ("C9") and row 3 a short
+-- birthdate ("1971"), so ranges past the end come back empty (-> NULL for birthday of row 3).
+
+CREATE TABLE subpc (
+	id INTEGER PRIMARY KEY,
+	initial VARCHAR PIECE 1 SUBSTR 1,
+	birthyear INTEGER PIECE 2 SUBSTR 1-4,
+	birthday VARCHAR PIECE 2 SUBSTR 9-10,
+	idnum INTEGER PIECE 3 SUBSTR 2-5
+) GLOBAL "^subpc(keys(""id""))";
+\d subpc;
+SELECT * FROM subpc ORDER BY id;
+-- Row 3's birthdate "1971" has no characters 9-10, so its birthday is NULL:
+SELECT id FROM subpc WHERE birthday IS NULL;
+
+-- An explicit column-level DELIM composes with PIECE + SUBSTR ("X^JOHNDOE" -> piece 2 -> chars 2-4):
+CREATE TABLE subpcd (
+	id INTEGER PRIMARY KEY,
+	part VARCHAR DELIM "^" PIECE 2 SUBSTR 2-4
+) GLOBAL "^subpcd(keys(""id""))";
+\d subpcd;
+SELECT * FROM subpcd ORDER BY id;
+OCTO> CREATE TABLE subpc (
+	id INTEGER PRIMARY KEY,
+	initial VARCHAR PIECE 1 SUBSTR 1,
+	birthyear INTEGER PIECE 2 SUBSTR 1-4,
+	birthday VARCHAR PIECE 2 SUBSTR 9-10,
+	idnum INTEGER PIECE 3 SUBSTR 2-5
+) GLOBAL "^subpc(keys(""id""))";
+CREATE TABLE
+OCTO> \d subpc;
+Table "subpc" stored in Global: ^subpc(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+initial|VARCHAR|||
+birthyear|INTEGER|||
+birthday|VARCHAR|||
+idnum|INTEGER|||
+Indexes:
+    "subpc_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^subpc(id)
+OCTO> SELECT * FROM subpc ORDER BY id;
+id|initial|birthyear|birthday|idnum
+0|J|1963|15|1234
+1|J|1984|02|5678
+2|A|1990|06|9
+3|B|1971||0
+(4 rows)
+OCTO> SELECT id FROM subpc WHERE birthday IS NULL;
+id
+3
+(1 row)
+OCTO> CREATE TABLE subpcd (
+	id INTEGER PRIMARY KEY,
+	part VARCHAR DELIM "^" PIECE 2 SUBSTR 2-4
+) GLOBAL "^subpcd(keys(""id""))";
+CREATE TABLE
+OCTO> \d subpcd;
+Table "subpcd" stored in Global: ^subpcd(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+part|VARCHAR|||
+Indexes:
+    "subpcd_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^subpcd(id)
+OCTO> SELECT * FROM subpcd ORDER BY id;
+id|part
+0|OHN
+1|ANE
+(2 rows)
+OCTO> 
+
+# === Section C : types, DELIMS/PIECES, values() references, LEFT JOIN ===
+# Data loaded into ^subtyp, ^subtypx, ^subpp, ^subval, ^subval2:
+^subtyp(0)="2020-01-15xyz|1yes|QTY30"
+^subtyp(1)="1999-12-31abc|0no|QTY51"
+^subtyp(2)="2020-01-15pqr|1yes|QTY76"
+^subtypx(0)="12345|3.14159|1|2020-01-15abc"
+^subtypx(1)="9X99|1.2.3xy|2|2020-13-45xx"
+^subtypx(2)="42abc|0.50zz|0|1999-12-31"
+^subpp(0)="A|45 Oak^Boston|z"
+^subpp(1)="B|9 Elm^Reno|z"
+^subval(0)="Zero Cool"
+^subval(0,0)="123 Main Street"
+^subval(1)="Acid Burn"
+^subval(1,0)="45 Oak Avenue"
+^subval2(0)="John Doe|1963-01-15"
+^subval2(1)="Jane Roe|1984-11-02"
+-- TC087 : OCTO763 : SUBSTR composes with column types, DELIMS/PIECES, values() references and LEFT JOIN.
+
+-- Typed columns: the range is applied to the piece text BEFORE the type conversion.
+-- ^subtyp nodes are "<date+junk>|<flagword>|QTYnn":
+CREATE TABLE subtyp (
+	id INTEGER PRIMARY KEY,
+	dob DATE PIECE 1 SUBSTR 1-10,
+	flag BOOLEAN PIECE 2 SUBSTR 2-4,
+	qty INTEGER PIECE 3 SUBSTR 4-5
+) GLOBAL "^subtyp(keys(""id""))";
+SELECT * FROM subtyp ORDER BY id;
+
+-- Malformed strongly-typed data reached by SUBSTR: SUBSTR slices the piece text BEFORE the type
+-- conversion, exactly like a plain PIECE column on a READONLY table. When the sliced text is not a
+-- valid value of the column type, Octo handles it gracefully rather than erroring: INTEGER/NUMERIC
+-- pass the raw sliced text through, BOOLEAN forces to FALSE, and an invalid DATE reads as SQL NULL.
+-- Slicing can even RESCUE a value by cutting off trailing junk (id 2: "42abc" -> "42" -> 42).
+-- ^subtypx nodes are "<int>|<numeric>|<bool>|<date+junk>":
+--   0: valid after slicing ("2020-01-15abc" -> "2020-01-15")
+--   1: still malformed after slicing ("9X" int, "1.2." numeric, "2" bool, "2020-13-45" bad date)
+--   2: int/numeric rescued by slicing off trailing junk
+-- "flag_p" is a plain PIECE 3 BOOLEAN reading the SAME single-character piece as the SUBSTR column
+-- "flag" (piece 3 is one char, so SUBSTR 1-1 and the whole piece are identical bytes). Their output is
+-- identical -- both force the malformed "2" to FALSE -- confirming SUBSTR reuses the same piece->column
+-- conversion PIECE does. (Whether an unrecognized BOOLEAN becomes FALSE or NULL is a READONLY-vs-
+-- READWRITE distinction, not a SUBSTR-vs-PIECE one; SUBSTR forces READONLY, so it always matches a
+-- plain PIECE column on a READONLY table.)
+-- "inum_p" is likewise a plain PIECE 1 INTEGER. On a READONLY table Octo does NOT validate INTEGER
+-- (or NUMERIC) data: non-numeric text is displayed raw (id 1 "9X99", id 2 "42abc"), for PIECE and
+-- SUBSTR alike. "inum" (SUBSTR 1-2) differs from "inum_p" only because it slices piece 1 to 2 chars
+-- first -- which is how the slice trims the trailing junk off id 2 ("42abc" -> "42") while id 1 stays
+-- malformed ("9X99" -> "9X").
+CREATE TABLE subtypx (
+	id     INTEGER PRIMARY KEY,
+	inum   INTEGER PIECE 1 SUBSTR 1-2,
+	inum_p INTEGER PIECE 1,
+	dec    NUMERIC PIECE 2 SUBSTR 1-4,
+	flag   BOOLEAN PIECE 3 SUBSTR 1-1,
+	flag_p BOOLEAN PIECE 3,
+	dt     DATE    PIECE 4 SUBSTR 1-10
+) GLOBAL "^subtypx(keys(""id""))";
+SELECT * FROM subtypx ORDER BY id;
+-- WHERE / IS NULL over the malformed-typed columns must not error:
+SELECT id FROM subtypx WHERE inum = 42 ORDER BY id;
+SELECT id FROM subtypx WHERE flag = FALSE ORDER BY id;
+SELECT id FROM subtypx WHERE dt IS NULL ORDER BY id;
+
+-- DELIMS/PIECES + SUBSTR: the range applies to the innermost extracted piece
+-- ("A|45 Oak^Boston|z" -> "|"-piece 2 -> "^"-piece 2 -> chars 1-3):
+CREATE TABLE subpp (
+	id INTEGER PRIMARY KEY,
+	city3 VARCHAR DELIMS ("|","^") PIECES (2,2) SUBSTR 1-3
+) GLOBAL "^subpp(keys(""id""))";
+\d subpp;
+SELECT * FROM subpp ORDER BY id;
+
+-- values() re-derivation: an EXTRACT column referencing a whole-node SUBSTR column re-emits the
+-- $EXTRACT($GET(...)) (and must NOT re-slice it into $PIECEs):
+CREATE TABLE subval (
+	id INTEGER PRIMARY KEY,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^subval(keys(""id""),0)",
+	addr_upper VARCHAR EXTRACT "$ZCONVERT(values(""address""),""U"")"
+) GLOBAL "^subval(keys(""id""))" AIMTYPE 1;
+SELECT * FROM subval ORDER BY id;
+
+-- values() of a PIECE + SUBSTR column:
+CREATE TABLE subval2 (
+	id INTEGER PRIMARY KEY,
+	birthyear INTEGER PIECE 2 SUBSTR 1-4,
+	century VARCHAR EXTRACT "$EXTRACT(values(""birthyear""),1,2)"
+) GLOBAL "^subval2(keys(""id""))";
+SELECT * FROM subval2 ORDER BY id;
+
+-- LEFT JOIN: the unmatched row (id 9) must come back NULL, not error ($EXTRACT of $ZYSQLNULL):
+SELECT n.id, s.address FROM (SELECT 0 AS id UNION SELECT 9 AS id) n LEFT JOIN subval s ON n.id = s.id ORDER BY n.id;
+
+-- Keyless READONLY table: with no user-declared key column, the auto-key pass promotes every visible
+-- column to a key column -- EXCEPT a SUBSTR column, which is derived from the node/piece value and so
+-- cannot be a key (same exclusion EXTRACT columns get). Here "who" becomes the key and the SUBSTR
+-- column "area" stays a non-key derived column. Without the SUBSTR exclusion, "area" would be made a
+-- key and the CREATE would fail with ERR_SUBSTR_CANNOT_BE_KEY_COLUMN.
+CREATE TABLE subkl (
+	who VARCHAR PIECE 1,
+	area VARCHAR PIECE 2 SUBSTR 1-3
+) GLOBAL "^subkl(keys(""who""))";
+\d subkl;
+SELECT * FROM subkl ORDER BY who;
+OCTO> CREATE TABLE subtyp (
+	id INTEGER PRIMARY KEY,
+	dob DATE PIECE 1 SUBSTR 1-10,
+	flag BOOLEAN PIECE 2 SUBSTR 2-4,
+	qty INTEGER PIECE 3 SUBSTR 4-5
+) GLOBAL "^subtyp(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM subtyp ORDER BY id;
+id|dob|flag|qty
+0|2020-01-15|t|30
+1|1999-12-31|f|51
+2|2020-01-15|t|76
+(3 rows)
+OCTO> CREATE TABLE subtypx (
+	id     INTEGER PRIMARY KEY,
+	inum   INTEGER PIECE 1 SUBSTR 1-2,
+	inum_p INTEGER PIECE 1,
+	dec    NUMERIC PIECE 2 SUBSTR 1-4,
+	flag   BOOLEAN PIECE 3 SUBSTR 1-1,
+	flag_p BOOLEAN PIECE 3,
+	dt     DATE    PIECE 4 SUBSTR 1-10
+) GLOBAL "^subtypx(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM subtypx ORDER BY id;
+id|inum|inum_p|dec|flag|flag_p|dt
+0|12|12345|3.14|t|t|2020-01-15
+1|9X|9X99|1.2.|f|f|
+2|42|42abc|0.50|f|f|1999-12-31
+(3 rows)
+OCTO> SELECT id FROM subtypx WHERE inum = 42 ORDER BY id;
+id
+2
+(1 row)
+OCTO> SELECT id FROM subtypx WHERE flag = FALSE ORDER BY id;
+id
+1
+2
+(2 rows)
+OCTO> SELECT id FROM subtypx WHERE dt IS NULL ORDER BY id;
+id
+1
+(1 row)
+OCTO> CREATE TABLE subpp (
+	id INTEGER PRIMARY KEY,
+	city3 VARCHAR DELIMS ("|","^") PIECES (2,2) SUBSTR 1-3
+) GLOBAL "^subpp(keys(""id""))";
+CREATE TABLE
+OCTO> \d subpp;
+Table "subpp" stored in Global: ^subpp(id) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+id|INTEGER||NOT NULL|
+city3|VARCHAR|||
+Indexes:
+    "subpp_pkey" PRIMARY KEY CONSTRAINT, Column(s) (id), Global: ^subpp(id)
+OCTO> SELECT * FROM subpp ORDER BY id;
+id|city3
+0|Bos
+1|Ren
+(2 rows)
+OCTO> CREATE TABLE subval (
+	id INTEGER PRIMARY KEY,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^subval(keys(""id""),0)",
+	addr_upper VARCHAR EXTRACT "$ZCONVERT(values(""address""),""U"")"
+) GLOBAL "^subval(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM subval ORDER BY id;
+id|address|addr_upper
+0|123 Main Str|123 MAIN STR
+1|45 Oak Avenu|45 OAK AVENU
+(2 rows)
+OCTO> CREATE TABLE subval2 (
+	id INTEGER PRIMARY KEY,
+	birthyear INTEGER PIECE 2 SUBSTR 1-4,
+	century VARCHAR EXTRACT "$EXTRACT(values(""birthyear""),1,2)"
+) GLOBAL "^subval2(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM subval2 ORDER BY id;
+id|birthyear|century
+0|1963|19
+1|1984|19
+(2 rows)
+OCTO> SELECT n.id, s.address FROM (SELECT 0 AS id UNION SELECT 9 AS id) n LEFT JOIN subval s ON n.id = s.id ORDER BY n.id;
+id|address
+0|123 Main Str
+9|
+(2 rows)
+OCTO> CREATE TABLE subkl (
+	who VARCHAR PIECE 1,
+	area VARCHAR PIECE 2 SUBSTR 1-3
+) GLOBAL "^subkl(keys(""who""))";
+CREATE TABLE
+OCTO> \d subkl;
+Table "subkl" stored in Global: ^subkl(who) : Type = READONLY
+Column|Type|Collation|Nullable|Default
+who|VARCHAR||NOT NULL|
+area|VARCHAR|||
+OCTO> SELECT * FROM subkl ORDER BY who;
+who|area
+Neo|Zio
+Trinity|Mat
+(2 rows)
+OCTO> 
+
+# === Section D : error cases ===
+-- TC087 : OCTO763 : Error cases. Each CREATE TABLE below is expected to fail with the noted error.
+
+-- end < start -> ERR_SUBSTR_INVALID_RANGE:
+CREATE TABLE err_range (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 5-2 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- start < 1 -> ERR_SUBSTR_INVALID_RANGE:
+CREATE TABLE err_zero (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 0 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- negative start: the lexer splits "-1" into MINUS and 1, so no integer literal follows SUBSTR -> syntax error:
+CREATE TABLE err_neg (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR -1 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- non-numeric position: "A" is not a literal -> syntax error:
+CREATE TABLE err_alpha (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR A GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- non-integer position: "1.5" is a literal but not an integer -> ERR_DDL_LITERAL:
+CREATE TABLE err_frac (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1.5 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- SUBSTR on a key column -> ERR_SUBSTR_CANNOT_BE_KEY_COLUMN:
+CREATE TABLE err_key (id INTEGER PRIMARY KEY SUBSTR 1-2, v VARCHAR PIECE 1) GLOBAL "^subwn(keys(""id""))";
+
+-- SUBSTR combined with EXTRACT -> ERR_SUBSTR_EXTRACT_INCOMPATIBLE:
+CREATE TABLE err_extract (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 EXTRACT "$GET(^subwn(keys(""id"")))") GLOBAL "^subwn(keys(""id""))";
+
+-- non-empty DELIM without a PIECE -> ERR_SUBSTR_DELIM_WITHOUT_PIECE:
+CREATE TABLE err_delim (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 DELIM "^" GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- DELIMS without PIECES is also a non-empty delimiter -> ERR_SUBSTR_DELIM_WITHOUT_PIECE:
+CREATE TABLE err_delims (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 DELIMS ("|","^") GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+
+-- SUBSTR forces READONLY, so an explicit READWRITE is rejected -> ERR_READWRITE_DISALLOWED:
+CREATE TABLE err_rw (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))" READWRITE;
+[ERROR]: ERR_SUBSTR_INVALID_RANGE: SUBSTR specification "5-2" is invalid; format is SUBSTR start or SUBSTR start-end with start >= 1 and end >= start
+LINE 2:1: ... v VARCHAR SUBSTR 5-2 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^...
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE err_range (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 5-2 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_SUBSTR_INVALID_RANGE: SUBSTR specification "0" is invalid; format is SUBSTR start or SUBSTR start-end with start >= 1 and end >= start
+LINE 4:1: ..., v VARCHAR SUBSTR 0 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^s...
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE err_zero (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 0 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected MINUS, expecting LITERAL
+LINE 6:1: ... PRIMARY KEY, v VARCHAR SUBSTR -1 GLOBAL "^subwn(keys(""id""),0...
+                                            ^
+OCTO> CREATE TABLE err_neg (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR -1 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+LINE 8:1: ... PRIMARY KEY, v VARCHAR SUBSTR A GLOBAL "^subwn(keys(""id""),0)...
+                                            ^
+OCTO> CREATE TABLE err_alpha (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR A GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_DDL_LITERAL: Invalid literal in DDL specification: only integer literals accepted for this keyword.
+LINE 10:1: ...PRIMARY KEY, v VARCHAR SUBSTR 1.5 GLOBAL "^subwn(keys(""id""),0...
+                                            ^^^
+OCTO> CREATE TABLE err_frac (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1.5 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_SUBSTR_CANNOT_BE_KEY_COLUMN: Column "id" cannot be a SUBSTR column and key column at same time
+LINE 12:1: ...ey (id INTEGER PRIMARY KEY SUBSTR 1-2, v VARCHAR PIECE 1) GLOBAL...
+                                         ^^^^^^^^^^
+OCTO> CREATE TABLE err_key (id INTEGER PRIMARY KEY SUBSTR 1-2, v VARCHAR PIECE 1) GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_SUBSTR_EXTRACT_INCOMPATIBLE: Column "v" cannot specify both SUBSTR and EXTRACT keywords
+LINE 14:1: ...VARCHAR SUBSTR 1-2 EXTRACT "$GET(^subwn(keys(""id"")))") GLOBAL...
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE err_extract (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 EXTRACT "$GET(^subwn(keys(""id"")))") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_SUBSTR_DELIM_WITHOUT_PIECE: SUBSTR keyword on column "v" with a non-empty DELIM/DELIMS requires a PIECE/PIECES specification
+LINE 16:1: ...RCHAR SUBSTR 1-2 DELIM "^" GLOBAL "^subwn(keys(""id""),0)") GLOB...
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE err_delim (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 DELIM "^" GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_SUBSTR_DELIM_WITHOUT_PIECE: SUBSTR keyword on column "v" with a non-empty DELIM/DELIMS requires a PIECE/PIECES specification
+LINE 18:1: ...R SUBSTR 1-2 DELIMS ("|","^") GLOBAL "^subwn(keys(""id""),0)") ...
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OCTO> CREATE TABLE err_delims (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 DELIMS ("|","^") GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))";
+[ERROR]: ERR_READWRITE_DISALLOWED: READWRITE keyword in CREATE TABLE is disallowed due to an incompatible keyword
+OCTO> CREATE TABLE err_rw (id INTEGER PRIMARY KEY, v VARCHAR SUBSTR 1-2 GLOBAL "^subwn(keys(""id""),0)") GLOBAL "^subwn(keys(""id""))" READWRITE;
+OCTO> 
+
+# Generated $EXTRACT calls (SUBSTR codegen -- Sections A-C):
+$EXTRACT($EXTRACT($PIECE($GET(^subval2(%ydboctocursor(cursorId,"keys",1,"subval2","id"))),"|",2),1,4),1,2)
+$EXTRACT($GET(^subval(%ydboctocursor(cursorId,"keys",1,"subval","id"),0)),1,12)
+$EXTRACT($GET(^subval(%ydboctocursor(cursorId,"keys",1,"subval","id"),0)),1,12),"U")
+$EXTRACT($GET(^subwn(%ydboctocursor(cursorId,"keys",1,"subwn","id"),0)),1)
+$EXTRACT($GET(^subwn(%ydboctocursor(cursorId,"keys",1,"subwn","id"),0)),1,12)
+$EXTRACT($GET(^subwn(%ydboctocursor(cursorId,"keys",1,"subwn_rt","id"),0)),1,12)
+$EXTRACT($GET(^subwn(%ydboctocursor(cursorId,"keys",1,"subwn_tn","id"))),1,9)
+$EXTRACT($PIECE($GET(^subkl(%ydboctocursor(cursorId,"keys",1,"subkl","who"))),"|",2),1,3)
+$EXTRACT($PIECE($GET(^subpcd(%ydboctocursor(cursorId,"keys",1,"subpcd","id"))),"^",2),2,4)
+$EXTRACT($PIECE($GET(^subpc(%ydboctocursor(cursorId,"keys",1,"subpc","id"))),"|",1),1)
+$EXTRACT($PIECE($GET(^subpc(%ydboctocursor(cursorId,"keys",1,"subpc","id"))),"|",2),1,4)
+$EXTRACT($PIECE($GET(^subpc(%ydboctocursor(cursorId,"keys",1,"subpc","id"))),"|",2),9,10)
+$EXTRACT($PIECE($GET(^subpc(%ydboctocursor(cursorId,"keys",1,"subpc","id"))),"|",3),2,5)
+$EXTRACT($PIECE($GET(^subtypx(%ydboctocursor(cursorId,"keys",1,"subtypx","id"))),"|",1),1,2)
+$EXTRACT($PIECE($GET(^subtypx(%ydboctocursor(cursorId,"keys",1,"subtypx","id"))),"|",2),1,4)
+$EXTRACT($PIECE($GET(^subtypx(%ydboctocursor(cursorId,"keys",1,"subtypx","id"))),"|",3),1,1))
+$EXTRACT($PIECE($GET(^subtypx(%ydboctocursor(cursorId,"keys",1,"subtypx","id"))),"|",4),1,10),17,36,"%Y-%m-%d")
+$EXTRACT($PIECE($GET(^subtyp(%ydboctocursor(cursorId,"keys",1,"subtyp","id"))),"|",1),1,10),17,36,"%Y-%m-%d")
+$EXTRACT($PIECE($GET(^subtyp(%ydboctocursor(cursorId,"keys",1,"subtyp","id"))),"|",2),2,4))
+$EXTRACT($PIECE($GET(^subtyp(%ydboctocursor(cursorId,"keys",1,"subtyp","id"))),"|",3),4,5)
+$EXTRACT($PIECE($GET(^subval2(%ydboctocursor(cursorId,"keys",1,"subval2","id"))),"|",2),1,4)
+$EXTRACT($PIECE($PIECE($GET(^subpp(%ydboctocursor(cursorId,"keys",1,"subpp","id"))),"|",2),"^",2),1,3)
+$EXTRACT($SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"subval","id")):$ZYSQLNULL,1:$GET(^subval(%ydboctocursor(cursorId,"keys",5,"subval","id"),0))),1,12)
+
+# Stored text table definitions (round-trip; the whole-node form appends DELIM "" after GLOBAL):
+^%ydboctoschema("subkl","text",0)="CREATE TABLE `subkl` (`who` VARCHAR, `area` VARCHAR PIECE 2 SUBSTR 1-3) GLOBAL ""^subkl(keys(""""who""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subpc","text",0)="CREATE TABLE `subpc` (`id` INTEGER CONSTRAINT ""subpc_pkey"" PRIMARY KEY, `initial` VARCHAR PIECE 1 SUBSTR 1, `birthyear` INTEGER PIECE 2 SUBSTR 1-4, `birthday` VARCHAR PIECE 2 SUBSTR 9-10, `idnum` INTEGER PIECE 3 SUBSTR 2-5) GLOBAL ""^subpc(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subpcd","text",0)="CREATE TABLE `subpcd` (`id` INTEGER CONSTRAINT ""subpcd_pkey"" PRIMARY KEY, `part` VARCHAR DELIM ""^"" PIECE 2 SUBSTR 2-4) GLOBAL ""^subpcd(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subpp","text",0)="CREATE TABLE `subpp` (`id` INTEGER CONSTRAINT ""subpp_pkey"" PRIMARY KEY, `city3` VARCHAR DELIMS (""|"",""^"") PIECES (2,2) SUBSTR 1-3) GLOBAL ""^subpp(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subtyp","text",0)="CREATE TABLE `subtyp` (`id` INTEGER CONSTRAINT ""subtyp_pkey"" PRIMARY KEY, `dob` DATE PIECE 1 SUBSTR 1-10, `flag` BOOLEAN PIECE 2 SUBSTR 2-4, `qty` INTEGER PIECE 3 SUBSTR 4-5) GLOBAL ""^subtyp(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subtypx","text",0)="CREATE TABLE `subtypx` (`id` INTEGER CONSTRAINT ""subtypx_pkey"" PRIMARY KEY, `inum` INTEGER PIECE 1 SUBSTR 1-2, `inum_p` INTEGER PIECE 1, `dec` NUMERIC PIECE 2 SUBSTR 1-4, `flag` BOOLEAN PIECE 3 SUBSTR 1-1, `flag_p` BOOLEAN PIECE 3, `dt` DATE PIECE 4 SUBSTR 1-10) GLOBAL ""^subtypx(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subval","text",0)="CREATE TABLE `subval` (`id` INTEGER CONSTRAINT ""subval_pkey"" PRIMARY KEY, `address` VARCHAR SUBSTR 1-12 GLOBAL ""^subval(keys(""""id""""),0)"" DELIM """", `addr_upper` VARCHAR EXTRACT ""$ZCONVERT(values(""""address""""),""""U"""")"") GLOBAL ""^subval(keys(""""id""""))"" DELIM ""|"" READONLY AIMTYPE 1;"
+^%ydboctoschema("subval2","text",0)="CREATE TABLE `subval2` (`id` INTEGER CONSTRAINT ""subval2_pkey"" PRIMARY KEY, `birthyear` INTEGER PIECE 2 SUBSTR 1-4, `century` VARCHAR EXTRACT ""$EXTRACT(values(""""birthyear""""),1,2)"") GLOBAL ""^subval2(keys(""""id""""))"" DELIM ""|"" READONLY;"
+^%ydboctoschema("subwn","text",0)="CREATE TABLE `subwn` (`id` INTEGER CONSTRAINT ""subwn_pkey"" PRIMARY KEY, `name` VARCHAR PIECE 1, `address` VARCHAR SUBSTR 1-12 GLOBAL ""^subwn(keys(""""id""""),0)"" DELIM """", `initial` VARCHAR SUBSTR 1 GLOBAL ""^subwn(keys(""""id""""),0)"" DELIM """") GLOBAL ""^subwn(keys(""""id""""))"" DELIM ""|"" READONLY AIMTYPE 1;"
+^%ydboctoschema("subwn_rt","text",0)="CREATE TABLE `subwn_rt` (`id` INTEGER CONSTRAINT ""subwn_rt_pkey"" PRIMARY KEY, `address` VARCHAR SUBSTR 1-12 GLOBAL ""^subwn(keys(""""id""""),0)"" DELIM """") GLOBAL ""^subwn(keys(""""id""""))"" DELIM ""|"" READONLY AIMTYPE 1;"
+^%ydboctoschema("subwn_tn","text",0)="CREATE TABLE `subwn_tn` (`id` INTEGER CONSTRAINT ""subwn_tn_pkey"" PRIMARY KEY, `head9` VARCHAR SUBSTR 1-9 DELIM """") GLOBAL ""^subwn(keys(""""id""""))"" DELIM ""|"" READONLY;"

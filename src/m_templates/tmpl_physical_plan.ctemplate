@@ -192,6 +192,23 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			piece = NULL;
 		}
 
+		/* Get SUBSTR specification (YDBOcto#763/#764). A SUBSTR column is indexed through an AIM
+		 * transformation function ("SubstrXform", or a trailing argument to "PieceOfPieceXform" for a
+		 * DELIMS/PIECES + SUBSTR column) so that AIM indexes the $EXTRACT'ed value the read-side plans
+		 * look up. For the whole-node form the column carries an implicit DELIM "" and no PIECE keyword,
+		 * so the delimiter/piece arguments below come out empty, which is exactly AIM's whole-node form.
+		 */
+		SqlOptionalKeyword	*substr_keyword;
+		char			*substr_spec;
+
+		substr_keyword = get_keyword(column, OPTIONAL_SUBSTR);
+		if (NULL != substr_keyword) {
+			UNPACK_SQL_STATEMENT(value, substr_keyword->v, value);
+			substr_spec = value->v.string_literal;
+		} else {
+			substr_spec = NULL;
+		}
+
 		// Get Delimiter
 		if (column->delim) {
 			if (value_list_STATEMENT == column->delim->type) {
@@ -263,82 +280,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				%{},{{piece}}{}%
 			}
 
-			boolean_t	is_column_string_type = IS_COLUMN_STRING_TYPE(column);
-			// Add arguments needed by AIM
-			%{},0,0,1,0,{}%		// nmonly, zpiece, omitfix, stat
-			// Add type argument for AIM based on the following conditions
-			if (is_multi_level_piece) {
-				/* YDBOcto#1108: Piece-of-piece column. AIM extracted the inner piece (delim/piece passed
-				 * above); PieceOfPieceXform applies the remaining outer levels FIRST and then the column's
-				 * date/boolean/string conversion (composed here, since AIM applies only ONE transformation
-				 * function per index). AIM thus indexes the full converted value (direct WHERE/MIN/MAX
-				 * lookup) and re-derives it via its trigger. "outer_spec" carries the outer (delim,piece)
-				 * levels; the doubled quotes escape the inner string arguments. This must stay in sync with
-				 * the matching branch in the nmonly=1 call below (the AIM global name hashes the transform).
-				 */
-				boolean_t is_date_col, is_bool_col;
-
-				is_date_col = (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type));
-				is_bool_col = (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type));
-				// AIM "type": 3 for a vista date column (extra NULL handling), else 2 (transformation function).
-				if (is_date_col && aim_type) {
-					%{}3,{}%
-				} else {
-					%{}2,{}%
-				}
-				%{}"$$PieceOfPieceXform^%%ydboctoplanhelpers(,""{{ outer_spec }}"",{}%
-				if (is_date_col) {
-					%{}""d""{}%
-					TMPL(tmpl_print_date_time_to_unix_time_args,
-					     get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE),
-					     column->data_type_struct.format, FALSE, TRUE);
-				} else if (is_bool_col) {
-					%{}""b""{}%
-				} else if (is_column_string_type) {
-					%{}""s""{}%
-				} else {
-					%{}""""{}%	// no conversion (e.g. integer/numeric column)
-				}
-				%{})"{}%
-				// Close XREF call
-				%{}){}%
-			} else if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
-				if (aim_type) {
-					// This is a vista column it needs additional NULL handling from AIM along with the date/time tranformation function. `type` argument of 3 enables
-					// both. Pass that here.
-					%{}3,{}%
-				} else {
-					// Only tranformation function handling from AIM is sufficient
-					%{}2,{}%
-				}
-				%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
-				// First argument will be added by AIM so nothing to add
-				// Add rest of the arguments
-				TMPL(tmpl_print_date_time_to_unix_time_args,
-				     get_sqlvaluetype_from_sqldatatype(
-							column->data_type_struct.data_type,
-							FALSE),
-				     column->data_type_struct.format, FALSE,TRUE);
-				// Close conversion routine
-				%{})"{}%
-				// Close XREF call
-				%{}){}%
-			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
-				if (aim_type) {
-					%{}3,{}%
-				} else {
-					%{}2,{}%
-				}
-				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
-				// Argument will be added by AIM so nothing to add here
-				// Close conversion routine
-				%{})"{}%
-				// Close XREF call
-				%{}){}%
-			} else {
-				%{}{{aim_type|%d}},{}%
-				%{}{{ is_column_string_type|%d }}){}%
-			}
+			// Add arguments needed by AIM: nmonly (0=build), zpiece, omitfix, stat
+			%{},0,0,1,0,{}%
+			// Add the AIM metadata type + transformation-function argument, then close the XREFDATA call.
+			TMPL(tmpl_xref_type_transform, table, column, aim_type, is_multi_level_piece, outer_spec, substr_spec);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -397,75 +342,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			} else {
 			%{},{{piece}}{}%
 			}
-			// Add arguments needed by AIM
-			%{},1,0,1,0,{}%		// nmonly, zpiece, omitfix, stat
-			// Add type argument for AIM based on the following conditions
-			// NB: The type/transform here must match the nmonly=0 (build) call above, since the AIM
-			// global name returned by this nmonly=1 call (and cached for the read-side plan) hashes them.
-			if (is_multi_level_piece) {
-				/* YDBOcto#1108: Piece-of-piece column. Must match the build (nmonly=0) branch above. */
-				boolean_t is_date_col, is_bool_col;
-
-				is_date_col = (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type));
-				is_bool_col = (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type));
-				if (is_date_col && aim_type) {
-					%{}3,{}%
-				} else {
-					%{}2,{}%
-				}
-				%{}"$$PieceOfPieceXform^%%ydboctoplanhelpers(,""{{ outer_spec }}"",{}%
-				if (is_date_col) {
-					%{}""d""{}%
-					TMPL(tmpl_print_date_time_to_unix_time_args,
-					     get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE),
-					     column->data_type_struct.format, FALSE, TRUE);
-				} else if (is_bool_col) {
-					%{}""b""{}%
-				} else if (is_column_string_type) {
-					%{}""s""{}%
-				} else {
-					%{}""""{}%
-				}
-				%{})"{}%
-				// Close XREF call
-				%{}){}%
-			} else if (!table->readwrite && IS_DATE_TIME_DATA_TYPE(column->data_type_struct.data_type)) {
-				if (aim_type) {
-					// This is a vista column it needs additional NULL handling from AIM along with the date/time tranformation function. `type` argument of 3 enables
-					// both. Pass that here.
-					%{}3,{}%
-				} else {
-					// Only tranformation function handling from AIM is sufficient
-					%{}2,{}%
-				}
-				%{}"$$Transform2UnixTime^%%ydboctoplanhelpers({}%
-				// First argument will be added by AIM so nothing to add
-				// Add rest of the arguments
-				TMPL(tmpl_print_date_time_to_unix_time_args,
-				     get_sqlvaluetype_from_sqldatatype(
-							column->data_type_struct.data_type,
-							FALSE),
-				     column->data_type_struct.format, FALSE,TRUE);
-				// Close conversion routine
-				%{})"{}%
-				// Close XREF call
-				%{}){}%
-			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
-				if (aim_type) {
-					%{}3,{}%
-				} else {
-					%{}2,{}%
-				}
-				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
-				// Argument will be added by AIM so nothing to add here
-				// Close conversion routine
-				%{})"{}%
-				// Close XREF call
-				%{}){}%
-			} else {
-				%{}{{aim_type|%d}},{}%
-				%{}{{ is_column_string_type|%d }}){}%
-			}
+			// Add arguments needed by AIM: nmonly (1=metadata), zpiece, omitfix, stat
+			%{},1,0,1,0,{}%
+			// Same type + transform as the nmonly=0 build call above (one template keeps them in sync; the
+			// AIM global name returned by this nmonly=1 call, and cached for the read-side plan, hashes them).
+			TMPL(tmpl_xref_type_transform, table, column, aim_type, is_multi_level_piece, outer_spec, substr_spec);
 			%{}`n{{ PLAN_LINE_START }}{}%
 			if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%

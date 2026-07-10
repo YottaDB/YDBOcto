@@ -1,0 +1,189 @@
+
+# === PIECE + SUBSTR counts characters ===
+# Data loaded into ^u1 (piece 1 is the value, piece 2 names the case):
+^u1(1)="Xé日Y|mixed"
+^u1(2)="日本語|cjk"
+^u1(3)="abcdef|ascii"
+^u1(4)="é|short"
+^u1(5)="|empty"
+-- TC088 Section A : YDBOcto#763/#764 : PIECE + SUBSTR counts CHARACTERS under ydb_chset=UTF-8
+--
+-- ^u1 piece 1 holds the value to extract from and piece 2 names the case, so every row below
+-- is identified by its "label" rather than by its id:
+--   mixed  "Xé日Y"   X(1 byte) é(2 bytes) 日(3 bytes) Y(1 byte) = 4 characters, 7 bytes
+--   cjk    "日本語"   three 3-byte characters                    = 3 characters, 9 bytes
+--   ascii  "abcdef"  pure ASCII, where characters and bytes coincide
+--   short  "é"       a single 2-byte character; SUBSTR 1-3 runs past the end
+--   empty  ""        an empty piece; the extraction is empty, i.e. SQL NULL
+--
+-- The "char4" column is the decisive one: on the "mixed" value the 4th CHARACTER is "Y",
+-- whereas the 4th BYTE is the middle of the 日 sequence. Getting "Y" proves $EXTRACT is
+-- counting characters. Under ydb_chset=M every column below would differ, which is why the
+-- whole subtest is skipped unless the run picked UTF-8.
+CREATE TABLE u1 (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR PIECE 2,
+	head3	VARCHAR PIECE 1 SUBSTR 1-3,
+	first1	VARCHAR PIECE 1 SUBSTR 1,
+	mid	VARCHAR PIECE 1 SUBSTR 2-3,
+	char4	VARCHAR PIECE 1 SUBSTR 4-4
+) GLOBAL "^u1(keys(""id""))" READONLY;
+
+-- Full extraction matrix. Expect head3: Xé日 / 日本語 / abc / é / NULL
+--                        and char4: Y / NULL / d / NULL / NULL
+select label, head3, first1, mid, char4 from u1 order by label;
+
+-- Equality against a multi-byte literal in the SQL text.
+select label from u1 where head3 = 'Xé日';
+select label from u1 where first1 = '日';
+
+-- A SUBSTR range starting beyond the end of a short value yields SQL NULL, and an empty
+-- piece does too; both must appear in IS NULL and neither in IS NOT NULL.
+select label from u1 where char4 is null order by label;
+select label from u1 where head3 is not null order by label;
+
+-- The extraction composes with an ORDER BY on the extracted value itself.
+select label, head3 from u1 where head3 is not null order by head3;
+OCTO> --
+--
+CREATE TABLE u1 (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR PIECE 2,
+	head3	VARCHAR PIECE 1 SUBSTR 1-3,
+	first1	VARCHAR PIECE 1 SUBSTR 1,
+	mid	VARCHAR PIECE 1 SUBSTR 2-3,
+	char4	VARCHAR PIECE 1 SUBSTR 4-4
+) GLOBAL "^u1(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> select label, head3, first1, mid, char4 from u1 order by label;
+label|head3|first1|mid|char4
+ascii|abc|a|bc|d
+cjk|日本語|日|本語|
+empty||||
+mixed|Xé日|X|é日|Y
+short|é|é||
+(5 rows)
+OCTO> select label from u1 where head3 = 'Xé日';
+label
+mixed
+(1 row)
+OCTO> select label from u1 where first1 = '日';
+label
+cjk
+(1 row)
+OCTO> select label from u1 where char4 is null order by label;
+label
+cjk
+empty
+short
+(3 rows)
+OCTO> select label from u1 where head3 is not null order by label;
+label
+ascii
+cjk
+mixed
+short
+(4 rows)
+OCTO> select label, head3 from u1 where head3 is not null order by head3;
+label|head3
+mixed|Xé日
+ascii|abc
+short|é
+cjk|日本語
+(4 rows)
+OCTO> 
+
+# === whole-node and DELIMS/PIECES SUBSTR ===
+# Data loaded into ^u2 (whole node + label node) and ^u3 (two delimiter levels):
+^u2(1,0)="Xé日Y"
+^u2(1,1)="mixed"
+^u2(2,0)="日本語"
+^u2(2,1)="cjk"
+^u2(3,0)="abcdef"
+^u2(3,1)="ascii"
+^u3(1)="a|Xé日Y^b|mixed"
+^u3(2)="a|日本語^b|cjk"
+^u3(3)="a|abcdef^b|ascii"
+-- TC088 Section B : YDBOcto#763/#764 : whole-node and DELIMS/PIECES SUBSTR over multi-byte data
+--
+-- Section A covered PIECE + SUBSTR. The other two extraction forms must count characters the
+-- same way, so both are repeated here on the same "mixed"/"cjk"/"ascii" values.
+
+-- ^u2(id,0) is the whole node to extract from; ^u2(id,1) names the case.
+-- A whole-node SUBSTR column must name its own column-level GLOBAL.
+CREATE TABLE u2 (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR GLOBAL "^u2(keys(""id""),1)" PIECE 1,
+	head3	VARCHAR SUBSTR 1-3 GLOBAL "^u2(keys(""id""),0)",
+	char4	VARCHAR SUBSTR 4-4 GLOBAL "^u2(keys(""id""),0)"
+) GLOBAL "^u2(keys(""id""))" READONLY;
+
+select label, head3, char4 from u2 order by label;
+select label from u2 where head3 = 'Xé日';
+
+-- (The stored-text round-trip of the whole-node form is not repeated here; it is not
+-- chset-specific and TC087 Section A already covers it.)
+
+-- ^u3 is "<junk>|<value>^<junk>|<label>", so the value is reached two delimiter levels deep
+-- and the character range applies to the innermost piece:
+--   DELIMS ("|","^") PIECES (2,1) SUBSTR 1-3 == $EXTRACT($PIECE($PIECE(node,"|",2),"^",1),1,3)
+CREATE TABLE u3 (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR PIECE 3,
+	head3	VARCHAR DELIMS ("|","^") PIECES (2,1) SUBSTR 1-3,
+	char4	VARCHAR DELIMS ("|","^") PIECES (2,1) SUBSTR 4-4
+) GLOBAL "^u3(keys(""id""))" READONLY;
+
+select label, head3, char4 from u3 order by label;
+select label from u3 where head3 = 'Xé日';
+
+-- Every generated $EXTRACT, to confirm the character range is applied to the piece result
+-- rather than to the whole node.
+OCTO> --
+
+CREATE TABLE u2 (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR GLOBAL "^u2(keys(""id""),1)" PIECE 1,
+	head3	VARCHAR SUBSTR 1-3 GLOBAL "^u2(keys(""id""),0)",
+	char4	VARCHAR SUBSTR 4-4 GLOBAL "^u2(keys(""id""),0)"
+) GLOBAL "^u2(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> select label, head3, char4 from u2 order by label;
+label|head3|char4
+ascii|abc|d
+cjk|日本語|
+mixed|Xé日|Y
+(3 rows)
+OCTO> select label from u2 where head3 = 'Xé日';
+label
+mixed
+(1 row)
+OCTO> CREATE TABLE u3 (
+	id	INTEGER PRIMARY KEY,
+	label	VARCHAR PIECE 3,
+	head3	VARCHAR DELIMS ("|","^") PIECES (2,1) SUBSTR 1-3,
+	char4	VARCHAR DELIMS ("|","^") PIECES (2,1) SUBSTR 4-4
+) GLOBAL "^u3(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> select label, head3, char4 from u3 order by label;
+label|head3|char4
+ascii|abc|d
+cjk|日本語|
+mixed|Xé日|Y
+(3 rows)
+OCTO> select label from u3 where head3 = 'Xé日';
+label
+mixed
+(1 row)
+OCTO> 
+
+# Generated $EXTRACT calls:
+$EXTRACT($GET(^u2(%ydboctocursor(cursorId,"keys",1,"u2","id"),0)),1,3)
+$EXTRACT($GET(^u2(%ydboctocursor(cursorId,"keys",1,"u2","id"),0)),4,4)
+$EXTRACT($PIECE($GET(^u1(%ydboctocursor(cursorId,"keys",1,"u1","id"))),"|",1),1)
+$EXTRACT($PIECE($GET(^u1(%ydboctocursor(cursorId,"keys",1,"u1","id"))),"|",1),1,3)
+$EXTRACT($PIECE($GET(^u1(%ydboctocursor(cursorId,"keys",1,"u1","id"))),"|",1),1,3)),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+$EXTRACT($PIECE($GET(^u1(%ydboctocursor(cursorId,"keys",1,"u1","id"))),"|",1),2,3)
+$EXTRACT($PIECE($GET(^u1(%ydboctocursor(cursorId,"keys",1,"u1","id"))),"|",1),4,4)
+$EXTRACT($PIECE($PIECE($GET(^u3(%ydboctocursor(cursorId,"keys",1,"u3","id"))),"|",2),"^",1),1,3)
+$EXTRACT($PIECE($PIECE($GET(^u3(%ydboctocursor(cursorId,"keys",1,"u3","id"))),"|",2),"^",1),4,4)

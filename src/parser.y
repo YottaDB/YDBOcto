@@ -233,6 +233,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SOME
 %token START
 %token STARTINCLUDE
+%token SUBSTR
 %token SUM
 %token TABLE
 %token TEXT
@@ -2121,6 +2122,77 @@ column_definition_tail
        } else {
 		keyword->v = $piece_int_list;
        }
+
+       UNPACK_SQL_STATEMENT(keyword, $5, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | SUBSTR ddl_int_literal_value column_definition_tail {
+       /* "SUBSTR n" : the column value is character position n (only) of the source value, i.e. $EXTRACT(source,n)
+	* (YDBOcto#763/#764). The specification is stored as a normalized string literal (e.g. "2") so that binary
+	* table definitions, text definitions and M plan generation can all use it verbatim.
+	*/
+       SqlOptionalKeyword *keyword;
+       char		  *start_str, *end_ptr, *spec;
+       long		   start_position;
+       size_t		   spec_length;
+
+       start_str = $ddl_int_literal_value->v.value->v.string_literal;
+       start_position = strtol(start_str, &end_ptr, 10);
+       if (STRTOL_VALUE_OUT_OF_RANGE(start_position) || (1 > start_position) || ('\0' == start_str[0])
+		       || ('\0' != *end_ptr)) {
+	       ERROR(ERR_SUBSTR_INVALID_RANGE, start_str);
+	       yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+	       YYERROR;
+       }
+
+       spec_length = strlen(start_str) + 1;	// normalized form never has more digits than the input text
+       spec = octo_cmalloc(memory_chunks, spec_length);
+       snprintf(spec, spec_length, "%ld", start_position);
+
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_SUBSTR);
+       SQL_VALUE_STATEMENT(($$)->v.keyword->v, STRING_LITERAL, spec);
+       ($$)->v.keyword->v->loc = yyloc;
+
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | SUBSTR ddl_int_literal_value MINUS ddl_int_literal_value column_definition_tail {
+       /* "SUBSTR start-end" : the column value is character positions start through end of the source value,
+	* i.e. $EXTRACT(source,start,end) (YDBOcto#763/#764). Stored as a normalized string literal (e.g. "1-12").
+	* Note: the lexer returns "1-12" as three tokens (LITERAL MINUS LITERAL), which is what this rule matches.
+	*/
+       SqlOptionalKeyword *keyword;
+       char		  *start_str, *end_str, *end_ptr, *spec;
+       long		   start_position, end_position;
+       size_t		   spec_length;
+
+       start_str = ($2)->v.value->v.string_literal;
+       end_str = ($4)->v.value->v.string_literal;
+       start_position = strtol(start_str, &end_ptr, 10);
+       if (STRTOL_VALUE_OUT_OF_RANGE(start_position) || (1 > start_position) || ('\0' == start_str[0])
+		       || ('\0' != *end_ptr)) {
+	       ERROR(ERR_SUBSTR_INVALID_RANGE, start_str);
+	       yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+	       YYERROR;
+       }
+       end_position = strtol(end_str, &end_ptr, 10);
+       if (STRTOL_VALUE_OUT_OF_RANGE(end_position) || (start_position > end_position) || ('\0' == end_str[0])
+		       || ('\0' != *end_ptr)) {
+	       char range_text[64];
+
+	       snprintf(range_text, sizeof(range_text), "%s-%s", start_str, end_str);
+	       ERROR(ERR_SUBSTR_INVALID_RANGE, range_text);
+	       yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+	       YYERROR;
+       }
+
+       spec_length = strlen(start_str) + 1 + strlen(end_str) + 1; // start, '-', end, null terminator
+       spec = octo_cmalloc(memory_chunks, spec_length);
+       snprintf(spec, spec_length, "%ld-%ld", start_position, end_position);
+
+       MALLOC_KEYWORD_STMT($$, OPTIONAL_SUBSTR);
+       SQL_VALUE_STATEMENT(($$)->v.keyword->v, STRING_LITERAL, spec);
+       ($$)->v.keyword->v->loc = yyloc;
 
        UNPACK_SQL_STATEMENT(keyword, $5, keyword);
        dqappend(keyword, ($$)->v.keyword);

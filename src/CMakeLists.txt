@@ -546,6 +546,7 @@ set(template_files
   ${template_dir}/tmpl_print_group_by_column_reference.ctemplate
   ${template_dir}/tmpl_rightjoin_key.ctemplate
   ${template_dir}/tmpl_set_duplication_check.ctemplate
+  ${template_dir}/tmpl_substr_close.ctemplate
   ${template_dir}/tmpl_tablejoin.ctemplate
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
@@ -556,6 +557,7 @@ set(template_files
   ${template_dir}/tmpl_update_record_in_table.ctemplate
   ${template_dir}/tmpl_update_table.ctemplate
   ${template_dir}/tmpl_where_or_having_or_on.ctemplate
+  ${template_dir}/tmpl_xref_type_transform.ctemplate
   ${template_dir}/tmpl_xref_key_columns.ctemplate
   )
 foreach(template ${template_files})

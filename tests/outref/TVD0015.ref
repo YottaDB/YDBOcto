@@ -1,0 +1,118 @@
+-- TVD0015 : YDBOcto#763/#764 : SUBSTR over the VistA XULM LOCK DICTIONARY (file 8993)
+--
+-- LOCK_TEMPLATE is field .01 of file 8993: characters 1-245 of the ^XLM(8993,IEN,0) node.
+-- The YDBOctoVistA mapper emits every "extract-start/extract-end" Fileman field this way.
+-- Before YDBOctoVistA v1.13 (YDBOctoVistA!43) that was an un-indexable EXTRACT:
+--     `LOCK_TEMPLATE` ... EXTRACT "$E($G(^XLM(8993,keys(""xulm_lock_dictionary_id""),0)),1,245)"
+-- and is now a SUBSTR column naming its own GLOBAL:
+--     `LOCK_TEMPLATE` ... SUBSTR 1-245 GLOBAL "^XLM(8993,keys(""xulm_lock_dictionary_id""),0)"
+-- Same value, but Octo can now build an AIM cross reference on it, so the WHERE and the
+-- MIN/MAX below are served from the index instead of a full scan of file 8993.
+
+-- 1) Every lock template. ORDER BY makes the row order independent of IEN assignment.
+select LOCK_TEMPLATE from `XULM_LOCK_DICTIONARY` order by LOCK_TEMPLATE;
+
+-- 2) Equality on the SUBSTR column: this is what could not be indexed before #763/#764.
+select XULM_LOCK_DICTIONARY_ID, LOCK_TEMPLATE from `XULM_LOCK_DICTIONARY`
+	where LOCK_TEMPLATE = 'DPT(DFN)';
+
+-- 3) MIN/MAX read straight off the AIM index (YDBOcto#617).
+select MIN(LOCK_TEMPLATE) as LO, MAX(LOCK_TEMPLATE) as HI from `XULM_LOCK_DICTIONARY`;
+
+-- 4) A prefix match: the leading characters of a lock template are the VistA package
+--    namespace, so this returns the templates belonging to the DG (Registration) package.
+select LOCK_TEMPLATE from `XULM_LOCK_DICTIONARY`
+	where LOCK_TEMPLATE like 'DG%' order by LOCK_TEMPLATE;
+
+-- 5) The SUBSTR column alongside the ordinary PIECE columns of the same file, to confirm
+--    a SUBSTR column and PIECE columns of one table coexist in a single plan.
+select LOCK_TEMPLATE, GLOBAL_LOCK, PARTIAL_MATCH_ALLOWED from `XULM_LOCK_DICTIONARY`
+	order by LOCK_TEMPLATE;
+
+-- 6) NULL handling on a SUBSTR column: LOCK_TEMPLATE is the .01 field and is declared NOT NULL,
+--    so the two counts below partition the file.
+select count(*) as NULL_COUNT from `XULM_LOCK_DICTIONARY` where LOCK_TEMPLATE is null;
+select count(*) as NOT_NULL_COUNT from `XULM_LOCK_DICTIONARY` where LOCK_TEMPLATE is not null;
+OCTO> --
+
+select LOCK_TEMPLATE from `XULM_LOCK_DICTIONARY` order by LOCK_TEMPLATE;
+lock_template
+AUPNPAT(IEN)
+AUPNPROB(IEN)
+AUPNVPOV(IEN)
+DGBT(392,IEN)
+DGCR(399,IEN)
+DGM(IEN)
+DGPT(IEN)
+DPT(DFN)
+DVB(396.17,IEN)
+GMR(120.86,DFN)
+GMR(123,IEN)
+LR(LRDFN)
+OR(100,IEN)
+PS(55,DFN)
+PSB(53.79,IEN)
+PSRX("B",RX)
+RADPT(IEN)
+RARPT(IEN)
+TIU(8925,IEN)
+XTMP("PSSLOCK",DFN)
+XTMP(ORPTLK)
+XTMP(SRLOCK)
+(22 rows)
+OCTO> select XULM_LOCK_DICTIONARY_ID, LOCK_TEMPLATE from `XULM_LOCK_DICTIONARY`
+	where LOCK_TEMPLATE = 'DPT(DFN)';
+xulm_lock_dictionary_id|lock_template
+1|DPT(DFN)
+(1 row)
+OCTO> select MIN(LOCK_TEMPLATE) as LO, MAX(LOCK_TEMPLATE) as HI from `XULM_LOCK_DICTIONARY`;
+lo|hi
+AUPNPAT(IEN)|XTMP(SRLOCK)
+(1 row)
+OCTO> select LOCK_TEMPLATE from `XULM_LOCK_DICTIONARY`
+	where LOCK_TEMPLATE like 'DG%' order by LOCK_TEMPLATE;
+lock_template
+DGBT(392,IEN)
+DGCR(399,IEN)
+DGM(IEN)
+DGPT(IEN)
+(4 rows)
+OCTO> select LOCK_TEMPLATE, GLOBAL_LOCK, PARTIAL_MATCH_ALLOWED from `XULM_LOCK_DICTIONARY`
+	order by LOCK_TEMPLATE;
+lock_template|global_lock|partial_match_allowed
+AUPNPAT(IEN)|1|1
+AUPNPROB(IEN)|1|1
+AUPNVPOV(IEN)|1|1
+DGBT(392,IEN)|1|1
+DGCR(399,IEN)|1|1
+DGM(IEN)|1|1
+DGPT(IEN)|1|1
+DPT(DFN)|1|1
+DVB(396.17,IEN)|1|1
+GMR(120.86,DFN)|1|1
+GMR(123,IEN)|1|1
+LR(LRDFN)|1|1
+OR(100,IEN)|1|1
+PS(55,DFN)|1|1
+PSB(53.79,IEN)|1|1
+PSRX("B",RX)|1|0
+RADPT(IEN)|1|1
+RARPT(IEN)|1|1
+TIU(8925,IEN)|1|1
+XTMP("PSSLOCK",DFN)|1|0
+XTMP(ORPTLK)|1|0
+XTMP(SRLOCK)|1|1
+(22 rows)
+OCTO> select count(*) as NULL_COUNT from `XULM_LOCK_DICTIONARY` where LOCK_TEMPLATE is null;
+null_count
+0
+(1 row)
+OCTO> select count(*) as NOT_NULL_COUNT from `XULM_LOCK_DICTIONARY` where LOCK_TEMPLATE is not null;
+not_null_count
+22
+(1 row)
+OCTO> 
+# Read-side $EXTRACT emitted for LOCK_TEMPLATE:
+$EXTRACT($GET(^XLM(8993,%ydboctocursor(cursorId,"keys",1,"xulm_lock_dictionary","xulm_lock_dictionary_id"),0)),1,245)
+# AIM transformation function emitted for LOCK_TEMPLATE:
+SubstrXform^%ydboctoplanhelpers(,""1-245"",""s"")

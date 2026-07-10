@@ -1420,6 +1420,38 @@ ERR_SUBQUERY_MULTIPLE_ROWS
 
   Description/Action: This error is generated when more than one row is returned by a subquery that is used as an expression. PSQL Error Code: 21000
 
++++++++++++++++++++++++++++++++
+ERR_SUBSTR_CANNOT_BE_KEY_COLUMN
++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" cannot be a SUBSTR column and key column at same time
+
+  Description/Action: This error is generated when a column that is defined with a :code:`SUBSTR` keyword in a :code:`CREATE TABLE` command is also defined as a key column (using the :code:`PRIMARY KEY` or :code:`KEY NUM` constraint/keyword). A key column's value comes from a global subscript, not from a stored node value, so there is nothing for :code:`SUBSTR` to slice. PSQL Error Code: 42P16
+
+++++++++++++++++++++++++++++++
+ERR_SUBSTR_DELIM_WITHOUT_PIECE
+++++++++++++++++++++++++++++++
+
+  Text: SUBSTR keyword on column "xxx" with a non-empty DELIM/DELIMS requires a PIECE/PIECES specification
+
+  Description/Action: This error is generated when a column defined with a :code:`SUBSTR` keyword in a :code:`CREATE TABLE` command has a non-empty :code:`DELIM`/:code:`DELIMS` but no :code:`PIECE`/:code:`PIECES` specification. A delimiter with no piece to apply it to is ambiguous. Either add a :code:`PIECE`/:code:`PIECES` specification (so the character range applies to the extracted piece) or drop the delimiter (so :code:`SUBSTR` applies to the whole global node). PSQL Error Code: 42P16
+
++++++++++++++++++++++++++++++++
+ERR_SUBSTR_EXTRACT_INCOMPATIBLE
++++++++++++++++++++++++++++++++
+
+  Text: Column "xxx" cannot specify both SUBSTR and EXTRACT keywords
+
+  Description/Action: This error is generated when a column in a :code:`CREATE TABLE` command specifies both a :code:`SUBSTR` keyword and an :code:`EXTRACT` keyword. An :code:`EXTRACT` column computes an arbitrary expression at read time, so there is no stored node or piece value for :code:`SUBSTR` to slice. If a substring of an :code:`EXTRACT` expression is needed, apply :code:`$EXTRACT` inside the :code:`EXTRACT` expression itself. PSQL Error Code: 42P16
+
++++++++++++++++++++++++++
+ERR_SUBSTR_INVALID_RANGE
++++++++++++++++++++++++++
+
+  Text: SUBSTR specification "xxx" is invalid; format is SUBSTR start or SUBSTR start-end with start >= 1 and end >= start
+
+  Description/Action: This error is generated when the character positions given to a :code:`SUBSTR` keyword in a :code:`CREATE TABLE` command are invalid. The starting position must be a positive integer and, if an ending position is given (e.g. :code:`SUBSTR 1-12`), it must be greater than or equal to the starting position. PSQL Error Code: 42601
+
 +++++++++++++++++
 ERR_SYSCALL
 +++++++++++++++++

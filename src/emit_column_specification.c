@@ -73,6 +73,14 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " EXTRACT \"%s\"", buffer2);
 			break;
+		case OPTIONAL_SUBSTR:
+			/* The stored value is the normalized "start" or "start-end" specification text (only digits
+			 * and "-"), so it is emitted verbatim with no quoting/escaping (YDBOcto#763/#764).
+			 */
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " SUBSTR %s",
+								    value->v.reference);
+			break;
 		case OPTIONAL_PIECE:
 			DEBUG_ONLY(assert(!empty_delim_seen));
 			DEBUG_ONLY(piece_seen = TRUE);

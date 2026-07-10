@@ -720,7 +720,7 @@ ForceBoolean(val)
 	SET val=$ZCONVERT(val,"L")
 	QUIT $SELECT($DATA(%ydboctoStr2Bool(val)):%ydboctoStr2Bool(val),1:0)
 
-PieceOfPieceXform(val,spec,conv,dtype,dtformat,txtfmt)
+PieceOfPieceXform(val,spec,conv,dtype,dtformat,txtfmt,substrspec)
 	; AIM transformation function for a piece-of-piece (chained DELIMS/PIECES) column (YDBOcto#1108).
 	; AIM has already extracted the inner (first) piece $PIECE(node,delim1,piece1) into "val". "spec"
 	; describes the remaining (outer) levels (level 2..N) as a "/"-separated list of "piece:<tag><c1.c2..>"
@@ -757,6 +757,10 @@ PieceOfPieceXform(val,spec,conv,dtype,dtformat,txtfmt)
 	;        the delimiter "/" is itself code 47, so it never clashes with the spec's "/" level separator.
 	;   val="a<U+4E0A>b"      spec="1:Z228.184.138" conv="s" -> "#a"
 	;        literal multi-byte UTF-8 delimiter "<U+4E0A>": $ZCHAR(228,184,138) reproduces its 3 bytes exactly.
+	;
+	; "substrspec" (optional, YDBOcto#763/#764) is the column's SUBSTR specification ("start" or "start-end").
+	; If present, $EXTRACT is applied to the fully extracted piece value (i.e. after all piece levels, before
+	; "conv") -- the same composition order the read-side plans use for a DELIMS/PIECES + SUBSTR column.
 	QUIT:$ZYISSQLNULL(val) val
 	NEW i,j,level,piece,codes,tag,delim
 	; "spec" is pure ASCII (digits, the "/" ":" "." separators, and the tag letter), so it is parsed with the
@@ -774,6 +778,39 @@ PieceOfPieceXform(val,spec,conv,dtype,dtformat,txtfmt)
 	. ; are byte-identical anyway, since UTF-8 is self-synchronizing; they would only differ on a global node
 	. ; that is not valid UTF-8, where char-wise keeps the index and the read side consistent.)
 	. SET val=$PIECE(val,delim,piece)
+	SET:$GET(substrspec)'="" val=$SELECT(substrspec["-":$EXTRACT(val,$PIECE(substrspec,"-",1),$PIECE(substrspec,"-",2)),1:$EXTRACT(val,substrspec))
+	; An empty result (empty inner piece, or empty DELIMS/PIECES + SUBSTR extraction) is SQL NULL and is passed
+	; straight through the "conv" $SELECT below like any value -- each conversion already maps "" to the correct
+	; NULL marker: "s" -> strcolval2aimsubs("")="#" (AIM's native string NULL, the same "#" a plain forceStr
+	; string column uses), "d" -> Transform2UnixTime("")="", "b" -> ForceBoolean("")=""
+	; %YDBAIM feeds a MISSING node's NULL through this transform too, so a missing-node NULL and an
+	; empty-extraction NULL land on the identical subscript ("#" for strings, "" for the rest), and the
+	; read-side IS NULL lookup probes that same subscript (see tmpl_key_source.ctemplate).
+	QUIT $SELECT(conv="s":$$strcolval2aimsubs(val),conv="d":$$Transform2UnixTime(val,dtype,dtformat,txtfmt),conv="b":$$ForceBoolean(val),1:val)
+
+SubstrXform(val,spec,conv,dtype,dtformat,txtfmt)
+	; AIM transformation function for a SUBSTR column (YDBOcto#763/#764). AIM passes in "val" the value it
+	; is about to index: the whole node (whole-node SUBSTR form, indexed with an empty separator and no piece
+	; number) or the single piece it extracted (PIECE n SUBSTR form). "spec" is the column's normalized SUBSTR
+	; specification: either "start" (a single character position, e.g. "2") or "start-end" (an inclusive
+	; character range, e.g. "1-12"); it contains only digits and "-" so it is safe to embed in the generated
+	; M source. The returned value is $EXTRACT(val,start[,end]).
+	;
+	; "conv" then selects the SAME post-extraction conversion AIM would otherwise apply on its own (see
+	; PieceOfPieceXform above for the "s"/"d"/"b"/"" conversion codes; AIM applies only one transformation
+	; function per index, so the conversions are chained here).
+	; AIM indexes (and, via its trigger, re-derives) the value returned here whenever the node changes.
+	;
+	; Examples ("val" is what AIM is about to index; the returned value is what actually gets indexed):
+	;   val="123 Main Street" spec="1-12" conv="s"  ->  "#123 Main St"
+	;   val="Boston"          spec="2"    conv="s"  ->  "#o"
+	;   val="ab"              spec="5"    conv="s"  ->  "" (empty extraction = SQL NULL; see below)
+	;   val="20250115ABC"     spec="1-8"  conv="d"  ->  1736899200 (date column: Transform2UnixTime applied)
+	;   val="1yes"            spec="2-4"  conv="b"  ->  1 (boolean column: ForceBoolean applied)
+	;   val="A100"            spec="2-4"  conv=""   ->  100 (integer column: no conversion applied)
+	QUIT:$ZYISSQLNULL(val) val
+	SET val=$SELECT(spec["-":$EXTRACT(val,$PIECE(spec,"-",1),$PIECE(spec,"-",2)),1:$EXTRACT(val,spec))
+	; See SQL NULL comment on the same line in PieceOfPieceXform
 	QUIT $SELECT(conv="s":$$strcolval2aimsubs(val),conv="d":$$Transform2UnixTime(val,dtype,dtformat,txtfmt),conv="b":$$ForceBoolean(val),1:val)
 
 max(isString,a,b)

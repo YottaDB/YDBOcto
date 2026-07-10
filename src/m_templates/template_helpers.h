@@ -247,11 +247,11 @@ TEMPLATE(tmpl_invoke_deferred_plan, InvokeDeferredPlanType invocation_type, Logi
 TEMPLATE(tmpl_invoke_deferred_plan_setoper, InvokeDeferredPlanType invocation_type, LogicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, void *parm2, int keys_to_match,
 	 enum EmitSourceForm form);
-/* YDBOcto#1108: piece-of-piece (chained DELIMS/PIECES) nested-$PIECE emission, shared by "tmpl_column_reference"
- * and "tmpl_emit_source". "open" emits the "$PIECE(" openers; "close" emits the ",<delim>,<piece>)" closers.
- */
 TEMPLATE(tmpl_piece_of_piece_open, SqlStatement *piece_list);
 TEMPLATE(tmpl_piece_of_piece_close, SqlStatement *delim_list, SqlStatement *piece_list);
+TEMPLATE(tmpl_substr_close, char *substr_spec);
+TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, int aim_type, boolean_t is_multi_level_piece,
+	 char *outer_spec, char *substr_spec);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan);
 TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_order_by_key, int num_cols);

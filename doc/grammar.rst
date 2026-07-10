@@ -987,7 +987,7 @@ optional_keyword
 
   .. code-block:: none
 
-     [ AIMTYPE | DELIM | DELIMS | END | ENDPOINT | EXTRACT | GLOBAL | ITERATOR | KEY NUM | NOT NULL | PIECE | PIECES | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE | VIRTUAL ]
+     [ AIMTYPE | DELIM | DELIMS | END | ENDPOINT | EXTRACT | GLOBAL | ITERATOR | KEY NUM | NOT NULL | PIECE | PIECES | READONLY | READWRITE | SKIP | SKIPCONDITION | START | STARTINCLUDE | SUBSTR | VIRTUAL ]
 
   The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -1159,6 +1159,18 @@ optional_keyword
   |              |                    |               | the loop does a $ORDER() of the START value and uses that for the first        |                              |                                                           |
   |              |                    |               | loop iteration.                                                                |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
+  | SUBSTR       | Integer or range   | Column        | The column value is a fixed character range of the stored value, using the M   | Not applicable               | Not applicable                                            |
+  |              |                    |               | :code:`$EXTRACT()` function: :code:`SUBSTR 1-12` returns character positions   |                              |                                                           |
+  |              |                    |               | 1 through 12 (inclusive) and :code:`SUBSTR 2` returns just the 2nd character.  |                              |                                                           |
+  |              |                    |               | When combined with a :code:`PIECE`/:code:`PIECES` specification, the character |                              |                                                           |
+  |              |                    |               | range is applied to the extracted piece value. Without one, the range is       |                              |                                                           |
+  |              |                    |               | applied to the entire global variable node, and the column must then specify   |                              |                                                           |
+  |              |                    |               | its own column-level :code:`GLOBAL` keyword (it is an error otherwise). Any    |                              |                                                           |
+  |              |                    |               | column using :code:`SUBSTR` makes the table :code:`READONLY`. Unlike           |                              |                                                           |
+  |              |                    |               | :code:`EXTRACT` (which computes an arbitrary expression), a :code:`SUBSTR`     |                              |                                                           |
+  |              |                    |               | column can be cross-referenced (indexed), so :code:`WHERE`/:code:`MIN`/        |                              |                                                           |
+  |              |                    |               | :code:`MAX` lookups on it are fast. See the examples later in this section.    |                              |                                                           |
+  +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | VIRTUAL      | Not applicable     | Column        | A keyword that pairs with :code:`ITERATOR`. It declares that the keys returned | Not applicable               | Not specified                                             |
   |              |                    |               | by the ITERATOR don't correspond to real data in a global, and therefore, when |                              |                                                           |
   |              |                    |               | optimizing queries, Octo should skip optimizations that depend on the          |                              |                                                           |
@@ -1180,6 +1192,7 @@ optional_keyword
     * If the GLOBAL keyword is specified with subscripts that are not in a format compatible with READWRITE
     * If the ITERATOR keyword is specified on any column
     * If a column uses the chained (piece-of-piece) :code:`DELIMS (..) PIECES (..)` form
+    * If a column uses the :code:`SUBSTR` keyword
 
   If a :code:`DELIM ""` is specified for a column, any :code:`PIECE` keyword specified for that column is ignored and is treated as if the keyword was not specified.
 
@@ -1265,6 +1278,40 @@ Extracting a nested piece (DELIMS / PIECES)
   The number of :code:`DELIMS` values must equal the number of :code:`PIECES` values, and any column using this form makes the table :code:`READONLY`. A :code:`DELIMS` element may be a multi-character string or a :code:`$CHAR` / :code:`$C` intrinsic, so the same table could be written with :code:`DELIMS ($C(124),$C(94))` (since :code:`$C(124)` is :code:`"|"` and :code:`$C(94)` is :code:`"^"`). The form extends to any depth, e.g. :code:`DELIMS ("|","^","~") PIECES (2,2,2)` extracts a value three levels deep. See the :code:`DELIMS` / :code:`PIECES` rows in the optional keyword table above for the full description.
 
   A single-element list is a special case that downgrades to the plain :code:`DELIM` / :code:`PIECE` form: :code:`DELIMS ("|") PIECES (2)` is exactly equivalent to :code:`DELIM "|" PIECE 2` (it collapses to that representation). Such a column is therefore *not* a piece-of-piece column -- it generates a single :code:`$PIECE`, counts toward the default piece number like an ordinary :code:`PIECE`, and does not by itself force the table :code:`READONLY`. Only a multi-level (two-or-more-element) chain does. The same downgrade applies at the table level: a single-element table-level :code:`DELIMS ("^")` is accepted and is equivalent to :code:`DELIM "^"`. A multi-element table-level :code:`DELIMS (..)`, by contrast, is an error (:code:`ERR_DELIMS_TABLE_LEVEL`), since a table has a single default delimiter and the chained per-level form is meaningful only at the column level (paired with :code:`PIECES`).
+
+Extracting a character range (SUBSTR)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  When a column value is a fixed character range of the stored data, the :code:`SUBSTR` keyword extracts it directly, using the M `$EXTRACT() <https://docs.yottadb.com/ProgrammersGuide/functions.html#extract>`_ function: :code:`SUBSTR 1-12` returns character positions 1 through 12 (inclusive), and :code:`SUBSTR 2` returns just the 2nd character. Unlike an :code:`EXTRACT "$EXTRACT(...)"` expression (which computes arbitrary M code and therefore cannot be indexed), a :code:`SUBSTR` column can be cross-referenced, so :code:`WHERE` / :code:`MIN` / :code:`MAX` lookups on it use an index instead of a full table scan.
+
+  When the column has no :code:`PIECE` / :code:`PIECES` specification, the character range applies to an entire global variable node. By default that is the table's own node, exactly the node a :code:`PIECE` column reads, so no column-level :code:`GLOBAL` keyword is required. A column-level :code:`GLOBAL` keyword is optional and, when present, points :code:`SUBSTR` at a different node instead (for example a :code:`,0` subnode):
+
+  .. code-block:: SQL
+
+     CREATE TABLE Patients
+     (PatientID INTEGER PRIMARY KEY,
+      Address VARCHAR SUBSTR 1-12 GLOBAL "^Patients(keys(""PatientID""),0)")
+     GLOBAL "^Patients"
+     READONLY;
+
+  In the above example, the nodes of :code:`^Patients` look like :code:`^Patients(1,0)="123 Main Street"`, and the :code:`Address` column value is :code:`$EXTRACT(^Patients(1,0),1,12)`, i.e. :code:`"123 Main Str"`. Had the :code:`Address` column omitted the column-level :code:`GLOBAL`, it would slice the table's own node :code:`^Patients(1)` instead.
+
+  When the column does have a :code:`PIECE` (or :code:`PIECES`) specification, the character range applies to the extracted piece value instead:
+
+  .. code-block:: SQL
+
+     CREATE TABLE Patients
+     (PatientID INTEGER PRIMARY KEY,
+      Initial VARCHAR PIECE 1 SUBSTR 1,
+      BirthYear INTEGER PIECE 2 SUBSTR 1-4)
+     GLOBAL "^Patients"
+     READONLY;
+
+  In the above example, the nodes of :code:`^Patients` look like :code:`^Patients(1)="John Doe|19630115"`. The :code:`Initial` column generates :code:`$EXTRACT($PIECE($GET(node),"|",1),1)` (i.e. :code:`"J"`), and :code:`BirthYear` generates :code:`$EXTRACT($PIECE($GET(node),"|",2),1,4)` (i.e. :code:`1963`). :code:`SUBSTR` also composes with the chained :code:`DELIMS (..) PIECES (..)` form described above, in which case the character range applies to the innermost extracted piece.
+
+  A whole-node :code:`SUBSTR` column reads a node (e.g. :code:`^Patients(1,0)` above) that can be absent for an existing row, in which case the column value is SQL NULL. As with any other column, by default such rows are not included in the cross reference, so an indexed :code:`WHERE .. IS NULL` lookup does not find them; specifying table-level :code:`AIMTYPE 1` includes them (see `Indexing NULL data with AIMTYPE`_ below). Note that :code:`AIMTYPE 1` requires the node named by the column-level :code:`GLOBAL` to end in a fixed subscript (as :code:`^Patients(keys(""PatientID""),0)` does) and the global's region(s) to disallow null subscripts.
+
+  Any column using :code:`SUBSTR` makes the table :code:`READONLY`. A :code:`SUBSTR` column cannot also specify the :code:`EXTRACT` keyword, and a non-empty :code:`DELIM` / :code:`DELIMS` on a :code:`SUBSTR` column is an error unless a :code:`PIECE` / :code:`PIECES` specification is also present (a delimiter with no piece to apply it to is ambiguous).
 
 READONLY and READWRITE tables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

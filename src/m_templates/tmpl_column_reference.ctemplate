@@ -170,6 +170,20 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	} else {
 		piece = NULL;
 	}
+	/* YDBOcto#763/#764: A SUBSTR column slices the piece (or whole-node) value with $EXTRACT. Note down its
+	 * normalized "start[-end]" specification here; the "$EXTRACT(" opener and its ",start[,end])" closer are
+	 * emitted around the source/$PIECE emission below.
+	 */
+	SqlOptionalKeyword	*substr_keyword;
+	char			*substr_spec;
+
+	substr_keyword = get_keyword(column, OPTIONAL_SUBSTR);
+	if (NULL != substr_keyword) {
+		UNPACK_SQL_STATEMENT(value, substr_keyword->v, value);
+		substr_spec = value->v.string_literal;
+	} else {
+		substr_spec = NULL;
+	}
 	keyword = get_keyword(column, OPTIONAL_EXTRACT);
 	if (NULL == keyword) {
 		is_extract = FALSE;
@@ -180,6 +194,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	} else {
 		assert(NULL == piece); /* A column cannot be a piece and an extract column at the same time */
 		assert(!is_multi_level_piece);
+		assert(NULL == substr_spec); /* SUBSTR and EXTRACT are incompatible (checked at CREATE TABLE time) */
 		is_extract = TRUE;
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -237,6 +252,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	skipped_dollar_get = TRUE;
 	/* All non-extract references get $GET. Add $PIECE for if piece number specified. */
 	if (!is_trigger && !is_extract) {
+		if (NULL != substr_spec) {
+			/* YDBOcto#763/#764: SUBSTR slices the piece (or whole-node) value, so "$EXTRACT(" wraps the
+			 * $PIECE/$GET emission below (i.e. inside the piecevalue2colvalue/date/boolean converters above).
+			 * The matching ",start[,end])" closer is emitted by "tmpl_substr_close" after the piece closers.
+			 */
+			%{}$EXTRACT({}%
+		}
 		if (is_multi_level_piece) {
 			/* YDBOcto#1108: Emit one "$PIECE(" opener per nesting level (the matching ",delim,piece)"
 			 * closers are emitted, in the same order, by "tmpl_piece_of_piece_close" after the source below).
@@ -308,6 +330,10 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			} else {
 				%{},"{{ delim }}",{{ piece }}){}%
 			}
+		}
+		if (!is_extract && (NULL != substr_spec)) {
+			/* YDBOcto#763/#764: closer for the "$EXTRACT(" opener emitted above */
+			TMPL(tmpl_substr_close, substr_spec);
 		}
 		if (!dot_count) {
 			if (!is_xref_plan) {

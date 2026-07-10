@@ -1,0 +1,633 @@
+
+# === Section A : WHERE on a whole-node SUBSTR column (address) ===
+# Data loaded into ^sxwn:
+^sxwn(0)="Zero Cool"
+^sxwn(0,0)="123 Main Street"
+^sxwn(1)="Acid Burn"
+^sxwn(1,0)="45 Oak Avenue"
+^sxwn(2)="Lord Nikon"
+^sxwn(2,0)="9 Elm Suite 100"
+-- ^sxwn(id) is the name; the address lives on its own ^sxwn(id,0) node. The address column is the
+-- whole-node SUBSTR form, so AIM indexes the ENTIRE ^sxwn(id,0) node (empty separator, no piece
+-- number) through the SubstrXform transformation function.
+CREATE TABLE sxwn (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR PIECE 1,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^sxwn(keys(""id""),0)"
+) GLOBAL "^sxwn(keys(""id""))" AIMTYPE 1;
+-- Extracted view (no conditions):
+SELECT * FROM sxwn ORDER BY id;
+-- WHERE builds/uses the AIM cross-reference (expect id 0):
+SELECT id, address FROM sxwn WHERE address = '123 Main Str';
+OCTO> CREATE TABLE sxwn (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR PIECE 1,
+	address VARCHAR SUBSTR 1-12 GLOBAL "^sxwn(keys(""id""),0)"
+) GLOBAL "^sxwn(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM sxwn ORDER BY id;
+id|name|address
+0|Zero Cool|123 Main Str
+1|Acid Burn|45 Oak Avenu
+2|Lord Nikon|9 Elm Suite 
+(3 rows)
+OCTO> SELECT id, address FROM sxwn WHERE address = '123 Main Str';
+id|address
+0|123 Main Str
+(1 row)
+OCTO> 
+# AIM index for address (pnum slot 0 = whole node; subscript = $EXTRACT'ed value, '#'-prefixed):
+^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#123 Main Str",0)=""
+^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#45 Oak Avenu",1)=""
+^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#9 Elm Suite ",2)=""
+# The table is READONLY, so update the underlying global directly:
+#   set ^sxwn(1,0)="999 New Street" ; zkill ^sxwn(2,0)
+-- Run after ^sxwn(1,0) is updated and ^sxwn(2,0) is zkilled directly (the table is READONLY).
+-- The AIM trigger re-derives the $EXTRACT'ed value, so the index tracks both changes:
+-- id 1's old value '45 Oak Avenu' is gone, its new value '999 New Stre' is found, and
+-- id 2's entry disappeared entirely.
+SELECT id, address FROM sxwn WHERE address = '999 New Stre';
+SELECT id, address FROM sxwn WHERE address = '45 Oak Avenu';
+-- The table has AIMTYPE 1, so the ZKILL trigger recorded id 2's now-missing node as NULL.
+-- AIM applies the column's transformation function to that NULL, so for a string
+-- column the marker is $$strcolval2aimsubs("") = "#" -- the bare "#" subscript in the index
+-- dump below, the same marker a plain string column uses. The indexed IS NULL lookup finds it:
+SELECT id FROM sxwn WHERE address IS NULL;
+OCTO> SELECT id, address FROM sxwn WHERE address = '999 New Stre';
+id|address
+1|999 New Stre
+(1 row)
+OCTO> SELECT id, address FROM sxwn WHERE address = '45 Oak Avenu';
+id|address
+(0 rows)
+OCTO> SELECT id FROM sxwn WHERE address IS NULL;
+id
+2
+(1 row)
+OCTO> 
+^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#",2)=""
+^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#123 Main Str",0)=""
+^%ydbAIMDAydySbAcP9iXt8yB8kEh10(0,"#999 New Stre",1)=""
+
+# === Section B : MIN/MAX off the AIM index (whole-node and PIECE-based) ===
+# Data loaded into ^sxmm and ^sxmmp:
+^sxmm(0)="r0"
+^sxmm(0,0)="MangoXYZ"
+^sxmm(1)="r1"
+^sxmm(1,0)="AppleXYZ"
+^sxmm(2)="r2"
+^sxmm(2,0)="CherryXYZ"
+^sxmmp(0)="x|MangoQ|z"
+^sxmmp(1)="x|AppleQ|z"
+^sxmmp(2)="x|CherryQ|z"
+-- MIN/MAX read straight off the AIM index (the OCTO617 optimization) for both SUBSTR forms.
+
+-- Whole-node: ^sxmm(id,0) is "<fruit>XYZ"; chars 1-5 give Mango/Apple/Cherr -> MIN Apple, MAX Mango:
+CREATE TABLE sxmm (
+	id INTEGER PRIMARY KEY,
+	fruit VARCHAR SUBSTR 1-5 GLOBAL "^sxmm(keys(""id""),0)"
+) GLOBAL "^sxmm(keys(""id""))" AIMTYPE 1;
+SELECT * FROM sxmm ORDER BY id;
+SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM sxmm;
+
+-- PIECE-based: ^sxmmp(id) is "x|<fruit>Q|z"; piece 2 chars 1-5 give the same fruits:
+CREATE TABLE sxmmp (
+	id INTEGER PRIMARY KEY,
+	fruit VARCHAR PIECE 2 SUBSTR 1-5
+) GLOBAL "^sxmmp(keys(""id""))";
+SELECT * FROM sxmmp ORDER BY id;
+SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM sxmmp;
+OCTO> CREATE TABLE sxmm (
+	id INTEGER PRIMARY KEY,
+	fruit VARCHAR SUBSTR 1-5 GLOBAL "^sxmm(keys(""id""),0)"
+) GLOBAL "^sxmm(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM sxmm ORDER BY id;
+id|fruit
+0|Mango
+1|Apple
+2|Cherr
+(3 rows)
+OCTO> SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM sxmm;
+lo|hi
+Apple|Mango
+(1 row)
+OCTO> CREATE TABLE sxmmp (
+	id INTEGER PRIMARY KEY,
+	fruit VARCHAR PIECE 2 SUBSTR 1-5
+) GLOBAL "^sxmmp(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM sxmmp ORDER BY id;
+id|fruit
+0|Mango
+1|Apple
+2|Cherr
+(3 rows)
+OCTO> SELECT MIN(fruit) AS lo, MAX(fruit) AS hi FROM sxmmp;
+lo|hi
+Apple|Mango
+(1 row)
+OCTO> 
+# AIM index for fruit (whole-node table, then PIECE-based table):
+^%ydbAIMDIjIFVNhsDbRSrxSWHk1jJ1(0,"#Apple",1)=""
+^%ydbAIMDIjIFVNhsDbRSrxSWHk1jJ1(0,"#Cherr",2)=""
+^%ydbAIMDIjIFVNhsDbRSrxSWHk1jJ1(0,"#Mango",0)=""
+^%ydbAIMDL2l6o2oSyi4iK9qyUNYzB3(2,"#Apple",1)=""
+^%ydbAIMDL2l6o2oSyi4iK9qyUNYzB3(2,"#Cherr",2)=""
+^%ydbAIMDL2l6o2oSyi4iK9qyUNYzB3(2,"#Mango",0)=""
+
+# === Section C : WHERE on a PIECE + SUBSTR column (code) ===
+# Data loaded into ^sxpc and ^sxpcg (^sxpcg id 2 is missing all data nodes; id 3's extractions are all empty):
+^sxpc(0)="Zero|X12345"
+^sxpc(1)="Acid|Y67890"
+^sxpc(2)="Lord|X12399"
+^sxpcg(0,0)="r0"
+^sxpcg(0,1)="a|x111b"
+^sxpcg(0,2)="a|2020-01-15T08:30"
+^sxpcg(0,3)="a|xyesZ"
+^sxpcg(0,4)="a|QTY30"
+^sxpcg(1,0)="r1"
+^sxpcg(1,1)="a|x222b"
+^sxpcg(1,2)="a|1999-12-31T23:59"
+^sxpcg(1,3)="a|xno"
+^sxpcg(1,4)="a|QTY5"
+^sxpcg(2,0)="r2"
+^sxpcg(3,0)="r3"
+^sxpcg(3,1)="a"
+^sxpcg(3,2)="a|"
+^sxpcg(3,3)="a|x"
+^sxpcg(3,4)="a|QTY"
+-- PIECE + SUBSTR: AIM extracts the single piece it is given (delimiter "|", piece 2) and the
+-- SubstrXform transformation function slices chars 2-4 out of it before indexing.
+-- ^sxpc nodes are "name|<letter><digits>"; codes X12345/Y67890/X12399 -> 123/678/123.
+CREATE TABLE sxpc (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR PIECE 1,
+	code VARCHAR PIECE 2 SUBSTR 2-4
+) GLOBAL "^sxpc(keys(""id""))";
+SELECT * FROM sxpc ORDER BY id;
+-- Expect ids 0 and 2 (codes X12345 and X12399 both slice to '123'):
+SELECT id, code FROM sxpc WHERE code = '123' ORDER BY id;
+
+-- AIMTYPE 1 + PIECE + SUBSTR on column-level GLOBALs, for every data type. Every ^sxpcg row has
+-- its (id,0) node; id 2 has NONE of the four data nodes (missing nodes) and id 3 has all four
+-- nodes but each extraction comes back empty (a missing piece or a range past the end). Both
+-- flavors are SQL NULL, indexed under the bare "" subscript (AIM metadata type 3), so every
+-- indexed IS NULL lookup returns ids 2 and 3; MIN/MAX skip them:
+CREATE TABLE sxpcg (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^sxpcg(keys(""id""),0)",
+	tag VARCHAR PIECE 2 SUBSTR 2-4 GLOBAL "^sxpcg(keys(""id""),1)",
+	dob DATE PIECE 2 SUBSTR 1-10 GLOBAL "^sxpcg(keys(""id""),2)",
+	flag BOOLEAN PIECE 2 SUBSTR 2-4 GLOBAL "^sxpcg(keys(""id""),3)",
+	qty INTEGER PIECE 2 SUBSTR 4-5 GLOBAL "^sxpcg(keys(""id""),4)"
+) GLOBAL "^sxpcg(keys(""id""))" AIMTYPE 1;
+SELECT * FROM sxpcg ORDER BY id;
+SELECT id FROM sxpcg WHERE tag IS NULL ORDER BY id;
+SELECT id FROM sxpcg WHERE dob IS NULL ORDER BY id;
+SELECT id FROM sxpcg WHERE flag IS NULL ORDER BY id;
+SELECT id FROM sxpcg WHERE qty IS NULL ORDER BY id;
+SELECT id, tag FROM sxpcg WHERE tag = '111';
+SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxpcg;
+OCTO> CREATE TABLE sxpc (
+	id INTEGER PRIMARY KEY,
+	name VARCHAR PIECE 1,
+	code VARCHAR PIECE 2 SUBSTR 2-4
+) GLOBAL "^sxpc(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM sxpc ORDER BY id;
+id|name|code
+0|Zero|123
+1|Acid|678
+2|Lord|123
+(3 rows)
+OCTO> SELECT id, code FROM sxpc WHERE code = '123' ORDER BY id;
+id|code
+0|123
+2|123
+(2 rows)
+OCTO> CREATE TABLE sxpcg (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^sxpcg(keys(""id""),0)",
+	tag VARCHAR PIECE 2 SUBSTR 2-4 GLOBAL "^sxpcg(keys(""id""),1)",
+	dob DATE PIECE 2 SUBSTR 1-10 GLOBAL "^sxpcg(keys(""id""),2)",
+	flag BOOLEAN PIECE 2 SUBSTR 2-4 GLOBAL "^sxpcg(keys(""id""),3)",
+	qty INTEGER PIECE 2 SUBSTR 4-5 GLOBAL "^sxpcg(keys(""id""),4)"
+) GLOBAL "^sxpcg(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM sxpcg ORDER BY id;
+id|rowname|tag|dob|flag|qty
+0|r0|111|2020-01-15|t|30
+1|r1|222|1999-12-31|f|5
+2|r2||||
+3|r3||||
+(4 rows)
+OCTO> SELECT id FROM sxpcg WHERE tag IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxpcg WHERE dob IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxpcg WHERE flag IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxpcg WHERE qty IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id, tag FROM sxpcg WHERE tag = '111';
+id|tag
+0|111
+(1 row)
+OCTO> SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxpcg;
+lo|hi
+5|30
+(1 row)
+OCTO> 
+# AIM index for code (subscript = chars 2-4 of piece 2, '#'-prefixed) and for the ^sxpcg
+# columns (the AIMTYPE 1 NULL rows appear under the bare "" subscript):
+^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,"",2)=""
+^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,"",3)=""
+^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,0,1)=""
+^%ydbAIMDIOASKyYppsUvWl9UOHMq16(2,1,0)=""
+^%ydbAIMDVATGBnGZASjPUuBn7n4hGI(2,"#123",0)=""
+^%ydbAIMDVATGBnGZASjPUuBn7n4hGI(2,"#123",2)=""
+^%ydbAIMDVATGBnGZASjPUuBn7n4hGI(2,"#678",1)=""
+^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,"",2)=""
+^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,"",3)=""
+^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,5,1)=""
+^%ydbAIMDVFjMxbfXkoAOmglvP6cAJI(2,30,0)=""
+^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#",2)=""
+^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#",3)=""
+^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#111",0)=""
+^%ydbAIMDhhsEBsWmjkXZ0Rutufy30A(2,"#222",1)=""
+^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,"",2)=""
+^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,"",3)=""
+^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,946598400000000,1)=""
+^%ydbAIMDic0sCNEnToWXfrm32OAfHC(2,1579046400000000,0)=""
+
+# === Section D : type conversions composed with the extraction (DATE / BOOLEAN / INTEGER) ===
+# Data loaded into ^sxdt, ^sxfl, ^sxqty, ^sxnul (^sxnul id 2 is missing all data nodes; id 3's extractions are all empty):
+^sxdt(0)="r0"
+^sxdt(0,0)="2020-01-15T00:00"
+^sxdt(1)="r1"
+^sxdt(1,0)="1999-12-31T23:59"
+^sxdt(2)="r2"
+^sxdt(2,0)="2020-01-15T08:30"
+^sxfl(0)="x|1yes"
+^sxfl(1)="x|0no"
+^sxfl(2)="x|1yes"
+^sxqty(0)="x|QTY30"
+^sxqty(1)="x|QTY5"
+^sxqty(2)="x|QTY100"
+^sxnul(0,0)="r0"
+^sxnul(0,1)="xyesZ"
+^sxnul(0,2)="QTY30"
+^sxnul(0,3)="2020-01-15T08:30"
+^sxnul(0,4)="AAA111xx"
+^sxnul(1,0)="r1"
+^sxnul(1,1)="xno"
+^sxnul(1,2)="QTY5"
+^sxnul(1,3)="1999-12-31T23:59"
+^sxnul(1,4)="BBB222yy"
+^sxnul(2,0)="r2"
+^sxnul(3,0)="r3"
+^sxnul(3,1)="x"
+^sxnul(3,2)="QTY"
+^sxnul(3,3)=""
+^sxnul(3,4)="CC"
+-- The SubstrXform transform composes the $EXTRACT with the column's OWN conversion, so the index
+-- holds the fully converted value: DATE -> unix time, BOOLEAN -> 0/1, INTEGER -> raw number.
+
+-- DATE (whole-node form): ^sxdt(id,0) is "YYYY-MM-DDThh:mm"; chars 1-10 are the date. Expect ids 0, 2:
+CREATE TABLE sxdt (
+	id INTEGER PRIMARY KEY,
+	dob DATE SUBSTR 1-10 GLOBAL "^sxdt(keys(""id""),0)"
+) GLOBAL "^sxdt(keys(""id""))" AIMTYPE 1;
+SELECT * FROM sxdt ORDER BY id;
+SELECT id, dob FROM sxdt WHERE dob = date'2020-01-15' ORDER BY id;
+
+-- BOOLEAN: ^sxfl(id) is "x|<digit><word>"; chars 2-4 of piece 2 give yes/no. Expect ids 0, 2 for TRUE:
+CREATE TABLE sxfl (
+	id INTEGER PRIMARY KEY,
+	flag BOOLEAN PIECE 2 SUBSTR 2-4
+) GLOBAL "^sxfl(keys(""id""))";
+SELECT * FROM sxfl ORDER BY id;
+SELECT id FROM sxfl WHERE flag = TRUE ORDER BY id;
+
+-- INTEGER: ^sxqty(id) is "x|QTYnn"; chars 4-6 of piece 2 are the quantity (a range past the end of
+-- the text, as in "QTY5", just returns the shorter value). Numeric (not lexical) collation:
+-- MIN/MAX give 5/100, and WHERE qty = 100 finds id 2:
+CREATE TABLE sxqty (
+	id INTEGER PRIMARY KEY,
+	qty INTEGER PIECE 2 SUBSTR 4-6
+) GLOBAL "^sxqty(keys(""id""))";
+SELECT * FROM sxqty ORDER BY id;
+SELECT id, qty FROM sxqty WHERE qty = 100;
+SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxqty;
+
+-- AIMTYPE 1 + whole-node SUBSTR, for every data type. Every ^sxnul row has its (id,0) node; id 2
+-- has NONE of the four data nodes -- MISSING NODES, indexed as NULL (AIM metadata type 3) under
+-- the bare "" subscript when the index is BUILT (the missing-node rows are found by the initial
+-- scan, not just by later triggers) -- and id 3 has all four nodes but each extraction comes
+-- back empty (a range past the end, or an empty node value for dob). Both flavors are SQL NULL,
+-- so every indexed IS NULL lookup returns ids 2 and 3; MIN/MAX skip them:
+CREATE TABLE sxnul (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^sxnul(keys(""id""),0)",
+	flag BOOLEAN SUBSTR 2-4 GLOBAL "^sxnul(keys(""id""),1)",
+	qty INTEGER SUBSTR 4-5 GLOBAL "^sxnul(keys(""id""),2)",
+	dob DATE SUBSTR 1-10 GLOBAL "^sxnul(keys(""id""),3)",
+	tag VARCHAR SUBSTR 4-6 GLOBAL "^sxnul(keys(""id""),4)"
+) GLOBAL "^sxnul(keys(""id""))" AIMTYPE 1;
+SELECT * FROM sxnul ORDER BY id;
+SELECT id FROM sxnul WHERE flag IS NULL ORDER BY id;
+SELECT id FROM sxnul WHERE qty IS NULL ORDER BY id;
+SELECT id FROM sxnul WHERE dob IS NULL ORDER BY id;
+SELECT id FROM sxnul WHERE tag IS NULL ORDER BY id;
+SELECT id FROM sxnul WHERE flag = TRUE ORDER BY id;
+SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxnul;
+OCTO> CREATE TABLE sxdt (
+	id INTEGER PRIMARY KEY,
+	dob DATE SUBSTR 1-10 GLOBAL "^sxdt(keys(""id""),0)"
+) GLOBAL "^sxdt(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM sxdt ORDER BY id;
+id|dob
+0|2020-01-15
+1|1999-12-31
+2|2020-01-15
+(3 rows)
+OCTO> SELECT id, dob FROM sxdt WHERE dob = date'2020-01-15' ORDER BY id;
+id|dob
+0|2020-01-15
+2|2020-01-15
+(2 rows)
+OCTO> CREATE TABLE sxfl (
+	id INTEGER PRIMARY KEY,
+	flag BOOLEAN PIECE 2 SUBSTR 2-4
+) GLOBAL "^sxfl(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM sxfl ORDER BY id;
+id|flag
+0|t
+1|f
+2|t
+(3 rows)
+OCTO> SELECT id FROM sxfl WHERE flag = TRUE ORDER BY id;
+id
+0
+2
+(2 rows)
+OCTO> CREATE TABLE sxqty (
+	id INTEGER PRIMARY KEY,
+	qty INTEGER PIECE 2 SUBSTR 4-6
+) GLOBAL "^sxqty(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM sxqty ORDER BY id;
+id|qty
+0|30
+1|5
+2|100
+(3 rows)
+OCTO> SELECT id, qty FROM sxqty WHERE qty = 100;
+id|qty
+2|100
+(1 row)
+OCTO> SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxqty;
+lo|hi
+5|100
+(1 row)
+OCTO> CREATE TABLE sxnul (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^sxnul(keys(""id""),0)",
+	flag BOOLEAN SUBSTR 2-4 GLOBAL "^sxnul(keys(""id""),1)",
+	qty INTEGER SUBSTR 4-5 GLOBAL "^sxnul(keys(""id""),2)",
+	dob DATE SUBSTR 1-10 GLOBAL "^sxnul(keys(""id""),3)",
+	tag VARCHAR SUBSTR 4-6 GLOBAL "^sxnul(keys(""id""),4)"
+) GLOBAL "^sxnul(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM sxnul ORDER BY id;
+id|rowname|flag|qty|dob|tag
+0|r0|t|30|2020-01-15|111
+1|r1|f|5|1999-12-31|222
+2|r2||||
+3|r3||||
+(4 rows)
+OCTO> SELECT id FROM sxnul WHERE flag IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxnul WHERE qty IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxnul WHERE dob IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxnul WHERE tag IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxnul WHERE flag = TRUE ORDER BY id;
+id
+0
+(1 row)
+OCTO> SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxnul;
+lo|hi
+5|30
+(1 row)
+OCTO> 
+# AIM index: date -> unix-time, boolean -> 0/1, integer -> raw number (all non-'#');
+# the AIMTYPE 1 table's missing nodes appear under the bare "" subscript:
+^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,"",2)=""
+^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,"",3)=""
+^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,5,1)=""
+^%ydbAIMD9BGWOSvOBfk1KyPSSDZ1C0(0,30,0)=""
+^%ydbAIMDSlYCNubnq9CRhg3hLPMEI4(2,5,1)=""
+^%ydbAIMDSlYCNubnq9CRhg3hLPMEI4(2,30,0)=""
+^%ydbAIMDSlYCNubnq9CRhg3hLPMEI4(2,100,2)=""
+^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,"",2)=""
+^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,"",3)=""
+^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,946598400000000,1)=""
+^%ydbAIMDZ2CxoymejGNFZt61TiTEEF(0,1579046400000000,0)=""
+^%ydbAIMDh2ATT5nSJwXMPbCWTqffEB(0,946598400000000,1)=""
+^%ydbAIMDh2ATT5nSJwXMPbCWTqffEB(0,1579046400000000,0)=""
+^%ydbAIMDh2ATT5nSJwXMPbCWTqffEB(0,1579046400000000,2)=""
+^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,"",2)=""
+^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,"",3)=""
+^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,0,1)=""
+^%ydbAIMDmf9OkU6IiSad0RtPf9i9K6(0,1,0)=""
+^%ydbAIMDoUHaz84QRfSNpWmyIhAt68(2,0,1)=""
+^%ydbAIMDoUHaz84QRfSNpWmyIhAt68(2,1,0)=""
+^%ydbAIMDoUHaz84QRfSNpWmyIhAt68(2,1,2)=""
+^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#",2)=""
+^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#",3)=""
+^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#111",0)=""
+^%ydbAIMDqtOC6LhdKdkDA3ugjcybF8(0,"#222",1)=""
+
+# === Section E : WHERE on a DELIMS/PIECES + SUBSTR column (city3) ===
+# Data loaded into ^sxpp and ^sxppg (^sxppg id 2 is missing all data nodes; id 3's pieces/ranges are empty):
+^sxpp(0)="A|45 Oak^Boston|z"
+^sxpp(1)="B|9 Elm^Reno|z"
+^sxpp(2)="C|12 Pine^Boise|z"
+^sxppg(0,0)="r0"
+^sxppg(0,1)="A|12 Elm^Ryazan|z"
+^sxppg(0,2)="a|x^2020-01-15T08:30|z"
+^sxppg(0,3)="a|x^xyesZ|z"
+^sxppg(0,4)="a|x^QTY30|z"
+^sxppg(1,0)="r1"
+^sxppg(1,1)="B|9 Oak^Kyoto|z"
+^sxppg(1,2)="a|x^1999-12-31T23:59|z"
+^sxppg(1,3)="a|x^xno|z"
+^sxppg(1,4)="a|x^QTY5|z"
+^sxppg(2,0)="r2"
+^sxppg(3,0)="r3"
+^sxppg(3,1)="C|x^|z"
+^sxppg(3,2)="a|x^|z"
+^sxppg(3,3)="a|x^x|z"
+^sxppg(3,4)="a|x^QTY|z"
+-- DELIMS/PIECES + SUBSTR: the piece-of-piece transform carries the SUBSTR specification as its
+-- trailing argument, so AIM indexes the $EXTRACT of the innermost extracted piece.
+-- ^sxpp nodes are "x|<street>^<city>|z"; city chars 1-3 give Bos/Ren/Boi. Expect id 2 for 'Boi'.
+CREATE TABLE sxpp (
+	id INTEGER PRIMARY KEY,
+	city3 VARCHAR DELIMS ("|","^") PIECES (2,2) SUBSTR 1-3
+) GLOBAL "^sxpp(keys(""id""))";
+SELECT * FROM sxpp ORDER BY id;
+SELECT id, city3 FROM sxpp WHERE city3 = 'Boi';
+
+-- AIMTYPE 1 + DELIMS/PIECES + SUBSTR on column-level GLOBALs, for every data type (the transform
+-- is the 7-argument PieceOfPieceXform). Every ^sxppg row has its (id,0) node; id 2 has NONE of
+-- the four data nodes (missing nodes, indexed as NULL by AIM metadata type 3) and id 3 has all
+-- four nodes but each innermost piece/range comes back empty (empty extractions). Both flavors
+-- are SQL NULL, indexed under the bare "" subscript, so every indexed IS NULL lookup returns
+-- ids 2 and 3:
+CREATE TABLE sxppg (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^sxppg(keys(""id""),0)",
+	city3 VARCHAR DELIMS ("|","^") PIECES (2,2) SUBSTR 1-3 GLOBAL "^sxppg(keys(""id""),1)",
+	dob DATE DELIMS ("|","^") PIECES (2,2) SUBSTR 1-10 GLOBAL "^sxppg(keys(""id""),2)",
+	flag BOOLEAN DELIMS ("|","^") PIECES (2,2) SUBSTR 2-4 GLOBAL "^sxppg(keys(""id""),3)",
+	qty INTEGER DELIMS ("|","^") PIECES (2,2) SUBSTR 4-5 GLOBAL "^sxppg(keys(""id""),4)"
+) GLOBAL "^sxppg(keys(""id""))" AIMTYPE 1;
+SELECT * FROM sxppg ORDER BY id;
+SELECT id, city3 FROM sxppg WHERE city3 = 'Rya';
+SELECT id FROM sxppg WHERE city3 IS NULL ORDER BY id;
+SELECT id FROM sxppg WHERE dob IS NULL ORDER BY id;
+SELECT id FROM sxppg WHERE flag IS NULL ORDER BY id;
+SELECT id FROM sxppg WHERE qty IS NULL ORDER BY id;
+SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxppg;
+OCTO> CREATE TABLE sxpp (
+	id INTEGER PRIMARY KEY,
+	city3 VARCHAR DELIMS ("|","^") PIECES (2,2) SUBSTR 1-3
+) GLOBAL "^sxpp(keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM sxpp ORDER BY id;
+id|city3
+0|Bos
+1|Ren
+2|Boi
+(3 rows)
+OCTO> SELECT id, city3 FROM sxpp WHERE city3 = 'Boi';
+id|city3
+2|Boi
+(1 row)
+OCTO> CREATE TABLE sxppg (
+	id INTEGER PRIMARY KEY,
+	rowname VARCHAR PIECE 1 GLOBAL "^sxppg(keys(""id""),0)",
+	city3 VARCHAR DELIMS ("|","^") PIECES (2,2) SUBSTR 1-3 GLOBAL "^sxppg(keys(""id""),1)",
+	dob DATE DELIMS ("|","^") PIECES (2,2) SUBSTR 1-10 GLOBAL "^sxppg(keys(""id""),2)",
+	flag BOOLEAN DELIMS ("|","^") PIECES (2,2) SUBSTR 2-4 GLOBAL "^sxppg(keys(""id""),3)",
+	qty INTEGER DELIMS ("|","^") PIECES (2,2) SUBSTR 4-5 GLOBAL "^sxppg(keys(""id""),4)"
+) GLOBAL "^sxppg(keys(""id""))" AIMTYPE 1;
+CREATE TABLE
+OCTO> SELECT * FROM sxppg ORDER BY id;
+id|rowname|city3|dob|flag|qty
+0|r0|Rya|2020-01-15|t|30
+1|r1|Kyo|1999-12-31|f|5
+2|r2||||
+3|r3||||
+(4 rows)
+OCTO> SELECT id, city3 FROM sxppg WHERE city3 = 'Rya';
+id|city3
+0|Rya
+(1 row)
+OCTO> SELECT id FROM sxppg WHERE city3 IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxppg WHERE dob IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxppg WHERE flag IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT id FROM sxppg WHERE qty IS NULL ORDER BY id;
+id
+2
+3
+(2 rows)
+OCTO> SELECT MIN(qty) AS lo, MAX(qty) AS hi FROM sxppg;
+lo|hi
+5|30
+(1 row)
+OCTO> 
+# AIM index for city3 (keyed on the $EXTRACT of the innermost extracted piece):
+^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,"",2)=""
+^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,"",3)=""
+^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,5,1)=""
+^%ydbAIMD8sXvIaQt2X0jtDA0Jz36KE(2,30,0)=""
+^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,"",2)=""
+^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,"",3)=""
+^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,0,1)=""
+^%ydbAIMDWc5LvofFzC5kWrnslTEG67(2,1,0)=""
+^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#",2)=""
+^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#",3)=""
+^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#Kyo",1)=""
+^%ydbAIMDfoMtACTMiYfXudFYKarM1E(2,"#Rya",0)=""
+^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,"",2)=""
+^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,"",3)=""
+^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,946598400000000,1)=""
+^%ydbAIMDg5RSuldgB6Z2bUQp8gDrIF(2,1579046400000000,0)=""
+^%ydbAIMDhtozd9cocd4AwCwrzcyn5G(2,"#Boi",2)=""
+^%ydbAIMDhtozd9cocd4AwCwrzcyn5G(2,"#Bos",0)=""
+^%ydbAIMDhtozd9cocd4AwCwrzcyn5G(2,"#Ren",1)=""
+
+# Emitted XREFDATA calls (build entry point; one per xref'd SUBSTR column):
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-10"",""d"",17,36,""%Y-%m-%d"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-12"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-5"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""4-5"","""")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""4-6"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""s"",,,,""1-3"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""1-5"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,2,"$$SubstrXform^%ydboctoplanhelpers(,""4-6"","""")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"","""",,,,""4-5"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""b"",,,,""2-4"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""d"",17,36,""%Y-%m-%d"",""1-10"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$PieceOfPieceXform^%ydboctoplanhelpers(,""2:Z94"",""s"",,,,""1-3"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""1-10"",""d"",17,36,""%Y-%m-%d"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""b"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""2-4"",""s"")")
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",2,0,0,1,0,3,"$$SubstrXform^%ydboctoplanhelpers(,""4-5"","""")")

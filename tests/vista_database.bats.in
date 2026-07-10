@@ -262,3 +262,23 @@ teardown() {
 	load_fixture TVD0014.sql subtest novv
 	verify_output TVD0014 output.txt
 }
+
+@test "TVD0015 : YDBOcto763, YDBOcto764 : SUBSTR over the VistA XULM LOCK DICTIONARY" {
+	load_fixture TVD0015.sql subtest novv
+
+	# Confirm LOCK_TEMPLATE really is a SUBSTR column and not the EXTRACT one it used to be.
+	# The read side emits an $EXTRACT of the file 8993 zero node ...
+	echo "# Read-side \$EXTRACT emitted for LOCK_TEMPLATE:" >> output.txt
+	# The bound is generous because the emitted key expression embeds the table and key column
+	# names twice ("...,""xulm_lock_dictionary"",""xulm_lock_dictionary_id""...); [^;] keeps the
+	# match from running past the end of the statement.
+	grep -hoE '[$]EXTRACT[(][^;]{0,250},1,245[)]' _ydboctoP*.m | sort -u >> output.txt
+	# ... and the cross-reference plan hands AIM a SubstrXform transformation function, which is
+	# the part an EXTRACT column could never do (YDBOcto#764) and is what makes the WHERE and
+	# the MIN/MAX in the fixture index-driven rather than full scans of file 8993.
+	echo "# AIM transformation function emitted for LOCK_TEMPLATE:" >> output.txt
+	grep -hoE 'SubstrXform\^%ydboctoplanhelpers[(],""1-245"",""[a-z]*""[)]' _ydboctoX*.m | sort -u >> output.txt
+
+	verify_output TVD0015 output.txt
+}
+

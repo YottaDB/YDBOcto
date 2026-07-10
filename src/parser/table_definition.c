@@ -1597,6 +1597,12 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					keyword = get_keyword(cur_column, OPTIONAL_EXTRACT);
 					/* EXTRACT type columns are computed columns so do not include them in key columns */
 					if (NULL == keyword) {
+						/* SUBSTR type columns (YDBOcto#763/#764) are derived from the node or piece
+						 * value so they cannot be key columns either.
+						 */
+						keyword = get_keyword(cur_column, OPTIONAL_SUBSTR);
+					}
+					if (NULL == keyword) {
 						ADD_KEY_NUM_KEYWORD_TO_COLUMN(cur_column, i);
 						i++;
 					}
@@ -1719,6 +1725,97 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 		SqlOptionalKeyword *keyword, *piece_keyword;
 
 		cur_column->table = table_stmt;
+
+		/* Handle SUBSTR (YDBOcto#763/#764)
+		 *
+		 * Validate the keyword combinations up front. And for the whole-node form (SUBSTR with no
+		 * PIECE/PIECES specification) add an implicit column-level DELIM "" keyword. The "Handle DELIM"
+		 * logic below then sees an empty delimiter and suppresses any default PIECE assignment, so the
+		 * value SUBSTR slices is the entire node of the column-level GLOBAL.
+		 */
+		SqlOptionalKeyword *substr_keyword;
+
+		substr_keyword = get_keyword(cur_column, OPTIONAL_SUBSTR);
+		if (NULL != substr_keyword) {
+			SqlValue *column_name_value;
+
+			assert(NULL != cur_column->columnName); /* grammar attaches SUBSTR only to named columns */
+			UNPACK_SQL_STATEMENT(column_name_value, cur_column->columnName, value);
+
+			if (IS_KEY_COLUMN(cur_column)) {
+				/* A key column's value comes from a subscript, not from a node value, so there is
+				 * nothing stored for SUBSTR to slice.
+				 */
+				ERROR(ERR_SUBSTR_CANNOT_BE_KEY_COLUMN, column_name_value->v.string_literal);
+				yyerror(&substr_keyword->v->loc, NULL, NULL, NULL, NULL, NULL);
+				return NULL;
+			}
+
+			if (NULL != get_keyword(cur_column, OPTIONAL_EXTRACT)) {
+				/* EXTRACT computes an arbitrary expression at read time, so there is no stored node
+				 * or piece value for SUBSTR to slice.
+				 */
+				ERROR(ERR_SUBSTR_EXTRACT_INCOMPATIBLE, column_name_value->v.string_literal);
+				yyerror(&substr_keyword->v->loc, NULL, NULL, NULL, NULL, NULL);
+				return NULL;
+			}
+
+			if (NULL == get_keyword(cur_column, OPTIONAL_PIECE)) {
+				/* Whole-node form: SUBSTR applies to the entire node value.
+				 *
+				 * The node it slices is the column-level GLOBAL if one is given, else the table-level
+				 * global node -- exactly the same source selection a plain PIECE column uses, so a
+				 * whole-node SUBSTR column does not have to duplicate the table's GLOBAL.
+				 */
+				SqlOptionalKeyword *substr_delim_keyword;
+				boolean_t	    substr_delim_is_empty;
+
+				/* A delimiter with no PIECE/PIECES to apply it to is ambiguous (should the default
+				 * PIECE 1 apply, or the whole node?), so reject any non-empty DELIM/DELIMS.
+				 * An explicit DELIM "" is fine: it means "whole node", which is what SUBSTR needs.
+				 */
+				substr_delim_keyword = get_keyword(cur_column, OPTIONAL_DELIM);
+				if (NULL != substr_delim_keyword) {
+					if (value_list_STATEMENT == substr_delim_keyword->v->type) {
+						/* Chained DELIMS (..) list (YDBOcto#1108) is never an empty delimiter */
+						substr_delim_is_empty = FALSE;
+					} else {
+						char *delim;
+
+						UNPACK_SQL_STATEMENT(value, substr_delim_keyword->v, value);
+						delim = value->v.reference;
+						substr_delim_is_empty = ((DELIM_IS_LITERAL == delim[0]) && ('\0' == delim[1]));
+					}
+					if (!substr_delim_is_empty) {
+						ERROR(ERR_SUBSTR_DELIM_WITHOUT_PIECE, column_name_value->v.string_literal);
+						yyerror(&substr_keyword->v->loc, NULL, NULL, NULL, NULL, NULL);
+						return NULL;
+					}
+				}
+
+				if (NULL == substr_delim_keyword) {
+					/* Add an implicit DELIM "" keyword (same construction as the single-non-key-column
+					 * optimization further below) so all downstream code treats this column as a
+					 * whole-node column.
+					 */
+					SqlOptionalKeyword *column_keywords, *new_delim_keyword;
+
+					OCTO_CMALLOC_STRUCT(new_delim_keyword, SqlOptionalKeyword);
+					new_delim_keyword->keyword = OPTIONAL_DELIM;
+					str_len = sizeof(EMPTY_DELIMITER) + 1; // + 1 for "is_dollar_char" flag
+					assert(2 == str_len);
+
+					char *out_buffer;
+					out_buffer = octo_cmalloc(memory_chunks, str_len);
+					out_buffer[0] = DELIM_IS_LITERAL;
+					out_buffer[str_len - 1] = '\0';
+					SQL_VALUE_STATEMENT(new_delim_keyword->v, STRING_LITERAL, out_buffer);
+					dqinit(new_delim_keyword);
+					UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
+					dqappend(column_keywords, new_delim_keyword);
+				}
+			}
+		}
 
 		// Handle DELIM
 		keyword = get_keyword(cur_column, OPTIONAL_DELIM);
@@ -2056,6 +2153,14 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 					ERROR(ERR_EXTRACT_CANNOT_BE_KEY_COLUMN, columnName1->v.string_literal);
 					return NULL;
 				}
+				readwrite_disallowed = TRUE;
+				break;
+			case OPTIONAL_SUBSTR:
+				/* Keyword-combination errors (key column, EXTRACT, missing GLOBAL/PIECE) were already
+				 * checked in the ASSIGN PIECE LOOP above. A SUBSTR column only reads part of the stored
+				 * value, so writing through it is not possible: the table must be READONLY (YDBOcto#763).
+				 */
+				assert(!IS_KEY_COLUMN(cur_column));
 				readwrite_disallowed = TRUE;
 				break;
 			case OPTIONAL_STARTINCLUDE:

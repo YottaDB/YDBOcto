@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -24,12 +24,6 @@ teardown() {
 }
 
 @test "TAS00 : ARRAY constructor subquery syntax" {
-	if $is_rhel7; then
-		# On RHEL7 systems, Postgres version is 9.2.2 which has a different output for various queries in this test
-		# compared to newer Postgres versions on other Linux distributions (which is what Octo output matches).
-		# Therefore skip this test on RHEL7.
-		skip
-	fi
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAS00.sql
 }
 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -125,9 +125,9 @@ teardown() {
 
 @test "TCT017 : OCTO636 : SIZE specified in the VARCHAR type of the typecast operator (::) should be honored" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT017_no_utf8.sql
-	# On RHEL7 (older version of Postgres) Postgres output is incorrect with UTF-8 characters.
-	# So we skip the UTF8 portion of this test on RHEL7. Hence the "! $is_rhel7" check below.
-	if [ $ydb_chset == "UTF-8" ] && [ ! $is_rhel7 ] ; then
+	if [ $ydb_chset == "UTF-8" ] ; then
+		# VARCHAR(n) must truncate a multi-byte UTF-8 string by CHARACTER, not by byte (e.g. a full-width
+		# 'A B C D'::varchar(2) yields 'A B'). Cross-checked against Postgres; only meaningful in UTF-8 chset mode.
 		run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT017_utf8.sql
 	fi
 }

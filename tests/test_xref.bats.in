@@ -452,11 +452,6 @@ OCTO
 	#             A literal delimiter is byte-encoded into the AIM spec and
 	#             rebuilt with $ZCHAR, so a multi-byte UTF-8 delimiter works.
 	# =====================================================================
-	# The zwrite dump and the echoed DDL below emit multi-byte UTF-8 into the output; their continuation bytes
-	# fall in 0x80-0x9F, which verify_output's RHEL7 escape-sequence sanitizer (escape_sequence_sanitize.pl)
-	# strips (meant for C1 terminal control codes), corrupting the delimiters. This test has no expect/terminal
-	# escape sequences, so skip that sanitizer for it.
-	skip_escape_sequence_sanitize=1
 	echo "" | tee -a output.txt
 	echo "# === Section G : multi-byte UTF-8 delimiters (char / string / char+ascii mix) ===" | tee -a output.txt
 	# The multi-byte test data lives in TX15-G.zwr (a .zwr is exempt from the "no UTF-8 in source" pre-commit

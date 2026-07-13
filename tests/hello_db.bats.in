@@ -36,8 +36,6 @@ teardown() {
 		END \$\$;
 	SQL_CODE
 
-	skip_escape_sequence_sanitize=1	# skip RHEL7-specific escape_sequence_sanitize() call in verify_output()
-					# as we know it is not needed in this test and will let us run this test on RHEL7 too.
 
 
 	for db in mysql postgres
@@ -138,7 +136,6 @@ teardown() {
 				fi
 			done
 		done
-		export disable_escape_sequence_sanitize=1
 		# Format output to ensure common format across database emulations
 		if [[ "mysql" == $db ]]; then
 			# Replace tabs with | to match Postgres column delimiter

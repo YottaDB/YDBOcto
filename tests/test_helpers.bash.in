@@ -30,12 +30,6 @@ setup_bats_env() {
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test_"$subtest"_begin.out
 	# Keep bats_test.out as a soft link as it is used by tools/ci/build.sh and tools/ci/vistatest.sh
 	ln -s bats_test_"$subtest"_begin.out bats_test.out
-	if [ ! -x "$(which rpm)" ] || ! grep -q 'VERSION_ID="7' /etc/os-release; then
-		is_rhel7=false
-	else
-		is_rhel7=true
-	fi
-	skip_escape_sequence_sanitize=0	# By default do not skip RHEL 7 specific escape_sequence_sanitize() call in verify_output()
 }
 
 save_env_variables() {
@@ -896,7 +890,6 @@ verify_output() {
 			cat clean_output.txt.nosort | sort_LC_ALL_C >& clean_output.txt
 		fi
 	done
-	escape_sequence_sanitize
 	# test_where_in.bats TWI12 when executed with JDBC driver fails without the following code.
 	# This is because the semicolon at the end of a query is left out of the physical plan in this case.
 	# To avoid such failure we remove all occurrences of semicolons before the comparison.
@@ -914,16 +907,6 @@ verify_output() {
 		}
 	fi
 	return
-}
-
-escape_sequence_sanitize() {
-	# On RHEL7 and CentOS7, the OCTO> prompt has some escape sequences before it (due likely to an older version of readline()).
-	# Need that trimmed out as it will cause reference file issues.
-	# But if the caller subtest has explicitly disabled this trimming (by setting a variable) honor that and skip this trimming.
-	if [ $is_rhel7 ] && [ 1 != $skip_escape_sequence_sanitize ] ; then
-		mv clean_output.txt clean_output.txt.nosanitize
-		perl @PROJECT_SOURCE_DIR@/tests/fixtures/escape_sequence_sanitize.pl clean_output.txt.nosanitize > clean_output.txt
-	fi
 }
 
 count_for_loops() {

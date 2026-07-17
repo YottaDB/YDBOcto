@@ -324,7 +324,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// Close XREF call
 				%{}){}%
 			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
-				%{}2,{}%
+				if (aim_type) {
+					%{}3,{}%
+				} else {
+					%{}2,{}%
+				}
 				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
 				// Argument will be added by AIM so nothing to add here
 				// Close conversion routine
@@ -447,7 +451,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				// Close XREF call
 				%{}){}%
 			} else if (!table->readwrite && (BOOLEAN_TYPE == column->data_type_struct.data_type)) {
-				%{}2,{}%
+				if (aim_type) {
+					%{}3,{}%
+				} else {
+					%{}2,{}%
+				}
 				%{}"$$ForceBoolean^%%ydboctoplanhelpers({}%
 				// Argument will be added by AIM so nothing to add here
 				// Close conversion routine

@@ -1,0 +1,9 @@
+YottaDB MUPIP EXTRACT
+09-JUN-2026  00:00:00 ZWR
+^tbt20(0,0)="alice"
+^tbt20(0,1)="1"
+^tbt20(1,0)="bob"
+^tbt20(1,1)="0"
+^tbt20(2,0)="carol"
+^tbt20(3,0)="dave"
+^tbt20(3,1)=""

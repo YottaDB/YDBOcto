@@ -218,3 +218,17 @@ teardown() {
 	load_fixture TBT19.sql subtest novv
 	verify_output TBT19 output.txt
 }
+
+@test "TBT20 : OCTO1137 : AIMTYPE 1 indexes a missing or empty plain BOOLEAN node as SQL NULL" {
+	# A plain BOOLEAN column (no PIECE/SUBSTR) of an AIMTYPE 1 READONLY table now uses AIM metadata
+	# type 3 (was type 2, a hardcoded value that ignored AIMTYPE 1). So a row whose BOOLEAN source
+	# node is MISSING (id 2), or present but EMPTY (id 3), is indexed as SQL NULL under the bare ""
+	# subscript, and "WHERE flag IS NULL" finds it. AIM type 3 needs the source region to disallow
+	# null subscripts.
+	mupip set -null_subscripts=never -region DEFAULT
+	load_fixture TBT20.zwr
+	load_fixture TBT20.sql subtest novv
+	echo "# AIM index for flag (TRUE=1, FALSE=0); the missing (id 2) and empty (id 3) nodes are NULL under \"\":" | tee -a output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(1,' | tee -a output.txt
+	verify_output TBT20 output.txt
+}

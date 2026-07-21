@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -23,7 +23,7 @@ findopenport
 	for port=+$zcmdline:1 do  quit:portisopen
 	.	; Check if port has been already allocated. If so, move on to next port.
 	.	set portdir=$get(^portdir(port))
-	.	if (""=$zsearch(portdir)) do
+	.	if (""=$zsearch(portdir,-1)) do
 	.	.	do:(""'=portdir) scavenge
 	.	.	; Port has not been allocated. Check if it is in use by any process in system currently.
 	.	.	; The "nc -z" command below checks if there is anything listening on the port.
@@ -65,6 +65,6 @@ scavenge
 	new port
 	set port="" for  set port=$order(^portdir(port)) quit:port=""  do
 	.	set ^history($zut,port,"scavenge",$zdir)=$ztrnlnm("BATS_TEST_NAME")
-	.	kill:(""=$zsearch(^portdir(port))) ^portdir(port)
+	.	kill:(""=$zsearch(^portdir(port),-1)) ^portdir(port)
 	quit
 

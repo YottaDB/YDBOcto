@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2024-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -50,4 +50,9 @@ teardown() {
 @test "TDTT112: OCTO382 : Verify that zhorolog -> timestamp conversion for microseconds happens correctly" {
 	load_fixture TDTT112.sql subtest novv
 	verify_output TDTT112 output.txt nodatetimefilter
+}
+
+@test "TDTT113: OCTO1095 : Verify floor division correctness for timestamp/time arithmetic around epoch" {
+	load_fixture TDTT113.sql subtest novv
+	verify_output TDTT113 output.txt nodatetimefilter
 }

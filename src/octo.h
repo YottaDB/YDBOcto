@@ -159,7 +159,11 @@
 #define OCTO_DEFAULT_POSTGRES_DATESTYLE	    OCTO_DEFAULT_DATESTYLE
 #define OCTO_DEFAULT_DATESTYLE		    "ISO, YMD"
 #define MAX_DATE_TIME_INTERNAL_FORMAT_VALUE 253402300799999999
-#define MIN_DATE_TIME_INTERNAL_FORMAT_VALUE -62167219200999999
+/* Internal format is a plain linear "microseconds since epoch" value (SECONDS * 1000000 + MICROSECONDS), so this bound is
+ * SECONDS(-62167219200) * 1000000, i.e. the same boundary date used previously, re-expressed without the (now removed)
+ * nine's complement adjustment that the old digit-concatenation encoding required for negative SECONDS.
+ */
+#define MIN_DATE_TIME_INTERNAL_FORMAT_VALUE -62167219200000000
 #define DATE_TIME_ERROR_RETURN		    MAX_DATE_TIME_INTERNAL_FORMAT_VALUE + 1
 
 /* Define various string literals used as gvn/lvn subscripts and/or in physical plans (generated M code).
@@ -422,7 +426,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 46
+#define FMT_PLAN_DEFINITION 47
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)

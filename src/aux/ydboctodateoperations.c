@@ -1048,80 +1048,49 @@ int validate_date_time_value(char **literal_ptr, SqlValueType date_time_type, Op
 	return ret;
 }
 
-/* Used to compute the 9's compliment of a given value
- * 	`VAL` is microsecond value as an integer, valid only when `ARR` is NULL
- * 	`ARR` is pointer to the microseconds array
- * Mainly called to form the internal format value of a date/time which is
- * before EPOCH. Before EPOCH the seconds part of the internal format will be negative
- * so we need to convert the microseconds value to be a negative number also. This macro is
- * used for the conversion.
- * Similar logic is used in PrintDateTimeResultColumnValue() of src/aux/_ydboctoplanhelpers.m
- * to process microsecond when output format is ZUT (Search for NINES_COMPLIMENT). Any change
- * here should reflect there.
+/* Internal format for date/time values is a plain linear "microseconds since epoch" integer:
+ *	VALUE == (SECONDS * 1,000,000) + MICROSECONDS
+ * where SECONDS may be negative (for date/times before epoch) and MICROSECONDS is always canonicalized
+ * to the range [0, 999999] -- i.e. ordinary floor division/modulo by 1,000,000, not truncating
+ * (round-toward-zero) division/modulo. Plain integer comparison of two internal format values is
+ * therefore always chronologically correct, with no special-casing needed for values before epoch.
  */
-#define NINES_COMPLIMENT(VAL, ARR)                                          \
-	{                                                                   \
-		if (NULL != ARR) {                                          \
-			char *val = ARR;                                    \
-			for (int i = 5; i > -1; i--) {                      \
-				assert(('0' <= val[i]) && ('9' >= val[i])); \
-				val[i] = '9' - val[i] + '0';                \
-			}                                                   \
-		} else {                                                    \
-			assert(0 <= (VAL));                                 \
-			(VAL) = 999999 - (VAL);                             \
-		}                                                           \
-	}
 
-/* This macro appends microseconds part given by `MICRO` to `VALUE`.
- * If `y` is `MICRO` and `x` is `VALUE` the result will be `xy`.
+/* Combine `value` (seconds) and `micro` (microseconds) to return an internal format date/time value:
+ *    result = (value * 1,000,000) + micro,
+ * floor-normalized so the result is a canonical internal format value. `micro` need not already be in the
+ * canonical 0-999999 range -- it may be negative or exceed 999999 -- the floor division/modulo below
+ * normalizes it either way. This makes this function safe to use for both addition and subtraction of
+ * date/time values (a subtraction can produce a transient negative `micro` before this function is called).
  */
-#define ADD_MICRO_SECONDS(VALUE, MICRO)                       \
-	{                                                     \
-		int lcl_micro = MICRO;                        \
-		if (0 > VALUE) {                              \
-			assert(0 <= MICRO);                   \
-			lcl_micro = MICRO;                    \
-			NINES_COMPLIMENT(lcl_micro, NULL);    \
-		}                                             \
-		int micro_arr[6] = {0, 0, 0, 0, 0, 0};        \
-		int i = 5;                                    \
-		while (0 != lcl_micro) {                      \
-			micro_arr[i--] = (lcl_micro % 10);    \
-			lcl_micro /= 10;                      \
-		}                                             \
-		boolean_t is_negative = (0 > VALUE);          \
-		for (i = 0; i < 6; i++) {                     \
-			VALUE = VALUE * 10;                   \
-			if (is_negative) {                    \
-				VALUE = VALUE - micro_arr[i]; \
-			} else {                              \
-				VALUE = VALUE + micro_arr[i]; \
-			}                                     \
-		}                                             \
+static ydb_long_t add_microseconds(ydb_long_t value, ydb_long_t micro) {
+	ydb_long_t raw_val = (value * 1000000) + micro;
+	ydb_long_t quot_val = raw_val / 1000000;
+	ydb_long_t rem_val = raw_val % 1000000;
+	if (0 > rem_val) {
+		/* Floor, not truncate, so `rem_val` (the canonicalized microseconds) always
+		 * ends up in range 0-999999, regardless of the sign of `raw_val`.
+		 */
+		quot_val -= 1;
+		rem_val += 1000000;
 	}
+	return (quot_val * 1000000) + rem_val;
+}
 
-/* This macro removes microseconds part in `VALUE` and returns it using `RET`.
- * `VALUE` is date/time data in internal format.
+/* This function returns the microseconds part from `*value` (a date/time value in internal format)
+ * And returns with `*value` left holding just the whole-seconds part, floor-divided (i.e. the
+ * second in which the value falls, not a truncation toward zero).
  */
-#define REMOVE_MICRO_SECONDS(VALUE, RET)                    \
-	{                                                   \
-		int lcl_micro = 0;                          \
-		int mult = 1;                               \
-		for (int i = 0; i < 6; i++) {               \
-			lcl_micro += ((VALUE % 10) * mult); \
-			VALUE /= 10;                        \
-			mult *= 10;                         \
-		}                                           \
-		if (0 > lcl_micro) {                        \
-			/* Ignore -ve sign */               \
-			lcl_micro = -lcl_micro;             \
-		}                                           \
-		if (0 > VALUE) {                            \
-			NINES_COMPLIMENT(lcl_micro, NULL);  \
-		}                                           \
-		RET = lcl_micro;                            \
+static ydb_long_t split_microseconds(ydb_long_t *value) {
+	ydb_long_t quot_val = *value / 1000000;
+	ydb_long_t rem_val = *value % 1000000;
+	if (0 > rem_val) {
+		quot_val -= 1;
+		rem_val += 1000000;
 	}
+	*value = quot_val;
+	return rem_val;
+}
 
 /* This function converts a given date/time value to the date/time value expected by ydboctoText2InternalFormatC().
  *
@@ -1214,7 +1183,7 @@ ydb_long_t ydboctoZutC(int count, ydb_long_t secs, ydb_int_t microsec, ydb_strin
 		microsec = 0;
 		ret = raw_mktime(&tm1);
 	}
-	ADD_MICRO_SECONDS(ret, microsec);
+	ret = add_microseconds(ret, microsec);
 	ydb_free(value_str_format);
 	return ret;
 }
@@ -1249,8 +1218,7 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 	struct tm  tm1;
 	// Before calling time function remove the micro second portion in value
 	// micro = last 6 digits
-	long int micro;
-	REMOVE_MICRO_SECONDS(value, micro);
+	long int micro = split_microseconds(&value);
 	// Get the value type
 	SqlValueType input_type = date_time_input_type;
 	SqlDataType  output_type = date_time_output_type;
@@ -1347,8 +1315,7 @@ ydb_long_t ydboctoDateTimeCastC(int count, ydb_long_t value, ydb_int_t date_time
 			ret = value;
 		}
 	}
-	ADD_MICRO_SECONDS(ret, micro);
-	return ret;
+	return add_microseconds(ret, micro);
 }
 
 /*
@@ -1375,8 +1342,7 @@ ydb_string_t *ydboctoDateTimeInternalFormat2TextC(int count, ydb_long_t value, y
 	/* Internal format will have the last 6 digits as microseconds.
 	 * Remove that and then pass the time functions.
 	 */
-	long int micro = 0;
-	REMOVE_MICRO_SECONDS(date_time_value, micro);
+	long int micro = split_microseconds(&date_time_value);
 
 	// Convert internal format unix time to output format
 	struct tm *tm1;
@@ -1498,15 +1464,13 @@ ydb_string_t *ydboctoDateTimeInternalFormat2TextC(int count, ydb_long_t value, y
 
 ydb_long_t ydboctoConvertToLocalTimezoneC(int count, ydb_int_t type, ydb_long_t date_time_utc_value) {
 	// Be mindful of the microseconds
-	long int micro_op1;
-	REMOVE_MICRO_SECONDS(date_time_utc_value, micro_op1);
+	long int     micro_op1 = split_microseconds(&date_time_utc_value);
 	SqlValueType op_type = type;
 	ydb_long_t   ret = convertToLocalTimezone(type, date_time_utc_value);
-	ADD_MICRO_SECONDS(ret, micro_op1);
-	return ret;
+	return add_microseconds(ret, micro_op1);
 }
 
-ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_string_t *format) {
+ydb_long_t ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_string_t *format) {
 	UNUSED(count);
 
 	// Get format
@@ -1651,40 +1615,11 @@ ydb_string_t *ydboctoText2InternalFormatC(int count, ydb_string_t *op1, ydb_stri
 
 	time_t op1_time = raw_mktime(&tm1);
 
-	// Convert op1_time to string
-	ydb_string_t *ret;
-	// This allocation will be freed not in Octo but by YottaDB after the external call returns.
-	ret = ydb_malloc(sizeof(ydb_string_t));
-	ret->address = ydb_malloc(sizeof(char) * 19); // Null terminator included
-
-	if (0 > op1_time) {
-		int dummy_var = 0; // Avoids `lvalue required as left operand of assignment` error
-		NINES_COMPLIMENT(dummy_var, micro);
-	}
-
-	int micro_sec;
-
-	if (op1_time)
-		ret->length = sprintf(ret->address, "%ld%s", op1_time, micro);
-	else if ((micro_sec = atoi(micro))) // warning: assignment
-		ret->length = sprintf(ret->address, "%i", micro_sec);
-	else
-		ret->length = sprintf(ret->address, "0");
-	ret->address[ret->length] = '\0';
+	ydb_long_t combined_value = (ydb_long_t)op1_time;
+	combined_value = add_microseconds(combined_value, atoi(micro));
 	ydb_free(time_format);
 	ydb_free(time_str);
-	return ret;
-}
-
-/* This function converts the string `value` to the date/time type in `output_type`.
- * Returns -1 on not being able to convert.
- * Returns date/time in internal format.
- */
-ydb_string_t *ydboctoDateTimeStringCastC(int count, ydb_string_t *value, ydb_string_t *value_format,
-					 ydb_int_t date_time_output_type) {
-	UNUSED(count);
-	// Get the value
-	return ydboctoText2InternalFormatC(2, value, value_format);
+	return combined_value;
 }
 
 // This function processes date - integer and date - date. In the first case date is returned and # of days
@@ -1692,8 +1627,7 @@ ydb_string_t *ydboctoDateTimeStringCastC(int count, ydb_string_t *value, ydb_str
 ydb_long_t ydboctoSubDateC(int count, ydb_long_t op1, ydb_long_t op2, ydb_int_t is_op2_integer) {
 	UNUSED(count);
 	// micro = last 6 digits
-	long int micro_op1;
-	REMOVE_MICRO_SECONDS(op1, micro_op1);
+	long int micro_op1 = split_microseconds(&op1);
 	assert(0 == micro_op1);
 	// Integer subtraction with date
 	ydb_long_t ret;
@@ -1709,15 +1643,15 @@ ydb_long_t ydboctoSubDateC(int count, ydb_long_t op1, ydb_long_t op2, ydb_int_t 
 		// Subtract op2 to tm_days
 		tm1.tm_mday -= (int)int_val;
 		ret = raw_mktime(&tm1);
-		ADD_MICRO_SECONDS(ret, micro_op1);
+		ret = add_microseconds(ret, micro_op1);
 		// Validate result
 		if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {
 			return DATE_TIME_ERROR_RETURN;
 		}
 		return ret;
 	}
-	long int micro_op2;
-	REMOVE_MICRO_SECONDS(op2, micro_op2);
+	// NOLINTNEXTLINE - tell clang-tidy variable can be unused when compiler optimizes-out the assert
+	long int micro_op2 = split_microseconds(&op2);
 	assert(0 == micro_op2);
 	// Date - Date
 	// Convert op2 to tm structure
@@ -1746,8 +1680,7 @@ ydb_long_t ydboctoSubDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	assert(TIME_LITERAL == op2_type);
 	// Process op1
 	// micro = last 6 digits
-	long int micro_op1;
-	REMOVE_MICRO_SECONDS(op1, micro_op1);
+	long int micro_op1 = split_microseconds(&op1);
 	// Prepare the tm structure
 	struct tm tm1;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op1_type) || (TIME_WITH_TIME_ZONE_LITERAL == op1_type)) {
@@ -1759,8 +1692,7 @@ ydb_long_t ydboctoSubDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	}
 	// Process op2
 	// Prepare the tm structure
-	long int micro_op2;
-	REMOVE_MICRO_SECONDS(op2, micro_op2);
+	long int  micro_op2 = split_microseconds(&op2);
 	struct tm tm2;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op2_type) || (TIME_WITH_TIME_ZONE_LITERAL == op2_type)) {
 		tm2 = *localtime(&op2);
@@ -1778,30 +1710,16 @@ ydb_long_t ydboctoSubDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 
 	// subtract the microseconds part
 	micro_op1 -= micro_op2;
-	float micro_op_result = (float)micro_op1 / 1000000;
-	// + - + -> value has to be > 0  and < 1 (left greater)
-	// + - + -> value has to be > -1 and < 0 (right greater)
-	// - - + -> value has to be > -1.999998 and < 0 (left greater)
-	// - - + -> value has to be > 0 and < 1 (right greater)
-	// - - - -> value has to be > -1.999998 and < 0 (doesn't matter which is greater)
-	if ((0 > micro_op_result) && (-1 > micro_op_result)) {
-		tm1.tm_sec -= 1;
-		micro_op1 += 1000000;
-	}
 	if (convert_to_utc) {
 		tm1.tm_sec += (-1 * gmtoff);
 	}
 	ydb_long_t ret;
 	ret = raw_mktime(&tm1);
-	if ((0 > ret) && (0 > micro_op1)) {
-		/* Following queries can have micro_op1 -ve its okay to ignore the negative
-		 * sign as it has already been factored in to ret by the above code.
-		 *   select time with time zone'00:00:00' - time'00:00:00.1';
-		 *   select timestamp'1969-12-31 23:59:59' - time'01:01:01.1';
-		 */
-		micro_op1 = -micro_op1;
-	}
-	ADD_MICRO_SECONDS(ret, micro_op1);
+	/* `micro_op1` can be negative here (e.g. subtracting a larger fractional part from a smaller one);
+	 * add_microseconds() floor-normalizes it, borrowing a second from `ret` as needed, so no manual
+	 * carry/borrow handling is required here.
+	 */
+	ret = add_microseconds(ret, micro_op1);
 	// Validate result
 	if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {
 		return DATE_TIME_ERROR_RETURN;
@@ -1819,8 +1737,7 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	int	  gmtoff;
 	// Process op1
 	// Prepare the tm structure
-	long int micro_op1;
-	REMOVE_MICRO_SECONDS(op1, micro_op1);
+	long int micro_op1 = split_microseconds(&op1);
 	// Convert op1 to tm structure
 	struct tm  tm1;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op1_type) || (TIME_WITH_TIME_ZONE_LITERAL == op1_type)) {
@@ -1842,15 +1759,14 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 		// Add op2 to tm_days
 		tm1.tm_mday += (int)int_val;
 		ret = raw_mktime(&tm1);
-		ADD_MICRO_SECONDS(ret, micro_op1);
+		ret = add_microseconds(ret, micro_op1);
 		// Validate result
 		if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {
 			return DATE_TIME_ERROR_RETURN;
 		}
 		return ret;
 	}
-	long int micro_op2;
-	REMOVE_MICRO_SECONDS(op2, micro_op2);
+	long int micro_op2 = split_microseconds(&op2);
 	// Prepare the tm structure
 	struct tm tm2;
 	if ((TIMESTAMP_WITH_TIME_ZONE_LITERAL == op2_type) || (TIME_WITH_TIME_ZONE_LITERAL == op2_type)) {
@@ -1866,17 +1782,15 @@ ydb_long_t ydboctoAddDateTimeC(int count, ydb_long_t op1, ydb_int_t op1_type, yd
 	tm1.tm_sec += tm2.tm_sec;
 	// micro sec addition
 	micro_op1 += micro_op2;
-	float micro_op_result = (float)micro_op1 / 1000000;
-	assert(1.999999 > micro_op_result);
-	if (1.0 <= micro_op_result) {
-		tm1.tm_sec += 1;
-		micro_op1 -= 1000000;
-	}
 	if (convert_to_utc) {
 		tm1.tm_sec += (-1 * gmtoff);
 	}
 	ret = raw_mktime(&tm1);
-	ADD_MICRO_SECONDS(ret, micro_op1);
+	/* `micro_op1` can exceed 999999 here (sum of two values each already in [0, 999999]);
+	 * add_microseconds() floor-normalizes it, carrying into `ret` as needed, so no manual
+	 * carry handling is required here.
+	 */
+	ret = add_microseconds(ret, micro_op1);
 	// Validate result
 	if ((ret > MAX_DATE_TIME_INTERNAL_FORMAT_VALUE) || (ret < MIN_DATE_TIME_INTERNAL_FORMAT_VALUE)) {
 		return DATE_TIME_ERROR_RETURN;

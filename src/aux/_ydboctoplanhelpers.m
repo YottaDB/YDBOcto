@@ -104,7 +104,7 @@ String2DateTimeCast(value,valueFormat,coerceType)
 	. ; At present we only support text formatted input
 	. SET %ydboctoerror("INVALIDDATETIMEVALUE",3)=textFormat
 	. ZMESSAGE %ydboctoerror("INVALIDDATETIMEVALUE")
-	SET result=$&octo.ydboctoDateTimeStringCastM(value,valueFormat,coerceType)
+	SET result=$&octo.ydboctoText2InternalFormatM(value,valueFormat)
 	QUIT result
 
 ; Following routine converts the `value` given from `preCoerceType` to `coerceType`
@@ -301,17 +301,10 @@ PrintDateTimeResultColumnValue(value,columnType,outputFormat,textFormatSpecifier
 	. . ; Text time to zut time
 	. . SET result=""
 	. ELSE  DO
-	. . ; Extract last 6 digits which represent microseconds
-	. . NEW microsec
-	. . SET microsec=$EXTRACT(value,$length(value)-5,$length(value))
-	. . ; Nine's compliment below is similar to NINES_COMPLIMENT() in src/aux/ydboctodateoperations.c
-	. . ; Any change here should reflect there as well
-	. . set:(0>value) microsec=(999999-microsec)  ; take nines compliment
-	. . NEW sec SET sec=$EXTRACT(value,1,$length(value)-6)
-	. . ; Multiply seconds part by 1000000 to get microseconds and add the extracted part to this value
-	. . SET sec=sec*1000000
-	. . SET sec=sec+microsec
-	. . SET result=sec
+	. . ; Internal format is already a plain linear "microseconds since epoch" value
+	. . ; (see the comment above add_microseconds() in src/aux/ydboctodateoperations.c), which is
+	. . ; exactly what ZUT format wants here, so no conversion is needed.
+	. . SET result=value
 	ELSE  IF (filemanFormat=outputFormat) DO
 	. IF (date=columnType) DO
 	. . ; Internal format to format that horolog uses (just to make things uniform)
@@ -502,39 +495,13 @@ ZUT2UnixTime(inputStr,type)
 	NEW result
 	SET result=$&octo.ydboctoValidateDateTimeValueM(inputStr,type,zutFormat)
 	QUIT:result ""; return "" if inputStr is invalid
-	; Extract seconds and microseconds. Following code determines whether input is +ve or -ve then based on the number of
-	; digits present seconds and micro seconds are extracted.
-	NEW input SET input=inputStr
-	NEW seconds
-	NEW microseconds
-	NEW isNeg
-	IF (0>input) DO
-	. ; -ve
-	. SET isNeg=1
-	ELSE  DO
-	. ; +ve
-	. SET isNeg=0
-	IF (7<$length(input)) DO
-	. ; both seconds and microseconds exist
-	. SET seconds=$EXTRACT(input,1,$length(input)-6)
-	. SET seconds=+seconds
-	. SET microseconds=$EXTRACT(input,$length(input)-5,$length(input))
-	ELSE  DO
-	. ; only microseconds exist
-	. SET seconds=0
-	. SET microseconds=input
-	. SET microseconds=+microseconds
-	. SET:(1=isNeg) microseconds=-microseconds
-	; adjust microsecond value
-	NEW len SET len=$length(microseconds)
-	NEW mult SET mult=6-len
-	FOR i=1:1:mult SET microseconds="0"_microseconds
-	IF (isNeg) SET microseconds="-"_microseconds
-	SET microseconds=+microseconds
-	; decrement second if microsecond value is negative
-	IF (0>microseconds) DO
-	. SET seconds=seconds-1
-	. SET microseconds=1000000+microseconds
+	; inputStr is a plain linear "microseconds since epoch" value (same as Octo's internal format), so split it
+	; into (seconds, microseconds) with M's own floor-based # (modulo) operator -- it always returns a result
+	; with the same sign as the divisor, i.e. microseconds always lands in the canonical [0, 999999] range.
+	; \  is not floor-based the same way (it truncates toward zero), so derive seconds from the now-exact
+	; (inputStr-microseconds) rather than inputStr\1000000 directly.
+	NEW microseconds SET microseconds=inputStr#1000000
+	NEW seconds SET seconds=(inputStr-microseconds)\1000000
 	; Convert to internal format, we do not expect time types here
 	IF (date=type) SET result=$&octo.ydboctoZutM(seconds,microseconds,"%m/%d/%Y")
 	ELSE  IF (timestamp=type) SET result=$&octo.ydboctoZutM(seconds,microseconds,"%m/%d/%Y %H:%M:%S")

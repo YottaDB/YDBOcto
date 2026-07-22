@@ -2,7 +2,7 @@
 #
 #################################################################
 #                                                               #
-# Copyright (c) 2020-2025 YottaDB LLC and/or its subsidiaries.  #
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.  #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -26,18 +26,24 @@ set curyear = `date +%Y`
 # ------------------------------------------------
 # The fact that this pre-commit hook got invoked implies it is properly setup in the current repository.
 # Use this opportunity to check that the pre-rebase hook is also setup the same way. If not issue an error.
-set rebase_hook_path = `readlink -f .git/hooks/pre-rebase`
+# Note: hooks live in the git "common dir" (shared by the main checkout and every `git worktree`), so resolve
+# both the hook symlink and the repo root that should contain "pre-rebase" via `git rev-parse --git-common-dir`
+# rather than assuming ".git" is a directory directly under $PWD -- in a worktree checkout, ".git" is instead a
+# file pointing at the common dir, and $PWD itself is the worktree's own root, not the main checkout's root.
+set common_git_dir = `git rev-parse --git-common-dir`
+set rebase_hook_link = "$common_git_dir/hooks/pre-rebase"
+set rebase_hook_path = `readlink -f $rebase_hook_link`
 if ("" != "$rebase_hook_path") then
 	set rebase_hook_actual = `realpath $rebase_hook_path`
 else
 	set rebase_hook_actual = "$rebase_hook_path"
 endif
-set rebase_hook_expect = `realpath ./pre-rebase`
+set rebase_hook_expect = `realpath $common_git_dir/../pre-rebase`
 if ($rebase_hook_expect != $rebase_hook_actual) then
 	echo "  --> Hook $0 returned non-zero status"
 	echo "  --> pre-rebase hook is not properly setup."
-	echo "  --> Expecting [$PWD/.git/hooks/pre-rebase] to point to [../../pre-rebase]. Actual value is [$rebase_hook_actual]."
-	echo "  --> Run [ln -s ../../pre-rebase $PWD/.git/hooks/pre-rebase] to set it up first."
+	echo "  --> Expecting [$rebase_hook_link] to point to [../../pre-rebase]. Actual value is [$rebase_hook_actual]."
+	echo "  --> Run [ln -s ../../pre-rebase $rebase_hook_link] to set it up first."
 	@ exitstatus = 1
 	exit $exitstatus
 endif

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -538,4 +538,65 @@ OCTO
 @test "TPC030 : OCTO1091 : Columns in double quotes are not automatically lowercased" {
 	run_psql $test_port TPC030.sql 2>&1 | tee output.txt
 	verify_output TPC030 output.txt noinfo nodebug
+}
+
+@test "TPC031 : OCTO915 : rocto server (child) process closes the inherited listener socket (does not leak sfd)" {
+	# A forked rocto server (child) process must close the listening socket "sfd" that it inherits from the
+	# rocto listener (parent) process. Only the parent accept()s connections on "sfd"; the child serves its
+	# client on "cfd". If the child does not close "sfd", then (a) every live child leaks a copy of "sfd" and
+	# (b) killing the listener while a child is alive leaves an orphaned LISTEN socket that no process ever
+	# accept()s on -- a connection black hole.
+	#
+	# This test keeps one rocto server (child) process alive with a long-running query, then verifies that the
+	# child does NOT hold the LISTEN socket and that killing the listener leaves no LISTEN socket behind.
+	# It uses "ss" (from iproute2, available on the CI systems) to inspect the listening socket holders.
+	load_fixture HANGTIME.sql	# defines HANGTIME(); used here only to keep a rocto server (child) process alive
+
+	echo "# Start a long-running query so one rocto server (child) process stays alive during the checks" > output.txt
+	run_psql $test_port <<OCTO > psql.out 2>&1 &
+SELECT HANGTIME(firstName,30) FROM names LIMIT 1;
+OCTO
+	psql_pid=$!
+	listener_pid=$(cat rocto.pid)
+
+	# Wait for the rocto server (child of the listener) to fork and start running the query
+	child_pid=""
+	for i in $(seq 1 100); do
+		child_pid=$(ps --no-headers --ppid $listener_pid | awk '/rocto/{print $1; exit}')
+		[[ -n "$child_pid" ]] && break
+		sleep 0.1s
+	done
+	echo "# listener (parent) PID = [$listener_pid], rocto server (child) PID = [$child_pid]" >> output.txt
+	[[ -n "$listener_pid" && -n "$child_pid" ]]
+
+	# The LISTEN socket on the port must be held ONLY by the listener (parent), NOT by the child.
+	# Before the fix, "ss -ltnp" listed BOTH the parent and the child as holders of this socket.
+	listen_holders=$(ss -ltnp | grep ":$test_port " || true)
+	echo "# LISTEN socket holders for port $test_port : [$listen_holders]" >> output.txt
+	echo "PASS : listener (parent) holds the LISTEN socket" >> output.txt
+	[[ "$listen_holders" == *"pid=$listener_pid"* ]]
+	echo "PASS : rocto server (child) does NOT hold the LISTEN socket" >> output.txt
+	[[ "$listen_holders" != *"pid=$child_pid"* ]]
+
+	# kill -9 the listener. SIGKILL means the parent does NOT run its own close(sfd) cleanup, so any LISTEN
+	# socket that survives could only be one the child failed to close. With the fix, no LISTEN socket remains.
+	kill -9 $listener_pid
+	no_listener=0
+	for i in $(seq 1 50); do
+		[[ -z "$(ss -ltn | grep ":$test_port ")" ]] && { no_listener=1; break; }
+		sleep 0.1s
+	done
+	echo "PASS : no orphaned LISTEN socket remains after the listener is killed" >> output.txt
+	[[ $no_listener -eq 1 ]]
+
+	# Cleanup. The child was reparented when the listener died, so reap it and its client explicitly.
+	kill -9 $child_pid 2>/dev/null || true
+	kill $psql_pid 2>/dev/null || true
+	wait $psql_pid 2>/dev/null || true
+	# Restart rocto (like TPC00K does after its own "kill -9"). This is required, not cosmetic: the shared
+	# "teardown" runs "stop_rocto", which reads "rocto.pid" and does an UNGUARDED "mupip stop $listener_pid".
+	# Since we just "kill -9"ed that listener, "mupip stop" on the dead pid fails ("Error issuing STOP to
+	# process N: No such process"), which would fail the teardown; and the port would not get released.
+	# Starting a fresh listener gives "stop_rocto" a live pid and a valid "rocto.pid"/"rocto.port" to clean up.
+	start_rocto $test_port
 }

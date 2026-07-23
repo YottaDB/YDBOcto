@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -296,6 +296,14 @@ int main(int argc, char **argv) {
 
 		// Reset thread id to identify it as child process
 		thread_id = 0;
+
+		/* Close the inherited listening socket in the child (rocto server) process. Only the parent
+		 * (rocto listener) listens on and accepts connections from "sfd"; the child serves its client on
+		 * "cfd". This mirrors the "cfd" close done in the parent for YDBOcto#739. Without it, every forked
+		 * child leaks a copy of "sfd" for its lifetime, and if the parent listener is killed while children
+		 * are alive, those children keep the port in LISTEN state even though no child ever accept()s on it.
+		 */
+		close(sfd);
 
 		// Reset process_id to point to the child (would be pointing to the parent pid till now)
 		config->process_id = getpid();

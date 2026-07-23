@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -26,7 +26,7 @@ RUN apt-get update && \
     apt-get install -y tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 # Note: following line is taken verbatim from developer_doc.rst
-RUN apt-get install -y -q --no-install-recommends bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
+RUN apt-get install -y -q --no-install-recommends bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat iproute2 r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
 RUN apt-get install -y -q --no-install-recommends bats clang cmake python3-pip python3-setuptools python3-wheel python3-sphinx python3-sphinx-rtd-theme git xxd wget libgcrypt20-dev libgpgme-dev ninja-build tcsh shellcheck libicu-dev pkg-config curl golang gcovr
 
 RUN locale-gen en_US.UTF-8

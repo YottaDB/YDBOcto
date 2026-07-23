@@ -61,7 +61,7 @@ Ubuntu/Debian
 
   .. code-block:: bash
 
-    sudo apt-get install bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
+    sudo apt-get install bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat iproute2 r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
     locale-gen en_US.UTF-8
 
 ~~~~~~~~~~~~~~~~~
@@ -74,12 +74,12 @@ Rocky Linux/RHEL
 
     # Rocky Linux
     sudo yum install epel-release  # make bats and R available next line; powertools below required for R dependencies
-    sudo yum --enablerepo=powertools install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
+    sudo yum --enablerepo=powertools install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
 
     # RHEL 8
     sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
     sudo yum install epel-release  # make bats and R available next line
-    sudo yum install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat postgresql-devel libomp-devel libtirpc-devel
+    sudo yum install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
 
 ~~~~~~~~~~~~~~~~~
 OpenSUSE/SLES
@@ -90,7 +90,7 @@ OpenSUSE/SLES
   .. code-block:: bash
 
     # SLES
-    zypper install bats clang java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat R-base R-base-devel postgresql-devel libomp-devel libtirpc-devel
+    zypper install bats clang java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat iproute2 R-base R-base-devel postgresql-devel libomp-devel libtirpc-devel
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL and MySQL/MariaDB

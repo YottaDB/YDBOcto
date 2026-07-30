@@ -793,6 +793,8 @@ verify_output() {
 	# Filter OBJ file name
 	sed -i 's/_ydboctoP[A-Za-z0-9]*\.o/_ydboctoP*.o/g' clean_output.txt
 	sed -i 's/_ydboctoX[A-Za-z0-9]*\.o/_ydboctoX*.o/g' clean_output.txt
+	# Filter GVSUBOFLOW message text, which changed wording in 2026-07-26, commit #2e7fdfbc - [#1059] [V71003] Merge GT.M V7.1-003
+	sed -i 's/%YDB-E-GVSUBOFLOW, .*Global variable:.*/%YDB-E-GVSUBOFLOW, ...Global variable:.../' clean_output.txt
 	# Filter cursor number
 	sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
 	# Filter ydb_* environment variables

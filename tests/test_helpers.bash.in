@@ -730,10 +730,24 @@ filter_file_path() {
 # This function expects a file name to be passed. It checks if the file has any un-expected error entries.
 verify_no_octo_or_ydb_error() {
 	local file="$1"
-	[[ $(grep "\[ERROR\] " "$file" | wc -l) -eq 0 ]]
-	[[ $(grep "%YDB-E-" "$file" | wc -l) -eq 0 ]]
-	[[ $(grep "%YDB-W-" "$file" | wc -l) -eq 0 ]]
-	[[ $(grep "%YDB-F-" "$file" | wc -l) -eq 0 ]]
+
+	# %YDB-W-RLNKCTLOPENDEL is filtered out below because it is an informational warning (not a failure) that
+	# started being issued by YottaDB with the 2026-07-26 commit YottaDB/DB/YDB@2e7fdfbc
+	# ([YottaDB/DB/YDB#1059] [V71003] Merge GT.M V7.1-003 into YottaDB).
+	# It is issued when the auto-relink control file (relinkctl) for a $ZROUTINES directory is deleted by another
+	# process while this process still has it open. The relinkctl files live under a shared /tmp/yottadb/<rel>
+	# directory, so when the test suite runs many bats tests concurrently (i.e. "ctest -j"), one test's cleanup can
+	# unlink the relinkctl file that another test's process has open. YottaDB reconnects on its own (the message
+	# itself says "will try to reconnect") and the test proceeds normally. Hence this warning is not a test failure.
+	local filtered_file="filtered_$(basename "$file")"
+	grep -av "%YDB-W-RLNKCTLOPENDEL" "$file" > "$filtered_file" || true
+
+	[[ $(grep -a "\[ERROR\] " "$filtered_file" | wc -l) -eq 0 ]]
+	[[ $(grep -a "%YDB-E-" "$filtered_file" | wc -l) -eq 0 ]]
+	[[ $(grep -a "%YDB-W-" "$filtered_file" | wc -l) -eq 0 ]]
+	[[ $(grep -a "%YDB-F-" "$filtered_file" | wc -l) -eq 0 ]]
+
+	rm -f "$filtered_file"
 }
 
 # Compare output file against a reference file after first removing various commonly-changing details in output.

@@ -186,6 +186,7 @@ endif
 
 foreach file ($filelist)
 	if (! -e $file) then
+		# If file is being deleted as part of this commit, skip ASCII check
 		continue
 	endif
 	set extension = $file:e
@@ -194,12 +195,11 @@ foreach file ($filelist)
 	if ( "sql" == "$extension" || "ref" == "$extension" || "zwr" == "$extension" || "md" == "$extension" || "rst" == "$extension" ) then
 		continue
 	endif
-	set fixfile = ""
-	if  (0 != `file $file | grep UTF | wc -l` ) then
-		set fixfile = "$file"
-	endif
-	if ("" != "$fixfile") then
-		echo "--> HOOK-E-FAIL : File $fixfile contains UTF characters. Must be ASCII only."
+	grep -qP "[^\x00-\x7F]" $file
+	if ( $status == 0 ) then
+		echo "--> HOOK $0 : File contains non-ASCII characters:"
+		# Show file:line where the non-ASCII characters are within the file
+		grep --color=auto --with-filename --line-number --perl-regexp "[^\x00-\x7F]" $file
 		@ exitstatus = 1
 	endif
 end

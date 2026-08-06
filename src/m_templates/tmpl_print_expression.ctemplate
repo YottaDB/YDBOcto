@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -676,7 +676,23 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		m_operator = "*";
 		break;
 	case LP_MODULO:
-		m_operator = "#";
+		/* SQL de facto standard modulo (YDBOcto#1030) takes the sign of the dividend (truncated-division
+		 * remainder) whereas M's native "#" operator takes the sign of the divisor (floored-division
+		 * remainder). They differ whenever the operands have different signs, so delegate to the
+		 * "Modulo" M helper function which corrects for this instead of emitting "#" inline.
+		 */
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
+		%{}$$Modulo^%%ydboctoplanhelpers({}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, depth);
+		%{},{}%
+		TMPL(tmpl_print_expression, second_operand, pplan, 0, depth);
+		%{}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_CONCAT:
 		m_operator = "_";

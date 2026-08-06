@@ -2613,6 +2613,19 @@ LPAD
 
   Note that in :code:`POSTGRES` emulation either the two- or three- argument form may be used. However, MySQL only supports the three-argument version, so a third argument must always be specified when using the :code:`MYSQL` emulation setting.
 
++++++
+MOD
++++++
+
+  .. code-block:: SQL
+
+     MOD(NUMERIC, INTEGER)
+     MOD(INTEGER, NUMERIC)
+     MOD(NUMERIC, NUMERIC)
+     MOD(INTEGER, INTEGER)
+
+  MOD returns the remainder of the first argument divided by the second argument. This is the SQL-standard function form of the :code:`%` operator, and returns the same result as :code:`a % b`, i.e. the result takes the sign of the first argument (the dividend). Implements truncated division remainder (the de facto SQL standard) where the result takes the sign of the dividend.
+
 ++++++++
 NOW
 ++++++++

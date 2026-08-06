@@ -226,6 +226,14 @@ OCTO> drop function truncate(NUMERIC, NUMERIC);
 [ERROR]: ERR_INVALID_DROP: Dropping "truncate" is disallowed as it is a system object
 OCTO> drop function truncate(INTEGER, INTEGER);
 [ERROR]: ERR_INVALID_DROP: Dropping "truncate" is disallowed as it is a system object
+OCTO> drop function mod(NUMERIC, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "mod" is disallowed as it is a system object
+OCTO> drop function mod(INTEGER, NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "mod" is disallowed as it is a system object
+OCTO> drop function mod(NUMERIC, NUMERIC);
+[ERROR]: ERR_INVALID_DROP: Dropping "mod" is disallowed as it is a system object
+OCTO> drop function mod(INTEGER, INTEGER);
+[ERROR]: ERR_INVALID_DROP: Dropping "mod" is disallowed as it is a system object
 OCTO> drop function now();
 [ERROR]: ERR_INVALID_DROP: Dropping "now" is disallowed as it is a system object
 OCTO> drop function day(DATE);

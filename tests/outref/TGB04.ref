@@ -472,10 +472,7 @@ octoPlan1(cursorId)
     . . SET %ydboctog=%ydboctoexpr
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy")=%ydboctog
-    . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",2,"names","id")
-    . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",3))
-    . . SET %ydboctoexpr=%ydboctoexpr(2)#%ydboctoexpr
+    . . SET %ydboctoexpr=$$Modulo^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",2,"names","id"),$GET(%ydboctocursor(cursorId,"parameters",3)))
     . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
     . . SET %ydboctoexpr=%ydboctoexpr(1)+%ydboctoexpr

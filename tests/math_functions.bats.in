@@ -32,3 +32,9 @@ teardown() {
 	load_fixture pastas.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TMF02.sql "trim_trailing_zeroes"
 }
+
+@test "TMF03 : OCTO1030 : Test of MOD() function (matches the % operator's SQL standard behavior)" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TMF03.sql "trim_trailing_zeroes"
+}

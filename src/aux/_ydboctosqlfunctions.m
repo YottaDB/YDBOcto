@@ -21,6 +21,11 @@ ABS(num)
 	; Implements the SQL ABS function (returns absolute value of an input number)
 	quit $select(num<0:-num,1:+num)
 
+MOD(a,b)
+	; Implements the SQL standard MOD function (YDBOcto#1030): performs the same de facto standard modulo
+	; operation (truncated-division remainder, sign of the dividend) as the "a % b" operator.
+	quit $$Modulo^%ydboctoplanhelpers(a,b)
+
 ; Empty string can be passed as any argument
 ;
 REPLACE(src,from,to)

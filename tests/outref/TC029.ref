@@ -107,6 +107,10 @@ truncate|2|1700|1700 23|null|null|null
 truncate|2|1700|23 1700|null|null|null
 truncate|2|1700|1700 1700|null|null|null
 truncate|2|1700|23 23|null|null|null
+mod|2|1700|1700 23|null|null|null
+mod|2|1700|23 1700|null|null|null
+mod|2|1700|1700 1700|null|null|null
+mod|2|23|23 23|null|null|null
 now|0|1184|null|null|null|null
 day|1|1043|1082|null|null|null
 day|1|1043|1043|null|null|null

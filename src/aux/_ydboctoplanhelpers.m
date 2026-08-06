@@ -788,6 +788,14 @@ min(isString,a,b)
 	; invoked by LEAST
 	QUIT $SELECT($ZYISSQLNULL(a):b,$ZYISSQLNULL(b):a,isString:$SELECT(a]b:b,1:a),1:$SELECT(a>b:b,1:a))
 
+Modulo(a,b)
+	; de facto SQL standard modulo (YDBOcto#1030): result takes the sign of the dividend `a` (truncated-division
+	; remainder), unlike M's native "#" operator whose result takes the sign of the divisor `b`
+	; (floored-division remainder). The two only disagree when `a` and `b` have different signs, in
+	; which case `a#b` (which always has the sign of `b`, or is 0) is adjusted by subtracting `b`.
+	NEW result SET result=a#b
+	QUIT $SELECT((result=0)!((a<0)=(b<0)):result,1:result-b)
+
 dollarZTRIGGER(arg1,arg2);
 	; Helper M function invoked by generated M code whenever it needs to do a $ZTRIGGER call.
 	SET status=$ZTRIGGER(arg1,arg2)

@@ -49,7 +49,7 @@ teardown() {
 		# Account for that by updating the reference file by 1
 		mkdir -p outref
 		cp @PROJECT_SOURCE_DIR@/tests/outref/TYIO01.ref outref/TYIO01.ref
-		sed -i 's/octo_region_label|SET|5744/octo_region_label|SET|5745/' outref/TYIO01.ref
+		sed -i 's/octo_region_label|SET|5780/octo_region_label|SET|5781/' outref/TYIO01.ref
 	fi
 	verify_output TYIO01 output.txt
 }

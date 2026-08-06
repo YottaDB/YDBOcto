@@ -114,6 +114,10 @@ truncate|2|1700|1700 23
 truncate|2|1700|23 1700
 truncate|2|1700|1700 1700
 truncate|2|1700|23 23
+mod|2|1700|1700 23
+mod|2|1700|23 1700
+mod|2|1700|1700 1700
+mod|2|23|23 23
 now|0|1184|
 day|1|1043|1082
 day|1|1043|1043
@@ -206,7 +210,7 @@ pg_get_ruledef|2|1043|23 16
 pg_get_partkeydef|1|1043|23
 pg_stat_get_numscans|1|1043|23
 pg_tablespace_location|1|1043|23
-(201 rows)
+(205 rows)
 OCTO> SELECT proname,pronargs,prorettype,proargtypes FROM pg_proc;
 proname|pronargs|prorettype|proargtypes
 abs|1|1700|1700
@@ -318,6 +322,10 @@ truncate|2|1700|1700 23
 truncate|2|1700|23 1700
 truncate|2|1700|1700 1700
 truncate|2|1700|23 23
+mod|2|1700|1700 23
+mod|2|1700|23 1700
+mod|2|1700|1700 1700
+mod|2|23|23 23
 now|0|1184|
 day|1|1043|1082
 day|1|1043|1043
@@ -410,5 +418,5 @@ pg_get_ruledef|2|1043|23 16
 pg_get_partkeydef|1|1043|23
 pg_stat_get_numscans|1|1043|23
 pg_tablespace_location|1|1043|23
-(201 rows)
+(205 rows)
 OCTO> 

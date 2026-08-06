@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -509,6 +509,13 @@ CREATE FUNCTION truncate(NUMERIC, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCA
 CREATE FUNCTION truncate(INTEGER, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION truncate(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION truncate(INTEGER, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
+/* MOD(a,b) is the SQL standard function form of the "a % b" operator (YDBOcto#1030). This only implements the
+ * 2-argument version, since Octo doesn't support function overloading.
+ */
+CREATE FUNCTION mod(NUMERIC, INTEGER) RETURNS NUMERIC AS $$MOD^%ydboctosqlfunctions;
+CREATE FUNCTION mod(INTEGER, NUMERIC) RETURNS NUMERIC AS $$MOD^%ydboctosqlfunctions;
+CREATE FUNCTION mod(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$MOD^%ydboctosqlfunctions;
+CREATE FUNCTION mod(INTEGER, INTEGER) RETURNS INTEGER AS $$MOD^%ydboctosqlfunctions;
 
 CREATE FUNCTION now() RETURNS TIMESTAMP WITH TIME ZONE AS $$^%ydboctofCURRENTTIMESTAMP;
 CREATE FUNCTION day(DATE) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions;

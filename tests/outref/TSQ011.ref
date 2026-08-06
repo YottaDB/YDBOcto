@@ -113,6 +113,10 @@ truncate|numeric
 truncate|numeric
 truncate|numeric
 truncate|numeric
+mod|numeric
+mod|numeric
+mod|numeric
+mod|int4
 now|timestamptz
 day|varchar
 day|varchar
@@ -205,5 +209,5 @@ pg_get_ruledef|varchar
 pg_get_partkeydef|varchar
 pg_stat_get_numscans|varchar
 pg_tablespace_location|varchar
-(201 rows)
+(205 rows)
 OCTO> 

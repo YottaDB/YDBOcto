@@ -1,0 +1,102 @@
+
+-- TBT21 : OCTO1088 : UNKNOWN is only a valid SQL value directly after IS/IS NOT (e.g. "x IS UNKNOWN"), unlike
+-- TRUE/FALSE/NULL it is not a general standalone value expression. Below are various positions where a bare
+-- UNKNOWN (not preceded by IS/IS NOT) is now correctly rejected with a syntax error.
+select unknown;
+select unknown from names;
+select 1 from names where unknown;
+select 1 from names where unknown = unknown;
+select 1 from names having unknown;
+select coalesce(unknown, true);
+select 1 from names order by unknown;
+select 1 from names group by unknown;
+select true and unknown;
+select unknown or false;
+select not unknown;
+
+-- Sanity check: TRUE/FALSE/NULL remain valid standalone value expressions (unaffected by this fix)
+select true;
+select false;
+select null;
+
+-- Sanity check: IS UNKNOWN / IS NOT UNKNOWN continue to work exactly as before (unaffected by this fix)
+select * from names where (firstname = 'Zero') is unknown;
+select * from names where (firstname = 'Zero') is not unknown;
+
+-- Sanity check: UNKNOWN still works fine as an identifier, e.g. a column name (unaffected by this fix --
+-- this goes through a separate grammar path, "sql_identifier_exceptions", not "boolean_primary")
+create table TBT21 (unknown int);
+drop table TBT21;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 2:1: select unknown;
+                 ^^^^^^^
+OCTO> select unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 3:1: select unknown from names;
+                 ^^^^^^^
+OCTO> select unknown from names;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 4:1: select 1 from names where unknown;
+                                    ^^^^^^^
+OCTO> select 1 from names where unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 5:1: select 1 from names where unknown = unknown;
+                                    ^^^^^^^
+OCTO> select 1 from names where unknown = unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 6:1: select 1 from names having unknown;
+                                     ^^^^^^^
+OCTO> select 1 from names having unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 7:1: select coalesce(unknown, true);
+                          ^^^^^^^
+OCTO> select coalesce(unknown, true);
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 8:1: select 1 from names order by unknown;
+                                       ^^^^^^^
+OCTO> select 1 from names order by unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 9:1: select 1 from names group by unknown;
+                                       ^^^^^^^
+OCTO> select 1 from names group by unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 10:1: select true and unknown;
+                           ^^^^^^^
+OCTO> select true and unknown;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 11:1: select unknown or false;
+                  ^^^^^^^
+OCTO> select unknown or false;
+[ERROR]: ERR_PARSE_FAILED: syntax error, unexpected UNKNOWN
+LINE 12:1: select not unknown;
+                      ^^^^^^^
+OCTO> select not unknown;
+OCTO> select true;
+???
+t
+(1 row)
+OCTO> select false;
+???
+f
+(1 row)
+OCTO> select null;
+???
+
+(1 row)
+OCTO> select * from names where (firstname = 'Zero') is unknown;
+id|firstname|lastname
+(0 rows)
+OCTO> select * from names where (firstname = 'Zero') is not unknown;
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+OCTO> create table TBT21 (unknown int);
+CREATE TABLE
+OCTO> drop table TBT21;
+DROP TABLE
+OCTO> 

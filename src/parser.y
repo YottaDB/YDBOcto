@@ -574,20 +574,20 @@ boolean_test
       $$ = $predicate;
       $$->loc = yyloc;
     }
-  | predicate IS boolean_primary_minus_empty_string {
+  | predicate IS is_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_IS;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($boolean_primary_minus_empty_string);
+      ($$)->v.binary->operands[1] = ($is_predicate_value);
       $$->loc = @1;
     }
-  | predicate IS NOT boolean_primary_minus_empty_string {
+  | predicate IS NOT is_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_IS_NOT;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($boolean_primary_minus_empty_string);
+      ($$)->v.binary->operands[1] = ($is_predicate_value);
       $$->loc = @1;
     }
   // TODO: IS DISTINCT FROM(#557)
@@ -608,6 +608,15 @@ boolean_primary_minus_empty_string
   | null_token { $$ = $null_token; }	/* Note: IS NULL is allowed, but IS '' is not allowed hence using
 					 * "null_token" and not "null_specification" in this sub-rule.
 					 */
+  ;
+
+/* UNKNOWN (unlike TRUE/FALSE/NULL) is only a valid SQL value directly after IS/IS NOT (e.g. "x IS UNKNOWN"), not as a
+ * general standalone value expression (see YDBOcto#1088). So this rule -- used only by the "predicate IS ..." productions
+ * above -- is the sole place UNKNOWN is allowed to produce a BOOLEAN_VALUE; it must not be added to
+ * "boolean_primary_minus_empty_string" since that rule also feeds "value_expression_primary" (i.e. general expressions).
+ */
+is_predicate_value
+  : boolean_primary_minus_empty_string { $$ = $boolean_primary_minus_empty_string; }
   | UNKNOWN {
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "");
       $$->loc = yyloc;

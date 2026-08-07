@@ -237,3 +237,8 @@ teardown() {
 	yottadb -run zwriteAIMData^aimutils 2>&1 | grep -E '^\^%ydbAIMD[^(]*\(1,' | tee -a output.txt
 	verify_output TBT20 output.txt
 }
+
+@test "TBT21 : OCTO1088 : Test that bare UNKNOWN (not preceded by IS/IS NOT) is rejected with a syntax error" {
+	load_fixture TBT21_errors.sql subtest novv
+	verify_output TBT21_errors output.txt
+}

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -10,7 +10,7 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Helper function used by TCV048 subtest in test_create_view3.bats.in
+; Helper function used by TCV048 subtest in create_view3.bats.in
 ; Generates a set of 'CREATE VIEW' commands involving random view names that depend on other random view names.
 
 viewdependency	;

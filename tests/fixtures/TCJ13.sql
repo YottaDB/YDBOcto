@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,7 +12,7 @@
 
 -- TCJ13 : OCTO769 : Speed up CROSS JOIN by rearranging FROM/JOIN even if OR is used in WHERE clause
 
--- This is a query in tests/fixtures/sqllogic/select4.test (which gets run as part of the test_sqllogic/TS04 bats subtest
+-- This is a query in tests/fixtures/sqllogic/select4.test (which gets run as part of the sqllogic/TS04 bats subtest
 -- if this query gets randomly chosen from the many queries in that file) that used to take 15 minutes to run.
 -- After the YDBOcto#769 fixes to rearrange CROSS JOIN independently for each DNF plan, it takes less than a second to run.
 

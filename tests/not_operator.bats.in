@@ -1,0 +1,42 @@
+#################################################################
+#								#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TNO01 : OCTO603 : names schema : Assert failure when NOT is used on functions like LEAST, GREATEST, NULLIF etc." {
+	# Load needed CREATE FUNCTION statement
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TNO01_ddl.sql
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TNO01.sql > TNO01.sql
+	octo < TNO01.sql > output.txt
+	verify_output TNO01 output.txt
+}
+
+@test "TNO02: OCTO799 : Validate that an error is issued when non-boolean operand is given to NOT operation" {
+	load_fixture TNO02.sql subtest novv
+	verify_output TNO02 output.txt noinfo nodebug
+}
+
+@test "TNO03: OCTO799 : Validate NOT operation on NULL operand" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNO03.sql "trim_trailing_zeroes"
+}
+

@@ -1,0 +1,156 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture names2.zwr
+  load_fixture names2.sql
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TCJ01 : cross join" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names cross join names2;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
+}
+
+@test "TCJ02 : cross join with where statement in table 1" {
+  octo -vvv <<OCTO 2>&1 | tee output.txt
+select * from names cross join names2 where names.firstName = 'Zero';
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
+  ! [[ "$output" =~ "1|Acid|Burn|0|ZeroCool" ]]
+}
+
+@test "TCJ03 : cross join with where statement in table 2" {
+  octo -vvv <<OCTO 2>&1 | tee output.txt
+select * from names cross join names2 where names2.firstName = 'Zero';
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
+  ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
+}
+
+@test "TCJ04 : cross join with where statement in table 1 and table 2" {
+  octo -vvv <<OCTO 2>&1 | tee output.txt
+select * from names cross join names2 where names.firstName = 'Zero' AND names2.firstName = 'Acid';
+OCTO
+  run cat output.txt
+  ! [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
+  [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
+}
+
+@test "TCJ05 : join of temporary table with real table" {
+  octo <<OCTO 2>&1 | tee output.txt
+select *
+FROM (
+    select t1.firstName as firstName
+        , t2.id as id
+    FROM names t1
+    INNER JOIN names t2
+    ON t1.id = t2.id
+) as t0
+INNER JOIN names t3
+on t3.id = t0.id;
+OCTO
+  [[ "$(grep -c 'Zero|Cool'  output.txt)" == "2" ]]
+  [[ "$(grep -c 'Acid|Burn'  output.txt)" == "1" ]]
+}
+
+@test "TCJ06 : cross join many matches with comma" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1, names n2;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "37" ]]
+}
+
+@test "TCJ07 : cross join many matches with comma with many tables" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1, names n2, names n3, names n4;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "1297" ]]
+}
+
+@test "TCJ08 : cross join many matches with comma with additional criteria" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1, names n2
+WHERE n1.firstName = 'Zero';
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "13" ]]
+}
+
+@test "TCJ09 : OCTO529 : Test CROSS JOIN mixed with OUTER JOIN cannot be freely reordered" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ09.sql
+}
+
+@test "TCJ10 : OCTO529 : Test CROSS JOIN mixed with INNER JOIN cannot be freely reordered" {
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TCJ10.sql
+}
+
+@test "TCJ11 : OCTO529 : Test query with only ONE CROSS JOIN is also reordered/optimized" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ11.sql noextended
+	echo "# Verify key fixing optimization by looking at generated M code" >> output.txt
+	grep -E "SELECT|ydboctoX|SET|octoPlan|FOR" _ydboctoP*.m >> output.txt
+	verify_output TCJ11 output.txt
+}
+
+@test "TCJ12 : OCTO652 : Incorrect results if CROSS JOIN is used with OR operator in the WHERE clause" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ12.sql
+}
+
+@test "TCJ13 : OCTO769 : Speed up CROSS JOIN by rearranging FROM/JOIN even if OR is used in WHERE clause" {
+	load_fixture sqllogic4.sql
+	load_fixture sqllogic4.zwr
+	echo "# Run cross check on one query. It used to take 15 minutes to run." >> output.txt
+	echo "# It runs in less than a second after the YDBOcto#769 fixes." >> output.txt
+	echo "# We do not do actual time verification. But expect us to notice a regression right away since" >> output.txt
+	echo "# this test would then take 900 seconds to run and be seen in the pipeline as an outlier." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries sqllogic4 TCJ13.sql noextended
+	# If we reached here, it means the above cross check succeeded so note that in the reference file.
+	echo "PASS : cross check" >> output.txt
+	echo "# Verify generated plan to see CROSS JOIN reordering happened as expected." >> output.txt
+	echo "# Tables were specified in FROM clause in the order           : s4t3, s4t6, s4t8, s4t2, s4t5, s4t9, s4t4" >> output.txt
+	echo "# But they are expected to be reordered after optimization as : s4t3, s4t2, s4t5, s4t9, s4t4, s4t8, s4t6" >> output.txt
+	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
+	grep -E "octoPlan|SELECT|FROM|WHERE|AND|DATA\(\^\%ydbAIMD.*" _ydboctoP*.m >> output.txt
+	verify_output TCJ13 output.txt
+}
+
+@test "TCJ14 : OCTO769 : Verify CROSS JOIN reordering optimization happens INDEPENDENTLY in each plan if OR is used in WHERE clause" {
+	echo "# Run cross check on one query." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ14.sql noextended
+	# If we reached here, it means the above cross check succeeded so note that in the reference file.
+	echo "PASS : cross check" >> output.txt
+	echo "# Verify that CROSS JOIN reordering happened INDEPENDENTLY in each of the 2 DNF plans" >> output.txt
+	echo "# Capture key parts of the physical plan in reference file that verifies this." >> output.txt
+	echo "# We expect N1 cross reference to be used in first DNF plan." >> output.txt
+	echo "# And we expect N2 cross reference to be used in the second DNF plan." >> output.txt
+	grep -E "octoPlan|SELECT|DATA\(\^\%ydbAIMD.*" _ydboctoP*.m >> output.txt
+	verify_output TCJ14 output.txt
+}
+

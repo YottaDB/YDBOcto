@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -12,9 +12,9 @@
 
 ; -----------------------------------------------------------------------------------------------------
 ; Below are all queries that were found in the following files.
-;	test_inner_join_order_by.bats.in
-;	test_inner_join_where.bats.in
-;	test_inner_join_where_order_by.bats.in
+;	inner_join_order_by.bats.in
+;	inner_join_where.bats.in
+;	inner_join_where_order_by.bats.in
 ; Each of those queries are run with a LEFT or RIGHT or FULL JOIN and the output is compared against Postgres.
 ; This simplifies the task of maintaining reference files for these.
 ; -----------------------------------------------------------------------------------------------------

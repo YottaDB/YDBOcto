@@ -1,0 +1,381 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TSC00A: select wildcard columns" {
+  run octo <<OCTO
+select * from names;
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+}
+
+@test "TSC00B : select columns via short name" {
+  run octo <<OCTO
+select firstName, lastName from names;
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "0|Zero|Cool" ]]
+}
+
+@test "TSC00C : select columns via long name" {
+  run octo <<OCTO
+select names.firstName, names.lastName from names;
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "0|Zero|Cool" ]]
+}
+
+@test "TSC00D : select column which doesn't exist" {
+  octo <<OCTO 2>&1 | tee output.txt
+select names.hackName from names;
+OCTO
+  verify_output TSC00D output.txt
+}
+
+@test "TSC00E : select column with invalid typing" {
+  octo <<OCTO 2>&1 | tee output.txt
+select names.firstName + 5 from names;
+OCTO
+  verify_output TSC00E output.txt
+}
+
+@test "TSC00F : select with a semicolon in string" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where firstName = '; hello world';
+OCTO
+  run cat output.txt
+  ! [[ "$output" =~ "ERROR" ]]
+  [[ $(grep -c "|" output.txt) == "1" ]]
+}
+
+# @test "TSC00G : select from table with multiple keys" {
+#   octo <<OCTO 2>&1 | tee output.txt
+# create table names2 (
+#   id INTEGER PRIMARY KEY,
+#   firstName VARCHAR(30) KEY NUM 1,
+#   lastName VARCHAR(30) KEY NUM 2
+# );
+# insert into names2 (select * from names where firstName <> "" AND lastName <> "");
+# select * from names2;
+# OCTO
+#   run cat output.txt
+#   [[ "$output" =~ "Zero|Cool" ]]
+# }
+#
+
+@test "TSC00H : select without a from statement" {
+  octo <<OCTO 2>&1 | tee output.txt
+select 17+5*5;
+OCTO
+  [[ $( grep -c "^42$" output.txt) == "1" ]]
+}
+
+@test "TSC00I : select without a from with a syntax error" {
+  load_fixture TSC00I.sql subtest novv
+  verify_output TSC00I output.txt
+}
+
+@test "TSC00J : select so many columns it would exceed the M line length" {
+  octo -vv <<OCTO 2>&1 | tee output.txt
+SELECT firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
+ firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName
+FROM names;
+OCTO
+}
+
+@test "TSC00K : select using a CASE statement" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT
+  firstName
+  , CASE firstName
+    WHEN 'Zero' THEN 'Zero Cool'
+    WHEN 'Acid' THEN 'Acid Burn'
+    WHEN 'Cereal' THEN 'Cereal Killer'
+    ELSE firstName
+    END
+FROM names;
+OCTO
+  [[ "$(grep -c "Zero" output.txt)" == "2" ]]
+}
+
+@test "TSC00L : select a negative number" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT -5
+FROM names;
+OCTO
+  [[ "$(grep -c -- "-5" output.txt)" != "0" ]]
+}
+
+@test "OCTO674 : TSC00M : select some columns with C-style and #-style comments interwoven" {
+	echo "# OCTO674 : octo -f of file containing 3 queries with multi-line C-style comments and #-style comments." > output.txt
+	echo "# Do not expect to see blank lines in query output (used to happen before OCTO674 was fixed)" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSC00M.sql .
+	octo -f TSC00M.sql >> output.txt 2>&1
+	verify_output TSC00M output.txt
+}
+
+@test "TSC00N : order by a calculated column" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT nspname AS TABLE_SCHEM,
+  NULL AS TABLE_CATALOG
+FROM pg_catalog.pg_namespace
+WHERE nspname <> 'pg_toast'
+  AND (nspname !~ '^pg_temp_'  OR nspname = (pg_catalog.current_schemas(true))[1])
+  AND (nspname !~ '^pg_toast_temp_'  OR nspname =
+    replace((pg_catalog.current_schemas(true))[1], 'pg_temp_', 'pg_toast_temp_'))
+ORDER BY TABLE_SCHEM;
+OCTO
+  [[ $(grep -c "|" output.txt) -eq 4 ]]
+}
+
+@test "TSC00O : cast int column to text" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names
+WHERE (id :: text) = '0';
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
+}
+
+@test "TSC00P : verify that columns are cleaned after data is sent" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names;
+OCTO
+  $ydb_dist/mumps -di <<OCTO &> output2.txt
+ZWRITE ^%ydboctocursor
+OCTO
+  [[ $(grep -c "%ydboctocursor(1" output2.txt) -eq 0 ]]
+}
+
+@test "TSC01 : cast a string to an integer" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT column1 :: integer + 5 FROM (VALUES('1'),('2'));
+OCTO
+  verify_output TSC01 output.txt noinfo nodebug
+}
+
+@test "TSC02 : select an alias with a shorter name" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT t.lastName
+FROM (
+  SELECT n1.id FROM names n1
+) tt
+INNER JOIN names t
+ON (t.id = tt.id);
+OCTO
+  verify_output TSC02 output.txt noinfo nodebug
+}
+
+@test "TSC03 : SELECT of column name with alias with ORDER BY using alias name" {
+  octo <<OCTO &> output.txt
+SELECT firstname as alias from names order by alias
+OCTO
+  verify_output TSC03 output.txt noinfo nodebug
+}
+
+@test "TSC04 : SELECT of invalid column name in user-defined table" {
+  run_octo_allow_error TSC04.sql output.txt
+  verify_output TSC04 output.txt noinfo nodebug
+}
+
+@test "TSC05 : SELECT of invalid column name in derived table from a level-1 sub-query" {
+  run_octo_allow_error TSC05.sql output.txt
+  verify_output TSC05 output.txt noinfo nodebug
+}
+
+@test "TSC06 : SELECT of invalid column name in derived table from a level-2 sub-query" {
+  run_octo_allow_error TSC06.sql output.txt
+  verify_output TSC06 output.txt noinfo nodebug
+}
+
+@test "TSC07 : Miscellaneous SELECT using valid and/or invalid column names and a level-1 sub-query" {
+  inputfile="TSC07.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
+  grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
+  linenum=1
+  set -f	# we use * in the query file so avoid expanding it in the loop below
+  while read -r line
+  do
+  echo $line > query${linenum}.sql
+  echo "Running query file query${linenum}.sql : [$line]" >> output.txt
+  echo "-------------------------------------------------" >> output.txt
+  run_octo_allow_error query${linenum}.sql output.txt
+  ((linenum++))
+  echo "" >> output.txt
+  done < $inputfile
+  verify_output TSC07 output.txt
+}
+
+@test "TSC08 : Select unknown column with 2 inner joins" {
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE TABLE ORDER1(
+ order1_id INTEGER PRIMARY KEY,
+ status INTEGER,
+ current_action INTEGER
+);
+
+CREATE TABLE ORDERORDERACTIONS(
+ order1_id INTEGER PRIMARY KEY,
+ order_order_actions_id INTEGER KEY NUM 1,
+ action CHARACTER(12)
+);
+
+CREATE TABLE ORDERSTATUS(
+ order_status_id INTEGER PRIMARY KEY
+);
+
+SELECT order1
+FROM   order1 A
+       inner join orderorderactions B
+               ON A.current_action = B.order_order_actions_id
+       inner join orderstatus C
+               ON A.status = C.order_status_id
+WHERE  B.action = 'NW';
+OCTO
+  verify_output TSC08 output.txt
+}
+
+@test "TSC09 : Set envvar ydb_lvnullsubs=2 and try to select from table" {
+  export ydb_lvnullsubs=2
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  verify_output TSC09 output.txt
+}
+
+@test "TSC11 : test that multiline strings are inserted in to generated code correctly" {
+  octo <<OCTO 2>&1 | tee output.txt
+select '"
+ set ^TSC11(1)=1
+;'
+from names;
+OCTO
+  yottadb -run %XCMD 'write:$get(^TSC11(1))="" "PASS: ^TSC11(1) is unset",! write:$get(^TSC11(1))=1 "FAIL: set ^TSC11(1)=1 was run when it should not have been",!' | tee -a output.txt
+  verify_output TSC11 output.txt
+}
+
+@test "TSC12 : #302 : Run M function inside of SELECT statement with a LEFT JOIN (used to issue LVUNDEF error)" {
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE FUNCTION DOLLAR_ZWRITE(VARCHAR) RETURNS VARCHAR AS \$ZWRITE;
+SELECT    n1.firstname, DOLLAR_ZWRITE(n2.firstname)
+FROM      names n1
+LEFT JOIN names n2
+ON        n1.lastname = n2.firstname;
+OCTO
+  verify_output TSC12 output.txt
+}
+
+@test "TSC13 : #303 : Run M function inside of SELECT statement with a LEFT JOIN (used to issue <Problem resolving owner for deferred plan> error)" {
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE FUNCTION DOLLAR_ZWRITE(VARCHAR) RETURNS VARCHAR AS \$ZWRITE;
+SELECT    DOLLAR_ZWRITE(n2.firstname)
+FROM      names n1
+LEFT JOIN names n2
+ON        n1.lastname = n2.firstname;
+OCTO
+  verify_output TSC13 output.txt
+}
+
+@test "TSC14 : #338 : SELECT from sub-query returns incorrect results if sub-query has constants in its select column list" {
+  cat <<CAT_EOF > input.sql
+select * from (select 1,2,3,4);
+select * from (select 2,3,4,5);
+CAT_EOF
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TSC14 output.txt
+}
+
+@test "TSC15 : #340 : Incorrect <Unknown column> error for column names inherited from sub-query" {
+  cat <<CAT_EOF > input.sql
+select a,b from (select 1 as a, 2 as b);
+select a,c from (select 1 as a, 2 as b);
+select c,b from (select 1 as a, 2 as b);
+CAT_EOF
+  cat input.sql > output.txt
+  run_octo_allow_error input.sql output.txt
+  verify_output TSC15 output.txt
+}
+
+@test "TSC16 : #282 : Test of ABS() function as well as lp_verify_structure() for LP_COLUMN_LIST" {
+  inputfile="TSC16.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  cat $inputfile > output.txt
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -f $inputfile >> output.txt 2>&1
+  verify_output TSC16 output.txt
+}
+
+@test "TSC17 : #337 : Test of MODULO (%) operator" {
+  inputfile="TSC17.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -f $inputfile >> output.txt 2>&1
+  verify_output TSC17 output.txt
+}
+
+@test "TSC18 : Test of tabs in readline input" {
+	inputfile="TSC18.sql"
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
+	grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
+	grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+	octo -vv < $inputfile  2>&1 | tee output.txt
+	verify_output TSC18 output.txt
+}
+
+# Note: Any subtest that wishes to use `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` needs to be
+# added in the `select_columns_psql` test and not this (i.e. `select_columns`) test as the latter is a core
+# test and is run even before `hello_db` test runs in some configurations in which case we cannot assume Postgres
+# tables are loaded. Keep this comment at the end of this file so add new subtests BEFORE this comment.

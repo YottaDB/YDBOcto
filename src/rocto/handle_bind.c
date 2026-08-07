@@ -414,7 +414,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	 * Bind parameters is a subset of the total number of parameters.
 	 * Also note that Bind parameters may be mixed in with regular, literal parameters in an arbitrary order. This means that
 	 * we must count the current Bind parameter number independently of the current general parameter number.
-	 * For examples/combinations, please see the various test cases in test_psql_go_connection.bats.in.
+	 * For examples/combinations, please see the various test cases in psql_go_connection.bats.in.
 	 */
 	assert(num_bind_parms <= num_parms);
 	OCTO_SET_BUFFER(cur_parm_buf, cur_parm_str);

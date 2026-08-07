@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,7 +11,7 @@
 #################################################################
 
 -- TCJ09 : OCTO529 :  Query with lots of CROSS JOIN runs forever if WHERE clause contains lots of AND and = operators
--- This is tested extensively by the `test_sqllogic/select5` subtest. So no queries are added for this specifically.
+-- This is tested extensively by the `sqllogic/select5` subtest. So no queries are added for this specifically.
 
 -- TCJ11 : OCTO529 : Test query with only ONE CROSS JOIN is also reordered/optimized
 select * from names n1 cross join names n2 where n2.id = 3 and n1.id = n2.id;

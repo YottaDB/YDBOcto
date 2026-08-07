@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -39,17 +39,20 @@ batsTestsChooseRandom
 	IF $DATA(mustIncludes) set skipEverythingElse=1
 	;
 	SET include("test_query_generator")=""
+	; "query_generator" is the same test after the test_ prefix was dropped from bats file names.
+	; Keep both names, since this routine may run against an older commit's bats-tests.cmake.
+	SET include("query_generator")=""
 	FOR i=1:1:nLines DO
 	.	NEW skip
 	.	SET skip=0
-	.	; If the line is of the form "ADD_BATS_TEST(test_basic_parsing)", then decide whether to pick or skip it.
+	.	; If the line is of the form "ADD_BATS_TEST(basic_parsing)", then decide whether to pick or skip it.
 	.	; If the line is of the form "ADD_BATS_TEST(${TEST_NAME})" which is possible inside a macro like the
 	.	;	ADD_BATS_TEST_DML macro, then pick it all the time as it is not a line corresponding to a test
 	.	;	but a line needed by a macro definition.
 	.	; Hence the use of the "?" operator and 1A below to distinguish "$" from a test name which starts with an alphabet.
 	.	; The "$zwrite()" function usage is to add double quotes around the string literal as it is used inside the @
 	.	; operator (indirection).
-	.	; By similar reasoning, if the line is of the form "ADD_BATS_TEST_DML(test_insert_into)" then decide to pick/skip.
+	.	; By similar reasoning, if the line is of the form "ADD_BATS_TEST_DML(insert_into)" then decide to pick/skip.
 	.	FOR macro="ADD_BATS_TEST(","ADD_BATS_TEST_DML(" DO  QUIT:skip
 	.	.	IF (line(i)?@(".E1"_$zwrite(macro)_"1A.E")) DO  QUIT:skip
 	.	.	.	SET batsTestName=$PIECE($PIECE(line(i),macro,2),")",1)

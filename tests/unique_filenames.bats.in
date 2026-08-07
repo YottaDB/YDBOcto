@@ -1,0 +1,180 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TUF000A : generate one plan from one query" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
+}
+
+@test "TUF000B : generate one plan from two identical queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select * from names;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
+}
+
+@test "TUF000C : generate two plans from two unique queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select * from names where firstName = 'Zero';
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 2 ]]
+}
+
+@test "TUF000D : generate five unique plans from five unique queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select * from names where firstName = 'Zero';
+select lastName from names;
+select lastName from names where id = 1;
+select id from names;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 5 ]]
+}
+
+@test "TUF000E : generate two unique plans several queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select lastName from names;
+select * from names;
+select lastName from names;
+select * from names;
+select lastName from names;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 2 ]]
+}
+
+@test "TUF000F : generate three unique plans from five queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select firstName from names;
+select firstName from names;
+select lastName from names;
+select lastName from names;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 3 ]]
+}
+
+@test "TUF000G : generate four unique plans from five queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select * from names where firstName = 'Zero';
+select lastName from names;
+select lastName from names;
+select lastName from names where id = 1;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 4 ]]
+}
+
+@test "TUF000H : generate four unique plans from six queries" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names;
+select * from names where firstName = 'Zero';
+select lastName from names;
+select lastName from names;
+select lastName from names;
+select lastName from names where id = 1;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 4 ]]
+}
+
+@test "TUF000I : generate single plan for successive queries on same column name within single table" {
+  octo <<OCTO 2>&1 | tee output.txt
+select firstName from names where id = 0;
+select firstName from names where id = 1;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
+}
+
+@test "TUF000J : generate unique plans for successive queries on different column names within single table" {
+  octo <<OCTO 2>&1 | tee output.txt
+select firstName from names where id = 0;
+select firstName from names where firstname = 'Zero';
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
+  [[ $output -eq 2 ]]
+}
+
+@test "TUF000K : generate unique plan for row-value (list of values after IN keyword) constructions on different columns" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
+SELECT * FROM names WHERE firstName IN ('Zero', 'Cool');
+OCTO
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+  [[ $(grep -c 'Acid|' output.txt) -eq 1 ]]
+  verify_output TUF000K output.txt noinfo nodebug
+}
+
+@test "TUF001 : generate one plan for row-value (list of values after IN keyword) constructions on same column" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
+SELECT * FROM names WHERE id IN (0, 1);
+OCTO
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+  [[ $(grep -c 'Acid|' output.txt) -eq 2 ]]
+  verify_output TUF001 output.txt
+}

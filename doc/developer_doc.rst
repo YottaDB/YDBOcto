@@ -139,7 +139,7 @@ CMake Flags
 
  * Use :code:`DISABLE_INSTALL=ON` to disable the generation of installation rules for the :code:`make install` command.
  * Use :code:`FULL_TEST_SUITE=ON` to build the full test suite for Octo.
- * In addition, there is a speed test that can be enabled by :code:`TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with :code:`bats -T bats_tests/test_speed.bats` or with the equivalent command :code:`ctest -V -R test_speed`.
+ * In addition, there is a speed test that can be enabled by :code:`TEST_SPEED=ON`. The speed test is intended for use in benchmarking and needs to be run separately from the full test suite. Run it with :code:`bats -T bats_tests/speed.bats` or with the equivalent command :code:`ctest -V -R speed`.
 
  A typical developer would use the following command:
 

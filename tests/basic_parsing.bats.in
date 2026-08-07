@@ -1,0 +1,87 @@
+#################################################################
+#								#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TBP000 : test CREATE TABLE : dry run" {
+	strip_sql_comments TBP000.sql
+	run_octo_allow_error TBP000.sql output.txt --dry-run
+	verify_output TBP000 output.txt
+}
+
+@test "TBP001 : test DELETE : dry run" {
+	strip_sql_comments TBP001.sql
+	run_octo_allow_error TBP001.sql output.txt --dry-run
+	verify_output TBP001 output.txt
+}
+
+@test "TBP002 : test SELECT : dry run" {
+	strip_sql_comments TBP002.sql
+	run_octo_allow_error TBP002.sql output.txt --dry-run
+	verify_output TBP002 output.txt
+}
+
+@test "TBP003 : test INSERT : dry run" {
+	strip_sql_comments TBP003.sql
+	run_octo_allow_error TBP003.sql output.txt --dry-run
+	verify_output TBP003 output.txt
+}
+
+@test "TBP004 : test UPDATE : dry run" {
+	strip_sql_comments TBP004.sql
+	run_octo_allow_error TBP004.sql output.txt --dry-run
+	verify_output TBP004 output.txt
+}
+
+@test "TBP005 : test DROP TABLE : dry run" {
+	strip_sql_comments TBP005.sql
+	run_octo_allow_error TBP005.sql output.txt --dry-run
+	verify_output TBP005 output.txt
+}
+
+@test "TBP006 : OCTO935 : Test no SIG-11 and/or incorrect ERR_UNKNOWN_TABLE_OR_VIEW error on an invalid SQL command" {
+	load_fixture TBP006.sql subtest novv
+	verify_output TBP006 output.txt
+}
+
+@test "TBP007 : OCTO519 : Test qualified identifers accepted for INSERT INTO, UPDATE, DELETE FROM, and TRUNCATE" {
+	load_fixture TBP007.sql subtest novv
+	verify_output TBP007 output.txt
+}
+
+@test "TBP008 : OCTO1059 : Test that octo does NOT take exponentially long time to run query with lots of preceding spaces" {
+	for value in 100 200 500 1000 2000 5000 10000 20000 50000 100000
+	do
+		yottadb -run %XCMD 'write $justify(" ",'$value'),"select 1;",!' > $value.sql
+		time octo -f $value.sql > /dev/null 2>> time.out
+	done
+	cputimelist=`grep elapsed time.out | sed 's/user/ /;s/system/ /;' | awk '{print $1 + $2}'`
+	yottadb -run TBP008 $cputimelist >& ydbcheck.out
+	[[ "$(grep -c "FAIL" ydbcheck.out)" == "0" ]]
+}
+
+@test "TBP009 : OCTO1062 : Test SQL keywords accepted as table/column names for various commands" {
+	load_fixture TBP009.sql subtest novv
+	verify_output TBP009 output.txt
+}
+

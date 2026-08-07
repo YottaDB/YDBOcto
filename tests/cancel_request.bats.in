@@ -1,0 +1,111 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  # Below global_buffers settings needed by the TCR03 subtest (default of 1024 causes TRANS2BIG errors).
+  # Note that this was previously bumped to 4096, but this too was inadequate as the number of global buffers
+  # sometimes exceeds that value. Hence, this was doubled to 8192.
+  mupip set -global_buffers=8192 -reg OCTOREG
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+  create_default_user
+  test_port=$(start_rocto 1441)
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TCR01 : Test cancel requests abort long running queries; OCTO666 : Also test MUPIP INTRPT of rocto produces JOBEXAM file" {
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	echo '# Test cancel request aborts long running query' >> output.txt
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	# Create function that is used in the later query to ensure it takes a long time (and hence needs to be canceled for sure).
+	load_fixture HANGTIME.sql
+	export mupip_intrpt=1	# signal HANGTIME.m to do a MUPIP INTRPT
+	echo '# Randomly enable env var ydb_zinterrupt to test that it overrides the default zinterrupt if set' >> output.txt
+	ydb_zintr_set=$(($RANDOM % 2))
+	if [[ 1 -eq $ydb_zintr_set ]]; then
+		# Set M variable that will be later cross verified in the ZSHOW DUMP
+		export ydb_zinterrupt='SET ZINTRSET=1 IF $ZJOBEXAM()'
+	fi
+	# Restart rocto as we want it to pick up the env var setting
+	stop_rocto
+	test_port=$(start_rocto 1441)
+	run_psql_expect cancel_psql_many_joins $test_port
+	cat expect.out >> output.txt
+	echo "" >> output.txt
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	echo '# Verify MUPIP INTRPT (would have been done inside HANGTIME.m) of rocto produces JOBEXAM file' >> output.txt
+	echo '# Also cerify that JOBEXAM file contains the M-stack as expected' >> output.txt
+	echo '# -------------------------------------------------------------------------------------------' >> output.txt
+	[[ 1 -eq $(ls -1 YDB_JOBEXAM.ZSHOW_DMP_* | wc -l) ]]
+	# Verify M-stack shows up as expected
+	grep -E '^HANGTIME|^octoPlan|^run' YDB_JOBEXAM.ZSHOW_DMP_* | sed 's/:.*//g' >> output.txt
+	echo '# Verify M variable ZINTRSET got set IF ydb_zinterrupt env var (randomly) drove the zinterrupt' >> output.txt
+	if [[ 1 -eq $ydb_zintr_set ]]; then
+		[[ 1 -eq $(grep "^ZINTRSET=1" YDB_JOBEXAM.ZSHOW_DMP_* | wc -l) ]]
+	fi
+	verify_output TCR01 output.txt noinfo nodebug noexpect stripreturns
+}
+
+@test "TCR03 : ensure cancel requests abort simple queries and remove metadata but keep xrefs and trigger" {
+  $ydb_dist/yottadb -run loadbigdata
+  # Remove verbosity as the logical plan is too long to print correctly and not needed here
+  run_psql_expect cancel_psql_big_data $test_port &> output.txt
+  verify_output TCR00 expect.out noinfo nodebug noexpect stripreturns
+  # Ensure all cross references metadata cleaned up for the given query
+  run $ydb_dist/mupip extract -select='%ydbAIMOcto*' xref_metadata.zwr
+  # mupip will give an error code saying that the global doesn't exist.
+  [ "$status" -eq 224 ]
+  # xref.txt won't exist.
+  [ ! -f xref_metadata.zwr ]
+  # Ensure AIM xref still exists (but we don't know its exact contents, as it was cancelled mid-creation)
+  run $ydb_dist/mupip extract -select='%ydbAIM*' xref.zwr
+  [ -f xref.zwr ]
+  grep '%ydbAIMD' xref.zwr
+  # Ensure all triggers still exist
+  $ydb_dist/mupip trigger -select triggers.txt
+  grep '%ydbAIMD' triggers.txt
+}
+
+@test "TCR04 : Test cancel request works in rocto for an INSERT INTO, DELETE FROM and UPDATE and partial updates are rolled back" {
+	# Create function that is used in a later DELETE FROM and UPDATE query in the WHERE clause to ensure it takes a long time
+	# (and hence needs to be canceled for sure).
+	load_fixture HANGTIME.sql
+	# Stop rocto as we want to bump global buffers which requires standalone access
+	stop_rocto
+	echo '# Set global buffers to 16384 to avoid TRANS2BIG errors' >> output.txt
+	mupip set -global_buffers=16384 -reg "*"
+	# Restart rocto
+	test_port=$(start_rocto 1441 --readwrite)
+	echo '# Test cancel request for INSERT INTO, DELETE FROM and UPDATE' > output.txt
+	echo '# Generate names tables with 1 million rows' >> output.txt
+	$ydb_dist/yottadb -run loadbigdata "TCR04"
+	echo '# Above step also generates TCR04.sql which has an INSERT INTO query to insert 1 million new rows' >> output.txt
+	echo '# Run TCR04.sql through psql and cancel query; Expect number of rows to still be 1 million afterwards' >> output.txt
+	echo '# Run DELETE FROM names through psql and cancel query; Expect number of rows to still be 1 million afterwards' >> output.txt
+	echo '# Run UPDATE names through psql and cancel query; Expect number of rows to still be 1 million afterwards' >> output.txt
+	run_psql_expect TCR04 $test_port
+	cat expect.out >> output.txt
+	echo "" >> output.txt
+	echo '# Verify no partial updates from INSERT INTO, DELETE FROM or UPDATE' >> output.txt
+	$ydb_dist/yottadb -run verify^loadbigdata >> output.txt
+	verify_output TCR04 output.txt noinfo nodebug noexpect stripreturns
+}

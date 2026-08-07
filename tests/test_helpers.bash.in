@@ -386,7 +386,7 @@ FILE
 
 	# Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
 	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
-	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
+	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in create_table.bats.in)
 	export ydb_dbfilext_syslog_disable=1
 
 	# "All tables are extended reference tables" sweep: when "OCTO_TEST_EXTREF" is set, additionally
@@ -937,7 +937,7 @@ verify_output() {
 			cat clean_output.txt.nosort | sort_LC_ALL_C >& clean_output.txt
 		fi
 	done
-	# test_where_in.bats TWI12 when executed with JDBC driver fails without the following code.
+	# where_in.bats TWI12 when executed with JDBC driver fails without the following code.
 	# This is because the semicolon at the end of a query is left out of the physical plan in this case.
 	# To avoid such failure we remove all occurrences of semicolons before the comparison.
 	# The first condition is required as not all tests create `dbg_env.out`(hello_db.bats.in is one

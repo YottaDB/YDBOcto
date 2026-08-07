@@ -1,0 +1,291 @@
+#################################################################
+#								#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  # For all tests, configure the history by default to be in the current
+  # directory, except the last one, where we delete the octo.conf file to test
+  # the default history in ~/.octo_history
+  echo 'octo_history = "$PWD/octo_history"' > octo.conf
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TR01 : readline single session history within session" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_within_session.exp > expect.out) &> expect.dbg
+  # stripreturns needed below since different terminals seem to output different amount of ^M characters on history return
+  # (in the pipeline vs in-house environments) even with TERM set to a fixed value (in `init_test`).
+  verify_output TR01 expect.out noinfo nodebug noexpect stripreturns
+}
+
+@test "TR02 : readline history saved between sessions with default history" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_between_sessions.exp > expect1.out) &> expect1.dbg
+  verify_output TR02-1 expect1.out noinfo nodebug noexpect stripreturns
+  verify_output TR02-2 octo_history
+  # Check the verbose output saying that there is history now to look at.
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect2.out) &> expect2.dbg
+  grep "INFO_READLINE_NOTIFY_LOAD_COUNT: Reading 1 history entries" octo.log
+}
+
+# This test is kind of complicated. We start one session, run a long query
+# (using HANGTIME()), and then start another session, run a short query, exit
+# that, switch to the first session, and exit that. The query order in
+# octo_history is second query first, since that exited first, and then first
+# query.
+@test "TR03 : readline combined with concurrent sessions" {
+  load_fixture HANGTIME.sql
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_concurrent.exp > expect1.out) &> expect1.dbg
+  verify_output TR03 octo_history
+}
+
+@test "TR04 : \s displays history" {
+  # Create a fake history file to display
+  echo "select * from names;" > $PWD/octo_history
+  echo "select * from names where lastname is null;" >> $PWD/octo_history
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect.out) &> expect.dbg
+  verify_output TR04 expect.out noinfo nodebug noexpect stripreturns
+}
+
+@test "TR05 : Multi-line queries save to history and load back properly" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_multiline.exp > expect.out) &> expect.dbg
+  verify_output TR05 expect.out noinfo nodebug noexpect stripreturns
+}
+
+# Pre-existing Octo behavior that didn't have a test before.
+@test "TR06 : Query w/ no ending semicolon and CTRLD runs and saves into history with semicolon and runs query after all" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_query_semicolon_ctrld.exp > expect.out) &> expect.dbg
+  verify_output TR06-1 expect.out noinfo nodebug noexpect stripreturns
+  verify_output TR06-2 octo_history
+}
+
+@test "TR07 : QUIT w/ no ending semicolon with append semicolon" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_query_semicolon_quit1.exp > expect.out) &> expect.dbg
+  verify_output TR07 octo_history
+}
+
+@test "TR08 : QUIT w/ ending semicolon will not double up the semicolon" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_query_semicolon_quit2.exp > expect.out) &> expect.dbg
+  verify_output TR08 octo_history
+}
+
+@test "TR09 : Override history location to add spaces (test for wordexp code)" {
+  echo 'octo_history = "$PWD/octo history"' > octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_between_sessions.exp > expect.out) &> expect.dbg
+  mv "octo history" octo_history # verify output cannot handle spaces
+  verify_output TR02-2 octo_history
+}
+
+@test "TR10 : Override history location with illegally long filename (test for wordexp code)" {
+  # Test one long file name that exceeds max file + path limit (about 5300 on my system)
+  filename=$(for i in $(seq 16789); do echo -n "a"; done)
+  echo "octo_history = \"$PWD/$filename\"" > octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
+  grep WARN_READLINE_LOAD_FAIL octo.log
+  grep -v INFO_READLINE_NOTIFY_LOAD octo.log
+
+  # Test a long file name that contains lots of spaces which will exercise our wordexp loop
+  filename=$(for i in $(seq 16789); do echo -n "a "; done)
+  echo "octo_history = \"$PWD/$filename\"" > octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
+  grep WARN_READLINE_LOAD_FAIL octo.log
+  grep -v INFO_READLINE_NOTIFY_LOAD octo.log
+}
+
+@test "TR101 : Override history to bad wordexp location (/procoo|) (test for wordexp code)" {
+  echo 'octo_history = "/procoo|"' > octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
+  grep 'WARN_READLINE_LOAD_FAIL: Failed to load history file /procoo|' octo.log
+}
+
+@test "TR11 : Override history to /dev/null" {
+  # Reading will fail but saving will succeed
+  echo 'octo_history = "/dev/null"' > octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
+  # NB: This shows up on Ubuntu, but not on CentOS. Comment out for now.
+  # grep WARN_READLINE_LOAD_FAIL octo.log
+  grep -v WARN_READLINE_SAVE_FAIL octo.log
+}
+
+@test "TR12 : Override history to unwriteable location (/proc/foo/boo/coo)" {
+  # Both reading and saving will fail
+  echo 'octo_history = "/proc/foo/boo/coo"' > octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_verbose.exp > expect.out) &> expect.dbg
+  grep 'INFO_READLINE_NOTIFY_HIST_LOCATION: History located at /proc/foo/boo/coo' octo.log
+  grep WARN_READLINE_LOAD_FAIL octo.log
+  grep WARN_READLINE_SAVE_FAIL octo.log
+}
+
+@test "TR13 : Set Maximum number of entries no limit" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
+  [ $(wc -l < octo_history) -eq 5 ]
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT: Saving 5 additional' octo.log
+}
+
+@test "TR14 : Set Maximum number of entries to 2" {
+  echo 'octo_history_max_length = 2' >> octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
+  [ $(wc -l < octo_history) -eq 2 ]
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 2 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT: Saving 2 additional' octo.log
+  verify_output TR14 octo_history
+}
+
+@test "TR15 : Set Maximum number of entries to 0" {
+  echo 'octo_history_max_length = 0' >> octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
+  [ ! -f octo_history ]
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 0 entries' octo.log
+}
+
+@test "TR151 : Set Maximum number of entries to -5 should clamp to zero" {
+  echo 'octo_history_max_length = -5' >> octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect.out) &> expect.dbg
+  [ ! -f octo_history ]
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 0 entries' octo.log
+}
+
+@test "TR16 : Test truncation of history" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect1.out) &> expect1.dbg
+  [ $(wc -l < octo_history) -eq 5 ]
+  grep 'INFO_READLINE_NOTIFY_HIST_COUNT: History limited to 500 entries' octo.log
+  grep 'INFO_READLINE_NOTIFY_SAVE_COUNT: Saving 5 additional' octo.log
+
+  echo 'octo_history_max_length = 2' >> octo.conf
+
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect2.out) &> expect2.dbg
+  [ $(wc -l < octo_history) -eq 2 ]
+  verify_output TR14 octo_history
+}
+
+@test "TR17 : \s behavior with truncation" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect1.out) &> expect1.dbg
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect2.out) &> expect2.dbg
+  # No truncation. Full history.
+  verify_output TR17-1 expect2.out noinfo nodebug noexpect stripreturns
+
+  # This behavior here is tricky. The first time we load after history limit is
+  # changed, we don't "stifle" the history except when we save. Therefore, the
+  # first \s will display the full history, just like TR17-1. But exiting and
+  # then doing it a second time, we now see two entries. This behavior is
+  # consistent with psql.
+  echo 'octo_history_max_length = 2' >> octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect3.out) &> expect3.dbg
+  verify_output TR17-2 expect3.out noinfo nodebug noexpect stripreturns
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect4.out) &> expect4.dbg
+  verify_output TR17-3 expect4.out noinfo nodebug noexpect stripreturns
+
+  # Test INPUTRC history-size interaction with octo_history_max_length
+  # If we set history-size of 2, with a default octo_history_max_length of 500, the Octo runtime history will be 2 lines in length.
+  # Also, debug builds won't crash with an assert (#1022)
+  sed -i '/octo_history_max_length = 2/d' octo.conf
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect5.out) &> expect5.dbg
+  echo "set history-size 2" > inputrc
+  export INPUTRC=./inputrc
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect6.out) &> expect6.dbg
+  verify_output TR17-4 expect6.out noinfo nodebug noexpect stripreturns
+  unset INPUTRC
+
+  # If we set history-size of 3, and octo_history_max_length of 2, Octo runtime history will be 3 lines in length,
+  # ...owing to the history file containing more than 3 lines to start with.
+  # At exist, the history file will be stifled to 2 lines.
+  # Also, debug builds won't crash with an assert (#1022)
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_octo_5_queries.exp > expect7.out) &> expect7.dbg
+  echo 'octo_history_max_length = 2' >> octo.conf
+  echo "set history-size 3" > inputrc
+  export INPUTRC=./inputrc
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_backslash_s.exp > expect8.out) &> expect8.dbg
+  verify_output TR17-5 expect8.out noinfo nodebug noexpect stripreturns
+  verify_output TR17-6 octo_history
+  unset INPUTRC
+}
+
+# This is Octo pre-existing behavior that didn't have a test. Adding it here.
+@test "TR18 : duplicate sequential queries don't get stored twice" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_duplicate_seq_queries.exp > expect1.out) &> expect1.dbg
+  mv octo_history octo_history1
+  verify_output TR18-1 octo_history1
+
+  # Test for part of #1022
+  # Setting history-size changes the history_base variable, causing the old algorithm that gets the
+  # current entry for de-duplication to fail. So test this scenario separately.
+  # First create a new history file with 6 entries:
+  echo "select 1;" > octo_history
+  echo "select 2;" >> octo_history
+  echo "select 3;" >> octo_history
+  echo "select 4;" >> octo_history
+  echo "select 5;" >> octo_history
+  echo "select 6;" >> octo_history
+  echo "set history-size 2" > inputrc
+  export INPUTRC=./inputrc
+  # The file contains a \s which lists the runtime history.
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_duplicate_seq_queries.exp > expect2.out) &> expect2.dbg
+  # Prior to #1022, this showed a duplicate entry; after #1022, the de-duplication is done properly.
+  # At the end, we will have 8 lines, even though there are actually 5 unique queries being executed
+  # ...because our runtime history size is 2 queries.
+  mv octo_history octo_history2
+  verify_output TR18-2 octo_history2
+  verify_output TR18-3 expect2.out noinfo nodebug noexpect stripreturns
+  unset INPUTRC
+}
+
+@test "TR19 : Test default history location (pipeline only)" {
+  if ! [[ -v CI_PIPELINE_ID ]]; then
+	  skip 'Skipping test as it corrupts developer environment'
+  fi
+
+  rm -f ~/.octo_history
+  rm -f octo.conf
+
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readline_between_sessions.exp > expect1.out) &> expect1.dbg
+  verify_output TR02-1 expect1.out noinfo nodebug noexpect stripreturns
+  verify_output TR02-2 ~/.octo_history
+
+  # Clean-up after yourselves
+  rm ~/.octo_history
+}
+
+# TR20 moved to no_parallel_suite.bats.in
+
+@test "TR21 : OCTO832 : Test that readline_get_more() succeeds without ERR_SYSCALL in the case of EINTR" {
+	$ydb_dist/yottadb -run octo832 &> output.txt
+	verify_output TR21 output.txt
+}
+
+@test "TR22 : OCTO936 : Test no garbage text from previous query in error message at OCTO> prompt after Ctrl-D" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR22.exp > expect.out) &> expect.dbg
+  # Verify Ctrl-D once executes the invalid command/query and prints the appropriate error message
+  # Also verify that Ctrl-D twice quits the Octo process.
+  verify_output TR22-1 expect.out noinfo nodebug noexpect stripreturns
+  # Verify that history does have the first and second commands with a semi-colon substituted at the end of the
+  # second command even though the user did not specify it.
+  verify_output TR22-2 octo_history
+}
+
+@test "TR23 : OCTO1024 : Call-in programs (like Octo) which have their own readline history won't read YDB readline history" {
+	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
+	if  [ "$ydb_version" \< "r1.39" ] ; then
+		# r1.38 and older releases do not have YottaDB/DB/YDB#88 changes and so will not honor "ydb_readline" env var
+		# which is relied upon in this test (to generate the "$HOME/.ydb_YottaDB_history" file). Therefore skip this
+		# subtest for r1.38 (possible for example in the "release-ubuntu" pipeline job) and older releases.
+		skip "Skip TR23 subtest for r1.38 and older releases as it does not have YottaDB/DB/YDB#88 (aka readline) changes"
+	fi
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR23.exp > expect.out) &> expect.dbg
+	verify_output TR23 expect.out noinfo nodebug noexpect stripreturns
+}

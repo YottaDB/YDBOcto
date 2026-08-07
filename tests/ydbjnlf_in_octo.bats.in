@@ -1,0 +1,55 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  $ydb_dist/mupip set -journal="enable,on,f=$test_temp/default.mjl" -reg DEFAULT
+  $ydb_dist/mupip set -journal="enable,on,f=$test_temp/octo.mjl" -reg OCTOREG
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TYIO01 : Test %YDBJNLF Octo functionality" {
+	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
+	if  [ "$ydb_version" \< "r1.37" ] ; then
+		skip "^%YDBJNLF cannot be tested for YottaDB versions less than r1.37"
+	fi
+	if  [ "$ydb_version" == "r1.38" ] ; then
+		# r1.38 does not have the YottaDB/DB/YDB!1407 fixes and so can fail the TYIO01 subtest occasionally.
+		# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/915#note_1401714173 for more details on the failure.
+		skip "Skip TYIO01 subtest for r1.38 as it can fail occasionally without YottaDB/DB/YDB!1407 fixes"
+	fi
+	echo '# Load %YDBJNLF DDL Into Octo' | tee -a output.txt
+	$ydb_dist/yottadb -r OCTODDL^%YDBJNLF | octo
+	echo '# Extract journals' | tee -a output.txt
+	$ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./default.mjl","default_region_label")'
+	$ydb_dist/yottadb -run %XCMD 'DO INGEST^%YDBJNLF("./octo.mjl","octo_region_label")'
+	echo '# Run queries on journal files' | tee -a output.txt
+	load_fixture TYIO01.sql subtest novv
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		# YDBOcto#1052 changes set ^%ydboctoocto("xc_path") only when DISABLE_INSTALL is ON.
+		# Account for that by updating the reference file by 1
+		mkdir -p outref
+		cp @PROJECT_SOURCE_DIR@/tests/outref/TYIO01.ref outref/TYIO01.ref
+		sed -i 's/octo_region_label|SET|5744/octo_region_label|SET|5745/' outref/TYIO01.ref
+	fi
+	verify_output TYIO01 output.txt
+}

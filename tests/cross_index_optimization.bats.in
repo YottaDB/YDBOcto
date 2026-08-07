@@ -1,0 +1,75 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture names2.sql
+  load_fixture names2.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TCIO01 : where with string limits return values" {
+  load_fixture TCIO01.sql subtest novv
+  ls _ydboctoX*.m &>> output.txt
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims.zwr >> output.txt
+  verify_output TCIO01 output.txt
+}
+
+@test "TCIO02 : where from table with two keys" {
+  load_fixture TCIO02.sql subtest novv
+  ls _ydboctoX*.m &>> output.txt
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims.zwr >> output.txt
+  verify_output TCIO02 output.txt
+}
+
+@test "TCIO03 : where from table with two keys and where is key" {
+  load_fixture TCIO03.sql subtest novv
+  verify_output TCIO03 output.txt
+}
+
+@test "TCIO04 : where from table with two keys inverted where" {
+  load_fixture TCIO04.sql subtest novv
+  ls _ydboctoX*.m &>> output.txt
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims.zwr >> output.txt
+  verify_output TCIO04 output.txt
+}
+
+@test "TCIO07 : verify that triggers create new indexes and delete them" {
+  load_fixture TCIO01.sql subtest novv
+  $ydb_dist/yottadb -r %XCMD 'SET ^names(6)="Charles|Hathaway"'
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims1.zwr
+  # Remove the constantly changing first two lines of zwr output
+  tail -n +3 aims1.zwr >> output.txt
+  $ydb_dist/yottadb -run %XCMD 'kill ^names(6)'
+  $ydb_dist/mupip extract -sel='^%ydbAIMD*' aims2.zwr
+  tail -n +3 aims2.zwr >> output.txt
+  verify_output TCIO07 output.txt
+}
+
+@test "TCIO08 : verify that when we iterate on a fix'd key we don't iterate extra xref keys" {
+  load_fixture TCIO08.sql subtest novv
+  verify_output TCIO08 output.txt
+}

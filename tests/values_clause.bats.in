@@ -1,0 +1,74 @@
+#################################################################
+#								#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TVC01 : OCTO502 : Implement VALUES clause (aka table-value-constructor)" {
+	echo "# Load SAMEVALUE function (used in TVC01.sql) in Octo and Postgres" >> output.txt
+	load_fixture "QueryGenerator.sql"
+	echo "# Run cross check" >> output.txt
+	# TVC01.sql has 100+ queries. To reduce test runtime we would ideally run only a small random fraction (25%) of that.
+	# But later stages of the test rely on all queries here being executed so we run all queries (100% i.e. 1.00) here.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC01.sql 1.00 noextended
+	echo "# Test [DROP TABLE names] removes all plans using names table for VALUES queries too" >> output.txt
+	echo "DROP TABLE NAMES" | octo
+	echo "# Below are plans that remain after DROP TABLE names" >> output.txt
+	grep -P "(?i)VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
+	echo "# Test [DROP FUNCTION SAMEVALUE(INTEGER)] removes all plans using SAMEVALUE function for VALUES queries too" >> output.txt
+	echo "DROP FUNCTION SAMEVALUE(INTEGER);" | octo
+	echo "# Below are plans that remain after DROP FUNCTION SAMEVALUE(INTEGER)" >> output.txt
+	echo "# SAMEVALUE(NUMERIC) function plans should show up below since only SAMEVALUE(INTEGER) function was dropped" >> output.txt
+	grep -P "(?i)VALUES|SELECT(?-i)|maintains cross reference" _ydbocto*.m >> output.txt
+	verify_output TVC01 output.txt
+}
+
+@test "TVC02 : OCTO502 : Verify VALUES clause results in no unnecessary physical plans" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC02.sql noextended
+	echo "# Verify no unnecessary generated physical plans by looking at generated M code" >> output.txt
+	grep -E "VALUES|SELECT|octoPlan|--------" _ydboctoP*.m >> output.txt
+	verify_output TVC02 output.txt
+}
+
+@test "TVC03 : OCTO502 : Test various errors with VALUES clause" {
+	load_fixture TVC03.sql subtest novv
+	verify_output TVC03 output.txt
+}
+
+@test "TVC04 : OCTO853 : Validate that SIG-11 is not seen with VALUES clause usage when FROM clause has a subquery" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC04.sql
+	load_fixture TVC04_errors.sql subtest novv
+	verify_output TVC04_errors output.txt
+}
+
+@test "TVC05 : OCTO932 : Test correct results when VALUES clause is used in an expression (in WHERE clause etc.)" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TVC05.sql
+}
+
+@test "TVC06 : OCTO1061 : Test that values clause in an insert doesn't added blank new line" {
+	# Validates changes done for https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1593#note_2162095188
+	grep "create\|insert" @PROJECT_SOURCE_DIR@/tests/fixtures/TVC06.sql >> input.sql
+	octo -f input.sql >> output.txt
+	echo "# Verify that empty line is not seen in octoPlan1" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output TVC06 output.txt
+}

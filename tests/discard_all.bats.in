@@ -1,0 +1,45 @@
+#################################################################
+#								#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TDA01 : OCTO90 : DISCARD ALL deletes plans, xrefs, triggers of all tables" {
+	# Note this test is mostly the same as the "drop_table/TDT04" subtest.
+	# Change to one might need to be done in both places.
+	echo "# Load customers DDL" > output.txt
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	echo "" >> output.txt
+
+	echo "# Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC030.sql .
+	octo -vv -f TC030.sql > run1.out 2>&1
+	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
+
+	echo "# Stage 2 : Run DISCARD ALL" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDA01.sql .
+	octo -f TDA01.sql >> run2.out 2>&1
+	cat run2.out >> output.txt
+	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
+
+	verify_output TDA01 output.txt nodatetimefilter
+}
+

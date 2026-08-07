@@ -1,0 +1,457 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  create_default_user
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TERR000 : Octo doesn't generate core file for fatal errors" {
+  octo -f missing.sql 2>&1 | tee output.txt
+  verify_output TERR003 output.txt noinfo nodebug
+  run find "core*"
+  [[ $status -eq 1 ]]
+}
+
+@test "TERR001 : Invalid Octo GLD" {
+  export ydb_gbldir="does_not_exist.gld"
+  octo <<OCTO 2>&1 | tee output1.txt
+SELECT * FROM names WHERE lastName = "Cool";
+OCTO
+  # The above octo invocation causes YottaDB to send a message like the following to the syslog.
+  #
+  # YDB-OCTO[59195]: %YDB-I-TEXT, %YDB-E-ZGBLDIRACC, Cannot access global directory /builds/nars1/YDBOcto/build/bats-test.gYhhuj/does_not_exist.gld.  Cannot continue. -- generated from 0x00007F1BC160CDD0.
+  #
+  # This is because ZGBLDIRACC is one of select messages which are automatically logged in the syslog (since YDB@a4e7d6ec).
+  # Therefore any build of Octo that uses a recent build of YottaDB will see the above line in the syslog.
+  #
+  # But when this test gets run in the pipeline (i.e. a docker container), the syslog message goes to stderr
+  # and because of the "2>&1" done above, ends up in "output1.txt" causing an extra line only when run in the pipeline.
+  # Therefore filter that out even when not run in the pipeline.
+  # The syslog message has a "generated from" text that uniquely identifies so grep for that.
+  grep -v "generated from" output1.txt > output.txt
+  # The error number for ZGBLDIRACC changed from 150374122 to 418809578 when the GT.M V6.3-012 changes
+  # were incorporated into YottaDB, causing a discrepancy in output for this test
+  # depending on which version of YottaDB is being used. So, perform that conversion here
+  # in case the test is being run against a version of YottaDB that omits this change.
+  # See https://gitlab.com/YottaDB/Lang/YDBPython/-/merge_requests/39 for more information.
+  sed -i 's/150374122/418809578/' output.txt
+  verify_output TERR001 output.txt noinfo nodebug
+}
+
+@test "TERR002 : Octo can recover from error (e.g. DIVBYZERO)" {
+  octo <<OCTO 2>&1 | tee output.txt
+select 1/0 from names;
+select * from names;
+OCTO
+  verify_output TERR002 output.txt noinfo nodebug
+}
+
+@test "TERR003 : Octo issues FATAL error for missing input file" {
+  octo -f missing.sql 2>&1 | tee output.txt
+  verify_output TERR003 output.txt noinfo nodebug
+}
+
+@test "TERR004 : Rocto can recover from error (e.g. DIVBYZERO)" {
+  test_port=$(start_rocto 1443)
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
+select 1/0 from names;
+select * from names;
+OCTO
+  stop_rocto
+  verify_output TERR004 output.txt noinfo nodebug
+}
+
+@test "TERR008 : Test inputs with tabs are underlined correctly" {
+  # this input contains  mix of spaces a tabs
+  octo -vv <<OCTO 2>&1 | tee output.txt
+	   select
+	notathing  	  from
+			names
+	;
+select	* from test;
+select * from	 test;
+OCTO
+  verify_output TERR008 output.txt
+}
+
+@test "TERR009 : Test syntax error" {
+  cat >>input.sql<<CAT
+  !;
+CAT
+  octo -f input.sql 2>&1 | tee output.txt
+  verify_output TERR009 output.txt
+}
+
+@test "TERR010 : Rocto prefixes query errors in its log" {
+  # Queries with errors
+  test_port=$(start_rocto 1337)
+  load_rocto_fixture TERR010_errors.sql $test_port
+  sed -i '/\[DEBUG\]/d' rocto.log
+  cat rocto.log >> output.txt
+  verify_output TERR010_errors output.txt noinfo nodebug psql noforcedhalt
+  # Queries that used to issue errors, but no longer do
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TERR010_noerrors.sql "trim_trailing_zeroes"
+  stop_rocto
+}
+
+@test "TERR011 : queries ensure each table has a unique alias" {
+  cat <<CAT >> input.sql
+select * from names natural join names;
+select * from names as n1 natural join names as n1;
+select * from names as n1 natural join names as n2 natural join names as n1;
+select * from names as n1 natural join names as n2 join names as n1 on n1.id = n2.id;
+select * from names as n1 inner join names as n1 on n1.id = n1.id;
+select * from names as n1 left join names as n1 on n1.id = n1.id;
+select * from names as n1 right join names as n1 on n1.id = n1.id;
+select * from names as n1 join names as n1 on n1.id = n1.id;
+select * from names as n1 cross join names as n1;
+select * from names n1 inner join names n2 on n1.id = n2.id left join names n2 on n1.id = n2.id;
+select * from names n1 left join names n2 on n1.id = n2.id inner join names n2 on n1.id = n2.id;
+select * from names n1 right join names n2 on n1.id = n2.id left join names n2 on n1.id = n2.id;
+select * from names n1 right join names n2 on n1.id = n2.id natural join names n2;
+select * from names, names;
+select * from names as n1, names as n1;
+select * from names as n1, names as n2 inner join names n3 on n1.id = n2.id left join names n2 on n1.id = n2.id;
+select * from names as n1 left join names as n1 on n1.id = n1.id left join names as n3 on n1.id = n3.id;
+select * from names left join names names on n1.id = names.id;
+select * from names left join nameswithages names on n1.id = names.id;
+select * from ((select * from names union select * from names) union (select * from names union select * from names)) n1 left join names n1 on n1.id = n1.id;
+select * from (((select * from names union select * from names) union (select * from names union select * from names)) union ((select * from names union select * from names) union (select * from names union select * from names))) n1 left join names n1 on n1.id = n1.id;
+
+
+-- Test that table name is no longer usable once an alias has been assigned to it
+select * from names n1 left join nameswithages names on n1.id = names.id;
+
+CAT
+  cat input.sql >> output.txt
+  octo -f input.sql 2>&1 | tee -a output.txt
+  verify_output TERR011 output.txt
+}
+
+@test "TERR012 : ydb_routines env var not set correctly" {
+  # This validates the behavior of $ydb_routines when not set correctly. In order to perform this test, we need to remove previously
+  # generated object files in the current directory (which happens during fixture loading). Failure to remove these object files may
+  # result in their reuse below, leading to erroneous output.
+  rm -f _ydbocto*.o
+  export ydb_routines=""
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE lastName = "Cool";
+OCTO
+  export ydb_routines=". $ydb_dist"
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names WHERE lastName = "Cool";
+OCTO
+  verify_output TERR012 output.txt noinfo nodebug
+}
+
+@test "TERR013 : OCTO364, OCTO489 : Issue error when column name in query is ambiguous (due to multiple columns with same name)" {
+  load_fixture TERR013.sql subtest novv
+  verify_output TERR013 output.txt
+}
+
+@test "TERR014 : Error underline is correct when there are extra newlines between queries (only possible with octo -f)" {
+  load_fixture TERR014.sql subtest novv
+  verify_output TERR014 output.txt
+}
+
+@test "TERR015 : Octo issues error for \$1 syntax" {
+  testname="TERR015"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+  grep -v '^#'  $testname.sql | grep -v '^[[:space:]]*$' > $testname.inp # Filter out '#' comment lines, if any
+  octo -f $testname.inp 2>&1 | tee -a output.txt
+  verify_output $testname output.txt noinfo nodebug
+}
+
+@test "TERR016 : OCTO493 : <Segmentation fault (core dumped)> fatal failure instead of an expected <Unknown column> error" {
+  load_fixture TERR016.sql subtest novv
+  verify_output TERR016 output.txt
+}
+
+@test "TERR017 : OCTO482 : Test of <Missing FROM-clause entry> error" {
+  load_fixture TERR017.sql subtest novv
+  verify_output TERR017 output.txt
+}
+
+@test "TERR018 : OCTO488 : Confirm correct errors are issued for various character set configuration scenarios" {
+	ydb_version=$($ydb_dist/yottadb -run %XCMD 'WRITE $ZYRELEASE' | cut -d ' ' -f 2)
+	if  [ "$ydb_version" \< "r1.39" ] ; then
+		# r1.38 and older releases do not have YottaDB/DB/YDB@290a656f changes and so the test output for the
+		# DLLCHSETM message text will be different from what the reference file expects (changed in YDBOcto@9cde085e
+		# to reflect r2.00 output). Therefore skip this subtest for r1.38 (possible for example in the "release-ubuntu"
+		# pipeline job) and older releases.
+		skip "Skip TERR018 subtest for r1.38 and older releases as it does not have YottaDB/DB/YDB@290a656f"
+	fi
+	# Enforce M mode in ydb_dist to prevent %YDB-E-DLLCHSETUTF8 when loading $ydb_dist/libyottadbutil.so when ydb_chset=M
+	export ydb_dist="$(echo $ydb_dist | sed 's/\/utf8//')"
+	export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so $ydb_dist/libyottadbutil.so $ydb_dist"
+	rm -f _ydbocto*.o
+	unset ydb_icu_version gtm_icu_version
+
+	# Test Octo built in M mode with ydb_chset set to M. Should work just fine
+	echo "# Test Octo built in M mode with ydb_chset set to M. Should work just fine" >> output.txt
+	ydb_chset=M LC_ALL=C octo <<OCTO 2>&1 | tee -a output.txt
+exit
+OCTO
+
+	# Test of NONUTF8LOCALE error
+	echo "# Test of NONUTF8LOCALE error" >> output.txt
+	ydb_chset=UTF-8 LC_ALL=C octo <<OCTO 2>&1 | tee | sed 's/encoding (.*)/encoding (ENCODING)/' >> output.txt
+exit
+OCTO
+
+	# Test of ICUSYMNOTFOUND error
+	echo "# Test of ICUSYMNOTFOUND error" >> output.txt
+	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 octo <<OCTO 2>&1 | tee | sed 's/, \/.*\/libicuio\.so/, LIBPATH\/libicuio.so/' >> output.txt
+exit
+OCTO
+
+	# Test of DLLCHSETM error
+	echo "# Test of DLLCHSETM error" >> output.txt
+	# Need "sort -u" in case /usr/lib64 is a soft link to /usr/lib as we would then get duplicate lines (seen in Ubuntu AARCH64)
+	lcl_ydb_icu_version=$(readlink /usr/lib*/libicuio.so /usr/lib*/*/libicuio.so | sort -u | sed 's/libicuio.so.\([a-z]*\)\([0-9\.]*\)/\2.\1/;s/\.$//;')
+	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 ydb_icu_version=$lcl_ydb_icu_version octo 2>&1 | tee | sed 's/library \/.*\/_ydbocto\.so/library LIBPATH\/_ydbocto.so/' >> output.txt
+	verify_output TERR018 output.txt
+}
+
+@test "TERR019 : OCTO296 : Issue error when table on either side of NATURAL JOIN has duplicate columns with same name" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  load_fixture TERR019.sql subtest novv
+  verify_output TERR019 output.txt
+}
+
+@test "TERR020 : OCTO512 : SIG-11 (instead of an error) from SELECT *" {
+  load_fixture TERR020.sql subtest novv
+  verify_output TERR020 output.txt
+}
+
+# TERR021 moved to no_parallel_suite.bats.in
+
+@test "TERR022 : OCTO511 : Give an error when file passed with -c is not found" {
+  octo -c /does/not/exist > output.txt 2>&1 || true
+  verify_output TERR022 output.txt
+}
+
+@test "TERR023 : OCTO483 : Issue error when CREATE TABLE DELIM list contains non-integers" {
+	load_fixture TERR023.sql subtest novv
+	verify_output TERR023 output.txt
+}
+
+@test "TERR024 : OCTO483 : Issue error when invalid integer values are used in CREATE TABLE DELIM list" {
+	load_fixture TERR024.sql subtest novv
+	verify_output TERR024 output.txt
+}
+
+@test "TERR025 : OCTO345 : Issue error for type mismatch between expression and function return type" {
+	load_fixture TERR025.sql subtest novv
+	verify_output TERR025 output.txt
+}
+
+@test "TERR026 : OCTO345 : Issue error if number of function arguments exceeds M limit" {
+	load_fixture TERR026.sql subtest novv
+	# Confirm that no nodes were created in the database for the failed CREATE FUNCTION attempt
+	[[ 0 -eq $(yottadb -run %XCMD 'ZWRITE ^%ydboctoocto' | grep TOOMANYARGS | wc -l) ]]
+	verify_output TERR026 output.txt
+}
+
+@test "TERR027 : OCTO345 : Issue error for extrinsic functions with '%' in invalid places" {
+	load_fixture TERR027.sql subtest novv
+	verify_output TERR027 output.txt
+}
+
+@test "TERR028 : OCTO345 : Issue error when inline M function use is attempted" {
+	load_fixture TERR028.sql subtest novv
+	verify_output TERR028 output.txt
+}
+
+@test "TERR029 : OCTO502 : Error scenarios in INSERT INTO" {
+	load_fixture TERR029.sql subtest novv
+	verify_output TERR029 output.txt
+}
+
+@test "TERR030 : OCTO502 : Error scenarios in VALUES" {
+	load_fixture TERR030.sql subtest novv
+	verify_output TERR030 output.txt
+}
+
+@test "TERR031 : OCTO502 : Error scenarios in AS column name alias list" {
+	load_fixture TERR031.sql subtest novv
+	verify_output TERR031 output.txt
+}
+
+@test "TERR032 : OCTO502 : Test of ERR_READWRITE_DISALLOWED error" {
+	load_fixture TERR032.sql subtest novv
+	verify_output TERR032 output.txt
+}
+
+@test "TERR033 : OCTO597 : Error scenarios in SET/SHOW statements" {
+	load_fixture TERR033.sql subtest novv
+	verify_output TERR033 output.txt
+}
+
+@test "TERR034 : OCTO772 : Test of ERR_READONLY_DISALLOWED and ERR_READONLY_AND_READWRITE_DISALLOWED errors" {
+	load_fixture TERR034.sql subtest novv
+	verify_output TERR034 output.txt
+}
+
+
+@test "TERR035 : OCTO288 : Test error raised for non-existent extrinsic function" {
+	load_fixture TERR035.sql subtest novv
+	verify_output TERR035 output.txt
+}
+
+@test "TERR036 : OCTO288 : Test of ERR_UNKNOWN_FUNCTION_EMULATION/UNKNOWNFUNCTION error" {
+	load_fixture TERR036.sql subtest novv "-e MYSQL"
+	verify_output TERR036 output.txt
+}
+
+@test "TERR037 : OCTO600 : Test query string abbreviation in syntax errors for single-line queries" {
+	load_fixture TERR037.sql subtest novv
+	verify_output TERR037 output.txt
+}
+
+@test "TERR038 : OCTO600 : Test syntax highlighting omitted when whole excerpt or query is highlighted" {
+	load_fixture TERR038.sql subtest novv
+	verify_output TERR038 output.txt
+}
+
+@test "TERR039 : OCTO600 : Test syntax highlighting correct when highlight length exceeds excerpt length" {
+	load_fixture TERR039.sql subtest novv
+	verify_output TERR039 output.txt
+}
+
+@test "TERR040 : OCTO793 : Test syntax highlighting correct when preceding comment includes inline comment" {
+	load_fixture TERR040.sql subtest novv
+	verify_output TERR040 output.txt
+}
+
+@test "TERR041 : OCTO738 : Test ydb_error_check assert succeeds when M code calls ZHALT" {
+	load_fixture TERR041.sql subtest novv
+	verify_output TERR041 output.txt
+}
+
+@test "TERR042 : OCTO600 : Test syntax highlighting correct after auto-upgrade runs" {
+	echo "# Test of: https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1113#note_1018283916" &> output.txt
+	# Do not use database created by "init_test" as auto upgrade would have already happened on it
+	# (due to the "load_fixture" calls). Therefore call "createdb" again here to create an empty database file
+	# that will require auto upgrade when "octo" is invoked next (and test YDBOcto#600).
+	rm -f *.gld *.dat
+	createdb
+	octo <<OCTO 2>&1 | tee -a output.txt
+select abcd;
+OCTO
+	verify_output TERR042 output.txt
+}
+
+@test "TERR043 : OCTO913 : Test line number output correct for SQL files with thousands of lines" {
+	echo "# Run 10,000 queries with errors and redirect output to [octo913.out]" >> output.txt
+	yottadb -run octo913 10000 | octo |& grep LINE > octo913.out
+	echo "# Run [tail -1 octo913.out]. Expect it to contain [LINE 10000] below" >> output.txt
+	tail -1 octo913.out >> output.txt
+	echo "# Verify that each output line in octo913.out has LINE number matching the dummy table name number" >> output.txt
+	echo "# Run [diff octo913.cmp octo913.log]. Expect no diff output below" >> output.txt
+	sed 's/.*dummy//;s/;//;' octo913.out > octo913.cmp
+	sed 's/:.*//;' octo913.out | awk '{print $2}' > octo913.log
+	diff octo913.cmp octo913.log >> output.txt || true
+	verify_output TERR043 output.txt
+}
+
+@test "TERR044 : OCTO913 : Correct syntax highlighting when multiple queries and errors on single line" {
+	load_fixture TERR044.sql subtest novv
+	octo <<OCTO 2>&1 | tee -a output.txt
+select id from dummy1; select id from dummy2;
+select id from dummy3;
+select * from names where notathing = 0; select * from names where alsonotathing = 1; select * from names limit 1;
+select * from names where notathing = 0; select * from names where alsonotathing = 1; select * from names limit 1; select * from names where aswellnotathing;
+OCTO
+	verify_output TERR044 output.txt
+}
+
+@test "TERR045 : OCTO913 : Correct syntax highlighting for multiple multi-query lines in succession" {
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_errors_multiquery_line.exp > expect.out) &> expect.dbg
+	verify_output TERR045 expect.out noinfo nodebug noexpect stripreturns
+}
+
+@test "TERR046 : OCTO519 : Test identifier length limits enforced on alias names" {
+	load_fixture TERR046.sql subtest novv
+	verify_output TERR046 output.txt
+}
+
+@test "TERR047 : OCTO519 : Various unknown column error scenarios" {
+	load_fixture TERR047.sql subtest novv
+	verify_output TERR047 output.txt
+}
+
+@test "TERR048 : Attempts to use USING syntax produce ERR_FEATURE_NOT_IMPLEMENTED error" {
+	load_fixture TERR048.sql subtest novv
+	verify_output TERR048 output.txt
+}
+
+@test "TERR049 : OCTO633 : Various EXTRACT error cases" {
+	load_fixture TERR049.sql subtest novv
+	verify_output TERR049 output.txt
+}
+
+@test "TERR050 : OCTO1004 : Ensure auto load failure returns an error and exits" {
+	# Do not use database created by "init_test" as auto upgrade would have already happened on it
+	# (due to the "load_fixture" calls). Create an empty database file and perform the test.
+	rm -f *.gld *.dat
+	$ydb_dist/yottadb -run GDE exit
+	$ydb_dist/mupip create
+	mupip set -null=always -reg DEFAULT
+	# Following invocation should not result in sig-11
+	octo <<OCTO 2>&1 | tee -a output.txt
+\d;
+OCTO
+	verify_output TERR050 output.txt
+}
+
+@test "TERR051 : OCTO985 : Test ERR_NEGATIVE_SUBSTRING_LENGTH error" {
+	load_fixture TERR051.sql subtest novv
+	verify_output TERR051 output.txt
+}
+
+@test "TERR052 : OCTO929 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error" {
+	load_fixture TERR052.sql subtest novv
+	verify_output TERR052 output.txt
+}
+
+@test "TERR053 : OCTO1109 : Test ERR_VALUES_NOT_ALLOWED_IN_START_END error triggered via SKIPCONDITION" {
+	load_fixture TERR053.sql subtest novv
+	verify_output TERR053 output.txt
+}
+
+@test "TERR054 : OCTO1109 : Test ERR_SKIP_NEEDS_KEY_COLUMN error" {
+	load_fixture TERR054.sql subtest novv
+	verify_output TERR054 output.txt
+}
+
+@test "TERR055 : OCTO1109 : Test ERR_KEYS_FORWARD_REFERENCE error in END and SKIPCONDITION" {
+	# Seed a two-level global so a SELECT against a forward-ref table is able to
+	# enter the inner $ORDER body. Without the OCTO1109 validation the CREATE
+	# TABLE succeeds and the SELECT trips a runtime %YDB-E-LVUNDEF -- with the
+	# validation, the CREATE TABLE itself is rejected before any SELECT runs.
+	$ydb_dist/yottadb -run %XCMD 'set ^skiptestmulti("east",1)="east-one",^skiptestmulti("east",2)="east-two"'
+	load_fixture TERR055.sql subtest novv
+	verify_output TERR055 output.txt
+}
+

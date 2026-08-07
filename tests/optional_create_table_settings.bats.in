@@ -1,0 +1,40 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TOCTS01 : global in both table and column DDL" {
+  octo <<OCTO >& output.txt
+CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^people(keys(""id""))")
+GLOBAL "^people(keys(""id""))";
+SELECT * FROM abc;
+OCTO
+}
+
+@test "TOCTS02 : piece is actually applied to columns" {
+  # Fetch the last names from the names schema, which is stored in the 3rd piece
+  octo <<OCTO >& output.txt
+CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR PIECE 3) GLOBAL "^names(keys(""id""))";
+SELECT * FROM abc;
+OCTO
+  [[ "$(grep -c Zero ./output.txt)" == "0" ]]
+}

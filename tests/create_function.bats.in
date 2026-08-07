@@ -1,0 +1,282 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+teardown() {
+  corecheck
+}
+
+@test "TCF000 : Test of ERR_CANNOT_CREATE_FUNCTION error" {
+	load_fixture TCF000.sql subtest novv
+	verify_output TCF000 output.txt noinfo nodebug
+}
+
+@test "TCF001 : OCTO345 : Allow specification of type for parameters and return value of user-defined functions" {
+	load_fixture TCF001.sql subtest novv
+	verify_output TCF001 output.txt noinfo nodebug
+}
+
+@test "TCF002 : OCTO345 : Report syntax errors for function call parameter type mismatches" {
+	# Note: this test uses functions created by octo-seed.sql.
+	load_fixture TCF002.sql subtest novv
+	verify_output TCF002 output.txt noinfo nodebug
+}
+
+@test "TCF003 : OCTO345 : Report syntax error when incorrect number of parameters passed to function" {
+	# Note: this test uses functions created by octo-seed.sql.
+	load_fixture TCF003.sql subtest novv
+	verify_output TCF003 output.txt noinfo nodebug
+}
+
+@test "TCF004 : OCTO345 : M intrinsic functions supported by CREATE FUNCTION" {
+	# Note: this test uses functions created by octo-seed.sql.
+	load_fixture TCF004.sql subtest novv
+	verify_output TCF004 output.txt noinfo nodebug
+}
+
+@test "TCF005 : OCTO345 : M extrinsic functions created by CREATE FUNCTION are case sensitive" {
+	load_fixture TCF005.sql subtest novv
+	verify_output TCF005 output.txt noinfo nodebug
+}
+
+@test "TCF006 : OCTO345 : M intrinsic functions created by CREATE FUNCTION are case insensitive" {
+	load_fixture TCF006.sql subtest novv
+	verify_output TCF006 output.txt noinfo nodebug
+}
+
+@test "TCF007 : OCTO345 : SQL functions created by CREATE FUNCTION are case insensitive" {
+	load_fixture TCF007.sql subtest novv
+	verify_output TCF007 output.txt noinfo nodebug
+}
+
+@test "TCF008 : OCTO345 : M label of extrinsic function can have all digits" {
+	load_fixture TCF008.sql subtest novv
+	verify_output TCF008 output.txt noinfo nodebug
+}
+
+@test "TCF009 : OCTO345 : % as leading character in M labels and routine names" {
+	load_fixture TCF009.sql subtest novv
+	verify_output TCF009 output.txt noinfo nodebug
+}
+
+@test "TCF010 : OCTO345 : CREATE FUNCTION with various return types" {
+	load_fixture TCF010.sql subtest novv
+	verify_output TCF010 output.txt noinfo nodebug
+}
+
+@test "TCF011 : OCTO345 : CREATE FUNCTION in rocto with --allowschemachanges" {
+	create_default_user
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	strip_sql_comments TCF004	# No need for new fixture, just testing whether DDL modification is allowed
+	run_psql $test_port < TCF004.sql 2>&1 | tee -a output.txt
+	stop_rocto
+	verify_output TCF011 output.txt noinfo nodebug
+}
+
+@test "TCF012 : OCTO345 : CREATE FUNCTION disallowed in rocto without --allowschemachanges" {
+	create_default_user
+	test_port=$(start_rocto 1401)
+	strip_sql_comments TCF004	# No need for new fixture, just testing whether DDL modification is allowed
+	run_psql $test_port < TCF004.sql 2>&1 | tee -a output.txt
+	stop_rocto
+	verify_output TCF012 output.txt noinfo nodebug
+}
+
+@test "TCF013 : OCTO345 : Sub-queries in expressions work with CREATEd functions" {
+	load_fixture TCF013.sql subtest novv
+	verify_output TCF013 output.txt noinfo nodebug
+}
+
+@test "TCF014 : OCTO345 : Equivalent queries produce the same output due to accounting for function return type" {
+	load_fixture TCF014.sql subtest novv
+	verify_output TCF014 output.txt noinfo nodebug
+}
+
+@test "TCF015 : OCTO345 : CREATEd functions function with type coercion" {
+	load_fixture TCF015.sql subtest novv
+	verify_output TCF015 output.txt noinfo nodebug
+}
+
+@test "TCF016 : OCTO345 : CREATE FUNCTION with alternative type names" {
+	load_fixture TCF016.sql subtest novv
+	verify_output TCF016 output.txt noinfo nodebug
+}
+
+@test "TCF017 : OCTO345 : Single error output for nested erroneous function calls" {
+	load_fixture TCF017.sql subtest novv
+	verify_output TCF017 output.txt noinfo nodebug
+}
+
+@test "TCF018 : OCTO345 : Function return type correctly evaluated in boolean expressions" {
+	load_fixture TCF018.sql subtest novv
+	verify_output TCF018 output.txt noinfo nodebug
+}
+
+@test "TCF019 : OCTO345 : Include function name and return type in -vv DEBUG output" {
+	load_fixture TCF019.sql subtest
+	verify_output TCF019 output.txt noinfo
+}
+
+@test "TCF020 : OCTO345 : Nested functions work as expected" {
+	load_fixture TCF020.sql subtest novv
+	verify_output TCF020 output.txt noinfo
+}
+
+@test "TCF021 : OCTO345 : Octo able to CREATE FUNCTION with max number of M arguments" {
+	load_fixture TCF021.sql subtest novv
+	verify_output TCF021 output.txt noinfo
+}
+
+@test "TCF022 : OCTO345 : Catalog queries on pg_proc work for full table name and alias" {
+	load_fixture TCF022.sql subtest novv
+	verify_output TCF022 output.txt noinfo
+}
+
+@test "TCF023 : OCTO90 : Rerunning query after CREATE FUNCTION should recreate plans that relied on the recreated function" {
+	# Note this test is mostly the same as the "drop_function/TDF002" subtest.
+	# Change to one will need to be done in both places.
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF023{,b,create}.sql .
+	octo -f TCF023create.sql > run0.out 2>&1
+	cat run0.out >> output.txt
+	echo "# Run 8 queries from TCF023.sql that use ABSF and REPLACEF functions" >> output.txt
+	octo -vv -f TCF023.sql > run1.out 2>&1
+	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
+
+	echo "# Rerun CREATE FUNCTION of REPLACEF" >> output.txt
+	octo -f TCF023b.sql > run2.out 2>&1
+	cat run2.out >> output.txt
+	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
+
+	echo "# Rerun 8 queries from TCF023.sql that use ABSF and REPLACEF functions" >> output.txt
+	run_octo_allow_error TCF023.sql run3.out -vv
+	verify_plans_xrefs_gvns_triggers run3.out output.txt run3.ext
+
+	verify_output TCF023 output.txt
+}
+
+@test "TCF024 : OCTO562 : CREATE FUNCTION supports function overloading" {
+	load_fixture TCF024.sql subtest novv
+	verify_output TCF024 output.txt noinfo nodebug
+}
+
+@test "TCF025 : OCTO562 : CREATE FUNCTION supports type coercion with function overloading" {
+	load_fixture TCF025.sql subtest novv
+	verify_output TCF025 output.txt noinfo nodebug
+}
+
+@test "TCF026 : OCTO595 : CREATE FUNCTION IF NOT EXISTS skips existing function of the same name with info message" {
+	load_fixture TCF026.sql subtest v
+	echo "Exit Status:" $? | tee -a output.txt
+	# Check that we unlock properly
+	$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "CREATE FUNCTION IF NOT EXISTS PARMLESSFUNC() RETURNS VARCHAR AS $$^PARMLESSFUNC;",!' > lock.sql
+	octo -f lock.sql &>> output.txt # should not error.
+	verify_output TCF026 output.txt
+}
+
+@test "TCF027 : OCTO778 : Test function call with lots of actual parameters does not cause <stack smashing detected>" {
+	echo "# Run 8 random queries with more than 32 function parameters." >> output.txt
+	echo "# Expect ERR_TOO_MANY_FUNCTION_ARGUMENTS errors in final output" >> output.txt
+	$ydb_dist/yottadb -run TCF027 > TCF027.sql
+	octo -f TCF027.sql >> interim_output.txt 2>&1 || true	# || true since octo will exit with non-zero status
+	grep "ERR_TOO_MANY_FUNCTION_ARGUMENTS" interim_output.txt >> output.txt
+	verify_output TCF027 output.txt noinfo nodebug
+}
+
+@test "TCF028 : OCTO288 : CREATE FUNCTION works with case-insensitive parenless functions, both with and without parentheses" {
+	load_fixture TCF028.sql subtest novv
+	# Ensure no syntax errors due to mixed case parenless function calls
+	[[ $(grep -c "ERROR" output.txt) -eq 0 ]]
+}
+
+@test "TCF029 : OCTO288 : Correct handling of maximum extrinsic function definition length" {
+	routine="_ydboctoabcdefghijklmnopqrstuvw.m"
+	echo "PostgreSQL() ;" >> $routine
+	echo "	quit 1" >> $routine
+	load_fixture TCF029.sql subtest novv
+	verify_output TCF029 output.txt noinfo nodebug
+}
+
+@test "TCF030 : OCTO816 : SQL functions accept NULL values without additional CREATE FUNCTION definitions " {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCF030.sql
+	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TCF030.sql
+}
+
+@test "TCF031 : OCTO816 : Octo issues error for ambiguous function calls" {
+	load_fixture TCF031.sql subtest novv
+	verify_output TCF031 output.txt noinfo nodebug
+}
+
+@test "TCF032 : OCTO816 : Octo does not issue incorrect 'ERR_FUNCTION_NOT_UNIQUE' error" {
+	# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1094#note_968288462 for more background.
+	load_fixture TCF032.sql subtest novv
+	verify_output TCF032 output.txt noinfo nodebug
+}
+
+@test "TCF033 : OCTO884 : Octo issues 'ERR_IDENT_LENGTH' if function name is too long" {
+	load_fixture TCF033.sql subtest novv
+	verify_output TCF033 output.txt noinfo nodebug
+}
+
+@test "TCF034 : OCTO884 : Octo supports SQL keywords and parenless function names in CREATE/DROP FUNCTION statements" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF034.m .
+	load_fixture TCF034.sql subtest novv
+	verify_output TCF034 output.txt noinfo nodebug
+}
+
+@test "TCF035 : OCTO940 : Verify that the function related octo gvn layout stays the same" {
+	load_fixture TCF035.sql subtest novv
+	verify_output TCF035 output.txt noinfo nodebug
+	$ydb_dist/mupip extract TCF035.ext
+	cp TCF035.ext pre_process_TCF035.ext
+	sed -i -n '/\(^\^\%ydboctoocto("functions"\,"samevalue.*oid\)/p;/\(^\^\%ydboctoocto("functions"\,"samevalue.*check\)/p' TCF035.ext
+	sed -i 's/\=\".*\"//' TCF035.ext
+	cp @PROJECT_SOURCE_DIR@/tests/outref/TCF035_ext.ref .
+	diff TCF035_ext.ref TCF035.ext
+}
+
+@test "TCF036 : OCTO519 : Functions with double-quoted identifiers" {
+	load_fixture TCF036.sql subtest novv
+	echo "# Verify function text definitions for double-quoted identifier and non-double-quoted identifier" >> output.txt
+	echo "# Run [mupip extract] and filter out those global nodes corresponding to function text definitions of ABS/abs" >> output.txt
+	echo "# Expect to see [ABS] not surrounded by double quotes and [abs] surrounded by double quotes" >> output.txt
+	$ydb_dist/mupip extract func.ext > func.out
+	grep -w functions func.ext | grep -w text | grep -wi abs >> output.txt
+	verify_output TCF036 output.txt noinfo nodebug
+}
+
+@test "TCF037 : OCTO816 and OCTO1010 : Test NULL/INTEGER literals in functions with large number of parameters" {
+	load_fixture TCF037.sql subtest novv
+	verify_output TCF037 output.txt noinfo nodebug
+}
+
+@test "TCF038 : OCTO929 : Test that repeated auto upgrade runs work fine with user defined functions" {
+	export octo_dbg_drop_cache_expected=1	# needed to let Octo know that DROP TABLE commands run in this test
+						# as part of the auto upgrade (or else asserts fail).
+	echo "# Create a user-defined function" >> output.txt
+	load_fixture TCF038.sql subtest novv
+	echo '# Set ^%ydboctoocto("seeddfnfmt") to 6 (before YDBOcto#929 changes)' >> output.txt
+	yottadb -run %XCMD 'set ^%ydboctoocto("seeddfnfmt")=6'
+	echo "# Start octo which will automatically run auto upgrade due to previous step" >> output.txt
+	echo "# We expect no errors in this step" >> output.txt
+	echo "# This step used to previously issue an ERR_CANNOT_CREATE_FUNCTION error" >> output.txt
+	echo "" | octo
+	verify_output TCF038 output.txt noinfo nodebug
+}
+

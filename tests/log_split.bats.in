@@ -1,0 +1,75 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  #  Create config file for outref consistency
+  echo "verbosity = \"INFO\"" > octo.conf
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
+  load_fixture names.sql
+  load_fixture names.zwr
+  create_default_user
+  $ydb_dist/yottadb -run loadbigdata
+  test_port=$(start_rocto 1442)
+  sleep 1
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TLS01 : ensure log output split across multiple lines" {
+  # Spawn several client-server process pairs to create potential for log interleaving
+  for i in {1..10}; do
+    # Account for TLS and non-TLS pipelines
+    if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+      ssl_disable=""
+    else
+      ssl_disable=" sslmode=disable"
+    fi
+    PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$test_port$ssl_disable" & <<OCTO
+SELECT * FROM names;
+SELECT firstname FROM names where lastname = "Cool";
+SELECT * FROM names where id = 5;
+SELECT a.firstname FROM names a inner join names b one firstname = "Acid";
+SELECT * FROM names;
+SELECT firstname FROM names where lastname = "Cool";
+SELECT * FROM names where id = 5;
+SELECT a.firstname FROM names a inner join names b one firstname = "Acid";
+OCTO
+    echo -n "$! " >> psql_pids.log
+  done
+  # Wait for psql processes to die
+  for pid in $(cat psql_pids.log); do
+    $ydb_dist/yottadb -run ^%XCMD "do ^waitforproctodie($pid)"
+    echo $pid >> deadpids.log
+  done
+
+  # Wait for rocto.log to be populated with 10 rocto server pids (for each of the 10 psql process started above)
+  while [[ $(grep -c "with pid" rocto.log) -lt 10 ]]; do
+    sleep .1
+  done
+
+  # Wait for server processes to die
+  grep "with pid" rocto.log | sed 's/^.*rocto server process forked with pid \([0-9]*\)/\1/' | while read pid; do
+    echo "$pid" >> server_pids.log
+    $ydb_dist/yottadb -run ^%XCMD "do ^waitforproctodie($pid)"
+    echo $pid >> deadpids.log
+  done
+  verify_output TLS01 rocto.log nodebug nosenderror noconnclose psql noport sort
+}

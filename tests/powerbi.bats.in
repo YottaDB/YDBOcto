@@ -1,0 +1,47 @@
+#################################################################
+#								#
+# Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+teardown() {
+	corecheck
+}
+
+@test "TPBI001 : PowerBI : Startup queries" {
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	load_fixture TPBI001.sql subtest novv
+	verify_output TPBI001 output.txt noinfo nodebug
+}
+
+@test "TPBI002 : OCTO867 : Subqueries are accepted in table join list (PowerBI-style syntax)" {
+	load_fixture TPBI002.sql subtest novv
+	verify_output TPBI002 output.txt noinfo nodebug
+}
+
+@test "TPBI003 : OCTO867 : Test atttypmod column maintenance in pg_attribute table mirrors Postgres behavior" {
+	yottadb -run TPBI003 > queries.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names queries.sql roctoflags="-aw"
+}
+
+@test "TPBI004 : OCTO914/OCTO985 : Test of PowerBI when used through Postgres Npgsql Driver (not ODBC)" {
+	load_fixture TPBI004.sql subtest novv
+	verify_output TPBI004 output.txt noinfo nodebug
+}
+

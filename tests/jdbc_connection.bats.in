@@ -1,0 +1,294 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
+  test_port=$(start_rocto 1344)
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TJC001 : Random inner/outer join queries" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	# 8 below is max # of inner/outer joins in one query
+	yottadb -run TOJ03 8 > TJC001.sql
+	# Run using psql and Octo against each of the generated queries
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TJC001.sql "" usejdbc useextended
+}
+
+@test "TJC002 : Simple extended query parameter tests" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC002 $test_port &> output.txt
+	verify_output TJC002 output.txt
+}
+
+@test "TJC003 : First character of subsequent select query not consumed" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture names.sql
+	load_fixture names.zwr
+	testname="TJC003"
+	# Run using psql and Octo against each of the generated queries
+	run_java run_query $test_port $testname useextended &> output.txt
+	echo "" >> output.txt
+	grep -r elect _ydboctoP*.m | sort_LC_ALL_C >> output.txt
+	verify_output $testname output.txt
+}
+
+@test "TJC004 : Test Query Generator against customers database" {
+	stop_rocto
+	# Start rocto with -aw (--allowschemachanges and --readwrite) as QueryGenerator.m may have write queries as well.
+	test_port=$(start_rocto 1344 -aw)
+	run_query_generator customers TJC04 usejdbc
+}
+
+@test "TJC005 : Test Query Generator against pastas database" {
+	stop_rocto
+	# Start rocto with -aw (--allowschemachanges and --readwrite) as QueryGenerator.m may have write queries as well.
+	test_port=$(start_rocto 1344 -aw)
+	run_query_generator pastas TJC05 usejdbc
+}
+
+@test "TJC006 : Test Query Generator against names OR nullcharnames database" {
+	stop_rocto
+	# Start rocto with -aw (--allowschemachanges and --readwrite) as QueryGenerator.m may have write queries as well.
+	test_port=$(start_rocto 1344 -aw)
+	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+		database="names"
+	else
+		database="nullcharnames"
+	fi
+	run_query_generator $database TJC06 usejdbc
+}
+
+@test "TJC007 : Test Query Generator against northwind database" {
+	stop_rocto
+	# Start rocto with -aw (--allowschemachanges and --readwrite) as QueryGenerator.m may have write queries as well.
+	test_port=$(start_rocto 1344 -aw)
+	run_query_generator northwind TJC07 usejdbc
+}
+
+@test "TJC008 : Validate usage of Simple vs. Extended Query protocol using PrepareThreshold" {
+	# The assumption behind this test is wrong: PrepareThreshold does not influence the use of Simple vs Extended Query Protocol
+	# https://jdbc.postgresql.org/documentation/server-prepare/#server-prepared-statements says:
+	# The driver uses the Extended Protocol by default when the PreparedStatement API is used.
+	# It previously worked with some older driver versions, but broke due to this: https://github.com/pgjdbc/pgjdbc/pull/2883
+	skip
+	stop_rocto
+	test_port=$(start_rocto 1344 verbose)
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC008 $test_port &> output.txt
+	# Confirm both simple and extended query were used
+	grep "handle_query" rocto.log >> output.txt
+	grep "handle_bind" rocto.log >> output.txt
+	verify_output TJC008 output.txt psql
+}
+
+@test "TJC009 : Octo returns RowDescription for query with no return rows" {
+	stop_rocto
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 verbose)
+	testname="TJC009"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names $testname.sql "" usejdbc
+	grep "Sending message of type T" rocto.log &> output.txt
+	verify_output $testname output.txt psql
+}
+
+@test "TJC010 : parse_context->is_bind_parm array correctly resizes for large numbers of parameters" {
+	stop_rocto
+	test_port=$(start_rocto 1344 verbose)
+	testname="TJC010"
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java $testname $test_port &> output.txt
+	# Cannot test memory expansion path since JDBC driver specifies parameter types; TPGC005 tests the expansion case
+	grep "Memory doubled" rocto.log >> output.txt
+	echo "" >> output.txt
+	echo "# Verify INFO_PARSING_DONE and INFO_EXECUTION_DONE messages show up once each per query/command" >> output.txt
+	echo "# when using Extended Query Protocol for SELECT query" >> output.txt
+	grep -E "INFO_PARSING_DONE|INFO_EXECUTION_DONE" rocto.log >> output.txt
+	verify_output $testname output.txt psql
+}
+
+# Note: This test is currently insufficient for fully testing PortalSuspended message handling
+# See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/467#note_484704994 for details.
+# This note/comment can be removed if/when YDBOcto#467 is fixed.
+@test "TJC011 : Test SELECT row limiting with Extended Query; Also tests INSERT INTO and YDBOcto#683 Extended Query for SET/SHOW" {
+	stop_rocto
+	test_port=$(start_rocto 1344 --readwrite)
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC011 $test_port &> output.txt
+	verify_output TJC011 output.txt
+}
+
+@test "TJC012 : OCTO320 : Pipeline failures from TJC007" {
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TJC012.sql "" "usejdbc"
+}
+
+@test "TJC013 : OCTO435 : Identifiers accepted in SET statements" {
+	testname="TJC013"
+	load_fixture $testname.sql subtest novv
+	verify_output $testname output.txt
+}
+
+@test "TJC014 : OCTO422 : Rocto log should not have empty lines" {
+	load_fixture names.sql
+	load_fixture names.zwr
+        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJC014a.sql "" usejdbc useextended
+        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJC014a.sql "" usejdbc
+        run_java run_query $test_port TJC014a
+        run_java run_query $test_port TJC014b
+        [[ $(grep -c "^$" rocto.log) -eq 0 ]]
+}
+
+@test "TJC015 : OCTO590 : Confirm correct error from long Rocto queries using binary parameters" {
+	# This test can run for 10+ minutes, so disable to allow for this test file to complete execution in a reasonable timeframe
+	# and prevent false failure reports when this test passes, but the test system enforces a timeout.
+	skip
+	stop_rocto
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 quiet)
+	run_java TJC015 $test_port "" useextended &> output.txt
+	run_java TJC016 $test_port "" useextended 2>&1 >> output.txt
+	# No need to validate all output, as it is very large and we only need to confirm that one error was issued.
+	# So, just confirm this and only this error was issued.
+        [[ $(grep -c "ERROR" output.txt) -eq 1 ]]
+        [[ $(grep -c "YDB-E-MAXSTRLEN, Maximum string length exceeded" output.txt) -eq 1 ]]
+}
+
+@test "TJC017 : OCTO590 : Confirm no errors for long Rocto queries using text parameters" {
+	# This test can run for 10+ minutes, so disable to allow for this test file to complete execution in a reasonable timeframe
+	# and prevent false failure reports when this test passes, but the test system enforces a timeout.
+	skip
+	stop_rocto
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 quiet)
+	run_java TJC017 $test_port "" useextended &> output.txt
+        [[ $(grep -c "ERROR" output.txt) -eq 0 ]]
+}
+
+@test "TJC018 : OCTO590 : Rocto ERR_ROCTO_QUERY_TOO_LONG code path in handle_query" {
+	stop_rocto
+	load_fixture names.sql
+	load_fixture names.zwr
+	test_port=$(start_rocto 1344 quiet)
+        run_java TJC018 $test_port "" usesimple &> output.txt
+	# Confirm the target error message was issued
+        [[ $(grep -Ec "ERR_ROCTO_QUERY_TOO_LONG" rocto.log) -eq 1 ]]
+	verify_output TJC018 output.txt
+}
+
+@test "TJC019 : OCTO502 : Test query cancel requests work even when using the extended query protocol" {
+	stop_rocto
+	load_fixture names.sql
+	load_fixture names.zwr
+	# Create function that is used in the later query to ensure it takes a long time (and hence needs to be canceled for sure).
+	load_fixture HANGTIME.sql
+	test_port=$(start_rocto 1344 quiet)
+	# Use "useextended" below to ensure extended query protocol is used for the query that gets canceled.
+        run_java TJC019 $test_port "" useextended &> output.txt
+	verify_output TJC019 output.txt
+}
+
+@test "TJC020 : Syntax error when Extended Query parameter used in EXTRACT function " {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC020 $test_port &> output.txt
+	verify_output TJC020 output.txt
+}
+
+@test "TJC021 : OCTO960 : Squirrel SQL and/or SQL Workbench queries using PostgreSQL JDBC driver 42.6.0" {
+	# Although this subtest is in the "jdbc_connection" test, it does not use "run_java" or
+	# "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries" like other subtests in this test.
+	# This test uses queries that were noted down when using SquirrelSQL or SQL Workbench with the Postgres
+	# JDBC driver version 42.6.0. These queries are run against a simple octo command and their output verified.
+	load_fixture TJC021.sql subtest novv
+	verify_output TJC021 output.txt
+}
+
+@test "TJC022 : OCTO1041 : Bind parameter test" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_java TJC022 $test_port > output.txt 2>&1 || true
+	echo "--Rocto log--"
+	tail rocto.log >> output.txt
+	verify_output TJC022 output.txt nodebug noinfo
+}
+
+@test "TJC023 : OCTO1041 : Bind parameter test with mismatching value and coerce type" {
+	run_java TJC023 $test_port > output.txt 2>&1 || true
+	verify_output TJC023 output.txt nodebug noinfo
+}
+
+@test "TJC024 : OCTO1081 : Rocto exits and closes the connection when it has a send error using the extended query protocol" {
+	stop_rocto
+	# Fixture uses Northwind database to help construct long running query with lots of return data
+	load_fixture northwind.zwr
+	load_fixture northwind.sql
+
+	test_port=$(start_rocto $test_port verbose)
+	echo "# Run big query (TPC032) using Java in the background" >> output.txt
+	run_java_bg run_query $test_port TPC032.sql useextended
+	# Wait until rocto begins processing the query before terminating that client to ensure that
+	# the client disconnects at a time when rocto will not detect the disconnection via the `select()`
+	# call in `rocto_main_loop()` and cleanly disconnect.
+	max_wait=300	# Wait up to 3 seconds
+	while [[ $max_wait -gt 0 ]]; do
+		if grep -q INFO_GENERATING_XREF rocto.log; then
+			break
+		fi
+		sleep 0.01
+		max_wait=$(( max_wait - 1 ))
+	done
+	if [[ $max_wait -le 0 ]]; then
+		echo "Timed out waiting for INFO_GENERATING_XREF message in rocto.log"
+		exit 1
+	fi
+	echo "# Kill Java to prompt the rocto server to exit" >> output.txt
+	kill -9 $(cat java.pid) || true
+	echo "# Wait for rocto server to die" >> output.txt
+	wait_for_rocto_server_pids_to_die
+	# Fail the test if ERR_ROCTO_SEND_FAILED was issued, indicating that rocto continued
+	# attempting to send queries after the client exited
+	echo "# Check for ERR_ROCTO_SEND_FAILED messages. Expect none." >> output.txt
+	log=$(cat rocto.log)
+	[[ ! "$log" =~ "ERR_ROCTO_SEND_FAILED" ]]
+	echo "# Check for ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT message from send_bytes(). Expect one." >> output.txt
+	grep -E "send_bytes.*ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT" rocto.log >> output.txt
+	verify_output TJC024 output.txt nodebug psql
+}

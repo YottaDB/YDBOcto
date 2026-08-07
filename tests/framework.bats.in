@@ -1,0 +1,57 @@
+#################################################################
+#								#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  test_port=$(start_rocto 1344)
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TF01 : OCTO621 : Verify that the number of comment and no comment query files are same when cross check interface is invoked with JDBC client" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TF01*.sql .
+  for query_file in TF01_1 TF01_2 TF01_3; do
+    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names "$query_file".sql usejdbc
+    [[ $( ls -dq "$query_file"_comment-*.sql | wc -l ) -eq $( ls -dq "$query_file"_nocomment-*.sql | wc -l ) ]]
+    for file in "$query_file"_comment-*.sql; do
+      echo $file >> comment_output
+      cat $file >> comment_output
+    done
+    for file in "$query_file"_nocomment-*.sql; do
+      echo $file >> nocomment_output
+      cat $file >> nocomment_output
+    done
+    verify_output "$query_file"_comment comment_output
+    verify_output "$query_file"_nocomment nocomment_output
+    rm comment_output nocomment_output
+  done
+}
+
+@test "TF02: : Verify that t and f values in the result of query execution from Postgres and Octo are converted to 1 and 0 correctly" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TF02.sql "trim_trailing_zeroes"
+}
+
+@test "TF03: : Verify that regex used to match NOT NULL constraint error message works fine" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	stop_rocto
+	test_port=$(start_rocto 1344 -aw)
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TF03.sql "trim_trailing_zeroes" "write"
+}

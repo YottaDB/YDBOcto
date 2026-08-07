@@ -1,6 +1,6 @@
 #################################################################
 #                                                               #
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.       #
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.       #
 # All rights reserved.                                          #
 #                                                               #
 #       This source code contains the intellectual property     #
@@ -83,7 +83,7 @@ setup_file() {
 }
 
 teardown() {
-  corecheck
+  octo_keep_bats_dirs=1 corecheck
 }
 
 # Test philosophy. Run each query 2-3 times. It proves the following:

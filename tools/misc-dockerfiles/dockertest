@@ -25,7 +25,7 @@ help() {
 	echo "                    The user is given an interactive prompt at the end to let them inspect the results,"
 	echo "                    e.g.: docker logs dockertest | less"
 	echo "       inspect    - connect to background dockertest daemon to inspect test results as they are produced"
-	echo "       kill       - stops and removes any running containers from a previous test run, including mysql container"
+	echo "       kill       - stops and removes any running containers from a previous test run"
 	echo "       bash_cmd   - otherwise args are all passed to bash shell rather than tools/ci/build.sh"
 	echo "                      e.g.: $progname ls doc tools"
 	echo "Default action is 'make-ubuntu testonly' (or 'inspect' if the tests-ubuntu image is already running)."
@@ -51,7 +51,7 @@ elif [[ "$1" == "inspect" ]]; then
 	# Run in docker with $r pointing to the latest test results
 	exec docker exec -it dockertest bash -c "export r=\$(ls -dt build/bats-test.* 2>/dev/null | head -n1); bash $*" || { echo "Run '$0 -h' for help"; exit 1; }
 elif [[ "$1" == "kill" ]]; then
-	exec docker kill mysql dockertest 2>/dev/null
+	exec docker kill dockertest 2>/dev/null
 elif [[ "$1" == "make-"* || "$1" == "test-auto-upgrade" ]]; then
 	# Run `bash` after test so we can inspect it on failure
 	# Make $r point to the latest test results
@@ -66,13 +66,8 @@ docker build -f Dockerfile-Tests.ubuntu -t tests-ubuntu ../..
 # Kill any previous test container
 docker rm -f dockertest  2>/dev/null || true
 
-# Start mysql container if it's not started
-if [[ `docker ps -q -f name=mysql` == "" ]]; then
-	docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0
-fi
-
 # Run the docker image and call the container 'dockertest'
 # Make it so that Ctrl-C doesn't exit the docker container but does halt the test so that we can check test results while its still alive.
-exec docker run -it --rm --name dockertest --link mysql \
+exec docker run -it --rm --name dockertest \
 	-e CTEST_ARGS \
 	--entrypoint=bash tests-ubuntu -ic "trap 'pkill -SIGINT -P \$\$' SIGINT; $*"

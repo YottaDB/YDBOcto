@@ -18,7 +18,6 @@ stages:
   - docker-manifest
 
 variables:
-  MYSQL_ROOT_PASSWORD: ydbrocks
   UBUNTU_REL_BASELINE_REPO: registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-release
   UBUNTU_MAS_BASELINE_REPO: registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-master
   ROCKY_REL_BASELINE_REPO:  registry.gitlab.com/yottadb/dbms/ydbocto:rocky-release
@@ -101,8 +100,6 @@ release-ubuntu:
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-  services:
-    - mysql:8.0
   extends:
     - .make
   script:
@@ -114,16 +111,12 @@ release-rocky:
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-  services:
-    - mysql:8.0
   extends:
     - .make
   script: ./tools/ci/build.sh "make-rocky" "none"
 
 make-ubuntu:
   image: ${UBUNTU_MAS_BASELINE_REPO}
-  services:
-    - mysql:8.0
   extends:
     - .make
   script:
@@ -133,8 +126,6 @@ make-ubuntu:
 
 make-rocky:
   image: ${ROCKY_MAS_BASELINE_REPO}
-  services:
-    - mysql:8.0
   extends:
     - .make
   script: ./tools/ci/build.sh "make-rocky" "none"
@@ -148,8 +139,6 @@ asan-ubuntu:
   # This ASAN job always runs
   extends:
     - .make
-  services:
-    - mysql:8.0
   script:
     - ./tools/ci/build.sh "make-ubuntu" "asan"
 
@@ -163,16 +152,12 @@ asan-rocky:
     - if: '$CI_COMMIT_BRANCH =~ /asan/'
   extends:
     - .make
-  services:
-    - mysql:8.0
   script:
     - ./tools/ci/build.sh "make-rocky" "asan"
 
 # This job runs for branches and on master
 make-tls-ubuntu:
   image: ${UBUNTU_MAS_BASELINE_REPO}
-  services:
-    - mysql:8.0
   extends:
     - .make
   script:
@@ -193,8 +178,6 @@ make-tls-ubuntu:
 
 make-tls-rocky:
   image: ${ROCKY_MAS_BASELINE_REPO}
-  services:
-    - mysql:8.0
   extends:
     - .make
   script:
@@ -206,8 +189,6 @@ make-tls-rocky:
 test-force-upgrade:
   # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade
   image: ${UBUNTU_MAS_BASELINE_REPO}
-  services:
-    - mysql:8.0
   extends:
     - .make
   script:
@@ -217,8 +198,6 @@ test-auto-upgrade:
   # This job tests that auto upgrade functionality of binary table/function definitions and plan definitions (physical plans,
   # xref plans, triggers etc.) works fine relative to a random older commit
   image: ${UBUNTU_MAS_BASELINE_REPO}
-  services:
-    - mysql:8.0
   extends:
     - .make
   script:

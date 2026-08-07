@@ -57,44 +57,44 @@ Prerequisites for Automated Regression Testing
 Ubuntu/Debian
 ~~~~~~~~~~~~~~
 
- Run the following commands to install all of the prerequisites needed for testing Octo on Ubuntu or Debian Linux. You can substitute `mariadb-server` and `mariadb-client` instead of `mysql-server` and `mysql-client` packages.
+ Run the following commands to install all of the prerequisites needed for testing Octo on Ubuntu or Debian Linux.
 
   .. code-block:: bash
 
-    sudo apt-get install bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql mysql-client mysql-server unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat iproute2 r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
+    sudo apt-get install bats clang-format clang-tidy default-jdk expect golang-go locales libcmocka-dev postgresql-client postgresql unixodbc odbc-postgresql bison flex libreadline-dev libconfig-dev libssl-dev python3 ncat iproute2 r-base r-base-dev libpq-dev libomp-dev libtirpc-dev
     locale-gen en_US.UTF-8
 
 ~~~~~~~~~~~~~~~~~
 Rocky Linux/RHEL
 ~~~~~~~~~~~~~~~~~
 
- Run the following commands to install and setup all of the prerequisites needed for testing Octo on Rocky Linux or RHEL. You can substitute `mariadb` and `mariadb-server` for `mysql` and `mysql-server`.
+ Run the following commands to install and setup all of the prerequisites needed for testing Octo on Rocky Linux or RHEL.
 
   .. code-block:: bash
 
     # Rocky Linux
     sudo yum install epel-release  # make bats and R available next line; powertools below required for R dependencies
-    sudo yum --enablerepo=powertools install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
+    sudo yum --enablerepo=powertools install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
 
     # RHEL 8
     sudo subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
     sudo yum install epel-release  # make bats and R available next line
-    sudo yum install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
+    sudo yum install bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
 
 ~~~~~~~~~~~~~~~~~
 OpenSUSE/SLES
 ~~~~~~~~~~~~~~~~~
 
- Run the following commands to install and setup all of the prerequisites needed for testing Octo on OpenSUSE/SLES. You can substitute `mariadb` and `mariadb-server` for `mysql` and `mysql-server`.
+ Run the following commands to install and setup all of the prerequisites needed for testing Octo on OpenSUSE/SLES.
 
   .. code-block:: bash
 
     # SLES
-    zypper install bats clang java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server mysql mysql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat iproute2 R-base R-base-devel postgresql-devel libomp-devel libtirpc-devel
+    zypper install bats clang java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat iproute2 R-base R-base-devel postgresql-devel libomp-devel libtirpc-devel
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure PostgreSQL and MySQL/MariaDB
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+Configure PostgreSQL
+~~~~~~~~~~~~~~~~~~~~~
 
  PostgreSQL must be set up for the user who will be running the tests:
 
@@ -105,16 +105,6 @@ Configure PostgreSQL and MySQL/MariaDB
      alter user $USER createdb;
      create database $USER LC_COLLATE='C' template=template0;
      PSQL
-
- MySQL/MariaDB must be set up for the user who will be running the tests, using a password of 'ydbrocks'. Assuming a :code:`bash` shell, the following can be run as a single command to do the necessary setup:
-
-  .. code-block:: bash
-
-     sudo mysql <<MYSQL
-     CREATE USER IF NOT EXISTS '$USER'@'localhost' IDENTIFIED BY 'ydbrocks';
-     GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO '$USER'@'localhost' WITH GRANT OPTION;
-     FLUSH PRIVILEGES;
-     MYSQL
 
 +++++++++++++++
 Download Octo

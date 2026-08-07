@@ -152,7 +152,7 @@ init_test() {
 	# All the python scripts take a very small fraction of the test time,
 	# so this does not impact pipeline times in any significant way.
 	export PYTHONDONTWRITEBYTECODE=1
-	# Set env var to maintain list of common schemas to create across different database emulations, e.g. Postgres and MySQL
+	# Set env var to maintain list of common schemas to create for Postgres crosscheck tests
 	export schema_list="names names1col nameslastname customers pastas easynames northwind $(echo sqllogic{1,2,3,4,5}) boolean nullnames nullcharnames composite quotenames"
 
 	# ASAN Options if ASAN is enabled
@@ -327,36 +327,6 @@ load_postgres_fixture() {
 	# table. Hence we stick with the "ON_ERROR_STOP" approach. Since this can return a non-zero exit status and that is
 	# expected, we use the "|| true" below to avoid the bats framework from treating this as a failure and stopping the test.
 	psql $1 -c '\set ON_ERROR_STOP on' -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $1.psql.load || true
-}
-
-run_mysql() {
-	# When running in the pipeline the host must be specified as "mysql", since
-	# localhost is inaccessible from within the GitLab CI Docker container. When
-	# run outside of the pipeline, localhost is suitable.
-	if [[ $USER == "root" ]]; then
-		host=mysql
-	else
-		host=localhost
-	fi
-	# Specify password by environment variable to avoid MySQL warning on command-line password security, which breaks outrefs
-	MYSQL_PWD="ydbrocks" mysql --host=$host --protocol=TCP --user=$USER $1 < $2
-}
-
-create_mysql_database() {
-	echo "-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF8)" &> in.sql
-	echo "CREATE DATABASE IF NOT EXISTS $1;" &> in.sql
-	run_mysql "" in.sql &> $1.setup.out
-	# Set the timezone explicitly for consistency when running in pipeline, as there is no guarantee that
-	# MySQL will actually use the system timezone and the actual timezone cannot be manually queried, either.
-	# For more information, see:
-	# https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql/2934271#2934271
-	echo "SET GLOBAL time_zone = '$(date +%:z)';" >> tz.sql
-	run_mysql "" tz.sql >> $1.setup.out
-}
-
-load_mysql_fixture() {
-	# Create a MySQL table and load data into it
-	run_mysql $1 @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $3
 }
 
 createdb() {
@@ -1423,130 +1393,6 @@ run_query_generator() {
   fi
 }
 
-run_query_in_octo_and_mysql_and_crosscheck_multiple_queries() {
-	# Query file has multiple queries.
-	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
-	# Spliting queries are needed as otherwise Postgres and Octo output cannot be easily compared.
-
-	# Init
-	database="$1"
-	queryfile="$2"
-	checktime="$3"
-
-	if [[ ! -f $queryfile ]]; then
-		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
-			echo "Query file: $queryfile doesn't exist"
-			exit 1
-		fi
-		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
-	fi
-	fname=`echo $queryfile | sed 's/\..*//g'`
-	echo "Cross check parameters:" >> env.out
-	echo "mysql_version:$(mysql --version)" >> env.out
-
-	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile
-	for splitfile in $fname-*.sql
-	do
-		run_query_in_octo_and_mysql_and_crosscheck $splitfile $checktime
-	done
-
-	# Stop Rocto when started by the test framework in parameter processing phase
-	run_query_stop_rocto
-	return
-}
-
-run_query_in_octo_and_mysql_and_crosscheck() {
-	query_file="$1"
-	checktime="$2"
-	local fname=`echo $query_file | sed 's/\..*//g'`
-
-	# Export the MySQL user password to suppress a security warning from MySQL
-	# that muddles output. While this is insecure and shouldn't be done on production
-	# systems, it is acceptable in a test environment where programmatic execution
-	# is desired and no sensitive data is stored in the database.
-	export MYSQL_PWD="ydbrocks"
-	starttime=$(date +%s) # Mark start time in case time function output is to be validated
-	run_mysql $database $query_file >& $fname.mysql.out
-	# MySQL displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
-	tail -n +2 $fname.mysql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
-	# Replace NULL with empty string to match Octo behavior
-	sed -i 's/NULL//g;' $fname.ref
-
-	# Run query in octo
-	octo -e MYSQL -f $query_file >& $fname.octo.out.tmp
-	endtime=$(date +%s) # Mark end time in case time function output is to be validated
-
-	# trim header and footer information from octo output for effective comparison
-	tail -n +2 $fname.octo.out.tmp | sed 's/\<t\>/1/g;s/\<f\>/0/g;' &> $fname.octo.out.tmp2
-	head -n -1 $fname.octo.out.tmp2 &> $fname.octo.out
-
-	export MYSQL_PWD=""
-	# If the queries contain time-related functions, as indicated by the $checktime, check whether the queries executed within
-	# the same second. If so, run the cross check. If not, skip the cross-check by returning from this function, as the
-	# crosscheck is likely to fail due to a timing discrepancy, even if Octo executed the query correctly.
-	if [[ "checktime" == $checktime ]]; then
-		# Record all time output in case needed for debugging
-		echo "Start time: $starttime" >> time.out
-		echo "End time: $endtime" >> time.out
-		if [[ $starttime -ne $endtime ]]; then
-			echo "--> Query verification skipped for $query_file." >> time.out
-			return
-		fi
-	fi
-	run_query_verify $query_file $fname
-
-	return
-}
-
-run_query_in_two_emulations_and_crosscheck_multiple_queries() {
-	# Query file has multiple queries.
-	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
-	# Spliting queries are needed as otherwise Postgres and Octo output cannot be easily compared.
-
-	# Init
-	database="$1"
-	queryfile="$2"
-	first_emulation=$3
-	second_emulation=$4
-	fname=`echo $queryfile | sed 's/\..*//g'`
-
-	if [[ ! -f $queryfile ]]; then
-		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
-			echo "Query file: $queryfile doesn't exist"
-			exit 1
-		fi
-		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
-	fi
-	echo "Cross check parameters:" >> env.out
-	echo -e "emulation #1:$first_emulation\temulation #2:$second_emulation" >> env.out
-
-	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile
-	for splitfile in $fname-*.sql
-	do
-		run_query_in_two_emulations_and_crosscheck $splitfile $first_emulation $second_emulation
-	done
-
-	# Stop Rocto when started by the test framework in parameter processing phase
-	run_query_stop_rocto
-	return
-}
-
-run_query_in_two_emulations_and_crosscheck() {
-	query_file="$1"
-	first_emulation=$2
-	second_emulation=$3
-	local fname=`echo $query_file | sed 's/\..*//g'`
-
-	# Run query in octo, first emulation
-	octo -e $first_emulation -f $query_file >& $fname.emu1.out
-	# Run query in octo, second emulation
-	octo -e $second_emulation -f $query_file >& $fname.emu2.out
-
-	diff $fname.emu1.out $fname.emu2.out
-
-	return
-}
-
 # Although the below function is named "corecheck" it is invoked by the "teardown()" function of EVERY bats subtest
 # and so include not just logic to check if any core files exist, but also anything else like determining if a subtest
 # passed or failed or skipped etc.
@@ -1576,23 +1422,14 @@ corecheck() {
 	fi
 }
 
-# Third argument is required to be either "postgres" or "mysql"
 run_query_and_crosscheck_avoiding_execution_time_delay() {
 	# This function is mainly for testing date/time function whose value can differ slightly depending on the time of execution.
-	# To avoid failure in such a case we take MySql/Postgres output before and
+	# To avoid failure in such a case we take Postgres output before and
 	# after the cross check. If cross check fails the result is ensured to be between the before and after values, this
 	# confirms the validity of the result. Refer to first commit description in
 	# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1536 for more details on what kind of failure led to this
 	# function creation.
-	db=$1
 	filename=$2
-	if [[ "postgres" = "$3" ]]; then
-		ispostgres=1
-	elif [[ "mysql" = "$3" ]]; then
-		ispostgres=0
-	else
-		exit 1
-	fi
 	testname="${filename%.*}"
 	# Fetch all select statements
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$filename ./
@@ -1603,38 +1440,25 @@ run_query_and_crosscheck_avoiding_execution_time_delay() {
 	for qfile in "$testname"-*.sql
 	do
 		qfile=${qfile%.*}
-		if [[ $ispostgres -eq 1 ]]; then
-			name="$qfile"_psql
-			# test
-			psql names -f "$qfile".sql >& "$name"_output.txt
-			octo -f "$qfile".sql >& "$qfile"_octo_output.txt
-			# post test value
-			psql names -f "$qfile".sql >& "$name"_output2.txt
-		else
-			name="$qfile"_mysql
-			# test
-			run_mysql $db "$qfile".sql >& "$name"_output.txt
-			octo --emulate=MYSQL -f "$qfile".sql >& "$qfile"_octo_output.txt
-			# post test value
-			run_mysql $db "$qfile".sql >& "$name"_output2.txt
-		fi
+		name="$qfile"_psql
+		# test
+		psql names -f "$qfile".sql >& "$name"_output.txt
+		octo -f "$qfile".sql >& "$qfile"_octo_output.txt
+		# post test value
+		psql names -f "$qfile".sql >& "$name"_output2.txt
 		# validate result
 		verify_no_octo_or_ydb_error "stderr.txt"
 		mv "$name"_output.txt "$name"_output.log1
 		mv "$qfile"_octo_output.txt "$qfile"_octo_output.log1
 		grep ".*:.*:.*" "$name"_output.log1 >& "$name"_output.txt
 		grep ".*:.*:.*" "$qfile"_octo_output.log1 >& "$qfile"_octo_output.txt
-		if [[ $ispostgres -eq 1 ]]; then
-			# Remove an additional space written at the beginning
-			sed -i 's/^ \(.*\)/\1/g' "$name"_output.txt
-		fi
+		# Remove an additional space written at the beginning
+		sed -i 's/^ \(.*\)/\1/g' "$name"_output.txt
 		diff "$name"_output.txt "$qfile"_octo_output.txt >& "$qfile".diff || true
 		if [[ -s "$qfile".diff ]]; then
 			# This can happen if the time of execution was slightly different
 			# Compare with pre-test and post-test result in this case
-			if [[ $ispostgres -eq 1 ]]; then
-				sed -i 's/^ \(.*\)/\1/g' "$name"_output2.txt
-			fi
+			sed -i 's/^ \(.*\)/\1/g' "$name"_output2.txt
 			starttimestr=$(grep ".*:.*:.*" "$name"_output.txt)
 			endtimestr=$(grep ".*:.*:.*" "$name"_output2.txt)
 			nowstr=$(cat "$qfile"_octo_output.txt)

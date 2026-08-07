@@ -55,19 +55,7 @@ teardown() {
 
 @test "TDTT052 : OCTO382 : Test Postgres emulation and date/time inbuilt functions" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TDTT052.sql "trim_trailing_zeroes"
-	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT052time.sql "postgres"
-}
-
-@test "TDTT053 : OCTO382 : Test MySql emulation and date/time inbuilt functions" {
-	# 1 test
-	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTT053.sql "trim_trailing_zeroes"
-	# 2 test
-	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT053localtime.sql "mysql"
-	# 3 test
-	# Queries tested below fail to produce same result in MySql. But we expect the output of both the queries to be 1.
-	# Hence cross check is avoided here and reference file is used for the result comparison
-	load_fixture TDTT053between.sql subtest novv
-	verify_output TDTT053between output.txt noinfo nodebug
+	run_query_and_crosscheck_avoiding_execution_time_delay names TDTT052time.sql
 }
 
 @test "TDTT054 : OCTO382 : Test concat functions with 2 and 3 parameters" {

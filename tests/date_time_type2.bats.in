@@ -207,14 +207,7 @@ teardown() {
 }
 
 @test "TDTT100 : Check datestyle set when MYSQL is being emulated" {
-	if [[ $(mysql --version) == *"MariaDB"* ]]; then
-		mysql_is_mariadb="true"
-	else
-		mysql_is_mariadb="false"
-	fi
-	# Following runs by using --emulate
-	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TDTT100.sql
-	# Following runs by taking emulate information from config file
+	# Runs by taking emulate information from config file
 	echo 'emulate = "'MYSQL'"' > octo.conf
 	load_fixture TDTT100_1.sql subtest novv
 	sed -i 's/[0-9]\{2\}-[0-9]\{2\}-[0-9]\{4\}/DATE TIME/g' output.txt

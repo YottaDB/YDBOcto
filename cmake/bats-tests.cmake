@@ -111,7 +111,7 @@ if("${FULL_TEST_SUITE}")
 	# hello_db is a pre-requisite for the _DML tests
 	ADD_BATS_TEST(hello_db)
 
-	# These tests don't need Postgres or MySQL/MariaDB
+	# These tests don't need Postgres
 	ADD_BATS_TEST(verbosity)
 	ADD_BATS_TEST(readline)
 	ADD_BATS_TEST(help_option)
@@ -236,7 +236,7 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(date_time_type6)
 
 
-	# The following tests requires MySQL and PostgreSQL
+	# The following tests require Postgres
 	ADD_BATS_TEST_DML(date_time_functions)
 	ADD_BATS_TEST_DML(date_time_type2)
 	ADD_BATS_TEST_DML(date_time_type3)

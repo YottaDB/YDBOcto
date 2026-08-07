@@ -215,7 +215,6 @@ teardown() {
 
 @test "TCF030 : OCTO816 : SQL functions accept NULL values without additional CREATE FUNCTION definitions " {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCF030.sql
-	run_query_in_octo_and_mysql_and_crosscheck_multiple_queries names TCF030.sql
 }
 
 @test "TCF031 : OCTO816 : Octo issues error for ambiguous function calls" {

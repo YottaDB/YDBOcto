@@ -1,1 +1,0 @@
-./postgres-sqllogic2.sql

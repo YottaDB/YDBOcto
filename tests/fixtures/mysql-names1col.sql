@@ -1,1 +1,0 @@
-./postgres-names1col.sql

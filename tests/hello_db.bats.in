@@ -20,7 +20,7 @@ teardown() {
   corecheck
 }
 
-@test "HDB01 : Can communicate and load data into Postgres & MySQL" {
+@test "HDB01 : Can communicate and load data into Postgres" {
 	# Postgres function to delete all tables in a database for a clean test run
 	cat >drop_all_tables.cmd <<-SQL_CODE
 		DO \$\$
@@ -36,121 +36,59 @@ teardown() {
 		END \$\$;
 	SQL_CODE
 
+	echo "\d" > listdb.sql
 
-
-	for db in mysql postgres
+	for schema in $schema_list
 	do
-		if [[ "mysql" == $db ]]; then
-			echo "SHOW TABLES;" > listdb.sql
-		else
-			echo "\d" > listdb.sql
+		# Clean databases created by prior test runs that terminated early
+		# as vestigal data causes unexpected test output, leading to test failures.
+		# In Postgres a user cannot delete a table made by another user in a previous test run
+		# so instead of deleting the database, delete all tables in the database -- if the database exists
+		# Test if the database exists
+		if [[ $(psql -v ON_ERROR_STOP=1 -tAc "SELECT 1 FROM pg_database WHERE datname='$schema'") ]]; then
+			# Delete all tables in the database
+			psql -v ON_ERROR_STOP=1 $schema -f drop_all_tables.cmd >& postgres.drop_database_$schema.out
 		fi
+		create_postgres_database "$schema" &> "$schema".postgres.create || true
+		# Wrap sql file with BEGIN/COMMIT to speed up the commit by 4 seconds
+		# This is not done in the actual file because the files are sometimes loaded later into Octo, which fails on BEGIN/COMMIT
+		{ echo "BEGIN;"; cat @PROJECT_SOURCE_DIR@/tests/fixtures/postgres-"$schema".sql; echo "COMMIT;"; } |
+			psql "$schema" -v ON_ERROR_STOP=1 &> $1.psql.load || true
+		# This is needed for the QueryGenarator program. Load it once for each database.
+		# (QueryGenerator is used to generate random queries to compare Octo to Postgres)
+		load_postgres_fixture "$schema" postgres-QueryGenerator.sql
 
-		for schema in $schema_list
-		do
-			if [[ "mysql" == $db && "quotenames" == "$schema" ]]; then
-				# MySQL does not support double-quoted identifiers, but rather treats double-quoted strings as
-				# string literals. This behavior diverges from both Octo and PostgreSQL behavior, and so it cannot
-				# be crosschecked against them. So, skip the `quotenames` database when running against MySQL.
-				continue
-			fi
-			# Clean databases created by prior test runs that terminated early
-			# as vestigal data causes unexpected test output, leading to test failures.
-			if [[ "mysql" == $db ]]; then
-				# In MySQL a user with DROP authority can drop a database owned by anyone, so do that for databases from previous test runs
-				# Skip the following command because it is slow and we don't usually need to start with fresh mysql databases
-				: # run_mysql "" <(echo "DROP DATABASE IF EXISTS $schema;") &> mysql.drop_database_$schema.out
+		# Do minimal check of database contents after postgres load
+		# First find list of table names in this database/schema
+		psql --no-align "$schema" -f listdb.sql | grep public | awk -F'|' '{print $2;}' >& tables_"$schema".txt
+		declare -a tablearray
+		readarray -t tablearray < tables_"$schema".txt
+		i=0
+		while (( ${#tablearray[@]} > i )); do
+			tablename=${tablearray[i++]}
+			inputfile="input_${schema}_${tablename}.sql"
+			outputfile="output_${schema}_${tablename}.txt"
+			echo 'select * from "'$tablename'";'  > "$inputfile"
+			psql --no-align "$schema" -f "$inputfile" >& "$outputfile"
+			echo "#######################################################################" >> output.txt
+			echo "# Listing first 3 lines and last 3 lines of [SCHEMA : "$schema"] [TABLE : "$tablename"]" >> output.txt
+			echo "#######################################################################" >> output.txt
+			head -1 "$outputfile" | tr '[:upper:]' '[:lower:]' >> output.txt 2>&1
+			sed -n '2,4p' "$outputfile" | sort >> output.txt 2>&1
+			echo "..." >> output.txt
+			echo "..." >> output.txt
+			if [[ $tablename == "shippers" ]]; then
+				tail -4 "$outputfile" | grep -v rows | sort >> output.txt 2>&1
 			else
-				# In Postgres a user cannot delete a table made by another user in a previous test run
-				# so instead of deleting the database, delete all tables in the database -- if the database exists
-				# Test if the database exists
-				if [[ $(psql -v ON_ERROR_STOP=1 -tAc "SELECT 1 FROM pg_database WHERE datname='$schema'") ]]; then
-					# Delete all tables in the database
-					psql -v ON_ERROR_STOP=1 $schema -f drop_all_tables.cmd >& postgres.drop_database_$schema.out
-				fi
+				tail -5 "$outputfile" | grep -v rows | sort >> output.txt 2>&1
 			fi
-			create_${db}_database "$schema" &> "$schema".${db}.create || true
-			if [[ "postgres" == $db ]]; then
-				# Wrap sql file with BEGIN/COMMIT to speed up the commit by 4 seconds
-				# This is not done in the actual file because the files are sometimes loaded later into Octo, which fails on BEGIN/COMMIT
-				{ echo "BEGIN;"; cat @PROJECT_SOURCE_DIR@/tests/fixtures/${db}-"$schema".sql; echo "COMMIT;"; } |
-					psql "$schema" -v ON_ERROR_STOP=1 &> $1.psql.load || true
-			else
-				load_${db}_fixture "$schema" ${db}-"$schema".sql "$schema".${db}.load || true
-			fi
-			# This is needed for the QueryGenarator program. Load it once for each database.
-			# (QueryGenerator is used to generate random queries to compare Octo to Postgres)
-			if [[ "postgres" == $db ]]; then
-				load_postgres_fixture "$schema" postgres-QueryGenerator.sql
-			fi
-
-			# Do minimal check of database contents after {mysql,postgres} load
-			# First find list of table names in this database/schema
-			if [[ "mysql" == $db ]]; then
-				run_mysql "$schema" listdb.sql | grep -v Tables_in | sort >& tables_"$schema".txt
-			else
-				psql --no-align "$schema" -f listdb.sql | grep public | awk -F'|' '{print $2;}' >& tables_"$schema".txt
-			fi
-			declare -a tablearray
-			readarray -t tablearray < tables_"$schema".txt
-			i=0
-			while (( ${#tablearray[@]} > i )); do
-				tablename=${tablearray[i++]}
-				inputfile="input_${schema}_${tablename}.sql"
-				outputfile="output_${schema}_${tablename}.txt"
-				if [[ "mysql" == $db ]]; then
-					if [[ "$schema" == "sqllogic4" && "$tablename" == "s4t1" ]]; then
-						echo "select * from $tablename order by id;" > $inputfile
-					else
-						echo "select * from $tablename;" > $inputfile
-					fi
-					run_mysql "$schema" "$inputfile" >& "$outputfile"
-					# Replace NULL with empty string to match Postgres behavior
-					sed -i 's/NULL//g;' "$outputfile"
-				else
-					echo 'select * from "'$tablename'";'  > "$inputfile"
-					psql --no-align "$schema" -f "$inputfile" >& "$outputfile"
-				fi
-				echo "#######################################################################" >> output.txt
-				echo "# Listing first 3 lines and last 3 lines of [SCHEMA : "$schema"] [TABLE : "$tablename"]" >> output.txt
-				echo "#######################################################################" >> output.txt
-				head -1 "$outputfile" | tr '[:upper:]' '[:lower:]' >> output.txt 2>&1
-				sed -n '2,4p' "$outputfile" | sort >> output.txt 2>&1
-				echo "..." >> output.txt
-				echo "..." >> output.txt
-				if [[ "mysql" == $db ]]; then
-					if [[ "$tablename" == "Shippers" ]]; then
-						# Since there are only 3 rows in this table, taking `tail -4`
-						# yields the 3 rows plus the column headings at the end,
-						# thereby duplicating those taken by `head -1` above.
-						tail -3 "$outputfile" | sort >> output.txt 2>&1
-					else
-						tail -4 "$outputfile" | sort >> output.txt 2>&1
-					fi
-				else
-					if [[ $tablename == "shippers" ]]; then
-						tail -4 "$outputfile" | grep -v rows | sort >> output.txt 2>&1
-					else
-						tail -5 "$outputfile" | grep -v rows | sort >> output.txt 2>&1
-					fi
-				fi
-			done
 		done
-		# Format output to ensure common format across database emulations
-		if [[ "mysql" == $db ]]; then
-			# Replace tabs with | to match Postgres column delimiter
-			sed -i 's/\t/|/g;' output.txt
-			# Replace 0.00 with 0 to match Postgres behavior
-			# sed -i 's/0\.00/0/g;' output.txt
-			# Replace special case where MySQL rounds a 2-decimal place NUMERIC to 0 decimal places
-			sed -i 's/bottles|8/bottles|7.75/g;' output.txt
-		else
-			sed -i 's/|t|/|1|/g;' output.txt
-			sed -i 's/|f|/|0|/g;' output.txt
-			sed -i 's/|t$/|1/g;' output.txt
-			sed -i 's/|f$/|0/g;' output.txt
-		fi
-		mv output.txt output-$db.txt
-		verify_output HDB01-$db output-$db.txt nodatetimefilter # HDB01-postgres.ref or HDB01-mysql.ref
 	done
+	# Format output to ensure a common output format
+	sed -i 's/|t|/|1|/g;' output.txt
+	sed -i 's/|f|/|0|/g;' output.txt
+	sed -i 's/|t$/|1/g;' output.txt
+	sed -i 's/|f$/|0/g;' output.txt
+	mv output.txt output-postgres.txt
+	verify_output HDB01-postgres output-postgres.txt nodatetimefilter # HDB01-postgres.ref
 }

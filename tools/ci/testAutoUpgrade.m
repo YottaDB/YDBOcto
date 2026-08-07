@@ -26,7 +26,7 @@ batsTestsChooseRandom
         FOR  READ line($increment(nLines)) QUIT:$zeof
 	KILL line(nLines) if $increment(nLines,-1)
 	; Make a list of tests that we never want to exclude
-	; NB: hello_db is what exists now to configure both Postgres and MySQL.
+	; NB: hello_db is what exists now to configure Postgres.
 	; The old file was called hello_psql, and could be used by the
 	; autoupgrade pipeline, as that pipeline checks out an older commit, and
 	; hello_db didn't exist yet.

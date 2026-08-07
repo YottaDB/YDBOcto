@@ -1372,12 +1372,11 @@ else
 	else
 		# Find out all "CREATE TABLE" queries in tests/fixtures/*.sql. Generate one query file for each.
 		# Filter out lines like "\set ON_ERROR_STOP on" that are in tests/fixtures/postgres-*.sql files
-		#   as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files
-		#   and exclude `mysql-*-.sql` symbolic links from `auto-upgrade` cleanup.
+		#   as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files.
 		# Note that some "CREATE TABLE" queries in tests/fixtures/*.sql can be in lower case i.e. "create table"
 		#   so search for those too. But convert them to upper case before storing them as a later call to
 		#   "split_queries.py" assumes an upper case string "CREATE TABLE".
-		grep --exclude=mysql-*.sql -li "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | sed 's/create table/CREATE TABLE/g' | grep -v ON_ERROR_STOP > create_table.sql
+		grep -li "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR | xargs cat | sed 's/create table/CREATE TABLE/g' | grep -v ON_ERROR_STOP > create_table.sql
 		../tests/fixtures/sqllogic/split_queries.py create_table.sql "CREATE TABLE"
 		# Create *.gld and *.dat files
 		rm -f ./*.gld ./*.dat || true

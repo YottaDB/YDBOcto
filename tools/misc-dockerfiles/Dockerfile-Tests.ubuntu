@@ -13,13 +13,11 @@
 # pipeline. It lets you run the pipeline tests locally.
 #
 # Instructions:
-# docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=ydbrocks -d mysql:8.0 OR docker run --rm --name mysql -e MARIADB_ROOT_PASSWORD=ydbrocks -d mariadb
 # docker build -f tools/misc-dockerfiles/Dockerfile-Tests.ubuntu -t tests-ubuntu .
-# docker run -it --link mysql --rm tests-ubuntu
-# OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "display_relation_commands"
-# OR docker run -it --link mysql --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (to run all auto-upgrade tests for a specific commit)
-# OR docker run -it --link mysql -v /tmp/myfolder:/octooutput --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (keeps the tests output in /tmp/myfolder so that it can be examined)
-# docker kill mysql; docker rm mysql
+# docker run -it --rm tests-ubuntu
+# OR docker run -it --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "display_relation_commands"
+# OR docker run -it --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (to run all auto-upgrade tests for a specific commit)
+# OR docker run -it -v /tmp/myfolder:/octooutput --rm tests-ubuntu "test-auto-upgrade" "debug" "52ba5a43" "ALL" (keeps the tests output in /tmp/myfolder so that it can be examined)
 
 FROM registry.gitlab.com/yottadb/dbms/ydbocto:ubuntu-master
 ADD . /builds/YDBDBMS/

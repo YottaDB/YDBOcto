@@ -692,6 +692,8 @@ CREATE TABLE pg_catalog.pg_index (
 	indexrelid INTEGER,		-- Related to `pg_class.oid`: The OID of the `pg_class` entry for this index
 	indrelid INTEGER,		-- Related to `pg_class.oid`: The OID of the `pg_class` entry for the table this index is for
 	indnatts INTEGER,
+	indnkeyatts INTEGER,		-- Number of KEY attributes, i.e. `indnatts` minus any INCLUDE columns. Octo has no
+					-- INCLUDE (covering) indexes, so this is always equal to `indnatts` here.
 	indisunique	BOOLEAN,
 	indisprimary BOOLEAN,
 	indisexclusion BOOLEAN,

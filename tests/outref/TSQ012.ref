@@ -374,6 +374,7 @@ Column|Type|Collation|Nullable|Default
 indexrelid|INTEGER|||
 indrelid|INTEGER|||
 indnatts|INTEGER|||
+indnkeyatts|INTEGER|||
 indisunique|BOOLEAN|||
 indisprimary|BOOLEAN|||
 indisexclusion|BOOLEAN|||
@@ -742,6 +743,7 @@ Column|Type|Collation|Nullable|Default
 indexrelid|INTEGER|||
 indrelid|INTEGER|||
 indnatts|INTEGER|||
+indnkeyatts|INTEGER|||
 indisunique|BOOLEAN|||
 indisprimary|BOOLEAN|||
 indisexclusion|BOOLEAN|||

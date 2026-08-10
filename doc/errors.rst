@@ -1082,6 +1082,14 @@ ERR_AUTO_SEED_LOAD
 
   Description/Action: This error indicates that the auto load of internal tables and function have failed. Examine the preceding messages for more error detail. Fix the cause of that error and rerun the command that produced the ERR_AUTO_SEED_LOAD error. PSQL Error Code: XX000
 
+++++++++++++++++++++++++++++++++
+ERR_OPERATOR_SCHEMA_UNKNOWN
+++++++++++++++++++++++++++++++++
+
+  Text: Unknown schema "xxx" in OPERATOR syntax; only "pg_catalog" is accepted
+
+  Description/Action: This error is generated when the schema-qualified :code:`OPERATOR(schema_name.operator)` syntax names a schema other than :code:`pg_catalog`, which is where a stock PostgreSQL keeps the built-in comparison operators. Octo has no operator catalog, so it cannot resolve an operator in any other schema; accepting one and silently using the built-in operator instead would return a wrong answer. Remove the schema name, or replace it with :code:`pg_catalog`. PSQL Error Code: 42601
+
 ++++++++++++++++++++++++++++++
 ERR_ORDER_BY_POSITION_INVALID
 ++++++++++++++++++++++++++++++

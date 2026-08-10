@@ -1,0 +1,96 @@
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Tests of the schema-qualified OPERATOR(schema_name.op) syntax (YDBOcto#1141).
+#
+# psqlodbc rewrites every operator in its catalog queries into this form starting with release REL-17_00_0007,
+# so an Octo that does not parse it cannot serve SQLColumns (and friends) to any recent version of that driver.
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+teardown() {
+  stop_rocto
+  corecheck
+}
+
+@test "TQO001 : #1141 : OPERATOR(pg_catalog.op) is accepted wherever a bare operator is" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO001.sql
+}
+
+@test "TQO002 : #1141 : All six comparison operators are accepted inside OPERATOR(pg_catalog.op)" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO002.sql
+}
+
+@test "TQO003 : #1141 : The schema name is optional inside OPERATOR()" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO003.sql
+}
+
+@test "TQO004 : #1141 : The OPERATOR() construct is case and whitespace insensitive" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO004.sql
+}
+
+@test "TQO005 : #1141 : The bare and the qualified form of an operator select the exact same rows" {
+	# Each query is the symmetric difference of the two forms of one operator, so all of them return 0 rows.
+	# Crosschecked rather than pinned to a reference file: if Octo ever made the two forms disagree it would
+	# return rows here while Postgres returned none, so the crosscheck enforces the property by itself.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO005.sql
+}
+
+@test "TQO006 : #1141 : Qualified operators work in the WHERE, ON and HAVING clauses" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO006.sql
+}
+
+@test "TQO007 : #1141 : Qualified operators work with the ANY/ALL/SOME quantifiers" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO007.sql
+}
+
+@test "TQO008 : #1141 : Only comparison operators are accepted inside OPERATOR()" {
+	# NOT crosschecked: every query here is expected to fail, and Postgres and Octo never word their errors
+	# the same way, so error output cannot be compared. A reference file is the only option. It also lets a
+	# reviewer see that each failure is a clean, located syntax error rather than a crash.
+	load_fixture TQO008.sql subtest novv
+	verify_output TQO008 output.txt
+}
+
+@test "TQO009 : #1141 : \"pg_catalog\" is the only schema name accepted inside OPERATOR()" {
+	# NOT crosschecked, for the same reason as TQO008: these are all error cases. Postgres rejects them too,
+	# but as "operator does not exist" from its operator catalog rather than Octo's ERR_OPERATOR_SCHEMA_UNKNOWN,
+	# so the outputs can never match.
+	load_fixture TQO009.sql subtest novv
+	verify_output TQO009 output.txt
+}
+
+@test "TQO010 : #1141 : The SQLColumns query issued by psqlodbc >= REL-17_00_0007 runs and matches Postgres" {
+	# TQO010A.sql is the query from the issue verbatim. NOT crosschecked because three of the columns it
+	# selects legitimately differ between Octo and Postgres and would never compare equal: "c.oid" (the two
+	# OID counters are unrelated), "attidentity" (1 in Octo, NULL in Postgres) and
+	# "pg_get_expr(d.adbin, d.adrelid)" (empty string in Octo, NULL in Postgres). Those are the same three
+	# columns TDTT067.sql leaves out for the same reason. Keeping the query verbatim is the point of this
+	# subtest, so it is pinned to a reference file and TQO010B.sql below does the crosschecking.
+	load_fixture TQO010A.sql subtest novv
+	verify_output TQO010A output.txt
+	mv clean_output.txt TQO010A_clean_output.txt
+	# TQO010B.sql is the same query minus those columns, and so can be crosschecked against Postgres.
+	# It runs CREATE TABLE / DROP TABLE, hence the "-aw" rocto flag in case a rocto based client is chosen.
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO010B.sql roctoflags=-aw
+}
+
+@test "TQO011 : #1141 : \"operator\" is not a reserved word and remains usable as an identifier" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TQO011.sql roctoflags=-aw
+}

@@ -1,0 +1,22 @@
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+-- TQO009 : #1141 : "pg_catalog" is the only schema name accepted inside OPERATOR()
+-- Octo has no operator catalog, so the schema name cannot be resolved, only accepted or rejected. Silently
+-- running the built-in operator for a user-defined schema would be a wrong answer, hence the error below.
+-- "public" is rejected along with everything else: a stock Postgres keeps the built-in comparison
+-- operators in "pg_catalog" and rejects OPERATOR(public.=) itself with "operator does not exist".
+
+select id from names where id operator(public.=) 3;
+select id from names where id operator(nosuchschema.=) 3;
+select id from names where id operator(information_schema.=) 3;
+select id from names where id operator(names.>) 3;

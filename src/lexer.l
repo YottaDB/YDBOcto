@@ -211,6 +211,7 @@ int save_yylloc_first_line;
 (?i:NULLIF) { return NULLIF; }
 (?i:NUMERIC) { return NUMERIC; }
 (?i:ON) { return ON; }
+(?i:OPERATOR) { return OPERATOR; }
 (?i:OR) { return OR; }
 (?i:ORDER) { return ORDER; }
 (?i:OUTER) { return OUTER; }

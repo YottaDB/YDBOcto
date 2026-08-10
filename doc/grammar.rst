@@ -2884,6 +2884,31 @@ Operators
     * LESS THAN OR EQUALS <=
     * GREATER THAN OR EQUALS >=
 
+  Each of the comparative operators can also be written in the schema-qualified ``OPERATOR()`` form that PostgreSQL accepts:
+
+  .. code-block:: SQL
+
+     row_value_constructor OPERATOR([schema_name.]comparative_operator) row_value_constructor
+
+  Examples:
+
+  .. code-block:: SQL
+
+     OCTO> SELECT id FROM names WHERE id OPERATOR(pg_catalog.=) 1;
+     ID
+     1
+
+     OCTO> SELECT id FROM names WHERE id OPERATOR(<=) 0;
+     ID
+     0
+
+  This form exists so that catalog queries issued by client drivers parse. The `psqlodbc <https://odbc.postgresql.org/>`_ driver, for example, fully qualifies every operator in its catalog queries starting with release ``REL-17_00_0007``.
+
+  Two restrictions apply:
+
+    * Only the comparative operators listed above are accepted inside ``OPERATOR()``. Arithmetic, string and pattern-matching operators in this form are a syntax error.
+    * The schema name is optional. When specified, it must be ``pg_catalog``, which is where a stock PostgreSQL keeps the built-in comparison operators. Octo has no operator catalog, so the schema name is validated but not otherwise used. Any other schema name is an error.
+
   The logical operators in Octo are:
 
     * AND : The record will be displayed if all the conditions are TRUE

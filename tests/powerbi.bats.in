@@ -45,3 +45,10 @@ teardown() {
 	verify_output TPBI004 output.txt noinfo nodebug
 }
 
+@test "TPBI005 : psqlodbc >= REL-18_00_0002 : SQLPrimaryKeys selects pg_index.indnkeyatts" {
+	# The SQLPrimaryKeys query lives here rather than in a new bats file because TPBI001.sql already
+	# carries the pre-REL-18_00_0002 form of the very same psqlodbc query.
+	load_fixture TPBI005.sql subtest novv
+	verify_output TPBI005 output.txt noinfo nodebug
+}
+

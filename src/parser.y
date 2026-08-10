@@ -201,6 +201,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token NUM
 %token NUMERIC
 %token ON
+%token OPERATOR
 %token OR
 %token ORDER
 %token OUTER
@@ -694,7 +695,39 @@ comparison_predicate
 
 comp_op		/* Note: This rule actually returns a "BinaryOperations" type (not a proper "SqlStatement *" structure pointer)
 		 * and caller rules need to know that.
+		 *
+		 * The OPERATOR(...) form is Postgres syntax for naming an operator with an explicit schema. It shows up in
+		 * catalog queries issued by psqlodbc (>= REL-17_00_0007) which qualifies every operator as a defense against
+		 * "search_path" hijacking (e.g. "a.attnum operator(pg_catalog.>) 0"). Only comparison operators are accepted
+		 * here; arithmetic and pattern operators in the qualified form remain a syntax error.
 		 */
+  : comp_op_symbol { $$ = $comp_op_symbol; }
+  | OPERATOR LEFT_PAREN qualified_comp_op RIGHT_PAREN { $$ = $qualified_comp_op; }
+  ;
+
+qualified_comp_op	/* Note: Like "comp_op" above, this rule returns a "BinaryOperations" type. */
+  : comp_op_symbol { $$ = $comp_op_symbol; }
+  | column_name PERIOD comp_op_symbol {
+	SqlValue	*schema_value;
+	char		*schema_name;
+
+	/* Octo has no operator catalog, so the schema qualifier cannot be resolved, only accepted or rejected.
+	 * Accepting an arbitrary schema and then silently using the built-in operator would be a wrong answer
+	 * (e.g. "myschema.=" would run pg_catalog's "="). "pg_catalog" is the only schema that holds the
+	 * built-in comparison operators in a stock Postgres, so it is the only one allowed through.
+	 */
+	UNPACK_SQL_STATEMENT(schema_value, $column_name, value);
+	schema_name = schema_value->v.string_literal;
+	if (strcasecmp(schema_name, "pg_catalog")) {
+		ERROR(ERR_OPERATOR_SCHEMA_UNKNOWN, schema_name);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	$$ = $comp_op_symbol;
+    }
+  ;
+
+comp_op_symbol	/* Note: Like "comp_op" above, this rule returns a "BinaryOperations" type. */
   : EQUALS                 { $$ = (SqlStatement *)BOOLEAN_EQUALS; }
   | NOT_EQUALS             { $$ = (SqlStatement *)BOOLEAN_NOT_EQUALS; }
   | LESS_THAN              { $$ = (SqlStatement *)BOOLEAN_LESS_THAN; }

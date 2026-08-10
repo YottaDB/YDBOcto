@@ -36,6 +36,11 @@ variables:
 
 .docker-baseline-shared:
   stage: docker-baseline
+  # Workaround for bug in docker 29.7:
+  # https://gitlab.com/gitlab-org/container-registry/-/work_items/2367
+  # https://github.com/moby/buildkit/issues/7007
+  variables:
+    BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
   interruptible: true

@@ -612,6 +612,9 @@ OCTO
 	# on line order alone.
 	max_wait=300	# Wait up to 3 seconds
 	while [[ $max_wait -gt 0 ]]; do
+		# Wait for "Generating helper cross reference M file" error text to appear in PSQL output to ensure uniformity for
+		# outref comparison, since PSQL may emit this message later than rocto, resulting in out-of-order line sequences in
+		# output.txt. Moreover, PSQL will not emit the above message, since this is an internal rocto convention only.
 		if grep -q "Generating helper cross reference M file" output.txt; then
 			break
 		fi
@@ -619,7 +622,7 @@ OCTO
 		max_wait=$(( max_wait - 1 ))
 	done
 	if [[ $max_wait -le 0 ]]; then
-		echo "Timed out waiting for the INFO_GENERATING_XREF notice text to reach output.txt"
+		echo "Timed out waiting for 'Generating helper cross reference M file' message in rocto.log"
 		exit 1
 	fi
 	echo "# Kill PSQL to prompt the rocto server to exit" >> output.txt

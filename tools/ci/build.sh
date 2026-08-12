@@ -550,6 +550,14 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 			sed -i -e '/^CREATE VIEW$/N; /\nabsf$/s/^/CREATE FUNCTION\n/' ../tests/outref/TAU002_1.ref
 		fi
 	fi
+	# The mysql:8.0 CI service was removed from this job. If the chosen older commit predates that removal,
+	# "hello_db.bats.in" still has HDB01's unguarded "for db in mysql postgres" loop, which aborts on the mysql
+	# leg (no server available) before the postgres leg ever runs. Strip the mysql leg so HDB01 still exercises
+	# its postgres coverage instead of contributing nothing to this job's auto-upgrade validation.
+	pre_mysql_removal_commit="1e83a05f5bade9b2ea6b3475d4460cad3f3bada6" # 1 commit before the MySQL CI infra was removed
+	if git merge-base --is-ancestor $commitsha $pre_mysql_removal_commit && [[ -f ../tests/hello_db.bats.in ]]; then
+		sed -i 's/for db in mysql postgres/for db in postgres/' ../tests/hello_db.bats.in
+	fi
 	if [ "ALL" != "$autoupgrade_test_to_troubleshoot" ]; then
 		# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
 		# once more a little later.

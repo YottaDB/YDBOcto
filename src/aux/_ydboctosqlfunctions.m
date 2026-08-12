@@ -74,12 +74,29 @@ VERSION()
 	quit "PostgreSQL 13.0.0 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit"
 
 DAY(date)
+	; Implements the SQL day(VARCHAR)/dayofmonth(VARCHAR) functions: returns the day of the month
+	; (e.g. "15", no leading zero) from a "YYYY-MM-DD" string, optionally followed by a time component
+	; (which is ignored). Returns $ZYSQLNULL for NULL input, a malformed date string, or a day that is
+	; out of range for its month (e.g. day 30 of February). A day field of 0 (e.g. "1999-06-00") returns
+	; "0", matching MySQL's DAYOFMONTH() -- except an all-zero date ("0000-00-00"), which returns NULL.
+	new year,month,day,leap,daysinmonth
 	quit:$ZYISSQLNULL(date) $ZYSQLNULL
-	quit $$DATEFORMAT^%ydboctosqlfunctions(date,"%e")
+	set year=$piece(date,"-",1),month=$piece(date,"-",2),day=$piece($piece(date,"-",3)," ",1)
+	quit:'(year?1.4N)!'(month?1.2N)!'(day?1.2N) $ZYSQLNULL
+	set year=+year,month=+month,day=+day
+	quit:(month>12)!(day>31) $ZYSQLNULL
+	quit:(year=0)&(month=0)&(day=0) $ZYSQLNULL
+	quit:day=0 "0"
+	; A month of 0 is tolerated (as if it were a 31-day month), matching MySQL's leniency here.
+	set leap=((year#4)=0)&(((year#100)'=0)!((year#400)=0))
+	set daysinmonth=$select((month=4)!(month=6)!(month=9)!(month=11):30,month=2:$select(leap:29,1:28),1:31)
+	quit:day>daysinmonth $ZYSQLNULL
+	quit day
 
-DATEFORMAT(date,format)
-	new result
-	quit:$ZYISSQLNULL(date)!$ZYISSQLNULL(date) $ZYSQLNULL
-	set result=$&octo.ydboctoDateFormatM(date,format)
-	set:""=result result=$ZYSQLNULL
-	quit result
+DAYFROMDATE(date)
+	; Implements the SQL day(DATE)/dayofmonth(DATE) functions. Octo's DATE type guarantees `date` is
+	; already a valid, canonical "YYYY-MM-DD" string regardless of the column's internal storage format
+	; (verified empirically across text/horolog/fileman storage), so no parsing or validation is needed
+	; here -- just extract the day field and strip any leading zero.
+	quit:$ZYISSQLNULL(date) $ZYSQLNULL
+	quit +$piece(date,"-",3)

@@ -22,7 +22,6 @@ set(aux_files
   aux/_ydboctofCONCAT.m
   aux/_ydboctofCURRENTTIME.m
   aux/_ydboctofCURRENTTIMESTAMP.m
-  aux/_ydboctofDATEFORMAT.m
   aux/_ydboctofLOCALTIME.m
   aux/_ydboctofLPAD.m
   aux/_ydboctofTRUNCATE.m

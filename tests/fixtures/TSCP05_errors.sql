@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,3 +19,5 @@ SELECT TRUNC(155, -44);
 SELECT TRUNC(155, 1.5);
 SELECT TRUNC(155, -1.5);
 SELECT TRUNC(155, 45);
+-- Confirm "truncate" (YDBOcto#288) is a working alias for the same TRUNC() implementation.
+SELECT TRUNCATE(1.525, 1);

@@ -202,7 +202,6 @@ add_library(libocto OBJECT
   get_column_number_from_column_list_alias.c
   get_column_piece_number.c
   get_deepest_column_alias_stmt.c
-  get_emulation_string.c
   get_full_path_of_generated_m_file.c
   get_full_path_of_generated_o_file.c
   get_function_name_and_parmtypes.c
@@ -501,7 +500,6 @@ add_dependencies(pparser check_git)
 
 # Installed as libcocto
 add_library(cocto SHARED
-	aux/ydboctodateformat.c
 	aux/ydboctodateoperations.c
 )
 

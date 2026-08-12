@@ -21,9 +21,9 @@ teardown() {
   corecheck
 }
 
-@test "TDTF03 : OCTO288 : Calling DATE_FORMAT() when emulating PostgreSQL issues an error" {
-	load_fixture TDTF03.sql subtest novv
-	verify_output TDTF03 output.txt noinfo nodebug
+@test "TDTF05 : OCTO288 : Test day(), dayofmonth()" {
+	load_fixture TDTF05.sql subtest novv
+	verify_output TDTF05 output.txt nodatetimefilter noinfo nodebug
 }
 
 @test "TDTF16 : OCTO288 : Test current_user" {

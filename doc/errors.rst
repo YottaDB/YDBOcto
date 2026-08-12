@@ -1644,14 +1644,6 @@ ERR_UNKNOWN_FUNCTION
 
   Description/Action: This error is generated when the function referenced does not exist or is unknown. PSQL Error Code: 42883
 
-++++++++++++++++++++++++++++++
-ERR_UNKNOWN_FUNCTION_EMULATION
-++++++++++++++++++++++++++++++
-
-  Text: No xxx-parameter function xxx() defined for the current database emulation mode (xxx)
-
-  Description/Action: This error is generated when there is no function defined with the given number of arguments for the currently active database emulation mode. PSQL Error Code: 42883
-
 ++++++++++++++++++++++++++
 ERR_UNKNOWN_KEYWORD_STATE
 ++++++++++++++++++++++++++

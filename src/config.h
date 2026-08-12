@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -48,19 +48,12 @@ typedef struct {
 } GlobalNames;
 
 typedef enum {
-	EMULATION_UNSET,
-	POSTGRES,
-	MYSQL,
-} DatabaseEmulation;
-
-typedef enum {
 	TABLETYPE_READWRITE,
 	TABLETYPE_READONLY,
 } tabletype_t;
 
 typedef struct OctoConfig {
 	enum VERBOSITY_LEVEL verbosity_level;
-	DatabaseEmulation    database_emulation;
 	RoctoConfig	     rocto_config;
 	GlobalNames	     global_names;
 	const char	    *plan_src_dir; /* the directory where _ydbocto*.m plans are generated */

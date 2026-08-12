@@ -181,31 +181,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			break;
 		case FUNCTION_NAME:
-			/* Check whether the specified function is internal to Octo or is user-defined
-			 * by checking whether the routine name for the function includes the prefix
-			 * used for Octo's internal SQL functions, i.e. OCTOLIT_YDBOCTO. Note that this
-			 * comparison starts at string index 2 to omit the "$$" at the start of the M
-			 * extrinsic function name.
-			 */
-			if ((EXTRINSIC_PREFIX_LEN < strlen(value->v.string_literal))
-				&& strncmp(&value->v.string_literal[2], OCTOLIT_YDBOCTO, (sizeof(OCTOLIT_YDBOCTO) - 1)) == 0) {
-				/* If the function is internal to Octo, select the appropriate label name within the specified
-				 * routine based on emulation type by calling the get_emulation_string() helper function.
-				 * Then, prefix this label to the extrinsic function's routine name and output it to the compiled
-				 * M plan.
-				 */
-				char function_name[EXTRINSIC_PREFIX_LEN + MAX_EMULATION_STRING_LEN + MAX_ROUTINE_LEN];
-
-				/* Octo does not use YDB intrinsic functions internally, only extrinsic functions. So assert that
-				 * here, i.e. the function name begins with `$$`. */
-				assert(('$' == value->v.string_literal[0]) && ('$' == value->v.string_literal[1]));
-				snprintf(function_name, EXTRINSIC_PREFIX_LEN + MAX_EMULATION_STRING_LEN + MAX_ROUTINE_LEN, "$$%s%s",
-					get_emulation_string(), &value->v.string_literal[2]);
-				%{}{{ function_name }}{}%
-			} else {
-				/* The function is not internal to Octo, so use the function name as is. */
-				%{}{{ value->v.string_literal }}{}%
-			}
+			%{}{{ value->v.string_literal }}{}%
 			break;
 		case NUL_VALUE:
 		case IS_NULL_LITERAL:
@@ -1628,23 +1604,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 					// Input processing
 					SqlValueType date_time_operand_type = get_sqlvaluetype_from_sqldatatype(cur_parm->data_type_struct->v.data_type_struct.data_type, FALSE);
 					const char *datetime_text_format_specifier;
-					if (MYSQL == config->database_emulation) {
-						// Timezone information is not displayed in MYSQL
-						if (TIME_WITH_TIME_ZONE_LITERAL == date_time_operand_type) {
-							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(TIME_LITERAL,datetime_text_format_specifier);
-						} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_operand_type) {
-							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(TIMESTAMP_LITERAL,datetime_text_format_specifier);
-						} else {
-							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,datetime_text_format_specifier);
-						}
+					if (is_concat_func) {
+						GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,
+											       datetime_text_format_specifier);
 					} else {
-						if (is_concat_func) {
-							GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,
-												       datetime_text_format_specifier);
-						} else {
-							GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,
-												      datetime_text_format_specifier);
-						}
+						GET_DATE_TIME_INPUT_FORMAT_SPECIFIER_FOR_TYPE(date_time_operand_type,
+											      datetime_text_format_specifier);
 					}
 					%{},{{ date_time_operand_type|%d }},{{ cur_parm->data_type_struct->v.data_type_struct.format|%d }},"{{ datetime_text_format_specifier }}"){}%
 				}
@@ -1661,22 +1626,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{},{{ return_type|%d }}{}%
 			%{},{{ format_type|%d }}{}%
 			if (OPTIONAL_DATE_TIME_TEXT == format_type) {
-				/* Check whether the specified function is internal to Octo or is user-defined
-				 * by checking whether the routine name for the function includes the prefix
-				 * used for Octo's internal SQL functions, i.e. OCTOLIT_YDBOCTO. Note that this
-				 * comparison starts at string index 2 to omit the "$$" at the start of the M
-				 * extrinsic function name.
-				 */
 				const char *format_specifier;
-				if ((EXTRINSIC_PREFIX_LEN < strlen(value->v.string_literal))
-					&& strncmp(&value->v.string_literal[2], OCTOLIT_YDBOCTO, (sizeof(OCTOLIT_YDBOCTO) - 1)) == 0) {
-					/* Octo does not use YDB intrinsic functions internally, only extrinsic functions. So assert that
-					 * here, i.e. the function name begins with `$$`. */
-					assert(('$' == value->v.string_literal[0]) && ('$' == value->v.string_literal[1]));
-					GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(return_type, format_specifier);
-				} else {
-					GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(return_type, format_specifier);
-				}
+				GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(return_type, format_specifier);
 				%{},"{{ format_specifier }}"{}%
 			}
 			%{}){}%

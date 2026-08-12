@@ -10,7 +10,6 @@
 //								//
 //////////////////////////////////////////////////////////////////
 @install_dir@/libcocto.so
-ydboctoDateFormatM: ydb_string_t* ydboctoDateFormatC(I:ydb_string_t*, I:ydb_string_t*):SIGSAFE
 ydboctoZutM: ydb_long_t ydboctoZutC(I:ydb_long_t, I:ydb_int_t, I:ydb_string_t*):SIGSAFE
 ydboctoDateTimeCastM: ydb_long_t ydboctoDateTimeCastC(I:ydb_long_t, I:ydb_int_t, I:ydb_int_t):SIGSAFE
 ydboctoDateTimeInternalFormat2TextM: ydb_string_t *ydboctoDateTimeInternalFormat2TextC(I:ydb_long_t, I:ydb_int_t, I:ydb_string_t*):SIGSAFE

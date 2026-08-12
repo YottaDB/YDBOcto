@@ -33,7 +33,6 @@ DROP FUNCTION IF EXISTS "LOCALTIME"();
 DROP FUNCTION IF EXISTS "LOCALTIMESTAMP"();
 DROP FUNCTION IF EXISTS "CURRENT_TIMESTAMP"();
 DROP FUNCTION IF EXISTS "CURRENT_TIME"();
-DROP FUNCTION IF EXISTS "DATE_FORMAT"(VARCHAR, VARCHAR);
 DROP FUNCTION IF EXISTS "DAYOFMONTH"(VARCHAR);
 DROP FUNCTION IF EXISTS "LPAD"(VARCHAR, INTEGER);
 DROP FUNCTION IF EXISTS "LPAD"(VARCHAR, INTEGER, VARCHAR);
@@ -75,6 +74,13 @@ DROP FUNCTION IF EXISTS "FORMAT_TYPE"(INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS "SUBSTRING"(VARCHAR);
 DROP FUNCTION IF EXISTS "SUBSTRING"(VARCHAR, INTEGER);
 DROP FUNCTION IF EXISTS "SUBSTRING"(VARCHAR, INTEGER, INTEGER);
+
+-- DATE_FORMAT was removed with no replacement; drop stale catalog entries left over from before its removal.
+DROP FUNCTION IF EXISTS "DATE_FORMAT"(VARCHAR, VARCHAR);
+DROP FUNCTION IF EXISTS date_format(VARCHAR, VARCHAR);
+DROP FUNCTION IF EXISTS date_format(TIMESTAMP, VARCHAR);
+DROP FUNCTION IF EXISTS date_format(TIMESTAMP WITH TIME ZONE, VARCHAR);
+
 -- Note: Need to use KEEPDATA for every DROP TABLE command in this file.
 -- Search for OPTIONAL_KEEPDATA comment in run_query.c for details.
 DROP TABLE IF EXISTS "OCTOONEROWTABLE" KEEPDATA;
@@ -504,7 +510,7 @@ CREATE FUNCTION trunc(NUMERIC, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION trunc(INTEGER, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION trunc(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION trunc(INTEGER, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
-/* The following are non-standard MySQL and MariaDB functions. */
+/* truncate() is a non-standard MySQL function, retained because it was enabled even in `--emulate POSTGRES` mode when that was an option */
 CREATE FUNCTION truncate(NUMERIC, INTEGER) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION truncate(INTEGER, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
 CREATE FUNCTION truncate(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$^%ydboctofTRUNCATE;
@@ -518,24 +524,16 @@ CREATE FUNCTION mod(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$MOD^%ydboctosqlfuncti
 CREATE FUNCTION mod(INTEGER, INTEGER) RETURNS INTEGER AS $$MOD^%ydboctosqlfunctions;
 
 CREATE FUNCTION now() RETURNS TIMESTAMP WITH TIME ZONE AS $$^%ydboctofCURRENTTIMESTAMP;
-CREATE FUNCTION day(DATE) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions;
+CREATE FUNCTION day(DATE) RETURNS VARCHAR AS $$DAYFROMDATE^%ydboctosqlfunctions;
 CREATE FUNCTION day(VARCHAR) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions; /* Original varchar form is retained as this
 									     * avoids having to specify date qualifier
 									     * for the literal.
 									     */
-/* Aliases for NOW
-   TODO: move these to a MariaDB-specific seed file
-*/
+/* Aliases for NOW */
 CREATE FUNCTION localtime() RETURNS TIME AS $$^%ydboctofLOCALTIME;
 CREATE FUNCTION localtimestamp() RETURNS TIMESTAMP AS $$^%ydboctofCURRENTTIMESTAMP;
 CREATE FUNCTION current_timestamp() RETURNS TIMESTAMP WITH TIME ZONE AS $$^%ydboctofCURRENTTIMESTAMP;
 CREATE FUNCTION current_time() RETURNS TIME WITH TIME ZONE AS $$^%ydboctofCURRENTTIME;
-CREATE FUNCTION date_format(TIMESTAMP, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT;;
-CREATE FUNCTION date_format(TIMESTAMP WITH TIME ZONE, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT;;
-CREATE FUNCTION date_format(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctofDATEFORMAT; /* Original varchar form is retained as this
-											  * avoids having to specify date qualifier
-											  * for the literal.
-											  */
 /* date/time formating function*/
 /* Following convert from text to a different format */
 CREATE FUNCTION date_to_fileman(DATE(FILEMAN)) RETURNS NUMERIC AS $$FILEMAN^%ydboctofTODTFORMAT;
@@ -557,7 +555,7 @@ CREATE FUNCTION timestamptz_to_zhorolog(TIMESTAMP(ZHOROLOG) WITH TIME ZONE) RETU
 CREATE FUNCTION date_to_zut(DATE(ZUT)) RETURNS INTEGER AS $$ZUT^%ydboctofTODTFORMAT;
 CREATE FUNCTION timestamp_to_zut(TIMESTAMP(ZUT)) RETURNS INTEGER AS $$ZUT^%ydboctofTODTFORMAT;
 /* Alias for DAY */
-CREATE FUNCTION dayofmonth(DATE) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions;
+CREATE FUNCTION dayofmonth(DATE) RETURNS VARCHAR AS $$DAYFROMDATE^%ydboctosqlfunctions;
 CREATE FUNCTION dayofmonth(VARCHAR) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions; /* Original varchar form is retained as this
 									            * avoids having to specify date qualifier
 									            * for the literal.

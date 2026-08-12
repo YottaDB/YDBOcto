@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -42,15 +42,6 @@ select concat(time with time zone'01:01:01-05:00', 'sample text', 'sample text')
 select concat('sample text', timestamp with time zone'2023-01-01 01:01:01-05:00', time with time zone'01:01:01-05:00');
 select concat(timestamp with time zone'2023-01-01 01:01:01-05:00', 'sample text', time with time zone'01:01:01-05:00');
 select concat(timestamp with time zone'2023-01-01 01:01:01-05:00', time with time zone'01:01:01-05:00', 'sample text');
--- TDTT053
--- mysql test
---select current_time; -- hh:mm:ss no micro second or time zone
--- current_time
--- 6 is used to avoid second values
---select current_time between cast(cast(cast(now() - time'01:01:01') as time) as char(6)) and cast(cast(cast(now() + time'01:01:01') as time) as char(6));
--- Following two are commented because Octo's output will not match mysql's when daylight savings is active
--- select cast(cast(current_time as time) as char(6));
--- select cast(current_time as char(6));
 
 -- TDTT048
 -- text to zhorolog validation
@@ -155,7 +146,6 @@ select time with time zone'16:12:00';
 -- run through load_fixture
 -- Following query's result difference is because of direct use of time.h. The time
 --   is considered to be present day's time and hence is being considered to local time for the day.
--- Note: Mysql doesn't allow timezone information in time type hence doesn't have this problem
 select time with time zone'22:30:00+05:30';
 -- Postgres result is '22:30:00+05:30' but Octo result is 12:00:00-0500
 select time with time zone'10:30:00+05:30';

@@ -89,10 +89,6 @@
 #define MEMORY_CHUNK_SIZE (1 * 1024 * 1024)
 // Maximum number of key columns
 #define MAX_KEY_COUNT 256
-// Maximum length for database emulation strings, e.g. "PostgreSQL"
-#define MAX_EMULATION_STRING_LEN 12
-// Length of M extrinsic function prefix, i.e. "$$"
-#define EXTRINSIC_PREFIX_LEN 2
 
 #define IS_KEY_COLUMN(COLUMN)		      (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM))
 #define IS_COLUMN_NOT_NULL(COLUMN)	      (IS_KEY_COLUMN(COLUMN) || IS_COLUMN_IDENTITY(COLUMN) || (NULL != get_keyword(COLUMN, NOT_NULL)))
@@ -155,23 +151,13 @@
 #define DEFAULT_TIME_FORMAT		  "%H:%M:%S"
 #define DEFAULT_TIMETZ_FORMAT		  "%H:%M:%S%z"
 #define DEFAULT_TIMESTAMP_FORMAT	  "%m-%d-%Y %H:%M:%S"
-#define POSTGRES_DATE_FORMAT		  "%Y-%m-%d"
-#define POSTGRES_TIME_FORMAT		  DEFAULT_TIME_FORMAT
-#define POSTGRES_TIMETZ_FORMAT		  DEFAULT_TIMETZ_FORMAT
-#define POSTGRES_TIMESTAMP_FORMAT	  "%Y-%m-%d %H:%M:%S"
-#define POSTGRES_TIMESTAMPTZ_FORMAT	  "%Y-%m-%d %H:%M:%S%z"
-#define MYSQL_DATE_FORMAT		  "%Y-%m-%d"
-#define MYSQL_TIME_FORMAT		  DEFAULT_TIME_FORMAT
-#define MYSQL_TIMESTAMP_FORMAT		  "%Y-%m-%d %H:%M:%S"
 #define DEFAULT_OUTPUT_DATE_FORMAT	  "%Y-%m-%d"
 #define DEFAULT_OUTPUT_TIME_FORMAT	  DEFAULT_TIME_FORMAT
 #define DEFAULT_OUTPUT_TIMETZ_FORMAT	  DEFAULT_TIMETZ_FORMAT
 #define DEFAULT_OUTPUT_TIMESTAMP_FORMAT	  "%Y-%m-%d %H:%M:%S"
 #define DEFAULT_OUTPUT_TIMESTAMPTZ_FORMAT "%Y-%m-%d %H:%M:%S%z"
-#define OCTO_DEFAULT_MYSQL_DATESTYLE	  OCTO_DEFAULT_DATESTYLE
 // Set YMD as the default as we would like the result and input format to match
 // Postgres supports YMD so this will not cause any issues
-#define OCTO_DEFAULT_POSTGRES_DATESTYLE	    OCTO_DEFAULT_DATESTYLE
 #define OCTO_DEFAULT_DATESTYLE		    "ISO, YMD"
 #define MAX_DATE_TIME_INTERNAL_FORMAT_VALUE 253402300799999999
 /* Internal format is a plain linear "microseconds since epoch" value (SECONDS * 1000000 + MICROSECONDS), so this bound is
@@ -218,7 +204,6 @@
 #define OCTOLIT_PKEY			    "pkey"
 #define OCTOLIT_LENGTH			    "length"
 #define OCTOLIT_TEXT_LENGTH		    "text_length"
-#define OCTOLIT_MYSQL			    "MySQL"
 #define OCTOLIT_NAME			    "name"
 #define OCTOLIT_NONE			    "none"
 #define OCTOLIT_OID			    "oid"
@@ -233,7 +218,6 @@
 #define OCTOLIT_PLANDIRS		    "plandirs"
 #define OCTOLIT_PLANFMT			    "planfmt"
 #define OCTOLIT_PLAN_METADATA		    "plan_metadata"
-#define OCTOLIT_POSTGRESQL		    "PostgreSQL"
 #define OCTOLIT_PREPARED		    "prepared"
 #define OCTOLIT_PRIMARY_KEY_NAME	    "primary_key_name"
 #define OCTOLIT_READ_ONLY		    "read-only"
@@ -260,7 +244,6 @@
 #define OCTOLIT_VIEW			    "VIEW"
 #define OCTOLIT_VIEWPLANS		    "viewplans"
 #define OCTOLIT_VIEWDEPENDENCY		    "viewdependency"
-#define OCTOLIT_YDBOCTO			    "^%ydbocto"
 #define OCTOLIT_YDBOCTOCANCEL		    "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOCANCELLOCALXF	    "localTableXref"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST	    "%ydboctoSecretKeyList"
@@ -441,12 +424,12 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 48
+#define FMT_PLAN_DEFINITION 49
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
  */
-#define FMT_SEED_DEFINITION 12
+#define FMT_SEED_DEFINITION 13
 
 #define FMT_SEED_DEFINITION_OCTO929                                                 \
 	7 /* The value of FMT_SEED_DEFINITION when YDBOcto#929 changes were merged. \
@@ -1335,42 +1318,6 @@ typedef enum DDLDependencyType {
 			RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
 		}                                                                           \
 	}
-#define GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(TYPE, RET)                          \
-	{                                                                                           \
-		if (POSTGRES == config->database_emulation) {                                       \
-			if (DATE_LITERAL == TYPE) {                                                 \
-				RET = POSTGRES_DATE_FORMAT;                                         \
-			} else if (TIME_LITERAL == TYPE) {                                          \
-				RET = POSTGRES_TIME_FORMAT;                                         \
-			} else if (TIMESTAMP_LITERAL == TYPE) {                                     \
-				RET = POSTGRES_TIMESTAMP_FORMAT;                                    \
-			} else if (TIME_WITH_TIME_ZONE_LITERAL == TYPE) {                           \
-				RET = POSTGRES_TIMETZ_FORMAT;                                       \
-			} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE) {                      \
-				RET = POSTGRES_TIMESTAMPTZ_FORMAT;                                  \
-			} else {                                                                    \
-				assert(FALSE);                                                      \
-				RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
-			}                                                                           \
-		} else {                                                                            \
-			assert(MYSQL == config->database_emulation);                                \
-			if (DATE_LITERAL == TYPE) {                                                 \
-				RET = MYSQL_DATE_FORMAT;                                            \
-			} else if (TIME_LITERAL == TYPE) {                                          \
-				RET = MYSQL_TIME_FORMAT;                                            \
-			} else if (TIMESTAMP_LITERAL == TYPE) {                                     \
-				RET = MYSQL_TIMESTAMP_FORMAT;                                       \
-			} else if (TIME_WITH_TIME_ZONE_LITERAL == TYPE) {                           \
-				RET = MYSQL_TIME_FORMAT;                                            \
-			} else if (TIMESTAMP_WITH_TIME_ZONE_LITERAL == TYPE) {                      \
-				RET = MYSQL_TIMESTAMP_FORMAT;                                       \
-			} else {                                                                    \
-				assert(FALSE);                                                      \
-				RET = ""; /* prevents [clang-diagnostic-sometimes-uninitialized] */ \
-			}                                                                           \
-		}                                                                                   \
-	}
-
 #define SET_INTERNAL_FORMAT_FOR_DATA_TYPE(DATA_TYPE, INTERNAL_FORMAT) \
 	{ (DATA_TYPE)->v.data_type_struct.format = (INTERNAL_FORMAT)->v.keyword->keyword; }
 
@@ -1623,9 +1570,8 @@ int no_more(void);
 int  get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 
-int   get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
-int   get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
-char *get_emulation_string(void);
+int get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
+int get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
 
 int auto_load_octo_seed(void);
 int auto_load_octo_seed_if_needed(void);

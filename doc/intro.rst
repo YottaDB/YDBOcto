@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2018-2025 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2018-2026 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -549,28 +549,6 @@ Launching Options
     .. code-block:: bash
 
        octo --dry-run
-
-~~~~~~~~~
-  Emulate
-~~~~~~~~~
-
-    The emulate option allows the user to specify which SQL database Octo should emulate. Database names should be in all caps. Currently supported emulations are MYSQL and POSTGRES. If you wish to emulate MariaDB, choose MYSQL.
-
-    .. code-block:: bash
-
-       --emulate=<db_name>
-
-    or equivalently,
-
-    .. code-block:: bash
-
-       -e <db_name>
-
-    Example:
-
-    .. code-block:: bash
-
-       octo --emulate=MYSQL
 
 ~~~~~~~~~~~~
   Input-file

@@ -232,15 +232,12 @@ if("${FULL_TEST_SUITE}")
 	ADD_BATS_TEST_DML(type_cast)
 	ADD_BATS_TEST_DML(begin_commit_rollback)
 	ADD_BATS_TEST_DML(date_time_type)
-	ADD_BATS_TEST_DML(date_time_type5)
-	ADD_BATS_TEST_DML(date_time_type6)
-
-
-	# The following tests require Postgres
-	ADD_BATS_TEST_DML(date_time_functions)
 	ADD_BATS_TEST_DML(date_time_type2)
 	ADD_BATS_TEST_DML(date_time_type3)
 	ADD_BATS_TEST_DML(date_time_type4)
+	ADD_BATS_TEST_DML(date_time_type5)
+	ADD_BATS_TEST_DML(date_time_type6)
+	ADD_BATS_TEST_DML(date_time_functions)
 
 	find_program(go NAMES go)
 	if(go)

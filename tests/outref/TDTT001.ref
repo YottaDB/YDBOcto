@@ -5,7 +5,6 @@ select time'16:12:00'; -- result should be same but no time zone information dis
 
 -- Following query's result difference is because of direct use of time.h. The time
 --   is considered to be present day's time and hence is being considered to local time for the day.
--- Note: Mysql doesn't allow timezone information in time type hence doesn't have this problem
 select time with time zone'22:30:00+0530'; -- Postgres result is '22:30:00+05:30' but Octo result is 12:00:00-0500
 select time with time zone'10:30:00+0530'; -- Postgres result is '10:30:00+05:30' but Octo result is 00:00:00-0500
 

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -14,6 +14,17 @@
 -- Note that some of those functions have already been implemented previously and are tested elsewhere.
 SELECT lpad('a', 5);
 SELECT lpad('aaa', 2);
+
+-- Three-argument form, with a custom pad string.
+SELECT lpad('a', 5, 'b');
+SELECT lpad('abb', 10, 'c');
+SELECT lpad('ab', 1, 'd');
+SELECT lpad('a', 5, 'bcd');
+SELECT lpad('abb', 10, 'cdef');
+SELECT lpad('ab', 1, 'defgh');
+SELECT lpad(NULL, 1, 'defgh');
+SELECT lpad('ab', NULL, 'defgh');
+SELECT lpad('ab', 1, NULL);
 
 -- The following queries are disabled due to timing discrepancies that may occur during
 -- the crosscheck process, i.e. due to queries being called successively in Octo and Postgres,

@@ -1394,11 +1394,10 @@ ydb_string_t *ydboctoDateTimeInternalFormat2TextC(int count, ydb_long_t value, y
 	boolean_t no_time_zone = TRUE;
 	if ((TIME_WITH_TIME_ZONE_LITERAL == date_time_type) || (TIMESTAMP_WITH_TIME_ZONE_LITERAL == date_time_type)) {
 		if (NULL != strchr(format, 'z')) {
-			/* In mysql emulation we will not have %z as format specifier.
-			 * This is intensionally done to avoid timezone in return value.
-			 * Also, in this case type will not be modified by the caller to TIME_LITERAL and TIMESTAMP_LITERAL as
-			 * original type information is needed here to determine which function is selected to convert unix time to
-			 * struct tm value.
+			/* The current date/time format never includes %z, so timezone is intentionally omitted from the return
+			 * value. Also, in this case type will not be modified by the caller to TIME_LITERAL and TIMESTAMP_LITERAL
+			 * as original type information is needed here to determine which function is selected to convert unix time
+			 * to struct tm value.
 			 */
 			no_time_zone = FALSE;
 		}

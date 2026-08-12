@@ -332,8 +332,6 @@ Input and Output text format value
      -- when datestyle is 'mdy'
      date'01-01-2023'
 
-  ``datestyle`` default value when ``MYSQL`` emulation is being done is also ``ISO, YMD``.
-
 ~~~~~~~~~~~~~~~~
 Readonly Table
 ~~~~~~~~~~~~~~~~
@@ -548,7 +546,6 @@ Date/time Functions
     * CURRENT_TIMESTAMP -> returns :code:`TIMESTAMP WITH TIME ZONE`
     * DAY(DATE) -> returns :code:`VARCHAR`
     * DAYOFMONTH(DATE) -> returns :code:`VARCHAR`
-    * DATE_FORMAT(TIMESTAMP,VARCHAR) -> returns :code:`VARCHAR`
     * date_to_fileman(DATE) -> returns :code:`NUMERIC`
     * timestamp_to_fileman(TIMESTAMP) -> returns :code:`NUMERIC`
     * timestamptz_to_fileman(TIMESTAMP WITH TIME ZONE) -> returns :code:`NUMERIC`
@@ -1465,7 +1462,7 @@ CREATE FUNCTION
 
   If IF NOT EXISTS is supplied for a CREATE FUNCTION statement and a function exists, the result is a no-op with no errors. In this case, error type INFO_FUNCTION_ALREADY_EXISTS is emitted at INFO log severity level.
 
-  Note that Octo reserves the M routine prefix :code:`^%ydbocto` for internal functions defined by Octo itself. Moreover, Octo assumes that any YottaDB extrinsic function name that includes this prefix but omits a label will have its own :code:`_ydbocto*.m` file containing emulation label mappings for :code:`PostgreSQL` and :code:`MySQL`. Accordingly, extrinsic function names like `$$^ydboctoxyz` will prompt Octo to look for a :code:`_ydboctoxyz.m` file containing two labels, :code:`PostgreSQL` and :code:`MySQL`. If these labels are absent, a `LABELMISSING` will be issued by YottaDB. For this reason, it is advised that users do not use the :code:`^%ydbocto` prefix in extrinsic function names to avoid conflicts and complications with Octo internal M routines.
+  Note that Octo reserves the M routine prefix :code:`^%ydbocto` for internal functions defined by Octo itself. For this reason, it is advised that users do not use the :code:`^%ydbocto` prefix in extrinsic function names to avoid conflicts and complications with Octo internal M routines.
 
   CREATE FUNCTION can be used to define multiple functions with the same name, provided the number of parameters and/or the types of the parameters are different. In other words, CREATE FUNCTION supports function overloading.
 
@@ -2382,10 +2379,7 @@ CURRENT_TIME
      CURRENT_TIME
      CURRENT_TIME()
 
-  The built-in CURRENT_TIME returns the current system time in the following formats, depending on which database emulation setting is active:
-
-    * :code:`POSTGRES` emulation: :code:`hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
-    * :code:`MYSQL` emulation: :code:`hh:mm:ss`
+  The built-in CURRENT_TIME returns the current system time in the format :code:`hh:mm:ss.uuuuuu[-|+]LL`, where `u` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
 
 +++++++++++++++++
 CURRENT_TIMESTAMP
@@ -2396,10 +2390,7 @@ CURRENT_TIMESTAMP
      CURRENT_TIMESTAMP
      CURRENT_TIMESTAMP()
 
-  The built-in CURRENT_TIMESTAMP is a synonym for the NOW function, and returns the current system time in the following formats, depending on which database emulation setting is active:
-
-    * :code:`POSTGRES` emulation: :code:`YYYY-MM-DD hh:mm:ss.uuuuuu[-|+]LL`, where `u` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
-    * :code:`MYSQL` emulation: :code:`YYYY-MM-DD hh:mm:ss`
+  The built-in CURRENT_TIMESTAMP is a synonym for the NOW function, and returns the current system time in the format :code:`YYYY-MM-DD hh:mm:ss.uuuuuu[-|+]LL`, where `u` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
 
 ++++++++++++
 CURRENT_USER
@@ -2436,118 +2427,6 @@ DAYOFMONTH
 
   The built-in DAYOFMONTH function accepts a date in the format :code:`YYYY-MM-DD` as a string (:code:`DAYOFMONTH('2023-01-01')`) and returns the numeric day of the month in the range 0-31 where 0 is returned for dates that have a value of zero for the day field, e.g. `1999-06-00`. Also, ``DATE`` type values are also accepted with datestyle set to :code:`YMD` (:code:`DAYOFMONTH(date'2023-01-01')`,:code:`DAYOFMONTH(date(fileman)'3230101')`). When ``DATE`` type value is passed the function returns the numeric day of the month in the range 1-31.
 
-+++++++++++
-DATE_FORMAT
-+++++++++++
-
-  .. code-block:: SQL
-
-     DATE_FORMAT(VARCHAR,VARCHAR)
-     DATE_FORMAT(TIMESTAMP,VARCHAR)
-
-  The built-in DATE_FORMAT function accepts a date in the format :code:`YYYY-MM-DD hh:mm:ss.uuuuuu` and a format string, and returns a new string wherein the given date is formatted according to the format specified. Note that the number of microseconds :code:`uuuuuu` may be omitted such that the date may be in the format :code:`YYYY-MM-DD hh:mm:ss`.
-
-  Note that in the following table there is reference to MySQL :code:`WEEK()` modes. Presently, Octo does not implement :code:`WEEK()`, but the MySQL :code:`WEEK()` modes are implemented for those format codes below that require them. For more information on :code:`WEEK()` modes, see the `MySQL documentation <https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_week>`_.
-
-  Acceptable formatting symbols for DATE_FORMAT format string are as follows:
-
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | Format symbol  | Description                                                                                                  |
-  +================+==============================================================================================================+
-  | %a             | Abbreviated weekday name (Sun..Sat)                                                                          |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %b             | Abbreviated month name (Jan..Dec)                                                                            |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %c             | Month, numeric (0..12)                                                                                       |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %D             | Day of the month with English suffix (0th, 1st, 2nd, 3rd, ...)                                               |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %d             | Day of the month, numeric (00..31)                                                                           |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %e             | Day of the month, numeric (0..31)                                                                            |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %f             | Microseconds (000000..999999)                                                                                |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %H             | Hour (00..23)                                                                                                |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %h             | Hour (01..12)                                                                                                |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %I             | Hour (01..12)                                                                                                |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %i             | Minutes, numeric (00..59)                                                                                    |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %j             | Day of year (001..366)                                                                                       |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %k             | Hour (0..23)                                                                                                 |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %l             | Hour (1..12)                                                                                                 |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %M             | Month name (January..December)                                                                               |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %m             | Month, numeric (00..12)                                                                                      |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %p             | AM or PM                                                                                                     |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %r             | Time, 12-hour (hh:mm:ss followed by AM or PM)                                                                |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %S             | Seconds (00..59)                                                                                             |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %s             | Seconds (00..59)                                                                                             |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %T             | Time, 24-hour (hh:mm:ss)                                                                                     |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %U             | Week (00..53), where Sunday is the first day of the week; Corresponding to MySQL WEEK() mode 0               |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %u             | Week (00..53), where Monday is the first day of the week; Corresponding to MySQL WEEK() mode 1               |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %V             | Week (01..53), where Sunday is the first day of the week; Corresponding to MySQL WEEK() mode 2; used with %X |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %v             | Week (01..53), where Monday is the first day of the week; Corresponding to MySQL WEEK() mode 3; used with %x |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %W             | Weekday name (Sunday..Saturday)                                                                              |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %w             | Day of the week (0=Sunday..6=Saturday)                                                                       |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %X             | Year for the week where Sunday is the first day of the week, numeric, four digits; used with %V              |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %x             | Year for the week, where Monday is the first day of the week, numeric, four digits; used with %v             |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %Y             | Year, numeric, four digits                                                                                   |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %y             | Year, numeric (two digits)                                                                                   |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %%             | A literal % character                                                                                        |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-  | %x             | x, for any "x" not listed above                                                                              |
-  +----------------+--------------------------------------------------------------------------------------------------------------+
-
-  .. code-block:: SQL
-
-      OCTO> SELECT DATE_FORMAT('2004-10-22 21:20:14', '%W %M %Y');
-      DATE_FORMAT
-      Friday October 2004
-      (1 row)
-      OCTO> SELECT DATE_FORMAT('2019-10-22 21:20:14', '%H:%i:%s');
-      DATE_FORMAT
-      21:20:14
-      (1 row)
-      OCTO> SELECT DATE_FORMAT('1920-10-22 21:20:14', '%D %y %a %d %m %b %j');
-      DATE_FORMAT
-      22nd 20 Fri 22 10 Oct 296
-      (1 row)
-      OCTO> SELECT DATE_FORMAT('1994-10-22 21:20:14', '%H %k %I %r %T %S %w');
-      DATE_FORMAT
-      21 21 09 09:20:14 PM 21:20:14 14 6
-      (1 row)
-      OCTO> SELECT DATE_FORMAT('1999-01-01', '%X %V');
-      DATE_FORMAT
-      1998 52
-      (1 row)
-      OCTO> SELECT DATE_FORMAT('2006-06-00', '%d');
-      DATE_FORMAT
-      00
-      (1 row)
-
 ++++++++++++++++++
 GREATEST and LEAST
 ++++++++++++++++++
@@ -2581,10 +2460,7 @@ LOCALTIME
      LOCALTIME
      LOCALTIME()
 
-  The built-in LOCALTIME function returns the current system time in the following formats, depending on which database emulation setting is active:
-
-    * :code:`POSTGRES` emulation: :code:`hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
-    * :code:`MYSQL` emulation (synonym for NOW): :code:`YYYY-MM-DD hh:mm:ss`
+  The built-in LOCALTIME function returns the current system time in the format :code:`hh:mm:ss.uuuuuu`, where `u` is a microsecond field. Unlike CURRENT_TIME, no UTC offset is included.
 
 ++++++++++++++
 LOCALTIMESTAMP
@@ -2595,10 +2471,7 @@ LOCALTIMESTAMP
      LOCALTIMESTAMP
      LOCALTIMESTAMP()
 
-  The built-in LOCALTIMESTAMP is a synonym for the NOW function, and returns the current system time in the following formats, depending on which database emulation setting is active:
-
-    * :code:`POSTGRES` emulation: :code:`YYYY-MM-DD hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
-    * :code:`MYSQL` emulation: :code:`YYYY-MM-DD hh:mm:ss`
+  The built-in LOCALTIMESTAMP is a synonym for the NOW function, and returns the current system time in the format :code:`YYYY-MM-DD hh:mm:ss.uuuuuu[-|+]LL`, where `u` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
 
 ++++++++++++++++
 LPAD
@@ -2611,7 +2484,7 @@ LPAD
 
   The built-in LPAD function adds padding to the left hand side of a string (first argument) up to the designated length (second argument). The default padding is a space, which is used in the two-argument form of this function. However, an optional third argument specifying a specific string to use for padding may also be used.
 
-  Note that in :code:`POSTGRES` emulation either the two- or three- argument form may be used. However, MySQL only supports the three-argument version, so a third argument must always be specified when using the :code:`MYSQL` emulation setting.
+  Either the two- or three-argument form may be used.
 
 +++++
 MOD
@@ -2634,10 +2507,7 @@ NOW
 
      NOW()
 
-  The built-in NOW function returns the current system time in the following formats, depending on which database emulation setting is active:
-
-    * :code:`POSTGRES` emulation: :code:`YYYY-MM-DD hh:mm:ss.UUUUUU[-|+]LL`, where `U` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
-    * :code:`MYSQL` emulation: :code:`YYYY-MM-DD hh:mm:ss`
+  The built-in NOW function returns the current system time in the format :code:`YYYY-MM-DD hh:mm:ss.uuuuuu[-|+]LL`, where `u` is a microsecond field and `[-|+]LL` is the positive or negative UTC offset.
 
   Note that NOW is a synonym for CURRENT_TIMESTAMP, but, unlike the latter function, it must always include parentheses.
 

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -13,12 +13,5 @@
 ; Implements the SQL CURRENT_TIME function, which returns the current
 ; time.
 CURRENTTIME()
-	quit
-
-PostgreSQL()
 	; Returns the current time in `HH:MM:SS.US-TT` format
-	quit $extract($$PostgreSQL^%ydboctofCURRENTTIMESTAMP(),12,29)
-
-MySQL()
-	; Returns the current time in `HH:MM:SS` format
-	quit $extract($$MySQL^%ydboctofCURRENTTIMESTAMP(),12,21)
+	quit $extract($$CURRENTTIMESTAMP^%ydboctofCURRENTTIMESTAMP(),12,29)

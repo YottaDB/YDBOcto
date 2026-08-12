@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -44,7 +44,6 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	      "  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
 	      "  -d, --dry-run				Run the parser in read-only mode and performs basic checks without "
 	      "executing any passed SQL statements.\n"
-	      "  -e, --emulate=<db_name>		Specify the SQL database to emulate, e.g. MYSQL, POSTGRES, etc.\n"
 	      "  -f, --input-file=<filepath>		Read commands from specified file instead of opening interactive prompt.\n"
 	      "  -h, --help				Display this help message and exit.\n"
 	      "  -p, --print-sql-query			Display each query as it executes [octo -f] or [octo <]\n"
@@ -61,7 +60,6 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	      "Mandatory arguments for long options are also mandatory for short options.\n"
 	      "  -a, --allowschemachanges		Allows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)\n"
 	      "  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
-	      "  -e, --emulate=<db_name>		Specify the SQL database to emulate, e.g. MYSQL, POSTGRES, etc.\n"
 	      "  -h, --help				Display this help message and exit.\n"
 	      "  -p, --port=<number>			Listen on the specified port.\n"
 	      "  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' "
@@ -72,7 +70,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	      "  -w, --readwrite			Allow users with read-write permissions to run INSERT, UPDATE, and DELETE\n"
 	      "  -r, --release				Display release information and exit.\n";
 	int	  c;
-	boolean_t verbosity_unset = TRUE, port_unset = TRUE, emulate_unset = TRUE;
+	boolean_t verbosity_unset = TRUE, port_unset = TRUE;
 
 	if ((0 < argc) && (NULL != strstr(argv[0], "rocto"))) {
 		config->is_rocto = TRUE;
@@ -90,17 +88,19 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	/* Parse input parameters */
 	while (1) {
 		// List of valid Octo long options
-		static struct option octo_long_options[]
-		    = {{"config-file", required_argument, NULL, 'c'}, {"dry-run", no_argument, NULL, 'd'},
-		       {"emulate", required_argument, NULL, 'e'},     {"help", no_argument, NULL, 'h'},
-		       {"input-file", required_argument, NULL, 'f'},  {"print-sql-query", no_argument, NULL, 'p'},
-		       {"release", no_argument, NULL, 'r'},	      {"verbose", optional_argument, NULL, 'v'},
-		       {"version", no_argument, NULL, 'r'},	      {0, 0, 0, 0}};
+		static struct option octo_long_options[] = {{"config-file", required_argument, NULL, 'c'},
+							    {"dry-run", no_argument, NULL, 'd'},
+							    {"help", no_argument, NULL, 'h'},
+							    {"input-file", required_argument, NULL, 'f'},
+							    {"print-sql-query", no_argument, NULL, 'p'},
+							    {"release", no_argument, NULL, 'r'},
+							    {"verbose", optional_argument, NULL, 'v'},
+							    {"version", no_argument, NULL, 'r'},
+							    {0, 0, 0, 0}};
 
 		// List of valid Rocto long options
 		static struct option rocto_long_options[] = {{"allowschemachanges", no_argument, NULL, 'a'},
 							     {"config-file", required_argument, NULL, 'c'},
-							     {"emulate", required_argument, NULL, 'e'},
 							     {"help", no_argument, NULL, 'h'},
 							     {"port", required_argument, NULL, 'p'},
 							     {"readwrite", no_argument, NULL, 'w'},
@@ -111,9 +111,9 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 		int		     option_index = 0;
 
 		if (config->is_rocto) {
-			c = getopt_long(argc, argv, "ac:e:hp:rvw", rocto_long_options, &option_index);
+			c = getopt_long(argc, argv, "ac:hp:rvw", rocto_long_options, &option_index);
 		} else {
-			c = getopt_long(argc, argv, "c:de:f:hprv", octo_long_options, &option_index);
+			c = getopt_long(argc, argv, "c:df:hprv", octo_long_options, &option_index);
 		}
 		if (-1 == c)
 			break;
@@ -154,22 +154,6 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 			break;
 		case 'd':
 			config->dry_run = TRUE;
-			break;
-		case 'e':
-			if (optarg) {
-				if (strcmp(optarg, "POSTGRES") == 0) {
-					config->database_emulation = POSTGRES;
-				} else if (strcmp(optarg, "MYSQL") == 0) {
-					config->database_emulation = MYSQL;
-				} else {
-					printf("Please use one of the supported database emulations with -e/--emulat: 'POSTGRES' "
-					       "or 'MYSQL'\n");
-					return 1;
-				}
-			} else {
-				assert(FALSE);
-			}
-			emulate_unset = FALSE;
 			break;
 		case 'p':
 			if (optarg) {
@@ -219,9 +203,6 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	}
 	if (port_unset) {
 		config->rocto_config.port = -1;
-	}
-	if (emulate_unset) {
-		config->database_emulation = EMULATION_UNSET;
 	}
 	return 0;
 }

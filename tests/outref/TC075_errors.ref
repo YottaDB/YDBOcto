@@ -25,7 +25,7 @@ CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHA
 -- Test of ERR_KEYS_NEEDS_A_KEY_COLUMN error
 -- Todo tracked at https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1246#note_1150217632
 -- Test EXTRACT with keys(non-primary-key-column)
-CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), computed VARCHAR EXTRACT "$$PostgreSQL^%ydboctofCONCAT(keys(""ID""),values(""FIRSTNAME""),keys(""LASTNAME""))") GLOBAL "^names";
+CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), computed VARCHAR EXTRACT "$$CONCAT^%ydboctofCONCAT(keys(""ID""),values(""FIRSTNAME""),keys(""LASTNAME""))") GLOBAL "^names";
 
 -- ###############################################################################################
 -- Test TABLE-LEVEL GLOBAL keyword for various keys() and values() usages.
@@ -190,7 +190,7 @@ OCTO> CREATE TABLE `TMP` (`ID` INTEGER PRIMARY KEY, `FULLNAME` VARCHAR EXTRACT "
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
 OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), abs_id INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(values(""ID""))") GLOBAL "^names";
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: ID
-OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), computed VARCHAR EXTRACT "$$PostgreSQL^%ydboctofCONCAT(keys(""ID""),values(""FIRSTNAME""),keys(""LASTNAME""))") GLOBAL "^names";
+OCTO> CREATE TABLE tmp (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), computed VARCHAR EXTRACT "$$CONCAT^%ydboctofCONCAT(keys(""ID""),values(""FIRSTNAME""),keys(""LASTNAME""))") GLOBAL "^names";
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName
 OCTO> create table tmp (id integer primary key) GLOBAL "^names(keys(""firstName"")))" READONLY;
 [ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: firstName

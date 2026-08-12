@@ -8,12 +8,14 @@ SELECT TRUNC(155, -44);
 SELECT TRUNC(155, 1.5);
 SELECT TRUNC(155, -1.5);
 SELECT TRUNC(155, 45);
+-- Confirm "truncate" (YDBOcto#288) is a working alias for the same TRUNC() implementation.
+SELECT TRUNCATE(1.525, 1);
 OCTO> SELECT TRUNC(1.01234567890123456789012345, 20);
 trunc
 1.01234567890123456000
 (1 row)
 OCTO> SELECT TRUNC(155, -44);
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373210,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-DIVZERO, Attempt to divide by zero
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373210,TRUNCATE+2^%ydboctofTRUNCATE,%YDB-E-DIVZERO, Attempt to divide by zero
 OCTO> SELECT TRUNC(155, 1.5);
 trunc
 155.00
@@ -23,5 +25,9 @@ trunc
 100
 (1 row)
 OCTO> SELECT TRUNC(155, 45);
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373506,PostgreSQL+2^%ydboctofTRUNCATE,%YDB-E-NUMOFLOW, Numeric overflow
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373506,TRUNCATE+2^%ydboctofTRUNCATE,%YDB-E-NUMOFLOW, Numeric overflow
+OCTO> SELECT TRUNCATE(1.525, 1);
+truncate
+1.5
+(1 row)
 OCTO> 

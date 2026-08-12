@@ -4,7 +4,6 @@ Start the Octo SQL server.
 Mandatory arguments for long options are also mandatory for short options.
   -c, --config-file=<filepath>		Use specified configuration file instead of the default.
   -d, --dry-run				Run the parser in read-only mode and performs basic checks without executing any passed SQL statements.
-  -e, --emulate=<db_name>		Specify the SQL database to emulate, e.g. MYSQL, POSTGRES, etc.
   -f, --input-file=<filepath>		Read commands from specified file instead of opening interactive prompt.
   -h, --help				Display this help message and exit.
   -p, --print-sql-query			Display each query as it executes [octo -f] or [octo <]

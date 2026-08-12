@@ -124,9 +124,6 @@ localtime|time
 localtimestamp|timestamp
 current_timestamp|timestamptz
 current_time|timetz
-date_format|varchar
-date_format|varchar
-date_format|varchar
 date_to_fileman|numeric
 timestamp_to_fileman|numeric
 timestamptz_to_fileman|numeric
@@ -209,5 +206,5 @@ pg_get_ruledef|varchar
 pg_get_partkeydef|varchar
 pg_stat_get_numscans|varchar
 pg_tablespace_location|varchar
-(205 rows)
+(202 rows)
 OCTO> 

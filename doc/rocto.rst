@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -58,10 +58,6 @@ Command Line Flags
 	  Octo looks for configuration files in default locations, e.g. :code:`$ydb_dist/plugin/octo/octo.conf`. If a configuration file is specified on the command line, this will override any configuration specified in files from the default locations.
 
       Use specified configuration file instead of the default.
-
-  #. **-e,  \-\-emulate=<db_name>**
-
-      Specify the SQL database that Octo should emulate. Currently supported emulations are MYSQL and POSTGRES. If you wish to emulate MariaDB, choose MYSQL.
 
   #. **-h,  \-\-help**
 

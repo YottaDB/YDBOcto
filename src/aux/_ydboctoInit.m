@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -40,8 +40,6 @@
 	SET %ydboctoerror("VARCHARTOOLONG")=$incr(%ydboctoerrcode) ; signaled by `SizeCheckVARCHAR` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("DUPLICATEKEYVALUE")=$incr(%ydboctoerrcode) ; signaled by `DuplicateKeyValue` in `_ydboctoplanhelpers.m`
 	SET %ydboctoerror("NULLCOLVALUE")=$incr(%ydboctoerrcode) ; signaled by `NullColValue` in `_ydboctoplanhelpers.m`
-	; signaled by `MySQL` labels in various `_ydboctof*.m` routines, e.g. `_ydboctofLPAD.m`.
-	SET %ydboctoerror("UNKNOWNFUNCTION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("CHECKCONSTRAINTVIOLATION")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("UNKNOWNTABLE")=$incr(%ydboctoerrcode)
 	SET %ydboctoerror("NEGATIVESUBSTRINGLENGTH")=$incr(%ydboctoerrcode)

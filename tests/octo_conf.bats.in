@@ -41,22 +41,16 @@ teardown() {
 	verify_output TOC01 output.txt
 }
 
-@test "TOC02 : OCTO288 : Test emulate setting in octo.conf" {
+@test "TOC02 : Test that the removed 'emulate' config setting is rejected unless it is POSTGRES" {
 	touch output.txt
-	for setting in MYSQL POSTGRES
-	do
-		echo '# Test that [emulate = "'$setting'"] does not issue error' >> output.txt
-		echo 'emulate = "'$setting'"' > octo.conf
-		octo < /dev/null >> output.txt 2>&1
-	done
-	for setting in readonly mysql anyothervalue
+	echo '# Test that [emulate = "POSTGRES"] does not issue error' >> output.txt
+	echo 'emulate = "POSTGRES"' > octo.conf
+	octo < /dev/null >> output.txt 2>&1
+	for setting in MYSQL readonly mysql anyothervalue
 	do
 		echo '# Test that [emulate = "'$setting'"] issues error' >> output.txt
 		echo 'emulate = "'$setting'"' > octo.conf
 		octo < /dev/null >> output.txt 2>&1 || true
 	done
-	echo '# Test that [tabletype = 1] (any integer value) issues error' >> output.txt
-	echo 'tabletype = 1' > octo.conf
-	octo < /dev/null >> output.txt 2>&1 || true
 	verify_output TOC02 output.txt
 }

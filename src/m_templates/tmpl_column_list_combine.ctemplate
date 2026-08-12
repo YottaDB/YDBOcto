@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -269,7 +269,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			if (IS_DATE_TIME_TYPE(column_type)) {
 				TMPL(tmpl_print_dots, dot_count);
 				const char *datetime_text_format_specifier;
-				GET_EMULATION_BASED_DATE_TIME_FORMAT_SPECIFIER_FOR_TYPE(column_type, datetime_text_format_specifier);
+				GET_DATE_TIME_OUTPUT_FORMAT_SPECIFIER_FOR_TYPE(column_type, datetime_text_format_specifier);
 				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$PrintDateTimeResultColumnValue^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }},{{ column_type|%d }},{{ OCTOLIT_YDBOCTODATETIMEOUTPUTFORMAT }},"{{ datetime_text_format_specifier }}"){}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 			} else if (BOOLEAN_VALUE == column_type) {

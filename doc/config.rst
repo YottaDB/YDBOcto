@@ -1,6 +1,6 @@
 .. #################################################################
 .. #								   #
-.. # Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.  #
+.. # Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.  #
 .. # All rights reserved.					   #
 .. #								   #
 .. #	This source code contains the intellectual property	   #
@@ -91,12 +91,6 @@ Config files
   .. literalinclude:: ../src/aux/octo.conf.default
 
   A few of the configuration settings are described below.
-
-~~~~~~~~~~~~~~~
-emulate
-~~~~~~~~~~~~~~~
-
-  Octo supports partial emulation of multiple SQL database products. The :code:`emulate` configuration option may be used to specify which SQL database Octo will attempt emulate at process initialization time. Currently supported options are: :code:`POSTGRES` and :code:`MYSQL`. The default is :code:`POSTGRES`. If you wish to emulate MariaDB, choose MYSQL.
 
 ~~~~~~~~~~~~~~~
 octo_zroutines

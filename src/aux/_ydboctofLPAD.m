@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -12,26 +12,11 @@
 
 ; Implements the SQL LPAD function (left pad a string `str` with another string `padstr` up to a maximum number of characters `num`)
 LPAD(str,num,padstr)
-	quit
-
-PostgreSQL(str,num,padstr)
 	new result
 	if (0'=$DATA(padstr))  do
 	. set result=$$LPADhelper(str,num,padstr)
 	else  do
 	. set result=$$LPADhelper(str,num)
-	quit result
-
-MySQL(str,num,padstr)
-	new result
-	if (0'=$DATA(padstr))  do
-	. set result=$$LPADhelper(str,num,padstr)
-	else  do
-	. set %ydboctoerror("UNKNOWNFUNCTION",1)="LPAD"	; pass parameter to `src/ydb_error_check.c`
-	. set %ydboctoerror("UNKNOWNFUNCTION",2)="2"	; pass parameter to `src/ydb_error_check.c`
-	. set %ydboctoerror("UNKNOWNFUNCTION",3)="MYSQL"	; pass parameter to `src/ydb_error_check.c`
-	. zmessage %ydboctoerror("UNKNOWNFUNCTION")
-	. set result=$ZYSQLNULL
 	quit result
 
 LPADhelper(str,num,padstr)

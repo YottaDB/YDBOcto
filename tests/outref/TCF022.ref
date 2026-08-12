@@ -125,9 +125,6 @@ localtime|0|1083|
 localtimestamp|0|1114|
 current_timestamp|0|1184|
 current_time|0|1266|
-date_format|2|1043|1114 1043
-date_format|2|1043|1184 1043
-date_format|2|1043|1043 1043
 date_to_fileman|1|1700|1082
 timestamp_to_fileman|1|1700|1114
 timestamptz_to_fileman|1|1700|1184
@@ -210,7 +207,7 @@ pg_get_ruledef|2|1043|23 16
 pg_get_partkeydef|1|1043|23
 pg_stat_get_numscans|1|1043|23
 pg_tablespace_location|1|1043|23
-(205 rows)
+(202 rows)
 OCTO> SELECT proname,pronargs,prorettype,proargtypes FROM pg_proc;
 proname|pronargs|prorettype|proargtypes
 abs|1|1700|1700
@@ -333,9 +330,6 @@ localtime|0|1083|
 localtimestamp|0|1114|
 current_timestamp|0|1184|
 current_time|0|1266|
-date_format|2|1043|1114 1043
-date_format|2|1043|1184 1043
-date_format|2|1043|1043 1043
 date_to_fileman|1|1700|1082
 timestamp_to_fileman|1|1700|1114
 timestamptz_to_fileman|1|1700|1184
@@ -418,5 +412,5 @@ pg_get_ruledef|2|1043|23 16
 pg_get_partkeydef|1|1043|23
 pg_stat_get_numscans|1|1043|23
 pg_tablespace_location|1|1043|23
-(205 rows)
+(202 rows)
 OCTO> 

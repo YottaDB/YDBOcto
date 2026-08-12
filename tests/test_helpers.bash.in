@@ -16,9 +16,27 @@ setup_bats_env() {
 	exec >  >(tee -ia $test_temp/stdout.txt)
 	exec 2> >(tee -ia $test_temp/stderr.txt >&2)
 	cd $test_temp
+	# Give each test its own isolated $HOME instead of the developer's real one. Several tests spawn a nested
+	# interactive bash/psql/octo via expect, and interactive bash sources ~/.bashrc regardless of --noprofile;
+	# if the developer's ~/.bashrc customizes ydb_gbldir/ydb_dir (e.g. via ydb_env_set), it would silently
+	# override this test's own exports and point octo at the developer's real database. Isolating $HOME also
+	# keeps octo's and psql's default history files (~/.octo_history, ~/.psql_history), and any test that
+	# deliberately writes ~/octo.conf, safely inside the test's own directory instead of the real home dir.
+	export HOME="$test_temp/home"
+	mkdir -p "$HOME"
+	# Some distros' /etc/bash.bashrc prints a one-time "To run a command as administrator..." sudo hint for
+	# any interactive shell when $HOME lacks a ~/.sudo_as_admin_successful sentinel (which a real, long-used
+	# $HOME would already have) and the user is in the sudo/admin group. Since $HOME above is fresh every
+	# test, this would otherwise print on every nested bash spawned via expect. Pre-create ~/.hushlogin,
+	# which bash.bashrc also checks for, so it never fires.
+	touch "$HOME/.hushlogin"
 	# For expect tests, xterm may try to add more control characters. Avoid that by setting a minimal terminal.
 	# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/717
 	export TERM=dumb
+	# psql's default pager (e.g. "less") refuses full-screen mode under TERM=dumb and instead prints
+	# "WARNING: terminal is not fully functional" plus "(END)" markers, which don't match reference output.
+	# Force a null pager so long query output is never intercepted or reformatted.
+	export PSQL_PAGER=cat
 	# Disable any user-level (~/.inputrc) customizations that can cause test failures (e.g. TERR008, TSC18 subtests)
 	# For example "set editing-mode vi" in ~/.inputrc somehow re-enables tab-completion even though Octo disables it
 	#	by calling `rl_bind_key('\t', rl_insert);`
@@ -709,6 +727,10 @@ strip_expect_artifacts() {
 	# Account for that in the 2 lines below. The [#$] is to account for either a # or a $ as the shell prompt
 	sed -i '/^.*bats-test\..*[#$].*$/d' $1
 	sed -i '/^.*\$PWD[#$]*.*$/d' $1
+	# On platforms where no system-wide /etc/bash.bashrc (or similar) customizes the prompt, the nested bash
+	# spawned by expect falls back to its plain default prompt, e.g. "bash-5.2$ ", which doesn't match either
+	# pattern above. Strip that too.
+	sed -i '/^bash-[0-9.]*[#$] .*$/d' $1
 }
 
 # Filter out '#' comment lines and blank lines, if any

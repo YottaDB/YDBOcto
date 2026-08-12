@@ -140,7 +140,19 @@ OCTO
 	verify_output TV008 output.txt
 }
 
-# TV009 moved to no_parallel_suite.bats.in
+@test "TV009 : octo correctly outputs the names of configuration files containing errors" {
+	# $HOME is isolated to this test's own directory (see setup_bats_env()), so writing to ~/octo.conf
+	# here is safe and does not touch the real user's home directory.
+	cat <<OCTO &> ~/octo.conf
+OCTO
+	cat <<OCTO &> octo.conf
+verbosity = "ABCD"
+OCTO
+	octo <<OCTO 2>&1 | tee output.txt
+exit
+OCTO
+	verify_output TV009 output.txt
+}
 
 @test "TV010 : octo disallows FATAL as verbosity level" {
 	cat <<OCTO &> octo.conf

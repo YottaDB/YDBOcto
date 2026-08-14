@@ -4,3 +4,5 @@
 # Check for ERR_ROCTO_SEND_FAILED messages. Expect none.
 # Check for ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT message from send_bytes(). Expect one.
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME: ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT: Client disconnected unexpectedly
+# Run DISCARD ALL after the interrupted query. Expect no error.
+# Before the #1081 fix this issued %YDB-E-GVUNDEF from UNXREFDATA^%YDBAIM.

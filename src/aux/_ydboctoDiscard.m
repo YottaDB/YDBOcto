@@ -81,7 +81,18 @@ discardXREFTable(tableName)
 	. .  SET aimgbleref=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),-1)
 	. .  SET aimgbl=$QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0)
 	. .  IF ""'=aimgbleref SET aimgbl="^|"""_aimgbleref_"""|"_$ZPIECE(aimgbl,"^",2)
-	. .  DO UNXREFDATA^%YDBAIM(aimgbl)
+	. .  ; The AIM global is built in two steps. At plan generation time (emit_physical_plan.c),
+	. .  ; "xrefMetadata" only reserves the AIM global NAME (it calls XREFDATA^%YDBAIM with nmonly=1, so AIM
+	. .  ; itself creates nothing) and records ^%ydbAIMOctoCache(tableName,column,"completed?")=0 along with
+	. .  ; a comment node in the not-yet-existing AIM global. The cross reference proper is built later, at
+	. .  ; query execution time, by "xrefPlan"; only then does AIM set a value at the root of the AIM global.
+	. .  ; Therefore, if the session went away in between (e.g. a client that PREPAREs a query and then
+	. .  ; disconnects before EXECUTE, see the TJC024 subtest), the AIM global has descendants but no value
+	. .  ; at its root. UNXREFDATA^%YDBAIM would do "set gbl=@xrefvar" on that valueless root and issue a
+	. .  ; GVUNDEF error. No cross reference, trigger or ^%ydbAIMDxref entry exists to be removed in that
+	. .  ; case, so KILL the leftover nodes directly instead of asking AIM to undo work it never did.
+	. .  IF $DATA(@aimgbl)#10  DO UNXREFDATA^%YDBAIM(aimgbl)
+	. .  ELSE  KILL @aimgbl
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)
 	QUIT
 

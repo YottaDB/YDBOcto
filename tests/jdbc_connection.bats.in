@@ -290,5 +290,13 @@ teardown() {
 	[[ ! "$log" =~ "ERR_ROCTO_SEND_FAILED" ]]
 	echo "# Check for ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT message from send_bytes(). Expect one." >> output.txt
 	grep -E "send_bytes.*ERR_ROCTO_UNEXPECTED_CLIENT_DISCONNECT" rocto.log >> output.txt
+	# The client above disconnected between the Parse and Execute messages of the extended query
+	# protocol. Parse ran `xrefMetadata` which reserved an AIM cross reference name and recorded
+	# ^%ydbAIMOctoCache("orderdetails","productid","completed?")=0, but Execute never ran so the
+	# cross reference itself was never built. Verify that this reserved-but-unbuilt state does not
+	# break later DDL, all of which goes through `discardXREFTable^%ydboctoDiscard`.
+	echo "# Run DISCARD ALL after the interrupted query. Expect no error." >> output.txt
+	echo "# Before the #1081 fix this issued %YDB-E-GVUNDEF from UNXREFDATA^%YDBAIM." >> output.txt
+	octo <<< 'DISCARD ALL;' >> output.txt 2>&1 || true
 	verify_output TJC024 output.txt nodebug psql
 }

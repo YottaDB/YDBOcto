@@ -245,11 +245,8 @@ teardown() {
   unset INPUTRC
 }
 
-@test "TR19 : Test default history location (pipeline only)" {
-  if ! [[ -v CI_PIPELINE_ID ]]; then
-	  skip 'Skipping test as it corrupts developer environment'
-  fi
-
+@test "TR19 : Test default history location" {
+  # No CI-only skip guard needed: setup_bats_env() isolates $HOME so ~/.octo_history stays in the test dir.
   rm -f ~/.octo_history
   rm -f octo.conf
 

@@ -1,0 +1,24 @@
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you need a copy of the license,	#
+#	please contact YottaDB LLC at license@yottadb.com.	#
+#								#
+#################################################################
+
+# Startup file that "expect" sources automatically before running the script named by its -f option.
+# It is found because setup_bats_env() (tests/test_helpers.bash.in) points $DOTDIR at this directory.
+
+# Starts the bash shell that the *.exp fixtures drive.
+#	--noprofile : SUSE's /etc/profile blindly overwrites $PATH which makes the "octo" invocations in the fixtures fail.
+#	--norc      : a system-wide /etc/bash.bashrc (e.g. on SUSE) sets a prompt like "user@host:/path> " which does not
+#		      match the "[#$] " prompt regex the fixtures wait for. Without an rc file, bash uses its built-in
+#		      default prompt "bash-X.Y$ " which does match (and which strip_expect_artifacts() filters out).
+proc spawnbash {args} {
+	# Run "spawn" in the caller's scope so it sets "spawn_id" there and not inside this proc.
+	uplevel 1 [list spawn /bin/bash --noprofile --norc {*}$args]
+}

@@ -30,6 +30,9 @@ setup_bats_env() {
 	# test, this would otherwise print on every nested bash spawned via expect. Pre-create ~/.hushlogin,
 	# which bash.bashrc also checks for, so it never fires.
 	touch "$HOME/.hushlogin"
+	# Point expect at tests/fixtures/.expect.rc, which it sources before running any *.exp fixture.
+	# That is where the "spawnbash" proc (used by the fixtures to start a shell) is defined.
+	export DOTDIR="@PROJECT_SOURCE_DIR@/tests/fixtures"
 	# For expect tests, xterm may try to add more control characters. Avoid that by setting a minimal terminal.
 	# https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/717
 	export TERM=dumb

@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2020-2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,8 +15,7 @@
 # timeout of the "expect" utility. Therefore, set the timeout to a bigger value at the start of the test.
 set timeout 60
 
-# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
-spawn /bin/bash --noprofile
+spawnbash
 
 # Wait for shell prompt first. Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.
 expect -re "\[#\$] "

@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 #################################################################
 #								#
-# Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,8 +15,7 @@
 set timeout 60
 set port [lindex $argv 0];
 
-# Start bash with --noprofile as otherwise SUSE /etc/profile blindly overwrites $PATH causing below "octo" invocations to fail
-spawn /bin/bash --noprofile
+spawnbash
 
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"

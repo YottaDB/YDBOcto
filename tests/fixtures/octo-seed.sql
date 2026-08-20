@@ -524,8 +524,8 @@ CREATE FUNCTION mod(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$MOD^%ydboctosqlfuncti
 CREATE FUNCTION mod(INTEGER, INTEGER) RETURNS INTEGER AS $$MOD^%ydboctosqlfunctions;
 
 CREATE FUNCTION now() RETURNS TIMESTAMP WITH TIME ZONE AS $$^%ydboctofCURRENTTIMESTAMP;
-CREATE FUNCTION day(DATE) RETURNS VARCHAR AS $$DAYFROMDATE^%ydboctosqlfunctions;
-CREATE FUNCTION day(VARCHAR) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions; /* Original varchar form is retained as this
+CREATE FUNCTION day(DATE) RETURNS INTEGER AS $$DAYFROMDATE^%ydboctosqlfunctions;
+CREATE FUNCTION day(VARCHAR) RETURNS INTEGER AS $$DAY^%ydboctosqlfunctions; /* Original varchar form is retained as this
 									     * avoids having to specify date qualifier
 									     * for the literal.
 									     */
@@ -555,8 +555,8 @@ CREATE FUNCTION timestamptz_to_zhorolog(TIMESTAMP(ZHOROLOG) WITH TIME ZONE) RETU
 CREATE FUNCTION date_to_zut(DATE(ZUT)) RETURNS INTEGER AS $$ZUT^%ydboctofTODTFORMAT;
 CREATE FUNCTION timestamp_to_zut(TIMESTAMP(ZUT)) RETURNS INTEGER AS $$ZUT^%ydboctofTODTFORMAT;
 /* Alias for DAY */
-CREATE FUNCTION dayofmonth(DATE) RETURNS VARCHAR AS $$DAYFROMDATE^%ydboctosqlfunctions;
-CREATE FUNCTION dayofmonth(VARCHAR) RETURNS VARCHAR AS $$DAY^%ydboctosqlfunctions; /* Original varchar form is retained as this
+CREATE FUNCTION dayofmonth(DATE) RETURNS INTEGER AS $$DAYFROMDATE^%ydboctosqlfunctions;
+CREATE FUNCTION dayofmonth(VARCHAR) RETURNS INTEGER AS $$DAY^%ydboctosqlfunctions; /* Original varchar form is retained as this
 									            * avoids having to specify date qualifier
 									            * for the literal.
 									            */

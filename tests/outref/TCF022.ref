@@ -119,8 +119,8 @@ mod|2|1700|23 1700
 mod|2|1700|1700 1700
 mod|2|23|23 23
 now|0|1184|
-day|1|1043|1082
-day|1|1043|1043
+day|1|23|1082
+day|1|23|1043
 localtime|0|1083|
 localtimestamp|0|1114|
 current_timestamp|0|1184|
@@ -140,8 +140,8 @@ timestamp_to_zhorolog|1|1043|1114
 timestamptz_to_zhorolog|1|1043|1184
 date_to_zut|1|23|1082
 timestamp_to_zut|1|23|1114
-dayofmonth|1|1043|1082
-dayofmonth|1|1043|1043
+dayofmonth|1|23|1082
+dayofmonth|1|23|1043
 lpad|2|1043|1043 23
 lpad|3|1043|1043 23 1043
 replace|3|1043|1043 1043 1043
@@ -324,8 +324,8 @@ mod|2|1700|23 1700
 mod|2|1700|1700 1700
 mod|2|23|23 23
 now|0|1184|
-day|1|1043|1082
-day|1|1043|1043
+day|1|23|1082
+day|1|23|1043
 localtime|0|1083|
 localtimestamp|0|1114|
 current_timestamp|0|1184|
@@ -345,8 +345,8 @@ timestamp_to_zhorolog|1|1043|1114
 timestamptz_to_zhorolog|1|1043|1184
 date_to_zut|1|23|1082
 timestamp_to_zut|1|23|1114
-dayofmonth|1|1043|1082
-dayofmonth|1|1043|1043
+dayofmonth|1|23|1082
+dayofmonth|1|23|1043
 lpad|2|1043|1043 23
 lpad|3|1043|1043 23 1043
 replace|3|1043|1043 1043 1043

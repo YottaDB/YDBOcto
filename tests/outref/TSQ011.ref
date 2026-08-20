@@ -118,8 +118,8 @@ mod|numeric
 mod|numeric
 mod|int4
 now|timestamptz
-day|varchar
-day|varchar
+day|int4
+day|int4
 localtime|time
 localtimestamp|timestamp
 current_timestamp|timestamptz
@@ -139,8 +139,8 @@ timestamp_to_zhorolog|varchar
 timestamptz_to_zhorolog|varchar
 date_to_zut|int4
 timestamp_to_zut|int4
-dayofmonth|varchar
-dayofmonth|varchar
+dayofmonth|int4
+dayofmonth|int4
 lpad|varchar
 lpad|varchar
 replace|varchar

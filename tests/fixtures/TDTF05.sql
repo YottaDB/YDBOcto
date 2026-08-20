@@ -47,12 +47,12 @@ SELECT dayofmonth(date'2021-12-01');
 -- Regression test: the prior C implementation returned a string whose declared length was always the
 -- format string's maximum possible width rather than the number of characters actually written, so
 -- comparisons/concatenation against its own output silently failed even though it displayed correctly.
-SELECT day('2017-06-15') = '15';
-SELECT day('2021-12-01') = '1';
+SELECT day('2017-06-15') = 15;
+SELECT day('2021-12-01') = 1;
 SELECT day('2017-06-15') || 'X';
 SELECT day('2021-12-01') || 'X';
-SELECT day(date'2017-06-15') = '15';
-SELECT day(date'2021-12-01') = '1';
+SELECT day(date'2017-06-15') = 15;
+SELECT day(date'2021-12-01') = 1;
 SELECT day(date'2017-06-15') || 'X';
 SELECT day(date'2021-12-01') || 'X';
 -- Malformed/adversarial input coverage: analogous to the now-removed TDTF06/TDTF08/TDTF09/TDTF11, which

@@ -544,8 +544,8 @@ Date/time Functions
     * LOCALTIMESTAMP -> returns :code:`TIMESTAMP`
     * CURRENT_TIME -> returns :code:`TIME WITH TIME ZONE`
     * CURRENT_TIMESTAMP -> returns :code:`TIMESTAMP WITH TIME ZONE`
-    * DAY(DATE) -> returns :code:`VARCHAR`
-    * DAYOFMONTH(DATE) -> returns :code:`VARCHAR`
+    * DAY(DATE) -> returns :code:`INTEGER`
+    * DAYOFMONTH(DATE) -> returns :code:`INTEGER`
     * date_to_fileman(DATE) -> returns :code:`NUMERIC`
     * timestamp_to_fileman(TIMESTAMP) -> returns :code:`NUMERIC`
     * timestamptz_to_fileman(TIMESTAMP WITH TIME ZONE) -> returns :code:`NUMERIC`

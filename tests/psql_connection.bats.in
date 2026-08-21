@@ -598,16 +598,28 @@ OCTO
 	# Wait until rocto begins processing the query before terminating that client to ensure that
 	# the client disconnects at a time when rocto will not detect the disconnection via the `select()`
 	# call in `rocto_main_loop()` and cleanly disconnect.
+	#
+	# Wait on `output.txt` and NOT on `rocto.log`. The `INFO_GENERATING_XREF` message reaches those two
+	# files by separate paths: `rocto` writes the symbol name and the formatted text to `rocto.log`, and
+	# sends only the formatted text to the client as a `NoticeResponse`, which the backgrounded `psql`
+	# prints to `output.txt` as `INFO:  Generating helper cross reference M file [...]`. That is why the
+	# grep below matches the message text and not the `INFO_GENERATING_XREF` symbol, which never appears
+	# in `output.txt`.
+	#
+	# `rocto` writes the log line before it sends the notice, so gating on `rocto.log` lets the
+	# `# Kill PSQL ...` echo below race ahead of `psql` writing that same line to `output.txt`. Both of
+	# them append to `output.txt`, so losing that race swaps the two lines and `verify_output` then fails
+	# on line order alone.
 	max_wait=300	# Wait up to 3 seconds
 	while [[ $max_wait -gt 0 ]]; do
-		if grep -q INFO_GENERATING_XREF rocto.log; then
+		if grep -q "Generating helper cross reference M file" output.txt; then
 			break
 		fi
 		sleep 0.01
 		max_wait=$(( max_wait - 1 ))
 	done
 	if [[ $max_wait -le 0 ]]; then
-		echo "Timed out waiting for INFO_GENERATING_XREF message in rocto.log"
+		echo "Timed out waiting for the INFO_GENERATING_XREF notice text to reach output.txt"
 		exit 1
 	fi
 	echo "# Kill PSQL to prompt the rocto server to exit" >> output.txt

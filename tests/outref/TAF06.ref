@@ -140,7 +140,7 @@ OCTO> select max(id) is null from TAF06octoa;
 ???
 t
 (1 row)
-OCTO> -- Test that STARTINCLUDE keyword is NOT optimized
+OCTO> -- Test that STARTINCLUDE keyword IS optimized (it was not, until YottaDB/Util/YDBAIM#96)
 create table TAF06octob (id integer primary key START 4 STARTINCLUDE);
 CREATE TABLE
 OCTO> select min(id) is null from TAF06octob;
@@ -207,6 +207,92 @@ OCTO> select max(id) is null from TAF06octoe2;
 t
 (1 row)
 OCTO> ----------------------------------------------------------------------------------------------------
+-- STARTINCLUDE with data behind it, so that MIN/MAX can be checked against the actual subscripts
+-- rather than taken on trust. The two globals below are the ones every table in this section maps.
+----------------------------------------------------------------------------------------------------
+select XECUTE_M_CODE('zwrite ^TAF06octod');
+^TAF06octod(1)=""
+^TAF06octod(2)=""
+^TAF06octod(3)=""
+^TAF06octod(4)=""
+^TAF06octod(5)=""
+^TAF06octod(6)=""
+^TAF06octod(7)=""
+^TAF06octod(8)=""
+^TAF06octod(9)=""
+^TAF06octod(10)=""
+xecute_m_code
+0
+(1 row)
+OCTO> -- TAF06octof : START 4, ENDPOINT 8, STARTINCLUDE
+--   Range is 4..8 INCLUSIVE of 4, so the rows are 4,5,6,7,8 -> MIN 4, MAX 8.
+--   Contrast with TAF06octod above, which is identical but WITHOUT STARTINCLUDE: its range
+--   excludes 4, so the rows are 5,6,7,8 -> MIN 5. That difference of one row is the whole point.
+create table TAF06octof (id integer primary key START 4 ENDPOINT 8 STARTINCLUDE) GLOBAL "^TAF06octod";
+CREATE TABLE
+OCTO> select min(id) from TAF06octof;
+min
+4
+(1 row)
+OCTO> select max(id) from TAF06octof;
+max
+8
+(1 row)
+OCTO> -- TAF06octog : START 8, ENDPOINT 8, STARTINCLUDE
+--   Both bounds are the same subscript, so the ONLY row is 8 itself -> MIN 8, MAX 8.
+--   This is what checks that MAX applies its LOWER bound inclusively. With an exclusive bound
+--   (EXPR>8) nothing would qualify and MAX would be NULL.
+create table TAF06octog (id integer primary key START 8 ENDPOINT 8 STARTINCLUDE) GLOBAL "^TAF06octod";
+CREATE TABLE
+OCTO> select min(id) from TAF06octog;
+min
+8
+(1 row)
+OCTO> select max(id) from TAF06octog;
+max
+8
+(1 row)
+OCTO> -- The VARCHAR forms of the same two cases.
+select XECUTE_M_CODE('zwrite ^TAF06octoe');
+^TAF06octoe("a")=""
+^TAF06octoe("b")=""
+^TAF06octoe("c")=""
+^TAF06octoe("d")=""
+^TAF06octoe("e")=""
+^TAF06octoe("f")=""
+^TAF06octoe("g")=""
+^TAF06octoe("h")=""
+^TAF06octoe("i")=""
+^TAF06octoe("j")=""
+xecute_m_code
+0
+(1 row)
+OCTO> -- TAF06octoh : START "d", ENDPOINT "h", STARTINCLUDE
+--   Range is "d".."h" INCLUSIVE of "d", so the rows are d,e,f,g,h -> MIN d, MAX h.
+--   Contrast with TAF06octoe above (same bounds, no STARTINCLUDE) whose rows start at "e".
+create table TAF06octoh (id varchar primary key START '"d"' ENDPOINT '"h"' STARTINCLUDE) GLOBAL "^TAF06octoe";
+CREATE TABLE
+OCTO> select min(id) from TAF06octoh;
+min
+d
+(1 row)
+OCTO> select max(id) from TAF06octoh;
+max
+h
+(1 row)
+OCTO> -- TAF06octoi : START "h", ENDPOINT "h", STARTINCLUDE
+--   The string form of TAF06octog: the only row is "h" itself -> MIN h, MAX h.
+create table TAF06octoi (id varchar primary key START '"h"' ENDPOINT '"h"' STARTINCLUDE) GLOBAL "^TAF06octoe";
+CREATE TABLE
+OCTO> select min(id) from TAF06octoi;
+min
+h
+(1 row)
+OCTO> select max(id) from TAF06octoi;
+max
+h
+(1 row)
+OCTO> ----------------------------------------------------------------------------------------------------
 -- Note: The below READWRITE and READONLY tests are done on an empty table more so to verify from
 -- the emitted M plan that the optimization is enabled or disabled as appropriate. The actual query
 -- results are not checked as it is not considered worth the effort (requires adding data into the tables).
@@ -248,11 +334,11 @@ OCTO> -- Test BOOLEAN typed key column on READWRITE table
 create table TAF06octorw4 (id boolean primary key);
 CREATE TABLE
 [ERROR]: ERR_MISTYPED_FUNCTION: Function min cannot be invoked with a parameter of type BOOLEAN
-LINE 121:1: select min(id) from TAF06octorw4;
+LINE 159:1: select min(id) from TAF06octorw4;
                    ^^^
 OCTO> select min(id) from TAF06octorw4;
 [ERROR]: ERR_MISTYPED_FUNCTION: Function max cannot be invoked with a parameter of type BOOLEAN
-LINE 122:1: select max(id) from TAF06octorw4;
+LINE 160:1: select max(id) from TAF06octorw4;
                    ^^^
 OCTO> select max(id) from TAF06octorw4;
 OCTO> -- Test DATE typed key column on READWRITE table
@@ -347,11 +433,11 @@ OCTO> -- Test BOOLEAN typed key column on READONLY table
 create table TAF06octoro4 (id boolean primary key) READONLY;
 CREATE TABLE
 [ERROR]: ERR_MISTYPED_FUNCTION: Function min cannot be invoked with a parameter of type BOOLEAN
-LINE 166:1: select min(id) from TAF06octoro4;
+LINE 204:1: select min(id) from TAF06octoro4;
                    ^^^
 OCTO> select min(id) from TAF06octoro4;
 [ERROR]: ERR_MISTYPED_FUNCTION: Function max cannot be invoked with a parameter of type BOOLEAN
-LINE 167:1: select max(id) from TAF06octoro4;
+LINE 205:1: select max(id) from TAF06octoro4;
                    ^^^
 OCTO> select max(id) from TAF06octoro4;
 OCTO> -- Test DATE typed key column on READONLY table
@@ -436,9 +522,17 @@ OCTO>
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^%ydboctoDuYVkJpaZP0DNIk5e0qUE4E(""),1)
 ---------------------------------------------------------
+ select max(id) from TAF06octof;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octod(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octod(8),-1)
+---------------------------------------------------------
  select max(id) from TAF06octorw3;
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^%ydboctoDpOo5MKPkLv5Rzk06ggsD7I(""),-1)
+---------------------------------------------------------
+ select max(id) from TAF06octoi;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),-1)
 ---------------------------------------------------------
  select max(id) is null from TAF06octoe2;
 ---------------------------------------------------------
@@ -480,7 +574,7 @@ OCTO>
 ---------------------------------------------------------
  select max(id) is null from TAF06octob;
 ---------------------------------------------------------
-   DO:$DATA(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(%ydboctocursor(cursorId,"keys",1,"taf06octob","id")))  FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octob","id")=$ORDER(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(%ydboctocursor(cursorId,"keys",1,"taf06octob","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octob","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(""),-1)
 ---------------------------------------------------------
  select min(id) from TAF06octoe;
 ---------------------------------------------------------
@@ -505,7 +599,7 @@ OCTO>
 ---------------------------------------------------------
  select min(id) is null from TAF06octob;
 ---------------------------------------------------------
-   DO:$DATA(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(%ydboctocursor(cursorId,"keys",1,"taf06octob","id")))  FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octob","id")=$ORDER(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(%ydboctocursor(cursorId,"keys",1,"taf06octob","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octob","id")="")  DO
+   IF '$DATA(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^%ydboctoDsz9sfEaxFOdLECmoHQ4LK3(4),1)
 ---------------------------------------------------------
  select min(id) is null from TAF06octoe2;
 ---------------------------------------------------------
@@ -519,6 +613,10 @@ OCTO>
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^TAF06octod(4),1)
 ---------------------------------------------------------
+ select min(id) from TAF06octoh;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("d"),1)
+---------------------------------------------------------
  select 5 + min(n1.id), 10 + max(n1.id), max(n1.id) - min(n1.id) from names n1;
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^names(""),1)
@@ -529,6 +627,10 @@ OCTO>
  select min(id) from TAF06octorw7;
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^%ydboctoD74KzcaEClF6928qNB7hcGJ(""),1)
+---------------------------------------------------------
+ select max(id) from TAF06octog;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octod(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octod(8),-1)
 ---------------------------------------------------------
  select min(id) from TAF06octorw5;
 ---------------------------------------------------------
@@ -545,6 +647,10 @@ OCTO>
  select max(id) from TAF06octoro9;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro9","id")=$ORDER(^%ydboctoDcIy3vJIFd2uYKp26K5FqJ4(%ydboctocursor(cursorId,"keys",1,"taf06octoro9","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro9","id")="")  DO
+---------------------------------------------------------
+ select min(id) from TAF06octof;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octod(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octod(4),1)
 ---------------------------------------------------------
  select min(id) from names order by max(2);
 ---------------------------------------------------------
@@ -573,6 +679,12 @@ OCTO>
    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
 ---------------------------------------------------------
+ ----------------------------------------------------------------------------------------------------
+ ----------------------------------------------------------------------------------------------------
+ select XECUTE_M_CODE('zwrite ^TAF06octod');
+---------------------------------------------------------
+   FOR  SET %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")=$ORDER(^%ydboctoocto("tables","octoOneRow",%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")="")  DO
+---------------------------------------------------------
  -- Additionally verify that ORDER BY clause is NOT removed even if YDBOcto#617 optimization can be applied by
  -- verifying that in the emitted M plan there is a FOR loop for the ORDER BY in this case
  -- See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/617#note_2151071683 for why ORDER BY is NOT removed
@@ -591,6 +703,10 @@ OCTO>
  select min(id) from TAF06octorw2;
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^%ydboctoDbYDLqNkmdKzB8tvrdQYwGJ(""),1)
+---------------------------------------------------------
+ select max(id) from TAF06octoh;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),-1)
 ---------------------------------------------------------
  select min(id) from TAF06octoro3;
 ---------------------------------------------------------
@@ -633,6 +749,10 @@ OCTO>
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^%ydboctoDpOo5MKPkLv5Rzk06ggsD7I(""),1)
 ---------------------------------------------------------
+ select min(id) from TAF06octog;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octod(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octod(8),1)
+---------------------------------------------------------
  select min(id) from TAF06octorw9;
 ---------------------------------------------------------
    SET %ydboctoexpr=$ORDER(^%ydboctoDSzNKOtBFu20jKdnebhlt32(""),1)
@@ -660,6 +780,10 @@ OCTO>
  select min(id) from TAF06octoro6;
 ---------------------------------------------------------
    FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro6","id")=$ORDER(^%ydboctoDHqW9PHdI87GCJ20Sdwh494(%ydboctocursor(cursorId,"keys",1,"taf06octoro6","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro6","id")="")  DO
+---------------------------------------------------------
+ select min(id) from TAF06octoi;
+---------------------------------------------------------
+   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),1)
 ---------------------------------------------------------
  select max(id) from TAF06octoro2;
 ---------------------------------------------------------

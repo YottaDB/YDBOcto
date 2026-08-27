@@ -1,0 +1,10 @@
+YottaDB MUPIP EXTRACT
+02-JUN-2026  00:00:00 ZWR
+^HDR(0,0)="aaaa^zzzz"
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+^ORDST(0)="ORDER STATUS^100.01^3"
+^ORDST(1,0)="discontinued"
+^ORDST(1,"VUID")="4500704"
+^ORDST(2,0)="complete"
+^ORDST(3,0)="pending"

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -119,13 +119,6 @@ boolean_t is_octo617_optimization_possible(PhysicalPlan *pplan) {
 				af->extra_detail.lp_aggregate_function.octo617_xref_plan
 				    = lp_generate_xref_plan(table, aggr_column, table_alias->unique_id);
 			} else {
-				if (NULL != get_keyword(key_column, OPTIONAL_STARTINCLUDE)) {
-					/* It is easy to support START and ENDPOINT with YDBOcto#617 optimization but not so easy to
-					 * support STARTINCLUDE. Since no user cares about this flag, just disable the optimization
-					 * in case STARTINCLUDE is specified.
-					 */
-					return FALSE;
-				}
 				if (NULL != get_keyword(key_column, OPTIONAL_END)) {
 					/* It is not easy to support END with YDBOcto#617 optimization because it is a boolean
 					 * condition and not a terminating value for the valid range. Therefore disable the

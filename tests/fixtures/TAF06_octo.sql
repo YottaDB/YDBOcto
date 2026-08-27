@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ create table TAF06octoa (id integer primary key);
 select min(id) is null from TAF06octoa;
 select max(id) is null from TAF06octoa;
 
--- Test that STARTINCLUDE keyword is NOT optimized
+-- Test that STARTINCLUDE keyword IS optimized (it was not, until YottaDB/Util/YDBAIM#96)
 create table TAF06octob (id integer primary key START 4 STARTINCLUDE);
 select min(id) is null from TAF06octob;
 select max(id) is null from TAF06octob;
@@ -48,6 +48,44 @@ select max(id) from TAF06octoe;
 create table TAF06octoe2 (id varchar primary key START '"j"' ENDPOINT '"l"') GLOBAL "^TAF06octoe";
 select min(id) is null from TAF06octoe2;
 select max(id) is null from TAF06octoe2;
+
+----------------------------------------------------------------------------------------------------
+-- STARTINCLUDE with data behind it, so that MIN/MAX can be checked against the actual subscripts
+-- rather than taken on trust. The two globals below are the ones every table in this section maps.
+----------------------------------------------------------------------------------------------------
+select XECUTE_M_CODE('zwrite ^TAF06octod');
+
+-- TAF06octof : START 4, ENDPOINT 8, STARTINCLUDE
+--   Range is 4..8 INCLUSIVE of 4, so the rows are 4,5,6,7,8 -> MIN 4, MAX 8.
+--   Contrast with TAF06octod above, which is identical but WITHOUT STARTINCLUDE: its range
+--   excludes 4, so the rows are 5,6,7,8 -> MIN 5. That difference of one row is the whole point.
+create table TAF06octof (id integer primary key START 4 ENDPOINT 8 STARTINCLUDE) GLOBAL "^TAF06octod";
+select min(id) from TAF06octof;
+select max(id) from TAF06octof;
+
+-- TAF06octog : START 8, ENDPOINT 8, STARTINCLUDE
+--   Both bounds are the same subscript, so the ONLY row is 8 itself -> MIN 8, MAX 8.
+--   This is what checks that MAX applies its LOWER bound inclusively. With an exclusive bound
+--   (EXPR>8) nothing would qualify and MAX would be NULL.
+create table TAF06octog (id integer primary key START 8 ENDPOINT 8 STARTINCLUDE) GLOBAL "^TAF06octod";
+select min(id) from TAF06octog;
+select max(id) from TAF06octog;
+
+-- The VARCHAR forms of the same two cases.
+select XECUTE_M_CODE('zwrite ^TAF06octoe');
+
+-- TAF06octoh : START "d", ENDPOINT "h", STARTINCLUDE
+--   Range is "d".."h" INCLUSIVE of "d", so the rows are d,e,f,g,h -> MIN d, MAX h.
+--   Contrast with TAF06octoe above (same bounds, no STARTINCLUDE) whose rows start at "e".
+create table TAF06octoh (id varchar primary key START '"d"' ENDPOINT '"h"' STARTINCLUDE) GLOBAL "^TAF06octoe";
+select min(id) from TAF06octoh;
+select max(id) from TAF06octoh;
+
+-- TAF06octoi : START "h", ENDPOINT "h", STARTINCLUDE
+--   The string form of TAF06octog: the only row is "h" itself -> MIN h, MAX h.
+create table TAF06octoi (id varchar primary key START '"h"' ENDPOINT '"h"' STARTINCLUDE) GLOBAL "^TAF06octoe";
+select min(id) from TAF06octoi;
+select max(id) from TAF06octoi;
 
 ----------------------------------------------------------------------------------------------------
 -- Note: The below READWRITE and READONLY tests are done on an empty table more so to verify from

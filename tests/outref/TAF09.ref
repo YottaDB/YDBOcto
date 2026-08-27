@@ -1,0 +1,54 @@
+# zwrite ^HDR
+^HDR(0,0)="aaaa^zzzz"
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+^HDR(3,0)="banana^banana"
+OCTO> -- TAF09 : YDBAIM#96 : MIN/MAX with START and SKIP together on the key column.
+--
+-- TAF08 covers START alone: AIM's inclusive range puts the START node in the index, and the
+-- MIN/MAX read of the value dimension must step past it. With SKIP as well the read has to walk
+-- the keys behind a value until one survives both: key 0 is the START entry and key 2 is skipped,
+-- so of ^HDR(0,0)="aaaa^zzzz", (1,0)="mango^mango", (2,0)="apple^apple", (3,0)="banana^banana"
+-- only keys 1 and 3 are rows.
+CREATE TABLE hdrskip (
+ ien INTEGER PRIMARY KEY START 0 SKIP '2',
+ lo VARCHAR(30) GLOBAL "^HDR(keys(""ien""),0)" PIECE 1,
+ hi VARCHAR(30) GLOBAL "^HDR(keys(""ien""),0)" PIECE 2
+) GLOBAL "^HDR(keys(""ien""))" DELIM "^";
+CREATE TABLE
+OCTO> -- The rows as the table scan sees them.
+SELECT * FROM hdrskip ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+3|banana|banana
+(2 rows)
+OCTO> -- WHERE col IS NOT NULL disables the YDBOcto#617 read, so these are the answers to match.
+SELECT MIN(lo), MAX(lo) FROM hdrskip WHERE lo IS NOT NULL;
+min|max
+banana|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdrskip WHERE hi IS NOT NULL;
+min|max
+banana|mango
+(1 row)
+OCTO> 
+
+OCTO> -- The same aggregates through the YDBOcto#617 read of the cross reference, one query so that
+-- exactly one M plan is generated and can be shown.
+SELECT MIN(lo), MAX(hi) FROM hdrskip;
+min|max
+banana|mango
+(1 row)
+OCTO> 
+
+# Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization)
+    FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdrskip","ien")'=""
+    . SET %ydboctocursor(cursorId,"keys",1,"hdrskip","ien")=0 FOR  SET %ydboctocursor(cursorId,"keys",1,"hdrskip","ien")=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr,%ydboctocursor(cursorId,"keys",1,"hdrskip","ien"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"hdrskip","ien")="")  QUIT:'($SELECT(%ydboctocursor(cursorId,"keys",1,"hdrskip","ien")=2:1,1:0))
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+    FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdrskip","ien")'=""
+    . SET %ydboctocursor(cursorId,"keys",1,"hdrskip","ien")=0 FOR  SET %ydboctocursor(cursorId,"keys",1,"hdrskip","ien")=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr,%ydboctocursor(cursorId,"keys",1,"hdrskip","ien"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"hdrskip","ien")="")  QUIT:'($SELECT(%ydboctocursor(cursorId,"keys",1,"hdrskip","ien")=2:1,1:0))
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+    SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)=$ZYSQLNULL
+    SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)=$ZYSQLNULL
+    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42

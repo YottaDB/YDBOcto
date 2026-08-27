@@ -61,6 +61,7 @@ teardown() {
 	# Get gvn data for tables used in TAF06all.sql
 	yottadb -run %XCMD 'for i=1:1:10 set ^TAF06octod(i)=""'			# data for TAF06octod table
 	yottadb -run %XCMD 'for i=1:1:10 set ^TAF06octoe($char(96+i))=""'	# data for TAF06octoe table
+	load_fixture xecutemcode.sql	# to define XECUTE_M_CODE, which TAF06_octo.sql uses to zwrite the two globals above
 	echo "# Run queries in TAF06all.sql using octo (for deterministic M plan names) [load_fixture TAF06all.sql]" >> output.txt
 	# Some queries can issue errors (e.g. ERR_MISTYPED_FUNCTION error when MIN(BOOLEAN) is attempted) hence the "|| true" below
 	octo -p -f TAF06all.sql >> output.txt 2>&1 || true
@@ -89,3 +90,137 @@ teardown() {
 	verify_output TAF07 output.txt nodatetimefilter
 }
 
+@test "TAF08 : YDBAIM#96 : MIN/MAX read the cross reference's value dimension and so never apply START" {
+	load_fixture TAF08.zwr
+	load_fixture xecutemcode.sql	# defines XECUTE_M_CODE, which the fixtures use to zwrite the globals
+
+	# Run a fixture with each query printed above its own result ("-p" is --print-sql-query).
+	# Deliberately not "load_fixture <f> subtest", which dumps the whole file first and only then
+	# replays it, putting every statement in the reference twice.
+	taf08prep() {	# $1 = fixture basename; strips the copyright banner so it is not re-echoed
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$1.sql .
+		grep -v '^#' $1.sql > $1_input.sql
+	}
+	taf08run() {	# $1 = fixture basename
+		taf08prep $1
+		octo -p -f $1_input.sql 2>&1 | tee -a output.txt
+	}
+	taf08step() {	# $1 = M command to apply, $2 = what it demonstrates, $3 = question fixture
+		echo "" >> output.txt
+		echo "#######################################################" >> output.txt
+		echo "# STEP: $1" >> output.txt
+		echo "# $2" >> output.txt
+		echo "#######################################################" >> output.txt
+		yottadb -run %XCMD "$1"
+		octo -p -f $3_input.sql 2>&1 | tee -a output.txt
+	}
+
+	echo "" >> output.txt
+	echo "#######################################################" >> output.txt
+	echo "# PART 1 of 2 : ^ORDST, the VistA shape" >> output.txt
+	echo "#######################################################" >> output.txt
+	taf08run TAF08
+
+	# The block above runs against static fixture data, so it exercises AIM's bulk build alone.
+	# The steps below change ^ORDST the way an M application would - Octo never writes a READONLY
+	# table - and re-ask only the ^ORDST questions, so the value-side and record-side triggers are
+	# exercised too. Nothing here touches ^HDR, so the ^HDR tables are not re-asked: their answers
+	# could not have changed and printing them again would only pad the reference.
+	taf08prep TAF08b
+	taf08step 'set ^ORDST(0,0)="aardvark"' \
+		'Give the FileMan HEADER a node at the indexed depth. It stops being a NULL and becomes a real value below every row, and MIN(name) must still ignore it.' \
+		TAF08b
+	taf08step 'zkill ^ORDST(0,0)' \
+		'And back to a missing-node NULL, which is the bucket SQL aggregates have to ignore anyway.' \
+		TAF08b
+
+	echo "" >> output.txt
+	echo "#######################################################" >> output.txt
+	echo "# PART 2 of 2 : ^HDR, where the node at START has a value at the indexed depth" >> output.txt
+	echo "#######################################################" >> output.txt
+	taf08run TAF08d
+
+	# Same again for ^HDR. The first two steps are the self-proving pair: take the START node's
+	# value node away and put it back, and whatever MIN/MAX say came from there.
+	taf08prep TAF08e
+	taf08step 'zkill ^HDR(0,0)' \
+		'Take the START node value away. Whatever MIN/MAX change here was coming from a node that is not a row.' \
+		TAF08e
+	taf08step 'set ^HDR(0,0)="aaaa^zzzz"' \
+		'Put it back through the value-side trigger rather than the bulk build: the same must happen again.' \
+		TAF08e
+	taf08step 'set ^HDR(3,0)="banana^banana"' \
+		'An ordinary new row, well inside the range: normal maintenance still works.' \
+		TAF08e
+	taf08step 'kill ^HDR(0)' \
+		'KILL of the whole START subtree rather than ZKILL of one node: the recursive-KILL triggers must decompose it.' \
+		TAF08e
+
+	# Every answer above came from a query. Now check the indexes themselves: what the triggers have
+	# been maintaining, for ^ORDST and ^HDR both, must equal a rebuild from scratch over the data as
+	# it now stands. The two re-ask fixtures together touch every cross reference built above.
+	cat TAF08b_input.sql TAF08e_input.sql > TAF08rebuild.sql
+	verify_aim_rebuild TAF08rebuild.sql
+
+	# The subject of this test is the read path, so show the plan actually takes it. An optimized
+	# plan has no FOR loop over the table's keys: it $ORDERs the AIM global's value dimension
+	# directly. If that ever stops being what is generated, these answers become vacuous.
+	# Which cross reference each column actually got: the type digit, and whether a decoupled
+	# record anchor was passed. Both are arguments of the XREFDATA call Octo generated, so read
+	# them rather than inferring them from the index.
+	echo "" >> output.txt
+	echo "#######################################################" >> output.txt
+	echo "# XREFDATA calls generated for these tables" >> output.txt
+	echo "#######################################################" >> output.txt
+	grep -h 'XREFDATA^%YDBAIM' _ydbocto*.m | sed 's/^[ \t]*//' | sort -u >> output.txt
+
+	# One plan each for hdr and hdrinc. Same global, same cross reference, same aggregates: the
+	# DDL differs only in STARTINCLUDE, so putting the two plans next to each other shows exactly
+	# what that keyword changes in the generated M.
+	taf08plan() {	# $1 = fixture suffix (c = hdr, f = hdrinc), $2 = which table the plan is for
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/TAF08$1.sql .
+		rm -f _ydbocto*
+		echo "" >> output.txt
+		grep -v '^#' TAF08$1.sql > TAF08$1_input.sql
+		octo -p -f TAF08$1_input.sql >> output.txt 2>&1 || true
+		echo "" >> output.txt
+		echo "#######################################################" >> output.txt
+		echo "# Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization): $2" >> output.txt
+		echo "#######################################################" >> output.txt
+		grep -hE 'FOR |ORDER|SET:' _ydboctoP*.m | grep -v '^;' >> output.txt
+	}
+	taf08plan c 'hdr'
+	taf08plan f 'hdrinc, the STARTINCLUDE table'
+
+	echo "" >> output.txt
+	echo "#######################################################" >> output.txt
+	echo "# AIM index" >> output.txt
+	echo "#######################################################" >> output.txt
+	yottadb -run zwriteAIMData^aimutils 2>&1 | tee -a output.txt
+
+	verify_output TAF08 output.txt
+}
+
+@test "TAF09 : YDBAIM#96 : MIN/MAX with START and SKIP together on the key column" {
+	# Key 0 is the START entry AIM indexes but Octo excludes; key 2 is SKIPped. The MIN/MAX read of
+	# the cross reference's value dimension has to walk the keys behind a value past both.
+	yottadb -run %XCMD 'set ^HDR(0,0)="aaaa^zzzz",^HDR(1,0)="mango^mango",^HDR(2,0)="apple^apple",^HDR(3,0)="banana^banana"'
+	echo "# zwrite ^HDR" >> output.txt
+	yottadb -run %XCMD 'zwrite ^HDR' 2>&1 | tee -a output.txt
+	for f in TAF09 TAF09b
+	do
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$f.sql .
+		grep -v '^#' $f.sql > ${f}_input.sql
+	done
+	octo -p -f TAF09_input.sql 2>&1 | tee -a output.txt
+
+	# One plan for the optimized read, so it can be shown: the walk behind each value is seeded
+	# with START and tests the SKIP predicate.
+	rm -f _ydbocto*
+	echo "" >> output.txt
+	octo -p -f TAF09b_input.sql 2>&1 | tee -a output.txt
+	echo "" >> output.txt
+	echo "# Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization)" >> output.txt
+	grep -hE 'FOR |ORDER|SET:' _ydboctoP*.m | grep -v '^;' >> output.txt
+	verify_output TAF09 output.txt
+}

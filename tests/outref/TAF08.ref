@@ -1,0 +1,616 @@
+
+#######################################################
+# PART 1 of 2 : ^ORDST, the VistA shape
+#######################################################
+OCTO> -- TAF08 PART 1 of 2 : the VistA shape, on ^ORDST. Part 2 (TAF08d.sql) is a separate global and a
+-- separate set of tables; the two are kept apart so each can be read on its own.
+
+-- MIN/MAX (the YDBOcto#617 optimization) over a type=4 cross reference whose key range starts at
+-- a node that is not a row.
+
+-- Every other read path walks the TABLE's global and uses the cross reference only to advance
+-- keys, so it sees the key range the way the table declares it. The YDBOcto#617 optimization does
+-- not: for MIN(col)/MAX(col) it $ORDERs the cross reference's VALUE dimension directly and returns
+-- the first subscript it lands on. It is the one read path that never applies START.
+
+-- That matters because AIM's key range is INCLUSIVE at both ends while Octo's scan is not: the
+-- scan seeds its key with the START value and $ORDERs past it. So the START node itself is in the
+-- index and is not a row. Earlier AIM types hid this. They walked down to the VALUE node, so a
+-- START node with nothing at the indexed depth was rejected by $DATA for free. type=4 has no such
+-- test - the record anchor says any node in range is a row - which is exactly what lets it index a
+-- row whose value node is absent as SQL NULL.
+
+-- The data. ^ORDST(0) is the FileMan file header: it holds a value, but it has no `0` node
+-- beneath it, so it has nothing at the depth `name` is indexed at. It enters the index in the NULL
+-- bucket, which AIM writes as the bare "#" and which sorts BEFORE every real value. Ascending MIN
+-- therefore lands on it first and has to step past it. SQL aggregates ignore NULL inputs, so that
+-- step is required anyway and the header is dropped as a side effect.
+SELECT XECUTE_M_CODE('zwrite ^ORDST');
+^ORDST(0)="ORDER STATUS^100.01^3"
+^ORDST(1,0)="discontinued"
+^ORDST(1,"VUID")=4500704
+^ORDST(2,0)="complete"
+^ORDST(3,0)="pending"
+xecute_m_code
+0
+(1 row)
+OCTO> -- ordstat : ien START 0 (exclusive), no ENDPOINT, so the rows are ien 1,2,3 and NOT ien 0.
+--   name is piece 1 of ^ORDST(ien,0) -> {discontinued,complete,pending}, MIN complete, MAX pending
+CREATE TABLE ordstat (
+ ien INTEGER PRIMARY KEY START 0,
+ name VARCHAR(30) GLOBAL "^ORDST(keys(""ien""),0)" PIECE 1,
+ vuid VARCHAR(30) GLOBAL "^ORDST(keys(""ien""),""VUID"")" PIECE 1
+) GLOBAL "^ORDST(keys(""ien""))" DELIM "^";
+CREATE TABLE
+OCTO> -- The row universe as a full table scan sees it: ien 0 is excluded by START, so 1, 2 and 3.
+SELECT * FROM ordstat ORDER BY ien;
+ien|name|vuid
+1|discontinued|4500704
+2|complete|
+3|pending|
+(3 rows)
+OCTO> -- MIN/MAX on a non-key column: the YDBOcto#617 optimization, reading the value dimension directly.
+SELECT MIN(name), MAX(name) FROM ordstat;
+min|max
+complete|pending
+(1 row)
+OCTO> -- The same two answers computed WITHOUT that optimization - a WHERE clause disables it, so these
+-- go through the ordinary key walk, which does apply START. The two must agree.
+SELECT MIN(name) FROM ordstat WHERE name IS NOT NULL;
+min
+complete
+(1 row)
+OCTO> SELECT MAX(name) FROM ordstat WHERE name IS NOT NULL;
+max
+pending
+(1 row)
+OCTO> -- MIN/MAX on the KEY column. This does not use a cross reference at all - it seeds from START and
+-- $ORDERs past it - so it is the contrast case: 1 and 3, not 0 and 3.
+SELECT MIN(ien), MAX(ien) FROM ordstat;
+min|max
+1|3
+(1 row)
+OCTO> -- Which rows are in the NULL bucket, asked through the key walk. ien 0 is in that bucket in the
+-- index and is not a row, so this must not report it.
+SELECT * FROM ordstat WHERE name IS NULL ORDER BY ien;
+ien|name|vuid
+(0 rows)
+OCTO> -- Aggregates that are never optimized, for the row counts: 3 rows, 3 non-NULL names, 1 non-NULL vuid.
+SELECT COUNT(*), COUNT(name), COUNT(vuid) FROM ordstat;
+count(*)|count|count
+3|3|1
+(1 row)
+OCTO> 
+
+#######################################################
+# STEP: set ^ORDST(0,0)="aardvark"
+# Give the FileMan HEADER a node at the indexed depth. It stops being a NULL and becomes a real value below every row, and MIN(name) must still ignore it.
+#######################################################
+OCTO> -- The ^ORDST questions from TAF08.sql that can disagree, re-asked after a change to ^ORDST.
+SELECT XECUTE_M_CODE('zwrite ^ORDST');
+^ORDST(0)="ORDER STATUS^100.01^3"
+^ORDST(0,0)="aardvark"
+^ORDST(1,0)="discontinued"
+^ORDST(1,"VUID")=4500704
+^ORDST(2,0)="complete"
+^ORDST(3,0)="pending"
+xecute_m_code
+0
+(1 row)
+OCTO> SELECT * FROM ordstat ORDER BY ien;
+ien|name|vuid
+1|discontinued|4500704
+2|complete|
+3|pending|
+(3 rows)
+OCTO> SELECT MIN(name), MAX(name) FROM ordstat;
+min|max
+complete|pending
+(1 row)
+OCTO> SELECT MIN(name) FROM ordstat WHERE name IS NOT NULL;
+min
+complete
+(1 row)
+OCTO> SELECT MAX(name) FROM ordstat WHERE name IS NOT NULL;
+max
+pending
+(1 row)
+OCTO> 
+
+#######################################################
+# STEP: zkill ^ORDST(0,0)
+# And back to a missing-node NULL, which is the bucket SQL aggregates have to ignore anyway.
+#######################################################
+OCTO> -- The ^ORDST questions from TAF08.sql that can disagree, re-asked after a change to ^ORDST.
+SELECT XECUTE_M_CODE('zwrite ^ORDST');
+^ORDST(0)="ORDER STATUS^100.01^3"
+^ORDST(1,0)="discontinued"
+^ORDST(1,"VUID")=4500704
+^ORDST(2,0)="complete"
+^ORDST(3,0)="pending"
+xecute_m_code
+0
+(1 row)
+OCTO> SELECT * FROM ordstat ORDER BY ien;
+ien|name|vuid
+1|discontinued|4500704
+2|complete|
+3|pending|
+(3 rows)
+OCTO> SELECT MIN(name), MAX(name) FROM ordstat;
+min|max
+complete|pending
+(1 row)
+OCTO> SELECT MIN(name) FROM ordstat WHERE name IS NOT NULL;
+min
+complete
+(1 row)
+OCTO> SELECT MAX(name) FROM ordstat WHERE name IS NOT NULL;
+max
+pending
+(1 row)
+OCTO> 
+
+#######################################################
+# PART 2 of 2 : ^HDR, where the node at START has a value at the indexed depth
+#######################################################
+OCTO> -- TAF08 PART 2 of 2 : the same defect on ^HDR, where the node at START has a real value at the
+-- indexed depth. Part 1 (TAF08.sql) covered ^ORDST and is independent of this.
+
+-- Unlike ^ORDST(0), ^HDR(0,0) is not a missing-node NULL, so nothing about NULL handling applies
+-- to it: it enters the value dimension as an ordinary subscript. `lo` piece 1 of the START node
+-- sorts BELOW every row's value and `hi` piece 2 sorts ABOVE every row's, so if the value
+-- dimension is read without applying START, it is MIN(lo) and MAX(hi) that pick it up.
+SELECT XECUTE_M_CODE('zwrite ^HDR');
+^HDR(0,0)="aaaa^zzzz"
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+xecute_m_code
+0
+(1 row)
+OCTO> -- hdr : ien START 0 (exclusive), no ENDPOINT, so the rows are ien 1,2 and NOT ien 0.
+--   lo is piece 1 of ^HDR(ien,0) -> {mango,apple}, MIN apple, MAX mango
+--   hi is piece 2 of ^HDR(ien,0) -> {mango,apple}, MIN apple, MAX mango
+--   The values `aaaa` and `zzzz` sitting at ien 0 must appear in NO answer below.
+CREATE TABLE hdr (
+ ien INTEGER PRIMARY KEY START 0,
+ lo VARCHAR(30) GLOBAL "^HDR(keys(""ien""),0)" PIECE 1,
+ hi VARCHAR(30) GLOBAL "^HDR(keys(""ien""),0)" PIECE 2
+) GLOBAL "^HDR(keys(""ien""))" DELIM "^";
+CREATE TABLE
+OCTO> -- The row universe: ien 1 and 2. ien 0 is excluded by START even though ^HDR(0,0) exists.
+SELECT * FROM hdr ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+(2 rows)
+OCTO> -- The optimized MIN/MAX, reading the value dimension directly.
+SELECT MIN(lo), MAX(lo) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> -- The same answers with the optimization disabled by a WHERE clause. Any disagreement with the two
+-- queries above is the START node leaking out of the index into an aggregate.
+SELECT MIN(lo) FROM hdr WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(lo) FROM hdr WHERE lo IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> SELECT MIN(hi) FROM hdr WHERE hi IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdr WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> -- And the key column, which does apply START: 1 and 2.
+SELECT MIN(ien), MAX(ien) FROM hdr;
+min|max
+1|2
+(1 row)
+OCTO> -- hdrinc : the SAME global and the SAME range, but declared STARTINCLUDE, which makes the START
+-- value part of the range. So ien 0 IS a row here and nothing may be skipped.
+--   rows are ien 0,1,2
+--   lo -> {aaaa,mango,apple}, MIN aaaa, MAX mango
+--   hi -> {zzzz,mango,apple}, MIN apple, MAX zzzz
+--   Every one of those differs from `hdr` above wherever ien 0 is the extreme. The cross reference
+--   is identical - AIM is handed the same `0:` either way - so the only thing separating these
+--   answers from `hdr`'s is how Octo reads the index.
+CREATE TABLE hdrinc (
+ ien INTEGER PRIMARY KEY START 0 STARTINCLUDE,
+ lo VARCHAR(30) GLOBAL "^HDR(keys(""ien""),0)" PIECE 1,
+ hi VARCHAR(30) GLOBAL "^HDR(keys(""ien""),0)" PIECE 2
+) GLOBAL "^HDR(keys(""ien""))" DELIM "^";
+CREATE TABLE
+OCTO> -- The row universe now includes ien 0.
+SELECT * FROM hdrinc ORDER BY ien;
+ien|lo|hi
+0|aaaa|zzzz
+1|mango|mango
+2|apple|apple
+(3 rows)
+OCTO> -- The optimized MIN/MAX, which must NOT step past ien 0.
+SELECT MIN(lo), MAX(lo) FROM hdrinc;
+min|max
+aaaa|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdrinc;
+min|max
+apple|zzzz
+(1 row)
+OCTO> -- The same answers with the optimization disabled by a WHERE clause, as above.
+SELECT MIN(lo) FROM hdrinc WHERE lo IS NOT NULL;
+min
+aaaa
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdrinc WHERE hi IS NOT NULL;
+max
+zzzz
+(1 row)
+OCTO> -- And the key column: 0 and 2, where `hdr` gave 1 and 2.
+SELECT MIN(ien), MAX(ien) FROM hdrinc;
+min|max
+0|2
+(1 row)
+OCTO> 
+
+#######################################################
+# STEP: zkill ^HDR(0,0)
+# Take the START node value away. Whatever MIN/MAX change here was coming from a node that is not a row.
+#######################################################
+OCTO> -- The ^HDR questions from TAF08d.sql that can disagree, re-asked after a change to ^HDR.
+SELECT XECUTE_M_CODE('zwrite ^HDR');
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+xecute_m_code
+0
+(1 row)
+OCTO> -- hdr : ien 0 is NOT a row.
+SELECT * FROM hdr ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+(2 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdr WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdr WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> -- hdrinc : same global, but ien 0 IS a row.
+SELECT * FROM hdrinc ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+(2 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdrinc;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdrinc;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdrinc WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdrinc WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> 
+
+#######################################################
+# STEP: set ^HDR(0,0)="aaaa^zzzz"
+# Put it back through the value-side trigger rather than the bulk build: the same must happen again.
+#######################################################
+OCTO> -- The ^HDR questions from TAF08d.sql that can disagree, re-asked after a change to ^HDR.
+SELECT XECUTE_M_CODE('zwrite ^HDR');
+^HDR(0,0)="aaaa^zzzz"
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+xecute_m_code
+0
+(1 row)
+OCTO> -- hdr : ien 0 is NOT a row.
+SELECT * FROM hdr ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+(2 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdr WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdr WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> -- hdrinc : same global, but ien 0 IS a row.
+SELECT * FROM hdrinc ORDER BY ien;
+ien|lo|hi
+0|aaaa|zzzz
+1|mango|mango
+2|apple|apple
+(3 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdrinc;
+min|max
+aaaa|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdrinc;
+min|max
+apple|zzzz
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdrinc WHERE lo IS NOT NULL;
+min
+aaaa
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdrinc WHERE hi IS NOT NULL;
+max
+zzzz
+(1 row)
+OCTO> 
+
+#######################################################
+# STEP: set ^HDR(3,0)="banana^banana"
+# An ordinary new row, well inside the range: normal maintenance still works.
+#######################################################
+OCTO> -- The ^HDR questions from TAF08d.sql that can disagree, re-asked after a change to ^HDR.
+SELECT XECUTE_M_CODE('zwrite ^HDR');
+^HDR(0,0)="aaaa^zzzz"
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+^HDR(3,0)="banana^banana"
+xecute_m_code
+0
+(1 row)
+OCTO> -- hdr : ien 0 is NOT a row.
+SELECT * FROM hdr ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+3|banana|banana
+(3 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdr WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdr WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> -- hdrinc : same global, but ien 0 IS a row.
+SELECT * FROM hdrinc ORDER BY ien;
+ien|lo|hi
+0|aaaa|zzzz
+1|mango|mango
+2|apple|apple
+3|banana|banana
+(4 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdrinc;
+min|max
+aaaa|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdrinc;
+min|max
+apple|zzzz
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdrinc WHERE lo IS NOT NULL;
+min
+aaaa
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdrinc WHERE hi IS NOT NULL;
+max
+zzzz
+(1 row)
+OCTO> 
+
+#######################################################
+# STEP: kill ^HDR(0)
+# KILL of the whole START subtree rather than ZKILL of one node: the recursive-KILL triggers must decompose it.
+#######################################################
+OCTO> -- The ^HDR questions from TAF08d.sql that can disagree, re-asked after a change to ^HDR.
+SELECT XECUTE_M_CODE('zwrite ^HDR');
+^HDR(1,0)="mango^mango"
+^HDR(2,0)="apple^apple"
+^HDR(3,0)="banana^banana"
+xecute_m_code
+0
+(1 row)
+OCTO> -- hdr : ien 0 is NOT a row.
+SELECT * FROM hdr ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+3|banana|banana
+(3 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdr WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdr WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> -- hdrinc : same global, but ien 0 IS a row.
+SELECT * FROM hdrinc ORDER BY ien;
+ien|lo|hi
+1|mango|mango
+2|apple|apple
+3|banana|banana
+(3 rows)
+OCTO> SELECT MIN(lo), MAX(lo) FROM hdrinc;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(hi), MAX(hi) FROM hdrinc;
+min|max
+apple|mango
+(1 row)
+OCTO> SELECT MIN(lo) FROM hdrinc WHERE lo IS NOT NULL;
+min
+apple
+(1 row)
+OCTO> SELECT MAX(hi) FROM hdrinc WHERE hi IS NOT NULL;
+max
+mango
+(1 row)
+OCTO> 
+
+# verify_aim_rebuild : 10 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical
+
+#######################################################
+# XREFDATA calls generated for these tables
+#######################################################
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"^",1,0,0,1,0,4,1,,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"^",1,1,0,1,0,4,1,,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"^",2,0,0,1,0,4,1,,recbase,.recsub)
+NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"^",2,1,0,1,0,4,1,,recbase,.recsub)
+
+OCTO> -- One query on its own, so that exactly one M plan is generated and can be shown. What the plan
+-- must make visible is that MIN/MAX here really do read the cross reference's value dimension --
+-- a $ORDER on the AIM global rather than a FOR loop over the table's keys -- because that is the
+-- whole subject of this test. Anything the plan does about START is visible here too.
+SELECT MIN(lo), MAX(hi) FROM hdr;
+min|max
+apple|mango
+(1 row)
+OCTO> 
+
+#######################################################
+# Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization): hdr
+#######################################################
+    FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdr","ien")'=""
+    . SET %ydboctocursor(cursorId,"keys",1,"hdr","ien")=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr,0))
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+    FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdr","ien")'=""
+    . SET %ydboctocursor(cursorId,"keys",1,"hdr","ien")=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr,0))
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+    SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)=$ZYSQLNULL
+    SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)=$ZYSQLNULL
+    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+
+OCTO> -- The same single query as TAF08c.sql, but against the STARTINCLUDE table, so the two plans can be
+-- compared directly. Same global, same cross reference, same aggregates - the only difference in
+-- the DDL is STARTINCLUDE, so any difference in the plan is what that keyword costs.
+SELECT MIN(lo), MAX(hi) FROM hdrinc;
+min|max
+apple|mango
+(1 row)
+OCTO> 
+
+#######################################################
+# Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization): hdrinc, the STARTINCLUDE table
+#######################################################
+    SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,""),-1)
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1)
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+    SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,""),1)
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1)
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+    SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)=$ZYSQLNULL
+    SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)=$ZYSQLNULL
+    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+
+#######################################################
+# AIM index
+#######################################################
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8="^ORDST"
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(0)="*YottaDB*"
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(1)=2
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(1,"#",0)=""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(1,"#complete",2)=""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(1,"#discontinued",1)=""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(1,"#pending",3)=""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(2)="^"
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(3)="#1"
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(4)="#1"
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(5)=""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(6)="+^ORDST(sub1=0:,sub2=0) -command=set -name=%ydb5jqamlCd85H2emOBJa2bK8S -xecute=<<"_$C(10)_" for i=1 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i) do"_$C(10)_" . if p'=q zkill ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,p,sub1) set ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,q,sub1)="""""_$C(10)_" . else  set:q=""#"" ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(7)="+^ORDST(sub1=0:,sub2=0) -command=kill -name=%ydb5jqamlCd85H2emOBJa2bK8K -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMD5jqamlCd85H2emOBJa2bK8"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(8)="+^ORDST(sub1=0:,sub2=0) -command=zkill -name=%ydb5jqamlCd85H2emOBJa2bK8Z -xecute=<<"_$C(10)_" set alive=($data(^ORDST(sub1))#10)&($name(^ORDST(sub1))'=$name(^ORDST(sub1,sub2))),rq=$name(^ORDST(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^ORDST(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<1)&($qlength(rp)'>2)&(rp'=$name(^ORDST(sub1,sub2))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  for i=1 zkill ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""#""_$piece($ztoldval,""^"",i),sub1) set:alive ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(9)=1
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(10)=0
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(12)="+^ORDST -command=kill -name=%ydb5jqamlCd85H2emOBJa2bK80 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMD5jqamlCd85H2emOBJa2bK8"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(13)="+^ORDST(sub1=0:) -command=kill -name=%ydb5jqamlCd85H2emOBJa2bK81 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMD5jqamlCd85H2emOBJa2bK8"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(51)="+^ORDST(sub1=0:,sub2=*) -command=kill -name=%ydb5jqamlCd85H2emOBJa2bK8rK -xecute=<<"_$C(10)_"  quit:(sub2=0)   if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMD5jqamlCd85H2emOBJa2bK8"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(101)="+^ORDST(sub1=0:) -command=set -name=%ydb5jqamlCd85H2emOBJa2bK8S0 -xecute="" for i=1 set ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""""#""""_$piece($get(^ORDST(sub1,0)),""""^"""",i),sub1)="""""""""""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(102)="+^ORDST(sub1=0:,sub2=*) -command=set -name=%ydb5jqamlCd85H2emOBJa2bK8S1 -xecute="" quit:(sub2=0)   for i=1 set ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""""#""""_$piece($get(^ORDST(sub1,0)),""""^"""",i),sub1)="""""""""""
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(141)="+^ORDST(sub1=0:) -command=zkill -name=%ydb5jqamlCd85H2emOBJa2bK8Z0 -xecute=<<"_$C(10)_"  set alive=0,rq=$name(^ORDST(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^ORDST(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<1)&($qlength(rp)'>2)&(rp'=$name(^ORDST(sub1))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  if 'alive for i=1 zkill ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""#""_$piece($get(^ORDST(sub1,0)),""^"",i),sub1)"_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8(142)="+^ORDST(sub1=0:,sub2=*) -command=zkill -name=%ydb5jqamlCd85H2emOBJa2bK8Z1 -xecute=<<"_$C(10)_" quit:(sub2=0)    set alive=($data(^ORDST(sub1))#10)&($name(^ORDST(sub1))'=$name(^ORDST(sub1,sub2))),rq=$name(^ORDST(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^ORDST(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<1)&($qlength(rp)'>2)&(rp'=$name(^ORDST(sub1,sub2))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  if 'alive for i=1 zkill ^%ydbAIMD5jqamlCd85H2emOBJa2bK8(i,""#""_$piece($get(^ORDST(sub1,0)),""^"",i),sub1)"_$C(10)
+^%ydbAIMD5jqamlCd85H2emOBJa2bK8("comment-1")="xref for table ordstat column name"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE="^HDR"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(0)="*YottaDB*"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1)=2
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,"#apple",2)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,"#banana",3)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,"#mango",1)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2)="^"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,"#apple",2)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,"#banana",3)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,"#mango",1)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(3)="#11"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(4)="#11"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(5)=""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(6)="+^HDR(sub1=0:,sub2=0) -command=set -name=%ydbYjWyHYr57KWYNlt0zceNDES -xecute=<<"_$C(10)_" for i=1,2 set p=""#""_$piece($ztoldval,""^"",i),q=""#""_$piece($ztvalue,""^"",i) do"_$C(10)_" . if p'=q zkill ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,p,sub1) set ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,q,sub1)="""""_$C(10)_" . else  set:q=""#"" ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(7)="+^HDR(sub1=0:,sub2=0) -command=kill -name=%ydbYjWyHYr57KWYNlt0zceNDEK -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(8)="+^HDR(sub1=0:,sub2=0) -command=zkill -name=%ydbYjWyHYr57KWYNlt0zceNDEZ -xecute=<<"_$C(10)_" set alive=($data(^HDR(sub1))#10)&($name(^HDR(sub1))'=$name(^HDR(sub1,sub2))),rq=$name(^HDR(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^HDR(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<1)&($qlength(rp)'>2)&(rp'=$name(^HDR(sub1,sub2))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  for i=1,2 zkill ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""#""_$piece($ztoldval,""^"",i),sub1) set:alive ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""#"",sub1)="""""_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(9)=1
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(10)=0
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(12)="+^HDR -command=kill -name=%ydbYjWyHYr57KWYNlt0zceNDE0 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(13)="+^HDR(sub1=0:) -command=kill -name=%ydbYjWyHYr57KWYNlt0zceNDE1 -xecute=<<"_$C(10)_"  if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(51)="+^HDR(sub1=0:,sub2=*) -command=kill -name=%ydbYjWyHYr57KWYNlt0zceNDErK -xecute=<<"_$C(10)_"  quit:(sub2=0)   if '($ztdata\10) set var=$reference zkill:$ztdata @var quit"_$C(10)_" do dft($reference) quit"_$C(10)_" if ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE"_$C(10)_"dft(var)"_$C(10)_" new sub,vard,vars,varsd,vsroot"_$C(10)_" set vard=$data(@var)"_$C(10)_" do:vard\10"_$C(10)_" . if $qlength(var) set vsroot=$zextract(var,1,$zlength(var)-1)_"","""_$C(10)_" . else  set vsroot=var_""("""_$C(10)_" . set vars=vsroot_""sub)"""_$C(10)_" . set sub="""" for  do  set sub=$order(@vars) quit:'$zlength(sub)"_$C(10)_" . . set varsd=$data(@vars)"_$C(10)_" . . if varsd\10 do dft(vsroot_$zwrite(sub)_"")"")"_$C(10)_" . . else  zkill:varsd#10 @(vsroot_$zwrite(sub)_"")"")"_$C(10)_" zkill:vard#10 @var"_$C(10)_" quit"_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(101)="+^HDR(sub1=0:) -command=set -name=%ydbYjWyHYr57KWYNlt0zceNDES0 -xecute="" for i=1,2 set ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""""#""""_$piece($get(^HDR(sub1,0)),""""^"""",i),sub1)="""""""""""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(102)="+^HDR(sub1=0:,sub2=*) -command=set -name=%ydbYjWyHYr57KWYNlt0zceNDES1 -xecute="" quit:(sub2=0)   for i=1,2 set ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""""#""""_$piece($get(^HDR(sub1,0)),""""^"""",i),sub1)="""""""""""
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(141)="+^HDR(sub1=0:) -command=zkill -name=%ydbYjWyHYr57KWYNlt0zceNDEZ0 -xecute=<<"_$C(10)_"  set alive=0,rq=$name(^HDR(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^HDR(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<1)&($qlength(rp)'>2)&(rp'=$name(^HDR(sub1))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  if 'alive for i=1,2 zkill ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""#""_$piece($get(^HDR(sub1,0)),""^"",i),sub1)"_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(142)="+^HDR(sub1=0:,sub2=*) -command=zkill -name=%ydbYjWyHYr57KWYNlt0zceNDEZ1 -xecute=<<"_$C(10)_" quit:(sub2=0)    set alive=($data(^HDR(sub1))#10)&($name(^HDR(sub1))'=$name(^HDR(sub1,sub2))),rq=$name(^HDR(sub1)),rq=$zextract(rq,1,$zlength(rq)-1)_"","",rp=$query(^HDR(sub1)) for  quit:alive!($zextract(rp,1,$zlength(rq))'=rq)  set:($qlength(rp)'<1)&($qlength(rp)'>2)&(rp'=$name(^HDR(sub1,sub2))) alive=1 set:'alive rp=$query(@rp)"_$C(10)_"  if 'alive for i=1,2 zkill ^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(i,""#""_$piece($get(^HDR(sub1,0)),""^"",i),sub1)"_$C(10)
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE("comment-1")="xref for table hdrinc column lo"
+^%ydbAIMDYjWyHYr57KWYNlt0zceNDE("comment-2")="xref for table hdrinc column hi"
+^%ydbAIMDxref("^HDR","^%ydbAIMDYjWyHYr57KWYNlt0zceNDE")=""
+^%ydbAIMDxref("^ORDST","^%ydbAIMD5jqamlCd85H2emOBJa2bK8")=""

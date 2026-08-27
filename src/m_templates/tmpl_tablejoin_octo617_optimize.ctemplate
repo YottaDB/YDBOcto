@@ -54,30 +54,38 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 			aggr_column = l_plan->v.lp_column_alias.column_alias->column->v.column;
 			af_type = af->type;
 			if (aggr_column == key_column) {
-				if (LP_AGGREGATE_FUNCTION_MIN != af_type) {
-					/* The MAX pre-check below tries the ENDPOINT value directly via $DATA
-					 * and (if present) skips the subsequent $ORDER. With SKIP / SKIPCONDITION
-					 * on the key column the ENDPOINT subscript may itself be filtered out,
-					 * so we'd silently emit a SKIP'd value as the MAX. Bypass this pre-check
-					 * when either keyword is present.
-					 */
-					boolean_t skip_or_cond;
-					skip_or_cond = ((NULL != get_keyword(key_column, OPTIONAL_SKIP))
-					                || (NULL != get_keyword(key_column, OPTIONAL_SKIPCONDITION)));
-					if (!skip_or_cond) {
+				/* Pre-check: try the boundary subscript itself via $DATA and, if it exists, skip
+				 * the subsequent $ORDER. This applies only where the boundary is INCLUSIVE, i.e.
+				 * where the boundary value can itself be the answer:
+				 *   MAX -> ENDPOINT, which is always inclusive.
+				 *   MIN -> START, but only with STARTINCLUDE. Without it the $ORDER seeded with
+				 *          START already steps past it, which is what START means.
+				 * With SKIP / SKIPCONDITION on the key column the boundary subscript may itself be
+				 * filtered out, so we'd silently emit a SKIP'd value. Bypass the pre-check when
+				 * either keyword is present.
+				 */
+				boolean_t skip_or_cond;
+				skip_or_cond = ((NULL != get_keyword(key_column, OPTIONAL_SKIP))
+				                || (NULL != get_keyword(key_column, OPTIONAL_SKIPCONDITION)));
+				if (!skip_or_cond) {
+					if (LP_AGGREGATE_FUNCTION_MIN != af_type) {
 						keyword = get_keyword(key_column, OPTIONAL_ENDPOINT);
-						if (NULL != keyword) {
-							UNPACK_SQL_STATEMENT(value, keyword->v, value);
-							str = value->v.string_literal;
-							%{}SET {}%
-							%{}{{ PP_YDB_OCTO_EXPR }}={}%
-							%{}{{ str }}{}%
-							%{}`n{{ PLAN_LINE_START }}{}%
-							TMPL(tmpl_print_dots, dot_count);
-							%{}IF '$DATA({}%
-							TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
-							%{}) {}%
-						}
+					} else if (NULL != get_keyword(key_column, OPTIONAL_STARTINCLUDE)) {
+						keyword = get_keyword(key_column, OPTIONAL_START);
+					} else {
+						keyword = NULL;
+					}
+					if (NULL != keyword) {
+						UNPACK_SQL_STATEMENT(value, keyword->v, value);
+						str = value->v.string_literal;
+						%{}SET {}%
+						%{}{{ PP_YDB_OCTO_EXPR }}={}%
+						%{}{{ str }}{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+						TMPL(tmpl_print_dots, dot_count);
+						%{}IF '$DATA({}%
+						TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+						%{}) {}%
 					}
 				}
 			}
@@ -94,6 +102,7 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 
 		boolean_t		is_non_key_column = FALSE;
 		boolean_t		has_skip_or_cond;
+		boolean_t		aim_start_exclusive;
 		char			*direction;
 		enum EmitSourceForm	emit_type;
 		if (LP_AGGREGATE_FUNCTION_MIN == af_type) {
@@ -117,8 +126,27 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 		if ((NULL != aggr_column) && (aggr_column != key_column)) {
 			is_non_key_column = TRUE;
 		}
+		/* START is EXCLUSIVE in Octo, but the "a:b" subscript range handed to XREFDATA^%YDBAIM
+		 * (see "tmpl_emit_source", EmitSourceForm_AIM) is INCLUSIVE at both ends. The xref
+		 * therefore carries an entry for the START subscript itself, even though that subscript
+		 * is not a row of the table. Every other read path re-applies START as it walks the table
+		 * keys, but this one reads the xref's value dimension directly, so it has to exclude that
+		 * entry itself, or MIN()/MAX() can answer with a value that belongs to no row.
+		 *
+		 * Do it the way "tmpl_key_start" does for an ordinary key iteration: $ORDER the xref's key
+		 * dimension from the START value, which steps past it. Only the non-key-column path needs
+		 * this; when the aggregate is on the key column itself, the $ORDER emitted further below
+		 * is already seeded with START.
+		 *
+		 * STARTINCLUDE turns this off: it makes the START subscript part of the range, so the
+		 * xref entry for it belongs to a real row and must be left alone. AIM's inclusive range
+		 * is then exactly right and no walk is needed.
+		 * See YottaDB/Util/YDBAIM#96.
+		 */
+		aim_start_exclusive = (is_non_key_column && (NULL != get_keyword(key_column, OPTIONAL_START))
+		                       && (NULL == get_keyword(key_column, OPTIONAL_STARTINCLUDE)));
 		%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
-		if (has_skip_or_cond) {
+		if (has_skip_or_cond || aim_start_exclusive) {
 			/* SKIP / SKIPCONDITION: seed %ydboctoexpr="" so the FOR loop below can
 			 * use it as the gvref subscript on its first iteration without tripping
 			 * LVUNDEF (the surrounding octoPlan1 NEWs %ydboctoexpr, leaving it
@@ -238,12 +266,20 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 
 		TMPL(tmpl_print_dots, dot_count);
 		if (is_non_key_column) {
-			SqlOptionalKeyword	*aim_skip_kw, *aim_cond_kw;
+			SqlOptionalKeyword	*aim_skip_kw, *aim_cond_kw, *aim_start_kw;
+			char			*aim_start;
 
 			aim_skip_kw = get_keyword(key_column, OPTIONAL_SKIP);
 			aim_cond_kw = get_keyword(key_column, OPTIONAL_SKIPCONDITION);
+			aim_start_kw = (aim_start_exclusive ? get_keyword(key_column, OPTIONAL_START) : NULL);
+			if (NULL != aim_start_kw) {
+				UNPACK_SQL_STATEMENT(value, aim_start_kw->v, value);
+				aim_start = value->v.string_literal;
+			} else {
+				aim_start = "\"\"";	/* no START: begin the key walk at the start of the xref */
+			}
 
-			if ((NULL == aim_skip_kw) && (NULL == aim_cond_kw)) {
+			if ((NULL == aim_skip_kw) && (NULL == aim_cond_kw) && (NULL == aim_start_kw)) {
 				/* Original AIM path (no SKIP/SKIPCONDITION): one-shot NULL re-order.
 				 * Re-emit the SET:$DATA(...)&("==conv(...)) ... = $ORDER(...) that handles
 				 * the case where the initial $ORDER landed on a NULL-representation col_value.
@@ -318,19 +354,45 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 				}
 				%{}`n{{ PLAN_LINE_START }}{}%
 
-				/* DO body line 3: standard M $ORDER walk -- advance cursor, QUIT if
-				 * exhausted (cursor=""), then QUIT if the current cursor passes the
-				 * SKIP / SKIPCONDITION predicate (i.e. is a "keeper"). */
+				/* DO body line 3: one $ORDER from the START value when START is the only
+				 * reason this walk exists; otherwise the standard M $ORDER walk: advance the
+				 * cursor, QUIT if exhausted (cursor=""), then QUIT if the current cursor passes
+				 * the SKIP / SKIPCONDITION predicate (i.e. is a "keeper").
+				 *
+				 * START alone needs no loop. The one key that can be in the index without being
+				 * a row is START itself, so the first key past it under this col_value is by
+				 * definition a keeper. A single $ORDER seeded with START finds it, or "" when
+				 * the col_value has only START behind it, which is what the outer FOR's QUIT
+				 * reads. This is the seeded $ORDER an ordinary key iteration begins with
+				 * ("tmpl_key_start"), without a loop around it.
+				 *
+				 * With SKIP / SKIPCONDITION as well, the walk is seeded with START instead of
+				 * the "" set on line 1, so its first $ORDER steps past the non-row START entry.
+				 */
 				TMPL(tmpl_print_dots, dot_count + 1);
-				%{}FOR  SET {}%
-				TMPL(tmpl_key, key);
-				%{}=$ORDER({}%
-				TMPL(tmpl_key_source_aim, tableName, columnName);
-				%{},{{ PP_YDB_OCTO_EXPR }},{}%
-				TMPL(tmpl_key, key);
-				%{})) QUIT:({}%
-				TMPL(tmpl_key, key);
-				%{}="")  QUIT:'({}%
+				if ((NULL != aim_start_kw) && (NULL == aim_skip_kw) && (NULL == aim_cond_kw)) {
+					%{}SET {}%
+					TMPL(tmpl_key, key);
+					%{}=$ORDER({}%
+					TMPL(tmpl_key_source_aim, tableName, columnName);
+					%{},{{ PP_YDB_OCTO_EXPR }},{{ aim_start }})){}%
+				} else {
+					assert((NULL != aim_skip_kw) || (NULL != aim_cond_kw));
+					if (NULL != aim_start_kw) {
+						%{}SET {}%
+						TMPL(tmpl_key, key);
+						%{}={{ aim_start }} {}%
+					}
+					%{}FOR  SET {}%
+					TMPL(tmpl_key, key);
+					%{}=$ORDER({}%
+					TMPL(tmpl_key_source_aim, tableName, columnName);
+					%{},{{ PP_YDB_OCTO_EXPR }},{}%
+					TMPL(tmpl_key, key);
+					%{})) QUIT:({}%
+					TMPL(tmpl_key, key);
+					%{}=""){}%
+					%{}  QUIT:'({}%
 
 					if (NULL != aim_skip_kw) {
 						char		*list, *piece_start, *p;
@@ -390,7 +452,8 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 						%{}){}%
 					}
 
-				%{}){}%
+					%{}){}%
+				}
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
 
@@ -420,24 +483,43 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count) {
 				str = NULL;
 			}
 			if (NULL != str) {
-				boolean_t	is_string;
+				boolean_t	is_string, start_is_inclusive;
 
 				is_string = is_keycol_type_string(key);
-				%{}&({{ PP_YDB_OCTO_EXPR }}{}%
-				if (LP_AGGREGATE_FUNCTION_MIN == af_type) {
+				/* MIN is bounded above by ENDPOINT, which is always inclusive. MAX is bounded
+				 * below by START, which is exclusive unless STARTINCLUDE is also specified.
+				 */
+				start_is_inclusive = ((LP_AGGREGATE_FUNCTION_MIN != af_type)
+				                      && (NULL != get_keyword(key_column, OPTIONAL_STARTINCLUDE)));
+				if (start_is_inclusive) {
+					/* Written as "START <= EXPR" rather than "EXPR >= START" so that the same
+					 * two operators the inclusive MIN case uses serve here too: M spells the
+					 * string form of "<=" as "']" and has no ">=" counterpart for it.
+					 */
+					%{}&({{ str }}{}%
 					if (!is_string) {
 						%{}<={}%
 					} else {
 						%{}']{}%
 					}
+					%{}{{ PP_YDB_OCTO_EXPR }}){}%
 				} else {
-					if (!is_string) {
-						%{}>{}%
+					%{}&({{ PP_YDB_OCTO_EXPR }}{}%
+					if (LP_AGGREGATE_FUNCTION_MIN == af_type) {
+						if (!is_string) {
+							%{}<={}%
+						} else {
+							%{}']{}%
+						}
 					} else {
-						%{}]{}%
+						if (!is_string) {
+							%{}>{}%
+						} else {
+							%{}]{}%
+						}
 					}
+					%{}{{ str }}){}%
 				}
-				%{}{{ str }}){}%
 			}
 		} else if (!IS_COLUMN_STRING_TYPE(aggr_column)) {
 			%{}&(""'={{ PP_YDB_OCTO_EXPR }}){}%

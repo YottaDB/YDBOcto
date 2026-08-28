@@ -169,7 +169,10 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 						TMPL(tmpl_emit_source, table, extract_value->v.string_literal, table_name, \
 							unique_id, parm2, num_vars_to_match, form);
 					} else {
-						/* Column is PIECE-based. Use the $PIECE(...) logic. */
+						/* Column is not EXTRACT based. It can either be PIECE-based (most common case):
+						 * Use the $PIECE(...) logic; or, it could be a DELIM "" case (in which PIECE is
+						 * removed)
+						 */
 						char		   *source_global;
 						SqlOptionalKeyword *global_keyword, *piece_keyword;
 						boolean_t	    col_is_multi_level_piece;
@@ -201,7 +204,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 							col_substr_spec = NULL;
 						}
 
-						if (col_is_multi_level_piece) {
+						if (col_is_multi_level_piece) { // PIECES
 							/* YDBOcto#1108: Multi-level (piece-of-piece) column. Emit one "$PIECE(" opener
 							 * per nesting level, then $GET(source), then one ,"<delim>",<piece>) closer per
 							 * level (innermost = list head first). The opener/closer emission is shared with
@@ -215,16 +218,20 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 									unique_id, parm2, MAX_KEY_COUNT, form);
 							%{}){}%
 							TMPL(tmpl_piece_of_piece_close, sql_column->delim, piece_keyword->v);
-						} else if ((NULL == piece_keyword) && (NULL != col_substr_spec)) {
-							/* YDBOcto#763/#764: Whole-node SUBSTR column (its implicit DELIM "" removed any
-							 * PIECE keyword). $EXTRACT applies to the entire node, so emit only $GET(source)
-							 * here; the $PIECE branch below would wrongly slice it into pieces.
+						} else if (NULL == piece_keyword) { // DELIM ""
+							/* DELIM "" means the entire node value IS the column value, so emit just
+							 * $GET(source) with no $PIECE wrapper. This matches what a direct reference
+							 * to the same column emits in "tmpl_column_reference" (where the "$PIECE("
+							 * opener is likewise gated on a non-NULL PIECE keyword).
 							 */
+							assert(NULL != sql_column->delim);
+							assert(DELIM_IS_LITERAL == sql_column->delim->v.value->v.string_literal[0]);
+							assert('\0' == sql_column->delim->v.value->v.string_literal[1]);
 							%{}$GET({}%
 								TMPL(tmpl_emit_source, table, source_global, table_name,	\
 									unique_id, parm2, MAX_KEY_COUNT, form);
 							%{}){}%
-						} else {
+						} else { // PIECE
 							char *delim;
 
 							if (NULL == sql_column->delim) {
@@ -242,11 +249,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 								// Omit quotation marks to allow calls to $CHAR
 								%{},{{ &delim[1] }}{}%
 							}
-							if (NULL == piece_keyword) {
-								%{},{{ sql_column->column_number-1|%d }}){}%
-							} else {
-								%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
-							}
+							%{},{{ piece_keyword->v->v.value->v.string_literal }}){}%
 						}
 
 						if (NULL != col_substr_spec) {

@@ -1,0 +1,6 @@
+YottaDB MUPIP EXTRACT
+04-JAN-2026  00:00:00 ZWR
+^disp(1)="H"
+^disp(2)="C"
+^dispxr("C")="Chemistry"
+^dispxr("H")="Haematology"

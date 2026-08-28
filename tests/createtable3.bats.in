@@ -727,3 +727,19 @@ OCTO
 		verify_output TC087_utf8 output.txt
 	fi
 }
+
+@test "TC088 : OCTO1145 : values() of a DELIM \"\" column emits the whole node, not \$PIECE(...,\"\",n)" {
+	load_fixture TC088.zwr
+	echo "# Data loaded into ^disp and ^dispxr:" | tee -a output.txt
+	yottadb -run %XCMD 'zwrite ^disp,^dispxr' 2>&1 | tee -a output.txt
+
+	load_fixture TC088.sql subtest novv
+
+	# "code" is DELIM "" so the values("code") reference must be a bare $GET of the whole node.
+	# Before YDBOcto#1145 it was $PIECE($GET(^disp(...)),"",1), which is always "" in M.
+	echo "" | tee -a output.txt
+	echo "# Generated M for the values(\"code\") reference:" | tee -a output.txt
+	grep -hoaE '\$GET\(\^dispxr\([^ ]*' _ydboctoP*.m | sort -u | tee -a output.txt
+
+	verify_output TC088 output.txt
+}

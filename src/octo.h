@@ -176,6 +176,8 @@
 #define OCTOLIT_ROW_COUNT   "RowCount"	   /* keep this in sync with PP_ROW_COUNT in "template_helpers.h" */
 #define OCTOLIT_XREF_STATUS "xref_status"  /* keep this in sync with PP_XREF_STATUS in "template_helpers.h" */
 #define OCTO_LEFT_JOIN_LIT  "octoLeftJoin" /* keep this in sync with PP_OCTO_LEFT_JOIN in "template_helpers.h" */
+#define OCTO_EXTRACT_LIT    "octoExtract"  /* keep this in sync with PP_OCTO_EXTRACT in "template_helpers.h" */
+#define OCTO_ITERATOR_LIT   "octoIterator" /* keep this in sync with PP_OCTO_ITERATOR in "template_helpers.h" */
 
 #define OCTOLIT_0			    "0"
 #define OCTOLIT_ALL			    "all"
@@ -424,7 +426,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 52
+#define FMT_PLAN_DEFINITION 53
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)

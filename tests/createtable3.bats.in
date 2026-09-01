@@ -744,6 +744,189 @@ OCTO
 	verify_output TC088 output.txt
 }
 
+@test "TC089 : OCTO1146 : EXTRACT column M routine can find out its own table and column" {
+	load_fixture names.zwr
+
+	echo "#####################################################################" | tee -a output.txt
+	echo "# TC089 : YDBOcto#1146" | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# An M routine invoked from an EXTRACT expression is handed only the" | tee -a output.txt
+	echo "# arguments the DDL passes it, so by itself it cannot tell which table" | tee -a output.txt
+	echo "# and column it is computing. These two extrinsics tell it:" | tee -a output.txt
+	echo "#     \$\$tableName^%ydboctoplanhelpers()" | tee -a output.txt
+	echo "#     \$\$columnName^%ydboctoplanhelpers()" | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# The generated plan supplies them by wrapping each EXTRACT expression that" | tee -a output.txt
+	echo "# can call M code in an \"octoExtractNN\" label that NEWs and SETs %ydboctoctx." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# === The M routine that every section below calls into ===" | tee -a output.txt
+	sed -n '/^TC089/,$p' @PROJECT_SOURCE_DIR@/tests/fixtures/TC089.m | tee -a output.txt
+
+	# =====================================================================
+	# Section A : both accessors, plain M-string EXTRACT
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section A : both accessors from a plain M-string EXTRACT column." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: whoami = \"<firstname> [tbl=tc089a,col=whoami]\" -- the DDL" | tee -a output.txt
+	echo "# passes \$\$ctx^TC089 only the firstname value, so both names came from" | tee -a output.txt
+	echo "# the accessors." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TC089-A.sql subtest novv
+
+	# =====================================================================
+	# Section B : the "EXTRACT <sql function call>" form
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section B : an EXTRACT that is a SQL function call rather than an M" | tee -a output.txt
+	echo "# string. That reaches \"tmpl_print_expression\" instead of" | tee -a output.txt
+	echo "# \"tmpl_emit_source\", i.e. a second emission path into the same label." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: the same shape of answer as Section A, naming tc089b." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TC089-B.sql subtest novv
+
+	# =====================================================================
+	# Section C : one label per distinct EXTRACT column
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section C : when two EXTRACT references share a label, and when they" | tee -a output.txt
+	echo "# must not. A label is shared only when table, column AND emitted M all" | tee -a output.txt
+	echo "# match; each query below breaks exactly one of those." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED:" | tee -a output.txt
+	echo "#   alpha, beta     : <alpha> and <beta>. Different columns, different M." | tee -a output.txt
+	echo "#   alpha, alpha    : <alpha> twice, from ONE shared label (printed at the" | tee -a output.txt
+	echo "#                     end of this file)." | tee -a output.txt
+	echo "#   alpha, alphatwin: <alpha> and <alphatwin>. Identical EXTRACT text, so" | tee -a output.txt
+	echo "#                     identical M; sharing a label would print <alpha> twice." | tee -a output.txt
+	echo "#   a.alpha, b.alpha: Zero<alpha> and Acid<alpha>. One column, but each alias" | tee -a output.txt
+	echo "#                     reads its own row, so it gets TWO labels (printed at the" | tee -a output.txt
+	echo "#                     end of this file); sharing one would print Zero twice." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TC089-C.sql subtest novv
+
+	# =====================================================================
+	# Section D : nested EXTRACT columns
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section D : \"fullname\" is EXTRACT values(nickname), and \"nickname\" is" | tee -a output.txt
+	echo "# itself an EXTRACT column. The inner expression is emitted INLINE" | tee -a output.txt
+	echo "# inside the outer one, so the two are a single M expression." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: fullname = \"<firstname><nickname><fullname>\"." | tee -a output.txt
+	echo "# This is the crux of the whole change. A design that sets the context" | tee -a output.txt
+	echo "# without restoring it reports <fullname><fullname> here, because the" | tee -a output.txt
+	echo "# inner call would leave its own name behind for the outer one." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TC089-D.sql subtest novv
+
+	# =====================================================================
+	# Section E : error unwind, and no context outside an EXTRACT
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section E : an EXTRACT routine that raises an error, and a routine" | tee -a output.txt
+	echo "# reached through CREATE FUNCTION rather than through an EXTRACT." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED:" | tee -a output.txt
+	echo "#   trapped = \"... [caught@trapped]\" and, on the SAME row, after =" | tee -a output.txt
+	echo "#       \"...<after>\" -- the error unwound out of the label, and the" | tee -a output.txt
+	echo "#       next EXTRACT column still reports its own name." | tee -a output.txt
+	echo "#   TC089NOCTX(firstname) = \"... [tbl=,col=]\" -- EMPTY, not stale. A" | tee -a output.txt
+	echo "#       CREATE FUNCTION extrinsic can take columns from several tables," | tee -a output.txt
+	echo "#       so there is no single owning column to report." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TC089-E.sql subtest novv
+
+	# =====================================================================
+	# Section F : an EXTRACT that cannot call M code gets no label
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section F : only M code that an EXTRACT expression calls can read the" | tee -a output.txt
+	echo "# context, so an expression with no \"\$\$\", \"\$&\" or \"@\" in it is left" | tee -a output.txt
+	echo "# inline and pays nothing for the feature." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: plain = the first piece of ^names, e.g. \"Zero\"; called =" | tee -a output.txt
+	echo "# \"Zero<called>\". The plan (printed at the end of this file) calls a label" | tee -a output.txt
+	echo "# for \"called\" only, and fetches \"plain\" inline." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TC089-F.sql subtest novv
+
+	# ---------------------------------------------------------------------
+	# Codegen.
+	# ---------------------------------------------------------------------
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Codegen : the labels that produced the answers above." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# Each EXTRACT expression that can call M code (every one in Sections A-E," | tee -a output.txt
+	echo "# and \"called\" in Section F) was cut out of its plan and moved under an" | tee -a output.txt
+	echo "# \"octoExtractNN\" label, leaving a \"\$\$octoExtractNN()\" call" | tee -a output.txt
+	echo "# behind." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: every label names the column whose context it sets, and no" | tee -a output.txt
+	echo "# label claims a column it does not belong to." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Generated octoExtract labels, across all plans. Labels are numbered per" | tee -a output.txt
+	echo "# routine, so a name repeats when two plans each define one. Sorted, so the" | tee -a output.txt
+	echo "# pairing of label to column is what to read:" | tee -a output.txt
+	grep -haE '^octoExtract[0-9]+\b' _ydboctoP*.m | sort | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Section C's \"SELECT alpha, alpha\" plan: the ONE octoExtract1 label it" | tee -a output.txt
+	echo "# defines, and the TWO lines that call it. A repeated reference to one" | tee -a output.txt
+	echo "# EXTRACT column is shared rather than duplicated:" | tee -a output.txt
+	grep -haE '^octoExtract1\b|\$\$octoExtract1\b' \
+		$(grep -laF ';  SELECT alpha, alpha FROM tc089c WHERE id = 0;' _ydboctoP*.m) | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Section C's self-join plan: the one column \"alpha\" gets TWO labels, one per" | tee -a output.txt
+	echo "# alias. Both report tc089c.alpha -- the context has no alias in it -- and they" | tee -a output.txt
+	echo "# differ only in whose key they read: \"keys\",1 (alias a) vs \"keys\",2 (alias b):" | tee -a output.txt
+	sed -n '/^octoExtract/,$p' $(grep -laF ';  SELECT a.alpha, b.alpha FROM tc089c a, tc089c b WHERE a.id = 0 AND b.id = 1;' _ydboctoP*.m) | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Section D's two labels. octoExtract2 (fullname) QUITs an expression that" | tee -a output.txt
+	echo "# CALLS octoExtract1 (nickname), so the labels nest and each NEW is undone" | tee -a output.txt
+	echo "# exactly when its extrinsic returns:" | tee -a output.txt
+	sed -n '/^octoExtract/,$p' $(grep -laF ';  SELECT id, fullname FROM tc089d WHERE id < 2;' _ydboctoP*.m) | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Section F's plan: the fetch of each EXTRACT column, and the labels. \"called\"" | tee -a output.txt
+	echo "# goes through a label; \"plain\" is still the \$PIECE(\$GET(...)) it was before:" | tee -a output.txt
+	f=$(grep -laF ';  SELECT id, plain, called FROM tc089f WHERE id < 2;' _ydboctoP*.m)
+	grep -aE 'SET %ydboctoexpr=(\$\$octoExtract|\$PIECE\(\$GET\(\^names)' $f | sed 's/^ *[. ]*//' | tee -a output.txt
+	grep -aE '^octoExtract' $f | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Label and call counts, over every plan generated by this test." | tee -a output.txt
+	echo "# Read each line as the sentence it spells out. \"Defines\" counts the" | tee -a output.txt
+	echo "# \"octoExtractNN()\" label definitions in one plan; \"contains\"" | tee -a output.txt
+	echo "# counts the \"\$\$octoExtractNN()\" calls to them in that same plan." | tee -a output.txt
+	echo "# Plans with neither are not listed, and plan file names are hashes, so" | tee -a output.txt
+	echo "# plans are counted rather than named." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: most plans define exactly as many labels as they call. Two do" | tee -a output.txt
+	echo "# not, and each is a case this change is about:" | tee -a output.txt
+	echo "#   1 label / 2 calls  -- Section C's \"SELECT alpha, alpha\". Both" | tee -a output.txt
+	echo "#       references to the one EXTRACT column share a single label." | tee -a output.txt
+	echo "#   2 labels / 3 calls -- Section D's \"SELECT id, nickname, fullname\"." | tee -a output.txt
+	echo "#       nickname is called once from the plan body and a second time from" | tee -a output.txt
+	echo "#       inside fullname's label. That second call is the nesting." | tee -a output.txt
+	for plan in _ydboctoP*.m; do
+		labels=$(grep -caE '^octoExtract[0-9]+\b' "$plan" || true)
+		calls=$(grep -oaE '\$\$octoExtract[0-9]+\b' "$plan" | wc -l)
+		[[ "0-0" == "$labels-$calls" ]] || echo "$labels $calls"
+	done | sort | uniq -c \
+	     | awk '{printf "%s plan(s) define %s label(s) and contain %s call(s) to them\n", $1, $2, $3}' | tee -a output.txt
+
+	verify_output TC089 output.txt
+}
+
 @test "TC090 : OCTO1149 : keys()/values() are expanded after any M operator, not just \"(\" \",\" and \"_\"" {
 	echo "# Stage 1 : Load ^ref (the table data) and ^keys (a global whose name happens to be \"keys\")" | tee -a output.txt
 	echo "#           Expect : the 3 ^ref rows and ^keys(\"x\")=\"global named keys\"" | tee -a output.txt

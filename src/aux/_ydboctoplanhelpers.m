@@ -2072,4 +2072,16 @@ aimsubs2strcolval(subscript)
 	QUIT $ZEXTRACT(subscript,2,$ZLENGTH(subscript))
 
 ; -------------------------------------------------------------------------------------------------------------------
+; YDBOcto#1146 : Accessors that let an M routine invoked from an EXTRACT column expression or from an ITERATOR key
+; column expression find out which table and column it is working on.
+;
+; "%ydboctoctx" is NEWed and SET, to the table and column names separated by $CHAR(0), by the
+; "octoExtractNN"/"octoIteratorNN" label that the generated plan wraps around such an expression.
 
+tableName()	; Table owning the EXTRACT/ITERATOR column being worked on. "" if not called from within one.
+	QUIT $PIECE($GET(%ydboctoctx),$CHAR(0),1)
+
+columnName()	; The EXTRACT/ITERATOR column being worked on. "" if not called from within one.
+	QUIT $PIECE($GET(%ydboctoctx),$CHAR(0),2)
+
+; -------------------------------------------------------------------------------------------------------------------

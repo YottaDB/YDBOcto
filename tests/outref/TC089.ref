@@ -1,0 +1,422 @@
+#####################################################################
+# TC089 : YDBOcto#1146
+#
+# An M routine invoked from an EXTRACT expression is handed only the
+# arguments the DDL passes it, so by itself it cannot tell which table
+# and column it is computing. These two extrinsics tell it:
+#     $$tableName^%ydboctoplanhelpers()
+#     $$columnName^%ydboctoplanhelpers()
+#
+# The generated plan supplies them by wrapping each EXTRACT expression that
+# can call M code in an "octoExtractNN" label that NEWs and SETs %ydboctoctx.
+#####################################################################
+
+# === The M routine that every section below calls into ===
+TC089	;
+	; TC089 : OCTO1146 : Expose table / column context to an EXTRACT column's M routine
+	;
+	; Every entry point below is invoked from an EXTRACT column expression (or, for "nocontext",
+	; from a CREATE FUNCTION extrinsic) and folds what the accessors reported into its return
+	; value, so the query results themselves show the context each invocation ran with.
+	QUIT
+
+ctx(val)	; Report the table and the column this EXTRACT column is being computed for.
+	QUIT val_" [tbl="_$$tableName^%ydboctoplanhelpers()_",col="_$$columnName^%ydboctoplanhelpers()_"]"
+
+col(val)	; Report only the column name. Keeps the nested-EXTRACT output short enough to read.
+	QUIT val_"<"_$$columnName^%ydboctoplanhelpers()_">"
+
+nocontext(val)	; Invoked through CREATE FUNCTION, i.e. NOT from an EXTRACT column, and so not from under an
+		; "octoExtractNN" label. Both accessors must read as empty here rather than reporting
+		; whatever the last EXTRACT column in the same query happened to leave behind.
+	QUIT val_" [tbl="_$$tableName^%ydboctoplanhelpers()_",col="_$$columnName^%ydboctoplanhelpers()_"]"
+
+trap(val)	; Raise a runtime error and catch it one frame above the "octoExtractNN" label that NEWed
+		; %ydboctoctx. Both the trap handler (still under the label) and the rest of the query
+		; (after the label QUITs) must see the right column.
+	NEW $ETRAP,res
+	SET $ETRAP="SET $ECODE="""" SET res=""caught@""_$$columnName^%ydboctoplanhelpers() QUIT:$QUIT res  QUIT"
+	SET res=$$boom^TC089(val)
+	QUIT val_" ["_res_"]"
+
+boom(val)	; Raise a DIVZERO from inside an EXTRACT column's expression.
+	QUIT val/0
+
+#####################################################################
+# Section A : both accessors from a plain M-string EXTRACT column.
+#
+# EXPECTED: whoami = "<firstname> [tbl=tc089a,col=whoami]" -- the DDL
+# passes $$ctx^TC089 only the firstname value, so both names came from
+# the accessors.
+#####################################################################
+
+-- TC089 : OCTO1146 : Section A : both accessors from a plain M-string EXTRACT column
+
+CREATE TABLE tc089a (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	whoami VARCHAR EXTRACT "$$ctx^TC089(values(""firstname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+
+-- "whoami" names the table and column it is being computed for, with no help from the DDL.
+SELECT id, whoami FROM tc089a WHERE id < 2;
+OCTO> CREATE TABLE tc089a (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	whoami VARCHAR EXTRACT "$$ctx^TC089(values(""firstname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT id, whoami FROM tc089a WHERE id < 2;
+id|whoami
+0|Zero [tbl=tc089a,col=whoami]
+1|Acid [tbl=tc089a,col=whoami]
+(2 rows)
+OCTO> 
+
+#####################################################################
+# Section B : an EXTRACT that is a SQL function call rather than an M
+# string. That reaches "tmpl_print_expression" instead of
+# "tmpl_emit_source", i.e. a second emission path into the same label.
+#
+# EXPECTED: the same shape of answer as Section A, naming tc089b.
+#####################################################################
+
+-- TC089 : OCTO1146 : Section B : same accessors from the "EXTRACT <sql function call>" form
+
+CREATE FUNCTION TC089CTX(VARCHAR) RETURNS VARCHAR AS $$ctx^TC089;
+
+CREATE TABLE tc089b (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	fnwhoami VARCHAR EXTRACT TC089CTX(firstname)
+) GLOBAL "^names(keys(""id""))" READONLY;
+
+-- An EXTRACT that is a SQL function call goes through a different emission path
+-- ("tmpl_print_expression") than the M-string form in Section A, but must set up the same context.
+SELECT id, fnwhoami FROM tc089b WHERE id < 2;
+OCTO> CREATE FUNCTION TC089CTX(VARCHAR) RETURNS VARCHAR AS $$ctx^TC089;
+CREATE FUNCTION
+OCTO> CREATE TABLE tc089b (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	fnwhoami VARCHAR EXTRACT TC089CTX(firstname)
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT id, fnwhoami FROM tc089b WHERE id < 2;
+id|fnwhoami
+0|Zero [tbl=tc089b,col=fnwhoami]
+1|Acid [tbl=tc089b,col=fnwhoami]
+(2 rows)
+OCTO> 
+
+#####################################################################
+# Section C : when two EXTRACT references share a label, and when they
+# must not. A label is shared only when table, column AND emitted M all
+# match; each query below breaks exactly one of those.
+#
+# EXPECTED:
+#   alpha, beta     : <alpha> and <beta>. Different columns, different M.
+#   alpha, alpha    : <alpha> twice, from ONE shared label (printed at the
+#                     end of this file).
+#   alpha, alphatwin: <alpha> and <alphatwin>. Identical EXTRACT text, so
+#                     identical M; sharing a label would print <alpha> twice.
+#   a.alpha, b.alpha: Zero<alpha> and Acid<alpha>. One column, but each alias
+#                     reads its own row, so it gets TWO labels (printed at the
+#                     end of this file); sharing one would print Zero twice.
+#####################################################################
+
+-- TC089 : OCTO1146 : Section C : one label per distinct EXTRACT column, shared by repeat references
+
+CREATE TABLE tc089c (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	alpha VARCHAR EXTRACT "$$col^TC089(values(""firstname""))",
+	beta VARCHAR EXTRACT "$$col^TC089(values(""lastname""))",
+	alphatwin VARCHAR EXTRACT "$$col^TC089(values(""firstname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+
+-- Two EXTRACT columns of one table, each reporting its own name and not the other's.
+SELECT id, alpha, beta FROM tc089c WHERE id < 2;
+
+-- The same EXTRACT column referenced twice in one query collapses to a single label.
+SELECT alpha, alpha FROM tc089c WHERE id = 0;
+
+-- Two columns with identical EXTRACT text emit identical M, but still get a label each.
+SELECT alpha, alphatwin FROM tc089c WHERE id = 0;
+
+-- One column reached through two aliases emits two different bodies (each reads its own alias's key).
+SELECT a.alpha, b.alpha FROM tc089c a, tc089c b WHERE a.id = 0 AND b.id = 1;
+OCTO> CREATE TABLE tc089c (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	alpha VARCHAR EXTRACT "$$col^TC089(values(""firstname""))",
+	beta VARCHAR EXTRACT "$$col^TC089(values(""lastname""))",
+	alphatwin VARCHAR EXTRACT "$$col^TC089(values(""firstname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT id, alpha, beta FROM tc089c WHERE id < 2;
+id|alpha|beta
+0|Zero<alpha>|Cool<beta>
+1|Acid<alpha>|Burn<beta>
+(2 rows)
+OCTO> SELECT alpha, alpha FROM tc089c WHERE id = 0;
+alpha|alpha
+Zero<alpha>|Zero<alpha>
+(1 row)
+OCTO> SELECT alpha, alphatwin FROM tc089c WHERE id = 0;
+alpha|alphatwin
+Zero<alpha>|Zero<alphatwin>
+(1 row)
+OCTO> SELECT a.alpha, b.alpha FROM tc089c a, tc089c b WHERE a.id = 0 AND b.id = 1;
+alpha|alpha
+Zero<alpha>|Acid<alpha>
+(1 row)
+OCTO> 
+
+#####################################################################
+# Section D : "fullname" is EXTRACT values(nickname), and "nickname" is
+# itself an EXTRACT column. The inner expression is emitted INLINE
+# inside the outer one, so the two are a single M expression.
+#
+# EXPECTED: fullname = "<firstname><nickname><fullname>".
+# This is the crux of the whole change. A design that sets the context
+# without restoring it reports <fullname><fullname> here, because the
+# inner call would leave its own name behind for the outer one.
+#####################################################################
+
+-- TC089 : OCTO1146 : Section D : nested EXTRACT columns each report their own name
+
+CREATE TABLE tc089d (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	nickname VARCHAR EXTRACT "$$col^TC089(values(""firstname""))",
+	fullname VARCHAR EXTRACT "$$col^TC089(values(""nickname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+
+-- "fullname" references "nickname", which is itself an EXTRACT column, so both expressions are
+-- emitted as ONE M expression. The inner routine must still see "nickname" and the outer one
+-- "fullname" -- i.e. the expected value is "<nickname><fullname>", never "<fullname><fullname>".
+SELECT id, fullname FROM tc089d WHERE id < 2;
+
+-- Both columns in one query: the inner label is shared with the standalone "nickname" reference.
+SELECT id, nickname, fullname FROM tc089d WHERE id = 0;
+OCTO> CREATE TABLE tc089d (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	nickname VARCHAR EXTRACT "$$col^TC089(values(""firstname""))",
+	fullname VARCHAR EXTRACT "$$col^TC089(values(""nickname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT id, fullname FROM tc089d WHERE id < 2;
+id|fullname
+0|Zero<nickname><fullname>
+1|Acid<nickname><fullname>
+(2 rows)
+OCTO> SELECT id, nickname, fullname FROM tc089d WHERE id = 0;
+id|nickname|fullname
+0|Zero<nickname>|Zero<nickname><fullname>
+(1 row)
+OCTO> 
+
+#####################################################################
+# Section E : an EXTRACT routine that raises an error, and a routine
+# reached through CREATE FUNCTION rather than through an EXTRACT.
+#
+# EXPECTED:
+#   trapped = "... [caught@trapped]" and, on the SAME row, after =
+#       "...<after>" -- the error unwound out of the label, and the
+#       next EXTRACT column still reports its own name.
+#   TC089NOCTX(firstname) = "... [tbl=,col=]" -- EMPTY, not stale. A
+#       CREATE FUNCTION extrinsic can take columns from several tables,
+#       so there is no single owning column to report.
+#####################################################################
+
+-- TC089 : OCTO1146 : Section E : context survives an error, and is empty outside an EXTRACT
+
+CREATE FUNCTION TC089NOCTX(VARCHAR) RETURNS VARCHAR AS $$nocontext^TC089;
+
+CREATE TABLE tc089e (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	trapped VARCHAR EXTRACT "$$trap^TC089(values(""firstname""))",
+	raiser VARCHAR EXTRACT "$$boom^TC089(values(""firstname""))",
+	after VARCHAR EXTRACT "$$col^TC089(values(""lastname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+
+-- An error raised and caught inside the EXTRACT routine: the handler runs below the label that
+-- NEWed the context, so it still reports "trapped"; the next column then reports "after".
+SELECT id, trapped, after FROM tc089e WHERE id < 2;
+
+-- An error that is NOT caught fails the query ...
+SELECT id, raiser FROM tc089e WHERE id = 0;
+
+-- ... but nothing leaked out of it: this query reports its own column, not "raiser".
+SELECT id, after FROM tc089e WHERE id < 2;
+
+-- A function call that is not attached to a column is not under any label, so it sees no context.
+SELECT id, TC089NOCTX(firstname) FROM tc089e WHERE id < 2;
+OCTO> CREATE FUNCTION TC089NOCTX(VARCHAR) RETURNS VARCHAR AS $$nocontext^TC089;
+CREATE FUNCTION
+OCTO> CREATE TABLE tc089e (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	trapped VARCHAR EXTRACT "$$trap^TC089(values(""firstname""))",
+	raiser VARCHAR EXTRACT "$$boom^TC089(values(""firstname""))",
+	after VARCHAR EXTRACT "$$col^TC089(values(""lastname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT id, trapped, after FROM tc089e WHERE id < 2;
+id|trapped|after
+0|Zero [caught@trapped]|Cool<after>
+1|Acid [caught@trapped]|Burn<after>
+(2 rows)
+OCTO> SELECT id, raiser FROM tc089e WHERE id = 0;
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373210,boom+1^TC089,%YDB-E-DIVZERO, Attempt to divide by zero
+OCTO> SELECT id, after FROM tc089e WHERE id < 2;
+id|after
+0|Cool<after>
+1|Burn<after>
+(2 rows)
+OCTO> SELECT id, TC089NOCTX(firstname) FROM tc089e WHERE id < 2;
+id|tc089noctx
+0|Zero [tbl=,col=]
+1|Acid [tbl=,col=]
+(2 rows)
+OCTO> 
+
+#####################################################################
+# Section F : only M code that an EXTRACT expression calls can read the
+# context, so an expression with no "$$", "$&" or "@" in it is left
+# inline and pays nothing for the feature.
+#
+# EXPECTED: plain = the first piece of ^names, e.g. "Zero"; called =
+# "Zero<called>". The plan (printed at the end of this file) calls a label
+# for "called" only, and fetches "plain" inline.
+#####################################################################
+-- TC089 : OCTO1146 : Section F : an EXTRACT that cannot call M code gets no label
+
+CREATE TABLE tc089f (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	plain VARCHAR EXTRACT "$PIECE($GET(^names(keys(""id""))),""|"",1)",
+	called VARCHAR EXTRACT "$$col^TC089(values(""firstname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+
+SELECT id, plain, called FROM tc089f WHERE id < 2;
+OCTO> CREATE TABLE tc089f (
+	id INTEGER PRIMARY KEY,
+	firstname VARCHAR(30),
+	lastname VARCHAR(30),
+	plain VARCHAR EXTRACT "$PIECE($GET(^names(keys(""id""))),""|"",1)",
+	called VARCHAR EXTRACT "$$col^TC089(values(""firstname""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT id, plain, called FROM tc089f WHERE id < 2;
+id|plain|called
+0|Zero|Zero<called>
+1|Acid|Acid<called>
+(2 rows)
+OCTO> 
+
+#####################################################################
+# Codegen : the labels that produced the answers above.
+#
+# Each EXTRACT expression that can call M code (every one in Sections A-E,
+# and "called" in Section F) was cut out of its plan and moved under an
+# "octoExtractNN" label, leaving a "$$octoExtractNN()" call
+# behind.
+#
+# EXPECTED: every label names the column whose context it sets, and no
+# label claims a column it does not belong to.
+#####################################################################
+
+# Generated octoExtract labels, across all plans. Labels are numbered per
+# routine, so a name repeats when two plans each define one. Sorted, so the
+# pairing of label to column is what to read:
+octoExtract1()	; EXTRACT context for tc089a.whoami
+octoExtract1()	; EXTRACT context for tc089b.fnwhoami
+octoExtract1()	; EXTRACT context for tc089c.alpha
+octoExtract1()	; EXTRACT context for tc089c.alpha
+octoExtract1()	; EXTRACT context for tc089c.alpha
+octoExtract1()	; EXTRACT context for tc089c.alpha
+octoExtract1()	; EXTRACT context for tc089d.nickname
+octoExtract1()	; EXTRACT context for tc089d.nickname
+octoExtract1()	; EXTRACT context for tc089e.after
+octoExtract1()	; EXTRACT context for tc089e.raiser
+octoExtract1()	; EXTRACT context for tc089e.trapped
+octoExtract1()	; EXTRACT context for tc089f.called
+octoExtract2()	; EXTRACT context for tc089c.alpha
+octoExtract2()	; EXTRACT context for tc089c.alphatwin
+octoExtract2()	; EXTRACT context for tc089c.beta
+octoExtract2()	; EXTRACT context for tc089d.fullname
+octoExtract2()	; EXTRACT context for tc089d.fullname
+octoExtract2()	; EXTRACT context for tc089e.after
+
+# Section C's "SELECT alpha, alpha" plan: the ONE octoExtract1 label it
+# defines, and the TWO lines that call it. A repeated reference to one
+# EXTRACT column is shared rather than duplicated:
+    . . SET %ydboctoexpr=$$octoExtract1() SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+    . . SET %ydboctoexpr=$$octoExtract1() SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+octoExtract1()	; EXTRACT context for tc089c.alpha
+
+# Section C's self-join plan: the one column "alpha" gets TWO labels, one per
+# alias. Both report tc089c.alpha -- the context has no alias in it -- and they
+# differ only in whose key they read: "keys",1 (alias a) vs "keys",2 (alias b):
+octoExtract1()	; EXTRACT context for tc089c.alpha
+    NEW %ydboctoctx
+    SET %ydboctoctx="tc089c"_$CHAR(0)_"alpha"
+    QUIT $$col^TC089($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"tc089c","id"))),"|",1))
+
+octoExtract2()	; EXTRACT context for tc089c.alpha
+    NEW %ydboctoctx
+    SET %ydboctoctx="tc089c"_$CHAR(0)_"alpha"
+    QUIT $$col^TC089($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"tc089c","id"))),"|",1))
+
+# Section D's two labels. octoExtract2 (fullname) QUITs an expression that
+# CALLS octoExtract1 (nickname), so the labels nest and each NEW is undone
+# exactly when its extrinsic returns:
+octoExtract1()	; EXTRACT context for tc089d.nickname
+    NEW %ydboctoctx
+    SET %ydboctoctx="tc089d"_$CHAR(0)_"nickname"
+    QUIT $$col^TC089($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"tc089d","id"))),"|",1))
+
+octoExtract2()	; EXTRACT context for tc089d.fullname
+    NEW %ydboctoctx
+    SET %ydboctoctx="tc089d"_$CHAR(0)_"fullname"
+    QUIT $$col^TC089($$octoExtract1())
+
+# Section F's plan: the fetch of each EXTRACT column, and the labels. "called"
+# goes through a label; "plain" is still the $PIECE($GET(...)) it was before:
+SET %ydboctoexpr=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"tc089f","id"))),"|",1) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+SET %ydboctoexpr=$$octoExtract1() SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
+octoExtract1()	; EXTRACT context for tc089f.called
+
+# Label and call counts, over every plan generated by this test.
+# Read each line as the sentence it spells out. "Defines" counts the
+# "octoExtractNN()" label definitions in one plan; "contains"
+# counts the "$$octoExtractNN()" calls to them in that same plan.
+# Plans with neither are not listed, and plan file names are hashes, so
+# plans are counted rather than named.
+#
+# EXPECTED: most plans define exactly as many labels as they call. Two do
+# not, and each is a case this change is about:
+#   1 label / 2 calls  -- Section C's "SELECT alpha, alpha". Both
+#       references to the one EXTRACT column share a single label.
+#   2 labels / 3 calls -- Section D's "SELECT id, nickname, fullname".
+#       nickname is called once from the plan body and a second time from
+#       inside fullname's label. That second call is the nesting.
+5 plan(s) define 1 label(s) and contain 1 call(s) to them
+1 plan(s) define 1 label(s) and contain 2 call(s) to them
+5 plan(s) define 2 label(s) and contain 2 call(s) to them
+1 plan(s) define 2 label(s) and contain 3 call(s) to them

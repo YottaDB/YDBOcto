@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,6 +38,14 @@ typedef struct SetOperType {
 	struct SetOperType *prev;
 	struct SetOperType *next;
 } SetOperType;
+
+/* YDBOcto#1146 : The keyword whose M expression a context label wraps. Determines the label name prefix
+ * ("octoExtractNN" vs "octoIteratorNN") and the comment emitted alongside the label.
+ */
+typedef enum {
+	CtxLabelType_Extract, /* EXTRACT column expression */
+	CtxLabelType_Iterator /* ITERATOR key column expression */
+} CtxLabelType;
 
 typedef struct PhysicalPlan {
 	char		    *plan_name, *filename;
@@ -187,5 +195,14 @@ PhysicalPlan *emit_sql_statement(SqlStatement *stmt, char *plan_filename);
 int emit_physical_or_xref_plan(char *plan_filename, SqlStatement *stmt, char *tableName, char *columnName, PhysicalPlan *xref_plan);
 int emit_xref_plan(char *plan_filename, char *tableName, char *columnName, PhysicalPlan *xref_plan);
 boolean_t is_octo617_optimization_possible(PhysicalPlan *pplan);
+
+/* YDBOcto#1146 : Context label registry. The list itself is private to "src/physical/ctx_label.c";
+ * it is per-M-routine state, so it is reset at the start of each routine and emptied by the emit.
+ */
+boolean_t ctx_label_needed(char *body, uint64_t body_len);
+int	  ctx_label_stash(CtxLabelType type, char *table_name, char *column_name, char *body, uint64_t body_len);
+void	  ctx_label_reset(void);
+void	  ctx_label_emit(FILE *memstream);
+DEBUG_ONLY(boolean_t ctx_label_list_is_empty(void);)
 
 #endif

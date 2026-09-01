@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -52,6 +52,12 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	assert(NULL != cur_plan);
 	buffer_len = INIT_M_ROUTINE_LENGTH;
 	buffer = calloc(buffer_len, sizeof(char));
+
+	/* YDBOcto#1146: Start this routine with an empty list of context labels. Note that the xref plans emitted
+	 * further below go into M routines of their own, and each of those is emitted (and its labels flushed) before
+	 * the first "octoPlanNN" body of this routine is emitted.
+	 */
+	ctx_label_reset();
 
 	// Walk the plans back to the first
 	while (NULL != cur_plan->prev) {
@@ -360,6 +366,12 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 				tablejoin->extra_detail.lp_table_join.left_join_buffer);
 		}
 	}
+
+	/* YDBOcto#1146: Emit the "octoExtractNN"/"octoIteratorNN" labels holding the EXTRACT and ITERATOR expressions that
+	 * were cut out of the plans above. Has to happen after every "octoPlanNN" and "octoLeftJoinNN" label has been
+	 * written, since these go at the bottom of the routine.
+	 */
+	ctx_label_emit(memstream);
 
 	fclose(memstream);
 

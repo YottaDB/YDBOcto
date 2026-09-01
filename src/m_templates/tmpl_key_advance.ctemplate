@@ -114,8 +114,18 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		keys_to_match++;
 		keyword = get_keyword(key->column, OPTIONAL_ITERATOR);
 		if (NULL != keyword) {
-			char	*iterator;
-			char	*paren;
+			char	 *iterator;
+			char	 *paren;
+			uint64_t iterator_save_buffer_index;
+
+			/* YDBOcto#1146 : Note down where the ITERATOR expression starts so it can be moved under an
+			 * "octoIteratorNN" label below (if it directly calls an M function, which a working ITERATOR
+			 * always does), letting the M routine it invokes find out which table and key column it is
+			 * advancing. The expression is emitted as the SET argument of the key loop's
+			 * "FOR  SET <key>=..." (see "tmpl_tablejoin.ctemplate"), so there is no statement boundary here
+			 * at which the context could be set and restored -- only an extrinsic that NEWs it will do.
+			 */
+			iterator_save_buffer_index = *buffer_index;
 
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			iterator = value->v.string_literal;
@@ -196,6 +206,14 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 
 				/* Emit the closing ')'. */
 				%{}{{ *arglist_end|%c }}{}%
+			}
+			{
+				char	*iterator_column_name;
+
+				UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
+				iterator_column_name = value->v.reference;
+				EMIT_CTX_LABEL_CALL(CtxLabelType_Iterator, tableName, iterator_column_name,	\
+							iterator_save_buffer_index);
 			}
 		} else {
 			assert(NULL != table->source);

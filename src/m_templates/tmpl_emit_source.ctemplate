@@ -165,9 +165,37 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 						 * which will recursively handle any nested values()/keys() calls.
 						 */
 						SqlValue *extract_value;
+						uint64_t  extract_save_buffer_index;
+
+						/* YDBOcto#1146: This EXTRACT expression is emitted INLINE inside the
+						 * referencing column's expression, so the two would otherwise share one
+						 * table/column context. Wrap it, if it directly calls an M function, in its own
+						 * "octoExtractNN" label: the label NEWs "%ydboctoctx", so the M routine
+						 * invoked from here sees this column's name and the referencing column's
+						 * name is restored the moment the extrinsic returns.
+						 *
+						 * "EmitSourceForm_Value" is the only form that gets here. Every other
+						 * form has a "case" label of its own below, and the one form that falls
+						 * through into this one, "EmitSourceForm_KeyFix", only ever walks the
+						 * table-level GLOBAL string -- where "validate_global_keyword()" rejects
+						 * a "values(...)" with ERR_VALUES_NOT_ALLOWED_IN_GLOBAL, so it cannot
+						 * reach this "values(...)" branch at all.
+						 */
+						assert(EmitSourceForm_Value == form);
+						extract_save_buffer_index = *buffer_index;
+
 						UNPACK_SQL_STATEMENT(extract_value, extract_keyword->v, value);
 						TMPL(tmpl_emit_source, table, extract_value->v.string_literal, table_name, \
 							unique_id, parm2, num_vars_to_match, form);
+
+						char *extract_table_name, *extract_column_name;
+
+						UNPACK_SQL_STATEMENT(value, table->tableName, value);
+						extract_table_name = value->v.reference;
+						UNPACK_SQL_STATEMENT(value, sql_column->columnName, value);
+						extract_column_name = value->v.reference;
+						EMIT_CTX_LABEL_CALL(CtxLabelType_Extract, extract_table_name, extract_column_name, \
+									extract_save_buffer_index);
 					} else {
 						/* Column is not EXTRACT based. It can either be PIECE-based (most common case):
 						 * Use the $PIECE(...) logic; or, it could be a DELIM "" case (in which PIECE is

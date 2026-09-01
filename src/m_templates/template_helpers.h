@@ -57,6 +57,8 @@
 #define PP_PARAMETERS	  "\"parameters\""  /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
 #define PP_XREF_STATUS	  "\"xref_status\"" /* Note: This has to be maintained in sync with OCTOLIT_XREF_STATUS */
 #define PP_OCTO_LEFT_JOIN "octoLeftJoin"    /* Note: This has to be maintained in sync with OCTO_LEFT_JOIN_LIT */
+#define PP_OCTO_EXTRACT	  "octoExtract"	    /* Note: This has to be maintained in sync with OCTO_EXTRACT_LIT */
+#define PP_OCTO_ITERATOR  "octoIterator"    /* Note: This has to be maintained in sync with OCTO_ITERATOR_LIT */
 // Set prefixes for YDB global and local variables nodes, i.e. "^" and "", respectively
 #define PP_GLOBAL_PREFIX "^"
 #define PP_LOCAL_PREFIX	 ""
@@ -74,6 +76,7 @@
 	       * Makes it harder to read the M code but need it for correctness just in case. \
 	       */
 #define PP_XREF_COLUMN		"xrefCol"
+#define PP_YDB_OCTO_CTX		"%ydboctoctx" /* YDBOcto#1146: holds the table/column of the column being computed/iterated */
 #define PP_YDB_OCTO_EXPR	"%ydboctoexpr"
 #define PP_YDB_OCTO_G		"%ydboctog"
 #define PP_YDB_OCTO_I		"%ydboctoi"
@@ -88,6 +91,33 @@
 #define PP_CONVERT_TO_UNIX_TIME "$$Transform2UnixTime^%ydboctoplanhelpers("
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
+
+/* YDBOcto#1146 : Moves the column-attached keyword expression that was just emitted -- the bytes of the emit buffer
+ * from SAVE_INDEX up to the current position -- under an "octoExtractNN" (TYPE == CtxLabelType_Extract) or
+ * "octoIteratorNN" (TYPE == CtxLabelType_Iterator) label, and emits a call to that label in its place. The label
+ * NEWs and SETs "%ydboctoctx" so that "$$tableName^%ydboctoplanhelpers()" and "$$columnName^%ydboctoplanhelpers()"
+ * report TABLE_NAME and COLUMN_NAME while the expression is being evaluated, and so that any enclosing column's
+ * context is restored when the extrinsic returns. An expression that does not directly call an M function is left where it is (see
+ * "ctx_label_needed()"): nothing in it could read the context, so the label would only add cost.
+ *
+ * WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index.
+ */
+#define EMIT_CTX_LABEL_CALL(TYPE, TABLE_NAME, COLUMN_NAME, SAVE_INDEX)                                                          \
+	{                                                                                                                       \
+		uint64_t ctx_body_len;                                                                                          \
+		int	 ctx_label_num;                                                                                         \
+                                                                                                                                \
+		assert(SAVE_INDEX <= *buffer_index);                                                                            \
+		ctx_body_len = *buffer_index - (SAVE_INDEX);                                                                    \
+		if (ctx_label_needed(*global_buffer + (SAVE_INDEX), ctx_body_len)) {                                            \
+			ctx_label_num                                                                                           \
+			    = ctx_label_stash(TYPE, TABLE_NAME, COLUMN_NAME, *global_buffer + (SAVE_INDEX), ctx_body_len);      \
+			/* Rewind past the expression we just emitted; it now lives in the label body instead. */               \
+			*buffer_index = (SAVE_INDEX);                                                                           \
+			TEMPLATE_SNPRINTF("$$%s%d()", ((CtxLabelType_Iterator == (TYPE)) ? PP_OCTO_ITERATOR : PP_OCTO_EXTRACT), \
+					  ctx_label_num);                                                                       \
+		}                                                                                                               \
+	}
 
 /* Sets output parameters "DELIM" and "IS_DOLLAR_CHAR" based on input parameters "TABLE" "COLUMN" and "IS_TRIGGER".
  *

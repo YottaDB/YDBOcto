@@ -1,0 +1,228 @@
+#####################################################################
+# TITER15 : YDBOcto#1146
+#
+# An M routine invoked from an ITERATOR expression is handed only the key
+# values, so by itself it cannot tell which table and which key column it
+# is being asked to advance. These two extrinsics tell it:
+#     $$tableName^%ydboctoplanhelpers()
+#     $$columnName^%ydboctoplanhelpers()
+#
+# The generated plan supplies them by wrapping each ITERATOR expression in
+# an "octoIteratorNN" label that NEWs and SETs %ydboctoctx (dumped at the
+# end of this file).
+#####################################################################
+
+# === The M routine that drives every section below ===
+TITER15	; YDBOcto#1146 : ITERATOR routines that ask which table/column they are advancing
+	;
+	; The iterators below generate the keys 1 and 2 at every level, so a table using them has
+	; 4 rows regardless of what is in its GLOBAL. Each iterator records the (table,column) pair
+	; that $$tableName^%ydboctoplanhelpers() and $$columnName^%ydboctoplanhelpers() reported
+	; while it was running. The "iterctx" EXTRACT column reads those recordings back out, so
+	; that the SELECT output can be compared against a reference file; it passes its own table
+	; name in, so each section of the test reports only its own table's recordings.
+
+catsys(n)	; ITERATOR for the first key column.
+	DO note
+	QUIT $SELECT(n>1:"",1:n+1)
+
+id(catsys,n)	; ITERATOR for the second key column.
+	DO note
+	QUIT $SELECT(n>1:"",1:n+1)
+
+note	; Record the context reported to the ITERATOR expression that is currently running.
+	SET ^TITER15ctx($$tableName^%ydboctoplanhelpers(),$$columnName^%ydboctoplanhelpers())=""
+	QUIT
+
+seen(tbl)	; The (table,column) pairs recorded so far for table "tbl", space separated.
+	NEW col,res
+	SET res="",col=""
+	FOR  SET col=$ORDER(^TITER15ctx(tbl,col)) QUIT:""=col  SET res=res_$SELECT(""=res:"",1:" ")_tbl_"."_col
+	QUIT res
+
+whoami()	; The EXTRACT column's own context. Proves the ITERATOR context did not leak into it.
+	QUIT $$tableName^%ydboctoplanhelpers()_"."_$$columnName^%ydboctoplanhelpers()
+
+#####################################################################
+# Section A : bare-entryref ITERATOR, i.e. "$$catsys^TITER15" with no
+# argument list -- Octo appends the keys itself.
+#
+# EXPECTED: 4 rows (catsys 1..2 x id 1..2), and on EVERY row
+#   iterctx    = "titer15a.catsys titer15a.id"
+#       Each iterator was told its OWN key column. If the context were
+#       set once per table this would read the same name twice; if it
+#       were not set at all the recording keys would be empty.
+#   extractctx = "titer15a.extractctx"
+#       The EXTRACT column reports ITSELF. The iterator's context is
+#       gone by the time the row is built -- if it leaked, this would
+#       read "titer15a.id" (the last key advanced).
+#####################################################################
+-- TITER15 : Section A : bare-entryref ITERATOR reports its own table and key column
+DROP TABLE IF EXISTS titer15a;
+CREATE TABLE titer15a
+(
+	catsys INTEGER ITERATOR "$$catsys^TITER15",
+	id INTEGER ITERATOR "$$id^TITER15",
+	iterctx VARCHAR(100) EXTRACT "$$seen^TITER15($$tableName^%ydboctoplanhelpers())",
+	extractctx VARCHAR(100) EXTRACT "$$whoami^TITER15",
+	PRIMARY KEY (catsys,id)
+)
+GLOBAL "^TITER15G(keys(""catsys""),keys(""id""))";
+SELECT * FROM titer15a;
+OCTO> DROP TABLE IF EXISTS titer15a;
+DROP TABLE
+OCTO> CREATE TABLE titer15a
+(
+	catsys INTEGER ITERATOR "$$catsys^TITER15",
+	id INTEGER ITERATOR "$$id^TITER15",
+	iterctx VARCHAR(100) EXTRACT "$$seen^TITER15($$tableName^%ydboctoplanhelpers())",
+	extractctx VARCHAR(100) EXTRACT "$$whoami^TITER15",
+	PRIMARY KEY (catsys,id)
+)
+GLOBAL "^TITER15G(keys(""catsys""),keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM titer15a;
+catsys|id|iterctx|extractctx
+1|1|titer15a.catsys titer15a.id|titer15a.extractctx
+1|2|titer15a.catsys titer15a.id|titer15a.extractctx
+2|1|titer15a.catsys titer15a.id|titer15a.extractctx
+2|2|titer15a.catsys titer15a.id|titer15a.extractctx
+(4 rows)
+OCTO> 
+
+#####################################################################
+# Section B : the same two iterators reached through the explicit
+# argument-list form, "$$id^TITER15(keys(""catsys""),keys(""id""))".
+# That is a separate emission path in "tmpl_key_advance.ctemplate".
+# The table is named titer15b rather than titer15a.
+#
+# EXPECTED: the same 4 rows as Section A, but every reported name now
+# says titer15b -- proving the table name tracks the table and is not
+# baked into the routine:
+#   iterctx    = "titer15b.catsys titer15b.id"
+#   extractctx = "titer15b.extractctx"
+#####################################################################
+-- TITER15 : Section B : ITERATOR in the explicit "keys()" argument-list form
+DROP TABLE IF EXISTS titer15b;
+CREATE TABLE titer15b
+(
+	catsys INTEGER ITERATOR "$$catsys^TITER15(keys(""catsys""))",
+	id INTEGER ITERATOR "$$id^TITER15(keys(""catsys""),keys(""id""))",
+	iterctx VARCHAR(100) EXTRACT "$$seen^TITER15($$tableName^%ydboctoplanhelpers())",
+	extractctx VARCHAR(100) EXTRACT "$$whoami^TITER15",
+	PRIMARY KEY (catsys,id)
+)
+GLOBAL "^TITER15G(keys(""catsys""),keys(""id""))";
+SELECT * FROM titer15b;
+OCTO> DROP TABLE IF EXISTS titer15b;
+DROP TABLE
+OCTO> CREATE TABLE titer15b
+(
+	catsys INTEGER ITERATOR "$$catsys^TITER15(keys(""catsys""))",
+	id INTEGER ITERATOR "$$id^TITER15(keys(""catsys""),keys(""id""))",
+	iterctx VARCHAR(100) EXTRACT "$$seen^TITER15($$tableName^%ydboctoplanhelpers())",
+	extractctx VARCHAR(100) EXTRACT "$$whoami^TITER15",
+	PRIMARY KEY (catsys,id)
+)
+GLOBAL "^TITER15G(keys(""catsys""),keys(""id""))";
+CREATE TABLE
+OCTO> SELECT * FROM titer15b;
+catsys|id|iterctx|extractctx
+1|1|titer15b.catsys titer15b.id|titer15b.extractctx
+1|2|titer15b.catsys titer15b.id|titer15b.extractctx
+2|1|titer15b.catsys titer15b.id|titer15b.extractctx
+2|2|titer15b.catsys titer15b.id|titer15b.extractctx
+(4 rows)
+OCTO> 
+
+#####################################################################
+# Section C : both tables cross joined, so ONE generated routine holds
+# the iterators of both. A cross join (not an equality join) is used
+# because key fixing would skip the second table's iterators entirely.
+#
+# EXPECTED: 3 rows (LIMIT 3 of the 16), each reporting the two tables
+# separately -- the four labels in one routine do not collide:
+#   a_extract = "titer15a.extractctx"   b_extract = "titer15b.extractctx"
+#   a_iter    = "titer15a.catsys titer15a.id"
+#   b_iter    = "titer15b.catsys titer15b.id"
+#####################################################################
+-- TITER15 : Section C : two ITERATOR tables in one plan
+SELECT a.extractctx AS a_extract, b.extractctx AS b_extract, a.iterctx AS a_iter, b.iterctx AS b_iter
+	FROM titer15a a, titer15b b LIMIT 3;
+OCTO> SELECT a.extractctx AS a_extract, b.extractctx AS b_extract, a.iterctx AS a_iter, b.iterctx AS b_iter
+	FROM titer15a a, titer15b b LIMIT 3;
+a_extract|b_extract|a_iter|b_iter
+titer15a.extractctx|titer15b.extractctx|titer15a.catsys titer15a.id|titer15b.catsys titer15b.id
+titer15a.extractctx|titer15b.extractctx|titer15a.catsys titer15a.id|titer15b.catsys titer15b.id
+titer15a.extractctx|titer15b.extractctx|titer15a.catsys titer15a.id|titer15b.catsys titer15b.id
+(3 rows)
+OCTO> 
+
+#####################################################################
+# Codegen : the labels that produced the answers above.
+#
+# Each ITERATOR expression was cut out of the "FOR  SET <key>=..." of
+# its key loop and moved under an "octoIteratorNN" label, leaving a
+# "$$octoIteratorNN()" call behind. The EXTRACT columns of the
+# same tables keep "octoExtractNN" labels of their own.
+#
+# EXPECTED: every label names the column whose context it sets, and no
+# label claims a column it does not belong to.
+#####################################################################
+
+# The labels of Section A's plan. The calls to them are the SET arguments of
+# that plan's key loops ("FOR  SET <key>=$$octoIteratorNN() ...") and
+# of its two EXTRACT column fetches:
+octoIterator1()	; ITERATOR context for titer15a.catsys
+    NEW %ydboctoctx
+    SET %ydboctoctx="titer15a"_$CHAR(0)_"catsys"
+    QUIT $$catsys^TITER15(%ydboctocursor(cursorId,"keys",1,"titer15a","catsys"))
+
+octoIterator2()	; ITERATOR context for titer15a.id
+    NEW %ydboctoctx
+    SET %ydboctoctx="titer15a"_$CHAR(0)_"id"
+    QUIT $$id^TITER15(%ydboctocursor(cursorId,"keys",1,"titer15a","catsys"),%ydboctocursor(cursorId,"keys",1,"titer15a","id"))
+
+octoExtract1()	; EXTRACT context for titer15a.iterctx
+    NEW %ydboctoctx
+    SET %ydboctoctx="titer15a"_$CHAR(0)_"iterctx"
+    QUIT $$seen^TITER15($$tableName^%ydboctoplanhelpers())
+
+octoExtract2()	; EXTRACT context for titer15a.extractctx
+    NEW %ydboctoctx
+    SET %ydboctoctx="titer15a"_$CHAR(0)_"extractctx"
+    QUIT $$whoami^TITER15
+
+# Generated octoIterator and octoExtract labels, across all plans. Labels are
+# numbered per routine, so a name repeats when two plans each define it -- e.g.
+# octoIterator1 for titer15a.catsys is defined by both Section A's plan and
+# Section C's join plan. Sorted, so the pairing of label to column is what to read:
+octoExtract1()	; EXTRACT context for titer15a.extractctx
+octoExtract1()	; EXTRACT context for titer15a.iterctx
+octoExtract1()	; EXTRACT context for titer15b.iterctx
+octoExtract2()	; EXTRACT context for titer15a.extractctx
+octoExtract2()	; EXTRACT context for titer15b.extractctx
+octoExtract2()	; EXTRACT context for titer15b.extractctx
+octoExtract3()	; EXTRACT context for titer15a.iterctx
+octoExtract4()	; EXTRACT context for titer15b.iterctx
+octoIterator1()	; ITERATOR context for titer15a.catsys
+octoIterator1()	; ITERATOR context for titer15a.catsys
+octoIterator1()	; ITERATOR context for titer15b.catsys
+octoIterator2()	; ITERATOR context for titer15a.id
+octoIterator2()	; ITERATOR context for titer15a.id
+octoIterator2()	; ITERATOR context for titer15b.id
+octoIterator3()	; ITERATOR context for titer15b.catsys
+octoIterator4()	; ITERATOR context for titer15b.id
+
+# ITERATOR label and call counts, over every plan generated by this test.
+# Read each line as the sentence it spells out. "Defines" counts the
+# "octoIteratorNN()" label definitions in one plan; "contains"
+# counts the "$$octoIteratorNN()" calls to them in that same plan.
+# Plans with neither are not listed, and plan file names are hashes, so
+# plans are counted rather than named.
+#
+# EXPECTED: one label per ITERATOR key column, called exactly once each.
+# Two plans have 2 (Sections A and B, one two-key table each) and one has
+# 4 (Section C's join, which walks both tables).
+2 plan(s) define 2 label(s) and contain 2 call(s) to them
+1 plan(s) define 4 label(s) and contain 4 call(s) to them

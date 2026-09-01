@@ -119,3 +119,124 @@ teardown() {
 	load_fixture TITER14.sql subtest novv
 	verify_output TITER14 output.txt
 }
+
+@test "TITER15 : OCTO1146 : ITERATOR M routine can find out its own table and column" {
+	echo "#####################################################################" | tee -a output.txt
+	echo "# TITER15 : YDBOcto#1146" | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# An M routine invoked from an ITERATOR expression is handed only the key" | tee -a output.txt
+	echo "# values, so by itself it cannot tell which table and which key column it" | tee -a output.txt
+	echo "# is being asked to advance. These two extrinsics tell it:" | tee -a output.txt
+	echo "#     \$\$tableName^%ydboctoplanhelpers()" | tee -a output.txt
+	echo "#     \$\$columnName^%ydboctoplanhelpers()" | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# The generated plan supplies them by wrapping each ITERATOR expression in" | tee -a output.txt
+	echo "# an \"octoIteratorNN\" label that NEWs and SETs %ydboctoctx (dumped at the" | tee -a output.txt
+	echo "# end of this file)." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# === The M routine that drives every section below ===" | tee -a output.txt
+	sed -n '/^TITER15/,$p' @PROJECT_SOURCE_DIR@/tests/fixtures/TITER15.m | tee -a output.txt
+
+	# =====================================================================
+	# Section A : bare entryref form
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section A : bare-entryref ITERATOR, i.e. \"\$\$catsys^TITER15\" with no" | tee -a output.txt
+	echo "# argument list -- Octo appends the keys itself." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: 4 rows (catsys 1..2 x id 1..2), and on EVERY row" | tee -a output.txt
+	echo "#   iterctx    = \"titer15a.catsys titer15a.id\"" | tee -a output.txt
+	echo "#       Each iterator was told its OWN key column. If the context were" | tee -a output.txt
+	echo "#       set once per table this would read the same name twice; if it" | tee -a output.txt
+	echo "#       were not set at all the recording keys would be empty." | tee -a output.txt
+	echo "#   extractctx = \"titer15a.extractctx\"" | tee -a output.txt
+	echo "#       The EXTRACT column reports ITSELF. The iterator's context is" | tee -a output.txt
+	echo "#       gone by the time the row is built -- if it leaked, this would" | tee -a output.txt
+	echo "#       read \"titer15a.id\" (the last key advanced)." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TITER15-A.sql subtest novv
+
+	# =====================================================================
+	# Section B : explicit keys() argument-list form
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section B : the same two iterators reached through the explicit" | tee -a output.txt
+	echo "# argument-list form, \"\$\$id^TITER15(keys(\"\"catsys\"\"),keys(\"\"id\"\"))\"." | tee -a output.txt
+	echo "# That is a separate emission path in \"tmpl_key_advance.ctemplate\"." | tee -a output.txt
+	echo "# The table is named titer15b rather than titer15a." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: the same 4 rows as Section A, but every reported name now" | tee -a output.txt
+	echo "# says titer15b -- proving the table name tracks the table and is not" | tee -a output.txt
+	echo "# baked into the routine:" | tee -a output.txt
+	echo "#   iterctx    = \"titer15b.catsys titer15b.id\"" | tee -a output.txt
+	echo "#   extractctx = \"titer15b.extractctx\"" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TITER15-B.sql subtest novv
+
+	# =====================================================================
+	# Section C : both ITERATOR tables in one plan
+	# =====================================================================
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Section C : both tables cross joined, so ONE generated routine holds" | tee -a output.txt
+	echo "# the iterators of both. A cross join (not an equality join) is used" | tee -a output.txt
+	echo "# because key fixing would skip the second table's iterators entirely." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: 3 rows (LIMIT 3 of the 16), each reporting the two tables" | tee -a output.txt
+	echo "# separately -- the four labels in one routine do not collide:" | tee -a output.txt
+	echo "#   a_extract = \"titer15a.extractctx\"   b_extract = \"titer15b.extractctx\"" | tee -a output.txt
+	echo "#   a_iter    = \"titer15a.catsys titer15a.id\"" | tee -a output.txt
+	echo "#   b_iter    = \"titer15b.catsys titer15b.id\"" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	load_fixture TITER15-C.sql subtest novv
+
+	# ---------------------------------------------------------------------
+	# Codegen.
+	# ---------------------------------------------------------------------
+	echo "" | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "# Codegen : the labels that produced the answers above." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# Each ITERATOR expression was cut out of the \"FOR  SET <key>=...\" of" | tee -a output.txt
+	echo "# its key loop and moved under an \"octoIteratorNN\" label, leaving a" | tee -a output.txt
+	echo "# \"\$\$octoIteratorNN()\" call behind. The EXTRACT columns of the" | tee -a output.txt
+	echo "# same tables keep \"octoExtractNN\" labels of their own." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: every label names the column whose context it sets, and no" | tee -a output.txt
+	echo "# label claims a column it does not belong to." | tee -a output.txt
+	echo "#####################################################################" | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# The labels of Section A's plan. The calls to them are the SET arguments of" | tee -a output.txt
+	echo "# that plan's key loops (\"FOR  SET <key>=\$\$octoIteratorNN() ...\") and" | tee -a output.txt
+	echo "# of its two EXTRACT column fetches:" | tee -a output.txt
+	sed -n '/^octoIterator/,$p' $(grep -laF ';  SELECT * FROM titer15a;' _ydboctoP*.m) | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# Generated octoIterator and octoExtract labels, across all plans. Labels are" | tee -a output.txt
+	echo "# numbered per routine, so a name repeats when two plans each define it -- e.g." | tee -a output.txt
+	echo "# octoIterator1 for titer15a.catsys is defined by both Section A's plan and" | tee -a output.txt
+	echo "# Section C's join plan. Sorted, so the pairing of label to column is what to read:" | tee -a output.txt
+	grep -haE '^octo(Iterator|Extract)[0-9]+\b' _ydboctoP*.m | sort | tee -a output.txt
+	echo "" | tee -a output.txt
+	echo "# ITERATOR label and call counts, over every plan generated by this test." | tee -a output.txt
+	echo "# Read each line as the sentence it spells out. \"Defines\" counts the" | tee -a output.txt
+	echo "# \"octoIteratorNN()\" label definitions in one plan; \"contains\"" | tee -a output.txt
+	echo "# counts the \"\$\$octoIteratorNN()\" calls to them in that same plan." | tee -a output.txt
+	echo "# Plans with neither are not listed, and plan file names are hashes, so" | tee -a output.txt
+	echo "# plans are counted rather than named." | tee -a output.txt
+	echo "#" | tee -a output.txt
+	echo "# EXPECTED: one label per ITERATOR key column, called exactly once each." | tee -a output.txt
+	echo "# Two plans have 2 (Sections A and B, one two-key table each) and one has" | tee -a output.txt
+	echo "# 4 (Section C's join, which walks both tables)." | tee -a output.txt
+	for plan in _ydboctoP*.m; do
+		labels=$(grep -caE '^octoIterator[0-9]+\b' "$plan" || true)
+		calls=$(grep -oaE '\$\$octoIterator[0-9]+\b' "$plan" | wc -l)
+		[[ "0-0" == "$labels-$calls" ]] || echo "$labels $calls"
+	done | sort | uniq -c \
+	     | awk '{printf "%s plan(s) define %s label(s) and contain %s call(s) to them\n", $1, $2, $3}' | tee -a output.txt
+
+	verify_output TITER15 output.txt
+}

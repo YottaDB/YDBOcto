@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,10 +47,24 @@ int emit_xref_plan(char *plan_filename, char *tableName, char *columnName, Physi
 	buffer = calloc(buffer_len, sizeof(char));
 	buffer_index = 0;
 
+	/* YDBOcto#1146: An xref plan is an M routine of its own, so it gets its own set of context labels. Although this
+	 * function is reached from the middle of "emit_physical_plan()", that function emits every xref plan (its loop
+	 * over "xrefplan.next") BEFORE it emits any "octoPlanNN" body, so no labels of the enclosing _ydboctoP*.m routine
+	 * can be outstanding here. Assert that rather than saving and restoring a list around this call.
+	 */
+	assert(ctx_label_list_is_empty());
+	ctx_label_reset();
+
 	tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, xref_plan);
 
 	fprintf(memstream, "%s\n", buffer);
 	free(buffer);
+
+	/* Emit the context labels for any EXTRACT or ITERATOR column this xref plan references, so that a call emitted
+	 * above always has a label to reach (a missing one would be a LABELMISSING at plan compile time).
+	 */
+	ctx_label_emit(memstream); /* Also empties the list, so the enclosing routine resumes with none outstanding */
+
 	fclose(memstream);
 
 	output_file = fopen(plan_filename, "w");

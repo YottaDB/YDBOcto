@@ -1046,7 +1046,10 @@ optional_keyword
   |              |                    |               | :code:`values(""firstName"")`. A SQL function call following the EXTRACT       |                              |                                                           |
   |              |                    |               | keyword may reference any column in the table, as long as the referenced       |                              |                                                           |
   |              |                    |               | column is not an EXTRACT column that refers back to the one referencing it,    |                              |                                                           |
-  |              |                    |               | i.e. no circular dependencies.                                                 |                              |                                                           |
+  |              |                    |               | i.e. no circular dependencies. An M routine invoked from an EXTRACT expression |                              |                                                           |
+  |              |                    |               | can find out which table and column it is computing; see                       |                              |                                                           |
+  |              |                    |               | :ref:`Finding out the EXTRACT or ITERATOR context                              |                              |                                                           |
+  |              |                    |               | <extract-iterator-context>`.                                                   |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | GLOBAL       | Literal            | Table, Column | Represents the "source" location for a table. It consists of a global name     | table/default GLOBAL setting | :code:`^%ydboctoD_$zysuffix(tablename)(keys("colname"))`  |
   |              |                    |               | followed by an optional list of subscripts. One may refer to a key column in   |                              | where :code:`tablename` is the table name and             |
@@ -1077,6 +1080,10 @@ optional_keyword
   |              |                    |               | :code:`READONLY`. Because ITERATOR essentially replaces ORDER BY on a key      |                              |                                                           |
   |              |                    |               | field, you cannot use ORDER BY with an ITERATOR column. See VIRTUAL entry      |                              |                                                           |
   |              |                    |               | below for for using ITERATOR to return data that is not backed by a global.    |                              |                                                           |
+  |              |                    |               | An M routine invoked from an ITERATOR expression can find out which table and  |                              |                                                           |
+  |              |                    |               | key column it is advancing; see                                                |                              |                                                           |
+  |              |                    |               | :ref:`Finding out the EXTRACT or ITERATOR context                              |                              |                                                           |
+  |              |                    |               | <extract-iterator-context>`.                                                   |                              |                                                           |
   +--------------+--------------------+---------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------------------+
   | KEY NUM      | Integer Literal    | Column        | Specifies an integer indicating this column as part of a composite key.        | Not applicable               | Not applicable                                            |
   |              |                    |               | The :code:`PRIMARY KEY` column correponds to :code:`KEY NUM 0`.                |                              |                                                           |
@@ -1433,6 +1440,77 @@ Computed columns with EXTRACT
   Octo recognizes a :code:`keys(...)` or :code:`values(...)` reference by its text, wherever it appears in the M code of a keyword value (:code:`EXTRACT`, :code:`GLOBAL`, :code:`START`, :code:`END`, :code:`ENDPOINT`, :code:`SKIP`, :code:`SKIPCONDITION`). The reference may follow any M operator, e.g. the :code:`:` of a :code:`$SELECT()` or the :code:`_` of a concatenation, as well as the :code:`(` and :code:`,` of a subscript list. It is passed through as is only when the character just before it makes it part of another M name: an alphanumeric character (:code:`mykeys(`), :code:`%` (:code:`%keys(1)`), :code:`^` (the global :code:`^keys("x")`), :code:`$` (:code:`$$values(1)`), :code:`&` (the external call :code:`$&keys(1)`), :code:`.` (:code:`.values(1)`) or a double quote (:code:`$S(1:"keys(x)")`).
 
   Because the match is textual, it also applies to :code:`keys(...)`/:code:`values(...)` that is meant to be ordinary text inside an M string literal. Write such text so that it directly follows the opening quote of a literal, e.g. :code:`$S(1:"a "_"keys(""id"") b")` rather than :code:`$S(1:"a keys(""id"") b")`; otherwise :code:`CREATE TABLE` reports :code:`ERR_UNKNOWN_COLUMN_NAME`, or the generated plan substitutes the reference inside the literal and the query fails with a YottaDB syntax error.
+
+.. _extract-iterator-context:
+
+Finding out the EXTRACT or ITERATOR context
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  An M routine invoked from an ``EXTRACT`` or ``ITERATOR`` expression is handed only the arguments the DDL passes it, so by itself it cannot tell which table and column it is working on. Two parameterless extrinsics in ``%ydboctoplanhelpers`` supply that context:
+
+  .. list-table::
+     :widths: 30 70
+     :header-rows: 1
+
+     * - Extrinsic
+       - Returns
+     * - :code:`$$tableName^%ydboctoplanhelpers()`
+       - Name of the table owning the column being worked on.
+     * - :code:`$$columnName^%ydboctoplanhelpers()`
+       - Name of the column being worked on.
+
+  .. code-block:: SQL
+
+     CREATE TABLE audited (
+         id INTEGER PRIMARY KEY,
+         firstName VARCHAR(30),
+         lastName VARCHAR(30),
+         tagged VARCHAR EXTRACT "$$TAG^AUDIT(values(""firstname""))"
+     ) GLOBAL "^names(keys(""id""))" READONLY;
+
+  .. code-block:: none
+
+    ; AUDIT.m
+    TAG(value)
+        NEW tbl,col
+        SET tbl=$$tableName^%ydboctoplanhelpers()
+        SET col=$$columnName^%ydboctoplanhelpers()
+        QUIT value_" ("_tbl_"."_col_")"
+
+  Names are reported as Octo stores them. An identifier that was not enclosed in double quotes in the ``CREATE TABLE`` is therefore reported in lower case.
+
+  The table and column names are correct even when one ``EXTRACT`` column references another through ``values()``. In the example below, :code:`$$SHORT^AUDIT` sees :code:`nickname` and :code:`$$LONG^AUDIT` sees :code:`fullname`:
+
+  .. code-block:: SQL
+
+     CREATE TABLE nested (
+         id INTEGER PRIMARY KEY,
+         firstName VARCHAR(30),
+         nickname VARCHAR EXTRACT "$$SHORT^AUDIT(values(""firstname""))",
+         fullname VARCHAR EXTRACT "$$LONG^AUDIT(values(""nickname""))"
+     ) GLOBAL "^names(keys(""id""))" READONLY;
+
+  For an ``ITERATOR``, :code:`$$columnName^%ydboctoplanhelpers()` names the key column whose next value is being produced, so one M routine can drive several key columns and tell them apart:
+
+  .. code-block:: SQL
+
+     CREATE TABLE catalog (
+         catsys VARCHAR(30) ITERATOR "$$next^CAT",
+         id INTEGER ITERATOR "$$next^CAT",
+         PRIMARY KEY (catsys,id)
+     ) GLOBAL "^BCAT(keys(""catsys""),keys(""id""))";
+
+  .. code-block:: none
+
+    ; CAT.m
+    next(catsys,id)   ; also reached as next(catsys) for the first key column
+        QUIT $SELECT($$columnName^%ydboctoplanhelpers()="catsys":$ORDER(^BCAT(catsys)),1:$ORDER(^BCAT(catsys,id)))
+
+  Some further notes:
+
+  * Both are meaningful only inside an ``EXTRACT`` or ``ITERATOR`` expression. Called from anywhere else -- including from a ``CREATE FUNCTION`` extrinsic invoked in a ``SELECT`` list -- they return the empty string rather than a stale name. A ``CREATE FUNCTION`` extrinsic can take columns from several tables, so there is no single owning column to report.
+
+  * The context is established only for an expression that directly calls an M function, i.e. one containing an extrinsic (:code:`$$`), an external call (:code:`$&`) or indirection (:code:`@`). M code reached any other way is not covered: a :code:`$INCREMENT(^GBL)` in the expression can fire a trigger on :code:`^GBL`, and that trigger's M code reports the empty string for both. This is deliberate, as such an expression would otherwise pay for a context it almost never reads.
 
 Indexing NULL data with AIMTYPE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4111,6 +4189,12 @@ dataset to scan:
 then the literal :code:`"titles"` is emitted directly into the generated
 M plan and arrives as the first argument to :code:`$$idx^bcat`, with the
 key values following.
+
+There is no need to pass the table or key column name this way, however.
+An M routine invoked from an ``ITERATOR`` expression -- in either form --
+can ask for them directly with :code:`$$tableName^%ydboctoplanhelpers()`
+and :code:`$$columnName^%ydboctoplanhelpers()`. See
+:ref:`Finding out the EXTRACT or ITERATOR context <extract-iterator-context>`.
 
 ++++++++++++++++++++++
 ITERATOR with VIRTUAL

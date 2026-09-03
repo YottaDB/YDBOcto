@@ -334,7 +334,7 @@ docker-manifest-vista:
 
 pages:
   stage: docs
-  image: bitnami/minideb
+  image: debian:stable-slim
   interruptible: true
   script:
     - apt-get update && apt-get install -y make python3 tcsh wget jq sphinx-common python3-sphinx-rtd-theme

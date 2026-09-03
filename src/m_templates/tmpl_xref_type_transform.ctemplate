@@ -38,7 +38,7 @@
  *	- without one			: type 4 with an anchor, type 0 without, followed by "forceStrOrder"
  *					  (1 for STRING type columns so canonical strings order correctly).
  * When an anchor is used, the record global/subscripts computed by the "recSubs" entry point are passed after
- * the "comment" argument, which Octo does not use here (hence the doubled comma).
+ * the "comment" argument, which Octo passes from an M local of that name.
  *
  * Called from BOTH XREFDATA emissions in "tmpl_physical_plan" (the nmonly=0 build call and the nmonly=1 metadata
  * call). Sharing one template keeps them identical, which matters because the AIM global name returned by the
@@ -117,9 +117,17 @@ TEMPLATE(tmpl_xref_type_transform, SqlTable *table, SqlColumn *column, boolean_t
 		%{}{{ is_column_string_type|%d }}{}%
 	}
 
-	/* The record global/subscripts follow "comment", which Octo does not use here. */
+	/* "comment" (AIM metadata slot 11) labels the cross reference with the table and column it
+	 * was built for. It is passed to AIM rather than written by Octo afterwards: AIM writes it in
+	 * the same transaction as the rest of the metadata, and it stores one comment per PIECE, so
+	 * the several columns that share one cross reference each keep their own label.
+	 * The caller has the string in an M local named "comment".
+	 */
+	%{},comment{}%
+
+	/* The record global/subscripts follow "comment". */
 	if (needs_anchor) {
-		%{},,recbase,.recsub{}%
+		%{},recbase,.recsub{}%
 	}
 
 	%{}){}%	// close the XREFDATA call

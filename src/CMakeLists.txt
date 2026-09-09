@@ -749,6 +749,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/octo-seed.sql
 # Copy PostgreSQL catalog functions without "pg_catalog" prefix
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/octo-seed.zwr
 	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_zwr.sh ${PROJECT_BINARY_DIR}/src
+	DEPENDS ${PROJECT_SOURCE_DIR}/tests/fixtures/octo-seed.zwr ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_zwr.sh
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
 )
 

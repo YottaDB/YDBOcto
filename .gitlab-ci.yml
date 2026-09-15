@@ -43,12 +43,42 @@ variables:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
   interruptible: true
+  # Covers failures of the job as a whole; GitLab caps "max" at 2. The docker commands in
+  # "script" below do their own retrying since they need more attempts than that.
+  retry:
+    max: 2
+    when: runner_system_failure
   services:
     - docker:dind
   script:
+    - |
+      # Both docker commands below talk to registry.gitlab.com and Docker Hub, and fail on
+      # rare occasions when those are briefly unhealthy: a blob upload that the registry end
+      # drops mid-transfer ("use of closed network connection"), or a 502 from the
+      # gitlab.com/jwt/auth token endpoint while resolving an image name. One such blip fails
+      # the job and skips every downstream job, so retry the command instead. The caller
+      # passes the attempt count because a retried push costs only an upload, while a retried
+      # build repeats the whole (roughly 11 minute) build.
+      retry_docker() {
+        retry_attempts="$1"
+        shift
+        retry_attempt=1
+        while :; do
+          if "$@"; then
+            return 0
+          fi
+          if [ "$retry_attempt" -ge "$retry_attempts" ]; then
+            echo "\"$*\" failed after ${retry_attempts} attempts"
+            return 1
+          fi
+          echo "\"$*\" failed on attempt ${retry_attempt} of ${retry_attempts}; retrying in $((retry_attempt * 30)) seconds"
+          sleep $((retry_attempt * 30))
+          retry_attempt=$((retry_attempt + 1))
+        done
+      }
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker image build --pull -f ${FILE} --build-arg imagetag=${TAG} --progress=plain -t ${REPO} .
-    - docker push ${REPO}
+    - retry_docker 3 docker image build --pull -f ${FILE} --build-arg imagetag=${TAG} --progress=plain -t ${REPO} .
+    - retry_docker 5 docker push ${REPO}
 
 octo-ubuntu-master-base-image:
   extends:

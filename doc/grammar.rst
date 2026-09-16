@@ -1430,6 +1430,10 @@ Computed columns with EXTRACT
 
   In this example, the ``fullname`` column calls ``CONCAT()`` with the ``firstName`` and ``lastName`` columns of the table, along with a string literal containing a space. Similarly, the ``nameandnumber`` column calls ``CONCAT()`` with the ``lastName`` column and the ``id`` column, which is typecast as a ``VARCHAR`` for compatibility with ``CONCAT()``, which requires string type arguments.
 
+  Octo recognizes a :code:`keys(...)` or :code:`values(...)` reference by its text, wherever it appears in the M code of a keyword value (:code:`EXTRACT`, :code:`GLOBAL`, :code:`START`, :code:`END`, :code:`ENDPOINT`, :code:`SKIP`, :code:`SKIPCONDITION`). The reference may follow any M operator, e.g. the :code:`:` of a :code:`$SELECT()` or the :code:`_` of a concatenation, as well as the :code:`(` and :code:`,` of a subscript list. It is passed through as is only when the character just before it makes it part of another M name: an alphanumeric character (:code:`mykeys(`), :code:`%` (:code:`%keys(1)`), :code:`^` (the global :code:`^keys("x")`), :code:`$` (:code:`$$values(1)`), :code:`&` (the external call :code:`$&keys(1)`), :code:`.` (:code:`.values(1)`) or a double quote (:code:`$S(1:"keys(x)")`).
+
+  Because the match is textual, it also applies to :code:`keys(...)`/:code:`values(...)` that is meant to be ordinary text inside an M string literal. Write such text so that it directly follows the opening quote of a literal, e.g. :code:`$S(1:"a "_"keys(""id"") b")` rather than :code:`$S(1:"a keys(""id"") b")`; otherwise :code:`CREATE TABLE` reports :code:`ERR_UNKNOWN_COLUMN_NAME`, or the generated plan substitutes the reference inside the literal and the query fails with a YottaDB syntax error.
+
 Indexing NULL data with AIMTYPE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

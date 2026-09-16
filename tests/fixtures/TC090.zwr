@@ -1,0 +1,6 @@
+YottaDB MUPIP EXTRACT
+04-JAN-2026  00:00:00 ZWR
+^ref(1,20)="10{30"
+^ref(2,100)="5{7"
+^ref(3,400)="abc"
+^keys("x")="global named keys"

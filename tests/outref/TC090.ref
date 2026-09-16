@@ -1,0 +1,118 @@
+# Stage 1 : Load ^ref (the table data) and ^keys (a global whose name happens to be "keys")
+#           Expect : the 3 ^ref rows and ^keys("x")="global named keys"
+# yottadb -run %XCMD 'zwrite ^ref,^keys'
+^ref(1,20)="10{30"
+^ref(2,100)="5{7"
+^ref(3,400)="abc"
+^keys("x")="global named keys"
+
+# Stage 2 : CREATE TABLE ranges, whose EXTRACT places keys()/values() after the ":" of a $SELECT,
+#           and query it
+#           Expect     : CREATE TABLE succeeds and both queries return rows. "age" is 20D, 3M and 1Y,
+#                        "disp" is "10 - 30", "5 - 7" and abc. The neg* columns keep their M text:
+#                        neg1 mk-N from $$mykeys^TC090, neg2 from ^keys("x"), neg3 the literal keys(x)
+#           Previously : CREATE TABLE succeeded but each query failed with
+#                        %YDB-E-LVUNDEF, Undefined local variable: keys("age_source")
+# octo -p -f TC090.sql
+-- TC090 : OCTO1149 : keys()/values() are expanded after any M operator, not just "(" ", " and "_"
+
+-- "age" places keys("age_source") in both the condition and the value position of each $SELECT arm.
+-- "disp" places values("refrange") in the same two positions.
+-- Before YDBOcto#1149 only a keys()/values() preceded by "(" or "," (or "_", for values()) was
+-- expanded, so every reference that followed a ":" was emitted as is and the query failed with
+-- %YDB-E-LVUNDEF, Undefined local variable: keys("age_source").
+DROP TABLE IF EXISTS ranges;
+CREATE TABLE ranges (
+	id integer,
+	age_source integer,
+	age varchar(6) EXTRACT "$S(keys(""age_source"")<28:keys(""age_source"")_""D"",keys(""age_source"")<60:keys(""age_source"")\7_""W"",keys(""age_source"")<365:keys(""age_source"")\30_""M"",1:keys(""age_source"")\365_""Y"")",
+	refrange varchar(13) PIECE 1,
+	disp varchar(20) EXTRACT "$S(values(""refrange"")[""{"":$P(values(""refrange""),""{"",1)_"" - ""_$P(values(""refrange""),""{"",2),1:values(""refrange""))",
+	-- The below must NOT be expanded: "mykeys(" is the tail of a longer M name, "^keys(" is a
+	-- global variable name and "keys(x)" here is the content of an M string literal.
+	neg1 varchar(20) EXTRACT "$$mykeys^TC090(keys(""id""))",
+	neg2 varchar(20) EXTRACT "$G(^keys(""x""))",
+	neg3 varchar(20) EXTRACT "$S(1:""keys(x)"")",
+	PRIMARY KEY (id, age_source)
+) GLOBAL "^ref(keys(""id""),keys(""age_source""))" DELIM "`" READONLY;
+
+select * from ranges;
+select id, age from ranges where age = '3M';
+OCTO> DROP TABLE IF EXISTS ranges;
+DROP TABLE
+OCTO> CREATE TABLE ranges (
+	id integer,
+	age_source integer,
+	age varchar(6) EXTRACT "$S(keys(""age_source"")<28:keys(""age_source"")_""D"",keys(""age_source"")<60:keys(""age_source"")\7_""W"",keys(""age_source"")<365:keys(""age_source"")\30_""M"",1:keys(""age_source"")\365_""Y"")",
+	refrange varchar(13) PIECE 1,
+	disp varchar(20) EXTRACT "$S(values(""refrange"")[""{"":$P(values(""refrange""),""{"",1)_"" - ""_$P(values(""refrange""),""{"",2),1:values(""refrange""))",
+	-- The below must NOT be expanded: "mykeys(" is the tail of a longer M name, "^keys(" is a
+	-- global variable name and "keys(x)" here is the content of an M string literal.
+	neg1 varchar(20) EXTRACT "$$mykeys^TC090(keys(""id""))",
+	neg2 varchar(20) EXTRACT "$G(^keys(""x""))",
+	neg3 varchar(20) EXTRACT "$S(1:""keys(x)"")",
+	PRIMARY KEY (id, age_source)
+) GLOBAL "^ref(keys(""id""),keys(""age_source""))" DELIM "`" READONLY;
+CREATE TABLE
+OCTO> select * from ranges;
+id|age_source|age|refrange|disp|neg1|neg2|neg3
+1|20|20D|10{30|10 - 30|mk-1|global named keys|keys(x)
+2|100|3M|5{7|5 - 7|mk-2|global named keys|keys(x)
+3|400|1Y|abc|abc|mk-3|global named keys|keys(x)
+(3 rows)
+OCTO> select id, age from ranges where age = '3M';
+id|age
+2|3M
+(1 row)
+OCTO> 
+
+# Stage 3 : Look for keys("age_source")/values("refrange") left as is in the generated M plans
+#           Expect     : no output, i.e. every reference was expanded into %ydboctocursor(...)
+#           Previously : the references that followed a ":" were listed here
+# grep -hoaE '(keys|values)\("(age_source|refrange)"\)' _ydboctoP*.m | sort -u
+
+# Stage 4 : CREATE TABLE with a misspelled column name in a keys()/values() that follows a ":"
+#           Expect     : both CREATE TABLEs fail with ERR_UNKNOWN_COLUMN_NAME naming the
+#                        misspelled columns agesource and refrang
+#           Previously : neither reference was matched, so neither was validated. Both
+#                        CREATE TABLEs were accepted and the typo surfaced at query time
+# octo -p -f TC090_errors.sql
+
+-- TC090 : OCTO1149 : a misspelled column name after a ":" is caught at CREATE TABLE time
+
+-- "table_definition.c" validates the EXTRACT string with the same "match_expression()" used to
+-- generate the plan. Before YDBOcto#1149 a keys()/values() that followed a ":" was not matched,
+-- hence never validated, so both CREATE TABLEs below were accepted and the misspelled column name
+-- surfaced at query time as %YDB-E-LVUNDEF, Undefined local variable: keys("agesource").
+-- Both must now fail at CREATE TABLE time with ERR_UNKNOWN_COLUMN_NAME.
+DROP TABLE IF EXISTS badkeys;
+CREATE TABLE badkeys (
+	id integer,
+	age_source integer,
+	age varchar(6) EXTRACT "$S(keys(""age_source"")<28:keys(""agesource""),1:""old"")",
+	PRIMARY KEY (id, age_source)
+) GLOBAL "^ref(keys(""id""),keys(""age_source""))" DELIM "`" READONLY;
+DROP TABLE IF EXISTS badvalues;
+CREATE TABLE badvalues (
+	id integer PRIMARY KEY,
+	refrange varchar(13) PIECE 1,
+	disp varchar(20) EXTRACT "$S(values(""refrange"")[""{"":values(""refrang""),1:values(""refrange""))"
+) GLOBAL "^ref(keys(""id""))" DELIM "`" READONLY;
+OCTO> DROP TABLE IF EXISTS badkeys;
+DROP TABLE
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: agesource
+OCTO> CREATE TABLE badkeys (
+	id integer,
+	age_source integer,
+	age varchar(6) EXTRACT "$S(keys(""age_source"")<28:keys(""agesource""),1:""old"")",
+	PRIMARY KEY (id, age_source)
+) GLOBAL "^ref(keys(""id""),keys(""age_source""))" DELIM "`" READONLY;
+OCTO> DROP TABLE IF EXISTS badvalues;
+DROP TABLE
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: refrang
+OCTO> CREATE TABLE badvalues (
+	id integer PRIMARY KEY,
+	refrange varchar(13) PIECE 1,
+	disp varchar(20) EXTRACT "$S(values(""refrange"")[""{"":values(""refrang""),1:values(""refrange""))"
+) GLOBAL "^ref(keys(""id""))" DELIM "`" READONLY;
+OCTO> 

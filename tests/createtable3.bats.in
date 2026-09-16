@@ -743,3 +743,40 @@ OCTO
 
 	verify_output TC088 output.txt
 }
+
+@test "TC090 : OCTO1149 : keys()/values() are expanded after any M operator, not just \"(\" \",\" and \"_\"" {
+	echo "# Stage 1 : Load ^ref (the table data) and ^keys (a global whose name happens to be \"keys\")" | tee -a output.txt
+	echo "#           Expect : the 3 ^ref rows and ^keys(\"x\")=\"global named keys\"" | tee -a output.txt
+	echo "# yottadb -run %XCMD 'zwrite ^ref,^keys'" | tee -a output.txt
+	load_fixture TC090.zwr
+	yottadb -run %XCMD 'zwrite ^ref,^keys' 2>&1 | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Stage 2 : CREATE TABLE ranges, whose EXTRACT places keys()/values() after the \":\" of a \$SELECT," | tee -a output.txt
+	echo "#           and query it" | tee -a output.txt
+	echo "#           Expect     : CREATE TABLE succeeds and both queries return rows. \"age\" is 20D, 3M and 1Y," | tee -a output.txt
+	echo "#                        \"disp\" is \"10 - 30\", \"5 - 7\" and abc. The neg* columns keep their M text:" | tee -a output.txt
+	echo "#                        neg1 mk-N from \$\$mykeys^TC090, neg2 from ^keys(\"x\"), neg3 the literal keys(x)" | tee -a output.txt
+	echo "#           Previously : CREATE TABLE succeeded but each query failed with" | tee -a output.txt
+	echo "#                        %YDB-E-LVUNDEF, Undefined local variable: keys(\"age_source\")" | tee -a output.txt
+	echo "# octo -p -f TC090.sql" | tee -a output.txt
+	load_fixture TC090.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# Stage 3 : Look for keys(\"age_source\")/values(\"refrange\") left as is in the generated M plans" | tee -a output.txt
+	echo "#           Expect     : no output, i.e. every reference was expanded into %ydboctocursor(...)" | tee -a output.txt
+	echo "#           Previously : the references that followed a \":\" were listed here" | tee -a output.txt
+	echo "# grep -hoaE '(keys|values)\(\"(age_source|refrange)\"\)' _ydboctoP*.m | sort -u" | tee -a output.txt
+	grep -hoaE '(keys|values)\("(age_source|refrange)"\)' _ydboctoP*.m | sort -u | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Stage 4 : CREATE TABLE with a misspelled column name in a keys()/values() that follows a \":\"" | tee -a output.txt
+	echo "#           Expect     : both CREATE TABLEs fail with ERR_UNKNOWN_COLUMN_NAME naming the" | tee -a output.txt
+	echo "#                        misspelled columns agesource and refrang" | tee -a output.txt
+	echo "#           Previously : neither reference was matched, so neither was validated. Both" | tee -a output.txt
+	echo "#                        CREATE TABLEs were accepted and the typo surfaced at query time" | tee -a output.txt
+	echo "# octo -p -f TC090_errors.sql" | tee -a output.txt
+	load_fixture TC090_errors.sql subtest novv
+
+	verify_output TC090 output.txt
+}

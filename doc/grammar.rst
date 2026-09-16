@@ -1289,7 +1289,7 @@ Extracting a character range (SUBSTR)
   .. code-block:: SQL
 
      CREATE TABLE Patients
-     (PatientID INTEGER PRIMARY KEY,
+     ("PatientID" INTEGER PRIMARY KEY,
       Address VARCHAR SUBSTR 1-12 GLOBAL "^Patients(keys(""PatientID""),0)")
      GLOBAL "^Patients"
      READONLY;

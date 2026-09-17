@@ -52,13 +52,14 @@ variables:
     - docker:dind
   script:
     - |
-      # Both docker commands below talk to registry.gitlab.com and Docker Hub, and fail on
-      # rare occasions when those are briefly unhealthy: a blob upload that the registry end
-      # drops mid-transfer ("use of closed network connection"), or a 502 from the
+      # All three docker commands below talk to registry.gitlab.com and Docker Hub, and fail
+      # on rare occasions when those are briefly unhealthy: a login that never gets a
+      # connection ("context deadline exceeded"), a blob upload that the registry end drops
+      # mid-transfer ("use of closed network connection"), or a 502 from the
       # gitlab.com/jwt/auth token endpoint while resolving an image name. One such blip fails
       # the job and skips every downstream job, so retry the command instead. The caller
-      # passes the attempt count because a retried push costs only an upload, while a retried
-      # build repeats the whole (roughly 11 minute) build.
+      # passes the attempt count because a retried login or push costs only a round trip or an
+      # upload, while a retried build repeats the whole (roughly 11 minute) build.
       retry_docker() {
         retry_attempts="$1"
         shift
@@ -76,7 +77,12 @@ variables:
           retry_attempt=$((retry_attempt + 1))
         done
       }
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+      # "docker login" goes through a function of its own so that the registry password is not
+      # part of the "$*" that retry_docker echoes between attempts.
+      docker_login() {
+        docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+      }
+    - retry_docker 5 docker_login
     - retry_docker 3 docker image build --pull -f ${FILE} --build-arg imagetag=${TAG} --progress=plain -t ${REPO} .
     - retry_docker 5 docker push ${REPO}
 

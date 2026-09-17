@@ -21,7 +21,10 @@ RUN yum update -y  && \
 RUN yum install -y epel-release
 # Note: following line is taken verbatim from developer_doc.rst
 RUN yum --enablerepo=crb install -y bats R clang-tools-extra java-11-openjdk-devel expect golang glibc-langpack-en libcmocka-devel postgresql postgresql-server unixODBC postgresql-odbc bison flex readline-devel libconfig-devel openssl-devel python3 passwd nmap-ncat iproute postgresql-devel libomp-devel libtirpc-devel
-RUN yum --enablerepo=crb install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel openssl java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz
+# Note: "openssl" is deliberately not listed below. It comes with the base image, and naming an
+# already installed package makes yum ask for the newest version of it rather than for the version
+# that the rest of the transaction can satisfy.
+RUN yum --enablerepo=crb install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz
 
 # Ninja
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja

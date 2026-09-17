@@ -92,6 +92,22 @@ OpenSUSE/SLES
     # SLES
     zypper install bats clang java-11-openjdk-devel expect go glibc-langpack-en libcmocka-devel postgresql postgresql-server unixODBC psqlODBC bison flex readline-devel libconfig-devel libopenssl-devel python3 nmap-ncat iproute2 R-base R-base-devel postgresql-devel libomp-devel libtirpc-devel
 
+~~~~~~~~~~~
+R packages
+~~~~~~~~~~~
+
+ The :code:`r_connection` test uses the :code:`RJDBC` and :code:`RPostgres` packages. The test
+ installs them when they are missing, so this step is optional, but doing it once keeps that cost
+ out of every test run:
+
+  .. code-block:: bash
+
+    Rscript -e "install.packages(c('RJDBC','RPostgres'), repos='https://cloud.r-project.org/')"
+
+ That compiles both packages and their dependencies from source, which takes a few minutes. The
+ Posit repository serves prebuilt binaries for several distributions and installs in seconds; the
+ test images use it, see :code:`tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline`.
+
 ~~~~~~~~~~~~~~~~~~~~~
 Configure PostgreSQL
 ~~~~~~~~~~~~~~~~~~~~~

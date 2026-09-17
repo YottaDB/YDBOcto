@@ -9,13 +9,13 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-# Install and use Package
-# Create user install directory (necessary on Debian)
-dir.create(path = Sys.getenv("R_LIBS_USER"), showWarnings = FALSE, recursive = TRUE)
-# Install
-install.packages('RJDBC', repos='https://cloud.r-project.org/', lib = Sys.getenv("R_LIBS_USER"), quiet=TRUE)
-# Load
-.libPaths( c( .libPaths(), Sys.getenv("R_LIBS_USER") ) )
+# RJDBC is installed in the image that runs the tests. Install it where it is missing, which is
+# the case on a machine that has not followed developer_doc.rst.
+if (!requireNamespace("RJDBC", quietly = TRUE)) {
+	dir.create(path = Sys.getenv("R_LIBS_USER"), showWarnings = FALSE, recursive = TRUE)
+	install.packages('RJDBC', repos='https://cloud.r-project.org/', lib = Sys.getenv("R_LIBS_USER"), quiet=TRUE)
+	.libPaths( c( .libPaths(), Sys.getenv("R_LIBS_USER") ) )
+}
 library(RJDBC)
 
 # Load driver

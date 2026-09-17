@@ -30,4 +30,12 @@ RUN apt-get install -y -q --no-install-recommends bats clang-format clang-tidy d
 RUN apt-get install -y -q --no-install-recommends bats clang cmake python3-pip python3-setuptools python3-wheel python3-sphinx python3-sphinx-rtd-theme git xxd wget libgcrypt20-dev libgpgme-dev ninja-build tcsh shellcheck libicu-dev pkg-config curl golang gcovr
 
 RUN locale-gen en_US.UTF-8
+
+# R packages used by the "r_connection" test. The Posit repository serves prebuilt binaries for this
+# distribution, and R asks for them only when the HTTP User-Agent names the platform. The "library"
+# call that follows fails the build if the install did not produce a usable package.
+RUN . /etc/os-release && \
+    Rscript -e "repo <- 'https://packagemanager.posit.co/cran/__linux__/$VERSION_CODENAME/latest'; options(HTTPUserAgent=sprintf('R/%s R (%s)', getRversion(), paste(getRversion(), R.version['platform'], R.version['arch'], R.version['os']))); install.packages(c('RJDBC','RPostgres'), repos=repo)" && \
+    Rscript -e 'library(RJDBC); library(RPostgres)'
+
 ENV USER=root

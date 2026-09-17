@@ -31,4 +31,12 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
 
 # Shellcheck
 RUN curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz && tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
+
+# R packages used by the "r_connection" test. The Posit repository serves prebuilt binaries for this
+# distribution, and R asks for them only when the HTTP User-Agent names the platform. The "library"
+# call that follows fails the build if the install did not produce a usable package.
+RUN . /etc/os-release && \
+    Rscript -e "repo <- 'https://packagemanager.posit.co/cran/__linux__/rhel${VERSION_ID%%.*}/latest'; options(HTTPUserAgent=sprintf('R/%s R (%s)', getRversion(), paste(getRversion(), R.version['platform'], R.version['arch'], R.version['os']))); install.packages(c('RJDBC','RPostgres'), repos=repo)" && \
+    Rscript -e 'library(RJDBC); library(RPostgres)'
+
 ENV USER=root

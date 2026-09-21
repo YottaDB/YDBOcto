@@ -10,6 +10,22 @@
 #								#
 #################################################################
 
+# A merge request is tested by the push pipeline of its source branch. Without a "workflow"
+# section a merge request pipeline is never created, so the first rule below keeps that as is;
+# without it the catch-all at the end would start creating one for every merge request, in
+# addition to the push pipeline that already runs.
+# A push of the default branch to a fork of this project creates a second pipeline for a commit
+# the upstream project already runs one for, and both compete for the same runner. Skip it too.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_PROJECT_PATH != "YottaDB/DBMS/YDBOcto" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    # Every other pipeline runs as it did before. This catch-all is needed because a "workflow"
+    # section creates no pipeline at all for a case that matches none of its rules.
+    - when: always
+
 stages:
   - docker-baseline
   - build

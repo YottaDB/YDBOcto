@@ -32,6 +32,8 @@ set timeout 2
 expect timeout
 # Send interrupt to trigger cancel request
 send \x03
+# Get back to original timeout now that we are done with the 2 second hang
+set timeout 60
 expect -re ".*Cancel request sent\r\n"
 expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
 puts "# OCTO645 : Test that a valid short query works fine after a canceled query (it used to be incorrectly treated as canceled)"

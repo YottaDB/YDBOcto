@@ -1,0 +1,88 @@
+# Stage 1 : Load ^GREQ (the table data)
+#           Expect : the 2 ^GREQ rows, with file_identifier 1 and 2 as the 3rd subscript
+# yottadb -run %XCMD 'zwrite ^GREQ'
+^GREQ("ORD1","R",1,"SP1")="BLOOD`x"
+^GREQ("ORD2","R",2,"SP2")="URINE`y"
+
+# Stage 2 : CREATE TABLE orders_file_specimens, whose EXTRACT places keys() after a "_", and query it
+#           Expect     : CREATE TABLE succeeds and both queries return rows. "globalname" is
+#                        ^GRES1 for the ORD1 row and ^GRES2 for the ORD2 row
+#           Previously : CREATE TABLE succeeded but each query failed with
+#                        %YDB-E-LVUNDEF, Undefined local variable: keys("file_identifier")
+# octo -p -f TC091.sql
+-- TC091 : OCTO1112 : keys() in an EXTRACT is expanded when it follows the "_" concatenation operator
+
+-- "globalname" concatenates a string literal with keys("file_identifier"). Before YDBOcto#1149 a
+-- keys() was expanded only when it was preceded by "(" or "," ("_" was accepted for values() alone),
+-- so this reference was emitted as is and the query failed with
+-- %YDB-E-LVUNDEF, Undefined local variable: keys("file_identifier").
+DROP TABLE IF EXISTS orders_file_specimens;
+CREATE TABLE orders_file_specimens (
+	order_number varchar(20),
+	file_identifier varchar(1),
+	internal_specimen_number varchar(20),
+	globalname varchar EXTRACT """^GRES""_keys(""file_identifier"")",
+	specimen_type varchar(10) PIECE 1,
+	PRIMARY KEY (order_number, file_identifier, internal_specimen_number)
+) GLOBAL "^GREQ(keys(""order_number""),""R"",keys(""file_identifier""),keys(""internal_specimen_number""))" DELIM "`" READONLY;
+
+select * from orders_file_specimens;
+select globalname from orders_file_specimens where file_identifier = '2';
+OCTO> DROP TABLE IF EXISTS orders_file_specimens;
+DROP TABLE
+OCTO> CREATE TABLE orders_file_specimens (
+	order_number varchar(20),
+	file_identifier varchar(1),
+	internal_specimen_number varchar(20),
+	globalname varchar EXTRACT """^GRES""_keys(""file_identifier"")",
+	specimen_type varchar(10) PIECE 1,
+	PRIMARY KEY (order_number, file_identifier, internal_specimen_number)
+) GLOBAL "^GREQ(keys(""order_number""),""R"",keys(""file_identifier""),keys(""internal_specimen_number""))" DELIM "`" READONLY;
+CREATE TABLE
+OCTO> select * from orders_file_specimens;
+order_number|file_identifier|internal_specimen_number|globalname|specimen_type
+ORD1|1|SP1|^GRES1|BLOOD
+ORD2|2|SP2|^GRES2|URINE
+(2 rows)
+OCTO> select globalname from orders_file_specimens where file_identifier = '2';
+globalname
+^GRES2
+(1 row)
+OCTO> 
+
+# Stage 3 : Look for keys("file_identifier") left as is in the generated M plans
+#           Expect     : no output, i.e. the reference was expanded into %ydboctocursor(...)
+#           Previously : the reference that followed the "_" was listed here
+# grep -hoaE '(^|[^(,])keys\("file_identifier"\)' _ydboctoP*.m | sort -u
+
+# Stage 4 : CREATE TABLE with a misspelled column name in a keys() that follows a "_"
+#           Expect     : CREATE TABLE fails with ERR_UNKNOWN_COLUMN_NAME naming the
+#                        misspelled column fileidentifier
+#           Previously : the reference was not matched, so it was never validated. The
+#                        CREATE TABLE was accepted and the typo surfaced at query time
+# octo -p -f TC091_errors.sql
+
+-- TC091 : OCTO1112 : a misspelled column name in a keys() that follows "_" is caught at CREATE TABLE time
+
+-- "table_definition.c" validates the EXTRACT string with the same "match_expression()" used to
+-- generate the plan. Before YDBOcto#1149 a keys() that followed "_" was not matched, hence never
+-- validated, so the CREATE TABLE below was accepted and the misspelled column name surfaced at
+-- query time as %YDB-E-LVUNDEF, Undefined local variable: keys("fileidentifier").
+-- It must now fail at CREATE TABLE time with ERR_UNKNOWN_COLUMN_NAME.
+DROP TABLE IF EXISTS badconcat;
+CREATE TABLE badconcat (
+	order_number varchar(20),
+	file_identifier varchar(1),
+	globalname varchar EXTRACT """^GRES""_keys(""fileidentifier"")",
+	PRIMARY KEY (order_number, file_identifier)
+) GLOBAL "^GREQ(keys(""order_number""),""R"",keys(""file_identifier""))" DELIM "`" READONLY;
+OCTO> DROP TABLE IF EXISTS badconcat;
+DROP TABLE
+[ERROR]: ERR_UNKNOWN_COLUMN_NAME: Unknown column: fileidentifier
+OCTO> CREATE TABLE badconcat (
+	order_number varchar(20),
+	file_identifier varchar(1),
+	globalname varchar EXTRACT """^GRES""_keys(""fileidentifier"")",
+	PRIMARY KEY (order_number, file_identifier)
+) GLOBAL "^GREQ(keys(""order_number""),""R"",keys(""file_identifier""))" DELIM "`" READONLY;
+OCTO> 

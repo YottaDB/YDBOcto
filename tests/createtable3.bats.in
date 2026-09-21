@@ -780,3 +780,75 @@ OCTO
 
 	verify_output TC090 output.txt
 }
+
+@test "TC091 : OCTO1112 : keys() in an EXTRACT is expanded when it follows the \"_\" concatenation operator" {
+	echo "# Stage 1 : Load ^GREQ (the table data)" | tee -a output.txt
+	echo "#           Expect : the 2 ^GREQ rows, with file_identifier 1 and 2 as the 3rd subscript" | tee -a output.txt
+	echo "# yottadb -run %XCMD 'zwrite ^GREQ'" | tee -a output.txt
+	load_fixture TC091.zwr
+	yottadb -run %XCMD 'zwrite ^GREQ' 2>&1 | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Stage 2 : CREATE TABLE orders_file_specimens, whose EXTRACT places keys() after a \"_\", and query it" | tee -a output.txt
+	echo "#           Expect     : CREATE TABLE succeeds and both queries return rows. \"globalname\" is" | tee -a output.txt
+	echo "#                        ^GRES1 for the ORD1 row and ^GRES2 for the ORD2 row" | tee -a output.txt
+	echo "#           Previously : CREATE TABLE succeeded but each query failed with" | tee -a output.txt
+	echo "#                        %YDB-E-LVUNDEF, Undefined local variable: keys(\"file_identifier\")" | tee -a output.txt
+	echo "# octo -p -f TC091.sql" | tee -a output.txt
+	load_fixture TC091.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# Stage 3 : Look for keys(\"file_identifier\") left as is in the generated M plans" | tee -a output.txt
+	echo "#           Expect     : no output, i.e. the reference was expanded into %ydboctocursor(...)" | tee -a output.txt
+	echo "#           Previously : the reference that followed the \"_\" was listed here" | tee -a output.txt
+	echo "# grep -hoaE '(^|[^(,])keys\(\"file_identifier\"\)' _ydboctoP*.m | sort -u" | tee -a output.txt
+	grep -hoaE '(^|[^(,])keys\("file_identifier"\)' _ydboctoP*.m | sort -u | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Stage 4 : CREATE TABLE with a misspelled column name in a keys() that follows a \"_\"" | tee -a output.txt
+	echo "#           Expect     : CREATE TABLE fails with ERR_UNKNOWN_COLUMN_NAME naming the" | tee -a output.txt
+	echo "#                        misspelled column fileidentifier" | tee -a output.txt
+	echo "#           Previously : the reference was not matched, so it was never validated. The" | tee -a output.txt
+	echo "#                        CREATE TABLE was accepted and the typo surfaced at query time" | tee -a output.txt
+	echo "# octo -p -f TC091_errors.sql" | tee -a output.txt
+	load_fixture TC091_errors.sql subtest novv
+
+	verify_output TC091 output.txt
+}
+
+@test "TC092 : OCTO1116 : keys() in an END is expanded when it follows an M operator" {
+	echo "# Stage 1 : Load ^GCND (the table data)" | tee -a output.txt
+	echo "#           Expect : 3 rows, with first subscripts 1, 2 and the non-numeric A9" | tee -a output.txt
+	echo "# yottadb -run %XCMD 'zwrite ^GCND'" | tee -a output.txt
+	load_fixture TC092.zwr
+	yottadb -run %XCMD 'zwrite ^GCND' 2>&1 | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Stage 2 : CREATE TABLE episodes with END \"'+keys(...)\" and episodes2 with the" | tee -a output.txt
+	echo "#           parenthesized form END \"'+(keys(...))\", and query both" | tee -a output.txt
+	echo "#           Expect     : both CREATE TABLEs succeed and both queries return the same 2 rows," | tee -a output.txt
+	echo "#                        1|OPEN and 2|CLOSED. The A9 row is past the END so it is not returned" | tee -a output.txt
+	echo "#           Previously : the episodes query failed with" | tee -a output.txt
+	echo "#                        %YDB-E-LVUNDEF, Undefined local variable: keys(\"internal_episode_record_no\")" | tee -a output.txt
+	echo "#                        while episodes2 returned the 2 rows" | tee -a output.txt
+	echo "# octo -p -f TC092.sql" | tee -a output.txt
+	load_fixture TC092.sql subtest novv
+
+	echo "" | tee -a output.txt
+	echo "# Stage 3 : Look for keys(\"internal_episode_record_no\") left as is in the generated M plans" | tee -a output.txt
+	echo "#           Expect     : no output, i.e. the reference was expanded into %ydboctocursor(...)" | tee -a output.txt
+	echo "#           Previously : the reference that followed the \"+\" was listed here" | tee -a output.txt
+	echo "# grep -hoaE '(^|[^(,])keys\(\"internal_episode_record_no\"\)' _ydboctoP*.m | sort -u" | tee -a output.txt
+	grep -hoaE '(^|[^(,])keys\("internal_episode_record_no"\)' _ydboctoP*.m | sort -u | tee -a output.txt
+
+	echo "" | tee -a output.txt
+	echo "# Stage 4 : CREATE TABLE with a misspelled column name in an END keys() that follows a \"+\"" | tee -a output.txt
+	echo "#           Expect     : CREATE TABLE fails with ERR_UNKNOWN_COLUMN_NAME naming the" | tee -a output.txt
+	echo "#                        misspelled column internal_episode_record" | tee -a output.txt
+	echo "#           Previously : the reference was not matched, so it was never validated. The" | tee -a output.txt
+	echo "#                        CREATE TABLE was accepted and the typo surfaced at query time" | tee -a output.txt
+	echo "# octo -p -f TC092_errors.sql" | tee -a output.txt
+	load_fixture TC092_errors.sql subtest novv
+
+	verify_output TC092 output.txt
+}

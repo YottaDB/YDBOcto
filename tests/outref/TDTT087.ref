@@ -12,6 +12,7 @@
 # -----------------------------------------------------------------
 # Load M data for READONLY tables that will be created in next step
 # Use randomly generated date/time/timestamp literals for this purpose
+# Verify each global that the READONLY tables map to got as many nodes as the rows generated
 # Generate CREATE TABLE commands for READONLY tables and SELECT queries that do JOINs on those READONLY tables
 # Run CREATE TABLE commands for READONLY tables
 # Run SELECT commands for READONLY tables involving JOINs

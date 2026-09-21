@@ -62,6 +62,8 @@ teardown() {
 	yottadb -run TDTT087 > TDTT087base.sql
 	octo -f TDTT087base.sql | grep -B 1 'row' | grep -vE "row|^--" | awk -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDTT087.awk > TDTT087gen.m
 	yottadb -run TDTT087gen
+	echo "# Verify each global that the READONLY tables map to got as many nodes as the rows generated" >> output.txt
+	yottadb -run verifyLoad^TDTT087 >> output.txt
 
 	echo "# Generate CREATE TABLE commands for READONLY tables and SELECT queries that do JOINs on those READONLY tables" >> output.txt
 	yottadb -run genOctoqueries^TDTT087 > TDTT087_queries.sql

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -100,8 +100,17 @@ genTimestamp();
 	; 0000-01-01 00:00:00.000000 to 9999-12-31 23:59:59.999999
 	quit $$genDate_$$genTime
 genTimestampWithTimeZone();
-	; 0000-01-01 00:00:00.000000-15:59 to 9999-12-31 23:59:59.999999+15:59 (01-JAN-0000 00:00:00.000000-15:59 to 31-DEC-9999 23:59:59.999999+15:59)
-	quit $$genTimestamp_$$genTimeZone
+	; 1840-01-02 00:00:00.000000-15:59 to 2699-12-30 23:59:59.999999+15:59
+	; Octo stores this value normalized to the session time zone. That shift is the time zone
+	; offset above plus the session time zone offset, which is less than a day, so skipping the
+	; first and the last day of the "genDate" range keeps the normalized value inside 1840-01-01
+	; to 2699-12-31, the range FILEMAN (3 digit year) and HOROLOG (day number >= -365) support.
+	; Only those two days can move out of that range as day 31 of any other month normalizes
+	; into the following month.
+	set date=$$genDate
+	set:"2699-12-31"=date date="2699-12-30"
+	set:"1840-01-01"=date date="1840-01-02"
+	quit date_$$genTime_$$genTimeZone
 
 genDateHorolog();
 	; -365 (01-JAN-1840) to 313743 (31-DEC-2699)
@@ -198,6 +207,40 @@ genOctoqueries	;
 	do init
 	write "set datestyle=""ymd"";",!
 	;
+	do setTableNames
+	;
+	set type="" for  set type=$order(tableNames(type))  quit:type=""  do
+	. set max=$order(tableNames(type,""),-1)
+	. for i=1:1:max do
+	. . set typename=$piece(type,"tz",1)
+	. . set istztype=$find(type,"tz")
+	. . set format=$piece($piece($piece(tableNames(type,i),type,2),"_tbl",1),"_",2)
+	. . write "create table "_tableNames(type,i)_" (order_id integer primary key, "
+	. . write columnName(type)_" "_typename_$select(format="":"",1:"("_format_")")_$select(istztype:" with time zone",1:"")_") GLOBAL ""^"
+	. . write $translate(tableNames(type,i),"_")_""" READONLY;",!
+	. . ; write "select count(*) from "_tableNames(type,i)_";",!
+	. set index1=1+$random(max)
+	. set index2=1+$random(max)
+	. write "select count(*) >= "_numRows_" from "_tableNames(type,index1)_" t1 inner join "_tableNames(type,index2)_" t2 on t1."_columnName(type)_" = t2."_columnName(type)_";",!
+	quit
+
+verifyLoad	;
+	; Verify each global that the READONLY tables map to has "numRows" nodes. A query in
+	; "TDTT087base.sql" that returns no row instead of a value shifts every later value of
+	; that iteration into the next global, which is otherwise invisible until a JOIN returns
+	; fewer rows than expected.
+	do init
+	do setTableNames
+	set type="" for  set type=$order(tableNames(type))  quit:type=""  do
+	. set max=$order(tableNames(type,""),-1)
+	. for i=1:1:max do
+	. . set gbl="^"_$translate(tableNames(type,i),"_")
+	. . set cnt=0,sub=""
+	. . for  set sub=$order(@gbl@(sub))  quit:sub=""  set cnt=cnt+1
+	. . write:cnt'=numRows "ERROR : global "_gbl_" has "_cnt_" nodes ; expected "_numRows,!
+	quit
+
+setTableNames	;
 	set cnt=0
 	set tableNames("date",$incr(cnt))="date_tbl"
 	set tableNames("date",$incr(cnt))="date_fileman_tbl"
@@ -233,20 +276,6 @@ genOctoqueries	;
 	set columnName("timetz")="order_timetz"
 	set columnName("timestamp")="order_timestamp"
 	set columnName("timestamptz")="order_timestamptz"
-	;
-	set type="" for  set type=$order(tableNames(type))  quit:type=""  do
-	. set max=$order(tableNames(type,""),-1)
-	. for i=1:1:max do
-	. . set typename=$piece(type,"tz",1)
-	. . set istztype=$find(type,"tz")
-	. . set format=$piece($piece($piece(tableNames(type,i),type,2),"_tbl",1),"_",2)
-	. . write "create table "_tableNames(type,i)_" (order_id integer primary key, "
-	. . write columnName(type)_" "_typename_$select(format="":"",1:"("_format_")")_$select(istztype:" with time zone",1:"")_") GLOBAL ""^"
-	. . write $translate(tableNames(type,i),"_")_""" READONLY;",!
-	. . ; write "select count(*) from "_tableNames(type,i)_";",!
-	. set index1=1+$random(max)
-	. set index2=1+$random(max)
-	. write "select count(*) >= "_numRows_" from "_tableNames(type,index1)_" t1 inner join "_tableNames(type,index2)_" t2 on t1."_columnName(type)_" = t2."_columnName(type)_";",!
 	quit
 
 init	;

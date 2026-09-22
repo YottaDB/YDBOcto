@@ -308,7 +308,10 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	else
 		# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
 		# from that commit to the current/latest commit works fine in Octo.
-		if [[ $CI_COMMIT_BRANCH == "" ]]; then
+		# Not every pipeline defines CI_COMMIT_BRANCH (a tag pipeline and a merge request pipeline
+		# do not) and this script runs with "set -u", so the variable needs a default here for the
+		# check below to be reached at all.
+		if [[ "${CI_COMMIT_BRANCH:-}" == "" ]]; then
 			# This is possible if the pipeline runs for example when a new tag is created on a pre-existing commit.
 			# (for example when the r1.0.0 tag was created). In this case, treat this job as a success.
 			echo "INFO : CI_COMMIT_BRANCH env var is empty"

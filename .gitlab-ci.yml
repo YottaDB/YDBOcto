@@ -39,6 +39,27 @@ variables:
   ROCKY_REL_BASELINE_REPO:  registry.gitlab.com/yottadb/dbms/ydbocto:rocky-release
   ROCKY_MAS_BASELINE_REPO: registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master
 
+# The Ubuntu and Debian mirrors are briefly inconsistent while a sync is in progress (a "Hash Sum
+# mismatch" on an index, or a 404 for a package that a newer index no longer lists), and are
+# occasionally unreachable. apt_get_install takes the arguments of "apt-get install" and retries
+# the update and the install as a pair, since only a fresh index fixes the 404, waiting longer
+# after each attempt, since a sync takes minutes.
+.apt-get-retry:
+  script:
+    - |
+      apt_get_install() {
+        attempt=1
+        while ! { apt-get update -qq && apt-get install "$@"; }; do
+          if [ "$attempt" -ge 5 ]; then
+            echo "apt-get failed after 5 attempts" >&2
+            return 1
+          fi
+          echo "apt-get failed on attempt ${attempt} of 5; retrying in $((attempt * 60)) seconds" >&2
+          sleep $((attempt * 60))
+          attempt=$((attempt + 1))
+        done
+      }
+
 # Shared build config
 .make:
   stage: build
@@ -139,7 +160,8 @@ commit-verify:
   stage: build
   interruptible: true
   before_script:
-    - apt-get update -qq && apt-get install -y -qq git wget gnupg
+    - !reference [.apt-get-retry, script]
+    - apt_get_install -y -qq git wget gnupg
   script:
     # Copy commit gpg key verify script to build directory and execute
     - wget https://gitlab.com/YottaDB/DB/YDB/-/raw/master/ci/commit_verify.sh
@@ -254,7 +276,8 @@ test-auto-upgrade:
     - .make
   script:
     # We previously used netstat and xxd, and that's why we install net-tools
-    - apt-get install -y -qq --no-install-recommends net-tools xxd
+    - !reference [.apt-get-retry, script]
+    - apt_get_install -y -qq --no-install-recommends net-tools xxd
     - ./tools/ci/build.sh "test-auto-upgrade"
 
 test-vista:
@@ -389,7 +412,8 @@ pages:
   image: debian:stable-slim
   interruptible: true
   script:
-    - apt-get update && apt-get install -y make python3 tcsh wget jq sphinx-common python3-sphinx-rtd-theme
+    - !reference [.apt-get-retry, script]
+    - apt_get_install -y make python3 tcsh wget jq sphinx-common python3-sphinx-rtd-theme
     - ./tools/ci/docs.sh
     - export DEADLINKS_VERSION=$(wget -q -O - https://api.github.com/repos/deadlinks/cargo-deadlinks/releases/latest | jq --raw-output .tag_name)
     - wget https://github.com/deadlinks/cargo-deadlinks/releases/download/$DEADLINKS_VERSION/deadlinks-linux -O deadlinks

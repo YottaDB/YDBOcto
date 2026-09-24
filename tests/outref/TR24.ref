@@ -1,0 +1,6 @@
+# Start octo and wait for the OCTO> prompt
+# Do the following 20 times
+#   Send a SIGALRM and a SIGTSTP to octo back to back (as a YottaDB timer and a Ctrl-Z at the same moment would)
+#   Expect octo to stop within 5 seconds, then send it a SIGCONT and expect it to return to the OCTO> prompt
+# PASS : octo stopped in all 20 iterations
+# Exit octo

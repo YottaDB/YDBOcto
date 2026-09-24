@@ -1,0 +1,58 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Only the "puts" lines below go to stdout (and so to the reference file). The terminal session goes to expect.dbg.
+log_user 0
+
+# Returns the process state letter of the given pid as reported by "ps" ("T" if the process is stopped)
+proc procstate {pid} {
+	return [string index [string trim [exec ps -o stat= -p $pid]] 0]
+}
+
+set iterations 20
+puts "# Start octo and wait for the OCTO> prompt"
+spawn octo
+set octopid [exp_pid]
+expect "OCTO>"
+
+puts "# Do the following $iterations times"
+puts "#   Send a SIGALRM and a SIGTSTP to octo back to back (as a YottaDB timer and a Ctrl-Z at the same moment would)"
+puts "#   Expect octo to stop within 5 seconds, then send it a SIGCONT and expect it to return to the OCTO> prompt"
+set notstopped 0
+for {set i 1} {$i <= $iterations} {incr i} {
+	# A single "sh" sends both signals so they arrive microseconds apart, before octo can handle the first one
+	exec sh -c "kill -s ALRM $octopid; kill -s TSTP $octopid"
+	set state ""
+	for {set wait 0} {$wait < 50} {incr wait} {
+		set state [procstate $octopid]
+		if {"T" eq $state} {
+			break
+		}
+		after 100
+	}
+	if {"T" ne $state} {
+		puts "WRONG : octo did not stop in iteration $i : process state is \[$state\]"
+		incr notstopped
+	} else {
+		exec kill -s CONT $octopid
+	}
+	send -- "\r"
+	expect "OCTO>"
+}
+if {0 == $notstopped} {
+	puts "# PASS : octo stopped in all $iterations iterations"
+}
+
+puts "# Exit octo"
+send -- "exit\r"
+expect eof

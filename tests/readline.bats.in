@@ -309,3 +309,8 @@ teardown() {
 	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR23.exp > expect.out) &> expect.dbg
 	verify_output TR23 expect.out noinfo nodebug noexpect stripreturns
 }
+
+@test "TR24 : OCTO1154 : Test that a Ctrl-Z at the OCTO> prompt is not lost when a YottaDB timer fires at the same time" {
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR24.exp > expect.out) &> expect.dbg
+	verify_output TR24 expect.out
+}

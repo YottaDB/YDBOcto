@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -11,6 +11,7 @@
  ****************************************************************/
 
 #include <assert.h>
+#include <signal.h>
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -21,7 +22,21 @@ int readline_get_more(void) {
 	int   line_length, data_read;
 	char *line;
 	if (config->is_tty) {
+		struct sigaction alrm_ydb, alrm_restart;
+
+		/* While in "readline()", the handler readline installs for the signals it catches records only the most
+		 * recent one, and readline acts on that once it gets control back. So a SIGALRM from a YottaDB timer that
+		 * arrives along with another signal readline catches (for example a SIGTSTP or SIGINT from the terminal, or
+		 * a SIGTERM) overwrites it and that signal is lost. readline does not take over SIGALRM if the handler
+		 * already in place has SA_RESTART set, so set that flag on the YottaDB handler for the duration of the call.
+		 * That handler then runs directly, as it does outside "readline()".
+		 */
+		sigaction(SIGALRM, NULL, &alrm_ydb);
+		alrm_restart = alrm_ydb;
+		alrm_restart.sa_flags |= SA_RESTART;
+		sigaction(SIGALRM, &alrm_restart, NULL);
 		line = readline("OCTO> ");
+		sigaction(SIGALRM, &alrm_ydb, NULL);
 		/* It is possible the user pressed a Ctrl-C while inside the "readline()" call above.
 		 * In that case, we need to handle the signal in a timely fashion. Take this opportunity to do that.
 		 * If a Ctrl-C was indeed pressed, we will halt right away just like the user wants.

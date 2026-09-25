@@ -630,11 +630,16 @@ run_go() {
 	# Go versions newer than 1.22 officially stopped supporting GO111MODULE=off
 	# so we need to use Go Modules feature instead.
 	# Fix was mentioned in https://gitlab.com/YottaDB/DB/YDBTest/-/merge_requests/1889.
-	go mod init rungo >& gomod.out
-	go mod tidy >& gomod.out
-	go build -o $GOPATH/bin/$1 $GOPATH/src/$1
+	# "go mod init" creates go.mod in the directory it runs in. "go mod tidy" then scans every directory below that one
+	# for packages of the module, and stops only at a subdirectory that has its own go.mod (a separate module).
+	# Run both in $GOPATH/src/$1, not in $test_temp (where the test runs), because $test_temp contains the module cache
+	# ($GOPATH/pkg/mod). A cached module without its own go.mod (for example the golang.org/fips140 snapshot) would
+	# otherwise be scanned as packages of this program, and "go mod tidy" would fail without adding the program's
+	# dependencies to go.mod.
+	(cd $GOPATH/src/$1 && go mod init rungo && go mod tidy) >& gomod.out
+	(cd $GOPATH/src/$1 && go build -o $GOPATH/bin/$1 .)
 	$GOPATH/bin/$1 $2
-        chmod -R +w go/pkg
+	chmod -R +w go/pkg
 	# Executables created by go occupy a noticeable part of the artifacts.zip file created in the pipeline.
 	# They are not considered necessary at this point for test failure analysis so remove them.
 	rm -f $GOPATH/bin/$1

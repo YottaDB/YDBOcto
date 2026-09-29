@@ -140,6 +140,12 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 
 	if (level < config->verbosity_level)
 		return;
+	if (IS_EOF_CANCEL(eof_hit) && ((ERROR_Severity == severity) || (WARNING_Severity == severity))) {
+		/* A Ctrl-C discarded the query being parsed. Parser actions can still run on the part of it that was read
+		 * (for example a table name lookup) before the parser stops, so do not report errors from them.
+		 */
+		return;
+	}
 
 	va_start(args, error);
 	log_time = time(NULL);

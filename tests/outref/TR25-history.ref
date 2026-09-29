@@ -1,0 +1,3 @@
+select 2 as b;
+select id from names where id = 3;
+select 5 as e;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,6 +60,10 @@ void print_yyloc(YYLTYPE *llocp); /* A helper function internal to this file */
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s) {
 	UNUSED(plan_id);
 	UNUSED(parse_context);
+	if (IS_EOF_CANCEL(eof_hit)) {
+		/* A Ctrl-C discarded the query, so the parser saw the end of input partway through it. Do not report that. */
+		return;
+	}
 	if ((NULL == scan) && (NULL != out)) {
 		/* This is a "yyerror" call from outside the parser (e.g. "populate_data_type.c").
 		 * In this case, compute "llocp" from "out".

@@ -18,11 +18,43 @@
 
 #include "octo.h"
 
+static volatile sig_atomic_t ctrlc_pressed;   /* Set by "ctrlc_handler()" when a Ctrl-C is pressed at the "OCTO>" prompt */
+static boolean_t	     query_cancelled; /* TRUE if a Ctrl-C discarded lines already read for the current query */
+
+/* SIGINT handler while in "readline()". readline catches the SIGINT first and invokes this handler only after it has
+ * switched the terminal out of the mode it reads in, so all this does is record the Ctrl-C for "ctrlc_event_hook()".
+ */
+static void ctrlc_handler(int sig) {
+	UNUSED(sig);
+	ctrlc_pressed = TRUE;
+}
+
+/* readline invokes this hook when a signal interrupts its wait for input, after it has invoked the application's handler
+ * for that signal. On a Ctrl-C, discard the line being edited and display a fresh "OCTO>" prompt, as psql does.
+ * readline keeps waiting for input after this; it has no way to return from "readline()" without one.
+ */
+static int ctrlc_event_hook(void) {
+	if (ctrlc_pressed) {
+		ctrlc_pressed = FALSE;
+		/* If lines of the current query were already read, the parser has consumed them. They cannot be discarded
+		 * until "readline()" returns the next line, so note that here.
+		 */
+		if (old_input_index < cur_input_index) {
+			query_cancelled = TRUE;
+		}
+		rl_replace_line("", 0);
+		rl_crlf();
+		rl_on_new_line();
+		rl_redisplay();
+	}
+	return 0;
+}
+
 int readline_get_more(void) {
 	int   line_length, data_read;
 	char *line;
 	if (config->is_tty) {
-		struct sigaction alrm_ydb, alrm_restart;
+		struct sigaction alrm_ydb, alrm_restart, int_ydb, int_octo;
 
 		/* While in "readline()", the handler readline installs for the signals it catches records only the most
 		 * recent one, and readline acts on that once it gets control back. So a SIGALRM from a YottaDB timer that
@@ -35,16 +67,38 @@ int readline_get_more(void) {
 		alrm_restart = alrm_ydb;
 		alrm_restart.sa_flags |= SA_RESTART;
 		sigaction(SIGALRM, &alrm_restart, NULL);
+		/* The YottaDB SIGINT handler terminates the process. At the "OCTO>" prompt, a Ctrl-C should instead discard
+		 * the input line (and any lines already entered for the current query), so replace that handler for the
+		 * duration of the "readline()" call. A Ctrl-C while a query runs still terminates the process.
+		 */
+		memset(&int_octo, 0, sizeof(int_octo));
+		sigemptyset(&int_octo.sa_mask);
+		int_octo.sa_handler = ctrlc_handler;
+		ctrlc_pressed = FALSE;
+		rl_signal_event_hook = ctrlc_event_hook;
+		sigaction(SIGINT, &int_octo, &int_ydb);
 		line = readline("OCTO> ");
+		sigaction(SIGINT, &int_ydb, NULL);
 		sigaction(SIGALRM, &alrm_ydb, NULL);
-		/* It is possible the user pressed a Ctrl-C while inside the "readline()" call above.
-		 * In that case, we need to handle the signal in a timely fashion. Take this opportunity to do that.
-		 * If a Ctrl-C was indeed pressed, we will halt right away just like the user wants.
+		/* It is possible a signal (for example a SIGTERM) whose handling YottaDB deferred arrived while inside the
+		 * "readline()" call above. Take this opportunity to handle it.
 		 */
 		ydb_eintr_handler();
+		if (query_cancelled) {
+			/* Discard the lines already read for the current query and place this line where they began.
+			 * Have the lexer see the end of input so the parser stops, without an error, and "octo.c" then
+			 * parses this line as the start of a new query.
+			 */
+			query_cancelled = FALSE;
+			assert(EOF_NONE == eof_hit);
+			assert(old_input_index < cur_input_index);
+			cur_input_index = old_input_index;
+			input_buffer_combined[cur_input_index] = '\0';
+			eof_hit = ((NULL == line) ? EOF_CANCEL_EXIT : EOF_CANCEL);
+		}
 		if (NULL == line) {
 			// Detecting the EOF is handled by the lexer and this should never be true at this stage
-			assert(EOF_NONE == eof_hit);
+			assert((EOF_NONE == eof_hit) || (EOF_CANCEL_EXIT == eof_hit));
 			return 0;
 		}
 		line_length = strlen(line);

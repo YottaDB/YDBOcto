@@ -1,0 +1,94 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Only the "puts" lines below go to stdout (and so to the reference file). The terminal session goes to expect.dbg.
+log_user 0
+set timeout 30
+
+# Expects PATTERN (exact match) from octo. Prints PASS if it was seen and did not come with an [ERROR] message,
+# and WRONG otherwise.
+proc check {what pattern} {
+	expect {
+		-exact $pattern {
+			if {[string match "*ERROR*" $expect_out(buffer)]} {
+				puts "WRONG : $what : unexpected error in output: $expect_out(buffer)"
+			} else {
+				puts "PASS : $what"
+			}
+		}
+		timeout { puts "WRONG : $what : did not see the expected output within $::timeout seconds" }
+		eof { puts "WRONG : $what : octo terminated" }
+	}
+}
+
+puts "# Start octo and wait for the OCTO> prompt"
+spawn octo
+expect "OCTO> "
+
+puts "# Type \[select 1 as a\] without pressing Enter, then press Ctrl-C"
+send -- "select 1 as a"
+expect "select 1 as a"
+send -- "\x03"
+check "Ctrl-C discards the line and displays a new OCTO> prompt" "^C\r\nOCTO> "
+puts "# Run \[select 2 as b;\]"
+send -- "select 2 as b;\r"
+check "Only \[select 2 as b;\] runs" "b\r\n2\r\n(1 row)\r\nOCTO> "
+
+puts "# Press Ctrl-C twice at an empty OCTO> prompt"
+send -- "\x03"
+check "First Ctrl-C at an empty prompt displays a new OCTO> prompt" "^C\r\nOCTO> "
+send -- "\x03"
+check "Second Ctrl-C at an empty prompt displays a new OCTO> prompt" "^C\r\nOCTO> "
+
+puts "# Enter \[select *\] as the first line of a query that uses an unknown table, type \[from nosuch\], then press Ctrl-C"
+send -- "select *\r"
+expect "OCTO> "
+send -- "from nosuch"
+expect "from nosuch"
+send -- "\x03"
+check "Ctrl-C after the first line of a query displays a new OCTO> prompt" "^C\r\nOCTO> "
+puts "# Run \[select id from names where id = 3;\]"
+send -- "select id from names where id = 3;\r"
+check "Only \[select id from names where id = 3;\] runs, with no error for the discarded query" "id\r\n3\r\n(1 row)\r\nOCTO> "
+
+puts "# Enter \[select 'abc\] (a string that is not terminated), press Ctrl-C, then press Enter on the empty line"
+send -- "select 'abc\r"
+expect "OCTO> "
+send -- "\x03"
+check "Ctrl-C inside a string that spans lines displays a new OCTO> prompt" "^C\r\nOCTO> "
+send -- "\r"
+expect "OCTO> "
+puts "# Run \[select 5 as e;\]"
+send -- "select 5 as e;\r"
+check "Only \[select 5 as e;\] runs" "e\r\n5\r\n(1 row)\r\nOCTO> "
+
+puts "# Enter \[select 6\] as the first line of a query, press Ctrl-C, then press Ctrl-D"
+send -- "select 6\r"
+expect "OCTO> "
+send -- "\x03"
+check "Ctrl-C after the first line of a query displays a new OCTO> prompt" "^C\r\nOCTO> "
+send -- "\x04"
+expect {
+	eof {
+		set status [lindex [wait] 3]
+		if {0 == $status} {
+			puts "PASS : Ctrl-D after Ctrl-C terminates octo with exit status 0 and does not run \[select 6\]"
+		} else {
+			puts "WRONG : Ctrl-D after Ctrl-C terminates octo with exit status $status (expected 0)"
+		}
+		if {[string match "*6*" $expect_out(buffer)]} {
+			puts "WRONG : Ctrl-D after Ctrl-C ran the discarded query: $expect_out(buffer)"
+		}
+	}
+	timeout { puts "WRONG : octo did not terminate after Ctrl-D" }
+}

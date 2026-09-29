@@ -88,7 +88,20 @@
 		yylloc->last_line = 0;							\
 	}
 
-#define	EOF_HIT	eof_hit = EOF_CTRLD; return ENDOFFILE;
+/* If a Ctrl-C discarded the query ("readline_get_more()" set "eof_hit"), first return a token no rule accepts so that the
+ * parser stops right away and does not act on the query ("yyerror()" does not report the resulting syntax error). Then
+ * return ENDOFFILE, which ends the "error semicolon_or_eof" rule the parser recovers with.
+ */
+#define	EOF_HIT					\
+	if (IS_EOF_CANCEL(eof_hit)) {		\
+		if (CANCELLED != YY_START) {	\
+			BEGIN(CANCELLED);	\
+			return INVALID_TOKEN;	\
+		}				\
+		return ENDOFFILE;		\
+	}					\
+	eof_hit = EOF_CTRLD;			\
+	return ENDOFFILE;
 
 #define YYSTYPE SqlStatement *
 
@@ -113,6 +126,7 @@ int save_yylloc_first_line;
 %x COMMENT
 %x COMMENT_CSTYLE
 %x LEADING_SPACE
+%x CANCELLED
 
 %%
 

@@ -314,3 +314,10 @@ teardown() {
 	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR24.exp > expect.out) &> expect.dbg
 	verify_output TR24 expect.out
 }
+
+@test "TR25 : OCTO992 : Test that a Ctrl-C at the OCTO> prompt discards the current query and does not terminate octo" {
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR25.exp > expect.out) &> expect.dbg
+	verify_output TR25 expect.out
+	# Verify that the history has only the queries that ran and none of the lines discarded by a Ctrl-C
+	verify_output TR25-history octo_history
+}

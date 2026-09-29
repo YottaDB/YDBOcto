@@ -123,6 +123,12 @@
 #define EOF_NONE  0 /* EOF has not yet been signaled */
 #define EOF_CTRLD 1 /* Ctrl-D signaled the Octo process to terminate */
 #define EOF_EXIT  2 /* EXIT or QUIT commands signaled the Octo process to terminate */
+/* A Ctrl-C at the "OCTO>" prompt discarded lines already entered for the current query. With EOF_CANCEL, parsing restarts
+ * with the line entered after the Ctrl-C; with EOF_CANCEL_EXIT, a Ctrl-D was pressed after the Ctrl-C and Octo terminates.
+ */
+#define EOF_CANCEL	       3
+#define EOF_CANCEL_EXIT	       4
+#define IS_EOF_CANCEL(EOF_HIT) ((EOF_CANCEL == (EOF_HIT)) || (EOF_CANCEL_EXIT == (EOF_HIT)))
 
 /* History defines used in history.c */
 #define OCTO_HISTORY_DEFAULT		"~/.octo_history"

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -128,6 +128,22 @@ int main(int argc, char **argv) {
 			OCTO_CFREE(memory_chunks);
 			save_eof_hit = eof_hit; /* Save a copy of the global "eof_hit" in a local variable */
 			/* else: INFO_PARSING_DONE message will be invoked inside "run_query()" call later below */
+			if (IS_EOF_CANCEL(eof_hit)) {
+				/* A Ctrl-C discarded the lines entered for this query. "readline_get_more()" placed the line
+				 * entered after the Ctrl-C (if any) at "old_input_index". Parse it as the start of a new query.
+				 * The discarded query is not added to the history.
+				 */
+				cur_input_index = old_input_index;
+				cur_input_line_num = save_cur_input_line_num;
+				old_input_line_begin = &input_buffer_combined[old_input_index];
+				if (EOF_CANCEL_EXIT == eof_hit) {
+					/* Ctrl-D was pressed after the Ctrl-C. Terminate as a Ctrl-D on an empty line does. */
+					SAFE_PRINTF(fprintf, stdout, FALSE, FALSE, "%s", "\n");
+					break;
+				}
+				eof_hit = EOF_NONE;
+				continue;
+			}
 			if (EOF_NONE != eof_hit) {
 				/* If Octo was started without an input file (i.e. sitting at the "OCTO>" prompt) and
 				 * Ctrl-D was pressed by the user, then print a newline to cleanly terminate the current line

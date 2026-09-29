@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,6 +47,10 @@ int	     ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 boolean_t    in_sql_transaction; // TRUE if inside a BEGIN/COMMIT transaction fence. FALSE otherwise.
 /* sigset_t copied from global variable of same name in YDB project */
 sigset_t block_sigsent; // Set of signals to block while doing IO
+/* Set by the SIGINT handler "octo" installs for an interactive session ("ctrlc_handler()" in "octo.c") */
+volatile sig_atomic_t ctrlc_pressed;
+/* TRUE while "run_query()" runs the M code of a query (the "_ydboctoselect" call-in). FALSE otherwise. */
+volatile sig_atomic_t query_running_in_m;
 
 RoctoSession rocto_session;
 

@@ -130,6 +130,17 @@
 #define EOF_CANCEL_EXIT	       4
 #define IS_EOF_CANCEL(EOF_HIT) ((EOF_CANCEL == (EOF_HIT)) || (EOF_CANCEL_EXIT == (EOF_HIT)))
 
+/* Reports that a Ctrl-C at the "OCTO>" prompt canceled the running query. The terminal echoed "^C" for the Ctrl-C,
+ * so first end that line.
+ */
+#define REPORT_QUERY_CTRLC_CANCELED                                             \
+	{                                                                       \
+		if (ctrlc_pressed) {                                            \
+			SAFE_PRINTF(fprintf, stdout, FALSE, FALSE, "%s", "\n"); \
+		}                                                               \
+		ERROR(ERR_QUERY_CANCELED, "");                                  \
+	}
+
 /* History defines used in history.c */
 #define OCTO_HISTORY_DEFAULT		"~/.octo_history"
 #define OCTO_HISTORY_MAX_LENGTH_DEFAULT 500
@@ -1627,4 +1638,6 @@ extern ydb_buffer_t lex_buffer;		// String buffer for use in lexer.l
 extern int	    ydb_release_number; /* e.g. the integer 130 in case of r1.30 etc. */
 extern boolean_t    in_sql_transaction; // TRUE if inside a BEGIN/COMMIT transaction fence. FALSE otherwise.
 extern sigset_t	    block_sigsent;	// Set of signals to block while doing IO
+extern volatile sig_atomic_t ctrlc_pressed;
+extern volatile sig_atomic_t query_running_in_m;
 #endif

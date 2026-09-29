@@ -319,22 +319,26 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			break;
 		}
 		// Call the select routine
+		query_running_in_m = TRUE;
 		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, (ydb_int_t)wrapInTp);
+		query_running_in_m = FALSE;
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
 		}
-		// Check for cancel requests only if running rocto
-		if (config->is_rocto) {
-			canceled = is_query_canceled(callback);
-			if (canceled) {
-				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
-				/* Use QUERY_CANCELED (and not a literal -1) so that this remains distinguishable from
-				 * SOCK_OP_FAIL, which the callback status forwarded below can also evaluate to.
-				 */
-				return QUERY_CANCELED;
-			}
+		/* Check if a CancelRequest (rocto) or a Ctrl-C (octo) canceled the query. Note that this also discards
+		 * a cancel interrupt that arrived after the M code of the query ran its last M line, since YottaDB
+		 * ignores a pending job interrupt in a SimpleAPI call such as the one "is_query_canceled()" makes.
+		 * Such an interrupt would otherwise cancel whatever M code runs next.
+		 */
+		canceled = is_query_canceled(callback);
+		if (canceled) {
+			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+			/* Use QUERY_CANCELED (and not a literal -1) so that this remains distinguishable from
+			 * SOCK_OP_FAIL, which the callback status forwarded below can also evaluate to.
+			 */
+			return QUERY_CANCELED;
 		}
 		assert(!config->is_rocto || (NULL != parms));
 		/* Note: The "callback" function only relies on "stmt.type" so it is okay for other fields to be uninitialized */

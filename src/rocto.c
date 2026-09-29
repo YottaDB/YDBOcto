@@ -413,7 +413,7 @@ int main(int argc, char **argv) {
 		// Check for CancelRequest and handle if so
 		cancel_request = read_cancel_request(&rocto_session, &buffer, &buffer_size);
 		if (NULL != cancel_request) {
-			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_QUERY_CANCELED, "");
+			LOG_LOCAL_ONLY(INFO, ERR_QUERY_CANCELED, "");
 			handle_cancel_request(cancel_request);
 			// Shutdown connection immediately to free client prompt
 			shutdown(rocto_session.connection_fd, SHUT_RDWR);

@@ -86,9 +86,11 @@ foreach number [lsort [array names ddl_queries]] {
 
 puts "# Send Ctrl-C to cancel long running SELECT"
 send -i octo0 \x03
-send -i octo "\r"
+expect -i octo0 "canceling statement due to user request"
+expect -i octo0 "OCTO>"
 
 puts "# Exit from process OCTO0"
-expect -i octo0 "SHELL"
+send -i octo0 -- "exit\r"
+expect -i octo0 eof
 
 exit

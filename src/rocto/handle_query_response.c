@@ -321,7 +321,7 @@ int handle_query_response(SqlStatement *stmt, ydb_long_t cursorId, void *_parms,
 		}
 	} else {
 		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed
-		ERROR(ERR_ROCTO_QUERY_CANCELED, "");
+		ERROR(ERR_QUERY_CANCELED, "");
 	}
 	if (NULL != memory_chunks) {
 		// Memory chunks are no longer needed after the query has been processed, so free them here.

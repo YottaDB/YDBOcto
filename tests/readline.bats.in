@@ -321,3 +321,9 @@ teardown() {
 	# Verify that the history has only the queries that ran and none of the lines discarded by a Ctrl-C
 	verify_output TR25-history octo_history
 }
+
+@test "TR26 : OCTO992 : Test that a Ctrl-C while a query runs at the OCTO> prompt cancels the query" {
+	load_fixture HANGTIME.sql
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR26.exp > expect.out) &> expect.dbg
+	verify_output TR26 expect.out
+}

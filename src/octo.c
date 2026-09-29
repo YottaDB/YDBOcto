@@ -30,14 +30,46 @@ extern int yydebug;
 
 int no_more(void) { return 0; }
 
+/* SIGINT handler for an interactive session. It notes the Ctrl-C in "ctrlc_pressed", which "readline_get_more()" (at the
+ * "OCTO>" prompt) and "print_temporary_table()" (while printing rows) act on. If the M code of a query is running, it also
+ * sends the SIGUSR2 that cancels it (as rocto does for a CancelRequest): "zintr^%ydboctoZinterrupt", the $ZINTERRUPT
+ * handler, then unwinds the M code and sets "%ydboctoCancel" for "is_query_canceled()". A Ctrl-C at any other time (for
+ * example during a CREATE TABLE) has no effect.
+ */
+static void ctrlc_handler(int sig) {
+	int save_errno;
+
+	UNUSED(sig);
+	save_errno = errno;
+	ctrlc_pressed = TRUE;
+	if (query_running_in_m) {
+		/* If the YottaDB version is r1.30, "_ydboctoZinterrupt.m" expects SIGUSR1 and not SIGUSR2 */
+		kill(getpid(), ((131 > ydb_release_number) ? SIGUSR1 : SIGUSR2));
+	}
+	errno = save_errno;
+}
+
 int main(int argc, char **argv) {
 	ParseContext parse_context;
 	int	     status, ret = YDB_OK;
 	int	     save_cur_input_line_num;
 
 	inputFile = NULL;
+	/* Before invoking "ydb_init()" (inside "octo_init()") set env var to ensure SIGUSR2 is treated the same as SIGUSR1.
+	 * This is needed so SIGUSR1 creates ZSHOW dump files and SIGUSR2 cancels the running query (see "zintr" in
+	 * "_ydboctoZinterrupt.m"). "ctrlc_handler()" sends the SIGUSR2 on a Ctrl-C.
+	 */
+	setenv("ydb_treat_sigusr2_like_sigusr1", "1", TRUE);
 	status = octo_init(argc, argv);
 	if (0 != status) {
+		return status;
+	}
+	ydb_buffer_t z_interrupt, z_interrupt_handler;
+	YDB_LITERAL_TO_BUFFER("$ZINTERRUPT", &z_interrupt);
+	YDB_LITERAL_TO_BUFFER("DO zintr^%ydboctoZinterrupt", &z_interrupt_handler);
+	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
 		return status;
 	}
 	TRACE(INFO_OCTO_STARTED, "");
@@ -47,8 +79,17 @@ int main(int argc, char **argv) {
 		inputFile = stdin;
 		/* Check if stdin is a terminal. If so, we need to use "readline()" for command line editing. */
 		if (isatty(0)) {
+			struct sigaction int_octo;
+
 			config->is_tty = TRUE;
 			readline_setup();
+			/* The YottaDB SIGINT handler terminates the process. In an interactive session, a Ctrl-C should instead
+			 * discard the query being entered or cancel the query that runs, as psql does, so replace that handler.
+			 */
+			memset(&int_octo, 0, sizeof(int_octo));
+			sigemptyset(&int_octo.sa_mask);
+			int_octo.sa_handler = ctrlc_handler;
+			sigaction(SIGINT, &int_octo, NULL);
 		}
 	}
 	/* Now that all auto-upgrade and octo-seed related loading has occurred inside "octo_init()", set up
@@ -242,9 +283,11 @@ int main(int argc, char **argv) {
 		// Any meaningful errors will have already been reported lower in the stack and failed queries are recoverable,
 		// so it can safely be discarded.
 		memset(&parse_context, 0, sizeof(parse_context));
+		ctrlc_pressed = FALSE; /* Act only on a Ctrl-C that arrives while this query runs */
 		status = run_query(&print_temporary_table, NULL, PSQL_Invalid, &parse_context);
 		if (YDB_OK != status) {
-			ret = status;
+			/* A canceled query is a failed query. Do not use QUERY_CANCELED (a negative value) as the exit status. */
+			ret = ((QUERY_CANCELED == status) ? 1 : status);
 		}
 
 		if (config->is_tty) {

@@ -1226,6 +1226,14 @@ WARN_FEATURE_NOT_IMPLEMENTED
 
   Description/Action: This warning message indicates a feature is used that is yet to be fully implemented. Some of its usages are being allowed to enable the working of a few clients that is why the query didn't issue an error but instead a warning was logged. Refer to the message or `Grammar <https://docs.yottadb.com/Octo/grammar.html>` section for more details on the usages that are allowed. PSQL Error Code: 0A000
 
+++++++++++++++++++
+ERR_QUERY_CANCELED
+++++++++++++++++++
+
+  Text: canceling statement due to user request
+
+  Description/Action: This error indicates a query was cancelled, either by a Ctrl-C at the Octo prompt while the query was running, or by a CancelRequest message to Rocto. PSQL Error Code: 57014
+
 .. _WARN_READLINE_LOAD_FAIL:
 
 ++++++++++++++++++++++++++++++++
@@ -2033,14 +2041,6 @@ ERR_ROCTO_PERMISSIONS_LOOKUP_FAILED
   Text: Server failed to lookup user permissions. Valid permissions not defined for user 'xxx'
 
   Description/Action: Indicates that a rocto server was unable to determine access permissions for the user indicated. This may occur because the user does not exist, or because permissions were not defined for that user. Accordingly, the user should be created and/or permissions set for that user. PSQL Error Code: 28000
-
-++++++++++++++++++++++++
-ERR_ROCTO_QUERY_CANCELED
-++++++++++++++++++++++++
-
-  Text: canceling statement due to user request
-
-  Description/Action: This error indicates a query was successfully cancelled via a CancelRequest message. PSQL Error Code: 57014
 
 ++++++++++++++++++++++++
 ERR_ROCTO_QUERY_TOO_LONG

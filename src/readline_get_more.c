@@ -18,19 +18,12 @@
 
 #include "octo.h"
 
-static volatile sig_atomic_t ctrlc_pressed;   /* Set by "ctrlc_handler()" when a Ctrl-C is pressed at the "OCTO>" prompt */
-static boolean_t	     query_cancelled; /* TRUE if a Ctrl-C discarded lines already read for the current query */
-
-/* SIGINT handler while in "readline()". readline catches the SIGINT first and invokes this handler only after it has
- * switched the terminal out of the mode it reads in, so all this does is record the Ctrl-C for "ctrlc_event_hook()".
- */
-static void ctrlc_handler(int sig) {
-	UNUSED(sig);
-	ctrlc_pressed = TRUE;
-}
+static boolean_t query_cancelled; /* TRUE if a Ctrl-C discarded lines already read for the current query */
 
 /* readline invokes this hook when a signal interrupts its wait for input, after it has invoked the application's handler
- * for that signal. On a Ctrl-C, discard the line being edited and display a fresh "OCTO>" prompt, as psql does.
+ * for that signal ("ctrlc_handler()" in "octo.c" for a SIGINT, which sets "ctrlc_pressed"). readline catches the SIGINT
+ * first and switches the terminal out of the mode it reads in before it invokes that handler. On a Ctrl-C, discard the
+ * line being edited and display a fresh "OCTO>" prompt, as psql does.
  * readline keeps waiting for input after this; it has no way to return from "readline()" without one.
  */
 static int ctrlc_event_hook(void) {
@@ -54,7 +47,7 @@ int readline_get_more(void) {
 	int   line_length, data_read;
 	char *line;
 	if (config->is_tty) {
-		struct sigaction alrm_ydb, alrm_restart, int_ydb, int_octo;
+		struct sigaction alrm_ydb, alrm_restart;
 
 		/* While in "readline()", the handler readline installs for the signals it catches records only the most
 		 * recent one, and readline acts on that once it gets control back. So a SIGALRM from a YottaDB timer that
@@ -67,18 +60,12 @@ int readline_get_more(void) {
 		alrm_restart = alrm_ydb;
 		alrm_restart.sa_flags |= SA_RESTART;
 		sigaction(SIGALRM, &alrm_restart, NULL);
-		/* The YottaDB SIGINT handler terminates the process. At the "OCTO>" prompt, a Ctrl-C should instead discard
-		 * the input line (and any lines already entered for the current query), so replace that handler for the
-		 * duration of the "readline()" call. A Ctrl-C while a query runs still terminates the process.
+		/* A Ctrl-C that arrived since the last "readline()" call (for example after a query finished) had nothing
+		 * to cancel. Do not act on it at this prompt.
 		 */
-		memset(&int_octo, 0, sizeof(int_octo));
-		sigemptyset(&int_octo.sa_mask);
-		int_octo.sa_handler = ctrlc_handler;
 		ctrlc_pressed = FALSE;
 		rl_signal_event_hook = ctrlc_event_hook;
-		sigaction(SIGINT, &int_octo, &int_ydb);
 		line = readline("OCTO> ");
-		sigaction(SIGINT, &int_ydb, NULL);
 		sigaction(SIGALRM, &alrm_ydb, NULL);
 		/* It is possible a signal (for example a SIGTERM) whose handling YottaDB deferred arrived while inside the
 		 * "readline()" call above. Take this opportunity to handle it.

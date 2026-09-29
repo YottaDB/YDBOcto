@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -179,6 +179,12 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 			/* Print row values if any */
 			num_rows = 0;
 			for (;;) {
+				if (ctrlc_pressed) {
+					/* A Ctrl-C at the "OCTO>" prompt arrived after the M code of the query was done. Stop
+					 * printing rows as the M code would have if the Ctrl-C had arrived while it ran.
+					 */
+					break;
+				}
 				status = ydb_subscript_next_s(&cursor_buffers[0], 6, &cursor_buffers[1], &cursor_buffers[6]);
 				if (YDB_ERR_NODEEND == status) {
 					status = YDB_OK;
@@ -204,6 +210,12 @@ int print_temporary_table(SqlStatement *stmt, ydb_long_t cursorId, void *parms, 
 				num_rows++;
 			}
 			YDB_FREE_BUFFER(&cursor_buffers[6]);
+			if (ctrlc_pressed) {
+				fclose(memstream);
+				REPORT_QUERY_CTRLC_CANCELED;
+				status = 1;
+				break;
+			}
 			/* Print number of rows */
 			fprintf(memstream, "(%lld %s)\n", (long long int)num_rows, (1 == num_rows) ? "row" : "rows");
 			fclose(memstream);

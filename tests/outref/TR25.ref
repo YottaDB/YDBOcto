@@ -6,7 +6,7 @@ PASS : Only [select 2 as b;] runs
 # Press Ctrl-C twice at an empty OCTO> prompt
 PASS : First Ctrl-C at an empty prompt displays a new OCTO> prompt
 PASS : Second Ctrl-C at an empty prompt displays a new OCTO> prompt
-# Enter [select *] as the first line of a query that uses an unknown table, type [from nosuch], then press Ctrl-C
+# Enter [select * from nosuch] (a query on an unknown table) without a semicolon, then press Ctrl-C on the next line
 PASS : Ctrl-C after the first line of a query displays a new OCTO> prompt
 # Run [select id from names where id = 3;]
 PASS : Only [select id from names where id = 3;] runs, with no error for the discarded query

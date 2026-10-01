@@ -326,4 +326,15 @@ teardown() {
 	load_fixture HANGTIME.sql
 	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR26.exp > expect.out) &> expect.dbg
 	verify_output TR26 expect.out
+	# Verify that the history has the canceled queries (including the SELECT recalled with the Up arrow and run again)
+	verify_output TR26-history octo_history
+}
+
+@test "TR27 : OCTO992 : Test that a Ctrl-C after the M code of a query is done cancels the query before its rows are printed" {
+	# Run only if build is of type "Debug", as the test hook that sends the Ctrl-C is only available in a "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR27.exp > expect.out) &> expect.dbg
+	verify_output TR27 expect.out
 }

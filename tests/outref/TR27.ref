@@ -1,0 +1,4 @@
+# Start octo with a test hook that sends a Ctrl-C right after the M code of a query is done
+# Run [select * from names;]
+PASS : Ctrl-C after the M code is done cancels the SELECT before any row is printed
+# Exit octo

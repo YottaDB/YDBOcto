@@ -13,7 +13,19 @@
 
 # Only the "puts" lines below go to stdout (and so to the reference file). The terminal session goes to expect.dbg.
 log_user 0
-set timeout 30
+set timeout 60
+
+spawnbash
+
+# Note "expect_after" needs to be done AFTER spawn or else it won't take effect
+expect_after {
+	timeout { timeout_procedure }
+}
+
+proc timeout_procedure { } {
+	puts "timeout occurred"
+	exit -1
+}
 
 # Expects PATTERN (exact match) from octo and prints PASS if it was seen and WRONG otherwise.
 proc check {what pattern} {
@@ -24,10 +36,18 @@ proc check {what pattern} {
 	}
 }
 
+expect -re "\[#\$] "
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect -re "\[#\$] "
+
 puts "# Start octo and wait for the OCTO> prompt"
-spawn octo
-set octopid [exp_pid]
+send -- "octo\r"
 expect "OCTO> "
+# octo is the only child of the bash shell that expect spawned
+set octopid [exec pgrep -x -P [exp_pid] octo]
+
+set canceled "^C\r\n\[ERROR\]: ERR_QUERY_CANCELED: canceling statement due to user request\r\nOCTO> "
 
 puts "# Run a SELECT that takes 60 seconds (HANGTIME waits 10 seconds for each of the 6 rows of the names table)"
 puts "# and press Ctrl-C after 1 second"
@@ -36,17 +56,28 @@ expect "names;\r\n"
 sleep 1
 set start [clock seconds]
 send -- "\x03"
-check "Ctrl-C cancels the SELECT" "^C\r\n\[ERROR\]: ERR_QUERY_CANCELED: canceling statement due to user request\r\nOCTO> "
+check "Ctrl-C cancels the SELECT" $canceled
 if {10 <= ([clock seconds] - $start)} {
 	puts "WRONG : the SELECT was canceled only after [expr {[clock seconds] - $start}] seconds (expected less than 10)"
 }
+
+puts "# Press the Up arrow to recall the canceled SELECT from the history, then press Enter to run it again"
+puts "# and press Ctrl-C after 1 second"
+send -- "\033\[A"
+check "Up arrow recalls the canceled SELECT" "select hangtime(firstname,10) from names;"
+send -- "\r"
+# The check above already read the recalled query, so only the newline that ends it remains
+expect "\r\n"
+sleep 1
+send -- "\x03"
+check "Ctrl-C cancels the recalled SELECT" $canceled
 
 puts "# Run an INSERT that takes 6 seconds (HANGTIME waits 1 second for each row it inserts) and press Ctrl-C after 1 second"
 send -- "insert into names select id+100, hangtime(firstname,1), lastname from names;\r"
 expect "names;\r\n"
 sleep 1
 send -- "\x03"
-check "Ctrl-C cancels the INSERT" "^C\r\n\[ERROR\]: ERR_QUERY_CANCELED: canceling statement due to user request\r\nOCTO> "
+check "Ctrl-C cancels the INSERT" $canceled
 puts "# Run \[select count(*) from names;\]"
 send -- "select count(*) from names;\r"
 check "The canceled INSERT added no rows (the names table still has 6 rows)" "count(*)\r\n6\r\n(1 row)\r\nOCTO> "
@@ -64,5 +95,7 @@ if {[llength [glob -nocomplain "YDB_JOBEXAM.ZSHOW_DMP_${octopid}_*"]]} {
 }
 
 puts "# Exit octo"
+send -- "exit\r"
+expect -re "\[#\$] "
 send -- "exit\r"
 expect eof

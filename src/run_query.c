@@ -11,6 +11,7 @@
  ****************************************************************/
 
 #include <ctype.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -318,10 +319,25 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 			wrapInTp = TRUE;
 			break;
 		}
-		// Call the select routine
+		/* Call the select routine.
+		 * "query_running_in_m" tells the octo Ctrl-C handler ("ctrlc_handler()" in "octo.c") that a SIGUSR2 sent now
+		 * would cancel this query. A Ctrl-C can come at any time (mostly at the "OCTO>" prompt), and a SIGUSR2 sent
+		 * while no M code runs stays pending until M code next runs, where it would cancel the NEXT query or a DDL
+		 * command. rocto does not need this: it sends the SIGUSR2 only for a CancelRequest, which a client sends only
+		 * while it waits for a query to finish. So the SIGUSR2 either cancels the M code of that query, or, if it
+		 * arrives after that M code is done, is discarded by the "is_query_canceled()" call below.
+		 */
 		query_running_in_m = TRUE;
 		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, (ydb_int_t)wrapInTp);
 		query_running_in_m = FALSE;
+#ifndef NDEBUG
+		if (config->is_tty && (NULL != getenv("octo_dbg_ctrlc_after_query_m_code"))) {
+			/* Test hook (used by the TR27 test) that sends a Ctrl-C right after the M code of the query is done and
+			 * before its rows are printed. A real Ctrl-C lands in that window only by chance.
+			 */
+			kill(getpid(), SIGINT);
+		}
+#endif
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);

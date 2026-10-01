@@ -13,7 +13,19 @@
 
 # Only the "puts" lines below go to stdout (and so to the reference file). The terminal session goes to expect.dbg.
 log_user 0
-set timeout 30
+set timeout 60
+
+spawnbash
+
+# Note "expect_after" needs to be done AFTER spawn or else it won't take effect
+expect_after {
+	timeout { timeout_procedure }
+}
+
+proc timeout_procedure { } {
+	puts "timeout occurred"
+	exit -1
+}
 
 # Expects PATTERN (exact match) from octo. Prints PASS if it was seen and did not come with an [ERROR] message,
 # and WRONG otherwise.
@@ -31,8 +43,13 @@ proc check {what pattern} {
 	}
 }
 
+expect -re "\[#\$] "
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect -re "\[#\$] "
+
 puts "# Start octo and wait for the OCTO> prompt"
-spawn octo
+send -- "octo\r"
 expect "OCTO> "
 
 puts "# Type \[select 1 as a\] without pressing Enter, then press Ctrl-C"
@@ -50,11 +67,11 @@ check "First Ctrl-C at an empty prompt displays a new OCTO> prompt" "^C\r\nOCTO>
 send -- "\x03"
 check "Second Ctrl-C at an empty prompt displays a new OCTO> prompt" "^C\r\nOCTO> "
 
-puts "# Enter \[select *\] as the first line of a query that uses an unknown table, type \[from nosuch\], then press Ctrl-C"
-send -- "select *\r"
+# The parser has already read [select * from nosuch] when the Ctrl-C comes. Stopping the parser still runs the parser
+# action that looks up the table named [nosuch], which issues an error unless octo suppresses errors for a discarded query.
+puts "# Enter \[select * from nosuch\] (a query on an unknown table) without a semicolon, then press Ctrl-C on the next line"
+send -- "select * from nosuch\r"
 expect "OCTO> "
-send -- "from nosuch"
-expect "from nosuch"
 send -- "\x03"
 check "Ctrl-C after the first line of a query displays a new OCTO> prompt" "^C\r\nOCTO> "
 puts "# Run \[select id from names where id = 3;\]"
@@ -78,17 +95,18 @@ expect "OCTO> "
 send -- "\x03"
 check "Ctrl-C after the first line of a query displays a new OCTO> prompt" "^C\r\nOCTO> "
 send -- "\x04"
-expect {
-	eof {
-		set status [lindex [wait] 3]
-		if {0 == $status} {
-			puts "PASS : Ctrl-D after Ctrl-C terminates octo with exit status 0 and does not run \[select 6\]"
-		} else {
-			puts "WRONG : Ctrl-D after Ctrl-C terminates octo with exit status $status (expected 0)"
-		}
-		if {[string match "*6*" $expect_out(buffer)]} {
-			puts "WRONG : Ctrl-D after Ctrl-C ran the discarded query: $expect_out(buffer)"
-		}
-	}
-	timeout { puts "WRONG : octo did not terminate after Ctrl-D" }
+expect -re "\[#\$] "
+if {[string match "*(1 row)*" $expect_out(buffer)]} {
+	puts "WRONG : Ctrl-D after Ctrl-C ran the discarded query: $expect_out(buffer)"
 }
+send -- "echo octo_exit_status=\$?\r"
+expect -re "octo_exit_status=(\[0-9\]+)\r\n"
+set status $expect_out(1,string)
+if {0 == $status} {
+	puts "PASS : Ctrl-D after Ctrl-C terminates octo with exit status 0 and does not run \[select 6\]"
+} else {
+	puts "WRONG : Ctrl-D after Ctrl-C terminates octo with exit status $status (expected 0)"
+}
+expect -re "\[#\$] "
+send -- "exit\r"
+expect eof

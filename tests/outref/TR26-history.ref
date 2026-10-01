@@ -1,0 +1,5 @@
+select hangtime(firstname,10) from names;
+insert into names select id+100, hangtime(firstname,1), lastname from names;
+select count(*) from names;
+select hangtime(firstname,1) from names;
+exit;

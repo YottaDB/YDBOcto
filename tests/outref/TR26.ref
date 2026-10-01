@@ -2,6 +2,10 @@
 # Run a SELECT that takes 60 seconds (HANGTIME waits 10 seconds for each of the 6 rows of the names table)
 # and press Ctrl-C after 1 second
 PASS : Ctrl-C cancels the SELECT
+# Press the Up arrow to recall the canceled SELECT from the history, then press Enter to run it again
+# and press Ctrl-C after 1 second
+PASS : Up arrow recalls the canceled SELECT
+PASS : Ctrl-C cancels the recalled SELECT
 # Run an INSERT that takes 6 seconds (HANGTIME waits 1 second for each row it inserts) and press Ctrl-C after 1 second
 PASS : Ctrl-C cancels the INSERT
 # Run [select count(*) from names;]

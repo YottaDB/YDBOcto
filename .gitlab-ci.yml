@@ -306,6 +306,8 @@ test-vista:
 .docker-octo-common:
   image: docker:latest
   stage: docker-create
+  # The image is built from the checked out sources, so the artifacts of earlier jobs are not needed
+  dependencies: []
   before_script:
     - ""
   services:
@@ -341,6 +343,8 @@ docker-octo-aarch64:
 .docker-vista-common:
   image: docker:latest
   stage: docker-create
+  # The image is built from the checked out sources, so the artifacts of earlier jobs are not needed
+  dependencies: []
   before_script:
     - ""
   services:

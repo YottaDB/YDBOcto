@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -58,7 +58,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		LogicalPlan	*lp_upd_col_value, *lp_column, *lp_value;
 		SqlColumn	*cur_column;
 		SqlValue	*piece_value;
-		char		*columnName;
 
 		/* ------------------------------------------------------------------------------------
 		 * First generate M code to store the post-update column value in lvn PP_COL(column_number)
@@ -68,9 +67,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		cur_column = lp_column->v.lp_column.column;
 		assert(!cur_column->is_hidden_keycol);
 
-		SqlValue	*colname_value;
-		UNPACK_SQL_STATEMENT (colname_value, cur_column->columnName, value);
-		columnName = colname_value->v.reference;
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
@@ -139,13 +135,6 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		SET_TBL_CONSTRAINT_LVN(&ydboctoTblConstraint, cur_column->column_number); /* Note down that this PP_COL(i)
 											   * has been initialized.
 											   */
-		/* Check if column value is NULL and has a NOT NULL constraint. If so issue an error */
-		if (IS_COLUMN_NOT_NULL(cur_column)) {
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
-			%{} NullColValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
-		}
 		/* ------------------------------------------------------------------------------------
 		 * Do additional processing of the post-update value (check various constraints etc.)
 		 */
@@ -208,6 +197,39 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		}
 		GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
 	} while (NULL != lp_column_list);
+
+	/* ------------------------------------------------------------------------------------
+	 * Check if a column in the SET clause has a NOT NULL constraint and its post-update value is NULL. If so issue an
+	 * error. This is done after all SET clause values have been evaluated and in table column order (not SET clause
+	 * order) so the column reported when more than one NOT NULL constraint is violated is the same as in Postgres.
+	 */
+	SqlColumn	*start_column, *cur_column;
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	do {
+		unsigned int	is_lvn_set;
+
+		/* Unlike the SET clause column list walked above, "table->columns" also holds the table-level constraints
+		 * (UNIQUE, CHECK etc. on more than one column). Those have a NULL "columnName" and are not columns, so skip
+		 * them. This also keeps the UNPACK_SQL_STATEMENT of "columnName" below from dereferencing NULL.
+		 */
+		if ((NULL != cur_column->columnName) && IS_COLUMN_NOT_NULL(cur_column)) {
+			IS_TBL_CONSTRAINT_LVN_SET(&ydboctoTblConstraint, cur_column->column_number, is_lvn_set);
+			if (is_lvn_set) {
+				/* This column is in the SET clause */
+				SqlValue	*colname_value;
+				char		*columnName;
+
+				UNPACK_SQL_STATEMENT(colname_value, cur_column->columnName, value);
+				columnName = colname_value->v.reference;
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}DO:$ZYISSQLNULL({{ PP_COL }}({{ cur_column->column_number|%d }})){}%
+				%{} NullColValue^%%ydboctoplanhelpers("{{ columnName }}"){}%
+			}
+		}
+		cur_column = cur_column->next;
+	} while (cur_column != start_column);
 
 	if (num_key_cols_in_set_clause) {
 		/* UPDATE is modifying at least one key column */

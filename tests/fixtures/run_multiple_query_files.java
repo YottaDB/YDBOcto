@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /*
@@ -34,8 +35,14 @@ import java.util.regex.Pattern;
  * 	args[2] jdbc protocol
  * 	args[3] output file extension .octo.out or .psql.out
  * 	args[4] databasename
+ * 	args[5] (optional) "clusteronprimarykey" to call the "clusterOnPrimaryKey" Postgres function (defined in
+ * 		tests/fixtures/postgres-QueryGenerator.sql) on the table modified by every INSERT, UPDATE and DELETE
  */
 public class run_multiple_query_files {
+	// Table name of an INSERT, UPDATE or DELETE. It can be a quoted identifier with spaces in it (e.g. "quote names").
+	static final Pattern DML_TABLE_NAME = Pattern.compile("^\\s*(?:update|insert\\s+into|delete\\s+from)\\s+(\"[^\"]*\"|[^\\s(;]+)",
+								Pattern.CASE_INSENSITIVE);
+
 	public static void main( String args[] ) {
 		String connectionString;
 		String databaseName = new String("");
@@ -49,8 +56,9 @@ public class run_multiple_query_files {
 			props.setProperty("preferQueryMode","extended");
 		else
 			props.setProperty("preferQueryMode","simple");
-		if (5 == args.length)
+		if (5 <= args.length)
 			databaseName = args[4];
+		boolean clusterOnPrimaryKey = ((6 <= args.length) && args[5].equals("clusteronprimarykey"));
 		// Establish connection to database
 		connectionString = "jdbc:postgresql://localhost:" + args[0] + "/" + databaseName;
 		int exitStatus = 0;
@@ -124,6 +132,17 @@ public class run_multiple_query_files {
 						} catch (SQLException e) {
 							// Do not exit the loop just add the exception to the output file and move on
 							printWriter.printf("SQL State: %s\n%s\n", e.getSQLState(), e.getMessage());
+						}
+						if (clusterOnPrimaryKey) {
+							// Same logic as "postgres_cluster_on_primary_key" in test_helpers.bash.in
+							Matcher matcher = DML_TABLE_NAME.matcher(line);
+							if (matcher.find()) {
+								try (PreparedStatement clusterStatement
+										= conn.prepareStatement("SELECT clusterOnPrimaryKey(?);")) {
+									clusterStatement.setString(1, matcher.group(1));
+									clusterStatement.execute();
+								}
+							}
 						}
 						// Close reader and writer objects to get a
 						// clean state for next query file execution.

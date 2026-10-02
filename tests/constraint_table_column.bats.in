@@ -189,7 +189,13 @@ teardown() {
 	echo "# Generate random sets of queries/commands in file TCTC013.sql" >> output.txt
 	yottadb -run TCTC013 > TCTC013.sql
 	echo "# Run TCTC013.sql against Postgres" >> output.txt
-	psql names --no-align -f TCTC013.sql >& psql.out
+	# Postgres processes the rows of an UPDATE in the order they are stored in the table whereas Octo processes them in
+	# primary key order, so a multi-row UPDATE can issue a ERR_DUPLICATE_KEY_VALUE error in one and not in the other.
+	# Therefore rewrite the table in primary key order after every INSERT, UPDATE and DELETE in Postgres (see the
+	# "clusterOnPrimaryKey" function in "tests/fixtures/postgres-QueryGenerator.sql" for more details). The "\g /dev/null"
+	# keeps the output of that SELECT out of psql.out.
+	sed '/^\(insert\|update\|delete\) /a select clusterOnPrimaryKey('"'"'tmp'"'"') \\g /dev/null' TCTC013.sql > TCTC013_postgres.sql
+	psql names --no-align -f TCTC013_postgres.sql >& psql.out
 	echo "# Run TCTC013.sql against Octo" >> output.txt
 	# || true needed below since octo can return non-zero exit status in case of constraint violation errors.
 	octo -f TCTC013.sql >& octo.out || true
@@ -236,3 +242,9 @@ teardown() {
 	verify_output TCTC017 output.txt
 }
 
+
+@test "TCTC018 : OCTO950 : Constraint errors from multi-row UPDATE match Postgres irrespective of row and SET clause order" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCTC018.sql trim_trailing_zeroes write roctoflags=-aw
+	# Drop the tables from Postgres as they can otherwise confuse later runs of other tests (e.g. hello_db/HDB01)
+	psql names -c 'drop table if exists tctc018a; drop table if exists tctc018b; drop table if exists tctc018c; drop table if exists tctc018d' >& postgres.drop_table_TCTC018.out
+}

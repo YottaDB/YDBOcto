@@ -695,7 +695,7 @@ run_java() {
 	if ! [ -e "$psql_jar" ]; then
 		echo "error: $psql_jar does not exist. Cannot continue."
 	fi
-	java -classpath $psql_jar:@PROJECT_BINARY_DIR@/src/jocto.jar $1 $2 "$query" $4 $5 $6
+	java -classpath $psql_jar:@PROJECT_BINARY_DIR@/src/jocto.jar $1 $2 "$query" $4 $5 $6 $7
 }
 
 run_java_bg() {
@@ -1013,6 +1013,19 @@ choose_jdbc_protocol_randomly() {
 	fi
 }
 
+postgres_cluster_on_primary_key() {
+	# $1 is the Postgres database and $2 is a file holding one query.
+	# If that query is an INSERT, UPDATE or DELETE, rewrite the table it modifies in primary key order (the order in
+	# which Octo processes rows) so a later multi-row UPDATE processes rows in the same order in Postgres and Octo.
+	# See the "clusterOnPrimaryKey" function in "tests/fixtures/postgres-QueryGenerator.sql" for more details.
+	local tablename
+	# The table name can be a quoted identifier with spaces in it (e.g. "quote names" in the quotenames database)
+	tablename=$(head -1 $2 | sed -n 's/^[[:space:]]*\(update\|insert[[:space:]]\+into\|delete[[:space:]]\+from\)[[:space:]]\+\("[^"]*"\|[^[:space:](;]*\).*/\2/Ip')
+	if [[ -n "$tablename" ]]; then
+		psql --quiet $1 -c "SELECT clusterOnPrimaryKey('$tablename');" > /dev/null
+	fi
+}
+
 run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	# Query file has multiple queries.
 	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
@@ -1075,6 +1088,8 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			randclientstr="OCTO"
 		fi
 		if [[ $i == "write" ]]; then
+			# Besides error checking, this also keeps the Postgres tables in primary key order after every
+			# INSERT, UPDATE and DELETE (see "postgres_cluster_on_primary_key").
 			enableErrorCheck=1
 		fi
 		if [[ $i =~ ^roctoflags= ]]; then
@@ -1168,7 +1183,11 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 run_query_in_octo_and_postgres_and_crosscheck() {
 	if [[ $usejdbc == "usejdbc" || $randclientstr == "JDBC" ]]; then
 		local fname="$1"
-		run_java run_multiple_query_files $psql_port "$fname"_nocomment- "$jdbcprotocol" ".psql.out" $database
+		local clusteronpkey=""
+		if [[ 1 -eq $enableErrorCheck ]]; then
+			clusteronpkey="clusteronprimarykey"
+		fi
+		run_java run_multiple_query_files $psql_port "$fname"_nocomment- "$jdbcprotocol" ".psql.out" $database $clusteronpkey
 		run_java run_multiple_query_files $test_port "$fname"_nocomment- "$jdbcprotocol" ".octo.out"
 
 		local query_file
@@ -1197,6 +1216,9 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		# Additionally, DROP TABLE IF EXISTS queries issue a NOTICE that the table does not exist. We do not want this
 		# as it makes comparing Postgres vs Octo output harder so disable that using the PGOPTIONS variable below.
 		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $database -f $query_file >& $fname.psql.out || true
+		if [[ 1 -eq $enableErrorCheck ]]; then
+			postgres_cluster_on_primary_key $database $query_file
+		fi
 		if [[ $randclientstr == "PSQL" ]]; then
 			# Following invocation result need to be captures in a way ERROR messages are also included in the final result verification in case of INSERT/UPDATE
 			# Error information is written to $fname.octo.out.err. This file will also have INFO related messages so only copy lines starting with ERROR to $fname.octo.out.tmp
@@ -1419,6 +1441,9 @@ run_query_generator() {
 	for splitfile in tabledefinition-$prefix-*.sql
 	do
 		PGOPTIONS='--client-min-messages=warning' $psql_cmd --no-align $databaseName -f "$splitfile" >> "postgres-tabledefinition-$prefix.out" 2>>"postgres-tabledefinition-$prefix-err.out" || true
+		if [[ "write" == $isReadWriteMode ]]; then
+			postgres_cluster_on_primary_key $databaseName "$splitfile"
+		fi
 	done
   fi
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries $databaseName $queryfile "trim_trailing_zeroes" $usejdbcoption $useextended $isReadWriteMode

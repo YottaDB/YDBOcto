@@ -1,0 +1,14 @@
+# Start octo with a test hook that sends a Ctrl-C right before the M code of a query runs
+# Run [insert into names values (6, 'New', 'Name');]
+PASS : Ctrl-C before the M code runs cancels the query
+# Run [update names set firstname = 'Changed';]
+PASS : Ctrl-C before the M code runs cancels the query
+# Run [delete from names;]
+PASS : Ctrl-C before the M code runs cancels the query
+# Run [select * from names;]
+PASS : Ctrl-C before the M code runs cancels the query
+# Exit octo
+# Start octo without the test hook
+# Run [select * from names;]
+PASS : The canceled INSERT, UPDATE and DELETE did not change the names table
+# Exit octo

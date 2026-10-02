@@ -338,3 +338,12 @@ teardown() {
 	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR27.exp > expect.out) &> expect.dbg
 	verify_output TR27 expect.out
 }
+
+@test "TR28 : OCTO992 : Test that a Ctrl-C after a query is parsed but before its M code runs cancels the query" {
+	# Run only if build is of type "Debug", as the test hook that sends the Ctrl-C is only available in a "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TR28.exp > expect.out) &> expect.dbg
+	verify_output TR28 expect.out
+}

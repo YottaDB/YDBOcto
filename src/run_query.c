@@ -326,9 +326,33 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		 * command. rocto does not need this: it sends the SIGUSR2 only for a CancelRequest, which a client sends only
 		 * while it waits for a query to finish. So the SIGUSR2 either cancels the M code of that query, or, if it
 		 * arrives after that M code is done, is discarded by the "is_query_canceled()" call below.
+		 * A Ctrl-C that came before "query_running_in_m" is set (for example while the query was parsed or its plan
+		 * was generated, which can take seconds) sent no SIGUSR2 and only set "ctrlc_pressed". In that case do not run
+		 * the M code at all, and set "%ydboctoCancel" (as "run^%ydboctoCleanup" does for a canceled query) so that
+		 * "is_query_canceled()" reports the query as canceled. "query_running_in_m" is set before "ctrlc_pressed" is
+		 * checked, so a Ctrl-C that comes between the two sends a SIGUSR2 and is also seen by the check. No M code runs
+		 * then, and YottaDB discards that SIGUSR2 in the "ydb_set_s()" call (it ignores a pending job interrupt in a
+		 * SimpleAPI call).
 		 */
+#ifndef NDEBUG
+		if (config->is_tty && (NULL != getenv("octo_dbg_ctrlc_before_query_m_code"))) {
+			/* Test hook (used by the TR28 test) that sends a Ctrl-C after the query is parsed and its plan generated,
+			 * but before its M code runs. A real Ctrl-C lands in that window only if parsing and plan generation are
+			 * slow.
+			 */
+			kill(getpid(), SIGINT);
+		}
+#endif
 		query_running_in_m = TRUE;
-		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, (ydb_int_t)wrapInTp);
+		if (ctrlc_pressed) {
+			ydb_buffer_t ydbocto_cancel, cancel_value;
+
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOCANCEL, &ydbocto_cancel);
+			YDB_LITERAL_TO_BUFFER("1", &cancel_value);
+			status = ydb_set_s(&ydbocto_cancel, 0, NULL, &cancel_value);
+		} else {
+			status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, (ydb_int_t)wrapInTp);
+		}
 		query_running_in_m = FALSE;
 #ifndef NDEBUG
 		if (config->is_tty && (NULL != getenv("octo_dbg_ctrlc_after_query_m_code"))) {

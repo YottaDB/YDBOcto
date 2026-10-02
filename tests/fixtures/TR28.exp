@@ -1,0 +1,85 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Only the "puts" lines below go to stdout (and so to the reference file). The terminal session goes to expect.dbg.
+log_user 0
+set timeout 60
+
+spawnbash
+
+# Note "expect_after" needs to be done AFTER spawn or else it won't take effect
+expect_after {
+	timeout { timeout_procedure }
+}
+
+proc timeout_procedure { } {
+	puts "timeout occurred"
+	exit -1
+}
+
+# Expects PATTERN (exact match) from octo, with no other output before it. Prints PASS if so and WRONG otherwise.
+proc check {what pattern} {
+	expect {
+		-exact $pattern {
+			if {$pattern eq $expect_out(buffer)} {
+				puts "PASS : $what"
+			} else {
+				puts "WRONG : $what : unexpected output: $expect_out(buffer)"
+			}
+		}
+		timeout { puts "WRONG : $what : did not see the expected output within $::timeout seconds" }
+		eof { puts "WRONG : $what : octo terminated" }
+	}
+}
+
+# Runs QUERY and expects octo to report it as canceled, with no other output.
+proc run_canceled {query} {
+	puts "# Run \[$query\]"
+	send -- "$query\r"
+	expect -exact "$query\r\n"
+	check "Ctrl-C before the M code runs cancels the query" "\r\n\[ERROR\]: ERR_QUERY_CANCELED: canceling statement due to user request\r\nOCTO> "
+}
+
+expect -re "\[#\$] "
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect -re "\[#\$] "
+
+# The "octo_dbg_ctrlc_before_query_m_code" env var makes a Debug build of octo send itself a SIGINT (as a Ctrl-C does)
+# after each query is parsed and its plan generated, but before its M code runs. The terminal does not echo "^C" for it.
+puts "# Start octo with a test hook that sends a Ctrl-C right before the M code of a query runs"
+send -- "octo_dbg_ctrlc_before_query_m_code=1 octo\r"
+expect "OCTO> "
+
+run_canceled "insert into names values (6, 'New', 'Name');"
+run_canceled "update names set firstname = 'Changed';"
+run_canceled "delete from names;"
+run_canceled "select * from names;"
+
+puts "# Exit octo"
+send -- "exit\r"
+expect -re "\[#\$] "
+
+puts "# Start octo without the test hook"
+send -- "octo\r"
+expect "OCTO> "
+puts "# Run \[select * from names;\]"
+send -- "select * from names;\r"
+expect "names;\r\n"
+check "The canceled INSERT, UPDATE and DELETE did not change the names table" "id|firstname|lastname\r\n0|Zero|Cool\r\n1|Acid|Burn\r\n2|Cereal|Killer\r\n3|Lord|Nikon\r\n4|Joey|\r\n5|Zero|Cool\r\n(6 rows)\r\nOCTO> "
+
+puts "# Exit octo"
+send -- "exit\r"
+expect -re "\[#\$] "
+send -- "exit\r"
+expect eof

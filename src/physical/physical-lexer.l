@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,7 +13,7 @@
 %{
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -52,6 +52,25 @@ char string_buffer[BUFFER_SIZE];
 char *str_buf_ptr;
 int copied_so_far;
 
+/* The line of the .ctemplate file the lexer has reached, and the line the C code currently being lexed (EXPR_STATE)
+ * started on. Each Expr records the line it starts on, so that pparser can emit "#line" directives that credit the
+ * generated C to the template it came from (in compiler messages, assert() failures and code coverage reports).
+ */
+int template_line = 1;
+int expr_start_line;
+
+/* Returns the number of newlines in str */
+static int count_newlines(char *str) {
+	int newlines;
+
+	for (newlines = 0; '\0' != *str; str++) {
+		if ('\n' == *str) {
+			newlines++;
+		}
+	}
+	return newlines;
+}
+
 %}
 
 %option stack
@@ -70,6 +89,7 @@ int copied_so_far;
 %%
 
 "{}%" { BEGIN(EXPR_STATE);
+       expr_start_line = template_line;
        str_buf_ptr = string_buffer;
        copied_so_far = 0;
        return START_EXPR;
@@ -78,6 +98,7 @@ int copied_so_far;
           BEGIN(EXPR_STATE_END);
           (*yylval) = (Expr*)malloc(sizeof(Expr));
           (*yylval)->type = EXPR_TYPE;
+          (*yylval)->line = expr_start_line;
           (*yylval)->value = malloc(copied_so_far + 1);
           strncpy((*yylval)->value, string_buffer, copied_so_far);
           (*yylval)->value[copied_so_far] = '\0';
@@ -93,7 +114,7 @@ int copied_so_far;
 		exit(1);
 	}
 }
-<EXPR_STATE>\n { *str_buf_ptr++ = *yytext; copied_so_far++; }
+<EXPR_STATE>\n { *str_buf_ptr++ = *yytext; copied_so_far++; template_line++; }
 
 <EXPR_STATE_END>"%{}" { BEGIN(INITIAL); return END_EXPR; }
 
@@ -106,6 +127,8 @@ int copied_so_far;
    COPY_STRING(str_buf_ptr, yptr, copied_so_far, BUFFER_SIZE);
    (*yylval) = (Expr*)malloc(sizeof(Expr));
    (*yylval)->type = VALUE_TYPE;
+   (*yylval)->line = template_line;
+   template_line += count_newlines(yytext);
    (*yylval)->value = malloc(copied_so_far + 1);
    strncpy((*yylval)->value, string_buffer, copied_so_far);
    (*yylval)->value[copied_so_far] = '\0';
@@ -119,6 +142,8 @@ int copied_so_far;
    COPY_STRING(str_buf_ptr, yptr, copied_so_far, BUFFER_SIZE);
    (*yylval) = (Expr*)malloc(sizeof(Expr));
    (*yylval)->type = LITERAL_TYPE;
+   (*yylval)->line = template_line;
+   template_line += count_newlines(yytext);
    (*yylval)->value = malloc(copied_so_far + 1);
    strncpy((*yylval)->value, string_buffer, copied_so_far);
    (*yylval)->value[copied_so_far] = '\0';

@@ -588,6 +588,12 @@ OCTO
 @test "TPC032 : OCTO1081 : Rocto exits and closes the connection when client unexpectedly disconnects" {
 	load_fixture northwind.zwr
 	load_fixture northwind.sql
+	# With ENABLE_COVERAGE, M-profiling makes the rocto server run the long query below about 16 times slower, so
+	# after the client is killed it can outlast the 300 seconds wait_for_rocto_server_pids_to_die() allows it to exit.
+	# So restart rocto (started by setup() with M-profiling on) with M-profiling off.
+	stop_rocto
+	unset ydb_trace_gbl_name
+	test_port=$(start_rocto $test_port)
 	# Fixture uses Northwind database to help construct long running query with lots of return data
 	strip_sql_comments TPC032.sql
 	echo "# Run psql without the run_psql helper so that the process can be backgrounded" >> output.txt

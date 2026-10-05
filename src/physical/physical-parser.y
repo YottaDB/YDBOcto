@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,6 +30,7 @@
   struct Expr {
     int type;
     char *value;
+    int line;	/* Line of the .ctemplate file this piece starts on. pparser emits it as a "#line" directive. */
     Expr *next;
   };
   typedef struct Expr * YYSTYPE;

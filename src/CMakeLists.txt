@@ -565,7 +565,7 @@ foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)
   add_custom_command(OUTPUT ${fileName}.c
     DEPENDS "${template}" pparser
-    COMMAND ${PROJECT_BINARY_DIR}/src/pparser < ${template} > ${fileName}.c
+    COMMAND ${PROJECT_BINARY_DIR}/src/pparser ${template} > ${fileName}.c
     )
   target_sources(libocto PUBLIC ${PROJECT_BINARY_DIR}/src/${fileName}.c)
 endforeach()

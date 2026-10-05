@@ -744,9 +744,23 @@ PSQL
 		ctest $CTEST_ARGS
 		exit_status=$?
 		if [[ "ON" == "$enable_coverage" ]]; then
+			# C coverage, as a gcovr JSON tracefile. The C generated from src/m_templates/*.ctemplate carries "#line"
+			# directives (see src/physical/pparser.c), so its coverage is reported against the .ctemplate files.
 			# --gcov-ignore-parse-errors is needed because of https://github.com/gcovr/gcovr/issues/882, fixed in the latest gcovr
 			# When we upgrade to Ubuntu 26.04, we can try removing --gcov-ignore-parse-errors
-			gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o=coverage-gcovr.xml --gcov-ignore-parse-errors --root=${CI_PROJECT_DIR} .
+			gcovr --json -o coverage-c.json --exclude-unreachable-branches --gcov-ignore-parse-errors --root=${CI_PROJECT_DIR} .
+			tracefiles=(--add-tracefile coverage-c.json)
+			# M coverage of src/aux/_ydbocto*.m, in the same format, from the files corecheck() in test_helpers.bash.in
+			# wrote for every test. gcovr reads only its own JSON format version, so take it from the C tracefile.
+			json_format_version=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["gcovr/format_version"])' coverage-c.json)
+			mkdir -p mcoverage_o
+			ydb_routines="$PWD/mcoverage_o(${CI_PROJECT_DIR}/tests/fixtures) $ydb_routines" $ydb_dist/yottadb -run %XCMD \
+				"do JSON^mcoverage(\"$PWD/mcoverage\",\"${CI_PROJECT_DIR}\",\"$PWD/coverage-m.json\",\"$json_format_version\")"
+			if [[ -e coverage-m.json ]]; then
+				tracefiles+=(--add-tracefile coverage-m.json)
+			fi
+			# One report of both, for GitLab's coverage visualization, and one coverage percentage for the job
+			gcovr "${tracefiles[@]}" --xml-pretty --print-summary -o=coverage-gcovr.xml --root=${CI_PROJECT_DIR}
 			# See https://github.com/gcovr/gcovr/issues/806 for background
 			sed "s|<source>..</source>|<source>${CI_PROJECT_DIR}</source>|" coverage-gcovr.xml > coverage.xml
 		fi

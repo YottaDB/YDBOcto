@@ -127,6 +127,9 @@ teardown() {
   if [[ @ENABLE_ASAN@ == "ON" ]]; then
     skip "This test cannot run correctly under ASAN as ASAN increases memory usage on each run"
   fi
+  # With ENABLE_COVERAGE, M-profiling allocates memory for each M line the first time it runs, so rocto's memory
+  # usage could grow between rounds for reasons other than a leak. So do not profile rocto in this test.
+  unset ydb_trace_gbl_name
   test_port=$(start_rocto 1444)
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/report_memory_usage.sh .
   run_psql_expect TMU03 $test_port

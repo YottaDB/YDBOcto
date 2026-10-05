@@ -32,6 +32,9 @@ teardown() {
 }
 
 @test "TERR001 : Invalid Octo GLD" {
+  # With ENABLE_COVERAGE, a process exiting under a global directory it cannot open fails to dump its M-profiling data,
+  # and says so (MPROFRUNDOWN) in addition to the ZGBLDIRACC error this test expects. So do not profile it.
+  unset ydb_trace_gbl_name
   export ydb_gbldir="does_not_exist.gld"
   octo <<OCTO 2>&1 | tee output1.txt
 SELECT * FROM names WHERE lastName = "Cool";
@@ -409,6 +412,9 @@ OCTO
 @test "TERR050 : OCTO1004 : Ensure auto load failure returns an error and exits" {
 	# Do not use database created by "init_test" as auto upgrade would have already happened on it
 	# (due to the "load_fixture" calls). Create an empty database file and perform the test.
+	# With ENABLE_COVERAGE, GDE below would run with no database to dump its M-profiling data into, and say so
+	# (MPROFRUNDOWN) at exit, so do not profile this test.
+	unset ydb_trace_gbl_name
 	rm -f *.gld *.dat
 	$ydb_dist/yottadb -run GDE exit
 	$ydb_dist/mupip create

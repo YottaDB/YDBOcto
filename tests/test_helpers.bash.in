@@ -337,6 +337,10 @@ createdb() {
 	# VistA globals.  Technically, VistA only needs the M standard's
 	# maximum of 256 whereas the default maximum in GDE is 64. But the
 	# maximum possible key size of 1019 does not hurt.
+	#
+	# With ENABLE_COVERAGE, M line coverage is collected from the test's own processes only, and not from setting up its
+	# databases. So the GDE and MUPIP commands below run with M-profiling off, and the end of this function turns it on.
+	unset ydb_trace_gbl_name
 	if [ -n "$2" ]; then
 		ydb_gbldir="$2"
 		mkdir $test_temp/${ydb_gbldir}.d
@@ -369,6 +373,17 @@ add -name %ydbAIM* -region=AIMREG
 exit
 FILE
 	fi
+	if [[ @ENABLE_COVERAGE@ == "ON" ]]; then
+		# A region of the test's own database for the M-profiling data its processes dump at exit (see the end of
+		# this function). It is in the test directory, not shared between tests, so that tests running in parallel
+		# never contend for it (e.g. "mupip set -reg *" needs standalone access to every region).
+		$ydb_dist/yottadb -run ^GDE <<FILE
+add -segment YDBCOVSEG -file="$db_dir/ydbcov.dat"
+add -region YDBCOVREG -dyn=YDBCOVSEG -nojournal -key_size=1019 -record_size=1048576
+add -name %ydbcov* -region=YDBCOVREG
+exit
+FILE
+	fi
 	rm -f $db_dir/*.dat || true
 	$ydb_dist/mupip create
 
@@ -390,11 +405,19 @@ FILE
 		createdb "" "${OCTO_TEST_EXTREF_GLD:-extref.gld}"
 	fi
 
+	if [[ @ENABLE_COVERAGE@ == "ON" ]]; then
+		# M line coverage: every M process the test starts from here on (octo, rocto, yottadb) dumps its M-profiling
+		# data into ^%ydbcov at exit, under its own pid. corecheck() sums it into a file that outlives the test
+		# directory, and tools/ci/build.sh turns the files of all tests into coverage of Octo's M routines.
+		export ydb_trace_gbl_name='^%ydbcov($J)'
+	fi
+
 	save_env_variables
 }
 
 gde_add_region() {
-	$ydb_dist/yottadb -run GDE <<FILE
+	# GDE is part of setting up the database, which is not profiled for M line coverage (see createdb())
+	env -u ydb_trace_gbl_name $ydb_dist/yottadb -run GDE <<FILE
 add -name $2 -region=$1
 add -region $1 -dynamic=$1 -key_size=1019 -record_size=1048576
 add -segment $1 -file_name=$test_temp/$1.dat
@@ -405,7 +428,8 @@ FILE
 
 gde_add_name() {
 	echo "NAME: $1"
-	$ydb_dist/yottadb -run GDE <<FILE
+	# GDE is part of setting up the database, which is not profiled for M line coverage (see createdb())
+	env -u ydb_trace_gbl_name $ydb_dist/yottadb -run GDE <<FILE
 add -name $1 -region=$2
 exit
 FILE
@@ -1412,6 +1436,18 @@ corecheck() {
 	# We delete test directories if we don't need them, but we need them in pipelines (esp autoupgrade tests which use passed bats tests for further tests)
 	# Var is $octo_keep_bats_dirs, 0 (default) don't keep, 1 keep
 	should_i_keep_bats_dirctory=${octo_keep_bats_dirs:-0}
+	if [[ @ENABLE_COVERAGE@ == "ON" ]]; then
+		# M line coverage (see createdb()). Sum what the test's processes dumped into a file outside the test
+		# directory, as the directory is deleted below if the test passed. Each global directory of the test gets
+		# its own file, since a process run with e.g. "ydb_gbldir=extended.gld" dumped into that one's database.
+		# This is bookkeeping, not part of the test, so it neither profiles itself nor fails the test.
+		mkdir -p @PROJECT_BINARY_DIR@/mcoverage
+		for gld in *.gld; do
+			[[ -e $gld ]] || continue
+			env -u ydb_trace_gbl_name ydb_gbldir=$PWD/$gld $ydb_dist/yottadb -run %XCMD \
+				"do SAVE^mcoverage(\"@PROJECT_BINARY_DIR@/mcoverage/$(basename $PWD).$gld.mcov\")" >& /dev/null || true
+		done
+	fi
 	if [[ 1 == $BATS_TEST_COMPLETED ]]; then
 		touch bats_test_"$subtest"_end_passed.out
 		if [ $should_i_keep_bats_dirctory -eq 0 ]; then rm -rf $PWD; fi

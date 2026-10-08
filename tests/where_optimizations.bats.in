@@ -254,3 +254,39 @@ CAT
 	psql names -c 'DROP TABLE IF EXISTS TWO19a;' >& postgres.drop_table_TWO19.out
 	verify_output TWO19 output.txt noinfo nodebug
 }
+
+@test "TWO20 : OCTO1158 : Key fixing optimization in WHERE clause for COLUMN LIKE 'prefix%'" {
+	load_fixture TWO20.sql subtest novv
+	echo "" >> output.txt
+	echo "# Verify the plan of each query on column v above, in the same order." >> output.txt
+	echo "# A plan that walks the cross reference of column v over the LIKE prefix takes the prefix from the pattern" >> output.txt
+	echo "# with [likeprefix] and stops the walk with [\$ZEXTRACT]:" >> output.txt
+	echo "#   A pattern that is only a prefix followed by % (e.g. 'PAT%') has no [regexmatch] left." >> output.txt
+	echo "#   A pattern with more after the prefix (e.g. 'PAT%ENT') still calls [regexmatch] on each row found." >> output.txt
+	echo "# A pattern without a prefix (e.g. '%AT') and NOT LIKE only call [regexmatch] on every row." >> output.txt
+	echo "# ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. '12A%' walks over '12' with" >> output.txt
+	echo "# [likeprefix(...,1)] and checks the ILIKE ([regexmatch(...,2)], 2 = case-insensitive). '12%' matches what" >> output.txt
+	echo "# LIKE '12%' does, and '12' (no wildcard, escape or letter) is an \"=\", which fixes the key of column v to the" >> output.txt
+	echo "# value ([SET ...\"v\")=%ydboctoexpr]) and looks it up directly." >> output.txt
+	echo "# A query with the same shape as an earlier one shares its plan, as the pattern is a plan parameter. Each" >> output.txt
+	echo "# query is run again with [octo -vv] to get the name of the plan it uses. Plans are named A, B, C ... in the" >> output.txt
+	echo "# order they are first used, and their M code is shown the first time." >> output.txt
+	declare -A plan_label
+	next_label=0
+	labels=(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+	grep -E "^SELECT .*(LIKE|~~|TWO20view)" @PROJECT_SOURCE_DIR@/tests/fixtures/TWO20.sql | grep -v "COALESCE" > TWO20_like_queries.sql
+	while IFS= read -r query; do
+		echo "" >> output.txt
+		echo "$query" >> output.txt
+		plan=$(echo "$query" | octo -vv 2>&1 | grep -oE '_ydboctoP[A-Za-z0-9]+\.m' | tail -1)
+		if [[ -n ${plan_label[$plan]} ]]; then
+			echo "  Plan ${plan_label[$plan]} (same plan as above)" >> output.txt
+			continue
+		fi
+		plan_label[$plan]=${labels[$next_label]}
+		next_label=$((next_label + 1))
+		echo "  Plan ${plan_label[$plan]}:" >> output.txt
+		grep -hoE '\$\$likeprefix\^%ydboctoplanhelpers\([^)]*\)|QUIT:.*\$ZEXTRACT\(%ydboctozkeyfix[^ ]*|\$\$regexmatch\^%ydboctoplanhelpers\(%ydboctoexpr\([0-9]*\),%ydboctoexpr,[0-9],[0-9]\)|SET %ydboctocursor\(cursorId,"keys",[0-9]+,"two20","v"\)=%ydboctoexpr' $plan | sed 's/^/    /' >> output.txt
+	done < TWO20_like_queries.sql
+	verify_output TWO20 output.txt noinfo nodebug
+}

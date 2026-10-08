@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -386,6 +386,9 @@ typedef struct SqlKey {
 					   *	LP_BOOLEAN_GREATER_THAN
 					   *	LP_BOOLEAN_LESS_THAN_OR_EQUALS
 					   *	LP_BOOLEAN_GREATER_THAN_OR_EQUALS
+					   *	LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY
+					   *	LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX
+					   *	LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX
 					   * Uninitialized if "fixed_to_value" is NULL.
 					   */
 } SqlKey;

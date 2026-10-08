@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -292,6 +292,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_BOOLEAN_REGEX_INSENSITIVE:
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
 	case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case LP_CASE_STATEMENT:
 	case LP_CASE_BRANCH_STATEMENT:
@@ -379,6 +382,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IN)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_NOT_IN)
@@ -421,6 +430,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		case LP_BOOLEAN_REGEX_INSENSITIVE:
 		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
 		case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
 			if (NULL != options) {
 				options->regexmatch_invoked = TRUE;

@@ -124,6 +124,17 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	response_parms.session = session;
 	response_parms.parm_name = parse->dest;
 	status = run_query(&handle_query_response, (void *)&response_parms, PSQL_Parse, &parse_context);
+	if ((0 == status) && parse_context.plan_depends_on_bind_values) {
+		/* The plan depends on the values of bind parameters (e.g. "col LIKE $1"). Note that, so "handle_bind()" can
+		 * pick the plan for the bound values (YDBOcto#1158).
+		 */
+		status = store_bind_replan_info(parse, session);
+		if (0 != status) {
+			status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE);
+			YDB_ERROR_CHECK(status);
+			status = 1;
+		}
+	}
 	if (0 != status) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);

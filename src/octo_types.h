@@ -274,6 +274,19 @@ typedef enum BinaryOperations {
 	BOOLEAN_ALL_GREATER_THAN_OR_EQUALS,
 	DATE_TIME_ADDITION,
 	DATE_TIME_SUBTRACTION,
+	/* The below 2 are a case-sensitive LIKE whose pattern can start with a literal prefix (YDBOcto#1158).
+	 * They match exactly what BOOLEAN_REGEX_SENSITIVE_LIKE matches. They exist only so the optimizer can walk an
+	 * index over that prefix. See "get_like_prefix_operation()" for details.
+	 *	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY : a literal that is a prefix followed by only % (e.g. 'PAT%')
+	 *	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX      : a literal with more after the prefix (e.g. 'PAT%ENT', 'PAT_')
+	 * The below is the same for ILIKE (BOOLEAN_REGEX_INSENSITIVE_LIKE). There, the prefix ends at the first letter, as a
+	 * letter can match either case (e.g. '12A%' has the prefix '12'). An ILIKE that is a prefix without letters followed by
+	 * only % (e.g. '12%') matches exactly what LIKE does, so it uses BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY.
+	 *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX    : an ILIKE literal with a non-empty prefix and more after it
+	 */
+	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY,
+	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX,
+	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX,
 } BinaryOperations;
 
 typedef enum SqlValueType {
@@ -509,6 +522,14 @@ struct YYLTYPE {
 	int last_column;
 };
 
+/* The value of a bind parameter, as the Bind message supplied it (YDBOcto#1158). "value" is not null terminated.
+ * It is NULL if the value is SQL NULL or in binary format (whose bytes are not the text of the value).
+ */
+typedef struct {
+	const char *value;
+	int32_t	    length;
+} BindParmValue;
+
 // Used to maintain various parse related information primarily for use in Extended Query protocol modules
 typedef struct {
 	// General purpose parser fields
@@ -535,6 +556,23 @@ typedef struct {
 	boolean_t  skip_cursor_cleanup;
 	boolean_t *is_bind_parm; // Used to track which literal parameters are bind parameters
 	int16_t	   is_bind_parm_size;
+	/* YDBOcto#1158 : Plans that depend on the values of bind parameters (rocto prepared statements).
+	 * At Parse, the values are not known yet. If an optimization would pick a different plan depending on the value of a
+	 * bind parameter, it uses the plan that is right for any value, and sets "plan_depends_on_bind_values". rocto then
+	 * parses the query again when it gets the Bind message, this time with the bound values in "bind_parm_values", and the
+	 * optimization picks the plan for those values (see "get_bind_replan_routine()").
+	 * Currently the only such optimization is a LIKE or ILIKE whose pattern is a bind parameter (e.g. "col LIKE $1"):
+	 * 'PAT%' can walk a cross reference, '%PAT' cannot (see "get_like_prefix_operation()"). A future optimization that
+	 * depends on a bound value can use the same fields: set "plan_depends_on_bind_values" at Parse, and look at
+	 * "bind_parm_values" at Bind.
+	 *	plan_depends_on_bind_values : Set at Parse if the plan depends on the value of a bind parameter.
+	 *	bind_parm_values	    : Set at Bind (NULL at Parse). One entry per bind parameter: the entry for $1 is at
+	 *				      index 0, for $2 at index 1, and so on.
+	 *	num_bind_parm_values	    : Number of entries in "bind_parm_values".
+	 */
+	boolean_t      plan_depends_on_bind_values;
+	BindParmValue *bind_parm_values;
+	int16_t	       num_bind_parm_values;
 #ifndef NDEBUG
 	int execute_row_limit_parm_index; /* The index of the parameter lvn where the "rows_to_return" value
 					   * of the Execute message (of the Extended query protocol) can be set.

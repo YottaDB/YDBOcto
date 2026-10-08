@@ -2071,6 +2071,37 @@ strcolval2aimsubs(colvalue)
 aimsubs2strcolval(subscript)
 	QUIT $ZEXTRACT(subscript,2,$ZLENGTH(subscript))
 
+likeprefix(patt,icase)
+	; YDBOcto#1158 : Returns the literal prefix of a LIKE pattern, i.e. the text before the first unescaped "%" or "_",
+	; with the escape characters removed. For example, "PAT\%_ENT%" returns "PAT%".
+	; A plan uses it to walk a cross reference over that prefix only, for a WHERE clause like "col LIKE 'PAT%'"
+	; (see LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY in "tmpl_tablejoin.ctemplate").
+	; If "icase" is 1 (ILIKE), the prefix also ends at the first character that has case, as such a character can match
+	; either case and so is no fixed prefix ('12A%' returns "12"). Like PostgreSQL ("like_fixed_prefix()" in
+	; src/backend/utils/adt/like_support.c), that is an ASCII letter or any non-ASCII byte.
+	; The escape handling must stay in sync with "pattransform" above and with "src/get_like_prefix_operation.c".
+	; The pattern is scanned byte by byte (like "pattransform"). That is safe in UTF-8 mode too, as "%", "_" and "\"
+	; never occur inside a multi-byte character.
+	; A pattern that ends in an escape character is an error. "pattransform" issues it only when a row is checked, and the
+	; walk over the prefix may check no row at all. So issue it here, which makes it independent of the rows walked.
+	; The whole pattern is therefore scanned, not just the prefix ("prefixdone" is set where the prefix ends).
+	; Letters are tested by byte value ($ZASCII), not with ?1A, as a byte of a multi-byte character is not a valid
+	; character on its own in UTF-8 mode.
+	QUIT:$ZYISSQLNULL(patt) $ZYSQLNULL
+	NEW i,len,ch,prefix,prefixdone,byte
+	SET len=$ZLENGTH(patt),prefix="",prefixdone=0,icase=+$GET(icase)
+	FOR i=1:1:len SET ch=$ZEXTRACT(patt,i) DO
+	. IF "\"=ch DO  QUIT
+	. . ; Escape character. The next character is a literal.
+	. . DO:(i=len) throwregexerr(patt)
+	. . SET i=i+1,ch=$ZEXTRACT(patt,i)
+	. . SET byte=$ZASCII(ch) SET:icase&((127<byte)!((64<byte)&(91>byte))!((96<byte)&(123>byte))) prefixdone=1
+	. . SET:'prefixdone prefix=prefix_ch
+	. IF ("%"=ch)!("_"=ch) SET prefixdone=1 QUIT
+	. SET byte=$ZASCII(ch) SET:icase&((127<byte)!((64<byte)&(91>byte))!((96<byte)&(123>byte))) prefixdone=1
+	. SET:'prefixdone prefix=prefix_ch
+	QUIT prefix
+
 ; -------------------------------------------------------------------------------------------------------------------
 ; YDBOcto#1146 : Accessors that let an M routine invoked from an EXTRACT column expression or from an ITERATOR key
 ; column expression find out which table and column it is working on.

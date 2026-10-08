@@ -93,3 +93,16 @@ teardown() {
 	run_go update_extended_query_protocol $test_port 2>&1 | tee output.txt
 	verify_output TPGC009 output.txt
 }
+
+@test "TPGC010 : OCTO1158 : LIKE with a bind parameter pattern: \$2 before \$1, Bind format codes, table dropped before Bind" {
+	load_fixture TPGC010.sql subtest novv
+	# Restart rocto so it allows schema changes, as part 3 drops a table. The rocto server that runs the prepared
+	# statement then finds its cached table out of date, which a debug build only allows with the below env var.
+	export octo_dbg_drop_cache_expected=1
+	stop_rocto
+	test_port=$(start_rocto 1337 -aw)
+	echo "" >> output.txt
+	echo "# Run TPGC010 (Go)." >> output.txt
+	run_go TPGC010 $test_port >> output.txt 2>&1
+	verify_output TPGC010 output.txt nodebug noinfo
+}

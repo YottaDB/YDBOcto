@@ -255,6 +255,52 @@ teardown() {
 	verify_output TJC023 output.txt nodebug noinfo
 }
 
+@test "TJC025 : OCTO1158 : LIKE with a bind parameter pattern walks the cross reference over the prefix of the bound value" {
+	load_fixture TJC025.sql subtest novv
+	echo "" >> output.txt
+	echo "# 1. Run TJC025.java. The rows of [v LIKE ?] and of [COALESCE(v, NULL) LIKE ?] must be the same." >> output.txt
+	run_java TJC025 $test_port >> output.txt 2>&1
+	echo "" >> output.txt
+	echo "# 2. Verify the plan each kind of bound value gets. Each value below is bound once, on a new connection," >> output.txt
+	echo "# and the plan that Bind picked is looked up in rocto.log (INFO_M_PLAN / INFO_REUSE_M_PLAN). Plans are named" >> output.txt
+	echo "# A, B, C ... in the order they are first used, and their M code is shown the first time." >> output.txt
+	echo "#   'PAT'     : \"=\", fixes the key of column v to the value ([SET ...\"v\")=%ydboctoexpr]), as for a literal 'PAT'" >> output.txt
+	echo "#   'PAT%'    : walks the cross reference over 'PAT' ([likeprefix] and [\$ZEXTRACT]), no [regexmatch]" >> output.txt
+	echo "#   'PAT%ENT' : walks the cross reference over 'PAT' and checks the full LIKE ([regexmatch]) on each row found" >> output.txt
+	echo "#   '%AT'     : table scan, only [regexmatch] (also the plan of the Parse message)" >> output.txt
+	echo "# For ILIKE the prefix ends at the first letter ([likeprefix(...,1)], [regexmatch(...,2)], 2 = case-insensitive)." >> output.txt
+	echo "# '12' and '12%' match exactly what LIKE does, so they get the plans of 'PAT' and 'PAT%'." >> output.txt
+	declare -A plan_label
+	next_label=0
+	labels=(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+	for spec in "LIKE PAT" "LIKE PAT%" "LIKE PAT%ENT" "LIKE %AT" "ILIKE 12" "ILIKE 12%" "ILIKE 12A%" "ILIKE pat%"; do
+		read -r operator pattern <<< "$spec"
+		rocto_log_lines=$(wc -l < rocto.log)
+		echo "" >> output.txt
+		run_java TJC025 $test_port "" $operator "$pattern" >> output.txt 2>&1
+		plan=$(tail -n +$((rocto_log_lines + 1)) rocto.log | grep -oE '_ydboctoP[A-Za-z0-9]+\.m' | tail -1)
+		if [[ -n ${plan_label[$plan]} ]]; then
+			echo "  Plan ${plan_label[$plan]} (same plan as above)" >> output.txt
+			continue
+		fi
+		plan_label[$plan]=${labels[$next_label]}
+		next_label=$((next_label + 1))
+		echo "  Plan ${plan_label[$plan]}:" >> output.txt
+		grep -hoE '\$\$likeprefix\^%ydboctoplanhelpers\([^)]*\)|QUIT:.*\$ZEXTRACT\(%ydboctozkeyfix[^ ]*|\$\$regexmatch\^%ydboctoplanhelpers\(%ydboctoexpr\([0-9]*\),%ydboctoexpr,[0-9],[0-9]\)|SET %ydboctocursor\(cursorId,"keys",[0-9]+,"tjc025","v"\)=%ydboctoexpr' $plan | sed 's/^/    /' >> output.txt
+	done
+	echo "" >> output.txt
+	echo "# 3. Verify the cross references built. TJC025B was only queried with values that have no prefix, so each" >> output.txt
+	echo "# Bind picked the table scan plan and no cross reference was built for TJC025B.v." >> output.txt
+	for table in tjc025 tjc025b; do
+		if grep -qh "maintains cross reference for v column in $table table" _ydboctoX*.m 2>/dev/null; then
+			echo "$table.v : cross reference built" >> output.txt
+		else
+			echo "$table.v : no cross reference" >> output.txt
+		fi
+	done
+	verify_output TJC025 output.txt nodebug noinfo
+}
+
 @test "TJC024 : OCTO1081 : Rocto exits and closes the connection when it has a send error using the extended query protocol" {
 	stop_rocto
 	# Fixture uses Northwind database to help construct long running query with lots of return data

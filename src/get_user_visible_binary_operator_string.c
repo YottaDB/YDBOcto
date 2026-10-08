@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2022-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -74,9 +74,12 @@ char *get_user_visible_binary_operator_string(enum BinaryOperations operation) {
 		ret = "~*";
 		break;
 	case BOOLEAN_REGEX_SENSITIVE_LIKE:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 		ret = "LIKE";
 		break;
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 		ret = "ILIKE";
 		break;
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:

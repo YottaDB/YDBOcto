@@ -178,9 +178,44 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					case LP_BOOLEAN_GREATER_THAN:
 					case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 					case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-						assert(!IS_NULL_FIXED_VALUE(key->fixed_to_value));
-						TMPL(tmpl_print_dots, dot_count);
+					case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+					case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+					case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:;
+						boolean_t	is_like_prefix;
 
+						assert(!IS_NULL_FIXED_VALUE(key->fixed_to_value));
+						/* A LIKE or ILIKE whose pattern starts with a literal prefix (YDBOcto#1158). This walks the
+						 * column's AIM cross reference like ">=" does, starting at the prefix (inclusive), but
+						 * stops at the first value that does not start with the prefix. The prefix is kept in
+						 * PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key,1). It is taken from the pattern at runtime as
+						 * the pattern is a plan parameter. AIM stores a string column value as "#"_value, so all
+						 * values (including canonical numbers) collate as strings and the values that share a
+						 * prefix form one contiguous block. Hence the first value outside the prefix ends the
+						 * walk. The optimizer only gets here for an AIM cross reference key in ascending order.
+						 */
+						is_like_prefix = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == key->fixed_to_value_type)
+								|| (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == key->fixed_to_value_type)
+								|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type));
+						assert(!is_like_prefix || (key->is_cross_reference_key && ('^' == key->xref_prefix[0])
+										&& !key->emit_desc_order));
+						TMPL(tmpl_print_dots, dot_count);
+						if (is_like_prefix) {
+							%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1){}%
+							%{}=$$likeprefix^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}{}%
+							if (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type) {
+								/* ILIKE: the prefix ends at the first letter (see "likeprefix") */
+								%{},1{}%
+							}
+							%{}){}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+							%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+							%{}={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1){}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+							TMPL(tmpl_print_dots, dot_count);
+						}
+
+						if (!is_like_prefix) {
 						%{}SET {}%
 						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
 						switch(key->fixed_to_value_type) {
@@ -224,11 +259,23 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						default:
 							break;
 						}
+						}
+						/* The argumentless DO below runs the body once for the start value itself (the range
+						 * includes it) before the FOR loop moves past it.
+						 */
 						if ((!key->emit_desc_order
 								&& (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == key->fixed_to_value_type))
 						    	|| (key->emit_desc_order
 								&& (LP_BOOLEAN_LESS_THAN_OR_EQUALS == key->fixed_to_value_type))) {
 							%{}DO  {}%
+						} else if (is_like_prefix) {
+							/* Same for a LIKE prefix, except when the prefix is empty. That is only possible
+							 * for a bind parameter pattern (e.g. '%PAT' bound to $1). The start value would
+							 * then be "", whose cross reference entry holds the rows where the column is
+							 * NULL, and the body would see their value as "" instead of NULL. LIKE never
+							 * matches NULL, so skip that entry. The FOR loop then walks every other entry.
+							 */
+							%{}DO:""'={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})  {}%
 						}
 						%{}IF '$ZYISSQLNULL({}%
 						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
@@ -396,6 +443,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
 									%{},{{ cur_key|%d }}){}%
 								}
+								break;
+							case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+							case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+							case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+								/* Stop at the first value that does not start with the prefix.
+								 * $ZEXTRACT/$ZLENGTH compare bytes. That is correct in UTF-8 mode too, as
+								 * a byte prefix of a valid UTF-8 string that equals a valid UTF-8 string
+								 * always ends on a character boundary.
+								 */
+								%{}$ZEXTRACT({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+								%{},{{ cur_key|%d }}),1,$ZLENGTH({{ PP_YDB_OCTO_ZKEYFIX }}{}%
+								%{}({{ key->unique_id|%d }},{{ cur_key|%d }},1))){}%
+								%{}'={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+								%{},{{ cur_key|%d }},1){}%
 								break;
 							default:
 								assert(FALSE);

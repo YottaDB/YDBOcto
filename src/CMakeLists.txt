@@ -223,6 +223,7 @@ add_library(libocto OBJECT
   get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_psql_type.c
   get_sqlvaluetype_from_sqldatatype.c
+  get_like_prefix_operation.c
   get_user_visible_binary_operator_string.c
   get_user_visible_data_type_string.c
   get_user_visible_type_string.c
@@ -410,6 +411,8 @@ endif()
 
 add_library(librocto OBJECT
   rocto/copy_bind_parameter.c
+  rocto/get_bind_replan_routine.c
+  rocto/store_bind_replan_info.c
   rocto/deserialize.c
   rocto/get_pid_start_time.c
   rocto/read_bind.c

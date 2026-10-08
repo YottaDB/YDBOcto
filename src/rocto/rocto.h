@@ -211,6 +211,8 @@ void  bin_to_uuid(char *bin, char *buffer);
 
 // Utility functions for copying Bind parameters into query string
 int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query);
+int32_t store_bind_replan_info(Parse *parse, RoctoSession *session);
+int32_t get_bind_replan_routine(Bind *bind, RoctoSession *session, ydb_buffer_t *routine_buf);
 int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm);
 
 // Helper to extract column values from delimited row string

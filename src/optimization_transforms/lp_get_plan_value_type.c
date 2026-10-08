@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -133,6 +133,9 @@ SqlValueType lp_get_plan_value_type(LogicalPlan *plan) {
 		case LP_BOOLEAN_REGEX_INSENSITIVE:
 		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
 		case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
 		case LP_BOOLEAN_IN:
 		case LP_BOOLEAN_NOT_IN:

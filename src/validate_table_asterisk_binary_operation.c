@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -184,6 +184,9 @@ int validate_table_asterisk_binary_operation(SqlBinaryOperation *binary, SqlValu
 	case BOOLEAN_REGEX_SENSITIVE_LIKE:
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 	case ADDITION:
 	case SUBTRACTION:
 	case DIVISION:

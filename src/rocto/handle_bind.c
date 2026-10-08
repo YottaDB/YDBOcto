@@ -566,6 +566,27 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		parm_value_buf.len_used = 0; // Reset to empty buffer before reuse on next parameter
 	}
 	assert(cur_bind_parm == num_bind_parms);
+	/* If the plan of the query depends on the values of bind parameters (e.g. "col LIKE $1"), the plan from the Parse
+	 * message is one that is right for any value (a table scan for "col LIKE $1"). Now that the values are known, switch the
+	 * portal to the plan for them (e.g. one that walks a cross reference for 'PAT%'). See "get_bind_replan_routine()"
+	 * (YDBOcto#1158).
+	 */
+	OCTO_SET_BUFFER(routine_buf, routine_str);
+	status = get_bind_replan_routine(bind, session, &routine_buf);
+	if (0 > status) {
+		CLEANUP_FROM_BIND();
+		return GENERIC_ERROR;
+	}
+	if (1 == status) {
+		// SET %ydboctosession(id,"bound",<portal>,"routine")=<plan routine for the bound values>
+		YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &portal_subs[4]);
+		status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &routine_buf);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			CLEANUP_FROM_BIND();
+			return GENERIC_ERROR;
+		}
+	}
 	free(parse_context.types);
 	free(parse_context_array);
 	YDB_FREE_BUFFER(&parm_value_buf);

@@ -199,6 +199,17 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			GET_LP_ALLOW_NULL(list, list, 1, LP_COLUMN_LIST);
 		} while (NULL != list);
 		break;
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+		/* A LIKE or ILIKE whose pattern starts with a literal prefix (YDBOcto#1158). The cross reference of the
+		 * column can be walked over that prefix only if the column is on the left and the pattern literal is on the
+		 * right. LIKE is not symmetric, so the operands are never swapped (unlike "=" or "<" etc.).
+		 */
+		if ((LP_COLUMN_ALIAS != left->type) || (LP_VALUE != right->type)) {
+			return where;
+		}
+		break;
 	default:
 		return where; /* The only things we currently optimize are the above "case" blocks */
 		break;
@@ -401,7 +412,11 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	}
 	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_LESS_THAN == type) || (LP_BOOLEAN_GREATER_THAN == type)
 	       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == type) || (LP_BOOLEAN_IN == type)
-	       || (LP_BOOLEAN_IS == type));
+	       || (LP_BOOLEAN_IS == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type)
+	       || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type));
+	assert(!operands_swapped
+	       || ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY != type) && (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX != type)
+		   && (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX != type)));
 	right_table_alias = (SqlTableAlias *)ptr;
 	if (NULL != right_table_alias) {
 		/* This is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
@@ -461,11 +476,29 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_EQUALS:
 		break;
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+		/* No END check needed. This only walks the AIM cross reference of a non-key column (a key column is rejected
+		 * further below), and END only ends the FOR loop of a key column over the table's own global.
+		 */
+		break;
 	default:
 		assert(FALSE);
 		break;
 	}
+	boolean_t is_like_prefix;
+	is_like_prefix = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type)
+			  || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type));
 	key = lp_get_key(plan, left);
+	if (is_like_prefix && (NULL != key) && (!key->is_cross_reference_key || ('^' != key->xref_prefix[0]))) {
+		/* LIKE with a prefix on a key column. The rows are walked in the order of the table's own global, where
+		 * values that are canonical numbers (e.g. '12', '120') sort before all other strings (e.g. '12a').
+		 * So the values sharing a prefix do not form one contiguous block and a prefix walk would miss rows.
+		 * The same is true of a cross reference kept in a local variable (see the "is_like_prefix" check below).
+		 */
+		return where;
+	}
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
 		SqlTable *table;
@@ -474,6 +507,23 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		// Tables with iterators cannot be cross-referenced
 		if (TRUE == table->has_iterator) {
 			return where;
+		}
+		if (is_like_prefix) {
+			SqlOptionalKeyword *like_source_keyword;
+
+			/* Same choice of source as the "key->xref_prefix" computation below */
+			like_source_keyword = get_keyword(column, OPTIONAL_GLOBAL);
+			if (NULL == like_source_keyword) {
+				UNPACK_SQL_STATEMENT(like_source_keyword, table->source, keyword);
+			}
+			if ('^' != like_source_keyword->v->v.value->v.string_literal[0]) {
+				/* The column lives in a local variable, so its cross reference would too. That cross reference
+				 * stores a string column value as is, so canonical numbers sort before all other strings there
+				 * as well (see the key column case above). Only an AIM cross reference (of a column in a global)
+				 * stores a string column value as "#"_value, which keeps all values that share a prefix together.
+				 */
+				return where;
+			}
 		}
 		generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
 		if (NULL == generated_xref_keys) {
@@ -600,6 +650,15 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 * with keys from parent queries which is handled further below.
 		 */
 		remove_lp_boolean_equals = ((NULL != right_table_alias) || (0 == num_outer_joins));
+		if ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type)) {
+			/* The pattern has more after its prefix (e.g. 'PAT%ENT', or the ILIKE '12A%' whose prefix is '12'). The
+			 * cross reference walk only guarantees the prefix, so each row it finds still needs the full LIKE or
+			 * ILIKE check. Keep it in the WHERE/ON clause.
+			 * With LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY (e.g. 'PAT%'), the walk finds exactly the rows the
+			 * LIKE matches, so the LIKE can be removed like an "=".
+			 */
+			remove_lp_boolean_equals = FALSE;
+		}
 		if (remove_lp_boolean_equals) {
 			if (left_id && right_id && ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id]))) {
 				/* Both are columns and one of them belongs to a parent query. In that case, do not eliminate this

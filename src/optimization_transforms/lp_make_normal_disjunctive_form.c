@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -68,7 +68,10 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 			}
 		} else if ((LP_BOOLEAN_REGEX_SENSITIVE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE == type)
 			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
-			   || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type) || (LP_COERCE_TYPE == type) || (LP_ADDITION > type)) {
+			   || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type)
+			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type)
+			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type)
+			   || (LP_COERCE_TYPE == type) || (LP_ADDITION > type)) {
 			/* If "NOT NOT", then remove both of them. If "NOT", then need to return with the "NOT".
 			 * Hence the check for "count % 2" below and different return values.
 			 */

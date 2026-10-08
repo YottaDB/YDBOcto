@@ -1,0 +1,128 @@
+
+-- TJC025 : OCTO1158 : LIKE / ILIKE with a bind parameter as the pattern ("WHERE v LIKE ?" from a JDBC prepared statement)
+-- Rocto plans the query when it gets the Parse message, before the value is known. The best plan depends on the value:
+-- 'PAT%' can walk the cross reference of column v over the prefix 'PAT', '%PAT' cannot. So rocto picks the plan again
+-- when each Bind message supplies the value. This test verifies that:
+--   1. "v LIKE ?" returns the same rows as "COALESCE(v, NULL) LIKE ?" (not on a column, so it checks every row).
+--   2. Each kind of bound value gets the expected plan.
+--   3. A table only queried with values that have no prefix gets no cross reference.
+
+CREATE TABLE TJC025 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TJC025";
+INSERT INTO TJC025 VALUES (1,'PAT'),(2,'PATIENT'),(3,'PATENT'),(4,'PAU'),(5,'PA'),(6,'12'),(7,'120'),(8,'12a'),(9,'2');
+INSERT INTO TJC025 VALUES (10,'PAT%X'),(11,'PAT_Y'),(12,NULL),(13,''),(14,'añb'),(15,'añ'),(16,'ao'),(17,'pat');
+SELECT * FROM TJC025 ORDER BY id;
+-- Same data in a second table, which TJC025.java only queries with patterns that have no prefix
+CREATE TABLE TJC025B (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TJC025B";
+INSERT INTO TJC025B SELECT * FROM TJC025;
+OCTO> CREATE TABLE TJC025 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TJC025";
+CREATE TABLE
+OCTO> INSERT INTO TJC025 VALUES (1,'PAT'),(2,'PATIENT'),(3,'PATENT'),(4,'PAU'),(5,'PA'),(6,'12'),(7,'120'),(8,'12a'),(9,'2');
+INSERT 0 9
+OCTO> INSERT INTO TJC025 VALUES (10,'PAT%X'),(11,'PAT_Y'),(12,NULL),(13,''),(14,'añb'),(15,'añ'),(16,'ao'),(17,'pat');
+INSERT 0 8
+OCTO> SELECT * FROM TJC025 ORDER BY id;
+id|v
+1|PAT
+2|PATIENT
+3|PATENT
+4|PAU
+5|PA
+6|12
+7|120
+8|12a
+9|2
+10|PAT%X
+11|PAT_Y
+12|
+13|
+14|añb
+15|añ
+16|ao
+17|pat
+(17 rows)
+OCTO> CREATE TABLE TJC025B (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TJC025B";
+CREATE TABLE
+OCTO> INSERT INTO TJC025B SELECT * FROM TJC025;
+INSERT 0 17
+OCTO> 
+
+# 1. Run TJC025.java. The rows of [v LIKE ?] and of [COALESCE(v, NULL) LIKE ?] must be the same.
+setString('PAT%') : v LIKE ? -> [1,2,3,10,11] : COALESCE(v, NULL) LIKE ? -> [1,2,3,10,11]
+setString('PAT%%') : v LIKE ? -> [1,2,3,10,11] : COALESCE(v, NULL) LIKE ? -> [1,2,3,10,11]
+setString('PATIENT%') : v LIKE ? -> [2] : COALESCE(v, NULL) LIKE ? -> [2]
+setString('ZZZ%') : v LIKE ? -> [] : COALESCE(v, NULL) LIKE ? -> []
+setString('PAT%ENT') : v LIKE ? -> [2,3] : COALESCE(v, NULL) LIKE ? -> [2,3]
+setString('PAT_ENT') : v LIKE ? -> [2] : COALESCE(v, NULL) LIKE ? -> [2]
+setString('PAT') : v LIKE ? -> [1] : COALESCE(v, NULL) LIKE ? -> [1]
+setString('PAT\%%') : v LIKE ? -> [10] : COALESCE(v, NULL) LIKE ? -> [10]
+setString('PAT\_%') : v LIKE ? -> [11] : COALESCE(v, NULL) LIKE ? -> [11]
+setString('12%') : v LIKE ? -> [6,7,8] : COALESCE(v, NULL) LIKE ? -> [6,7,8]
+setString('añ%') : v LIKE ? -> [14,15] : COALESCE(v, NULL) LIKE ? -> [14,15]
+setString('a%') : v LIKE ? -> [14,15,16] : COALESCE(v, NULL) LIKE ? -> [14,15,16]
+setString('%AT') : v LIKE ? -> [1] : COALESCE(v, NULL) LIKE ? -> [1]
+setString('_AT%') : v LIKE ? -> [1,2,3,10,11] : COALESCE(v, NULL) LIKE ? -> [1,2,3,10,11]
+setString('%') : v LIKE ? -> [1,2,3,4,5,6,7,8,9,10,11,14,15,16,17] : COALESCE(v, NULL) LIKE ? -> [1,2,3,4,5,6,7,8,9,10,11,14,15,16,17]
+setString('') : v LIKE ? -> [] : COALESCE(v, NULL) LIKE ? -> []
+setString('PAT\') : v LIKE ? -> SQL State: 22025 : ERROR: Cannot end pattern with escape character: PAT\
+setString('ZZZ\') : v LIKE ? -> SQL State: 22025 : ERROR: Cannot end pattern with escape character: ZZZ\
+setString('PAT%\') : v LIKE ? -> SQL State: 22025 : ERROR: Cannot end pattern with escape character: PAT%\
+TJC025B : setString('%AT') : v LIKE ? -> [1]
+TJC025B : setString('_AT%') : v LIKE ? -> [1,2,3,10,11]
+TJC025B : setString('%') : v LIKE ? -> [1,2,3,4,5,6,7,8,9,10,11,14,15,16,17]
+TJC025B : setString('') : v LIKE ? -> []
+setString('12%') : v ILIKE ? -> [6,7,8] : COALESCE(v, NULL) ILIKE ? -> [6,7,8]
+setString('12A%') : v ILIKE ? -> [8] : COALESCE(v, NULL) ILIKE ? -> [8]
+setString('12') : v ILIKE ? -> [6] : COALESCE(v, NULL) ILIKE ? -> [6]
+setString('pat%') : v ILIKE ? -> [1,2,3,10,11,17] : COALESCE(v, NULL) ILIKE ? -> [1,2,3,10,11,17]
+setObject('PAT%', Types.OTHER) : v LIKE ? -> [1,2,3,10,11] : COALESCE(v, NULL) LIKE ? -> [1,2,3,10,11]
+setString('PAT%') : v LIKE ? AND v <> '<1100 x Z>' (a query of more than 1024 bytes) -> [1,2,3,10,11]
+
+# 2. Verify the plan each kind of bound value gets. Each value below is bound once, on a new connection,
+# and the plan that Bind picked is looked up in rocto.log (INFO_M_PLAN / INFO_REUSE_M_PLAN). Plans are named
+# A, B, C ... in the order they are first used, and their M code is shown the first time.
+#   'PAT'     : "=", fixes the key of column v to the value ([SET ..."v")=%ydboctoexpr]), as for a literal 'PAT'
+#   'PAT%'    : walks the cross reference over 'PAT' ([likeprefix] and [$ZEXTRACT]), no [regexmatch]
+#   'PAT%ENT' : walks the cross reference over 'PAT' and checks the full LIKE ([regexmatch]) on each row found
+#   '%AT'     : table scan, only [regexmatch] (also the plan of the Parse message)
+# For ILIKE the prefix ends at the first letter ([likeprefix(...,1)], [regexmatch(...,2)], 2 = case-insensitive).
+# '12' and '12%' match exactly what LIKE does, so they get the plans of 'PAT' and 'PAT%'.
+
+[v LIKE ?] bound to 'PAT' -> [1]
+  Plan A:
+    SET %ydboctocursor(cursorId,"keys",1,"tjc025","v")=%ydboctoexpr
+
+[v LIKE ?] bound to 'PAT%' -> [1,2,3,10,11]
+  Plan B:
+    $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr)
+    QUIT:(%ydboctozkeyfix(1,0)="")!($ZEXTRACT(%ydboctozkeyfix(1,0),1,$ZLENGTH(%ydboctozkeyfix(1,0,1)))'=%ydboctozkeyfix(1,0,1))
+
+[v LIKE ?] bound to 'PAT%ENT' -> [2,3]
+  Plan C:
+    $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr)
+    QUIT:(%ydboctozkeyfix(1,0)="")!($ZEXTRACT(%ydboctozkeyfix(1,0),1,$ZLENGTH(%ydboctozkeyfix(1,0,1)))'=%ydboctozkeyfix(1,0,1))
+    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+
+[v LIKE ?] bound to '%AT' -> [1]
+  Plan D:
+    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+
+[v ILIKE ?] bound to '12' -> [6]
+  Plan A (same plan as above)
+
+[v ILIKE ?] bound to '12%' -> [6,7,8]
+  Plan B (same plan as above)
+
+[v ILIKE ?] bound to '12A%' -> [8]
+  Plan E:
+    $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr,1)
+    QUIT:(%ydboctozkeyfix(1,0)="")!($ZEXTRACT(%ydboctozkeyfix(1,0),1,$ZLENGTH(%ydboctozkeyfix(1,0,1)))'=%ydboctozkeyfix(1,0,1))
+    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+
+[v ILIKE ?] bound to 'pat%' -> [1,2,3,10,11,17]
+  Plan F:
+    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+
+# 3. Verify the cross references built. TJC025B was only queried with values that have no prefix, so each
+# Bind picked the table scan plan and no cross reference was built for TJC025B.v.
+tjc025.v : cross reference built
+tjc025b.v : no cross reference

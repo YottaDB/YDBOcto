@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2023-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -186,6 +186,9 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 				case LP_BOOLEAN_GREATER_THAN:
 				case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 				case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+				case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+				case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+				case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 					/* This is an xref key that is used for a range of key values.
 					 * For the same reasons as described in the previous comment block (LIST of values)
 					 * disable the ORDER BY optimization in this case.

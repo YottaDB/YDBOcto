@@ -196,6 +196,11 @@
 #define OCTO_EXTRACT_LIT    "octoExtract"  /* keep this in sync with PP_OCTO_EXTRACT in "template_helpers.h" */
 #define OCTO_ITERATOR_LIT   "octoIterator" /* keep this in sync with PP_OCTO_ITERATOR in "template_helpers.h" */
 
+/* Prepared statement node for a plan that depends on the values of bind parameters (YDBOcto#1158).
+ * See "store_bind_replan_info()".
+ */
+#define OCTOLIT_PARSETYPES "parsetypes"
+
 #define OCTOLIT_0			    "0"
 #define OCTOLIT_ALL			    "all"
 #define OCTOLIT_BINARY			    "binary"
@@ -434,7 +439,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 26
+#define FMT_BINARY_DEFINITION 27
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -443,7 +448,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 53
+#define FMT_PLAN_DEFINITION 54
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
@@ -1508,6 +1513,13 @@ int   delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffe
 int   regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
 int   store_plandirs_gvn(char *plan_filename);
 char *get_date_time_format_string(enum OptionalKeyword keyword);
+
+/* YDBOcto#1158 : "get_like_prefix_operation()" takes the pattern of a LIKE or ILIKE as it is in the query (a literal, a bind
+ * parameter such as $1, or anything else), finds its text (for $1, the bound value), and calls
+ * "get_like_prefix_operation_of_pattern()", which looks only at the bytes of that text.
+ */
+BinaryOperations get_like_prefix_operation(SqlStatement *stmt, ParseContext *parse_context, boolean_t case_insensitive);
+BinaryOperations get_like_prefix_operation_of_pattern(const char *pattern, size_t pattern_len, boolean_t case_insensitive);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);

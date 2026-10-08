@@ -1,0 +1,45 @@
+
+-- TPGC010 : OCTO1158 : LIKE with a bind parameter pattern, in cases that a JDBC client cannot produce:
+--   1. a query where $2 occurs before $1,
+--   2. Bind messages with no parameter format codes, and with one per parameter (including a binary value),
+--   3. a table dropped by another connection between the Parse and the Bind of a prepared statement.
+-- TJC025 (JDBC) tests the rest of the LIKE bind parameter cases.
+
+CREATE TABLE TPGC010 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TPGC010";
+INSERT INTO TPGC010 VALUES (1, 'PAT'), (2, 'PATX'), (3, 'ZX'), (4, 'AX');
+CREATE TABLE TPGC010B (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TPGC010B";
+INSERT INTO TPGC010B VALUES (1, 'PAT');
+SELECT * FROM TPGC010 ORDER BY id;
+OCTO> CREATE TABLE TPGC010 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TPGC010";
+CREATE TABLE
+OCTO> INSERT INTO TPGC010 VALUES (1, 'PAT'), (2, 'PATX'), (3, 'ZX'), (4, 'AX');
+INSERT 0 4
+OCTO> CREATE TABLE TPGC010B (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TPGC010B";
+CREATE TABLE
+OCTO> INSERT INTO TPGC010B VALUES (1, 'PAT');
+INSERT 0 1
+OCTO> SELECT * FROM TPGC010 ORDER BY id;
+id|v
+1|PAT
+2|PATX
+3|ZX
+4|AX
+(4 rows)
+OCTO> 
+
+# Run TPGC010 (Go).
+# 1. $2 before $1, bound to ('%X', 'PAT%')
+v LIKE $2 AND v <> $1
+  -> [2,3,4]
+COALESCE(v, NULL) LIKE $2 AND v <> $1
+  -> [2,3,4]
+# 2. Bind with no parameter format codes, then with one per parameter (text, binary)
+v LIKE $1 bound to 'PAT%' (no format codes)
+  -> [1,2]
+v LIKE $1 AND v <> $2 bound to ('PAT%' text, 'PAT' binary)
+  -> [2]
+v LIKE $1 bound to 'PATX%' (binary)
+  -> [2]
+# 3. The table is dropped between Parse and Bind
+v LIKE $1 bound to 'PAT%' after DROP TABLE
+  -> ERROR: pq: Unknown table or view: tpgc010b (42P01)

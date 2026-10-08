@@ -3175,6 +3175,20 @@ Variations of LIKE
 
   #. :code:`!~~*` : Negated version of case insensitive LIKE
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LIKE and Cross References
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  A :code:`WHERE` clause such as :code:`column LIKE 'PAT%'` uses the column's cross reference (index) when the pattern starts with literal text (the prefix, :code:`PAT` here). Only the rows whose value starts with the prefix are read, instead of every row of the table. This applies to :code:`LIKE` (and :code:`~~`) and :code:`ILIKE` (and :code:`~~*`) on a non-key column. It does not apply to :code:`NOT LIKE`, a key column, or a pattern that starts with :code:`%` or :code:`_`.
+
+  The cross reference is in case-sensitive order, so for :code:`ILIKE` the prefix ends at the first letter (or non-ASCII character), as a letter can match either case. As in PostgreSQL, :code:`lastname ILIKE '12%'` uses the cross reference while :code:`lastname ILIKE 'smi%'` reads every row.
+
+  .. code-block:: SQL
+
+     SELECT * FROM patients WHERE lastname LIKE 'SMI%';     -- reads only the rows whose lastname starts with SMI
+     SELECT * FROM patients WHERE lastname LIKE 'SMI%TH';   -- same, then checks the full pattern on each of them
+     SELECT * FROM patients WHERE lastname LIKE '%SMITH';   -- reads every row
+
 .. _like-error:
 
 ~~~~~~~~~~~~~

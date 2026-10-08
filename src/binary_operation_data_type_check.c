@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2025 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -328,6 +328,9 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	case BOOLEAN_REGEX_SENSITIVE_LIKE:
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 		if (!result) {
 			int i;
 			for (i = 0; i < 2; i++) {
@@ -360,6 +363,23 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 				}
 				assert((0 == status) || (1 == status));
 				binary->operation = ((0 == status) ? binary->operation : BOOLEAN_EQUALS);
+				if ((0 == status) && (BOOLEAN_REGEX_SENSITIVE_LIKE == binary->operation)
+				    && (column_alias_STATEMENT == binary->operands[0]->type)) {
+					/* The pattern has special characters. If it starts with a literal prefix (e.g. 'PAT%'),
+					 * switch to an operation that lets the optimizer walk a cross reference over that prefix
+					 * (YDBOcto#1158). See "get_like_prefix_operation()" for details. Only a column on the left
+					 * has a cross reference, so any other left operand (e.g. 'abcd' LIKE 'ab%') keeps the
+					 * operation, and its plan, as is.
+					 */
+					binary->operation = get_like_prefix_operation(binary->operands[1], parse_context, FALSE);
+				}
+			} else if ((BOOLEAN_REGEX_INSENSITIVE_LIKE == binary->operation)
+				   && (column_alias_STATEMENT == binary->operands[0]->type)) {
+				/* ILIKE: same as for LIKE above, except that the prefix ends at the first letter (e.g. '12A%' has
+				 * the prefix '12', 'pat%' has none), as PostgreSQL does. An ILIKE pattern without wildcards,
+				 * escapes or letters (e.g. '12') becomes an EQUALS. See "get_like_prefix_operation_of_pattern()".
+				 */
+				binary->operation = get_like_prefix_operation(binary->operands[1], parse_context, TRUE);
 			}
 		}
 		*type = BOOLEAN_VALUE;

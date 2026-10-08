@@ -16,10 +16,21 @@ run(cursorId,routine,wrapInTp)
   ;   We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
   ; * "wrapInTp" is 0 or 1. If 1, the query execution (excluding building any cross references) is wrapped in a TP transaction.
   NEW rtn,zcmpl,%ydboctopgRowNumber
-  SET rtn="^"_routine,zcmpl=$ZCOMPILE
+  SET rtn="^"_routine,zcmpl=$ZCOMPILE DO:$DATA(%ydboctocursor(cursorId,"nullparameters")) nullparameters(cursorId)
   SET:'$ZFIND($ZCONVERT($zcompile,"l"),"-noline_entry") $ZCOMPILE=$ZCOMPILE_" -noline_entry"
   DO @rtn@(cursorId,wrapInTp)
   SET $ZCOMPILE=zcmpl
+  QUIT
+  ;
+nullparameters(cursorId)
+  ; YDBOcto#1127 : A bind parameter whose value is NULL (e.g. from JDBC "setNull()") reaches "run" as an empty string in
+  ; %ydboctocursor(cursorId,"parameters",n), with %ydboctocursor(cursorId,"nullparameters",n) set by "handle_execute.c"
+  ; (C code cannot set a variable to $ZYSQLNULL). Set such parameters to $ZYSQLNULL so the query sees SQL NULL.
+  ; "nullparameters" must stay in sync with OCTOLIT_NULLPARAMETERS in "octo.h".
+  ; This is a separate label, called from an existing line of "run", so the line offsets of "run" (which show up in
+  ; M stack traces, e.g. in a JOBEXAM file) stay the same.
+  NEW parm
+  SET parm="" FOR  SET parm=$ORDER(%ydboctocursor(cursorId,"nullparameters",parm)) QUIT:""=parm  SET %ydboctocursor(cursorId,"parameters",parm)=$ZYSQLNULL
   QUIT
   ;
 xrefMetadata(routine) ; Octo entry point to get AIM xref metadata before creating xref

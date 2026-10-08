@@ -91,6 +91,7 @@ if("${FULL_TEST_SUITE}")
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC022.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC023.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC025.java
+			${PROJECT_SOURCE_DIR}/tests/fixtures/TJC026.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TII12.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/TBCR002.java
 			${PROJECT_SOURCE_DIR}/tests/fixtures/run_multi_query.java

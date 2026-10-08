@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -143,7 +143,22 @@ Bind *read_bind(BaseMessage *message) {
 				free(ret);
 				return NULL;
 			}
-			ret->parms[i].length = ntohl(*((long int *)(length_ptr)));
+			ret->parms[i].length = (int32_t)ntohl(*((uint32_t *)(length_ptr)));
+			if (PSQL_NULL == ret->parms[i].length) {
+				/* A NULL parameter value (e.g. from JDBC "setNull()") has a length of -1 and no value bytes
+				 * after it (YDBOcto#1127). So there is nothing to skip over. Moving "cur_pointer" by -1 would
+				 * misread every field after this one (e.g. the number of result column format codes).
+				 */
+				ret->parms[i].value = NULL;
+				continue;
+			}
+			if (0 > ret->parms[i].length) {
+				/* -1 is the only negative length the protocol allows */
+				ERROR(ERR_ROCTO_MISSING_DATA, "Bind", OCTOLIT_PARAMETERS);
+				free(ret->parms);
+				free(ret);
+				return NULL;
+			}
 			ret->parms[i].value = cur_pointer;
 			cur_pointer += ret->parms[i].length;
 			if (cur_pointer > last_byte) {

@@ -29,6 +29,8 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	QueryResponseParms  parms;
 	EmptyQueryResponse *empty;
 	ydb_buffer_t	    portal_subs[8], cursor_subs[5];
+	ydb_buffer_t	    null_portal_subs[6], null_cursor_subs[4];
+	unsigned int	    data_ret;
 	ydb_buffer_t	    routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t	    schema_global, cursor_buffer;
 	ydb_string_t	    ci_routine;
@@ -128,6 +130,17 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		OCTO_SET_BUFFER(cursor_subs[3], cur_parm_str);
 		OCTO_SET_BUFFER(portal_subs[6], cur_parm_str);
 		OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_buf, OCTO_INIT_BUFFER_LEN);
+		/* Subscripts for the NULL bind parameters noted by "handle_bind()": read from
+		 * ^session(id, OCTOLIT_BOUND, <name>, OCTOLIT_NULLPARAMETERS, <parameter number>) and copied to
+		 * %ydboctocursor(cursorId, OCTOLIT_NULLPARAMETERS, <parameter number>). Both share "cur_parm_str" with the
+		 * subscripts above so they always name the current parameter.
+		 */
+		memcpy(null_portal_subs, portal_subs, sizeof(ydb_buffer_t) * 4);
+		YDB_STRING_TO_BUFFER(OCTOLIT_NULLPARAMETERS, &null_portal_subs[4]);
+		null_portal_subs[5] = portal_subs[6];
+		memcpy(null_cursor_subs, cursor_subs, sizeof(ydb_buffer_t) * 2);
+		YDB_STRING_TO_BUFFER(OCTOLIT_NULLPARAMETERS, &null_cursor_subs[2]);
+		null_cursor_subs[3] = cursor_subs[3];
 		for (cur_parm = 0; cur_parm < num_parms; cur_parm++) {
 			// Get parameter value
 			cur_parm_temp = cur_parm + 1;
@@ -160,6 +173,23 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 					status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 					YDB_ERROR_CHECK(status);
 				}
+				YDB_FREE_BUFFER(&parm_buf);
+				return GENERIC_ERROR;
+			}
+			/* If the value is NULL (e.g. from JDBC "setNull()"), note that on the cursor. C code cannot set the
+			 * parameter itself to $ZYSQLNULL, so "run^%ydboctoselect" does that before the query runs (YDBOcto#1127).
+			 */
+			null_portal_subs[5].len_used = portal_subs[6].len_used;
+			null_cursor_subs[3].len_used = cursor_subs[3].len_used;
+			status = ydb_data_s(&null_portal_subs[0], 5, &null_portal_subs[1], &data_ret);
+			YDB_ERROR_CHECK(status);
+			if ((YDB_OK == status) && data_ret) {
+				status = ydb_set_s(&null_cursor_subs[0], 3, &null_cursor_subs[1], NULL);
+				YDB_ERROR_CHECK(status);
+			}
+			if (YDB_OK != status) {
+				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
+				YDB_ERROR_CHECK(status);
 				YDB_FREE_BUFFER(&parm_buf);
 				return GENERIC_ERROR;
 			}

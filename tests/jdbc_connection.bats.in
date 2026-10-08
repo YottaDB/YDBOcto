@@ -301,6 +301,18 @@ teardown() {
 	verify_output TJC025 output.txt nodebug noinfo
 }
 
+@test "TJC026 : OCTO1127 : Bind parameters whose value is NULL (JDBC setNull())" {
+	load_fixture TJC026.sql subtest novv
+	# Restart rocto in read-write mode as some queries in TJC026.java are INSERT/UPDATE
+	stop_rocto
+	test_port=$(start_rocto 1344 -aw)
+	echo "" >> output.txt
+	echo "# Run TJC026.java. Each statement binds at least one parameter with setNull(). Before YDBOcto#1127, each one" >> output.txt
+	echo "# failed with the [invalid number of result column format codes: -256] error described above." >> output.txt
+	run_java TJC026 $test_port >> output.txt 2>&1
+	verify_output TJC026 output.txt nodebug noinfo
+}
+
 @test "TJC024 : OCTO1081 : Rocto exits and closes the connection when it has a send error using the extended query protocol" {
 	stop_rocto
 	# Fixture uses Northwind database to help construct long running query with lots of return data

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -91,10 +91,10 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	int16_t num_parms = htons(1);
 	message_length += sizeof(int16_t);
 	char	 *parm_value = "parameter";
-	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value) + 1); // count null
-	parm->length = htonl(strlen(parm_value) + 1);
-	memcpy(&parm->value, parm_value, strlen(parm_value) + 1);
-	message_length += sizeof(int) + strlen(parm_value) + 1;
+	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value));
+	parm->length = htonl(strlen(parm_value));
+	memcpy(&parm->value, parm_value, strlen(parm_value));
+	message_length += sizeof(int) + strlen(parm_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(1);
@@ -121,8 +121,8 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm, sizeof(int) + strlen(parm_value) + 1);
-	c += sizeof(int) + strlen(parm_value) + 1;
+	memcpy(c, parm, sizeof(int) + strlen(parm_value));
+	c += sizeof(int) + strlen(parm_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -172,10 +172,10 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	int16_t num_parms = htons(1);
 	message_length += sizeof(int16_t);
 	char	 *parm_value = "parameter";
-	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value) + 1); // count null
-	parm->length = htonl(strlen(parm_value) + 1);
-	memcpy(&parm->value, parm_value, strlen(parm_value) + 1);
-	message_length += sizeof(int) + strlen(parm_value) + 1;
+	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value));
+	parm->length = htonl(strlen(parm_value));
+	memcpy(&parm->value, parm_value, strlen(parm_value));
+	message_length += sizeof(int) + strlen(parm_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(1);
@@ -204,8 +204,8 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm, sizeof(int) + strlen(parm_value) + 1);
-	c += sizeof(int) + strlen(parm_value) + 1;
+	memcpy(c, parm, sizeof(int) + strlen(parm_value));
+	c += sizeof(int) + strlen(parm_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -254,16 +254,16 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	message_length += sizeof(int16_t);
 	// First parameter
 	char	 *parm1_value = "parameter1";
-	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
-	parm1->length = htonl(strlen(parm1_value) + 1);
-	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
-	message_length += sizeof(int) + strlen(parm1_value) + 1;
+	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value));
+	parm1->length = htonl(strlen(parm1_value));
+	memcpy(&parm1->value, parm1_value, strlen(parm1_value));
+	message_length += sizeof(int) + strlen(parm1_value);
 	// Second parameter
 	char	 *parm2_value = "parameter2";
-	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
-	parm2->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
-	message_length += sizeof(int) + strlen(parm2_value) + 1;
+	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value));
+	parm2->length = htonl(strlen(parm2_value));
+	memcpy(&parm2->value, parm2_value, strlen(parm2_value));
+	message_length += sizeof(int) + strlen(parm2_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(2);
@@ -290,10 +290,10 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
-	c += sizeof(int) + strlen(parm1_value) + 1;
-	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
-	c += sizeof(int) + strlen(parm2_value) + 1;
+	memcpy(c, parm1, sizeof(int) + strlen(parm1_value));
+	c += sizeof(int) + strlen(parm1_value);
+	memcpy(c, parm2, sizeof(int) + strlen(parm2_value));
+	c += sizeof(int) + strlen(parm2_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -323,6 +323,96 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	free(bind);
 }
 
+static void test_valid_input_null_parm_then_parm(void **state) {
+	/* A NULL parameter value (length -1, no value bytes) followed by a non-NULL one (YDBOcto#1127). Before the fix,
+	 * read_bind() moved back 1 byte for the NULL value, misread the second parameter and then the number of result
+	 * column format codes (e.g. -256 instead of 1).
+	 */
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t); // length
+
+	// Strings
+	char *dest = "Hello";
+	message_length += strlen(dest) + 1; // count null
+	char *source = "INSERT INTO names VALUES ($1, $2);";
+	message_length += strlen(source) + 1; // count null
+
+	// Format codes
+	int16_t num_parm_format_codes = htons(0);
+	message_length += sizeof(int16_t);
+
+	// Parameters
+	int16_t num_parms = htons(2);
+	message_length += sizeof(int16_t);
+	// First parameter: NULL, so only its length (-1) is in the message
+	int32_t parm1_length = htonl(-1);
+	message_length += sizeof(int32_t);
+	// Second parameter
+	char   *parm2_value = "parameter2";
+	int32_t parm2_length = htonl(strlen(parm2_value));
+	message_length += sizeof(int32_t) + strlen(parm2_value);
+
+	// Column format codes
+	int16_t num_result_col_format_codes = htons(1);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[1] = {0}; // arbitrary col format code
+	message_length += sizeof(col_formats);
+
+	char *c = NULL;
+
+	// Create and initialize base message
+	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	test_data->type = PSQL_Bind;
+	test_data->length = htonl(message_length);
+	// Copy strings into message
+	c = test_data->data;
+	memcpy(c, dest, strlen(dest) + 1); // include null
+	c += strlen(dest) + 1;
+	memcpy(c, source, strlen(source) + 1); // include null
+	c += strlen(source) + 1;
+
+	// Copy parameter codes into message
+	*((int16_t *)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
+	// Copy parameters into message
+	*((int16_t *)c) = num_parms;
+	c += sizeof(int16_t);
+	memcpy(c, &parm1_length, sizeof(int32_t));
+	c += sizeof(int32_t);
+	memcpy(c, &parm2_length, sizeof(int32_t));
+	c += sizeof(int32_t);
+	memcpy(c, parm2_value, strlen(parm2_value));
+	c += strlen(parm2_value);
+	// Copy column format codes into message
+	*((int16_t *)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
+	memcpy(c, col_formats, sizeof(col_formats));
+	c += sizeof(col_formats);
+
+	// The actual test
+	Bind *bind = read_bind(test_data);
+
+	// Standard checks
+	assert_non_null(bind);
+	assert_string_equal(bind->dest, dest);
+	assert_string_equal(bind->source, source);
+	assert_int_equal(bind->num_parm_format_codes, ntohs(num_parm_format_codes));
+	assert_int_equal(bind->num_parms, ntohs(num_parms));
+	assert_int_equal(bind->num_result_col_format_codes, ntohs(num_result_col_format_codes));
+
+	// The NULL parameter, then the second parameter read from the right place
+	assert_non_null(bind->parms);
+	assert_int_equal(bind->parms[0].length, -1);
+	assert_null(bind->parms[0].value);
+	assert_int_equal(bind->parms[1].length, strlen(parm2_value));
+	assert_memory_equal(bind->parms[1].value, parm2_value, strlen(parm2_value));
+	assert_non_null(bind->result_col_format_codes);
+
+	free(test_data);
+	free(bind->parms);
+	free(bind);
+}
+
 static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	// Test a valid, simple, Bind command
 	int32_t message_length = 0;
@@ -345,16 +435,16 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	message_length += sizeof(int16_t);
 	// First parameter
 	char	 *parm1_value = "parameter1";
-	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
-	parm1->length = htonl(strlen(parm1_value) + 1);
-	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
-	message_length += sizeof(int) + strlen(parm1_value) + 1;
+	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value));
+	parm1->length = htonl(strlen(parm1_value));
+	memcpy(&parm1->value, parm1_value, strlen(parm1_value));
+	message_length += sizeof(int) + strlen(parm1_value);
 	// Second parameter
 	char	 *parm2_value = "parameter2";
-	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
-	parm2->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
-	message_length += sizeof(int) + strlen(parm2_value) + 1;
+	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value));
+	parm2->length = htonl(strlen(parm2_value));
+	memcpy(&parm2->value, parm2_value, strlen(parm2_value));
+	message_length += sizeof(int) + strlen(parm2_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(2);
@@ -383,10 +473,10 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
-	c += sizeof(int) + strlen(parm1_value) + 1;
-	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
-	c += sizeof(int) + strlen(parm2_value) + 1;
+	memcpy(c, parm1, sizeof(int) + strlen(parm1_value));
+	c += sizeof(int) + strlen(parm1_value);
+	memcpy(c, parm2, sizeof(int) + strlen(parm2_value));
+	c += sizeof(int) + strlen(parm2_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -438,16 +528,16 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	message_length += sizeof(int16_t);
 	// First parameter
 	char	 *parm1_value = "parameter1";
-	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
-	parm1->length = htonl(strlen(parm1_value) + 1);
-	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
-	message_length += sizeof(int) + strlen(parm1_value) + 1;
+	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value));
+	parm1->length = htonl(strlen(parm1_value));
+	memcpy(&parm1->value, parm1_value, strlen(parm1_value));
+	message_length += sizeof(int) + strlen(parm1_value);
 	// Second parameter
 	char	 *parm2_value = "parameter2";
-	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
-	parm2->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
-	message_length += sizeof(int) + strlen(parm2_value) + 1;
+	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value));
+	parm2->length = htonl(strlen(parm2_value));
+	memcpy(&parm2->value, parm2_value, strlen(parm2_value));
+	message_length += sizeof(int) + strlen(parm2_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(2);
@@ -476,10 +566,10 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
-	c += sizeof(int) + strlen(parm1_value) + 1;
-	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
-	c += sizeof(int) + strlen(parm2_value) + 1;
+	memcpy(c, parm1, sizeof(int) + strlen(parm1_value));
+	c += sizeof(int) + strlen(parm1_value);
+	memcpy(c, parm2, sizeof(int) + strlen(parm2_value));
+	c += sizeof(int) + strlen(parm2_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -528,22 +618,22 @@ static void test_too_many_parameters(void **state) {
 	message_length += sizeof(int16_t);
 	// First parameter
 	char	 *parm1_value = "parameter1";
-	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
-	parm1->length = htonl(strlen(parm1_value) + 1);
-	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
-	message_length += sizeof(int) + strlen(parm1_value) + 1;
+	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value));
+	parm1->length = htonl(strlen(parm1_value));
+	memcpy(&parm1->value, parm1_value, strlen(parm1_value));
+	message_length += sizeof(int) + strlen(parm1_value);
 	// Second parameter
 	char	 *parm2_value = "parameter2";
-	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
-	parm2->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
-	message_length += sizeof(int) + strlen(parm2_value) + 1;
+	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value));
+	parm2->length = htonl(strlen(parm2_value));
+	memcpy(&parm2->value, parm2_value, strlen(parm2_value));
+	message_length += sizeof(int) + strlen(parm2_value);
 	// Third parameter
 	char	 *parm3_value = "parameter3";
-	BindParm *parm3 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm3_value) + 1); // count null
-	parm3->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm3->value, parm3_value, strlen(parm3_value) + 1);
-	message_length += sizeof(int) + strlen(parm3_value) + 1;
+	BindParm *parm3 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm3_value));
+	parm3->length = htonl(strlen(parm3_value));
+	memcpy(&parm3->value, parm3_value, strlen(parm3_value));
+	message_length += sizeof(int) + strlen(parm3_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(2);
@@ -570,11 +660,11 @@ static void test_too_many_parameters(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
-	c += sizeof(int) + strlen(parm1_value) + 1;
-	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
-	c += sizeof(int) + strlen(parm2_value) + 1;
-	memcpy(c, parm3, sizeof(int) + strlen(parm3_value) + 1);
+	memcpy(c, parm1, sizeof(int) + strlen(parm1_value));
+	c += sizeof(int) + strlen(parm1_value);
+	memcpy(c, parm2, sizeof(int) + strlen(parm2_value));
+	c += sizeof(int) + strlen(parm2_value);
+	memcpy(c, parm3, sizeof(int) + strlen(parm3_value));
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -656,10 +746,10 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	int16_t num_parms = htons(1);
 	message_length += sizeof(int16_t);
 	char	 *parm_value = "parameter";
-	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value) + 1); // count null
-	parm->length = htonl(strlen(parm_value) + 1);
-	memcpy(&parm->value, parm_value, strlen(parm_value) + 1);
-	message_length += sizeof(int) + strlen(parm_value) + 1;
+	BindParm *parm = (BindParm *)malloc(sizeof(BindParm) + strlen(parm_value));
+	parm->length = htonl(strlen(parm_value));
+	memcpy(&parm->value, parm_value, strlen(parm_value));
+	message_length += sizeof(int) + strlen(parm_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(1);
@@ -688,8 +778,8 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm, sizeof(int) + strlen(parm_value) + 1);
-	c += sizeof(int) + strlen(parm_value) + 1;
+	memcpy(c, parm, sizeof(int) + strlen(parm_value));
+	c += sizeof(int) + strlen(parm_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -727,16 +817,16 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	message_length += sizeof(int16_t);
 	// First parameter
 	char	 *parm1_value = "parameter1";
-	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
-	parm1->length = htonl(strlen(parm1_value) + 1);
-	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
-	message_length += sizeof(int) + strlen(parm1_value) + 1;
+	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value));
+	parm1->length = htonl(strlen(parm1_value));
+	memcpy(&parm1->value, parm1_value, strlen(parm1_value));
+	message_length += sizeof(int) + strlen(parm1_value);
 	// Second parameter
 	char	 *parm2_value = "parameter2";
-	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
-	parm2->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
-	message_length += sizeof(int) + strlen(parm2_value) + 1;
+	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value));
+	parm2->length = htonl(strlen(parm2_value));
+	memcpy(&parm2->value, parm2_value, strlen(parm2_value));
+	message_length += sizeof(int) + strlen(parm2_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(2);
@@ -765,10 +855,10 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
-	c += sizeof(int) + strlen(parm1_value) + 1;
-	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
-	c += sizeof(int) + strlen(parm2_value) + 1;
+	memcpy(c, parm1, sizeof(int) + strlen(parm1_value));
+	c += sizeof(int) + strlen(parm1_value);
+	memcpy(c, parm2, sizeof(int) + strlen(parm2_value));
+	c += sizeof(int) + strlen(parm2_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -807,22 +897,22 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	message_length += sizeof(int16_t);
 	// First parameter
 	char	 *parm1_value = "parameter1";
-	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value) + 1); // count null
-	parm1->length = htonl(strlen(parm1_value) + 1);
-	memcpy(&parm1->value, parm1_value, strlen(parm1_value) + 1);
-	message_length += sizeof(int) + strlen(parm1_value) + 1;
+	BindParm *parm1 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm1_value));
+	parm1->length = htonl(strlen(parm1_value));
+	memcpy(&parm1->value, parm1_value, strlen(parm1_value));
+	message_length += sizeof(int) + strlen(parm1_value);
 	// Second parameter
 	char	 *parm2_value = "parameter2";
-	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value) + 1); // count null
-	parm2->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm2->value, parm2_value, strlen(parm2_value) + 1);
-	message_length += sizeof(int) + strlen(parm2_value) + 1;
+	BindParm *parm2 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm2_value));
+	parm2->length = htonl(strlen(parm2_value));
+	memcpy(&parm2->value, parm2_value, strlen(parm2_value));
+	message_length += sizeof(int) + strlen(parm2_value);
 	// Third parameter
 	char	 *parm3_value = "parameter3";
-	BindParm *parm3 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm3_value) + 1); // count null
-	parm3->length = htonl(strlen(parm2_value) + 1);
-	memcpy(&parm3->value, parm3_value, strlen(parm3_value) + 1);
-	message_length += sizeof(int) + strlen(parm3_value) + 1;
+	BindParm *parm3 = (BindParm *)malloc(sizeof(BindParm) + strlen(parm3_value));
+	parm3->length = htonl(strlen(parm3_value));
+	memcpy(&parm3->value, parm3_value, strlen(parm3_value));
+	message_length += sizeof(int) + strlen(parm3_value);
 
 	// Column format codes
 	int16_t num_result_col_format_codes = htons(2);
@@ -851,12 +941,12 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	// Copy parameters into message
 	*((int16_t *)c) = num_parms;
 	c += sizeof(int16_t);
-	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
-	c += sizeof(int) + strlen(parm1_value) + 1;
-	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
-	c += sizeof(int) + strlen(parm2_value) + 1;
-	memcpy(c, parm3, sizeof(int) + strlen(parm3_value) + 1);
-	c += sizeof(int) + strlen(parm3_value) + 1;
+	memcpy(c, parm1, sizeof(int) + strlen(parm1_value));
+	c += sizeof(int) + strlen(parm1_value);
+	memcpy(c, parm2, sizeof(int) + strlen(parm2_value));
+	c += sizeof(int) + strlen(parm2_value);
+	memcpy(c, parm3, sizeof(int) + strlen(parm3_value));
+	c += sizeof(int) + strlen(parm3_value);
 	// Copy column format codes into message
 	*((int16_t *)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -1324,6 +1414,7 @@ int main(void) {
 	    cmocka_unit_test(test_unexpected_null_terminator_on_source),
 	    cmocka_unit_test(test_missing_parameter_types),
 	    cmocka_unit_test(test_missing_parameters),
+	    cmocka_unit_test(test_valid_input_null_parm_then_parm),
 	    cmocka_unit_test(test_missing_result_col_format_codes),
 	    cmocka_unit_test(test_invalid_type),
 	    cmocka_unit_test(test_invalid_num_parm_format_codes),

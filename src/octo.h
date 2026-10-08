@@ -196,6 +196,9 @@
 #define OCTO_EXTRACT_LIT    "octoExtract"  /* keep this in sync with PP_OCTO_EXTRACT in "template_helpers.h" */
 #define OCTO_ITERATOR_LIT   "octoIterator" /* keep this in sync with PP_OCTO_ITERATOR in "template_helpers.h" */
 
+/* Bind parameters whose value is NULL (YDBOcto#1127). Keep this in sync with "run^%ydboctoselect". */
+#define OCTOLIT_NULLPARAMETERS "nullparameters"
+
 /* Prepared statement node for a plan that depends on the values of bind parameters (YDBOcto#1158).
  * See "store_bind_replan_info()".
  */

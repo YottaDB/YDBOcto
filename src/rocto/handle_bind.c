@@ -35,21 +35,24 @@
 	YDB_FREE_BUFFER(&parm_value_buf);                                         \
 	YDB_FREE_BUFFER(&sql_expression);
 
-#define COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(STRING, BUFFER)                 \
-	{                                                                       \
-		size_t str_len;                                                 \
-                                                                                \
-		str_len = strlen(STRING);                                       \
-		if (str_len >= BUFFER.len_alloc) {                              \
-			YDB_FREE_BUFFER(&BUFFER);                               \
-			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&BUFFER, str_len);   \
-		}                                                               \
-		YDB_COPY_STRING_TO_BUFFER(STRING, &BUFFER, done);               \
-		if (!done) {                                                    \
-			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed"); \
-			CLEANUP_FROM_BIND();                                    \
-			return GENERIC_ERROR;                                               \
-		}                                                               \
+/* Copies the value of a text format Bind parameter into BUFFER, expanding BUFFER if needed.
+ * The protocol sends the value as exactly PARM.length bytes with no null terminator. So copy that many bytes, and not
+ * up to the first null byte: the bytes after the value are the next field of the message (e.g. the length of the next
+ * parameter, which is FF FF FF FF for a NULL value) and would otherwise become part of the value (YDBOcto#1127).
+ */
+#define COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(PARM, BUFFER)          \
+	{                                                                      \
+		size_t parm_len;                                               \
+                                                                               \
+		assert(0 <= (PARM).length);                                    \
+		parm_len = (size_t)(PARM).length;                              \
+		if (parm_len > BUFFER.len_alloc) {                             \
+			YDB_FREE_BUFFER(&BUFFER);                              \
+			OCTO_MALLOC_NULL_TERMINATED_BUFFER(&BUFFER, parm_len); \
+		}                                                              \
+		memcpy(BUFFER.buf_addr, (PARM).value, parm_len);               \
+		BUFFER.len_used = parm_len;                                    \
+		BUFFER.buf_addr[parm_len] = '\0';                              \
 	}
 
 // Args:
@@ -76,7 +79,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	char		 cur_parm_str[INT16_TO_STRING_MAX];
 	char		 cur_bind_parm_str[INT16_TO_STRING_MAX];
 	uint32_t	 data_ret;
-	int32_t		 status, done, result;
+	int32_t		 status, result;
 	int32_t		*parse_context_array;
 	int16_t		 num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
 	int16_t		 num_col_format_codes, cur_format_code;
@@ -423,6 +426,9 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	OCTO_SET_BUFFER(parm_type_buf, parm_type_str);
 	OCTO_SET_BUFFER(offset_buffer, offset_str);
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < num_parms; cur_parm++) {
+		boolean_t is_null_parm;
+
+		is_null_parm = FALSE;
 		cur_parm_temp = cur_parm + 1; // Convert to 1-indexing for parameter number mapping
 		OCTO_INT16_TO_BUFFER(cur_parm_temp, &cur_parm_buf);
 		cur_bind_parm_temp = cur_bind_parm + 1; // Convert to 1-indexing for parameter number mapping
@@ -520,7 +526,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			// The logic here enumerates the possible combinations of bind parameter formats that may be specified
 			// by clients in a PostgreSQL Bind message. These combinations follow from the definition of a Bind message
 			// at https://www.postgresql.org/docs/11/protocol-message-formats.html.
-			if (1 < bind->num_parm_format_codes) {
+			if (PSQL_NULL == bind->parms[cur_bind_parm].length) {
+				/* The value is NULL (e.g. from JDBC "setNull()"). It has no value bytes to copy (YDBOcto#1127).
+				 * Store an empty string as the value and note below that it is NULL.
+				 */
+				assert(NULL == bind->parms[cur_bind_parm].value);
+				parm_value_buf.len_used = 0;
+				is_null_parm = TRUE;
+			} else if (1 < bind->num_parm_format_codes) {
 				if (BINARY_FORMAT == bind->parm_format_codes[cur_parm]) { // Binary
 					status = copy_binary_parameter(bind, cur_bind_parm, &parm_value_buf);
 					if (0 > status) {
@@ -530,7 +543,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				} else { // Text
-					COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm].value, parm_value_buf);
+					COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm], parm_value_buf);
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				}
@@ -544,12 +557,12 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				} else { // Text
-					COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm].value, parm_value_buf);
+					COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm], parm_value_buf);
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				}
 			} else { // Text
-				COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm].value, parm_value_buf);
+				COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm], parm_value_buf);
 				// parse_literal_to_parameter should have already enforced this limit, so confirm here
 				assert(YDB_MAX_STR >= parm_value_buf.len_used);
 			}
@@ -562,6 +575,20 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		if (YDB_OK != status) {
 			CLEANUP_FROM_BIND();
 			return GENERIC_ERROR;
+		}
+		if (is_null_parm) {
+			/* The empty string stored above cannot tell a NULL value from an empty string. So also note the NULL in
+			 * ^session(id, OCTOLIT_BOUND, <name>, OCTOLIT_NULLPARAMETERS, <parameter number>). "handle_execute()"
+			 * passes this on to the query so it sees the parameter as $ZYSQLNULL (YDBOcto#1127).
+			 */
+			YDB_STRING_TO_BUFFER(OCTOLIT_NULLPARAMETERS, &portal_subs[4]);
+			YDB_STRING_TO_BUFFER(cur_parm_buf.buf_addr, &portal_subs[5]);
+			status = ydb_set_s(&portal_subs[0], 5, &portal_subs[1], NULL);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				CLEANUP_FROM_BIND();
+				return GENERIC_ERROR;
+			}
 		}
 		parm_value_buf.len_used = 0; // Reset to empty buffer before reuse on next parameter
 	}

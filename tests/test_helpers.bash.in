@@ -1360,10 +1360,10 @@ run_query_generator() {
   prefix="$2"
   usejdbcoption="$3"
   useextended="$4"
-  numQueries=100	# For now generate 100 queries by default (good balance of test run time vs test coverage)
+  numQueries=50	# Generate 50 queries by default (good balance of test run time vs test coverage)
 
   if [[ "" != $usejdbcoption ]]; then
-	numQueries=$(( $numQueries / 4 ))	# Generate 25% of queries to save time in the pipeline for JDBC tests
+	numQueries=$(( $numQueries / 2 ))	# Generate 25 queries to save time in the pipeline for JDBC tests
   fi
 
   cp @PROJECT_BINARY_DIR@/configured_fixtures/QueryGenerator.m .

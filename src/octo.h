@@ -199,6 +199,11 @@
 /* Bind parameters whose value is NULL (YDBOcto#1127). Keep this in sync with "run^%ydboctoselect". */
 #define OCTOLIT_NULLPARAMETERS "nullparameters"
 
+/* Prepared statement node with the n of each bind parameter $n, by its position among all the parameters (YDBOcto#1165).
+ * See "handle_parse()".
+ */
+#define OCTOLIT_BINDNUMBER "bindnumber"
+
 /* Prepared statement node for a plan that depends on the values of bind parameters (YDBOcto#1158).
  * See "store_bind_replan_info()".
  */

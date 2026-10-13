@@ -1,0 +1,53 @@
+
+-- TPGC011 : OCTO1165 : Bind parameters $n are numbered as in PostgreSQL: $n gets the n-th value of the Bind message,
+-- whatever the order of the bind parameters in the query, and the same $n may be used more than once. Before
+-- YDBOcto#1165, rocto numbered them in the order in which they occur in the query, so a query with $2 before $1 got
+-- the values swapped, and a query that used $1 twice needed two values.
+
+CREATE TABLE TPGC011 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TPGC011";
+INSERT INTO TPGC011 VALUES (1, 'PAT'), (2, 'PATX'), (3, 'ZX'), (4, 'AX');
+SELECT * FROM TPGC011 ORDER BY id;
+OCTO> CREATE TABLE TPGC011 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TPGC011";
+CREATE TABLE
+OCTO> INSERT INTO TPGC011 VALUES (1, 'PAT'), (2, 'PATX'), (3, 'ZX'), (4, 'AX');
+INSERT 0 4
+OCTO> SELECT * FROM TPGC011 ORDER BY id;
+id|v
+1|PAT
+2|PATX
+3|ZX
+4|AX
+(4 rows)
+OCTO> 
+
+# Run TPGC011 (Go, lib/pq).
+v LIKE $2 AND v <> $1 bound to ('%X', 'PAT%')
+  -> [1,2]
+COALESCE(v, NULL) LIKE $2 AND v <> $1 bound to ('%X', 'PAT%') (LIKE not optimized)
+  -> [1,2]
+v = $1 OR v LIKE $1 || '%' bound to ('PAT')
+  -> [1,2]
+id > $2 AND v = $1 bound to ('ZX', 2)
+  -> [3]
+v = $2 (no $1) bound to ('ignored', 'PAT')
+  -> ERROR: pq: Could not determine data type of parameter $1 (42P18)
+id = $1 OR v = $1 bound to (1)
+  -> ERROR: pq: Type mismatch: left VARCHAR, right INTEGER (42804)
+v = $0 OR v = $1 bound to ('PAT')
+  -> ERROR: pq: There is no parameter $0 (42P02)
+# Compare with PostgreSQL (rows, parameter types, and which statements fail):
+Same as PostgreSQL
+
+# Run TPGC011_pgconn (Go, pgconn: data types in the Parse message).
+v = $2 (no $1), Parse types (VARCHAR, VARCHAR), bound to ('ignored', 'PAT')
+  -> parameter types [1043 1043]
+  -> [1]
+v = $2 (no $1), Parse types (VARCHAR), bound to ('ignored', 'PAT')
+  -> parameter types [1043 1043]
+  -> [1]
+v = $2 (no $1), Parse types (unspecified, VARCHAR)
+  -> Parse ERROR: ERROR: Could not determine data type of parameter $1 (SQLSTATE 42P18)
+v = $2 (no $1), no Parse types
+  -> Parse ERROR: ERROR: Could not determine data type of parameter $1 (SQLSTATE 42P18)
+# Compare with PostgreSQL (rows, parameter types, and which statements fail):
+Same as PostgreSQL

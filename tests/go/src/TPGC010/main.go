@@ -55,12 +55,11 @@ func main() {
 	db := open(port, "")
 	defer db.Close()
 
-	// 1. $2 occurs before $1. Bind gives the bound values to the parameters in the order in which they occur in the
-	// query, so "v LIKE $2" gets the first value ('%X') and "v <> $1" the second ('PAT%'). The query is then
-	// v LIKE '%X' AND v <> 'PAT%', and the correct rows are 2 (PATX), 3 (ZX) and 4 (AX): the values that end in X
-	// ("<>" compares exactly, so '%' is not a wildcard there and no row is excluded by it). Before the fix, the plan
-	// was chosen for 'PAT%' (a walk over 'PAT' with no LIKE check), and the query returned rows 1,2,3,4.
-	// Note: PostgreSQL gives $n the n-th value instead (it would run v LIKE 'PAT%' AND v <> '%X', rows 1 and 2).
+	// 1. $2 occurs before $1. As in PostgreSQL, $n gets the n-th value (YDBOcto#1165), so "v LIKE $2" gets 'PAT%' and
+	// "v <> $1" gets '%X': the query is v LIKE 'PAT%' AND v <> '%X', and the correct rows are 1 (PAT) and 2 (PATX)
+	// ("<>" compares exactly, so '%' is not a wildcard there). The LIKE at Bind must classify 'PAT%', the value that the
+	// plan gets: a walk over 'PAT'. When the LIKE was classified with another value than the one the plan gets, the
+	// query returned wrong rows.
 	fmt.Println("# 1. $2 before $1, bound to ('%X', 'PAT%')")
 	rows, err := db.Query("SELECT id FROM TPGC010 WHERE v LIKE $2 AND v <> $1 ORDER BY id", "%X", "PAT%")
 	printRows("v LIKE $2 AND v <> $1", rows, err)

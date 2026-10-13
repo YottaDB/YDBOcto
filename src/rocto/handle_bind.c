@@ -30,8 +30,6 @@
 #define CLEANUP_FROM_BIND()                                                       \
 	status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE); \
 	YDB_ERROR_CHECK(status);                                                  \
-	free(parse_context.types);                                                \
-	free(parse_context_array);                                                \
 	YDB_FREE_BUFFER(&parm_value_buf);                                         \
 	YDB_FREE_BUFFER(&sql_expression);
 
@@ -63,9 +61,9 @@
 int handle_bind(Bind *bind, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
 	// This feature should be implemented before 1.0
-	ydb_buffer_t	 num_parms_buf, cur_parm_buf, cur_bind_parm_buf, parm_type_buf, parm_value_buf;
-	ydb_buffer_t	 sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer;
-	ydb_buffer_t	 statement_subs[7];
+	ydb_buffer_t	 num_parms_buf, cur_parm_buf, bind_number_buf, parm_value_buf;
+	ydb_buffer_t	 sql_expression, routine_buf, tag_buf, value_buffer;
+	ydb_buffer_t	 statement_subs[7], bind_number_subs[7];
 	ydb_buffer_t	 portal_subs[6];
 	ydb_buffer_t	 all_statement_parms_subs[7];
 	ydb_buffer_t	 all_portal_parms_subs[7];
@@ -73,19 +71,15 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	char		 num_parms_str[INT16_TO_STRING_MAX];
 	char		 tag_str[MAX_TAG_LEN];
 	char		 routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
-	char		 parm_type_str[INT16_TO_STRING_MAX];
-	char		 offset_str[INT16_TO_STRING_MAX];
+	char		 bind_number_str[INT16_TO_STRING_MAX];
 	char		 cur_format_str[INT16_TO_STRING_MAX];
 	char		 cur_parm_str[INT16_TO_STRING_MAX];
-	char		 cur_bind_parm_str[INT16_TO_STRING_MAX];
 	uint32_t	 data_ret;
 	int32_t		 status, result;
-	int32_t		*parse_context_array;
-	int16_t		 num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
+	int16_t		 num_parms, num_bind_parms, cur_parm, cur_parm_temp;
 	int16_t		 num_col_format_codes, cur_format_code;
-	long int	 num_parms_long, offset_long, type_long;
+	long int	 num_parms_long;
 	BindComplete	*response;
-	ParseContext	 parse_context;
 	SqlStatementType command_tag;
 	long int	 temp_long;
 
@@ -396,45 +390,28 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		return result;
 	}
 
-	// Use arrays to track start/end offsets of parameter substrings in prepared statement
-	// 2 * num_parms is the number of offsets that must be mapped: one pair of start/end offsets for each parameter
-	if (0 < num_bind_parms) {
-		parse_context_array = (int32_t *)malloc((sizeof(int32_t) * num_bind_parms) * 2);
-		memset(parse_context_array, 0, (sizeof(int32_t) * num_bind_parms) * 2);
-		memset(&parse_context, 0, sizeof(ParseContext));
-		parse_context.parm_start = &parse_context_array[0];
-		parse_context.parm_end = &parse_context_array[num_bind_parms];
-		parse_context.types = (PSQL_TypeOid *)malloc(sizeof(PSQL_TypeOid) * num_bind_parms);
-	} else {
-		parse_context_array = NULL;
-		parse_context.types = NULL;
-		parse_context.parm_start = NULL;
-		parse_context.parm_end = NULL;
-	}
-
-	/* Retrieve ParseContext info from prepared statement local variable, which was previously populated in handle_parse.c.
-	 * Note that the number of Bind parameters may or may not equal the total number of parameters. This is because the set of
-	 * Bind parameters is a subset of the total number of parameters.
-	 * Also note that Bind parameters may be mixed in with regular, literal parameters in an arbitrary order. This means that
-	 * we must count the current Bind parameter number independently of the current general parameter number.
+	/* Go through all the parameters of the query, literals and bind parameters, in the order in which they occur, and store
+	 * the value of each on the portal. A literal's value was stored by "handle_parse()". A bind parameter $n gets the n-th
+	 * value of the Bind message, whatever its position among the parameters, as in PostgreSQL (YDBOcto#1165). So $2 may
+	 * occur before $1, and the same $n may occur more than once. "handle_parse()" stored the n of each bind parameter:
+	 *	%ydboctosession(id,"prepared",<name>,"parameters","bindnumber",<position>)=n
 	 * For examples/combinations, please see the various test cases in psql_go_connection.bats.in.
 	 */
-	assert(num_bind_parms <= num_parms);
+	YDB_STRING_TO_BUFFER(config->global_names.session, &bind_number_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &bind_number_subs[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &bind_number_subs[2]);
+	YDB_STRING_TO_BUFFER(bind->source, &bind_number_subs[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &bind_number_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_BINDNUMBER, &bind_number_subs[5]);
 	OCTO_SET_BUFFER(cur_parm_buf, cur_parm_str);
-	OCTO_SET_BUFFER(cur_bind_parm_buf, cur_bind_parm_str);
 	OCTO_MALLOC_NULL_TERMINATED_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
-	OCTO_SET_BUFFER(parm_type_buf, parm_type_str);
-	OCTO_SET_BUFFER(offset_buffer, offset_str);
-	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < num_parms; cur_parm++) {
+	OCTO_SET_BUFFER(bind_number_buf, bind_number_str);
+	for (cur_parm = 0; cur_parm < num_parms; cur_parm++) {
 		boolean_t is_null_parm;
 
 		is_null_parm = FALSE;
 		cur_parm_temp = cur_parm + 1; // Convert to 1-indexing for parameter number mapping
 		OCTO_INT16_TO_BUFFER(cur_parm_temp, &cur_parm_buf);
-		cur_bind_parm_temp = cur_bind_parm + 1; // Convert to 1-indexing for parameter number mapping
-		OCTO_INT16_TO_BUFFER(cur_bind_parm_temp, &cur_bind_parm_buf);
-		// Set the current prepared statement parameter
-		YDB_STRING_TO_BUFFER(cur_bind_parm_buf.buf_addr, &statement_subs[5]);
 		// Set the current overall parameter
 		YDB_STRING_TO_BUFFER(cur_parm_buf.buf_addr, &all_statement_parms_subs[6]);
 		// Check if parameter has a value. If so, retrieve it; if not, it's a bind parameter
@@ -457,85 +434,44 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				return GENERIC_ERROR;
 			}
 		} else {
-			assert(cur_bind_parm < num_bind_parms);
-			assert(NULL != parse_context_array);
-			// This is a bind parameter, as no value was stored during the initial parse
-			// Retrieve parameter offsets from database
-			YDB_STRING_TO_BUFFER("start", &statement_subs[6]);
-			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
+			int16_t	 value_index;
+			long int bind_number_long;
+
+			// This is a bind parameter $n, as no value was stored for it during the initial parse. Get its n.
+			YDB_STRING_TO_BUFFER(cur_parm_buf.buf_addr, &bind_number_subs[6]);
+			status = ydb_get_s(&bind_number_subs[0], 6, &bind_number_subs[1], &bind_number_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				CLEANUP_FROM_BIND();
 				return GENERIC_ERROR;
 			}
-			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
-			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
-			if (!STRTOL_VALUE_OUT_OF_RANGE(offset_long) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
-				assert(NULL != parse_context.parm_start);
-				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
-				if (NULL != parse_context.parm_start) {
-					parse_context.parm_start[cur_bind_parm] = (int32_t)offset_long;
-				}
-			} else {
+			bind_number_buf.buf_addr[bind_number_buf.len_used] = '\0';
+			bind_number_long = strtol(bind_number_buf.buf_addr, NULL, 10);
+			/* "handle_parse()" stored an n from 1 to the number of parameters, and the Bind message has one value per
+			 * parameter (checked above)
+			 */
+			assert((1 <= bind_number_long) && (num_bind_parms >= bind_number_long));
+			if ((1 > bind_number_long) || (num_bind_parms < bind_number_long)) {
 				ERROR(ERR_LIBCALL, "strtol")
 				CLEANUP_FROM_BIND();
 				return GENERIC_ERROR;
 			}
-			YDB_STRING_TO_BUFFER("end", &statement_subs[6]);
-			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
-			YDB_ERROR_CHECK(status);
-			if (YDB_OK != status) {
-				CLEANUP_FROM_BIND();
-				return GENERIC_ERROR;
-			}
-			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
-			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
-			if (!STRTOL_VALUE_OUT_OF_RANGE(offset_long) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
-				assert(NULL != parse_context.parm_end);
-				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
-				if (NULL != parse_context.parm_end) {
-					parse_context.parm_end[cur_bind_parm] = (int32_t)offset_long;
-				}
-			} else {
-				ERROR(ERR_LIBCALL, "strtol")
-				CLEANUP_FROM_BIND();
-				return GENERIC_ERROR;
-			}
-			// Retrieve parameter type from database
-			YDB_STRING_TO_BUFFER("type", &statement_subs[6]);
-			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &parm_type_buf);
-			YDB_ERROR_CHECK(status);
-			if (YDB_OK != status) {
-				CLEANUP_FROM_BIND();
-				return GENERIC_ERROR;
-			}
-			parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
-			type_long = strtol(parm_type_buf.buf_addr, NULL, 10);
-			if (!STRTOL_VALUE_OUT_OF_RANGE(type_long) && (0 <= type_long) && (INT16_MAX >= type_long)) {
-				assert(NULL != parse_context.types);
-				/* Below "if" check is to avoid a false [clang-analyzer-core.NullDereference] warning */
-				if (NULL != parse_context.types) {
-					parse_context.types[cur_bind_parm] = (int16_t)type_long;
-				}
-			} else {
-				ERROR(ERR_LIBCALL, "strtol")
-				CLEANUP_FROM_BIND();
-				return GENERIC_ERROR;
-			}
+			value_index = (int16_t)(bind_number_long - 1); // $n gets the n-th value (index n - 1)
 			// Get bind parameter value if it is a binary parameter and update the parm_value_buf accordingly
 			// The logic here enumerates the possible combinations of bind parameter formats that may be specified
 			// by clients in a PostgreSQL Bind message. These combinations follow from the definition of a Bind message
 			// at https://www.postgresql.org/docs/11/protocol-message-formats.html.
-			if (PSQL_NULL == bind->parms[cur_bind_parm].length) {
+			if (PSQL_NULL == bind->parms[value_index].length) {
 				/* The value is NULL (e.g. from JDBC "setNull()"). It has no value bytes to copy (YDBOcto#1127).
 				 * Store an empty string as the value and note below that it is NULL.
 				 */
-				assert(NULL == bind->parms[cur_bind_parm].value);
+				assert(NULL == bind->parms[value_index].value);
 				parm_value_buf.len_used = 0;
 				is_null_parm = TRUE;
 			} else if (1 < bind->num_parm_format_codes) {
-				if (BINARY_FORMAT == bind->parm_format_codes[cur_parm]) { // Binary
-					status = copy_binary_parameter(bind, cur_bind_parm, &parm_value_buf);
+				// One format code per parameter, so the n-th one is the format of the n-th value
+				if (BINARY_FORMAT == bind->parm_format_codes[value_index]) { // Binary
+					status = copy_binary_parameter(bind, value_index, &parm_value_buf);
 					if (0 > status) {
 						CLEANUP_FROM_BIND();
 						return GENERIC_ERROR;
@@ -543,13 +479,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				} else { // Text
-					COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm], parm_value_buf);
+					COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[value_index], parm_value_buf);
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				}
 			} else if (1 == bind->num_parm_format_codes) {
 				if (BINARY_FORMAT == bind->parm_format_codes[FIRST_FORMAT_CODE]) { // Binary
-					status = copy_binary_parameter(bind, cur_bind_parm, &parm_value_buf);
+					status = copy_binary_parameter(bind, value_index, &parm_value_buf);
 					if (0 > status) {
 						CLEANUP_FROM_BIND();
 						return GENERIC_ERROR;
@@ -557,16 +493,15 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				} else { // Text
-					COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm], parm_value_buf);
+					COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[value_index], parm_value_buf);
 					// parse_literal_to_parameter should have already enforced this limit, so confirm here
 					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				}
 			} else { // Text
-				COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm], parm_value_buf);
+				COPY_TEXT_PARAMETER_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[value_index], parm_value_buf);
 				// parse_literal_to_parameter should have already enforced this limit, so confirm here
 				assert(YDB_MAX_STR >= parm_value_buf.len_used);
 			}
-			cur_bind_parm++;
 		}
 		// Store the parameter value on the portal, whether bind parameter or literal from previous parse
 		YDB_STRING_TO_BUFFER(cur_parm_buf.buf_addr, &all_portal_parms_subs[6]);
@@ -592,7 +527,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		}
 		parm_value_buf.len_used = 0; // Reset to empty buffer before reuse on next parameter
 	}
-	assert(cur_bind_parm == num_bind_parms);
 	/* If the plan of the query depends on the values of bind parameters (e.g. "col LIKE $1"), the plan from the Parse
 	 * message is one that is right for any value (a table scan for "col LIKE $1"). Now that the values are known, switch the
 	 * portal to the plan for them (e.g. one that walks a cross reference for 'PAT%'). See "get_bind_replan_routine()"
@@ -614,8 +548,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			return GENERIC_ERROR;
 		}
 	}
-	free(parse_context.types);
-	free(parse_context_array);
 	YDB_FREE_BUFFER(&parm_value_buf);
 	YDB_FREE_BUFFER(&sql_expression);
 

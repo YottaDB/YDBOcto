@@ -106,3 +106,35 @@ teardown() {
 	run_go TPGC010 $test_port >> output.txt 2>&1
 	verify_output TPGC010 output.txt nodebug noinfo
 }
+
+@test "TPGC011 : OCTO1165 : Bind parameters \$n are numbered as in PostgreSQL (\$2 before \$1, a repeated \$1, gaps)" {
+	load_fixture TPGC011.sql subtest novv
+	# The same table in the PostgreSQL database "names", to run each Go program against PostgreSQL too
+	psql names -c 'DROP TABLE IF EXISTS TPGC011;' -f @PROJECT_SOURCE_DIR@/tests/fixtures/postgres-TPGC011.sql >& postgres.TPGC011.out
+	for program in TPGC011 TPGC011_pgconn; do
+		echo "" >> output.txt
+		if [[ $program == "TPGC011" ]]; then
+			echo "# Run TPGC011 (Go, lib/pq)." >> output.txt
+		else
+			echo "# Run TPGC011_pgconn (Go, pgconn: data types in the Parse message)." >> output.txt
+		fi
+		build_go $program
+		$GOPATH/bin/$program $test_port ydb hello > $program.octo.out 2>&1
+		$GOPATH/bin/$program 5432 $USER names > $program.psql.out 2>&1
+		rm -f $GOPATH/bin/$program
+		cat $program.octo.out >> output.txt
+		# The error messages of rocto and PostgreSQL differ, so compare only whether each statement fails. And Octo has
+		# no TEXT type: where PostgreSQL infers TEXT (OID 25) for a parameter compared to a VARCHAR column (as it compares
+		# them as TEXT), rocto infers VARCHAR (OID 1043), so compare TEXT as VARCHAR.
+		echo "# Compare with PostgreSQL (rows, parameter types, and which statements fail):" >> output.txt
+		for server in octo psql; do
+			sed 's/-> \(Parse \)\{0,1\}ERROR.*/-> \1ERROR/;/-> parameter types/s/\<25\>/1043/g' $program.$server.out > $program.$server.cmp
+		done
+		if diff $program.psql.cmp $program.octo.cmp >> output.txt; then
+			echo "Same as PostgreSQL" >> output.txt
+		fi
+	done
+	chmod -R +w go/pkg
+	psql names -c 'DROP TABLE IF EXISTS TPGC011;' >& postgres.drop_table_TPGC011.out
+	verify_output TPGC011 output.txt nodebug noinfo
+}

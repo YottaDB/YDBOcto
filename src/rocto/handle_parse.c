@@ -22,11 +22,17 @@
 #include "helpers.h"
 #include "rocto.h"
 
+/* The data type of the bind parameter $N: the one in the Parse message if given, else the one inferred from its first use in
+ * the query, else 0 (unknown). "PARSE_CONTEXT.types" holds these by N (YDBOcto#1165).
+ */
+#define BIND_PARM_TYPE(PARSE_CONTEXT, N) (((N) <= (PARSE_CONTEXT).types_size) ? (PARSE_CONTEXT).types[(N)-1] : 0)
+
 #define FREE_HANDLE_PARSE_POINTERS()                                                    \
 	status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE); \
 	YDB_ERROR_CHECK(status);                                                        \
 	YDB_FREE_BUFFER(&cur_parm_value_buffer);                                        \
 	free(parse_context.is_bind_parm);                                               \
+	free(parse_context.bind_parm_numbers);                                          \
 	free(parse_context.types);                                                      \
 	free(parse_context_array);                                                      \
 	status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);       \
@@ -36,18 +42,19 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	QueryResponseParms response_parms;
 	ParseComplete	  *response;
 	ParseContext	   parse_context;
-	ydb_buffer_t	   statement_subs[7], all_parms_subs[7], cursor_subs[4];
-	ydb_buffer_t	   sql_expression, routine_buffer, tag_buffer, offset_buffer, num_parms_buffer;
+	ydb_buffer_t	   statement_subs[7], all_parms_subs[7], cursor_subs[4], bind_number_subs[7];
+	ydb_buffer_t	   sql_expression, routine_buffer, tag_buffer, num_parms_buffer;
 	ydb_buffer_t	   parm_type_buffer, cur_parm_value_buffer;
 	uint32_t	   data_ret;
 	int32_t		   status, cur_type, result;
 	int32_t		  *parse_context_array;
-	int16_t		   cur_parm, cur_parm_temp, cur_bind_parm, cur_bind_parm_temp;
+	int16_t		   cur_parm, cur_parm_temp, cur_bind_parm;
 	char		   cursor_str[INT64_TO_STRING_MAX], cur_parm_str[INT16_TO_STRING_MAX];
 	char		   parm_type_str[INT32_TO_STRING_MAX], parm_attr_str[INT32_TO_STRING_MAX];
 	char		   tag_str[INT32_TO_STRING_MAX], routine_str[MAX_ROUTINE_LEN];
-	char		   num_parms_str[INT16_TO_STRING_MAX], offset_str[INT16_TO_STRING_MAX];
+	char		   num_parms_str[INT16_TO_STRING_MAX];
 	char		   cur_bind_parm_str[INT16_TO_STRING_MAX];
+	boolean_t	  *is_bind_parm_number_used;
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_parse");
 
@@ -137,6 +144,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	}
 	if (0 != status) {
 		free(parse_context.is_bind_parm);
+		free(parse_context.bind_parm_numbers);
 		free(parse_context.types);
 		free(parse_context_array);
 		return GENERIC_ERROR;
@@ -159,6 +167,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		free(parse_context.is_bind_parm);
+		free(parse_context.bind_parm_numbers);
 		free(parse_context.types);
 		free(parse_context_array);
 		return GENERIC_ERROR;
@@ -176,6 +185,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		free(parse_context.is_bind_parm);
+		free(parse_context.bind_parm_numbers);
 		free(parse_context.types);
 		free(parse_context_array);
 		return GENERIC_ERROR;
@@ -183,10 +193,34 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 
 	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, ...)
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &statement_subs[4]);
+	/* YDBOcto#1165 : As in PostgreSQL, the prepared statement has as many parameters as the highest n of its bind parameters
+	 * ($n), and the same $n may be used more than once. A parameter that the query does not use (e.g. $1 when only $2 is
+	 * used) must have its data type in the Parse message, as no use of it can tell its type.
+	 */
+	is_bind_parm_number_used = (boolean_t *)calloc(parse_context.max_bind_parm_number + 1, sizeof(boolean_t));
+	for (cur_bind_parm = 0; cur_bind_parm < parse_context.num_bind_parms; cur_bind_parm++) {
+		is_bind_parm_number_used[parse_context.bind_parm_numbers[cur_bind_parm]] = TRUE;
+	}
+	for (cur_bind_parm = 1; cur_bind_parm <= parse_context.max_bind_parm_number; cur_bind_parm++) {
+		if (!is_bind_parm_number_used[cur_bind_parm] && (0 == BIND_PARM_TYPE(parse_context, cur_bind_parm))) {
+			ERROR(ERR_ROCTO_UNDETERMINED_PARAMETER_TYPE, cur_bind_parm);
+			free(is_bind_parm_number_used);
+			status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE);
+			YDB_ERROR_CHECK(status);
+			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
+			YDB_ERROR_CHECK(status);
+			free(parse_context.is_bind_parm);
+			free(parse_context.bind_parm_numbers);
+			free(parse_context.types);
+			free(parse_context_array);
+			return GENERIC_ERROR;
+		}
+	}
+	free(is_bind_parm_number_used);
 	// Store number of extended query (bind) parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS)
 	num_parms_buffer.buf_addr = num_parms_str;
 	num_parms_buffer.len_alloc = sizeof(num_parms_str);
-	OCTO_INT16_TO_BUFFER(parse_context.num_bind_parms, &num_parms_buffer);
+	OCTO_INT16_TO_BUFFER(parse_context.max_bind_parm_number, &num_parms_buffer);
 	status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &num_parms_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -195,6 +229,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		free(parse_context.is_bind_parm);
+		free(parse_context.bind_parm_numbers);
 		free(parse_context.types);
 		free(parse_context_array);
 		return GENERIC_ERROR;
@@ -209,6 +244,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		free(parse_context.is_bind_parm);
+		free(parse_context.bind_parm_numbers);
 		free(parse_context.types);
 		free(parse_context_array);
 		return GENERIC_ERROR;
@@ -242,6 +278,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		free(parse_context.is_bind_parm);
+		free(parse_context.bind_parm_numbers);
 		free(parse_context.types);
 		free(parse_context_array);
 		return result;
@@ -263,47 +300,44 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	parm_type_buffer.buf_addr = parm_type_str;
 	parm_type_buffer.len_alloc = sizeof(parm_type_str);
 	parm_type_buffer.len_used = 0;
-	offset_buffer.buf_addr = offset_str;
-	offset_buffer.len_alloc = sizeof(offset_str);
-	offset_buffer.len_used = 0;
-	/* Store number of parameters and any parameter type information for later use in handle_bind.c and in
-	 * ParameterDescription messages. For more context on the parameter storage done here, please see the comment preceding the
-	 * principal for loop in handle_bind.c.
+	/* Store the data type of each parameter ($1 to the highest $n) for ParameterDescription messages:
+	 *	SET %ydboctosession(id,"prepared",<name>,"parameters",n,"type")=<data type of $n>
+	 * It is the data type in the Parse message if given, else the one inferred from the first use of $n in the query
+	 * ("parse_context.types" holds either, by n). For more context on the parameter storage done here, please see the
+	 * comment preceding the principal for loop in handle_bind.c.
 	 */
+	YDB_STRING_TO_BUFFER("type", &statement_subs[6]);
+	for (cur_bind_parm = 1; cur_bind_parm <= parse_context.max_bind_parm_number; cur_bind_parm++) {
+		OCTO_INT32_TO_BUFFER(BIND_PARM_TYPE(parse_context, cur_bind_parm), &parm_type_buffer);
+		OCTO_INT16_TO_BUFFER(cur_bind_parm, &statement_subs[5]);
+		status = ydb_set_s(&statement_subs[0], 6, &statement_subs[1], &parm_type_buffer);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			FREE_HANDLE_PARSE_POINTERS();
+			return GENERIC_ERROR;
+		}
+	}
+	/* Store the literal parameters, and the n of each bind parameter, by their position in the list of all the parameters
+	 * of the query (literals and bind parameters, in the order in which they occur):
+	 *	SET %ydboctosession(id,"prepared",<name>,"parameters","all",i)=<value of the literal>
+	 *	SET %ydboctosession(id,"prepared",<name>,"parameters","bindnumber",i)=<n of the bind parameter $n>
+	 * "handle_bind()" gives each bind parameter $n the n-th value of the Bind message (YDBOcto#1165).
+	 */
+	YDB_STRING_TO_BUFFER(config->global_names.session, &bind_number_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &bind_number_subs[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &bind_number_subs[2]);
+	YDB_STRING_TO_BUFFER(parse->dest, &bind_number_subs[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &bind_number_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_BINDNUMBER, &bind_number_subs[5]);
+	bind_number_subs[6].buf_addr = cur_parm_str;
+	bind_number_subs[6].len_alloc = sizeof(cur_parm_str);
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < parse_context.total_parms; cur_parm++) {
 		if ((cur_parm < parse_context.is_bind_parm_size) && (parse_context.is_bind_parm[cur_parm])) {
-			// Only need type information for bind parameters
-			if (cur_bind_parm < parse_context.num_bind_parms) {
-				if ((0 < parse_context.num_bind_parms) && (cur_bind_parm >= parse->num_parm_data_types)) {
-					OCTO_INT32_TO_BUFFER(parse_context.types[cur_bind_parm], &parm_type_buffer);
-				} else {
-					OCTO_INT32_TO_BUFFER(parse->parm_data_types[cur_bind_parm], &parm_type_buffer);
-				}
-			}
-			// Update parameter number subscript
-			cur_bind_parm_temp = cur_bind_parm + 1; // Convert from 0-indexing to 1-indexing
-			OCTO_INT16_TO_BUFFER(cur_bind_parm_temp, &statement_subs[5]);
-			// Store parameter type
-			YDB_STRING_TO_BUFFER("type", &statement_subs[6]);
-			status = ydb_set_s(&statement_subs[0], 6, &statement_subs[1], &parm_type_buffer);
-			YDB_ERROR_CHECK(status);
-			if (YDB_OK != status) {
-				FREE_HANDLE_PARSE_POINTERS();
-				return GENERIC_ERROR;
-			}
-			// Store parameter start offset
-			OCTO_INT32_TO_BUFFER(parse_context.parm_start[cur_bind_parm], &offset_buffer);
-			YDB_STRING_TO_BUFFER("start", &statement_subs[6]);
-			status = ydb_set_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
-			YDB_ERROR_CHECK(status);
-			if (YDB_OK != status) {
-				FREE_HANDLE_PARSE_POINTERS();
-				return GENERIC_ERROR;
-			}
-			// Store parameter end offset
-			OCTO_INT32_TO_BUFFER(parse_context.parm_end[cur_bind_parm], &offset_buffer);
-			YDB_STRING_TO_BUFFER("end", &statement_subs[6]);
-			status = ydb_set_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
+			assert(cur_bind_parm < parse_context.num_bind_parms);
+			cur_parm_temp = cur_parm + 1; // Convert from 0-indexing to 1-indexing
+			OCTO_INT16_TO_BUFFER(cur_parm_temp, &bind_number_subs[6]);
+			OCTO_INT16_TO_BUFFER(parse_context.bind_parm_numbers[cur_bind_parm], &parm_type_buffer);
+			status = ydb_set_s(&bind_number_subs[0], 6, &bind_number_subs[1], &parm_type_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
@@ -337,6 +371,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	}
 	YDB_FREE_BUFFER(&cur_parm_value_buffer);
 	free(parse_context.is_bind_parm);
+	free(parse_context.bind_parm_numbers);
 	free(parse_context.types);
 	free(parse_context_array);
 

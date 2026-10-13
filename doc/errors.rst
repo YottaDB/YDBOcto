@@ -2018,6 +2018,14 @@ ERR_ROCTO_NOSCHEMA_USER
 
   Description/Action: This error indicates that a user attempted to change a schema using :code:`CREATE` or :code:`DROP`, but lacks permission to do so. To give a user permission to modify schemas, recreate the user using :code:`ydboctoAdmin` with the :code:`--allowschemachanges` option. PSQL Error Code: 42601
 
++++++++++++++++++++++++++++++++++++++
+ERR_ROCTO_NO_SUCH_PARAMETER
++++++++++++++++++++++++++++++++++++++
+
+  Text: There is no parameter xxx
+
+  Description/Action: This error is issued when the query of a prepared statement (Extended Query Protocol) uses a parameter whose number cannot exist, such as :code:`$0`. Parameters are numbered from :code:`$1`. PSQL Error Code: 42P02
+
 +++++++++++++++++++++++++
 ERR_ROCTO_PARAMETER_COUNT
 +++++++++++++++++++++++++
@@ -2257,6 +2265,14 @@ ERR_ROCTO_TRAILING_CHARS
   Text: xxx: message has trailing characters
 
   Description/Action: The error indicates that a PostgreSQL wire protocol message has trailing characters. PSQL Error Code: 08P01
+
++++++++++++++++++++++++++++++++++++++
+ERR_ROCTO_UNDETERMINED_PARAMETER_TYPE
++++++++++++++++++++++++++++++++++++++
+
+  Text: Could not determine data type of parameter $xxx
+
+  Description/Action: This error is issued when the query of a prepared statement (Extended Query Protocol) does not use a parameter that a higher numbered parameter implies (e.g. it uses :code:`$2` but not :code:`$1`), and the Parse message does not give a data type for it. Either use the parameter in the query, or give its data type in the Parse message. PSQL Error Code: 42P18
 
 +++++++++++++++++++++++++++++++++++++
 ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER

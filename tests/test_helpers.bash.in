@@ -649,7 +649,9 @@ setup_go() {
 	export GOPATH="$test_temp/go"
 }
 
-run_go() {
+# Builds the Go program tests/go/src/$1 as $GOPATH/bin/$1. "run_go" calls this; call it directly to run a program more than
+# once (e.g. against both rocto and PostgreSQL), and remove $GOPATH/bin/$1 when done.
+build_go() {
 	cp -r @PROJECT_SOURCE_DIR@/tests/go/src/$1 $GOPATH/src/$1
 	# Go versions newer than 1.22 officially stopped supporting GO111MODULE=off
 	# so we need to use Go Modules feature instead.
@@ -662,6 +664,10 @@ run_go() {
 	# dependencies to go.mod.
 	(cd $GOPATH/src/$1 && go mod init rungo && go mod tidy) >& gomod.out
 	(cd $GOPATH/src/$1 && go build -o $GOPATH/bin/$1 .)
+}
+
+run_go() {
+	build_go $1
 	$GOPATH/bin/$1 $2
 	chmod -R +w go/pkg
 	# Executables created by go occupy a noticeable part of the artifacts.zip file created in the pipeline.

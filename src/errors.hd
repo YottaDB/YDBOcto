@@ -338,6 +338,8 @@ ERROR_DEF(ERR_INVALID_DATE_TIME_TYPE_FORMAT, "The given type and format is inval
 ERROR_DEF(ERR_TRANSACTION_NO_UPDATES, "Updates while in a transaction are not yet implemented", PSQL_Read_Only_Sql_Transaction)
 ERROR_DEF(ERR_TRANSACTION_IN_PROGRESS, "There is already a transaction in progress", PSQL_Active_Sql_Transaction)
 ERROR_DEF(ERR_NO_TRANSACTION_IN_PROGRESS, "There is no transaction in progress", PSQL_No_Active_Sql_Transaction)
+ERROR_DEF(ERR_ROCTO_NO_SUCH_PARAMETER, "There is no parameter %s", PSQL_Code_Undefined_Parameter)
+ERROR_DEF(ERR_ROCTO_UNDETERMINED_PARAMETER_TYPE, "Could not determine data type of parameter $%d", PSQL_Code_Indeterminate_Datatype)
 
 // End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

@@ -881,12 +881,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 					param_num = (int)tmp_long;
 					parse_context->cur_param_num = param_num;
 					/* Check if parse_context->types[param_num - 1] has a non-zero value.
-					 * If so, data type information has been specified in the "Parse" message. Use that.
-					 * If not, we have no data type information was specified, so skip this step.
-					 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1236#note_1327912175 for
-					 * more details.
+					 * If so, either data type information has been specified in the "Parse" message, or the
+					 * type was inferred from an earlier use of the same $n in the query. Use that. As in
+					 * PostgreSQL, the first use of $n then sets its type, and a later use that does not fit it
+					 * is a type error (YDBOcto#1165). If not, we have no data type information was specified,
+					 * so skip this step. See
+					 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1236#note_1327912175 for more
+					 * details.
 					 */
-					if ((0 < param_num) && (param_num <= parse_context->num_bind_parm_types)
+					if ((0 < param_num) && (param_num <= parse_context->types_size)
 					    && (0 != parse_context->types[param_num - 1])) {
 						*type = get_sqlvaluetype_from_psql_type(parse_context->types[param_num - 1]);
 						if (IS_DATE_TIME_TYPE(*type)) {

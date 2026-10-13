@@ -2802,6 +2802,31 @@ literal_value
 		case PARAMETER_VALUE:
 			// ROCTO ONLY: Populate ParseContext to handle prepared statements in extended query protocol
 			if (config->is_rocto && (TRUE == parse_context->is_extended_query)) {
+				long bind_parm_number;
+
+				/* YDBOcto#1165 : Note the n of this $n. As in PostgreSQL, $n is the n-th value of the Bind message,
+				 * whatever the order of the bind parameters in the query, and the same $n may be used more than once.
+				 */
+				bind_parm_number = strtol(ret->v.value->v.string_literal + 1, NULL, 10); /* + 1 to skip the '$' */
+				if ((1 > bind_parm_number) || (INT16_MAX < bind_parm_number)) {
+					/* E.g. $0. As PostgreSQL does, issue an error. */
+					ERROR(ERR_ROCTO_NO_SUCH_PARAMETER, ret->v.value->v.string_literal);
+					YYABORT;
+				}
+				if (parse_context->num_bind_parms >= parse_context->bind_parm_numbers_size) {
+					if (NULL == parse_context->bind_parm_numbers) {
+						parse_context->bind_parm_numbers = (int16_t *)calloc(8, sizeof(int16_t));
+						parse_context->bind_parm_numbers_size = 8;
+					} else {
+						DOUBLE_ARRAY_ALLOCATION(parse_context->bind_parm_numbers,
+							parse_context->bind_parm_numbers_size, int16_t, INT16_MAX);
+					}
+				}
+				assert(0 <= parse_context->num_bind_parms);
+				parse_context->bind_parm_numbers[parse_context->num_bind_parms] = (int16_t)bind_parm_number;
+				if (bind_parm_number > parse_context->max_bind_parm_number) {
+					parse_context->max_bind_parm_number = (int16_t)bind_parm_number;
+				}
 				if (0 <= parse_context->num_bind_parms) {
 					parse_context->num_bind_parms++;
 					// Resize is_bind_parm array as needed

@@ -163,7 +163,7 @@ BinaryOperations get_like_prefix_operation(SqlStatement *stmt, ParseContext *par
 	value = stmt->v.value;
 	if (PARAMETER_VALUE == value->type) {
 		BindParmValue *bind_parm_value;
-		int	       bind_parm_index, parm_index;
+		int	       bind_parm_index;
 
 		if ((NULL == parse_context) || !parse_context->is_extended_query) {
 			/* Not a rocto prepared statement, so no Bind message will ever supply a value to plan for */
@@ -176,21 +176,12 @@ BinaryOperations get_like_prefix_operation(SqlStatement *stmt, ParseContext *par
 			parse_context->plan_depends_on_bind_values = TRUE;
 			return no_prefix_operation;
 		}
-		/* Bind time: classify the bound value. "handle_bind()" gives the bound values to the bind parameters in the
-		 * order in which they occur in the query, not by the number after the '$' (in "v LIKE $2 AND w = $1", "$2" gets
-		 * the first value). So find the position of this parameter among the bind parameters: the number of bind
-		 * parameters before it in the list of all literal parameters ("parameter_index" counts from 1).
+		/* Bind time: classify the bound value. As in PostgreSQL, $n gets the n-th value of the Bind message, whatever
+		 * the order of the bind parameters in the query (YDBOcto#1165). The parser already checked that n is from 1 to
+		 * INT16_MAX, and "handle_bind()" that the Bind message has one value per parameter ($1 to the highest $n).
 		 */
-		assert((0 < value->parameter_index) && (value->parameter_index <= parse_context->is_bind_parm_size));
-		assert(parse_context->is_bind_parm[value->parameter_index - 1]);
-		bind_parm_index = 0;
-		for (parm_index = 0; parm_index < (value->parameter_index - 1); parm_index++) {
-			if (parse_context->is_bind_parm[parm_index]) {
-				bind_parm_index++;
-			}
-		}
-		/* "handle_bind()" already checked that the Bind message has one value per bind parameter in the query */
-		assert(bind_parm_index < parse_context->num_bind_parm_values);
+		bind_parm_index = (int)strtol(value->v.string_literal + 1, NULL, 10) - 1; /* + 1 to skip the '$' */
+		assert((0 <= bind_parm_index) && (bind_parm_index < parse_context->num_bind_parm_values));
 		bind_parm_value = &parse_context->bind_parm_values[bind_parm_index];
 		if (NULL == bind_parm_value->value) {
 			/* SQL NULL (LIKE NULL matches no row) or a binary format value (whose bytes may not be the text of the

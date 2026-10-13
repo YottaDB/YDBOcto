@@ -30,9 +30,9 @@ OCTO>
 # Run TPGC010 (Go).
 # 1. $2 before $1, bound to ('%X', 'PAT%')
 v LIKE $2 AND v <> $1
-  -> [2,3,4]
+  -> [1,2]
 COALESCE(v, NULL) LIKE $2 AND v <> $1
-  -> [2,3,4]
+  -> [1,2]
 # 2. Bind with no parameter format codes, then with one per parameter (text, binary)
 v LIKE $1 bound to 'PAT%' (no format codes)
   -> [1,2]

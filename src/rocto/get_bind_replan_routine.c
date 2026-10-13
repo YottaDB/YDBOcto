@@ -22,13 +22,14 @@
 #include "rocto.h"
 
 /* Free everything "get_bind_replan_routine()" allocated */
-#define CLEANUP_BIND_REPLAN_ROUTINE()             \
-	{                                         \
-		free(parse_context.types);        \
-		free(parse_context.is_bind_parm); \
-		free(bind_parm_values);           \
-		free(parse_context_array);        \
-		YDB_FREE_BUFFER(&sql_expression); \
+#define CLEANUP_BIND_REPLAN_ROUTINE()                  \
+	{                                              \
+		free(parse_context.types);             \
+		free(parse_context.is_bind_parm);      \
+		free(parse_context.bind_parm_numbers); \
+		free(bind_parm_values);                \
+		free(parse_context_array);             \
+		YDB_FREE_BUFFER(&sql_expression);      \
 	}
 
 /* Called by "handle_bind()" once the values of the Bind message are known (YDBOcto#1158).

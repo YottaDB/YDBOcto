@@ -556,6 +556,15 @@ typedef struct {
 	boolean_t  skip_cursor_cleanup;
 	boolean_t *is_bind_parm; // Used to track which literal parameters are bind parameters
 	int16_t	   is_bind_parm_size;
+	/* YDBOcto#1165 : The bind parameters ($1, $2, ...) of a prepared statement, numbered as in PostgreSQL: $n gets the n-th
+	 * value of the Bind message, a query may use the same $n more than once, and in any order.
+	 *	bind_parm_numbers    : The n of each bind parameter, in the order in which they occur in the query (the n of the
+	 *			       first one is at index 0). Allocated with malloc() by the parser, freed by the caller.
+	 *	max_bind_parm_number : The highest n, which is the number of parameters of the prepared statement.
+	 */
+	int16_t *bind_parm_numbers;
+	int16_t	 bind_parm_numbers_size;
+	int16_t	 max_bind_parm_number;
 	/* YDBOcto#1158 : Plans that depend on the values of bind parameters (rocto prepared statements).
 	 * At Parse, the values are not known yet. If an optimization would pick a different plan depending on the value of a
 	 * bind parameter, it uses the plan that is right for any value, and sets "plan_depends_on_bind_values". rocto then

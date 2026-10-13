@@ -126,3 +126,14 @@ SELECT k FROM TWO20key WHERE COALESCE(k, NULL) LIKE '12%' ORDER BY k;
 -- variable too, where canonical numbers also sort first, so no prefix walk. The plan reads every row and checks the LIKE.
 SELECT name FROM pg_settings WHERE vartype LIKE 'en%' ORDER BY name;
 SELECT name FROM pg_settings WHERE COALESCE(vartype, NULL) LIKE 'en%' ORDER BY name;
+
+-- A view with a LIKE in a scalar subquery of its select list. Selecting from the view checks that subquery again, with the
+-- literals of the stored view, which are not plan parameters. A pattern without a prefix ('%AT') is still a LIKE then, and
+-- is looked at for a prefix a second time. A pattern with a prefix ('PAT%') became the prefix operation at CREATE VIEW, so
+-- it is not looked at again.
+CREATE VIEW TWO20viewsub AS SELECT id, (SELECT t.v FROM TWO20 t WHERE t.v LIKE '%AT' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3;
+SELECT id, x FROM TWO20viewsub ORDER BY id;
+SELECT id, (SELECT t.v FROM TWO20 t WHERE COALESCE(t.v, NULL) LIKE '%AT' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3 ORDER BY id;
+CREATE VIEW TWO20viewsub2 AS SELECT id, (SELECT t.v FROM TWO20 t WHERE t.v LIKE 'PAT%' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3;
+SELECT id, x FROM TWO20viewsub2 ORDER BY id;
+SELECT id, (SELECT t.v FROM TWO20 t WHERE COALESCE(t.v, NULL) LIKE 'PAT%' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3 ORDER BY id;

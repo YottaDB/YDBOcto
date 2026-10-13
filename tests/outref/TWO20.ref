@@ -115,6 +115,17 @@ SELECT k FROM TWO20key WHERE COALESCE(k, NULL) LIKE '12%' ORDER BY k;
 -- variable too, where canonical numbers also sort first, so no prefix walk. The plan reads every row and checks the LIKE.
 SELECT name FROM pg_settings WHERE vartype LIKE 'en%' ORDER BY name;
 SELECT name FROM pg_settings WHERE COALESCE(vartype, NULL) LIKE 'en%' ORDER BY name;
+
+-- A view with a LIKE in a scalar subquery of its select list. Selecting from the view checks that subquery again, with the
+-- literals of the stored view, which are not plan parameters. A pattern without a prefix ('%AT') is still a LIKE then, and
+-- is looked at for a prefix a second time. A pattern with a prefix ('PAT%') became the prefix operation at CREATE VIEW, so
+-- it is not looked at again.
+CREATE VIEW TWO20viewsub AS SELECT id, (SELECT t.v FROM TWO20 t WHERE t.v LIKE '%AT' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3;
+SELECT id, x FROM TWO20viewsub ORDER BY id;
+SELECT id, (SELECT t.v FROM TWO20 t WHERE COALESCE(t.v, NULL) LIKE '%AT' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3 ORDER BY id;
+CREATE VIEW TWO20viewsub2 AS SELECT id, (SELECT t.v FROM TWO20 t WHERE t.v LIKE 'PAT%' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3;
+SELECT id, x FROM TWO20viewsub2 ORDER BY id;
+SELECT id, (SELECT t.v FROM TWO20 t WHERE COALESCE(t.v, NULL) LIKE 'PAT%' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3 ORDER BY id;
 OCTO> CREATE TABLE TWO20 (id INTEGER PRIMARY KEY, v VARCHAR) GLOBAL "^TWO20";
 CREATE TABLE
 OCTO> INSERT INTO TWO20 VALUES (1,'PAT'),(2,'PATIENT'),(3,'PATENT'),(4,'PAU'),(5,'PA'),(6,'12'),(7,'120'),(8,'12a'),(9,'2');
@@ -447,6 +458,30 @@ OCTO> SELECT name FROM pg_settings WHERE COALESCE(vartype, NULL) LIKE 'en%' ORDE
 name
 intervalstyle
 (1 row)
+OCTO> CREATE VIEW TWO20viewsub AS SELECT id, (SELECT t.v FROM TWO20 t WHERE t.v LIKE '%AT' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3;
+CREATE VIEW
+OCTO> SELECT id, x FROM TWO20viewsub ORDER BY id;
+id|x
+1|PAT
+2|PAT
+(2 rows)
+OCTO> SELECT id, (SELECT t.v FROM TWO20 t WHERE COALESCE(t.v, NULL) LIKE '%AT' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3 ORDER BY id;
+id|x
+1|PAT
+2|PAT
+(2 rows)
+OCTO> CREATE VIEW TWO20viewsub2 AS SELECT id, (SELECT t.v FROM TWO20 t WHERE t.v LIKE 'PAT%' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3;
+CREATE VIEW
+OCTO> SELECT id, x FROM TWO20viewsub2 ORDER BY id;
+id|x
+1|PAT
+2|PAT
+(2 rows)
+OCTO> SELECT id, (SELECT t.v FROM TWO20 t WHERE COALESCE(t.v, NULL) LIKE 'PAT%' ORDER BY t.v LIMIT 1) AS x FROM TWO20 WHERE id < 3 ORDER BY id;
+id|x
+1|PAT
+2|PAT
+(2 rows)
 OCTO> 
 
 # Verify the plan of each query on column v above, in the same order.
@@ -555,3 +590,12 @@ SELECT k FROM TWO20key WHERE k LIKE '12%' ORDER BY k;
 SELECT name FROM pg_settings WHERE vartype LIKE 'en%' ORDER BY name;
   Plan L:
     $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+
+SELECT id, x FROM TWO20viewsub ORDER BY id;
+  Plan M:
+    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+
+SELECT id, x FROM TWO20viewsub2 ORDER BY id;
+  Plan N:
+    $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr)
+    QUIT:(%ydboctozkeyfix(2,0)="")!($ZEXTRACT(%ydboctozkeyfix(2,0),1,$ZLENGTH(%ydboctozkeyfix(2,0,1)))'=%ydboctozkeyfix(2,0,1))

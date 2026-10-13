@@ -196,9 +196,12 @@ BinaryOperations get_like_prefix_operation(SqlStatement *stmt, ParseContext *par
 		/* Not a string literal (e.g. a cast such as 'PAT%'::VARCHAR). Keep the LIKE as is. */
 		return no_prefix_operation;
 	}
-	/* A string literal of a query is a plan parameter, so all queries that differ only in it share the plan. A literal
-	 * that is not (e.g. in a CHECK constraint) does not get here, as there the left operand is not a column alias.
+	/* A string literal of a query is usually a plan parameter (non-zero "parameter_index"), so all queries that differ only
+	 * in it share the plan. A literal of a stored view is not: "compress_statement()" sets its "parameter_index" to 0.
+	 * Such a literal gets here when a query on the view checks a subquery of the view again (e.g. a LIKE in a scalar
+	 * subquery of the view's select list). That check only sees a LIKE whose pattern had no prefix at CREATE VIEW (one
+	 * with a prefix is no longer a LIKE then), so it returns the same operation as at CREATE VIEW. A CHECK constraint
+	 * literal (also not a plan parameter) does not get here, as there the left operand is not a column alias.
 	 */
-	assert(0 != value->parameter_index);
 	return get_like_prefix_operation_of_pattern(value->v.string_literal, strlen(value->v.string_literal), case_insensitive);
 }

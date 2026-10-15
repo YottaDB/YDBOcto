@@ -267,3 +267,44 @@ OCTO
 	TZ="America/New_York" load_fixture TOB22.sql subtest
 	verify_output TOB22 output.txt nodatetimefilter noinfo nodebug
 }
+
+@test "TOB23 : OCTO1161 : ORDER BY on a key column is optimized when the key columns before it are fixed to one value" {
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	echo "# Run crosscheck on TOB23_composite.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TOB23_composite.sql noextended
+	echo "# Run crosscheck on TOB23_names.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB23_names.sql noextended
+	echo "# Run crosscheck on TOB23_types.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB23_types.sql "trim_trailing_zeroes" "trim_time_zone_zeroes" roctoflags="-aw" noextended
+	echo "# Run only octo (not psql) on TOB23_octoonly.sql" >> output.txt
+	yottadb -run %XCMD 'for i=1:1:5 set ^TOB23("A1C",i)=i+5,^TOB23("PSA",i)=i/10,^TOB23("ZN",i)=i*10'
+	yottadb -run %XCMD 'for isn="9","10","A1","-1","1.5","b" set ^TOB23V("PSA",isn)=isn,^TOB23V("A1C",isn)=isn'
+	# READONLY date/time tables: MDY text values whose string order is not their date/time order
+	yottadb -run %XCMD 'for k2="12-31-2023","03-01-2024","01-15-2024","10-02-2023" set ^TOB23Rdate("03-01-2024",k2)=""'
+	yottadb -run %XCMD 'for k2="9:00:00","10:00:00","23:59:59","0:30:00" set ^TOB23Rtime("01:02:03",k2)=""'
+	yottadb -run %XCMD 'for k2="9:00:00+00","10:00:00+00","23:59:59+00","0:30:00+00" set ^TOB23Rtimetz("01:02:03+00",k2)=""'
+	yottadb -run %XCMD 'for k2="12-31-2023 09:00:00","03-01-2024 10:00:00","01-15-2024 00:30:00","03-01-2024 9:00:00" set ^TOB23Rtimestamp("03-01-2024 01:02:03",k2)=""'
+	yottadb -run %XCMD 'for k2="12-31-2023 09:00:00+00","03-01-2024 10:00:00+00","01-15-2024 00:30:00+00","03-01-2024 9:00:00+00" set ^TOB23Rtimestamptz("03-01-2024 01:02:03+00",k2)=""'
+	export TZ=UTC	# The TIME/TIMESTAMP WITH TIME ZONE values in TOB23_octoonly.sql are shown with offset +00
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOB23_octoonly.sql .
+	load_fixture TOB23_octoonly.sql subtest novv
+	echo "# Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable" >> output.txt
+	echo "# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the key FOR loops in ORDER BY order" >> output.txt
+	echo "# [sort]    : the plan still collects and sorts the rows in an OrderBy step" >> output.txt
+	# The "sed" below is to remove trailing ";" at the end of the "select" query as it does not show up in case JDBC is not
+	# randomly chosen by the test framework to execute the queries. This lets us have a deterministic reference file.
+	for plan in _ydboctoP*.m; do
+		query=$(grep -m 1 '^;  select' $plan | sed 's/^;  //;s/;$//g')
+		if [[ -z $query ]]; then
+			continue	# An INSERT plan (from TOB23_types.sql). It has no SELECT.
+		fi
+		if grep -q 'KILL.*"OrderBy"' $plan; then
+			echo "[sort]    : $query"
+		else
+			echo "[no sort] : $query"
+		fi
+	done | LC_ALL=C sort >> output.txt
+	psql names -c 'DROP TABLE IF EXISTS TOB23_boolean,TOB23_integer,TOB23_numeric,TOB23_varchar,TOB23_date,TOB23_time,TOB23_timestamp;' >& postgres.drop_table_TOB23.out
+	verify_output TOB23 output.txt nodatetimefilter noinfo nodebug
+}

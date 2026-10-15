@@ -16,6 +16,52 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
+/* Returns the SqlColumn of "key" if the ORDER BY column at "cur_order_by" is that same column of the same table (i.e. the
+ * FOR loop of "key" can produce the rows in that ORDER BY column's order). Returns NULL otherwise.
+ */
+static SqlColumn *get_order_by_key_column(LogicalPlan *cur_order_by, SqlKey *key) {
+	LogicalPlan *lp_column_list, *lp_where, *lp_column_alias;
+
+	GET_LP(lp_column_list, cur_order_by, 0, LP_COLUMN_LIST);
+	GET_LP(lp_where, lp_column_list, 0, LP_WHERE);
+	lp_column_alias = lp_where->v.lp_default.operand[0];
+	if (LP_COLUMN_ALIAS != lp_column_alias->type) {
+		return NULL; /* The ORDER BY is not on a column alias */
+	}
+
+	SqlColumnAlias *column_alias;
+	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
+
+	SqlStatement *column;
+	column = column_alias->column;
+	if (column_STATEMENT != column->type) {
+		return NULL; /* The column alias is not on a SqlColumn */
+	}
+	if (key->unique_id != column_alias->table_alias_stmt->v.table_alias->unique_id) {
+		return NULL; /* The ORDER BY and KEY column correspond to different tables */
+	}
+
+	SqlColumn *sql_column;
+	sql_column = column->v.column;
+	if (key->column != sql_column) {
+		return NULL; /* KEY column is not same as ORDER BY column */
+	}
+	return sql_column;
+}
+
+/* Returns TRUE if "key" is a key column of a table that the WHERE (or ON) clause fixes to ONE value (with "=" or "IS").
+ * Its FOR loop runs only once (per row of the outer tables). See the YDBOcto#1161 comment in "lp_optimize_order_by()".
+ */
+static boolean_t is_key_column_fixed_to_one_value(SqlKey *key) {
+	if (LP_KEY_FIX != key->type) {
+		return FALSE; /* The key is not fixed. Its FOR loop walks all values. */
+	}
+	if (key->is_cross_reference_key || (NULL == key->table)) {
+		return FALSE; /* Not a key column of a table (a cross reference key or a key of a sub-query) */
+	}
+	return ((LP_BOOLEAN_EQUALS == key->fixed_to_value_type) || (LP_BOOLEAN_IS == key->fixed_to_value_type));
+}
+
 /* This function tries to optimize any ORDER BY usage by seeing if it is possible to remove the LP_ORDER_BY logical plan
  * altogether. For example, in the query "select * from names order by id;", it is possible to remove the "order by id"
  * because the FOR loop emitted in the M code would be in ascending order of "id" anyways and the M ordering of the
@@ -47,7 +93,7 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 		cur_keys = lp_keys_start;
 		cur_order_by = lp_order_by_start;
 		for (;;) {
-			LogicalPlan *lp_key, *lp_column_list, *lp_where, *lp_column_alias;
+			LogicalPlan *lp_key, *lp_column_list, *lp_where;
 
 			assert(NULL != cur_keys);
 			assert(NULL != cur_order_by);
@@ -56,7 +102,20 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 			SqlKey *key;
 			key = lp_key->v.lp_key.key;
 
-			if ((LP_KEY_FIX != key->type) || !key->is_cross_reference_key) {
+			if (is_key_column_fixed_to_one_value(key)) {
+				/* This is a key column of a table that the WHERE (or ON) clause fixes to ONE value, e.g.
+				 * "test_code" in "WHERE test_code = 'PSA' ORDER BY isn" with PRIMARY KEY (test_code, isn). Its FOR
+				 * loop runs once (per row of the outer tables), so the FOR loop of the next key determines the
+				 * output order (YDBOcto#1161).
+				 *
+				 * If the current ORDER BY column is this key column, then it is ordering on a value that does not
+				 * change. Consume that ORDER BY column, whatever its type and direction. Otherwise, skip this key
+				 * and match the same ORDER BY column against the next key.
+				 */
+				if (NULL != get_order_by_key_column(cur_order_by, key)) {
+					GET_LP_ALLOW_NULL(cur_order_by, cur_order_by, 1, LP_ORDER_BY);
+				}
+			} else if ((LP_KEY_FIX != key->type) || !key->is_cross_reference_key) {
 				assert(!key->emit_desc_order); /* assert this is initialized to FALSE at key allocation time */
 				assert((NULL != key->table) || (NULL == key->column));
 				assert((NULL == key->table) || (NULL != key->column));
@@ -66,35 +125,18 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 					break;
 				}
 
-				GET_LP(lp_column_list, cur_order_by, 0, LP_COLUMN_LIST);
-				GET_LP(lp_where, lp_column_list, 0, LP_WHERE);
-				lp_column_alias = lp_where->v.lp_default.operand[0];
-				if (LP_COLUMN_ALIAS != lp_column_alias->type) {
-					/* The ORDER BY is not on a column alias. Cannot optimize. */
+				SqlColumn *sql_column;
+				sql_column = get_order_by_key_column(cur_order_by, key);
+				if (NULL == sql_column) {
+					/* The ORDER BY column is not this KEY column (see "get_order_by_key_column()" for the
+					 * details). So the FOR loop of this key does not produce rows in the ORDER BY order. Cannot
+					 * optimize.
+					 */
 					assert(0 == loop);
 					break;
 				}
-
-				SqlColumnAlias *column_alias;
-				column_alias = lp_column_alias->v.lp_column_alias.column_alias;
-
-				SqlStatement *column;
-				column = column_alias->column;
-				if (column_STATEMENT != column->type) {
-					assert(0 == loop);
-					break; /* The column alias is not on a SqlColumn. Cannot optimize. */
-				}
-				if (key->unique_id != column_alias->table_alias_stmt->v.table_alias->unique_id) {
-					assert(0 == loop);
-					break; /* The ORDER BY and KEY column correspond to different tables. Cannot optimize. */
-				}
-
-				SqlColumn *sql_column;
-				sql_column = column->v.column;
-				if (key->column != sql_column) {
-					assert(0 == loop);
-					break; /* KEY column is not same as ORDER BY column. Cannot optimize. */
-				}
+				GET_LP(lp_column_list, cur_order_by, 0, LP_COLUMN_LIST);
+				GET_LP(lp_where, lp_column_list, 0, LP_WHERE);
 
 				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC,
 				 * BOOLEAN, readwrite table DATE/TIME types. Not for STRING type (for more details, see

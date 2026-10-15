@@ -261,6 +261,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_generate_view.c
   optimization_transforms/lp_generate_where.c
   optimization_transforms/lp_generate_xref_keys.c
+  optimization_transforms/lp_insert_xref_key.c
   optimization_transforms/lp_generate_xref_plan.c
   optimization_transforms/lp_get_aggregate_plan_helper_func_name.c
   optimization_transforms/lp_get_col_num_n_in_select_column_list.c

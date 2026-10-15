@@ -1,0 +1,562 @@
+# Tables used by the queries below (TOB24c, TOB24d and TOB24e are created in TOB24_octoonly.sql further below)
+CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30)) GLOBAL "^names";
+create table TOB24a (id integer primary key, i integer, n numeric, b boolean, d date, s varchar);
+create table TOB24f (id integer primary key, v varchar);
+create table TOB24b (code varchar primary key, n integer);
+create table TOB24g (id integer primary key, t time, ts timestamp);
+create table TOB24k_boolean (k boolean primary key, v varchar);
+create table TOB24k_integer (k integer primary key, v varchar);
+create table TOB24k_numeric (k numeric primary key, v varchar);
+create table TOB24k_varchar (k varchar primary key, v varchar);
+create table TOB24k_date (k date primary key, v varchar);
+create table TOB24k_time (k time primary key, v varchar);
+create table TOB24k_timestamp (k timestamp primary key, v varchar);
+# Run crosscheck on TOB24_names.sql
+# Run crosscheck on TOB24_types.sql
+# Run only octo (not psql) on TOB24_octoonly.sql
+
+-- TOB24 : OCTO1160 : ORDER BY on a non-key column walks an AIM cross reference of that column
+
+-- TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE columns of a READWRITE table, as in TOB24_types.sql for the other types:
+-- first as walked non-key columns, then as the primary key column after the walked column. The test runs with TZ=UTC, so
+-- the values are shown with offset +00 and the output does not depend on daylight saving time.
+create table TOB24tz (id integer primary key, ttz time with time zone, tstz timestamp with time zone);
+insert into TOB24tz values (1, time with time zone '09:00:00+05', timestamp with time zone '2024-03-01 09:00:00+05'), (2, time with time zone '09:00:00-05', timestamp with time zone '2024-03-01 09:00:00-05');
+insert into TOB24tz values (3, NULL, NULL), (4, time with time zone '23:59:59-03', timestamp with time zone '1999-12-31 23:59:59-03'), (5, time with time zone '10:00:00+00', timestamp with time zone '2024-03-01 10:00:00+00');
+select * from TOB24tz order by ttz, id;
+select * from TOB24tz order by ttz desc, id;
+select * from TOB24tz order by tstz, id;
+select * from TOB24tz order by tstz desc, id;
+
+create table TOB24k_timetz (k time with time zone primary key, v varchar);
+insert into TOB24k_timetz values (time with time zone '09:00:00+05', 'y'), (time with time zone '09:00:00-05', 'x'), (time with time zone '10:00:00+00', NULL), (time with time zone '23:59:59-03', 'x');
+select * from TOB24k_timetz order by v, k;
+select * from TOB24k_timetz order by v desc, k desc limit 3;
+
+create table TOB24k_timestamptz (k timestamp with time zone primary key, v varchar);
+insert into TOB24k_timestamptz values (timestamp with time zone '2024-03-01 09:00:00+05', 'y'), (timestamp with time zone '2024-03-01 09:00:00-05', 'x'), (timestamp with time zone '2024-03-01 10:00:00+00', NULL), (timestamp with time zone '1999-12-31 23:59:59-03', 'x');
+select * from TOB24k_timestamptz order by v, k;
+select * from TOB24k_timestamptz order by v desc, k desc limit 3;
+
+-- The dates of a READONLY table are stored in the format of the table definition. Here that is text, read with the
+-- MDY datestyle, so "03-01-2024" collates before "12-31-2023" in the global.
+set datestyle = 'MDY';
+
+-- A non-key date column of a READONLY table. Its AIM cross reference stores each date converted to UNIX time, so the
+-- walk is in date order. ORDER BY optimization takes effect.
+create table TOB24e (id integer primary key, d date) global "^TOB24e" readonly;
+select * from TOB24e order by d, id;
+select * from TOB24e order by d desc, id;
+
+-- A non-key column of every data type in a READONLY table. Its AIM cross reference stores each value converted where
+-- needed (dates and times to UNIX time, booleans from "t"/"true"/"f"/"0" to 1/0), so each walk is in value order.
+-- ORDER BY optimization takes effect, except for the INTEGER and NUMERIC columns (see 2) below).
+create table TOB24h (id integer primary key, b boolean, i integer, n numeric, s varchar, d date, t time, ttz time with time zone, ts timestamp, tstz timestamp with time zone) global "^TOB24h" readonly;
+select id, b from TOB24h order by b, id;
+select id, b from TOB24h order by b desc, id;
+select id, s from TOB24h order by s, id;
+select id, s from TOB24h order by s desc, id;
+select id, d from TOB24h order by d, id;
+select id, d from TOB24h order by d desc, id;
+select id, t from TOB24h order by t, id;
+select id, t from TOB24h order by t desc, id;
+select id, ttz from TOB24h order by ttz, id;
+select id, ttz from TOB24h order by ttz desc, id;
+select id, ts from TOB24h order by ts, id;
+select id, ts from TOB24h order by ts desc, id;
+select id, tstz from TOB24h order by tstz, id;
+select id, tstz from TOB24h order by tstz desc, id;
+
+-- ORDER BY optimization does not take effect
+-- 1) The second ORDER BY column is a date key column of a READONLY table. Its FOR loop walks the subscripts as stored, in
+--    the order "01-15-2024", "03-01-2024", "12-31-2023", which is not date order.
+create table TOB24c (d date primary key, n integer) global "^TOB24c" readonly;
+select * from TOB24c order by n, d;
+-- The same for the other date/time types as the key column after the walked column v (MDY text, "10:00:00" before "9:00:00")
+create table TOB24r_time (k time primary key, v varchar) global "^TOB24rtime" readonly;
+select * from TOB24r_time order by v, k;
+create table TOB24r_timetz (k time with time zone primary key, v varchar) global "^TOB24rtimetz" readonly;
+select * from TOB24r_timetz order by v, k;
+create table TOB24r_timestamp (k timestamp primary key, v varchar) global "^TOB24rtimestamp" readonly;
+select * from TOB24r_timestamp order by v, k;
+create table TOB24r_timestamptz (k timestamp with time zone primary key, v varchar) global "^TOB24rtimestamptz" readonly;
+select * from TOB24r_timestamptz order by v, k;
+
+-- 2) An INTEGER or NUMERIC column of a READONLY table. Its AIM cross reference stores the values as they are in the global,
+--    and a value that is not a canonical number ("-0.25") is a string subscript there, which collates after all numbers
+--    (YDBOcto#1168). Also with a WHERE range on the column, which walks the same cross reference.
+select id, i from TOB24h order by i, id;
+select id, i from TOB24h order by i desc, id;
+select id, n from TOB24h order by n, id;
+select id, n from TOB24h order by n desc, id;
+select id, i from TOB24h where i > 0 order by i desc, id;
+
+-- 3) The ORDER BY column is in a local variable (pg_settings), so it has no AIM cross reference.
+--    LIMIT 0 keeps the output independent of the settings of the environment.
+select name from pg_catalog.pg_settings order by setting limit 0;
+
+-- 4) The ORDER BY column is an EXTRACT column, which cannot be cross referenced
+create table TOB24d (id integer primary key, last varchar extract "$PIECE($GET(^names(keys(""id""))),""|"",2)") global "^names" readonly;
+select * from TOB24d order by last, id;
+OCTO> create table TOB24tz (id integer primary key, ttz time with time zone, tstz timestamp with time zone);
+CREATE TABLE
+OCTO> insert into TOB24tz values (1, time with time zone '09:00:00+05', timestamp with time zone '2024-03-01 09:00:00+05'), (2, time with time zone '09:00:00-05', timestamp with time zone '2024-03-01 09:00:00-05');
+INSERT 0 2
+OCTO> insert into TOB24tz values (3, NULL, NULL), (4, time with time zone '23:59:59-03', timestamp with time zone '1999-12-31 23:59:59-03'), (5, time with time zone '10:00:00+00', timestamp with time zone '2024-03-01 10:00:00+00');
+INSERT 0 3
+OCTO> select * from TOB24tz order by ttz, id;
+id|ttz|tstz
+1|04:00:00+00|2024-03-01 04:00:00+00
+5|10:00:00+00|2024-03-01 10:00:00+00
+2|14:00:00+00|2024-03-01 14:00:00+00
+4|02:59:59+00|2000-01-01 02:59:59+00
+3||
+(5 rows)
+OCTO> select * from TOB24tz order by ttz desc, id;
+id|ttz|tstz
+3||
+4|02:59:59+00|2000-01-01 02:59:59+00
+2|14:00:00+00|2024-03-01 14:00:00+00
+5|10:00:00+00|2024-03-01 10:00:00+00
+1|04:00:00+00|2024-03-01 04:00:00+00
+(5 rows)
+OCTO> select * from TOB24tz order by tstz, id;
+id|ttz|tstz
+4|02:59:59+00|2000-01-01 02:59:59+00
+1|04:00:00+00|2024-03-01 04:00:00+00
+5|10:00:00+00|2024-03-01 10:00:00+00
+2|14:00:00+00|2024-03-01 14:00:00+00
+3||
+(5 rows)
+OCTO> select * from TOB24tz order by tstz desc, id;
+id|ttz|tstz
+3||
+2|14:00:00+00|2024-03-01 14:00:00+00
+5|10:00:00+00|2024-03-01 10:00:00+00
+1|04:00:00+00|2024-03-01 04:00:00+00
+4|02:59:59+00|2000-01-01 02:59:59+00
+(5 rows)
+OCTO> create table TOB24k_timetz (k time with time zone primary key, v varchar);
+CREATE TABLE
+OCTO> insert into TOB24k_timetz values (time with time zone '09:00:00+05', 'y'), (time with time zone '09:00:00-05', 'x'), (time with time zone '10:00:00+00', NULL), (time with time zone '23:59:59-03', 'x');
+INSERT 0 4
+OCTO> select * from TOB24k_timetz order by v, k;
+k|v
+14:00:00+00|x
+02:59:59+00|x
+04:00:00+00|y
+10:00:00+00|
+(4 rows)
+OCTO> select * from TOB24k_timetz order by v desc, k desc limit 3;
+k|v
+10:00:00+00|
+04:00:00+00|y
+02:59:59+00|x
+(3 rows)
+OCTO> create table TOB24k_timestamptz (k timestamp with time zone primary key, v varchar);
+CREATE TABLE
+OCTO> insert into TOB24k_timestamptz values (timestamp with time zone '2024-03-01 09:00:00+05', 'y'), (timestamp with time zone '2024-03-01 09:00:00-05', 'x'), (timestamp with time zone '2024-03-01 10:00:00+00', NULL), (timestamp with time zone '1999-12-31 23:59:59-03', 'x');
+INSERT 0 4
+OCTO> select * from TOB24k_timestamptz order by v, k;
+k|v
+2000-01-01 02:59:59+00|x
+2024-03-01 14:00:00+00|x
+2024-03-01 04:00:00+00|y
+2024-03-01 10:00:00+00|
+(4 rows)
+OCTO> select * from TOB24k_timestamptz order by v desc, k desc limit 3;
+k|v
+2024-03-01 10:00:00+00|
+2024-03-01 04:00:00+00|y
+2024-03-01 14:00:00+00|x
+(3 rows)
+OCTO> set datestyle = 'MDY';
+OCTO> create table TOB24e (id integer primary key, d date) global "^TOB24e" readonly;
+CREATE TABLE
+OCTO> select * from TOB24e order by d, id;
+id|d
+2|2023-12-31
+5|2023-12-31
+3|2024-01-15
+1|2024-03-01
+4|
+(5 rows)
+OCTO> select * from TOB24e order by d desc, id;
+id|d
+4|
+1|2024-03-01
+3|2024-01-15
+2|2023-12-31
+5|2023-12-31
+(5 rows)
+OCTO> create table TOB24h (id integer primary key, b boolean, i integer, n numeric, s varchar, d date, t time, ttz time with time zone, ts timestamp, tstz timestamp with time zone) global "^TOB24h" readonly;
+CREATE TABLE
+OCTO> select id, b from TOB24h order by b, id;
+id|b
+2|f
+4|f
+1|t
+3|t
+5|t
+6|
+(6 rows)
+OCTO> select id, b from TOB24h order by b desc, id;
+id|b
+6|
+1|t
+3|t
+5|t
+2|f
+4|f
+(6 rows)
+OCTO> select id, s from TOB24h order by s, id;
+id|s
+4|-1
+1|10
+2|9
+3|A1
+5|b
+6|
+(6 rows)
+OCTO> select id, s from TOB24h order by s desc, id;
+id|s
+6|
+5|b
+3|A1
+2|9
+1|10
+4|-1
+(6 rows)
+OCTO> select id, d from TOB24h order by d, id;
+id|d
+4|2023-10-02
+2|2023-12-31
+3|2024-01-15
+1|2024-03-01
+5|2024-03-01
+6|
+(6 rows)
+OCTO> select id, d from TOB24h order by d desc, id;
+id|d
+6|
+1|2024-03-01
+5|2024-03-01
+3|2024-01-15
+2|2023-12-31
+4|2023-10-02
+(6 rows)
+OCTO> select id, t from TOB24h order by t, id;
+id|t
+4|00:30:00
+2|09:00:00
+1|10:00:00
+5|10:00:00
+3|23:59:59
+6|
+(6 rows)
+OCTO> select id, t from TOB24h order by t desc, id;
+id|t
+6|
+3|23:59:59
+1|10:00:00
+5|10:00:00
+2|09:00:00
+4|00:30:00
+(6 rows)
+OCTO> select id, ttz from TOB24h order by ttz, id;
+id|ttz
+4|00:30:00+00
+2|09:00:00+00
+1|10:00:00+00
+5|10:00:00+00
+3|23:59:59+00
+6|
+(6 rows)
+OCTO> select id, ttz from TOB24h order by ttz desc, id;
+id|ttz
+6|
+3|23:59:59+00
+1|10:00:00+00
+5|10:00:00+00
+2|09:00:00+00
+4|00:30:00+00
+(6 rows)
+OCTO> select id, ts from TOB24h order by ts, id;
+id|ts
+5|2023-10-02 00:30:00
+2|2023-12-31 09:00:00
+3|2024-01-15 23:59:59
+4|2024-03-01 09:00:00
+1|2024-03-01 10:00:00
+6|
+(6 rows)
+OCTO> select id, ts from TOB24h order by ts desc, id;
+id|ts
+6|
+1|2024-03-01 10:00:00
+4|2024-03-01 09:00:00
+3|2024-01-15 23:59:59
+2|2023-12-31 09:00:00
+5|2023-10-02 00:30:00
+(6 rows)
+OCTO> select id, tstz from TOB24h order by tstz, id;
+id|tstz
+5|2023-10-02 00:30:00+00
+2|2023-12-31 09:00:00+00
+3|2024-01-15 23:59:59+00
+4|2024-03-01 09:00:00+00
+1|2024-03-01 10:00:00+00
+6|
+(6 rows)
+OCTO> select id, tstz from TOB24h order by tstz desc, id;
+id|tstz
+6|
+1|2024-03-01 10:00:00+00
+4|2024-03-01 09:00:00+00
+3|2024-01-15 23:59:59+00
+2|2023-12-31 09:00:00+00
+5|2023-10-02 00:30:00+00
+(6 rows)
+OCTO> create table TOB24c (d date primary key, n integer) global "^TOB24c" readonly;
+CREATE TABLE
+OCTO> select * from TOB24c order by n, d;
+d|n
+2024-01-15|0
+2023-12-31|1
+2024-03-01|1
+(3 rows)
+OCTO> create table TOB24r_time (k time primary key, v varchar) global "^TOB24rtime" readonly;
+CREATE TABLE
+OCTO> select * from TOB24r_time order by v, k;
+k|v
+00:30:00|x
+09:00:00|x
+10:00:00|x
+23:59:59|x
+(4 rows)
+OCTO> create table TOB24r_timetz (k time with time zone primary key, v varchar) global "^TOB24rtimetz" readonly;
+CREATE TABLE
+OCTO> select * from TOB24r_timetz order by v, k;
+k|v
+00:30:00+00|x
+09:00:00+00|x
+10:00:00+00|x
+23:59:59+00|x
+(4 rows)
+OCTO> create table TOB24r_timestamp (k timestamp primary key, v varchar) global "^TOB24rtimestamp" readonly;
+CREATE TABLE
+OCTO> select * from TOB24r_timestamp order by v, k;
+k|v
+2023-12-31 09:00:00|x
+2024-01-15 00:30:00|x
+2024-03-01 09:00:00|x
+2024-03-01 10:00:00|x
+(4 rows)
+OCTO> create table TOB24r_timestamptz (k timestamp with time zone primary key, v varchar) global "^TOB24rtimestamptz" readonly;
+CREATE TABLE
+OCTO> select * from TOB24r_timestamptz order by v, k;
+k|v
+2023-12-31 09:00:00+00|x
+2024-01-15 00:30:00+00|x
+2024-03-01 09:00:00+00|x
+2024-03-01 10:00:00+00|x
+(4 rows)
+OCTO> select id, i from TOB24h order by i, id;
+id|i
+2|-3
+5|0
+3|2
+1|10
+4|10
+6|
+(6 rows)
+OCTO> select id, i from TOB24h order by i desc, id;
+id|i
+6|
+1|10
+4|10
+3|2
+5|0
+2|-3
+(6 rows)
+OCTO> select id, n from TOB24h order by n, id;
+id|n
+2|-0.25
+1|1.5
+5|1.5
+4|2.75
+3|10
+6|
+(6 rows)
+OCTO> select id, n from TOB24h order by n desc, id;
+id|n
+6|
+3|10
+4|2.75
+1|1.5
+5|1.5
+2|-0.25
+(6 rows)
+OCTO> select id, i from TOB24h where i > 0 order by i desc, id;
+id|i
+1|10
+4|10
+3|2
+(3 rows)
+OCTO> select name from pg_catalog.pg_settings order by setting limit 0;
+name
+(0 rows)
+OCTO> create table TOB24d (id integer primary key, last varchar extract "$PIECE($GET(^names(keys(""id""))),""|"",2)") global "^names" readonly;
+CREATE TABLE
+OCTO> select * from TOB24d order by last, id;
+id|last
+1|Burn
+0|Cool
+5|Cool
+2|Killer
+3|Nikon
+4|
+(6 rows)
+OCTO> 
+# Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable
+# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the cross reference walk in ORDER BY order
+# [sort]    : the plan still collects and sorts the rows in an OrderBy step
+[no sort] : select * from TOB24a order by b desc, id
+[no sort] : select * from TOB24a order by b, id
+[no sort] : select * from TOB24a order by d desc, id
+[no sort] : select * from TOB24a order by d, id
+[no sort] : select * from TOB24a order by i desc, id
+[no sort] : select * from TOB24a order by i, id
+[no sort] : select * from TOB24a order by n desc, id desc
+[no sort] : select * from TOB24a order by n, id
+[no sort] : select * from TOB24a order by s desc, id
+[no sort] : select * from TOB24a order by s, id
+[no sort] : select * from TOB24a where i > 0 order by i desc, id
+[no sort] : select * from TOB24a where n <= 1.5 order by n desc, id
+[no sort] : select * from TOB24a where s > '1' order by s desc, id
+[no sort] : select * from TOB24e order by d desc, id
+[no sort] : select * from TOB24e order by d, id
+[no sort] : select * from TOB24f order by v desc, id limit 4
+[no sort] : select * from TOB24f where v ilike '東%' order by v desc, id
+[no sort] : select * from TOB24f where v like '日本%' order by v, id
+[no sort] : select * from TOB24f where v like '東%' order by v desc, id
+[no sort] : select * from TOB24f where v like '東京%' order by v desc, id desc
+[no sort] : select * from TOB24g order by t desc, id
+[no sort] : select * from TOB24g order by t, id
+[no sort] : select * from TOB24g order by ts desc, id desc
+[no sort] : select * from TOB24g order by ts, id
+[no sort] : select * from TOB24k_boolean order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_boolean order by v, k
+[no sort] : select * from TOB24k_date order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_date order by v, k
+[no sort] : select * from TOB24k_integer order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_integer order by v, k
+[no sort] : select * from TOB24k_numeric order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_numeric order by v, k
+[no sort] : select * from TOB24k_time order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_time order by v, k
+[no sort] : select * from TOB24k_timestamp order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_timestamp order by v, k
+[no sort] : select * from TOB24k_timestamptz order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_timestamptz order by v, k
+[no sort] : select * from TOB24k_timetz order by v desc, k desc limit 3
+[no sort] : select * from TOB24k_timetz order by v, k
+[no sort] : select * from TOB24tz order by tstz desc, id
+[no sort] : select * from TOB24tz order by tstz, id
+[no sort] : select * from TOB24tz order by ttz desc, id
+[no sort] : select * from TOB24tz order by ttz, id
+[no sort] : select * from names order by firstname desc, id limit 3
+[no sort] : select * from names order by firstname, id limit 2
+[no sort] : select * from names order by lastname desc limit 1
+[no sort] : select * from names order by lastname desc, id
+[no sort] : select * from names order by lastname desc, id desc
+[no sort] : select * from names order by lastname limit 1
+[no sort] : select * from names order by lastname, id
+[no sort] : select * from names where firstname = 'Zero' order by firstname, id
+[no sort] : select * from names where firstname like 'Ze%' order by firstname desc, id
+[no sort] : select * from names where firstname like 'Ze%' order by firstname, id
+[no sort] : select * from names where lastname < 'Killer' order by lastname, id
+[no sort] : select * from names where lastname <= 'Killer' order by lastname desc, id desc
+[no sort] : select * from names where lastname > 'C' order by lastname desc, id
+[no sort] : select * from names where lastname >= 'Cool' order by lastname desc limit 2
+[no sort] : select * from names where lastname like 'Cool%' order by lastname desc, id desc
+[no sort] : select * from names where lastname like 'K%' order by lastname desc limit 1
+[no sort] : select * from names where lastname like 'Zz%' order by lastname desc, id
+[no sort] : select id as nid, lastname from names order by lastname, nid
+[no sort] : select id, b from TOB24h order by b desc, id
+[no sort] : select id, b from TOB24h order by b, id
+[no sort] : select id, d from TOB24h order by d desc, id
+[no sort] : select id, d from TOB24h order by d, id
+[no sort] : select id, i from TOB24a order by i desc, id limit 3
+[no sort] : select id, lastname as ln from names order by ln, id
+[no sort] : select id, s from TOB24a order by s, id limit 3
+[no sort] : select id, s from TOB24h order by s desc, id
+[no sort] : select id, s from TOB24h order by s, id
+[no sort] : select id, t from TOB24g order by t desc, id limit 2
+[no sort] : select id, t from TOB24h order by t desc, id
+[no sort] : select id, t from TOB24h order by t, id
+[no sort] : select id, ts from TOB24h order by ts desc, id
+[no sort] : select id, ts from TOB24h order by ts, id
+[no sort] : select id, tstz from TOB24h order by tstz desc, id
+[no sort] : select id, tstz from TOB24h order by tstz, id
+[no sort] : select id, ttz from TOB24h order by ttz desc, id
+[no sort] : select id, ttz from TOB24h order by ttz, id
+[no sort] : select lastname is null, lastname, id from names order by lastname desc, id
+[no sort] : select n1.id, n2.lastname, n2.id from names n1, names n2 where n1.id = 2 order by n2.lastname desc, n2.id
+[sort]    : select * from TOB24b order by n, code
+[sort]    : select * from TOB24c order by n, d
+[sort]    : select * from TOB24d order by last, id
+[sort]    : select * from TOB24k_varchar order by v desc, k desc limit 3
+[sort]    : select * from TOB24k_varchar order by v, k
+[sort]    : select * from TOB24r_time order by v, k
+[sort]    : select * from TOB24r_timestamp order by v, k
+[sort]    : select * from TOB24r_timestamptz order by v, k
+[sort]    : select * from TOB24r_timetz order by v, k
+[sort]    : select * from names order by lastname, firstname
+[sort]    : select * from names order by lastname, id, firstname
+[sort]    : select * from names order by lastname, names.*
+[sort]    : select * from names order by names.*
+[sort]    : select * from names where firstname = 'Zero' order by lastname, id
+[sort]    : select * from names where id > 1 order by lastname, id
+[sort]    : select id, i from TOB24h order by i desc, id
+[sort]    : select id, i from TOB24h order by i, id
+[sort]    : select id, i from TOB24h where i > 0 order by i desc, id
+[sort]    : select id, n from TOB24h order by n desc, id
+[sort]    : select id, n from TOB24h order by n, id
+[sort]    : select lastname, count(*) from names group by lastname order by lastname
+[sort]    : select n1.id, n2.lastname from names n1 right join names n2 on n1.id = n2.id order by n2.lastname, n2.id
+[sort]    : select name from pg_catalog.pg_settings order by setting limit 0
+# likeprefixend^%ydboctoplanhelpers (start of a descending LIKE prefix walk): "Ze" gives "Zf". A last byte of
+# 255 is dropped and the byte before it is incremented ("A"_$ZCHAR(255,255) gives "B"). An empty prefix or one
+# of only bytes of 255 gives "" (start at the end of the cross reference). Values are shown between [ and ].
+[Zf]
+[B]
+[]
+[]
+# Run octo -vv on TOB24_vv.sql. Below each query are the lines of its logical plans that mark the key that walks a
+# cross reference for the ORDER BY [order_by_xref_walk: true] and a key walked in descending order [desc: true].
+
+-- TOB24 : OCTO1160 : -vv shows which LP_KEY walks an ORDER BY column ("order_by_xref_walk: true") and which LP_KEY walks
+-- in descending order ("desc: true"). Each query selects "id, lastname", which no other TOB24 query does, so that it gets
+-- a new plan whose logical plan -vv shows.
+
+-- Cross reference walk of lastname, ascending and descending
+select id, lastname from names order by lastname, id limit 1;
+select id, lastname from names order by lastname desc, id desc limit 1;
+-- Primary key FOR loop in descending order (YDBOcto#959)
+select id, lastname from names order by id desc limit 1;
+-- Cross reference that the WHERE fixes to a range, walked in descending order
+select id, lastname from names where lastname > 'C' order by lastname desc, id;
+-- Not optimized: no key shows either line
+select id, lastname from names order by lastname, firstname limit 1;
+OCTO> select id, lastname from names order by lastname, id limit 1;
+          - order_by_xref_walk: true
+OCTO> select id, lastname from names order by lastname desc, id desc limit 1;
+          - order_by_xref_walk: true
+          - desc: true
+            - desc: true
+OCTO> select id, lastname from names order by id desc limit 1;
+          - desc: true
+OCTO> select id, lastname from names where lastname > 'C' order by lastname desc, id;
+          - desc: true
+OCTO> select id, lastname from names order by lastname, firstname limit 1;

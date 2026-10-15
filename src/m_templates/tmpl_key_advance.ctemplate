@@ -69,14 +69,20 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 			%{},{}%
 
 			boolean_t	aimsub_needed;
-			if ((NULL != iter_key->xref_prefix) && ('^' == iter_key->xref_prefix[0])
+			if (!iter_key->is_order_by_xref_walk && (NULL != iter_key->xref_prefix) && ('^' == iter_key->xref_prefix[0])
 					&& (IS_COLUMN_STRING_TYPE(iter_key->column))) {
 				aimsub_needed = TRUE;
 				%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
 			} else {
 				aimsub_needed = FALSE;
 			}
-			if ((1 == keys_to_match) && IS_NULL_FIXED_VALUE(iter_key->fixed_to_value)) {
+			if (iter_key->is_order_by_xref_walk) {
+				/* The cross reference key walks the cross reference in ORDER BY order (YDBOcto#1160). Its current
+				 * subscript is kept as is (no "strcolval2aimsubs" conversion, see "aimsub_needed" above) in
+				 * PP_YDB_OCTO_ZKEYFIX (see "tmpl_tablejoin").
+				 */
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ iter_key->unique_id|%d }},{{ iter_key_index|%d }}){}%
+			} else if ((1 == keys_to_match) && IS_NULL_FIXED_VALUE(iter_key->fixed_to_value)) {
 				/* Use empty string instead of $ZYSQLNULL when generating xref global subscript.
 				 * This is because we use "" to store NULL values in the xref global.
 				 * Cannot use $ZSYSQLNULL as a subscript (will issue ZYSQLNULLNOTVALID error).

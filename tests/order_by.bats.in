@@ -238,7 +238,8 @@ OCTO
 	echo "# Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]" >> output.txt
 	# The "sed" below is to remove trailing ";" at the end of the "select" query as it does not show up in case JDBC is not
 	# randomly chosen by the test framework to execute the queries. This lets us have a deterministic reference file.
-	grep -Ei "KILL.*OrderBy|SELECT" _ydboctoP*.m | sed 's/;$//g' >> output.txt
+	# The "^;  " below matches only the query comment line (not M code such as "$SELECT(" in the plan).
+	grep -Ei "KILL.*OrderBy|^;  SELECT" _ydboctoP*.m | sed 's/;$//g' >> output.txt
 	psql names -c 'DROP TABLE IF EXISTS TOB20a,TOB20b,TOB20c;' >& postgres.drop_table_TOB20.out
 	verify_output TOB20 output.txt noinfo nodebug
 }
@@ -287,7 +288,6 @@ OCTO
 	yottadb -run %XCMD 'for k2="12-31-2023 09:00:00","03-01-2024 10:00:00","01-15-2024 00:30:00","03-01-2024 9:00:00" set ^TOB23Rtimestamp("03-01-2024 01:02:03",k2)=""'
 	yottadb -run %XCMD 'for k2="12-31-2023 09:00:00+00","03-01-2024 10:00:00+00","01-15-2024 00:30:00+00","03-01-2024 9:00:00+00" set ^TOB23Rtimestamptz("03-01-2024 01:02:03+00",k2)=""'
 	export TZ=UTC	# The TIME/TIMESTAMP WITH TIME ZONE values in TOB23_octoonly.sql are shown with offset +00
-	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOB23_octoonly.sql .
 	load_fixture TOB23_octoonly.sql subtest novv
 	echo "# Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable" >> output.txt
 	echo "# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the key FOR loops in ORDER BY order" >> output.txt
@@ -307,4 +307,61 @@ OCTO
 	done | LC_ALL=C sort >> output.txt
 	psql names -c 'DROP TABLE IF EXISTS TOB23_boolean,TOB23_integer,TOB23_numeric,TOB23_varchar,TOB23_date,TOB23_time,TOB23_timestamp;' >& postgres.drop_table_TOB23.out
 	verify_output TOB23 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TOB24 : OCTO1160 : ORDER BY on a non-key column walks an AIM cross reference of that column" {
+	echo "# Tables used by the queries below (TOB24c, TOB24d and TOB24e are created in TOB24_octoonly.sql further below)" >> output.txt
+	grep -i '^CREATE TABLE names ' @PROJECT_SOURCE_DIR@/tests/fixtures/names.sql >> output.txt
+	grep -i '^create table' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB24_types.sql >> output.txt
+	echo "# Run crosscheck on TOB24_names.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB24_names.sql noextended
+	echo "# Run crosscheck on TOB24_types.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB24_types.sql "trim_trailing_zeroes" roctoflags="-aw" noextended
+	echo "# Run only octo (not psql) on TOB24_octoonly.sql" >> output.txt
+	yottadb -run %XCMD 'set ^TOB24c("03-01-2024")=1,^TOB24c("12-31-2023")=1,^TOB24c("01-15-2024")=0'
+	yottadb -run %XCMD 'set ^TOB24e(1)="03-01-2024",^TOB24e(2)="12-31-2023",^TOB24e(3)="01-15-2024",^TOB24e(4)="",^TOB24e(5)="12-31-2023"'
+	# READONLY table with a column of every type (pieces b|i|n|s|d|t|ttz|ts|tstz), dates and times as MDY text. Row 6 has no
+	# values (all NULL).
+	yottadb -run %XCMD 'set ^TOB24h(1)="t|10|1.5|10|03-01-2024|10:00:00|10:00:00+00|03-01-2024 10:00:00|03-01-2024 10:00:00+00"'
+	yottadb -run %XCMD 'set ^TOB24h(2)="f|-3|-0.25|9|12-31-2023|9:00:00|9:00:00+00|12-31-2023 9:00:00|12-31-2023 9:00:00+00"'
+	yottadb -run %XCMD 'set ^TOB24h(3)="true|2|10|A1|01-15-2024|23:59:59|23:59:59+00|01-15-2024 23:59:59|01-15-2024 23:59:59+00"'
+	yottadb -run %XCMD 'set ^TOB24h(4)="0|10|2.75|-1|10-02-2023|0:30:00|0:30:00+00|03-01-2024 9:00:00|03-01-2024 9:00:00+00"'
+	yottadb -run %XCMD 'set ^TOB24h(5)="t|0|1.5|b|03-01-2024|10:00:00|10:00:00+00|10-02-2023 0:30:00|10-02-2023 0:30:00+00"'
+	yottadb -run %XCMD 'set ^TOB24h(6)=""'
+	# READONLY date/time key columns after the walked column: MDY text whose string order is not the date/time order
+	yottadb -run %XCMD 'for k="9:00:00","10:00:00","23:59:59","0:30:00" set ^TOB24rtime(k)="x"'
+	yottadb -run %XCMD 'for k="9:00:00+00","10:00:00+00","23:59:59+00","0:30:00+00" set ^TOB24rtimetz(k)="x"'
+	yottadb -run %XCMD 'for k="12-31-2023 09:00:00","03-01-2024 10:00:00","01-15-2024 00:30:00","03-01-2024 9:00:00" set ^TOB24rtimestamp(k)="x"'
+	yottadb -run %XCMD 'for k="12-31-2023 09:00:00+00","03-01-2024 10:00:00+00","01-15-2024 00:30:00+00","03-01-2024 9:00:00+00" set ^TOB24rtimestamptz(k)="x"'
+	export TZ=UTC	# The TIME/TIMESTAMP WITH TIME ZONE values in TOB24_octoonly.sql are shown with offset +00
+	load_fixture TOB24_octoonly.sql subtest novv
+	echo "# Verify ORDER BY optimization took effect (i.e. ORDER BY got removed) from queries where applicable" >> output.txt
+	echo "# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the cross reference walk in ORDER BY order" >> output.txt
+	echo "# [sort]    : the plan still collects and sorts the rows in an OrderBy step" >> output.txt
+	# The "sed" below is to remove trailing ";" at the end of the "select" query as it does not show up in case JDBC is not
+	# randomly chosen by the test framework to execute the queries. This lets us have a deterministic reference file.
+	for plan in _ydboctoP*.m; do
+		query=$(grep -m 1 '^;  select' $plan | sed 's/^;  //;s/;$//g')
+		if [[ -z $query ]]; then
+			continue	# An INSERT plan (from TOB24_types.sql). It has no SELECT.
+		fi
+		if grep -q 'KILL.*"OrderBy"' $plan; then
+			echo "[sort]    : $query"
+		else
+			echo "[no sort] : $query"
+		fi
+	done | LC_ALL=C sort >> output.txt
+	echo "# likeprefixend^%ydboctoplanhelpers (start of a descending LIKE prefix walk): \"Ze\" gives \"Zf\". A last byte of" >> output.txt
+	echo "# 255 is dropped and the byte before it is incremented (\"A\"_\$ZCHAR(255,255) gives \"B\"). An empty prefix or one" >> output.txt
+	echo "# of only bytes of 255 gives \"\" (start at the end of the cross reference). Values are shown between [ and ]." >> output.txt
+	yottadb -run %XCMD 'for p="Ze","A"_$zchar(255,255),"",$zchar(255) write "[",$$likeprefixend^%ydboctoplanhelpers(p),"]",!' >> output.txt
+	echo "# Run octo -vv on TOB24_vv.sql. Below each query are the lines of its logical plans that mark the key that walks a" >> output.txt
+	echo "# cross reference for the ORDER BY [order_by_xref_walk: true] and a key walked in descending order [desc: true]." >> output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB24_vv.sql >> output.txt	# Filter out the copyright
+	# Filter out the comment lines too, so that each query is the first line of its command (shown after "OCTO> " by -p)
+	grep -vE '^#|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB24_vv.sql > TOB24_vv.sql
+	octo -vv -p -f TOB24_vv.sql > TOB24_vv.out 2>&1
+	grep -E '^OCTO> .|- order_by_xref_walk: true|- desc: true' TOB24_vv.out >> output.txt
+	psql names -c 'DROP TABLE IF EXISTS TOB24a,TOB24b,TOB24f,TOB24g,TOB24k_boolean,TOB24k_integer,TOB24k_numeric,TOB24k_varchar,TOB24k_date,TOB24k_time,TOB24k_timestamp;' >& postgres.drop_table_TOB24.out
+	verify_output TOB24 output.txt nodatetimefilter noinfo nodebug
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -175,6 +175,15 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			      key->is_cross_reference_key ? "true" : "false");
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- uses_xref_key: %s\n", depth, "",
 			      key->cross_reference_output_key ? "true" : "false");
+		/* The ORDER BY optimization (see "lp_optimize_order_by()"). Printed only when TRUE, so that the plans of all other
+		 * keys look as before.
+		 */
+		if (key->is_order_by_xref_walk) {
+			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- order_by_xref_walk: true\n", depth, "");
+		}
+		if (key->emit_desc_order) {
+			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- desc: true\n", depth, "");
+		}
 		if (LP_KEY_FIX == key->type) {
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- value:\n", depth, "");
 			buff_ptr

@@ -2121,6 +2121,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
+    DO:'$GET(^%ydbAIMOctoCache("testd","dob","completed?")) xrefPlan^%ydboctoXacO2s2wGkXN376D2MMRgI5(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -2129,23 +2130,20 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")=$ORDER(^%ydboctoDfPS5FyDNkZxESXhtvhheL6(%ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$PIECE($GET(^%ydboctoDfPS5FyDNkZxESXhtvhheL6(%ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoDfPS5FyDNkZxESXhtvhheL6(%ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol"))),"|",2))),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ; %ydboctonullflag(1,0)=1 while visiting the NULL values (subscript "") of this ORDER BY cross reference walk
+    FOR %ydboctonullflag(1,0)=0,1 SET %ydboctozkeyfix(1,0)="" DO:%ydboctonullflag(1,0)  IF '%ydboctonullflag(1,0) FOR  SET %ydboctozkeyfix(1,0)=$ORDER(^%ydbAIMDXQDK7JG57b58H4n7Nz5vC3(2,%ydboctozkeyfix(1,0))) QUIT:(""=%ydboctozkeyfix(1,0))  DO
+    . SET %ydboctocursor(cursorId,"keys",1,"testd","dob")=$SELECT(%ydboctonullflag(1,0):$ZYSQLNULL,1:%ydboctozkeyfix(1,0))
+    . SET %ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")=""
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")=$ORDER(^%ydbAIMDXQDK7JG57b58H4n7Nz5vC3(2,%ydboctozkeyfix(1,0),%ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")="")  DO
+    . . SET %ydboctoexpr=1
+    . . DO:%ydboctoexpr
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"testd","dob")
+    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"testd","%yo_keycol")
-    NEW %ydboctoi  SET %ydboctoi(0)=1
-    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
-    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))
-    . . IF $INCREMENT(%ydboctoi(0))
-    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
+    ZKILL %ydboctocursor(cursorId,"keys",1,"testd","dob")  KILL %ydboctozkeyfix(1),%ydboctonullflag(1)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -2631,6 +2629,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
+    DO:'$GET(^%ydbAIMOctoCache("testts","dob","completed?")) xrefPlan^%ydboctoXEVb5NQRa25b9IH8SlTr15C(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -2639,23 +2638,20 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")=$ORDER(^%ydboctoDnq7pEzfcDI2GBIRqMITA98(%ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$PIECE($GET(^%ydboctoDnq7pEzfcDI2GBIRqMITA98(%ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoDnq7pEzfcDI2GBIRqMITA98(%ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol"))),"|",2))),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ; %ydboctonullflag(1,0)=1 while visiting the NULL values (subscript "") of this ORDER BY cross reference walk
+    FOR %ydboctonullflag(1,0)=0,1 SET %ydboctozkeyfix(1,0)="" DO:%ydboctonullflag(1,0)  IF '%ydboctonullflag(1,0) FOR  SET %ydboctozkeyfix(1,0)=$ORDER(^%ydbAIMDyV1RCfoXzpMUz7pGZhgyC0(2,%ydboctozkeyfix(1,0))) QUIT:(""=%ydboctozkeyfix(1,0))  DO
+    . SET %ydboctocursor(cursorId,"keys",1,"testts","dob")=$SELECT(%ydboctonullflag(1,0):$ZYSQLNULL,1:%ydboctozkeyfix(1,0))
+    . SET %ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")=""
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")=$ORDER(^%ydbAIMDyV1RCfoXzpMUz7pGZhgyC0(2,%ydboctozkeyfix(1,0),%ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")="")  DO
+    . . SET %ydboctoexpr=1
+    . . DO:%ydboctoexpr
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"testts","dob")
+    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
+    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"testts","%yo_keycol")
-    NEW %ydboctoi  SET %ydboctoi(0)=1
-    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
-    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))
-    . . IF $INCREMENT(%ydboctoi(0))
-    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
+    ZKILL %ydboctocursor(cursorId,"keys",1,"testts","dob")  KILL %ydboctozkeyfix(1),%ydboctonullflag(1)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -4557,6 +4553,7 @@ octoPlan3(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
+    DO:'$GET(^%ydbAIMOctoCache("testt","tob","completed?")) xrefPlan^%ydboctoX2QhGW9pAUhdwoQEirRBIKJ(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -4565,23 +4562,20 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")=$ORDER(^%ydboctoDfeq5qHtUvM4DOr2itm4IB2(%ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")="")  DO
-    . SET %ydboctoexpr=1
-    . DO:%ydboctoexpr
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctoexpr=$PIECE($GET(^%ydboctoDfeq5qHtUvM4DOr2itm4IB2(%ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol"))),"|",2) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$$ForceNumeric^%ydboctoplanhelpers($$piecevalue2colvalue^%ydboctoplanhelpers($PIECE($GET(^%ydboctoDfeq5qHtUvM4DOr2itm4IB2(%ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol"))),"|",2))),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+    ; %ydboctonullflag(1,0)=1 while visiting the NULL values (subscript "") of this ORDER BY cross reference walk
+    FOR %ydboctonullflag(1,0)=0,1 SET %ydboctozkeyfix(1,0)="" DO:%ydboctonullflag(1,0)  IF '%ydboctonullflag(1,0) FOR  SET %ydboctozkeyfix(1,0)=$ORDER(^%ydbAIMDhRRt03Yd7kgIsUUZeLe5G7(2,%ydboctozkeyfix(1,0))) QUIT:(""=%ydboctozkeyfix(1,0))  DO
+    . SET %ydboctocursor(cursorId,"keys",1,"testt","tob")=$SELECT(%ydboctonullflag(1,0):$ZYSQLNULL,1:%ydboctozkeyfix(1,0))
+    . SET %ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")=""
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")=$ORDER(^%ydbAIMDhRRt03Yd7kgIsUUZeLe5G7(2,%ydboctozkeyfix(1,0),%ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")="")  DO
+    . . SET %ydboctoexpr=1
+    . . DO:%ydboctoexpr
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"testt","tob")
+    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
+    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"testt","%yo_keycol")
-    NEW %ydboctoi  SET %ydboctoi(0)=1
-    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
-    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2))
-    . . IF $INCREMENT(%ydboctoi(0))
-    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
+    ZKILL %ydboctocursor(cursorId,"keys",1,"testt","tob")  KILL %ydboctozkeyfix(1),%ydboctonullflag(1)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------

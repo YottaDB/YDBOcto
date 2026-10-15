@@ -191,13 +191,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						 * the pattern is a plan parameter. AIM stores a string column value as "#"_value, so all
 						 * values (including canonical numbers) collate as strings and the values that share a
 						 * prefix form one contiguous block. Hence the first value outside the prefix ends the
-						 * walk. The optimizer only gets here for an AIM cross reference key in ascending order.
+						 * walk. The optimizer only gets here for an AIM cross reference key.
+						 * In descending order (ORDER BY the column DESC, YDBOcto#1160), the walk instead starts just
+						 * after the last value that starts with the prefix (see "likeprefixend") and walks down.
 						 */
 						is_like_prefix = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == key->fixed_to_value_type)
 								|| (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == key->fixed_to_value_type)
 								|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type));
-						assert(!is_like_prefix || (key->is_cross_reference_key && ('^' == key->xref_prefix[0])
-										&& !key->emit_desc_order));
+						assert(!is_like_prefix || (key->is_cross_reference_key && ('^' == key->xref_prefix[0])));
 						TMPL(tmpl_print_dots, dot_count);
 						if (is_like_prefix) {
 							%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1){}%
@@ -209,8 +210,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							%{}){}%
 							%{}`n{{ PLAN_LINE_START }}{}%
 							TMPL(tmpl_print_dots, dot_count);
-							%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-							%{}={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1){}%
+							%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
+							if (key->emit_desc_order) {
+								%{}$$likeprefixend^%%ydboctoplanhelpers({}%
+							}
+							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1){}%
+							if (key->emit_desc_order) {
+								%{}){}%
+							}
 							%{}`n{{ PLAN_LINE_START }}{}%
 							TMPL(tmpl_print_dots, dot_count);
 						}
@@ -268,12 +275,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						    	|| (key->emit_desc_order
 								&& (LP_BOOLEAN_LESS_THAN_OR_EQUALS == key->fixed_to_value_type))) {
 							%{}DO  {}%
-						} else if (is_like_prefix) {
-							/* Same for a LIKE prefix, except when the prefix is empty. That is only possible
-							 * for a bind parameter pattern (e.g. '%PAT' bound to $1). The start value would
-							 * then be "", whose cross reference entry holds the rows where the column is
-							 * NULL, and the body would see their value as "" instead of NULL. LIKE never
-							 * matches NULL, so skip that entry. The FOR loop then walks every other entry.
+						} else if (is_like_prefix && !key->emit_desc_order) {
+							/* Same for a LIKE prefix in ascending order, except when the prefix is empty. That is
+							 * only possible for a bind parameter pattern (e.g. '%PAT' bound to $1). The start
+							 * value would then be "", whose cross reference entry holds the rows where the
+							 * column is NULL, and the body would see their value as "" instead of NULL. LIKE
+							 * never matches NULL, so skip that entry. The FOR loop then walks every other entry.
+							 * A descending walk starts after the prefix, which no value matches, so it has no DO.
 							 */
 							%{}DO:""'={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})  {}%
 						}
@@ -323,17 +331,41 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 
 							%{},{}%
 
-							boolean_t	aimsub_needed2;
+							boolean_t	aimsub_needed2, desc_from_end;
 							if (('^' == key->xref_prefix[0]) && (IS_COLUMN_STRING_TYPE(key->column))) {
 								aimsub_needed2 = TRUE;
+								/* A descending walk for ">" or ">=" starts at the end of the cross
+								 * reference, i.e. at the subscript "" (see the SET of
+								 * PP_YDB_OCTO_ZKEYFIX to "" above). That "" must not be converted
+								 * with "strcolval2aimsubs" as it would then become "#", which is the
+								 * subscript of the NULL values and collates BEFORE all other values.
+								 * $ORDER(...,"#",-1) would then return "" right away and the walk
+								 * would find no rows (YDBOcto#1160).
+								 * A descending walk for a LIKE prefix starts at the end of the cross
+								 * reference too when "likeprefixend" returns "" (an empty prefix).
+								 */
+								desc_from_end = (key->emit_desc_order
+										 && ((LP_BOOLEAN_GREATER_THAN == key->fixed_to_value_type)
+										     || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS
+											 == key->fixed_to_value_type)
+										     || is_like_prefix));
+								if (desc_from_end) {
+									%{}$SELECT(""={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+									%{},{{ cur_key|%d }}):"",1:{}%
+								}
 								%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
 							} else {
 								aimsub_needed2 = FALSE;
+								desc_from_end = FALSE;
 							}
-							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
 							if (aimsub_needed2) {
 								%{}){}%
 							}
+							if (desc_from_end) {
+								%{}){}%
+							}
+							%{}){}%
 						} else {
 							TMPL(tmpl_key_source, pplan, key, EmitSourceForm_KeyFix);
 						}
@@ -617,6 +649,108 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			 */
 			TMPL(tmpl_key_skip, key, dot_count + 1);
 			dot_count++;
+			continue;
+		}
+		if (key->is_order_by_xref_walk) {
+			char	*null_subs;
+
+			/* This cross reference key walks ALL values of an AIM cross reference in ORDER BY order (YDBOcto#1160).
+			 * The rows of each value are found by the FOR loops of the primary key columns that follow this key.
+			 * PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key) holds the current subscript of the cross reference, as is.
+			 *
+			 * The NULL values of the column are under the subscript "null_subs": "#" for a string column (AIM stores
+			 * a string value as "#"_value so "#" collates before all other values) and "" for other column types
+			 * ($ORDER never returns ""). The ORDER BY puts NULL values last in ascending order and first in
+			 * descending order. So the walk has two phases, controlled by the outer FOR loop variable
+			 * PP_YDB_OCTO_NULLFLAG(unique_id,cur_key), which is 1 while visiting the NULL values:
+			 *	FOR nullflag=0,1 (ascending) or FOR nullflag=1,0 (descending)
+			 *	  nullflag=1: the argumentless "DO:nullflag" runs the loop body once for the "null_subs" subscript.
+			 *	  nullflag=0: the inner FOR loop walks the other subscripts with $ORDER and runs the SAME loop body
+			 *		      (an argumentless DO) for each one. Ascending, it starts at "null_subs" (so $ORDER
+			 *		      skips it). Descending, it starts at the end ("") and stops at "" or at "null_subs"
+			 *		      (so the NULL values are not visited twice).
+			 * The inner $ORDER loop has no NULL check in it, so each value costs no more than any other key loop.
+			 */
+			assert(!right_join_second_half);	/* RIGHT/FULL JOINs are excluded by "lp_optimize_order_by()" */
+			assert(NULL == key->fixed_to_value);
+			assert(key->is_cross_reference_key && ('^' == key->xref_prefix[0]));
+
+			boolean_t	is_string;
+			is_string = IS_COLUMN_STRING_TYPE(key->column);
+			null_subs = is_string ? "\"#\"" : "\"\"";
+
+			SqlValue	*value;
+			char		*tableName2, *columnName2;
+			UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
+			tableName2 = value->v.reference;
+			UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
+			columnName2 = value->v.reference;
+
+			TMPL(tmpl_print_dots, dot_count);
+			%{}; {{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})=1 while visiting the NULL values {}%
+			%{}(subscript {{ null_subs }}) of this ORDER BY cross reference walk{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}FOR {{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
+			if (!key->emit_desc_order) {
+				%{}0,1 {}%
+			} else {
+				%{}1,0 {}%
+			}
+			%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
+			if (!key->emit_desc_order) {
+				%{}{{ null_subs }} {}%
+			} else {
+				%{}$SELECT({{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}):{{ null_subs }},1:"") {}%
+			}
+			%{}DO:{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})  {}%
+			%{}IF '{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}) FOR  {}%
+			if (NULL != limit_keyword) {
+				/* Check the LIMIT before the $ORDER, so that the walk does not read the next subscript once the LIMIT
+				 * is reached by the primary key loop inside it. This one check also covers the start of the second
+				 * phase. At most the NULL phase of an ascending walk then probes its subscript once (the primary
+				 * key loop inside it checks the LIMIT after its first $ORDER).
+				 */
+				%{}QUIT:{}%
+				TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT);
+				(*buffer_index)--;	/* Remove the trailing ")" from "tmpl_limit_check" call above */
+				%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
+				%{})  {}%	/* Add back the trailing ")" from "tmpl_limit_check" call above */
+			}
+			%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})=$ORDER({}%
+			TMPL(tmpl_key_source_aim, tableName2, columnName2);
+			%{},{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+			if (key->emit_desc_order) {
+				%{},-1{}%
+			}
+			%{}) QUIT:(""={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+			if (key->emit_desc_order && is_string) {
+				/* A descending walk reaches "null_subs" ("#") last. Those values were visited first. */
+				%{}!({{ null_subs }}={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+			}
+			%{}  DO`n{{ PLAN_LINE_START }}{}%
+			dot_count++;
+			/* The column value of this key (used by any reference to the column, see "tmpl_column_reference") is NULL
+			 * while visiting the NULL values, and otherwise the cross reference subscript (without the "#" prefix
+			 * for a string column).
+			 * The primary key FOR loops that follow use the subscript as is (see "tmpl_key_advance").
+			 */
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {}%
+			TMPL(tmpl_key, key);
+			%{}=$SELECT({{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}):$ZYSQLNULL,1:{}%
+			if (is_string) {
+				/* Remove the "#" prefix. The end position is the maximum string length (YDB_MAX_STR), which is never
+				 * shorter than the subscript, so that no $ZLENGTH call is needed for every value.
+				 */
+				%{}$ZEXTRACT({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}),2,{{ YDB_MAX_STR|%d }})){}%
+			} else {
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_key_skip, key, dot_count);
+			fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
+			need_tmpl_key_finish = TRUE;
 			continue;
 		}
 		if (key->is_cross_reference_key && right_join_second_half) {

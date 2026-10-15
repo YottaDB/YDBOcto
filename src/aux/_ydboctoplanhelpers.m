@@ -2102,6 +2102,22 @@ likeprefix(patt,icase)
 	. SET:'prefixdone prefix=prefix_ch
 	QUIT prefix
 
+likeprefixend(prefix)
+	; YDBOcto#1160 : Returns the smallest string that collates after every string that starts with "prefix" (the value of
+	; "likeprefix" above). A plan walks a cross reference in descending order over a LIKE prefix from there, with
+	; $ORDER(...,-1), for a query like "WHERE col LIKE 'PAT%' ORDER BY col DESC". For example, "Ze" returns "Zf".
+	; The last byte of the prefix is incremented. A last byte of 255 cannot be incremented, so it is dropped and the byte
+	; before it is incremented instead. If no byte is left (an empty prefix, or one that is all bytes of 255), "" is
+	; returned, and the walk starts at the end of the cross reference.
+	; The bytes are worked on with $ZASCII/$ZCHAR. In UTF-8 mode, the result can be an invalid UTF-8 string (e.g. when the
+	; last byte is a continuation byte). That is fine as it is only used as a $ORDER subscript, which collates by bytes.
+	QUIT:$ZYISSQLNULL(prefix) $ZYSQLNULL
+	NEW len,byte
+	SET len=$ZLENGTH(prefix)
+	FOR  QUIT:'len  SET byte=$ZASCII(prefix,len) QUIT:255>byte  SET len=len-1
+	QUIT:'len ""
+	QUIT $ZEXTRACT(prefix,1,len-1)_$ZCHAR(byte+1)
+
 ; -------------------------------------------------------------------------------------------------------------------
 ; YDBOcto#1146 : Accessors that let an M routine invoked from an EXTRACT column expression or from an ITERATOR key
 ; column expression find out which table and column it is working on.

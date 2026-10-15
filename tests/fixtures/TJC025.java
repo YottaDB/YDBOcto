@@ -111,6 +111,23 @@ public class TJC025 {
 				System.out.printf("setString('%s') : v ILIKE ? -> [%s] : COALESCE(v, NULL) ILIKE ? -> [%s]%n", pattern,
 						  runQuery(ilikeQuery), runQuery(ilikeEveryRowQuery));
 			}
+			/* ORDER BY v DESC (YDBOcto#1160). The walk over the prefix goes down from just after the last value that starts
+			 * with the prefix. 'pat%' with ILIKE has an empty prefix, so that walk starts at the end of the cross reference.
+			 * "COALESCE(v, NULL)" sorts the rows instead, and the two lists must be the same.
+			 */
+			String[] descPatterns = {"LIKE PAT%", "LIKE 12%", "LIKE a\u00f1%", "LIKE ZZZ%", "ILIKE 12A%", "ILIKE pat%"};
+			for (String spec : descPatterns) {
+				String		  operator = spec.split(" ")[0], pattern = spec.split(" ")[1];
+				PreparedStatement descQuery, descEveryRowQuery;
+
+				descQuery = conn.prepareStatement("SELECT id FROM TJC025 WHERE v " + operator + " ? ORDER BY v DESC, id");
+				descEveryRowQuery = conn.prepareStatement("SELECT id FROM TJC025 WHERE COALESCE(v, NULL) " + operator
+									  + " ? ORDER BY v DESC, id");
+				descQuery.setString(1, pattern);
+				descEveryRowQuery.setString(1, pattern);
+				System.out.printf("setString('%s') : v %s ? ORDER BY v DESC -> [%s] : COALESCE(v, NULL) %s ? -> [%s]%n",
+						  pattern, operator, runQuery(descQuery), operator, runQuery(descEveryRowQuery));
+			}
 			// A value bound without a data type (the client leaves the type to the server)
 			columnQuery.setObject(1, "PAT%", Types.OTHER);
 			everyRowQuery.setObject(1, "PAT%", Types.OTHER);

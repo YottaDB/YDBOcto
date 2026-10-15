@@ -88,6 +88,7 @@
 #define PP_YDB_OCTO_ZDUPLICATE	"%ydboctozduplicate"
 #define PP_YDB_OCTO_ZLIMIT	"%ydboctozlimit"
 #define PP_YDB_OCTO_ZKEYFIX	"%ydboctozkeyfix"
+#define PP_YDB_OCTO_NULLFLAG	"%ydboctonullflag"
 #define PP_CONVERT_TO_UNIX_TIME "$$Transform2UnixTime^%ydboctoplanhelpers("
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */

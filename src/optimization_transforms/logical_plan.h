@@ -378,6 +378,12 @@ typedef struct SqlKey {
 	boolean_t    emit_desc_order;	  /* TRUE if FOR loop emitted for this key needs to be a descending loop
 					   * (instead of default ascending loop).
 					   */
+	boolean_t    is_order_by_xref_walk; /* TRUE if this is a cross reference key that is not fixed to any value and
+					     * instead walks ALL values of the cross reference in ORDER BY order
+					     * (ascending or descending based on "emit_desc_order"), NULL values last
+					     * in ascending order and first in descending order. Set by
+					     * "lp_optimize_order_by()" (YDBOcto#1160).
+					     */
 	LPActionType fixed_to_value_type; /* Initialized to one of the following if "fixed_to_value" is non-NULL.
 					   *	LP_BOOLEAN_EQUALS
 					   *	LP_BOOLEAN_IS
@@ -489,6 +495,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
  * reference
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
+SqlKey	    *lp_insert_xref_key(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 // Returns a logical plan representing the provided ColumnListAlias
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_error_encountered);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key);

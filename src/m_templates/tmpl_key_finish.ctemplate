@@ -30,6 +30,10 @@ TEMPLATE(tmpl_key_finish, SqlKey *key) {
 		%{}  KILL {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}){}%
 		break;
 	default:
+		if (key->is_order_by_xref_walk) {
+			/* The cross reference walk of an ORDER BY (YDBOcto#1160) uses these (see "tmpl_tablejoin") */
+			%{}  KILL {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}),{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }}){}%
+		}
 		break;
 	}
 	return;

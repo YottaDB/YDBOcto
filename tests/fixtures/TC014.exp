@@ -11,6 +11,12 @@
 #								#
 #################################################################
 
+# The first octo process in this test loads octo-seed.sql while holding the exclusive DDL lock, which can take
+# longer than the default 10 second timeout of the "expect" utility on a loaded system (e.g. an ASAN build).
+# Sending <Ctrl-Z> before the OCTO> prompt shows up would suspend it with that lock held, and the second octo
+# process would then time out waiting for it. Therefore, set the timeout to a bigger value at the start of the test.
+set timeout 60
+
 spawnbash
 
 # Wait for shell prompt first. Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.

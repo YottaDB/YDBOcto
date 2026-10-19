@@ -37,6 +37,20 @@ void handle_sigint(int sig, siginfo_t *info, void *context) {
 	rocto_session.session_ending = TRUE;
 }
 
+/* The handler YottaDB installed for QUERY_CANCEL_SIGNAL, which "cancel_signal_handler()" passes the signal on to */
+static struct sigaction ydb_query_cancel_action;
+
+/* Handler in a rocto server for QUERY_CANCEL_SIGNAL, the signal a CancelRequest sends ("handle_cancel_request()").
+ * YottaDB turns that signal into a job interrupt, which cancels the query if its M code is running. But YottaDB discards a
+ * pending job interrupt in a SimpleAPI call, and parsing a query and generating its plan make many of those. So a
+ * CancelRequest that arrives before the M code of the query runs would be lost. Note it in "ctrlc_pressed", which
+ * "run_query()" and "handle_execute()" check before they run that M code, and then invoke the YottaDB handler.
+ */
+static void cancel_signal_handler(int sig, siginfo_t *info, void *context) {
+	ctrlc_pressed = TRUE;
+	(*ydb_query_cancel_action.sa_sigaction)(sig, info, context);
+}
+
 #if YDB_TLS_AVAILABLE
 #include "ydb_tls_interface.h"
 #endif
@@ -307,6 +321,20 @@ int main(int argc, char **argv) {
 
 		// Reset process_id to point to the child (would be pointing to the parent pid till now)
 		config->process_id = getpid();
+
+		/* Interpose "cancel_signal_handler()" in front of the YottaDB handler for QUERY_CANCEL_SIGNAL, keeping the
+		 * flags and mask YottaDB set up for it.
+		 */
+		struct sigaction cancel_action;
+		if (0 != sigaction(QUERY_CANCEL_SIGNAL, NULL, &ydb_query_cancel_action)) {
+			FATAL(ERR_SYSCALL, "sigaction(QUERY_CANCEL_SIGNAL)", errno, strerror(errno));
+		}
+		assert(ydb_query_cancel_action.sa_flags & SA_SIGINFO);
+		cancel_action = ydb_query_cancel_action;
+		cancel_action.sa_sigaction = cancel_signal_handler;
+		if (0 != sigaction(QUERY_CANCEL_SIGNAL, &cancel_action, NULL)) {
+			FATAL(ERR_SYSCALL, "sigaction(QUERY_CANCEL_SIGNAL)", errno, strerror(errno));
+		}
 
 		LOG_LOCAL_ONLY(INFO, INFO_ROCTO_SERVER_FORKED, config->process_id); // Record rocto server process
 

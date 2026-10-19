@@ -220,8 +220,20 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		ci_routine.length = routine_buffer.len_used;
 		/* Currently read-only queries are not wrapped in TP and read-write queries are wrapped in TP. */
 		wrapInTp = (select_STATEMENT != command_tag);
-		// Run the target routine
-		status = ydb_ci("_ydboctoselect", *cursorId, &ci_routine, (ydb_int_t)wrapInTp);
+		/* Run the target routine, unless a CancelRequest that arrived before it runs (for example while the query was
+		 * parsed or its plan generated for the Parse message) canceled the query. In that case, set "%ydboctoCancel"
+		 * instead (as "run^%ydboctoCleanup" does for a canceled query) so that "is_query_canceled()" below reports the
+		 * query as canceled. See "cancel_signal_handler()" in "rocto.c" for why the M code would not see it.
+		 */
+		if (ctrlc_pressed) {
+			ydb_buffer_t ydbocto_cancel, cancel_value;
+
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOCANCEL, &ydbocto_cancel);
+			YDB_LITERAL_TO_BUFFER("1", &cancel_value);
+			status = ydb_set_s(&ydbocto_cancel, 0, NULL, &cancel_value);
+		} else {
+			status = ydb_ci("_ydboctoselect", *cursorId, &ci_routine, (ydb_int_t)wrapInTp);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			// Cleanup cursor parameters

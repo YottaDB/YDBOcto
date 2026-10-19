@@ -130,6 +130,14 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 	SqlDisplayRelation *display_relation;
 	SqlStatement	   *table_stmt;
 
+#ifndef NDEBUG
+	if (config->is_rocto && (NULL != getenv("octo_dbg_cancel_before_query_parse"))) {
+		/* Test hook (used by the TCR05 test) that sends this rocto server the signal of a CancelRequest before the query
+		 * is parsed. A real CancelRequest lands in that window only if parsing and plan generation are slow.
+		 */
+		kill(getpid(), QUERY_CANCEL_SIGNAL);
+	}
+#endif
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	cursor_ydb_buff.buf_addr = cursor_buffer;
@@ -323,12 +331,13 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		 * "query_running_in_m" tells the octo Ctrl-C handler ("ctrlc_handler()" in "octo.c") that a SIGUSR2 sent now
 		 * would cancel this query. A Ctrl-C can come at any time (mostly at the "OCTO>" prompt), and a SIGUSR2 sent
 		 * while no M code runs stays pending until M code next runs, where it would cancel the NEXT query or a DDL
-		 * command. rocto does not need this: it sends the SIGUSR2 only for a CancelRequest, which a client sends only
-		 * while it waits for a query to finish. So the SIGUSR2 either cancels the M code of that query, or, if it
-		 * arrives after that M code is done, is discarded by the "is_query_canceled()" call below.
+		 * command. rocto does not use "query_running_in_m": it sends the SIGUSR2 only for a CancelRequest, and
+		 * "rocto_main_loop()" discards one that arrives between requests.
 		 * A Ctrl-C that came before "query_running_in_m" is set (for example while the query was parsed or its plan
-		 * was generated, which can take seconds) sent no SIGUSR2 and only set "ctrlc_pressed". In that case do not run
-		 * the M code at all, and set "%ydboctoCancel" (as "run^%ydboctoCleanup" does for a canceled query) so that
+		 * was generated, which can take seconds) sent no SIGUSR2 and only set "ctrlc_pressed". A CancelRequest that
+		 * came then did send a SIGUSR2, but YottaDB discarded it in a SimpleAPI call, so it too is known only from
+		 * "ctrlc_pressed" (see "cancel_signal_handler()" in "rocto.c"). In either case do not run the M code at all,
+		 * and set "%ydboctoCancel" (as "run^%ydboctoCleanup" does for a canceled query) so that
 		 * "is_query_canceled()" reports the query as canceled. "query_running_in_m" is set before "ctrlc_pressed" is
 		 * checked, so a Ctrl-C that comes between the two sends a SIGUSR2 and is also seen by the check. No M code runs
 		 * then, and YottaDB discards that SIGUSR2 in the "ydb_set_s()" call (it ignores a pending job interrupt in a

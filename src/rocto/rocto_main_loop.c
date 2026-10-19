@@ -42,6 +42,15 @@ int rocto_main_loop(RoctoSession *session) {
 	boolean_t      send_ready_for_query = TRUE;
 	boolean_t      extended_query_error = FALSE;
 	boolean_t      terminated = FALSE;
+	/* TRUE if the next message starts a new request (a Query, or the first message of an extended query exchange).
+	 * "cancel_signal_handler()" in "rocto.c" sets "ctrlc_pressed" whenever a CancelRequest arrives, and nothing else
+	 * clears it. So it must be cleared before each request, or a CancelRequest that arrived after the previous query was
+	 * done, or while this server waited for the next request, would cancel the next query. It cannot be cleared at every
+	 * message, because an extended query exchange spans several messages (Parse, Bind, Execute, ..., Sync), and a
+	 * CancelRequest that arrives while, say, the Parse message is handled must still cancel the query run by the later
+	 * Execute message. This variable lets the loop below clear "ctrlc_pressed" only at the first message of a request.
+	 */
+	boolean_t request_done = TRUE;
 
 	TRACE(INFO_ENTERING_FUNCTION, "rocto_main_loop");
 	// Send an initial ready
@@ -89,6 +98,14 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		}
 		TRACE(INFO_READ_MESSAGE, message->type, ntohl(message->length));
+		if (request_done) {
+			/* This message starts a new request. Discard a CancelRequest that arrived before it (see
+			 * "cancel_signal_handler()" in "rocto.c"), while this server was done with the previous request, so it
+			 * does not cancel this one. PostgreSQL ignores such a CancelRequest too.
+			 */
+			ctrlc_pressed = FALSE;
+			request_done = FALSE;
+		}
 		// Discard any messages received after an error in an extended query exchange until hitting a Sync message
 		if (extended_query_error && (PSQL_Sync != message->type))
 			continue;
@@ -99,6 +116,7 @@ int rocto_main_loop(RoctoSession *session) {
 				break;
 			result = handle_query(query, session);
 			free(query);
+			request_done = TRUE;
 			if (SOCK_OP_SHUTDOWN == result) {
 				terminated = TRUE;
 				break;
@@ -185,6 +203,7 @@ int rocto_main_loop(RoctoSession *session) {
 			cursorId = -1;
 			send_ready_for_query = TRUE;
 			extended_query_error = FALSE;
+			request_done = TRUE;
 			break;
 		// End Extended Query message types
 		case PSQL_Flush:

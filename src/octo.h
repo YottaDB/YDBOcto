@@ -78,6 +78,11 @@
 #define PORTAL_SUSPENDED -3 // SQL portal suspended, per PSQL extended query protocol
 #define QUERY_CANCELED	 -4 // SQL query cancelled by client request
 
+/* The signal that cancels the M code of a running query. "zintr^%ydboctoZinterrupt", the $ZINTERRUPT handler, cancels the query
+ * on a SIGUSR2, except with YottaDB r1.30, where it expects a SIGUSR1.
+ */
+#define QUERY_CANCEL_SIGNAL ((131 > ydb_release_number) ? SIGUSR1 : SIGUSR2)
+
 /* Default buffer length to use when creating new buffers. Such buffers will be expanded as needed, so a comparatively small number
  * can be used initially.
  */

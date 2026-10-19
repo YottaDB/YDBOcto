@@ -1,0 +1,18 @@
+# TCR05 : OCTO1170 : Test a CancelRequest that arrives before the M code of a query runs cancels the query
+# A CancelRequest makes the rocto server send itself a signal, which YottaDB records as a pending job interrupt.
+# The SimpleAPI calls made while a query is parsed and its plan generated discard a pending job interrupt. So a
+# CancelRequest that arrived then used to be lost, and the query ran to completion. The signal handler of the rocto
+# server now also sets ctrlc_pressed, which run_query() and handle_execute() check right before they run the M code
+# of the query. The rocto server below sends itself the CancelRequest signal before it parses each query.
+# Run a SELECT and an UPDATE through psql (simple query protocol). Expect both to be canceled.
+ERROR:  canceling statement due to user request
+ERROR:  canceling statement due to user request
+# Run the same SELECT and UPDATE through JDBC (extended query protocol). Expect both to be canceled.
+SQL State: 57014
+ERROR: canceling statement due to user request
+SQL State: 57014
+ERROR: canceling statement due to user request
+# Verify through octo that neither UPDATE changed the row
+id|firstname|lastname
+0|Zero|Cool
+(1 row)

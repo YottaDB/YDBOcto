@@ -43,8 +43,7 @@ static void ctrlc_handler(int sig) {
 	save_errno = errno;
 	ctrlc_pressed = TRUE;
 	if (query_running_in_m) {
-		/* If the YottaDB version is r1.30, "_ydboctoZinterrupt.m" expects SIGUSR1 and not SIGUSR2 */
-		kill(getpid(), ((131 > ydb_release_number) ? SIGUSR1 : SIGUSR2));
+		kill(getpid(), QUERY_CANCEL_SIGNAL);
 	}
 	errno = save_errno;
 }

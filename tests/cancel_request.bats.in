@@ -109,3 +109,39 @@ teardown() {
 	$ydb_dist/yottadb -run verify^loadbigdata >> output.txt
 	verify_output TCR04 output.txt noinfo nodebug noexpect stripreturns
 }
+
+@test "TCR05 : OCTO1170 : Test a CancelRequest that arrives before the M code of a query runs cancels the query" {
+	# Run only if build is of type "Debug", as the test hook that sends the CancelRequest signal is only available in a "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# Restart rocto with the "octo_dbg_cancel_before_query_parse" env var, which makes a Debug build of the rocto server send
+	# itself the signal of a CancelRequest before it parses each query. YottaDB discards the job interrupt that this signal
+	# causes in the SimpleAPI calls made while the query is parsed and its plan generated. So the query is canceled only if
+	# rocto notes the CancelRequest itself and checks for it before the M code of the query runs.
+	stop_rocto
+	export octo_dbg_cancel_before_query_parse=1
+	test_port=$(start_rocto 1441 quiet --readwrite)
+	unset octo_dbg_cancel_before_query_parse
+	echo "# TCR05 : OCTO1170 : Test a CancelRequest that arrives before the M code of a query runs cancels the query" > output.txt
+	echo "# A CancelRequest makes the rocto server send itself a signal, which YottaDB records as a pending job interrupt." >> output.txt
+	echo "# The SimpleAPI calls made while a query is parsed and its plan generated discard a pending job interrupt. So a" >> output.txt
+	echo "# CancelRequest that arrived then used to be lost, and the query ran to completion. The signal handler of the rocto" >> output.txt
+	echo "# server now also sets ctrlc_pressed, which run_query() and handle_execute() check right before they run the M code" >> output.txt
+	echo "# of the query. The rocto server below sends itself the CancelRequest signal before it parses each query." >> output.txt
+	echo '# Run a SELECT and an UPDATE through psql (simple query protocol). Expect both to be canceled.' >> output.txt
+	run_psql $test_port >> output.txt 2>&1 <<OCTO
+SELECT * FROM names WHERE id = 0;
+UPDATE names SET firstname = 'Canceled' WHERE id = 0;
+OCTO
+	echo '# Run the same SELECT and UPDATE through JDBC (extended query protocol). Expect both to be canceled.' >> output.txt
+	echo "SELECT * FROM names WHERE id = 0;" > select.sql
+	echo "UPDATE names SET firstname = 'Canceled' WHERE id = 0;" > update.sql
+	run_java run_query $test_port select.sql useextended >> output.txt 2>&1
+	echo "" >> output.txt
+	run_java run_query $test_port update.sql useextended >> output.txt 2>&1
+	echo "" >> output.txt
+	echo '# Verify through octo that neither UPDATE changed the row' >> output.txt
+	octo <<< "SELECT * FROM names WHERE id = 0;" >> output.txt 2>&1
+	verify_output TCR05 output.txt noinfo nodebug
+}

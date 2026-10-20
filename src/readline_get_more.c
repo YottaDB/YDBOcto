@@ -20,10 +20,13 @@
 
 static boolean_t query_cancelled; /* TRUE if a Ctrl-C discarded lines already read for the current query */
 
-/* readline invokes this hook when a signal interrupts its wait for input, after it has invoked the application's handler
- * for that signal ("ctrlc_handler()" in "octo.c" for a SIGINT, which sets "ctrlc_pressed"). readline catches the SIGINT
- * first and switches the terminal out of the mode it reads in before it invokes that handler. On a Ctrl-C, discard the
- * line being edited and display a fresh "OCTO>" prompt, as psql does.
+/* readline invokes this hook (as "rl_signal_event_hook") when a signal interrupts its wait for input, after it has invoked
+ * the application's handler for that signal ("ctrlc_handler()" in "octo.c" for a SIGINT, which sets "ctrlc_pressed").
+ * readline catches the SIGINT first and switches the terminal out of the mode it reads in before it invokes that handler.
+ * On a Ctrl-C, discard the line being edited and display a fresh "OCTO>" prompt, as psql does.
+ * A SIGINT that arrives while readline is not waiting for input (for example right after this hook displays the prompt)
+ * is handled when readline next checks for signals, which does not invoke "rl_signal_event_hook". So readline also
+ * invokes this hook (as "rl_event_hook") after it checks for signals while it waits for input, at least every 100ms.
  * readline keeps waiting for input after this; it has no way to return from "readline()" without one.
  */
 static int ctrlc_event_hook(void) {
@@ -39,6 +42,19 @@ static int ctrlc_event_hook(void) {
 		rl_crlf();
 		rl_on_new_line();
 		rl_redisplay();
+#ifndef NDEBUG
+		if (NULL != getenv("octo_dbg_ctrlc_after_prompt_redisplay")) {
+			static boolean_t ctrlc_sent;
+
+			/* Test hook (used by the TR29 test) that sends a Ctrl-C right after the first Ctrl-C displays a new
+			 * "OCTO>" prompt, while readline is not waiting for input. A real Ctrl-C lands there only by chance.
+			 */
+			if (!ctrlc_sent) {
+				ctrlc_sent = TRUE;
+				kill(getpid(), SIGINT);
+			}
+		}
+#endif
 	}
 	return 0;
 }
@@ -65,6 +81,7 @@ int readline_get_more(void) {
 		 */
 		ctrlc_pressed = FALSE;
 		rl_signal_event_hook = ctrlc_event_hook;
+		rl_event_hook = ctrlc_event_hook;
 		line = readline("OCTO> ");
 		sigaction(SIGALRM, &alrm_ydb, NULL);
 		/* It is possible a signal (for example a SIGTERM) whose handling YottaDB deferred arrived while inside the

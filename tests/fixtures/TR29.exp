@@ -1,0 +1,73 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Only the "puts" lines below go to stdout (and so to the reference file). The terminal session goes to expect.dbg.
+log_user 0
+set timeout 60
+
+spawnbash
+
+# Note "expect_after" needs to be done AFTER spawn or else it won't take effect
+expect_after {
+	timeout { timeout_procedure }
+}
+
+proc timeout_procedure { } {
+	puts "timeout occurred"
+	exit -1
+}
+
+# Expects PATTERN (exact match) from octo, with no other output before it. Prints PASS if so and WRONG otherwise.
+proc check {what pattern} {
+	expect {
+		-exact $pattern {
+			if {$pattern eq $expect_out(buffer)} {
+				puts "PASS : $what"
+			} else {
+				puts "WRONG : $what : unexpected output: $expect_out(buffer)"
+			}
+		}
+		timeout { puts "WRONG : $what : did not see the expected output within $::timeout seconds" }
+		eof { puts "WRONG : $what : octo terminated" }
+	}
+}
+
+expect -re "\[#\$] "
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect -re "\[#\$] "
+
+# The "octo_dbg_ctrlc_after_prompt_redisplay" env var makes a Debug build of octo send itself a SIGINT (as a Ctrl-C does)
+# right after the first Ctrl-C displays a new OCTO> prompt, while readline is not waiting for input. readline echoes "^C"
+# for that SIGINT too.
+puts "# Start octo with a test hook that sends a second Ctrl-C right after the first one displays a new OCTO> prompt"
+send -- "octo_dbg_ctrlc_after_prompt_redisplay=1 octo\r"
+expect "OCTO> "
+# readline displays the prompt for a lost Ctrl-C if any signal interrupts its wait for input. So wait for the SIGALRM of
+# the timer that YottaDB starts (to flush the database) when octo starts, so that such a Ctrl-C stays lost.
+sleep 2
+
+puts "# Type \[select 1 as a\] without pressing Enter, then press Ctrl-C"
+send -- "select 1 as a"
+expect "select 1 as a"
+send -- "\x03"
+check "Each of the two Ctrl-Cs displays a new OCTO> prompt" "^C\r\nOCTO> ^C\r\nOCTO> "
+puts "# Run \[select 2 as b;\]"
+send -- "select 2 as b;\r"
+check "Only \[select 2 as b;\] runs" "select 2 as b;\r\nb\r\n2\r\n(1 row)\r\nOCTO> "
+
+puts "# Exit octo"
+send -- "exit\r"
+expect -re "\[#\$] "
+send -- "exit\r"
+expect eof

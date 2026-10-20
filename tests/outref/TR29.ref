@@ -1,0 +1,6 @@
+# Start octo with a test hook that sends a second Ctrl-C right after the first one displays a new OCTO> prompt
+# Type [select 1 as a] without pressing Enter, then press Ctrl-C
+PASS : Each of the two Ctrl-Cs displays a new OCTO> prompt
+# Run [select 2 as b;]
+PASS : Only [select 2 as b;] runs
+# Exit octo

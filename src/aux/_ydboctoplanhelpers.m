@@ -833,11 +833,6 @@ Modulo(a,b)
 	NEW result SET result=a#b
 	QUIT $SELECT((result=0)!((a<0)=(b<0)):result,1:result-b)
 
-dollarZTRIGGER(arg1,arg2);
-	; Helper M function invoked by generated M code whenever it needs to do a $ZTRIGGER call.
-	SET status=$ZTRIGGER(arg1,arg2)
-	QUIT status
-
 UNIONALL(inputId1,inputId2,outputId)
 	; Helper M function that does UNION ALL of two queries each with output key# "inputId1" and "inputId2"
 	; and creates the result in a key with output key# "outputId". Used by the generated M file/plan _ydboctoP*.m

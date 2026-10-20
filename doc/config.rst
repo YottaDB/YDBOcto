@@ -68,8 +68,6 @@ Global Variables
 
     * :code:`^%ydboctoocto`: This global can refer to various functions, variables, Octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to persist between sessions.
 
-    * :code:`^%ydboctoxref`: This global contains cross-references, row counts and other statistical information. It needs to persist between sessions.
-
     * :code:`^%ydboctoschema`: This global contains information about the tables loaded into the database. It needs to persist between sessions.
 
   Since most of the Octo variables need to persist between sessions, it is necessary that the region(s) mapping the :code:`^%ydbocto*` namespace have replication turned on in a replicated environment (or journaling turned on in a non-replicated environment).

@@ -1,14 +1,24 @@
 # Run cross check first
 # Verify key fixing optimization happened for = operator in WHERE clause
-# Key fixed query will have a plan that does $ORDER(^%ydboctoxref)
+# Key fixed query will have a plan that walks the AIM cross reference (^%ydbAIMD*)
 --
 --
 --
+--
+--
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=""
+_ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
 _ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=$ORDER(^%ydbAIMDo3vY1ayPV3xokq7y73brK5(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")),%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft08","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")) IF $DATA(^%ydbAIMDo3vY1ayPV3xokq7y73brK5(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")))) DO
 _ydboctoP*.m:;  delete from TDFT08 where firstname = 'First';
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  select * from TDFT08;
+_ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=""
+_ydboctoP*.m-    SET %ydboctoexpr=+%ydboctoexpr
 _ydboctoP*.m-;; ---------------------------------------------------------
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=$ORDER(^%ydbAIMDCGTtbpkR9ZD4tcI51ybOF6(1,%ydboctocursor(cursorId,"keys",1,"tdft08","id"),%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft08","id")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft08","id")) IF $DATA(^%ydbAIMDCGTtbpkR9ZD4tcI51ybOF6(1,%ydboctocursor(cursorId,"keys",1,"tdft08","id"))) DO
 _ydboctoP*.m:;  delete from TDFT08 where id = 1234;
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  insert into TDFT08 values (1234, 'First'), (1234, 'First');

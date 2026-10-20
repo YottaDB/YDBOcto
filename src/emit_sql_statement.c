@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,7 +18,6 @@
 #include <libyottadb.h>
 
 #include "octo.h"
-#include "template_strings.h"
 #include "logical_plan.h"
 #include "physical_plan.h"
 #include "lp_verify_structure.h"

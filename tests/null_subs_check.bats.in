@@ -43,7 +43,6 @@ OCTO
   # Global directory setup
   gde_add_region OCTO %ydboctoocto
   gde_add_name %ydboctoschema OCTO
-  gde_add_name %ydboctoxref OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO always
   # Load fixtures based on new global directory setup
@@ -60,7 +59,6 @@ OCTO
   # Global directory setup
   gde_add_region OCTO %ydboctoocto
   gde_add_name %ydboctoschema OCTO
-  gde_add_name %ydboctoxref OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO existing
   octo <<OCTO 2>&1 | tee output.txt
@@ -73,7 +71,6 @@ OCTO
   # Global directory setup
   gde_add_region OCTO %ydboctoocto
   gde_add_name %ydboctoschema OCTO
-  gde_add_name %ydboctoxref OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO existing
   octo <<OCTO 2>&1 | tee output.txt
@@ -85,9 +82,7 @@ OCTO
 @test "TNSC05 : Octo - three regions - null subs set to NEVER on DEFAULT, ALWAYS on OCTO1, NEVER on OCTO2" {
   # Global directory setup
   gde_add_region OCTO1 %ydboctoocto
-  gde_add_name %ydboctoschema OCTO1
-  gde_add_region OCTO2 %ydboctoxref
-  gde_add_name "%ydboctoxref(\"names\")" OCTO1
+  gde_add_region OCTO2 %ydboctoschema
   set_null_subs DEFAULT never
   set_null_subs OCTO1 always
   set_null_subs OCTO2 never
@@ -117,7 +112,6 @@ OCTO
   # Global directory setup
   gde_add_region OCTO %ydboctoocto
   gde_add_name %ydboctoschema OCTO
-  gde_add_name %ydboctoxref OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO always
   # Load fixtures based on new global directory setup
@@ -137,7 +131,6 @@ OCTO
   # Global directory setup
   gde_add_region OCTO %ydboctoocto
   gde_add_name %ydboctoschema OCTO
-  gde_add_name %ydboctoxref OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO existing
   rocto -vv &> rocto.log || true
@@ -148,7 +141,6 @@ OCTO
   # Global directory setup
   gde_add_region OCTO %ydboctoocto
   gde_add_name %ydboctoschema OCTO
-  gde_add_name %ydboctoxref OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO never
   rocto -vv &> rocto.log || true
@@ -158,9 +150,7 @@ OCTO
 @test "TNSC11 : Rocto - three regions - null subs set to NEVER on DEFAULT, ALWAYS on OCTO1, NEVER on OCTO2" {
   # Global directory setup
   gde_add_region OCTO1 %ydboctoocto
-  gde_add_name %ydboctoschema OCTO1
-  gde_add_region OCTO2 %ydboctoxref
-  gde_add_name "%ydboctoxref(\"names\")" OCTO1
+  gde_add_region OCTO2 %ydboctoschema
   set_null_subs DEFAULT never
   set_null_subs OCTO1 always
   set_null_subs OCTO2 never

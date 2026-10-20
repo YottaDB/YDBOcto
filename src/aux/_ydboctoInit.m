@@ -64,7 +64,7 @@
 	SET quit=0,starwarningissued=0,starregname=""
 	SET ydbrel=$PIECE($ZYRELEASE," ",2)
 	SET:("r1.29"']ydbrel) starregname=$VIEW("REGION","^*")
-	FOR octogbl="^%ydboctoxref","^%ydboctoocto","^%ydboctoschema" DO
+	FOR octogbl="^%ydboctoocto","^%ydboctoschema" DO
 	. SET reglist=$VIEW("REGION",octogbl),numregs=$LENGTH(reglist,",")
 	. FOR regnum=1:1:numregs DO
 	. . SET regname=$PIECE(reglist,",",regnum)
@@ -79,8 +79,9 @@
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET quit=1
 	. . SET verified(regname)=""
-	; $ZTRIGGER invocation in Octo (happens in dollarZTRIGGER^%ydboctoplanhelpers) can cause output like the following.
-	;	Added SET and/or Non-SET trigger on ^names named %ydboctoTOMMMsQ8ks3NI1C42wS8
+	; The $ZTRIGGER invocations that %YDBAIM does on Octo's behalf (to maintain the cross references Octo asks it to
+	; create) can cause output like the following.
+	;	Added SET and/or Non-SET trigger on ^names named %ydbAIMDuAwRJbyqDiW78aZmOOKGGE
 	; But we do not want this output to confuse the Octo user who is expecting some query results.
 	; Disable $ZTRIGGER related output using the below VIEW command. But this command only got implemented in YottaDB `r1.32`
 	; (and the development release `r1.31`). Hence the check for r1.31 below.

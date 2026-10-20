@@ -155,11 +155,6 @@
 // compiler.
 #define UNUSED(x) (void)(x)
 
-/* Set maximum trigger name length
- * This cannot be greater than MAX_USER_TRIGNAME_LEN defined in https://gitlab.com/YottaDB/DB/YDB/blob/master/sr_unix/trigger.h
- */
-#define MAX_TRIGGER_LEN 28
-
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
 #define EMPTY_DELIMITER	 ""

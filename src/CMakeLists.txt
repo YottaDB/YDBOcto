@@ -563,7 +563,6 @@ set(template_files
   ${template_dir}/tmpl_update_table.ctemplate
   ${template_dir}/tmpl_where_or_having_or_on.ctemplate
   ${template_dir}/tmpl_xref_type_transform.ctemplate
-  ${template_dir}/tmpl_xref_key_columns.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

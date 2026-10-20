@@ -39,21 +39,13 @@ discardALL	;
 	. else  DO discardTable(tableOrViewName) ;  For each table discard plan/xref/triggers
 	; At this point all derived data should have been removed but it is possible some still remain
 	; in case of application integrity error situation (e.g. for some tableOrViewName say TABLE, ^%ydboctoschema(TABLE)
-	; does not exist but ^%ydboctoocto("xref_status",TABLE,*) does exist. Since we know we have to discard
+	; does not exist but ^%ydboctoocto("tableplans",TABLE,*) does exist. Since we know we have to discard
 	; everything, we just KILL all such possible out-of-sync global nodes and delete all known plans etc.
 	NEW srcPlan
 	SET srcPlan="" FOR  SET srcPlan=$ORDER(^%ydboctoocto("plandirs",srcPlan))  QUIT:""=srcPlan  DO discardPlan(srcPlan)
 	KILL ^%ydboctoocto("plan_metadata")
 	KILL ^%ydboctoocto("tableplans")
 	KILL ^%ydboctoocto("viewplans")
-	KILL ^%ydboctoocto("xref_status")
-	KILL ^%ydboctoxref
-	QUIT
-
-discardPLANS	;
-	; Not currently implemented
-	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
-	. DO discardXREFTable(tableOrViewName)
 	QUIT
 
 discardXREFS	;
@@ -63,17 +55,11 @@ discardXREFS	;
 	QUIT
 
 discardXREFTable(tableName)
-	; Delete all generated cross references associated with columns in "tableName".
-	KILL ^%ydboctoxref(tableName)
-	; Delete all generated triggers associated with columns in the table being created/deleted.
-	; Delete all M global nodes in ^%ydboctoocto/^%ydboctoschema that point to the above deleted objects.
+	; Delete all generated cross references, and the triggers that maintain them, associated with columns in "tableName".
+	; The cross references of a table stored in a global variable are AIM cross references. A table stored in a local
+	; variable (e.g. pg_settings) keeps its cross references in the local variable %ydboctoxref, which lives and dies
+	; with the process, so there is nothing to discard for it here.
 	NEW column
-	SET column="" FOR  SET column=$ORDER(^%ydboctoocto("xref_status",tableName,column))  QUIT:""=column  DO
-	.  NEW trigname
-	.  SET trigname=^%ydboctoocto("xref_status",tableName,column)
-	.  ; Delete the trigger named `trigname` now that the cross reference is gone
-	.  IF '$$dollarZTRIGGER^%ydboctoplanhelpers("ITEM","-"_trigname) WRITE "Removing Trigger failed",!
-	.  KILL ^%ydboctoocto("xref_status",tableName,column)
 	; Remove AIM data (xref and triggers) stored in the AIM global
 	DO
 	.  NEW aimgbl,aimgbleref

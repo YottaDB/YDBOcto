@@ -1,3 +1,68 @@
+# delta -8 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-8) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -7 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-7) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -6 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-6) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -5 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-5) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -4 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-4) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -3 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-3) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -2 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-2) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -1 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (-1) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 0 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (0) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 1 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (1) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 2 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (2) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 3 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (3) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 4 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (4) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 5 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (5) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 6 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (6) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 7 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (7) characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 8 : $zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + (8) characters
 id|firstname|lastname
 0|Zero|Cool
 (1 row)

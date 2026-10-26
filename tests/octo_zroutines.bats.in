@@ -202,32 +202,51 @@ OCTO
   verify_output TOZ013 output.txt
 }
 
-@test "TOZ014 : \$zroutines with length == 512 bytes" {
+@test "TOZ014 : OCTO1169 : octo_zroutines set and \$zroutines of every length around ZRO_INIT_ALLOC (512) bytes" {
+	# Octo prepends octo_zroutines to $zroutines in a buffer of ZRO_INIT_ALLOC (512) bytes: the octo_zroutines value, a ' '
+	# separator, $zroutines, and then a ' ' and a '\0' at the end. YDBOcto#1169: a $zroutines one character longer than
+	# what fits (the "delta 1" case below) was accepted instead of being read again into a larger buffer, and the last two
+	# bytes were written past the end of the buffer (an assertion failure in a Debug build, a one-byte heap overflow in a
+	# Release build). One character more or less was fine, so try every $zroutines length from 8 below to 8 above the
+	# exact fit.
+	#
+	# octo_zroutines carries the four shared libraries octo needs, as symbolic links with short names in the test
+	# directory (YottaDB keeps a relative path in $zroutines as is). Its length is then the same wherever the build and
+	# YottaDB are installed, and $zroutines can be pure padding.
+	for link in o:_ydbocto p:_ydbposix a:_ydbaim u:libyottadbutil; do
+		libpath=$(echo "$ydb_routines" | tr ' ' '\n' | grep "/${link#*:}\.so$" | head -1)
+		ln -s "$libpath" ${link%%:*}.so
+	done
+	octo_zroutines="o.so p.so a.so u.so"
 	cat >>octo.conf <<OCTO
-octo_zroutines = "$ydb_routines"
+octo_zroutines = "$octo_zroutines"
 OCTO
-	# Add paths of 'a's and 'b's to make length of $ydb_routines + octo_zroutines equal to ZRO_INIT_ALLOC (512) without
-	# triggering a $ZROUTINES syntax error
-	octo_zroutines_len=$(echo -n "$ydb_routines" | wc -c)
-	# target_len offsets:
-	#	-6 to account for the first ".(./)" and " " in ydb_routines used to create valid $ZROUTINES path
-	#	-5 to account for the second ".(./)" in ydb_routines used to create valid $ZROUTINES path
-	#	-1 to account for ' ' allocated in octo_init in the failing case, i.e.:
-	#		`zroutines_buffer.len_alloc = zroutines_len - zroutines_from_file_len - 1;`
-	target_len=$(( (512 - $octo_zroutines_len) - 6 - 5 - 1 ))
-	path_len=$(( $target_len / 2 ))
-	path1=$(eval "printf '%.sa' {1..$path_len}")
-	if [[ $(( $target_len % 2 )) -ne 0 ]]; then
-		path2=$(eval "printf '%.sb' {1..$(( $path_len + 1))}")
-	else
-		path2=$(eval "printf '%.sb' {1..$path_len}")
-	fi
-	mkdir $path1 $path2
-	ydb_routines=".(./$path1) .(./$path2)"
-
-	octo <<OCTO 2>&1 | tee output.txt
-select * from names limit 1;
-OCTO
+	prepend_len=${#octo_zroutines}
+	for delta in $(seq -8 8); do
+		# The exact fit: octo_zroutines, ' ', $zroutines, ' ', '\0' add up to 512 bytes
+		target=$(( 512 - $prepend_len - 3 + $delta ))
+		# Pad with one "o(sss...)" entry (object directory "o", source directory of the length needed), written in that
+		# explicit form because YottaDB rewrites a bare "dir" as "dir(dir)" in $zroutines, plus as many " .()" entries
+		# (4 characters each) as it takes to keep the source directory name short.
+		num_tokens=0
+		if [[ $target -gt 104 ]]; then
+			num_tokens=$(( ($target - 104 + 3) / 4 ))
+		fi
+		src_len=$(( $target - 4 * $num_tokens - 3 ))
+		src_dir=$(printf 's%.0s' $(seq 1 $src_len))
+		mkdir -p o $src_dir
+		pad="o($src_dir)"
+		for i in $(seq 1 $num_tokens); do pad="$pad .()"; done
+		export ydb_routines="$pad"
+		# Check the padding: %XCMD needs YottaDB's utility library, so measure with it appended and subtract it
+		actual=$(ydb_routines="$pad u.so" $ydb_dist/yottadb -run %XCMD 'write $length($zroutines)')
+		actual=$(( $actual - 5 ))
+		if [[ $actual -ne $target ]]; then
+			echo "# delta $delta : padding miscomputed, \$zroutines is $actual characters instead of $target" | tee -a output.txt
+		fi
+		echo "# delta $delta : \$zroutines is ZRO_INIT_ALLOC - strlen(octo_zroutines) - 3 + ($delta) characters" | tee -a output.txt
+		octo <<< 'select * from names limit 1;' 2>&1 | tee -a output.txt
+	done
 	verify_output TOZ014 output.txt
 }
 

@@ -488,7 +488,10 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		// Double size if ZRO_INIT_ALLOC is too small to avoid potential resize later.
 		if (!done) {
 			YDB_FREE_BUFFER(&zroutines_buffer);
-			zroutines_len = (zroutines_from_file_len * 2) + 2; /* "* 2" to double size, "+ 2" for ' ' and '\0' at end */
+			/* "* 2" to double the size, "+ 3" for the separator after the octo_zroutines value and the ' ' and '\0' at
+			 * the end
+			 */
+			zroutines_len = (zroutines_from_file_len * 2) + 3;
 			YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
 			if (NULL == zroutines_buffer.buf_addr) {
 				ERROR(ERR_SYSCALL, "YDB_MALLOC_BUFFER", errno, strerror(errno));
@@ -502,8 +505,13 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			zroutines_buf_start = zroutines_buffer.buf_addr;
 			zroutines_buffer.buf_addr[zroutines_from_file_len] = ' ';
 			zroutines_buffer.buf_addr = zroutines_buf_start + zroutines_from_file_len + 1;
-			assert(zroutines_len >= (zroutines_from_file_len + 2));
-			zroutines_buffer.len_alloc = zroutines_len - zroutines_from_file_len - 2; // ' ' + '\0'
+			/* Leave room for the separator just written after the octo_zroutines value, and for the ' ' and '\0' that
+			 * are appended at the end once $zroutines has been read in. Without the separator in this count, a
+			 * $zroutines of exactly the remaining length was accepted without an INVSTRLEN error and the two bytes
+			 * appended at the end went one past the end of the buffer (YDBOcto#1169).
+			 */
+			assert(zroutines_len >= (zroutines_from_file_len + 3));
+			zroutines_buffer.len_alloc = zroutines_len - (zroutines_from_file_len + 1) - 2;
 			zroutines_buffer.len_used = 0;
 			// Retrieve value of $zroutines
 			status = ydb_get_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);

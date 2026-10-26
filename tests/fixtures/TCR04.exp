@@ -77,7 +77,13 @@ expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
 
 puts "# Run another query to verify queries after a Ctrl-C of INSERT INTO work fine and canceled query left db in clean state"
 send -- "select count(*) from names;\r"
+# This query scans all 1 million rows right after three canceled bulk statements on them, and is the slowest step of this
+# script. On a loaded system or in a coverage build it can take longer than the 60 second timeout used above, and a
+# timeout here would send the "\q" below while the query still runs, which garbles the reference output. So wait longer.
+set timeout 600
 expect -re ".*ydb=. "
+# Get back to original timeout now that the long query is done
+set timeout 60
 send "\\q\r"
 expect -re "\[#\$] "
 exit

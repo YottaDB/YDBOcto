@@ -1,0 +1,2 @@
+Half-built cross reference before the cancel handler runs: $data=10
+Half-built cross reference after the cancel handler ran:   $data=0

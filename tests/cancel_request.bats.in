@@ -145,3 +145,14 @@ OCTO
 	octo <<< "SELECT * FROM names WHERE id = 0;" >> output.txt 2>&1
 	verify_output TCR05 output.txt noinfo nodebug
 }
+
+@test "TCR06 : OCTO1172 : Cancel cleanup removes a half-built cross reference of a table stored in a local variable" {
+	# A table stored in a local variable (pg_settings) has its cross reference built by Octo itself, in the local variable
+	# %ydboctoxref. Before building it, the xref plan records in %ydboctoCancel(table,column,"localTableXref") which node to
+	# KILL should the query be canceled (see the local-variable branch of tmpl_physical_plan.ctemplate). Set up what the
+	# plan has set by the time a cancel arrives in the middle of the build, then run the cancel handler, as octo/rocto do
+	# on a cancel. The half-built cross reference must be gone afterwards (YDBOcto#1172: the handler used to look for a
+	# "lvnTableXref" node instead and left it in place).
+	$ydb_dist/yottadb -run %XCMD 'set %ydboctoxref("PG_SETTINGS","SETTING","on","dummy")="",%ydboctoCancel("PG_SETTINGS","SETTING","localTableXref")="%ydboctoxref(""PG_SETTINGS"",""SETTING"")" write "Half-built cross reference before the cancel handler runs: $data=",$data(%ydboctoxref("PG_SETTINGS","SETTING")),! do run^%ydboctoCleanup write "Half-built cross reference after the cancel handler ran:   $data=",$data(%ydboctoxref("PG_SETTINGS","SETTING")),!' 2>&1 | tee output.txt
+	verify_output TCR06 output.txt
+}

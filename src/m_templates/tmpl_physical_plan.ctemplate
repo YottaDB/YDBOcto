@@ -400,8 +400,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{};{}%
 			%{}`n{}%
 		} else { // This is table kept in a local variable, e.g. pg_settings
-			/* If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice */
-			%{}IF $DATA({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}({{ PP_XREF_STATUS }},{}%
+			/* If this is a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice.
+			 * The completion marker is the "xref_status" node this plan SETs below, once the cross reference is built.
+			 */
+			%{}IF $DATA({{ pplan->outputKey->xref_prefix }}{{ config->global_names.raw_octo }}({{ PP_XREF_STATUS }},{}%
 			%{}"{{ tableName }}","{{ columnName }}")) {}%
 			%{}QUIT`n{{ PLAN_LINE_START }}{}%
 			%{}; Store state information in case query is canceled in middle of xref building`n{{ PLAN_LINE_START }}{}%

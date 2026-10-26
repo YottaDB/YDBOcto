@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -21,7 +21,7 @@ run
   FOR  SET tableName=$ORDER(%ydboctoCancel(tableName)) QUIT:""=tableName  DO
   . FOR  SET columnName=$ORDER(%ydboctoCancel(tableName,columnName)) QUIT:""=columnName  DO
   . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"aimXref")) ^%ydbAIMOctoCache(tableName,columnName)
-  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"lvnTableXref")) @%ydboctoCancel(tableName,columnName,"lvnTableXref")
+  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"localTableXref")) @%ydboctoCancel(tableName,columnName,"localTableXref")
   KILL %ydboctoCancel
   ; Set to let run_query know the query was canceled
   SET %ydboctoCancel=1

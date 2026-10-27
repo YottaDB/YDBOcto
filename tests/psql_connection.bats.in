@@ -478,12 +478,19 @@ OCTO
 	run_psql $test_port < TPC026.sql > output1.txt 2>&1 &
 	run_psql $test_port < TPC026.sql > output2.txt 2>&1 &
 	run_psql $test_port < TPC026.sql > output3.txt 2>&1 &
-	echo "# Sleep 5 seconds to give rocto servers time to have started executing queries" >> output.txt
-	echo "# Since they anyways will take 12 seconds to run, we are not losing any test runtime due to this sleep." >> output.txt
-	sleep 5s
 	echo "# Check YDB locks owned by backgrounded rocto server processes. We expect 3 of them." >> output.txt
 	echo "# Before YDBOcto#710 fix, we would see only 1 lock at any point in time." >> output.txt
-	$ydb_dist/lke show -all > output0.txt 2>&1
+	echo "# Poll for up to 10 seconds for all 3 rocto servers to have started executing queries." >> output.txt
+	# A fixed 5 second sleep used to be done here, but on a loaded system a client can take longer than that
+	# to connect (seen in the pipeline). Each query takes 12 seconds, so the queries that started first still
+	# hold their lock when the 10 second limit is reached. Seeing 3 locks before then therefore still means all
+	# 3 queries ran concurrently. If they were serialized (the YDBOcto#710 bug), only 1 lock is ever seen and
+	# the test still fails.
+	for i in $(seq 1 100); do
+		$ydb_dist/lke show -all > output0.txt 2>&1
+		[[ $(grep "ddl" output0.txt | sort -u | wc -l) -eq 3 ]] && break
+		sleep 0.1s
+	done
 	echo "PASS : 3 locks seen in LKE SHOW -ALL output as expected" >> output.txt
 	[[ $(grep "ddl" output0.txt | sort -u | wc -l) -eq 3 ]]
 	echo "# Wait for backgrounded clients to finish" >> output.txt

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,5 +19,10 @@
 #define	YDB_RELEASE_STRING	"@YDB_RELEASE_STRING@"
 
 #define	YDB_TLS_AVAILABLE	@YDB_TLS_AVAILABLE@
+/* Build directories of the YDBPosix and YDBAIM plugins fetched and built in the build tree when DISABLE_INSTALL=ON
+ * (see the plugins section of src/CMakeLists.txt). Empty strings in a DISABLE_INSTALL=OFF build.
+ */
+#define	YDBPOSIX_BUILD_DIR	"@YDBPOSIX_BUILD_DIR@"
+#define	YDBAIM_BUILD_DIR	"@YDBAIM_BUILD_DIR@"
 
 #endif

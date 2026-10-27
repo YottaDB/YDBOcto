@@ -272,3 +272,143 @@ OCTO
 	verify_output TOZ016 output.txt
 }
 
+
+@test "TOZ017 : OCTO754 : octo appends its own M routines and plugin objects to \$zroutines, except those already listed" {
+	# octo appends _ydbocto.so, _ydbposix.so and _ydbaim.so to $zroutines, and to the ydb_routines it passes on to the
+	# processes it starts, unless an object of that file name is already listed (in ydb_routines or octo_zroutines).
+	# Each section below shows the input and a table of the resulting ydb_routines with where each entry came from.
+	# Where the appended objects come from depends on the build, hence one reference file for each: a DISABLE_INSTALL=ON
+	# build appends the _ydbocto.so next to the octo binary and the plugins built in the build tree, a DISABLE_INSTALL=OFF
+	# build the ones installed under $ydb_dist/plugin/o.
+	ydbutil="$ydb_dist$utf8_path/libyottadbutil.so"
+	ydbocto_so=$(echo "$ydb_routines" | tr ' ' '\n' | grep '/_ydbocto\.so$' | head -1)
+	ydbposix_so=$(echo "$ydb_routines" | tr ' ' '\n' | grep '/_ydbposix\.so$' | head -1)
+	ydbaim_so=$(echo "$ydb_routines" | tr ' ' '\n' | grep '/_ydbaim\.so$' | head -1)
+	mkdir aimdir posixdir
+	ln -s "$ydbaim_so" aimdir/_ydbaim.so
+	ln -s "$ydbposix_so" posixdir/_ydbposix.so
+	# Write the build directory as BUILD_DIR and $ydb_dist as is, and drop the utf8/ subdirectory of the UTF-8 objects, so
+	# that the output is the same wherever the build and YottaDB are, and in M and UTF-8 mode
+	normalize() {
+		sed "s|@PROJECT_BINARY_DIR@|BUILD_DIR|; s|^$ydb_dist/|\$ydb_dist/|; s|/utf8/|/|"
+	}
+	# Arguments: section title, ydb_routines to give octo, octo_zroutines to put in octo.conf ("" for none), and optionally
+	# gtmroutines to give octo instead of ydb_routines (which is then unset) and the octo binary to run (default: octo)
+	run_section() {
+		local octo_binary=${5:-octo}
+		echo "" >> output.txt
+		echo "# === $1 ===" >> output.txt
+		rm -f octo.conf
+		if [[ -n $3 ]]; then
+			echo "octo_zroutines = \"$3\"" >> octo.conf
+		fi
+		if [[ -n $4 ]]; then
+			echo "# Input: ydb_routines not set" >> output.txt
+			echo "# Input: gtmroutines=\"$(echo $4 | tr ' ' '\n' | normalize | tr '\n' ' ' | sed 's/ $//')\"" >> output.txt
+		else
+			echo "# Input: ydb_routines=\"$(echo $2 | tr ' ' '\n' | normalize | tr '\n' ' ' | sed 's/ $//')\"" >> output.txt
+		fi
+		echo "# Input: octo_zroutines=\"$(echo $3 | tr ' ' '\n' | normalize | tr '\n' ' ' | sed 's/ $//')\"" >> output.txt
+		if [[ $octo_binary != octo ]]; then
+			echo "# Input: octo binary $octo_binary" >> output.txt
+		fi
+		echo "# ydb_routines that octo passes on to the processes it starts, and where each entry came from:" >> output.txt
+		printf "%-48s | %s\n" "entry" "from" >> output.txt
+		printf "%-48s-+-%s\n" "------------------------------------------------" "------------------------------------" >> output.txt
+		# Run octo, and YottaDB for the same ydb_routines as YottaDB rewrites it in $zroutines (e.g. "." as ".(.)"), which
+		# is the form octo passes on when it prepends octo_zroutines or when ydb_routines is not set
+		if [[ -n $4 ]]; then
+			rewritten=$(env -u ydb_routines gtmroutines="$4" $ydb_dist/yottadb -run %XCMD 'write $zroutines')
+			env -u ydb_routines gtmroutines="$4" $octo_binary -vv <<< 'select 1;' > octo_output.txt 2>&1
+		else
+			rewritten=$(ydb_routines="$2" $ydb_dist/yottadb -run %XCMD 'write $zroutines')
+			ydb_routines="$2" $octo_binary -vv <<< 'select 1;' > octo_output.txt 2>&1 || true # octo fails in section F
+		fi
+		sed -n "s/.*INFO_ENV_VAR: # ydb_routines='\(.*\)'$/\1/p" octo_output.txt | tr ' ' '\n' | while read -r entry; do
+			if echo "$3" | tr ' ' '\n' | grep -qxF "$entry"; then
+				from="octo_zroutines (octo prepends)"
+			elif echo "$2" | tr ' ' '\n' | grep -qxF "$entry"; then
+				from="ydb_routines (as given)"
+			elif echo "$4" | tr ' ' '\n' | grep -qxF "$entry"; then
+				from="gtmroutines (as given)"
+			elif echo "$rewritten" | tr ' ' '\n' | grep -qxF "$entry"; then
+				from="${4:+gtmroutines}${4:-ydb_routines} (as YottaDB rewrote it)"
+			else
+				from="appended by octo"
+			fi
+			printf "%-48s | %s\n" "$(echo "$entry" | normalize)" "$from"
+		done >> output.txt
+		# The error, if octo could not run the query
+		if grep -q "ERROR" octo_output.txt; then
+			echo "# octo fails with:" >> output.txt
+			grep "ERROR" octo_output.txt >> output.txt
+		fi
+	}
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# octo appends _ydbocto.so, _ydbposix.so and _ydbaim.so to \$zroutines, and to the ydb_routines it passes on to the" >> output.txt
+	echo "# processes it starts, unless an object of that file name is already listed in ydb_routines or octo_zroutines." >> output.txt
+	echo "# A DISABLE_INSTALL=ON build appends the _ydbocto.so next to the octo binary and the plugins built in the build" >> output.txt
+	echo "# tree (BUILD_DIR below), a DISABLE_INSTALL=OFF build the ones installed under \$ydb_dist/plugin/o." >> output.txt
+	echo "#" >> output.txt
+	echo "# Shared libraries in the test directory used below (symbolic links):" >> output.txt
+	echo "#   aimdir/_ydbaim.so     -> the _ydbaim.so the test environment uses" >> output.txt
+	echo "#   posixdir/_ydbposix.so -> the _ydbposix.so the test environment uses" >> output.txt
+	run_section "A : ydb_routines lists none of the three objects : octo appends all three" ". $ydbutil" ""
+	run_section "B : ydb_routines lists a _ydbaim.so : octo appends _ydbocto.so and _ydbposix.so only" ". $ydbutil aimdir/_ydbaim.so" ""
+	run_section "C : ydb_routines lists all three : octo appends nothing" ". $ydbutil $ydbocto_so $ydbposix_so $ydbaim_so" ""
+	run_section "D : octo_zroutines lists a _ydbposix.so : octo appends _ydbocto.so and _ydbaim.so only" ". $ydbutil" "posixdir/_ydbposix.so"
+	run_section "E : only gtmroutines is set, and lists none of the three objects : YottaDB sets ydb_routines from it, and octo appends all three" "" "" ". $ydbutil"
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		# A copy of the octo binary in a directory without a _ydbocto.so: octo does not add the _ydbocto.so it does not find
+		# there, and then fails to find %ydboctoInit, as it did before octo added the objects itself. Not possible with
+		# DISABLE_INSTALL=OFF, which takes the objects from $ydb_dist/plugin/o, where YottaDB has them all.
+		mkdir octocopy
+		cp @PROJECT_BINARY_DIR@/src/octo octocopy/
+		ln -s @PROJECT_BINARY_DIR@/src/octo.conf @PROJECT_BINARY_DIR@/src/ydbocto.ci @PROJECT_BINARY_DIR@/src/ydbocto.xc octocopy/
+		echo "" >> output.txt
+		echo "# octocopy/: a copy of the octo binary, with symbolic links to the octo.conf, ydbocto.ci and ydbocto.xc next to it" >> output.txt
+		echo "# in BUILD_DIR/src, but no _ydbocto.so" >> output.txt
+		run_section "F : the directory of the octo binary has no _ydbocto.so : octo appends _ydbposix.so and _ydbaim.so only" ". $ydbutil" "" "" octocopy/octo
+	fi
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		verify_output TOZ017_DISABLE_INSTALL_ON output.txt
+	else
+		verify_output TOZ017_DISABLE_INSTALL_OFF output.txt
+	fi
+}
+
+@test "TOZ018 : OCTO754 : octo_zroutines of every length around ZRO_INIT_ALLOC (512) bytes" {
+	# Octo copies octo_zroutines into a buffer of ZRO_INIT_ALLOC (512) bytes, followed by a ' ' separator, $zroutines, and
+	# then a ' ' and a '\0' at the end. An octo_zroutines of 510 characters (ZRO_INIT_ALLOC - 2) was copied into it
+	# instead of into a larger buffer, which left no room for the separator and the 2 bytes at the end (an assertion
+	# failure in a Debug build, a write past the end of the buffer in a Release build). This was found when the
+	# octo_zroutines that TOZ010 makes from the test environment's ydb_routines happened to be 510 characters long. One
+	# character more or less was fine, so try every octo_zroutines length from 8 below to 8 above 510.
+	#
+	# octo_zroutines carries the four shared libraries octo needs, as symbolic links with short names in the test
+	# directory, so that its length is the same wherever the build and YottaDB are installed, and padding.
+	for link in o:_ydbocto p:_ydbposix a:_ydbaim u:libyottadbutil; do
+		libpath=$(echo "$ydb_routines" | tr ' ' '\n' | grep "/${link#*:}\.so$" | head -1)
+		ln -s "$libpath" ${link%%:*}.so
+	done
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	libs="o.so p.so a.so u.so"
+	export ydb_routines="."
+	for delta in $(seq -8 8); do
+		target=$(( 510 + $delta ))
+		# Pad with one "o(sss...)" entry (object directory "o", source directory of the length needed), plus as many
+		# " .()" entries (4 characters each) as it takes to keep the source directory name 3 to 6 characters long, so
+		# that the paths of the M files octo generates in it are short enough wherever the test directory is
+		pad_len=$(( $target - ${#libs} - 1 ))
+		num_tokens=$(( ($pad_len - 6) / 4 ))
+		src_len=$(( $pad_len - 4 * $num_tokens - 3 ))
+		src_dir=$(printf 's%.0s' $(seq 1 $src_len))
+		mkdir -p o $src_dir
+		octo_zroutines="$libs o($src_dir)"
+		for i in $(seq 1 $num_tokens); do octo_zroutines="$octo_zroutines .()"; done
+		echo "octo_zroutines = \"$octo_zroutines\"" > octo.conf
+		echo "# delta $delta : octo_zroutines is ZRO_INIT_ALLOC - 2 + ($delta) = ${#octo_zroutines} characters" | tee -a output.txt
+		octo <<< 'select * from names limit 1;' 2>&1 | tee -a output.txt
+	done
+	verify_output TOZ018 output.txt
+}

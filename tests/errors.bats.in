@@ -155,11 +155,19 @@ CAT
   # generated object files in the current directory (which happens during fixture loading). Failure to remove these object files may
   # result in their reuse below, leading to erroneous output.
   rm -f _ydbocto*.o
+  echo "# $BATS_TEST_DESCRIPTION" > output.txt
+  echo "" >> output.txt
+  echo "# === ydb_routines=\"\" : YottaDB's default \$zroutines has no source directory for the generated plans ===" >> output.txt
   export ydb_routines=""
-  octo <<OCTO 2>&1 | tee output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
 SELECT * FROM names WHERE lastName = "Cool";
 OCTO
-  export ydb_routines=". $ydb_dist"
+  # Octo puts its own M routines on $zroutines (YDBOcto#754), so leaving out _ydbocto.so is no longer an error. Leaving out
+  # YottaDB's utility routines (libyottadbutil.so) still is: octo needs %PEEKBYNAME at startup.
+  echo "" >> output.txt
+  echo "# === ydb_routines=\".\" : no libyottadbutil.so, so octo's startup does not find %PEEKBYNAME ===" >> output.txt
+  echo "# (octo adds its own _ydbocto.so, so %ydboctoInit is found; before YDBOcto#754 this failed on %ydboctoInit)" >> output.txt
+  export ydb_routines="."
   octo <<OCTO 2>&1 | tee -a output.txt
 SELECT * FROM names WHERE lastName = "Cool";
 OCTO

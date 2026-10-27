@@ -29,7 +29,20 @@ if($ENV{ydb_dist} MATCHES "utf8" OR EXISTS $ENV{ydb_dist}/utf8)
 	set(utf8_installed 1)
 endif()
 
-if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
+# YDBPosix and YDBAIM, the two YottaDB plugins Octo depends on
+# A build with DISABLE_INSTALL=ON (a developer worktree, or the "test-auto-upgrade" pipeline job) is never installed
+# into $ydb_dist, so its tests run the octo binary from the build tree. Such a build also fetches YDBPosix and YDBAIM
+# into the build tree, even when they are installed under $ydb_dist/plugin, and builds them there. octo itself
+# (src/octo_init.c, through the YDBPOSIX_BUILD_DIR and YDBAIM_BUILD_DIR constants in constants.h) adds those builds,
+# not the installed plugins, to the end of $zroutines when it does not list a plugin of that name already, and points
+# ydb_xc_ydbposix at the call-in table of the YDBPosix build. The tests list those builds ahead of the installed plugins
+# in ydb_routines (tests/test_helpers.bash.in). That way the tests use known plugin versions instead of whatever is
+# installed on the machine, and a plugin installed for one worktree cannot change the results of another.
+# A DISABLE_INSTALL=OFF build uses the installed plugins, and fetches and installs one only if it is missing.
+if(${DISABLE_INSTALL})
+	message(STATUS "DISABLE_INSTALL is ON: building YDBPosix in the build tree instead of using the installed plugin")
+	set(fetch_ydbposix 1)
+elseif(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
 	message(STATUS "Found YDBPosix plugin: ${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
 	if(utf8_installed)
 		if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbposix.so")
@@ -40,14 +53,32 @@ if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
 	endif()
 else()
 	message(STATUS "Will install YDBPosix plugin")
+	set(fetch_ydbposix 1)
+endif()
+if(fetch_ydbposix)
+	# The GIT_TAG is a fixed commit (the YDBPosix master of 2026-10-26 at the time of this writing), as for YDBCMake in
+	# the top-level CMakeLists.txt: a fixed commit makes the build reproducible, and FetchContent then skips the
+	# "git fetch" it would otherwise do against gitlab.com on every reconfigure to see whether a branch has moved.
+	# Update it when a newer YDBPosix matters to Octo.
 	FetchContent_Declare(YDBPosix
 		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBPosix.git
-		GIT_TAG	       master
+		GIT_TAG	       b12ee2f35a7c42b1ddd9efcacd0cb362f286f9ed
 		)
 	FetchContent_MakeAvailable(YDBPosix)
+	# The following sets ydbposix_BINARY_DIR, where libydbposix.so, _ydbposix.so (and utf8/_ydbposix.so) are built,
+	# along with ydbposix_test.xc, the call-in table that refers to that libydbposix.so (ydbposix.xc there refers
+	# to the install location instead).
+	if(${DISABLE_INSTALL})
+		# Substituted into constants.h for src/octo_init.c
+		set(YDBPOSIX_BUILD_DIR "${ydbposix_BINARY_DIR}")
+		message(STATUS "YDBPosix build directory used by octo: ${YDBPOSIX_BUILD_DIR}")
+	endif()
 endif()
 
-if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
+if(${DISABLE_INSTALL})
+	message(STATUS "DISABLE_INSTALL is ON: building YDBAIM in the build tree instead of using the installed plugin")
+	set(fetch_ydbaim 1)
+elseif(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
 	message(STATUS "Found YDBAIM plugin: ${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
 	if(utf8_installed)
 		if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbaim.so")
@@ -58,11 +89,22 @@ if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbaim.so")
 	endif()
 else()
 	message(STATUS "Will install YDBAIM plugin")
+	set(fetch_ydbaim 1)
+endif()
+if(fetch_ydbaim)
+	# Fixed commit (the YDBAIM master of 2026-09-29 at the time of this writing); see the YDBPosix GIT_TAG note above.
+	# Update it when a newer YDBAIM matters to Octo.
 	FetchContent_Declare(YDBAIM
 		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBAIM.git
-		GIT_TAG	       master
+		GIT_TAG	       487dc864edbde440767c3a294004920644cde120
 		)
 	FetchContent_MakeAvailable(YDBAIM)
+	# The following sets ydbaim_BINARY_DIR, where _ydbaim.so (and utf8/_ydbaim.so) are built
+	if(${DISABLE_INSTALL})
+		# Substituted into constants.h for src/octo_init.c
+		set(YDBAIM_BUILD_DIR "${ydbaim_BINARY_DIR}")
+		message(STATUS "YDBAIM build directory used by octo: ${YDBAIM_BUILD_DIR}")
+	endif()
 endif()
 
 if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
@@ -401,6 +443,21 @@ include(aux/build_m_files.cmake)
 add_dependencies(octo _ydboctoM)
 if(utf8_installed)
 	add_dependencies(octo _ydboctoutf8)
+endif()
+
+# A YDBPosix or YDBAIM built in the build tree (see the plugins section above) is needed to run octo, so build
+# them along with octo
+if(fetch_ydbposix)
+	add_dependencies(octo ydbposix _ydbposixM)
+	if(utf8_installed)
+		add_dependencies(octo _ydbposixutf8)
+	endif()
+endif()
+if(fetch_ydbaim)
+	add_dependencies(octo _ydbaimM)
+	if(utf8_installed)
+		add_dependencies(octo _ydbaimutf8)
+	endif()
 endif()
 
 if(${YDB_TLS_AVAILABLE})

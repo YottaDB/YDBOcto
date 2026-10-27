@@ -1,0 +1,69 @@
+# TOZ018 : OCTO754 : octo_zroutines of every length around ZRO_INIT_ALLOC (512) bytes
+# delta -8 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-8) = 502 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -7 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-7) = 503 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -6 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-6) = 504 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -5 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-5) = 505 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -4 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-4) = 506 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -3 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-3) = 507 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -2 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-2) = 508 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta -1 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (-1) = 509 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 0 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (0) = 510 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 1 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (1) = 511 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 2 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (2) = 512 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 3 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (3) = 513 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 4 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (4) = 514 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 5 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (5) = 515 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 6 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (6) = 516 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 7 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (7) = 517 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)
+# delta 8 : octo_zroutines is ZRO_INIT_ALLOC - 2 + (8) = 518 characters
+id|firstname|lastname
+0|Zero|Cool
+(1 row)

@@ -129,7 +129,14 @@ init_test() {
 		# while trying to use the master branch of YDB repo when .o files created by r1.29 in Nov 2019 were tried to be used
 		# by r1.29 in Dec 2019 (after the .o file format was changed in between). Having the .o files in the test output directory
 		# avoids such issues. This comment also applies to the similar line in the below `else` block.
+		# Use the YDBPosix and YDBAIM plugins built in the build tree (see the plugins section of src/CMakeLists.txt),
+		# ahead of the installed ones that ydb_env_set put in ydb_routines, and the YDBPosix call-in table that goes
+		# with them. octo adds its own M routines and these plugins itself only when $zroutines has none of that name
+		# (see "append_octo_objects_to_zroutines()" in src/octo_init.c), so with the installed ones listed it would
+		# use those, and other processes the tests start (e.g. the yottadb that fires the YDBAIM triggers) need them too.
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src$utf8_path/_ydbocto.so"
+		ydbroutines="$ydbroutines @YDBPOSIX_BUILD_DIR@$utf8_path/_ydbposix.so @YDBAIM_BUILD_DIR@$utf8_path/_ydbaim.so"
+		export ydb_xc_ydbposix="@YDBPOSIX_BUILD_DIR@/ydbposix_test.xc"
 	else
 		# Add the UTF-8 path, if set, as this is not done by build.sh in the pipeline
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures)"

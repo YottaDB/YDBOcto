@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,8 +32,18 @@
 int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
+	} else if (0 == strncmp(varname->buf_addr, "$zchset", varname->len_used)) {
+		/* "parse_config_file_settings()" asks for the character set to pick the M or the UTF-8 objects of the M routines
+		 * and plugins it puts on $zroutines; answer from the environment, as YottaDB would.
+		 */
+		char *ydb_chset;
+
+		ydb_chset = getenv("ydb_chset");
+		ret_value->len_used
+		    = snprintf(ret_value->buf_addr, ret_value->len_alloc, "%s", (NULL != ydb_chset) ? ydb_chset : "M");
+		return 0;
 	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)) {
-		char   *ydb_chset, *ydb_routines, *src_path;
+		char   *ydb_chset, *ydb_routines, *src_path, *ydb_dist;
 		char	exe_path[OCTO_PATH_MAX];
 		ssize_t exe_path_len;
 
@@ -44,16 +54,23 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 		}
 		ydb_chset = getenv("ydb_chset");
 		ydb_routines = getenv("ydb_routines");
+		/* The value returned here becomes the real $zroutines once octo_init() appends Octo's objects to it and sets it,
+		 * so it has to include YottaDB's utility routines (libyottadbutil.so), which _ydboctoInit (%PEEKBYNAME)
+		 * needs. YottaDB set ydb_dist in ydb_init() if the environment did not.
+		 */
+		ydb_dist = getenv("ydb_dist");
 		if ((NULL != ydb_chset) && (0 == strncmp(ydb_chset, "UTF-8", INT16_TO_STRING_MAX))) {
-			if (NULL != strstr(ydb_routines, ". ")) {
+			if ((NULL != ydb_routines) && (NULL != strstr(ydb_routines, ". "))) {
 				// Strip current directory from $ydb_routines if found
 				setenv("ydb_routines", &ydb_routines[2], TRUE);
 			}
-			if (NULL != src_path)
-				ret_value->len_used = snprintf(ret_value->buf_addr, OCTO_PATH_MAX, "%s/utf8", src_path);
+			if ((NULL != src_path) && (NULL != ydb_dist))
+				ret_value->len_used = snprintf(ret_value->buf_addr, OCTO_PATH_MAX,
+							       "%s/utf8 %s/utf8/libyottadbutil.so", src_path, ydb_dist);
 		} else {
-			if (NULL != src_path)
-				ret_value->len_used = snprintf(ret_value->buf_addr, OCTO_PATH_MAX, "%s", src_path);
+			if ((NULL != src_path) && (NULL != ydb_dist))
+				ret_value->len_used
+				    = snprintf(ret_value->buf_addr, OCTO_PATH_MAX, "%s %s/libyottadbutil.so", src_path, ydb_dist);
 		}
 		return 0;
 	} else if ((0 == strncmp(varname->buf_addr, "^%ydboctoocto", varname->len_used))

@@ -29,13 +29,13 @@ Configuration settings can be passed to the program with the following precedenc
 Environment variables
 ---------------------
 
-  The following environment variables must be set:
+  Octo uses the following environment variables:
 
-    * ydb_dist
-    * ydb_gbldir
-    * ydb_routines
+    * :code:`ydb_dist`: the YottaDB installation. YottaDB sets it itself if it is not set.
+    * :code:`ydb_gbldir`: the global directory.
+    * :code:`ydb_routines`: where YottaDB finds M routines and where Octo generates the M routines that implement queries. Octo's own M routines and the YDBPosix and YDBAIM plugins need not be listed: Octo adds them itself (see :ref:`octo-zroutines`).
 
-  The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory.
+  The environment variables can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory.
 
   Example setting of the environment variables (assuming default paths):
 
@@ -90,11 +90,13 @@ Config files
 
   A few of the configuration settings are described below.
 
+.. _octo-zroutines:
+
 ~~~~~~~~~~~~~~~
 octo_zroutines
 ~~~~~~~~~~~~~~~
 
-  Octo requires that :code:`$ydb_dist/plugin/o/_ydbocto.so` and :code:`$ydb_dist/plugin/o/_ydbposix.so` (:code:`$ydb_dist/plugin/o/utf8/_ydbocto.so` and :code:`$ydb_dist/plugin/o/utf8/_ydbposix.so` when using Octo in YottaDB's UTF-8 mode) be included in :code:`$ydb_routines`. This is necessary not only for running the :code:`octo` and :code:`rocto` executables, but also for correctly updating and maintaining the YottaDB triggers that are used to maintain cross references for Octo. Accordingly these paths should exist in :code:`ydb_routines` in your normal environment setup scripts.
+  :code:`octo` and :code:`rocto` put their own M routines (:code:`$ydb_dist/plugin/o/_ydbocto.so`, or :code:`$ydb_dist/plugin/o/utf8/_ydbocto.so` in YottaDB's UTF-8 mode) and the YDBPosix and YDBAIM plugins they depend on (:code:`_ydbposix.so` and :code:`_ydbaim.so` in the same directory) to :code:`$zroutines` themselves at startup, and point :code:`ydb_xc_ydbposix` at the YDBPosix call-in table, so none of these need to be listed in :code:`ydb_routines` to run them. They add only those that are not listed already: one whose file name is on :code:`$zroutines`, from whatever directory (in :code:`ydb_routines` or :code:`octo_zroutines`), is used as listed (e.g. a different build of YDBAIM) and not added again. The others are added at the end of :code:`$zroutines`. Other YottaDB processes that update tables with Octo cross references do need :code:`_ydbocto.so` and :code:`_ydbaim.so` in their :code:`$zroutines`, for the YottaDB triggers that maintain the cross references; :code:`ydb_env_set` sets this up.
 
   The :code:`octo_zroutines` configuration setting allows one to prefix :code:`ydb_routines` env var with one or more paths specified in the configuration file.
 

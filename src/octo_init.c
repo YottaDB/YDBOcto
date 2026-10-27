@@ -261,6 +261,208 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 	}
 }
 
+/* Returns TRUE if one of the space separated entries of the "zroutines_len" bytes at "zroutines" is a shared library with the
+ * file name "object_name", in whatever directory (e.g. "/usr/local/lib/yottadb/r202/plugin/o/_ydbaim.so", or just
+ * "_ydbaim.so", for "_ydbaim.so").
+ */
+static boolean_t zroutines_lists_object(const char *zroutines, unsigned int zroutines_len, const char *object_name) {
+	unsigned int entry_start, entry_end, entry_len, name_len;
+
+	name_len = strlen(object_name);
+	entry_start = 0;
+	while (entry_start < zroutines_len) {
+		if (' ' == zroutines[entry_start]) {
+			entry_start++;
+			continue;
+		}
+		entry_end = entry_start;
+		while ((entry_end < zroutines_len) && (' ' != zroutines[entry_end])) {
+			entry_end++;
+		}
+		/* The entry names the object if it ends in "object_name", preceded by a '/' or by nothing */
+		entry_len = entry_end - entry_start;
+		if ((name_len <= entry_len) && (0 == memcmp(zroutines + entry_end - name_len, object_name, name_len))
+		    && ((name_len == entry_len) || ('/' == zroutines[entry_end - name_len - 1]))) {
+			return TRUE;
+		}
+		entry_start = entry_end;
+	}
+	return FALSE;
+}
+
+/* Append to $zroutines, and to the ydb_routines env var for the processes octo/rocto start, those of Octo's own M routines
+ * (_ydbocto.so) and the YDBPosix and YDBAIM plugin objects it depends on that are missing from it (YDBOcto#754), so that
+ * nobody has to list them in ydb_routines. An object whose file name is already on $zroutines, from whatever directory, is
+ * not added: whatever ydb_routines or octo_zroutines lists is what is used (e.g. a different build of YDBAIM), and a second
+ * copy would only clutter $zroutines. An object that does not exist is not added either, so that a missing plugin fails
+ * the way it always did (at its first use) and not with a $zroutines error here. A DISABLE_INSTALL=ON build takes
+ * _ydbocto.so from the directory of the running binary and the plugins from its build tree (see the plugins section of
+ * src/CMakeLists.txt). A DISABLE_INSTALL=OFF build takes all three from $ydb_dist/plugin/o.
+ * Returns 0 on success, 1 on error.
+ */
+static int append_octo_objects_to_zroutines(void) {
+	const char *object_dirs[3], *object_names[3], *utf8_subdir;
+	char	    object_dir[OCTO_PATH_MAX], object_path[OCTO_PATH_MAX], zchset_buff[16];
+	/* " <object> <object> <object>": up to 3 paths of at most OCTO_PATH_MAX - 1 characters each, each with the ' ' in front,
+	 * and the null terminator
+	 */
+	char	     objects[(3 * OCTO_PATH_MAX) + 1];
+	int	     objects_len, status, i;
+	unsigned int alloc_len;
+	ydb_buffer_t dollar_zchset, zchset, dollar_zroutines, zroutines;
+	struct stat  statbuf;
+
+	if (DISABLE_INSTALL) {
+		/* _ydbocto.so is built next to the octo/rocto binary (build/src), like ydbocto.xc and ydbocto.ci */
+		ssize_t exe_path_len;
+		char	exe_path[OCTO_PATH_MAX];
+
+		exe_path_len = readlink("/proc/self/exe", exe_path, sizeof(exe_path));
+		if ((-1 == exe_path_len) || ((ssize_t)sizeof(exe_path) <= exe_path_len)) {
+			ERROR(ERR_LIBCALL_WITH_ARG, "readlink()", "/proc/self/exe");
+			return 1;
+		}
+		exe_path[exe_path_len] = '\0'; /* readlink() does not null terminate */
+		status = snprintf(object_dir, sizeof(object_dir), "%s", dirname(exe_path));
+		if ((int)sizeof(object_dir) <= status) {
+			ERROR(ERR_BUFFER_TOO_SMALL, "directory of the octo/rocto binary");
+			return 1;
+		}
+		object_dirs[0] = object_dir;
+		object_dirs[1] = YDBPOSIX_BUILD_DIR;
+		object_dirs[2] = YDBAIM_BUILD_DIR;
+	} else {
+		const char *ydb_dist;
+
+		ydb_dist = getenv("ydb_dist"); /* set by YottaDB in ydb_init() if the environment did not have it */
+		if (NULL == ydb_dist) {
+			ERROR(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "ydb_dist");
+			return 1;
+		}
+		status = snprintf(object_dir, sizeof(object_dir), "%s/plugin/o", ydb_dist);
+		if ((int)sizeof(object_dir) <= status) {
+			ERROR(ERR_BUFFER_TOO_SMALL, "plugin object directory path : $ydb_dist/plugin/o");
+			return 1;
+		}
+		object_dirs[0] = object_dir;
+		object_dirs[1] = object_dir;
+		object_dirs[2] = object_dir;
+	}
+	object_names[0] = "_ydbocto.so";
+	object_names[1] = "_ydbposix.so";
+	object_names[2] = "_ydbaim.so";
+
+	/* Pick the M or the UTF-8 object of each to match the character set this process runs with */
+	YDB_LITERAL_TO_BUFFER("$zchset", &dollar_zchset);
+	zchset.buf_addr = zchset_buff;
+	zchset.len_alloc = sizeof(zchset_buff);
+	zchset.len_used = 0;
+	status = ydb_get_s(&dollar_zchset, 0, NULL, &zchset);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return 1;
+	}
+	utf8_subdir = ((5 == zchset.len_used) && (0 == memcmp("UTF-8", zchset.buf_addr, 5))) ? "utf8/" : "";
+
+	/* Read $zroutines into a buffer with room after it for the objects and a null terminator */
+	YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zroutines);
+	alloc_len = ZRO_INIT_ALLOC + sizeof(objects);
+	for (;;) {
+		YDB_MALLOC_BUFFER(&zroutines, alloc_len);
+		if (NULL == zroutines.buf_addr) {
+			ERROR(ERR_SYSCALL, "YDB_MALLOC_BUFFER", errno, strerror(errno));
+			return 1;
+		}
+		zroutines.len_alloc = alloc_len - sizeof(objects); /* "objects" has room for its null terminator */
+		status = ydb_get_s(&dollar_zroutines, 0, NULL, &zroutines);
+		if (YDB_ERR_INVSTRLEN != status) {
+			break;
+		}
+		/* $zroutines is longer than the room left for it: "len_used" holds its length, so retry with enough room */
+		alloc_len = zroutines.len_used + sizeof(objects);
+		YDB_FREE_BUFFER(&zroutines);
+	}
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&zroutines);
+		return 1;
+	}
+
+	/* Build " <object> <object> <object>", each with the ' ' that separates it from what precedes it */
+	objects_len = 0;
+	for (i = 0; i < 3; i++) {
+		if (zroutines_lists_object(zroutines.buf_addr, zroutines.len_used, object_names[i])) {
+			continue; /* $zroutines already has one: that one is used, so do not add another (see the comment above) */
+		}
+		status = snprintf(object_path, sizeof(object_path), "%s/%s%s", object_dirs[i], utf8_subdir, object_names[i]);
+		if ((int)sizeof(object_path) <= status) {
+			ERROR(ERR_BUFFER_TOO_SMALL, "plugin object path");
+			YDB_FREE_BUFFER(&zroutines);
+			return 1;
+		}
+		if (0 != stat(object_path, &statbuf)) {
+			continue; /* Object not there: leave $zroutines alone for it (see the comment above) */
+		}
+		status = snprintf(objects + objects_len, sizeof(objects) - objects_len, " %s", object_path);
+		if ((int)(sizeof(objects) - objects_len) <= status) {
+			ERROR(ERR_BUFFER_TOO_SMALL, "Octo, YDBPosix and YDBAIM object paths");
+			YDB_FREE_BUFFER(&zroutines);
+			return 1;
+		}
+		objects_len += status;
+	}
+	if (0 == objects_len) {
+		/* $zroutines already has all three, or the missing ones do not exist: nothing to append */
+		YDB_FREE_BUFFER(&zroutines);
+		return 0;
+	}
+
+	/* Set $zroutines back with the objects appended. $zroutines is never empty (YottaDB makes an empty one ".(.)"), so the
+	 * ' ' in front of the first object always separates it from an entry.
+	 */
+	assert(0 < zroutines.len_used);
+	memcpy(zroutines.buf_addr + zroutines.len_used, objects, objects_len);
+	zroutines.len_used += objects_len;
+	zroutines.len_alloc = alloc_len;
+	zroutines.buf_addr[zroutines.len_used] = '\0';
+	status = ydb_set_s(&dollar_zroutines, 0, NULL, &zroutines);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&zroutines);
+		return 1;
+	}
+
+	/* $zroutines is set, so this process now uses the objects. Also add them to the ydb_routines env var, which YottaDB
+	 * has already read for this process, so that the processes octo/rocto start inherit them. Append to the env var as it
+	 * was given rather than copy $zroutines as YottaDB rewrote it (e.g. "dir" as "dir(dir)"). YottaDB sets the env var from
+	 * gtmroutines if only that is set, and the caller sets it before calling this if octo_zroutines is set. So it is not
+	 * set (or is empty) only if $zroutines is YottaDB's default, which lists only shared libraries and so no source
+	 * directory: octo stops with ERR_BAD_ZROUTINES right after this, and starts no process that would need it.
+	 */
+	const char *ydb_routines;
+
+	ydb_routines = getenv("ydb_routines");
+	if ((NULL != ydb_routines) && ('\0' != ydb_routines[0])) {
+		char  *new_ydb_routines;
+		size_t ydb_routines_len;
+
+		ydb_routines_len = strlen(ydb_routines);
+		new_ydb_routines = malloc(ydb_routines_len + objects_len + 1);
+		if (NULL == new_ydb_routines) {
+			ERROR(ERR_SYSCALL, "malloc", errno, strerror(errno));
+			YDB_FREE_BUFFER(&zroutines);
+			return 1;
+		}
+		memcpy(new_ydb_routines, ydb_routines, ydb_routines_len);
+		memcpy(new_ydb_routines + ydb_routines_len, objects, objects_len + 1); /* + 1 for the null terminator */
+		setenv("ydb_routines", new_ydb_routines, TRUE);
+		free(new_ydb_routines);
+	}
+	YDB_FREE_BUFFER(&zroutines);
+
+	return 0;
+}
+
 int parse_config_file_settings(const char *config_file_name, config_t *config_file) {
 	config_setting_t *ydb_settings, *cur_ydb_setting;
 	ydb_buffer_t	  zroutines_buffer, dollar_zroutines_buffer;
@@ -485,8 +687,11 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	if (CONFIG_TRUE == config_lookup_string(config_file, "octo_zroutines", (const char **)&zroutines_from_file)) {
 		zroutines_from_file_len = strlen(zroutines_from_file);
 		YDB_COPY_STRING_TO_BUFFER(zroutines_from_file, &zroutines_buffer, done);
-		// Double size if ZRO_INIT_ALLOC is too small to avoid potential resize later.
-		if (!done) {
+		/* Double size if ZRO_INIT_ALLOC is too small to avoid potential resize later. "len_alloc" leaves room for the ' '
+		 * and '\0' at the end but not for the separator after the octo_zroutines value, so a value that fills it (e.g.
+		 * 510 bytes with ZRO_INIT_ALLOC 512) is copied, yet leaves no room for the rest: resize for that one too.
+		 */
+		if (!done || (zroutines_len < (zroutines_from_file_len + 3))) {
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			/* "* 2" to double the size, "+ 3" for the separator after the octo_zroutines value and the ' ' and '\0' at
 			 * the end
@@ -586,6 +791,13 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			return 1;
 		}
+	}
+	/* Add those of Octo's own M routines and plugin objects that $zroutines lacks to its end. "zroutines_buffer" keeps the
+	 * value without them, which is all the search for a source directory below needs, as they are shared libraries.
+	 */
+	if (0 != append_octo_objects_to_zroutines()) {
+		YDB_FREE_BUFFER(&zroutines_buffer);
+		return 1;
 	}
 	zroutines_buf_start = zroutines_buffer.buf_addr;
 
@@ -920,6 +1132,36 @@ int octo_init(int argc, char **argv) {
 		}
 		init_crypto();
 		INIT_INPUT_BUFFER;
+		/* Point ydb_xc_ydbposix, the YDBPosix call-in table, at the libydbposix.so that goes with the _ydbposix.so that
+		 * "append_octo_objects_to_zroutines()" put on $zroutines (YDBOcto#754): for a DISABLE_INSTALL=ON build the one
+		 * built in its build tree ("ydbposix_test.xc" is the table YDBPosix generates for its own tests; its
+		 * "ydbposix.xc" refers to the install location instead), for a DISABLE_INSTALL=OFF build the installed one.
+		 * ydb_env_set may have set the env var already; it is overwritten, the way ydb_xc_octo is overwritten below,
+		 * unless the table does not exist. Done before the env vars are recorded so that "-vv" shows the value in effect.
+		 */
+		{
+			char	  posix_xc_path[OCTO_PATH_MAX];
+			boolean_t posix_xc_known;
+
+			if (DISABLE_INSTALL) {
+				status = snprintf(posix_xc_path, sizeof(posix_xc_path), "%s/ydbposix_test.xc", YDBPOSIX_BUILD_DIR);
+				posix_xc_known = TRUE;
+			} else {
+				ydb_dist = getenv("ydb_dist");
+				posix_xc_known = (NULL != ydb_dist);
+				status = posix_xc_known
+					     ? snprintf(posix_xc_path, sizeof(posix_xc_path), "%s/plugin/ydbposix.xc", ydb_dist)
+					     : 0;
+			}
+			if ((int)sizeof(posix_xc_path) <= status) {
+				ERROR(ERR_BUFFER_TOO_SMALL, "YDBPosix call-in table path");
+				status = 1;
+				break;
+			}
+			if (posix_xc_known && (0 == access(posix_xc_path, R_OK))) {
+				setenv("ydb_xc_ydbposix", posix_xc_path, TRUE);
+			}
+		}
 		if (INFO >= config->verbosity_level) { // Record pertinent ydb_* env vars if -vv or higher verbosity is specified
 			char *ptr;
 			char *envvar_array[]

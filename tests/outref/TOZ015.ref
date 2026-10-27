@@ -1,1 +1,1 @@
-[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,(Call-In),%YDB-E-ZLINKFILE, Error while zlinking "%ydboctoInit",%YDB-E-FILENOTFND, File _ydboctoInit.m not found,%YDB-E-FILENOTFND, File _ydboctoInit.o not found
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,%ydboctoInit+58^%ydboctoInit,%YDB-E-ZLINKFILE, Error while zlinking "_PEEKBYNAME",%YDB-E-FILENOTFND, File _PEEKBYNAME.m not found,%YDB-E-FILENOTFND, File _PEEKBYNAME.o not found

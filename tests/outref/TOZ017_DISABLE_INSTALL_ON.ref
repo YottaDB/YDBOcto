@@ -1,0 +1,87 @@
+# TOZ017 : OCTO754 : octo appends its own M routines and plugin objects to $zroutines, except those already listed
+# octo appends _ydbocto.so, _ydbposix.so and _ydbaim.so to $zroutines, and to the ydb_routines it passes on to the
+# processes it starts, unless an object of that file name is already listed in ydb_routines or octo_zroutines.
+# A DISABLE_INSTALL=ON build appends the _ydbocto.so next to the octo binary and the plugins built in the build
+# tree (BUILD_DIR below), a DISABLE_INSTALL=OFF build the ones installed under $ydb_dist/plugin/o.
+#
+# Shared libraries in the test directory used below (symbolic links):
+#   aimdir/_ydbaim.so     -> the _ydbaim.so the test environment uses
+#   posixdir/_ydbposix.so -> the _ydbposix.so the test environment uses
+
+# === A : ydb_routines lists none of the three objects : octo appends all three ===
+# Input: ydb_routines=". $ydb_dist/libyottadbutil.so"
+# Input: octo_zroutines=""
+# ydb_routines that octo passes on to the processes it starts, and where each entry came from:
+entry                                            | from
+-------------------------------------------------+-------------------------------------
+.                                                | ydb_routines (as given)
+$ydb_dist/libyottadbutil.so                      | ydb_routines (as given)
+BUILD_DIR/src/_ydbocto.so                        | appended by octo
+BUILD_DIR/_deps/ydbposix-build/_ydbposix.so      | appended by octo
+BUILD_DIR/_deps/ydbaim-build/_ydbaim.so          | appended by octo
+
+# === B : ydb_routines lists a _ydbaim.so : octo appends _ydbocto.so and _ydbposix.so only ===
+# Input: ydb_routines=". $ydb_dist/libyottadbutil.so aimdir/_ydbaim.so"
+# Input: octo_zroutines=""
+# ydb_routines that octo passes on to the processes it starts, and where each entry came from:
+entry                                            | from
+-------------------------------------------------+-------------------------------------
+.                                                | ydb_routines (as given)
+$ydb_dist/libyottadbutil.so                      | ydb_routines (as given)
+aimdir/_ydbaim.so                                | ydb_routines (as given)
+BUILD_DIR/src/_ydbocto.so                        | appended by octo
+BUILD_DIR/_deps/ydbposix-build/_ydbposix.so      | appended by octo
+
+# === C : ydb_routines lists all three : octo appends nothing ===
+# Input: ydb_routines=". $ydb_dist/libyottadbutil.so BUILD_DIR/src/_ydbocto.so BUILD_DIR/_deps/ydbposix-build/_ydbposix.so BUILD_DIR/_deps/ydbaim-build/_ydbaim.so"
+# Input: octo_zroutines=""
+# ydb_routines that octo passes on to the processes it starts, and where each entry came from:
+entry                                            | from
+-------------------------------------------------+-------------------------------------
+.                                                | ydb_routines (as given)
+$ydb_dist/libyottadbutil.so                      | ydb_routines (as given)
+BUILD_DIR/src/_ydbocto.so                        | ydb_routines (as given)
+BUILD_DIR/_deps/ydbposix-build/_ydbposix.so      | ydb_routines (as given)
+BUILD_DIR/_deps/ydbaim-build/_ydbaim.so          | ydb_routines (as given)
+
+# === D : octo_zroutines lists a _ydbposix.so : octo appends _ydbocto.so and _ydbaim.so only ===
+# Input: ydb_routines=". $ydb_dist/libyottadbutil.so"
+# Input: octo_zroutines="posixdir/_ydbposix.so"
+# ydb_routines that octo passes on to the processes it starts, and where each entry came from:
+entry                                            | from
+-------------------------------------------------+-------------------------------------
+posixdir/_ydbposix.so                            | octo_zroutines (octo prepends)
+.(.)                                             | ydb_routines (as YottaDB rewrote it)
+$ydb_dist/libyottadbutil.so                      | ydb_routines (as given)
+BUILD_DIR/src/_ydbocto.so                        | appended by octo
+BUILD_DIR/_deps/ydbaim-build/_ydbaim.so          | appended by octo
+
+# === E : only gtmroutines is set, and lists none of the three objects : YottaDB sets ydb_routines from it, and octo appends all three ===
+# Input: ydb_routines not set
+# Input: gtmroutines=". $ydb_dist/libyottadbutil.so"
+# Input: octo_zroutines=""
+# ydb_routines that octo passes on to the processes it starts, and where each entry came from:
+entry                                            | from
+-------------------------------------------------+-------------------------------------
+.                                                | gtmroutines (as given)
+$ydb_dist/libyottadbutil.so                      | gtmroutines (as given)
+BUILD_DIR/src/_ydbocto.so                        | appended by octo
+BUILD_DIR/_deps/ydbposix-build/_ydbposix.so      | appended by octo
+BUILD_DIR/_deps/ydbaim-build/_ydbaim.so          | appended by octo
+
+# octocopy/: a copy of the octo binary, with symbolic links to the octo.conf, ydbocto.ci and ydbocto.xc next to it
+# in BUILD_DIR/src, but no _ydbocto.so
+
+# === F : the directory of the octo binary has no _ydbocto.so : octo appends _ydbposix.so and _ydbaim.so only ===
+# Input: ydb_routines=". $ydb_dist/libyottadbutil.so"
+# Input: octo_zroutines=""
+# Input: octo binary octocopy/octo
+# ydb_routines that octo passes on to the processes it starts, and where each entry came from:
+entry                                            | from
+-------------------------------------------------+-------------------------------------
+.                                                | ydb_routines (as given)
+$ydb_dist/libyottadbutil.so                      | ydb_routines (as given)
+BUILD_DIR/_deps/ydbposix-build/_ydbposix.so      | appended by octo
+BUILD_DIR/_deps/ydbaim-build/_ydbaim.so          | appended by octo
+# octo fails with:
+[ERROR]: ERR_YOTTADB: YottaDB error: 150373978,(Call-In),%YDB-E-ZLINKFILE, Error while zlinking "%ydboctoInit",%YDB-E-FILENOTFND, File _ydboctoInit.m not found,%YDB-E-FILENOTFND, File _ydboctoInit.o not found

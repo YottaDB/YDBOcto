@@ -1,0 +1,105 @@
+
+-- TCS17 : A bare literal like 't' in a CASE argument takes the type another argument resolves the CASE to
+
+-- This query issues a type mismatch error, like Postgres, as a sub-query's 't' is a VARCHAR
+SELECT CASE WHEN true THEN (SELECT 't') ELSE (1=1) END;
+
+-- This query issues the same error, but with the sub-query in a later THEN argument resolved by an earlier one
+SELECT CASE WHEN false THEN true WHEN true THEN (SELECT 't') END;
+
+-- This CHECK constraint used to reject row 1, as 't' stayed a VARCHAR in a BOOLEAN CASE. Rows 1 and 3 are accepted.
+CREATE TABLE TCS17a (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN
+	CONSTRAINT ck CHECK ((CASE WHEN a = 'Zero' THEN 't' ELSE b END) = true));
+INSERT INTO TCS17a VALUES (1, 'Zero', false);
+INSERT INTO TCS17a VALUES (2, 'x', false);
+INSERT INTO TCS17a VALUES (3, 'x', true);
+SELECT * FROM TCS17a;
+
+-- This CHECK constraint resolves its BOOLEAN type from the first THEN argument. Only row 2 is accepted.
+CREATE TABLE TCS17b (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN
+	CONSTRAINT ck CHECK (CASE WHEN a = 'Zero' THEN b WHEN a = 'One' THEN 'no' ELSE 'y' END));
+INSERT INTO TCS17b VALUES (1, 'One', true);
+INSERT INTO TCS17b VALUES (2, 'Two', false);
+INSERT INTO TCS17b VALUES (3, 'Zero', false);
+SELECT * FROM TCS17b;
+DROP TABLE TCS17b;
+
+-- This CHECK constraint resolves its BOOLEAN type from a later THEN argument, fixing the earlier 'no'. Only row 2 is accepted.
+CREATE TABLE TCS17d (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN
+	CONSTRAINT ck CHECK (CASE WHEN a = 'One' THEN 'no' WHEN a = 'Zero' THEN b ELSE 'y' END));
+INSERT INTO TCS17d VALUES (1, 'One', true);
+INSERT INTO TCS17d VALUES (2, 'Two', false);
+INSERT INTO TCS17d VALUES (3, 'Zero', false);
+SELECT * FROM TCS17d;
+DROP TABLE TCS17d;
+
+-- This CHECK constraint has a VARCHAR CASE type, which already worked. Only row 2 is accepted.
+CREATE TABLE TCS17c (id INTEGER PRIMARY KEY, a VARCHAR
+	CONSTRAINT ck CHECK ((CASE WHEN a = 'Zero' THEN 't' ELSE a END) <> 't'));
+INSERT INTO TCS17c VALUES (1, 'Zero');
+INSERT INTO TCS17c VALUES (2, 'u');
+SELECT * FROM TCS17c;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right BOOLEAN
+LINE 3:1: SELECT CASE WHEN true THEN (SELECT 't') ELSE (1=1) END;
+                                     ^^^^^^^^^^^^
+OCTO> SELECT CASE WHEN true THEN (SELECT 't') ELSE (1=1) END;
+[ERROR]: ERR_CASE_BRANCH_TYPE_MISMATCH: CASE branch type mismatch: left VARCHAR, right BOOLEAN
+LINE 5:1: ...ELECT CASE WHEN false THEN true WHEN true THEN (SELECT 't') END;
+                                                            ^^^^^^^^^^^^
+OCTO> SELECT CASE WHEN false THEN true WHEN true THEN (SELECT 't') END;
+OCTO> CREATE TABLE TCS17a (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN
+	CONSTRAINT ck CHECK ((CASE WHEN a = 'Zero' THEN 't' ELSE b END) = true));
+CREATE TABLE
+OCTO> INSERT INTO TCS17a VALUES (1, 'Zero', false);
+INSERT 0 1
+OCTO> INSERT INTO TCS17a VALUES (2, 'x', false);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tcs17a violates CHECK constraint ck : Failing row contains (2, x, 0)
+OCTO> INSERT INTO TCS17a VALUES (3, 'x', true);
+INSERT 0 1
+OCTO> SELECT * FROM TCS17a;
+id|a|b
+1|Zero|f
+3|x|t
+(2 rows)
+OCTO> CREATE TABLE TCS17b (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN
+	CONSTRAINT ck CHECK (CASE WHEN a = 'Zero' THEN b WHEN a = 'One' THEN 'no' ELSE 'y' END));
+CREATE TABLE
+OCTO> INSERT INTO TCS17b VALUES (1, 'One', true);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tcs17b violates CHECK constraint ck : Failing row contains (1, One, 1)
+OCTO> INSERT INTO TCS17b VALUES (2, 'Two', false);
+INSERT 0 1
+OCTO> INSERT INTO TCS17b VALUES (3, 'Zero', false);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tcs17b violates CHECK constraint ck : Failing row contains (3, Zero, 0)
+OCTO> SELECT * FROM TCS17b;
+id|a|b
+2|Two|f
+(1 row)
+OCTO> DROP TABLE TCS17b;
+DROP TABLE
+OCTO> CREATE TABLE TCS17d (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN
+	CONSTRAINT ck CHECK (CASE WHEN a = 'One' THEN 'no' WHEN a = 'Zero' THEN b ELSE 'y' END));
+CREATE TABLE
+OCTO> INSERT INTO TCS17d VALUES (1, 'One', true);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tcs17d violates CHECK constraint ck : Failing row contains (1, One, 1)
+OCTO> INSERT INTO TCS17d VALUES (2, 'Two', false);
+INSERT 0 1
+OCTO> INSERT INTO TCS17d VALUES (3, 'Zero', false);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tcs17d violates CHECK constraint ck : Failing row contains (3, Zero, 0)
+OCTO> SELECT * FROM TCS17d;
+id|a|b
+2|Two|f
+(1 row)
+OCTO> DROP TABLE TCS17d;
+DROP TABLE
+OCTO> CREATE TABLE TCS17c (id INTEGER PRIMARY KEY, a VARCHAR
+	CONSTRAINT ck CHECK ((CASE WHEN a = 'Zero' THEN 't' ELSE a END) <> 't'));
+CREATE TABLE
+OCTO> INSERT INTO TCS17c VALUES (1, 'Zero');
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tcs17c violates CHECK constraint ck : Failing row contains (1, Zero)
+OCTO> INSERT INTO TCS17c VALUES (2, 'u');
+INSERT 0 1
+OCTO> SELECT * FROM TCS17c;
+id|a
+2|u
+(1 row)
+OCTO> 

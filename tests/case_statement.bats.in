@@ -102,3 +102,10 @@ teardown() {
 	verify_output TCS16 output.txt
 }
 
+@test "TCS17 : A bare literal like 't' in a CASE argument takes the type another argument resolves the CASE to" {
+  # Note: See comment in TCS13 for why the crosscheck needs to be done BEFORE the load_fixture
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS17.sql
+  load_fixture TCS17_errors.sql subtest novv
+  verify_output TCS17_errors output.txt
+}
+

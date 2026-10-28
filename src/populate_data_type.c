@@ -161,6 +161,35 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, SqlState
 	return result;
 }
 
+/* Fixes the type of CASE argument "*value" to "fix_type" if it is ambiguous (BOOLEAN_OR_STRING_LITERAL).
+ * Called once another CASE argument has resolved the CASE type, since "CAST_AMBIGUOUS_TYPES" fixes only a type variable.
+ * Example query that needs this is [select case when true then 't' else (1=1) end;], where 't' must become BOOLEAN_VALUE.
+ * A sub-query argument is fixed to STRING_LITERAL whatever "fix_type" is, so issue a type mismatch error for it then.
+ * Returns 0 on success and 1 on error.
+ */
+static int fix_case_argument_type(SqlStatement **value, SqlValueType fix_type, SqlStatement *parent_stmt,
+				  ParseContext *parse_context) {
+	SqlValueType type;
+	int	     result;
+
+	assert(fix_type == BOOLEAN_VALUE || fix_type == STRING_LITERAL);
+	/* Get the argument's own type. Other arguments, e.g. NULL or $1, can share the CASE type without being ambiguous. */
+	result = populate_data_type(*value, &type, parent_stmt, parse_context, NULL);
+	assert(!result); /* should never fail as it is 2nd call */
+	UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+	if (type != BOOLEAN_OR_STRING_LITERAL)
+		return 0;
+	result = populate_data_type(*value, &type, parent_stmt, parse_context, &fix_type);
+	assert(!result); /* type fixing call of "populate_data_type" should never fail as it is 2nd call */
+	if (type != fix_type) {
+		assert(type == STRING_LITERAL);
+		ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(type), get_user_visible_type_string(fix_type));
+		yyerror(NULL, NULL, value, NULL, NULL, NULL);
+		result = 1;
+	}
+	return result;
+}
+
 /*
  * `parent_stmt` is an input parameter which informs the current invocation what the holding `stmt` is in the parse tree. This
  * information is used by ISSUE_ERR_AND_BREAK_IF_SUBQUERY_HAS_MULTIPLE_COLUMNS() invocation in `table_alias_STATEMENT` and
@@ -192,6 +221,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 	SqlRowValue	       *row_value, *start_row_value;
 	int			num_columns;
 	SqlInsertStatement     *insert;
+	boolean_t		fix_then, fix_else;
 
 	assert(NULL != parse_context); /* helps distinguish "populate_data_type.c" from "qualify_check_constraint.c" when
 					* calling common functions like "function_call_data_type_check()".
@@ -257,12 +287,16 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 			break;
 		}
 		/* "*type" at this point stores the type of the THEN argument ("statement_list") */
+		/* The "fix_*" flags only avoid re-traversing (e.g. sub-query) arguments that are not ambiguous */
+		fix_then = *type == BOOLEAN_OR_STRING_LITERAL;
+		fix_else = FALSE;
 		if (NULL != cas->optional_else) {
 			/* ELSE is present. Check that type of ELSE argument matches with type of THEN arguments till now */
 			result |= populate_data_type(cas->optional_else, &child_type[0], v, parse_context, NULL);
 			if (result) {
 				break;
 			}
+			fix_else = child_type[0] == BOOLEAN_OR_STRING_LITERAL;
 			// SQL NULL values are acceptable in CASE branches so CAST them appropriately
 			CAST_AMBIGUOUS_TYPES(*type, child_type[0], result, parse_context);
 			if (result) {
@@ -301,6 +335,18 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 						    call */
 				assert((fix_type2 == *type) || IS_NUL_VALUE(*type));
 			}
+		} else if (!result && (fix_then || fix_else)) {
+			/* The THEN or ELSE arguments resolved the ambiguous type of the other. Fix the ambiguous ones too. */
+			if (fix_then) {
+				UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
+				cur_branch = cas_branch;
+				do {
+					result |= fix_case_argument_type(&cur_branch->value, *type, v, parse_context);
+					cur_branch = cur_branch->next;
+				} while (!result && cur_branch != cas_branch);
+			}
+			if (!result && fix_else)
+				result |= fix_case_argument_type(&cas->optional_else, *type, v, parse_context);
 		}
 		break;
 	case cas_branch_STATEMENT:
@@ -353,10 +399,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 							 NULL, result);
 			assert(!result); /* because the above macro would have done a "break" otherwise */
 			if (cas_branch != cur_branch->next) {
+				boolean_t fix_earlier, fix_later;
+
 				result |= populate_data_type(cur_branch->next->value, &child_type[1], v, parse_context, NULL);
 				if (result) {
 					break;
 				}
+				/* The fix_ flags only avoid re-traversing arguments that are not ambiguous */
+				fix_earlier = child_type[0] == BOOLEAN_OR_STRING_LITERAL; /* THEN arguments up to "cur_branch" */
+				fix_later = child_type[1] == BOOLEAN_OR_STRING_LITERAL;	  /* THEN argument of "cur_branch->next" */
 				// SQL NULL values are acceptable in CASE branches so CAST them appropriately
 				CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, parse_context);
 				if (result) {
@@ -366,6 +417,23 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, SqlStatement *parent
 								 &cur_branch->value, &cur_branch->next->value, result);
 				assert(!result); /* because the above macro would have done a "break" otherwise */
 				assert(child_type[0] == child_type[1]);
+				if (child_type[0] != BOOLEAN_OR_STRING_LITERAL) {
+					/* One side resolved the ambiguous type of the other. Fix ambiguous THEN arguments too. */
+					if (fix_earlier) {
+						SqlCaseBranchStatement *fix_branch;
+
+						fix_branch = cas_branch;
+						do {
+							result |= fix_case_argument_type(&fix_branch->value, child_type[0], v,
+											 parse_context);
+							fix_branch = fix_branch->next;
+						} while (!result && fix_branch != cur_branch->next);
+					} else if (fix_later)
+						result |= fix_case_argument_type(&cur_branch->next->value, child_type[0], v,
+										 parse_context);
+					if (result)
+						break;
+				}
 			}
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);

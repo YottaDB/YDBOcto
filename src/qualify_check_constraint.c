@@ -77,6 +77,21 @@ int qualify_check_constraint_column_list(SqlStatement *v, SqlTable *table, SqlVa
 	return result;
 }
 
+/* Fixes the type of CASE argument "value" to "fix_type". The argument's own type must be BOOLEAN_OR_STRING_LITERAL or NULL.
+ * See "fix_case_argument_type()" in "populate_data_type.c" for details. A CHECK constraint has no sub-query or $1 argument,
+ * so unlike there, no type mismatch is possible.
+ */
+static void fix_check_case_argument_type(SqlStatement *value, SqlTable *table, SqlValueType fix_type) {
+	SqlValueType type;
+	int	     result;
+
+	assert(fix_type == BOOLEAN_VALUE || fix_type == STRING_LITERAL);
+	result = qualify_check_constraint(value, table, &type, &fix_type);
+	assert(!result); /* type fixing call of "qualify_check_constraint" should never fail as it is 2nd call */
+	UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
+	assert(type == fix_type || IS_NUL_VALUE(type));
+}
+
 /* Function qualifies the "stmt" parameter (which corresponds to a column level or table level CHECK constraint)
  * by verifying that the expression only uses columns from the table passed in the "table" parameter (raises errors
  * as appropriate). And also does type checking (raises errors as appropriate) and returns the type of "stmt" (if
@@ -526,6 +541,7 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		break;
 	case cas_STATEMENT:;
 		SqlCaseStatement *cas;
+		boolean_t	  fix_then, fix_else;
 
 		/* The below layout is very similar to that in the "cas_STATEMENT" case block of populate_data_type.c.
 		 * See there for comments on why the below code is laid out this way.
@@ -554,11 +570,14 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 		if (result) {
 			break;
 		}
+		fix_then = *type == BOOLEAN_OR_STRING_LITERAL;
+		fix_else = FALSE;
 		if (NULL != cas->optional_else) {
 			result |= qualify_check_constraint(cas->optional_else, table, &child_type[0], NULL);
 			if (result) {
 				break;
 			}
+			fix_else = child_type[0] == BOOLEAN_OR_STRING_LITERAL;
 			CAST_AMBIGUOUS_TYPES(*type, child_type[0], result, ((ParseContext *)NULL));
 			if (result) {
 				break;
@@ -593,6 +612,20 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 				assert((fix_type2 == *type) || IS_NUL_VALUE(*type));
 			}
+		} else if (fix_then || fix_else) {
+			/* The THEN or ELSE arguments resolved the ambiguous type of the other. Fix the ambiguous ones too. */
+			if (fix_then) {
+				SqlCaseBranchStatement *cas_branch, *cur_branch;
+
+				UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
+				cur_branch = cas_branch;
+				do {
+					fix_check_case_argument_type(cur_branch->value, table, *type);
+					cur_branch = cur_branch->next;
+				} while (cur_branch != cas_branch);
+			}
+			if (fix_else)
+				fix_check_case_argument_type(cas->optional_else, table, *type);
 		}
 		break;
 	case cas_branch_STATEMENT:;
@@ -643,10 +676,14 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 			assert(!result); /* because the above macro would have done a "break" otherwise */
 			UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 			if (cas_branch != cur_branch->next) {
+				boolean_t fix_earlier, fix_later;
+
 				result |= qualify_check_constraint(cur_branch->next->value, table, &child_type[1], NULL);
 				if (result) {
 					break;
 				}
+				fix_earlier = child_type[0] == BOOLEAN_OR_STRING_LITERAL; /* THEN arguments up to "cur_branch" */
+				fix_later = child_type[1] == BOOLEAN_OR_STRING_LITERAL;	  /* THEN argument of "cur_branch->next" */
 				CAST_AMBIGUOUS_TYPES(child_type[0], child_type[1], result, ((ParseContext *)NULL));
 				if (result) {
 					break;
@@ -656,6 +693,19 @@ int qualify_check_constraint(SqlStatement *stmt, SqlTable *table, SqlValueType *
 				assert(!result); /* because the above macro would have done a "break" otherwise */
 				UNUSED(result);	 /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
 				assert(child_type[0] == child_type[1]);
+				if (child_type[0] != BOOLEAN_OR_STRING_LITERAL) {
+					/* One side resolved the ambiguous type of the other. Fix ambiguous THEN arguments too. */
+					if (fix_earlier) {
+						SqlCaseBranchStatement *fix_branch;
+
+						fix_branch = cas_branch;
+						do {
+							fix_check_case_argument_type(fix_branch->value, table, child_type[0]);
+							fix_branch = fix_branch->next;
+						} while (fix_branch != cur_branch->next);
+					} else if (fix_later)
+						fix_check_case_argument_type(cur_branch->next->value, table, child_type[0]);
+				}
 			}
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);

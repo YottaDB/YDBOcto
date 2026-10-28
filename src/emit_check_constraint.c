@@ -310,13 +310,13 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 		SqlCaseStatement *cas;
 
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
-		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "CASE ");
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "CASE");
 		if (NULL != cas->value) {
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ");
 			ret = emit_check_constraint(buffer, buffer_size, buff_ptr, cas->value);
 			if (0 > ret) {
 				return ret;
 			}
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " ");
 		}
 		ret = emit_check_constraint(buffer, buffer_size, buff_ptr, cas->branches);
 		if (0 > ret) {
@@ -338,7 +338,7 @@ int emit_check_constraint(char **buffer, int *buffer_size, char **buff_ptr, stru
 		UNPACK_SQL_STATEMENT(start_cas_branch, stmt, cas_branch);
 		cur_cas_branch = start_cas_branch;
 		do {
-			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "WHEN ");
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " WHEN ");
 			ret = emit_check_constraint(buffer, buffer_size, buff_ptr, cur_cas_branch->condition);
 			if (0 > ret) {
 				return ret;

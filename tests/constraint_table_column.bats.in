@@ -248,3 +248,17 @@ teardown() {
 	# Drop the tables from Postgres as they can otherwise confuse later runs of other tests (e.g. hello_db/HDB01)
 	psql names -c 'drop table if exists tctc018a; drop table if exists tctc018b; drop table if exists tctc018c; drop table if exists tctc018d' >& postgres.drop_table_TCTC018.out
 }
+
+@test "TCTC019 : : CHECK constraint CASE with multiple WHEN branches survives an auto upgrade of its text definition" {
+	load_fixture TCTC019.sql subtest novv
+	echo "# Verify the CASE in each stored CREATE TABLE text definition has a space before every WHEN" >> output.txt
+	$ydb_dist/mupip extract TCTC019.ext
+	grep -w "text" TCTC019.ext | grep tctc019 | sed 's/ GLOBAL .*//;s/ DELIM .*//;s/.* CHECK /CHECK /' >> output.txt
+	echo "# Force an auto upgrade, which re-runs those text definitions, by lowering ^%ydboctoocto(\"binfmt\")" >> output.txt
+	curbinfmt=$(yottadb -run %XCMD 'write ^%ydboctoocto("binfmt")')
+	yottadb -run %XCMD "set ^%ydboctoocto(\"binfmt\")=$((curbinfmt - 1))"
+	load_fixture TCTC019_after_upgrade.sql subtest novv
+	echo "# Verify the auto upgrade completed, setting ^%ydboctoocto(\"binfmt\") back to the current value" >> output.txt
+	[[ $(yottadb -run %XCMD 'write ^%ydboctoocto("binfmt")') -eq $curbinfmt ]]
+	verify_output TCTC019 output.txt
+}

@@ -1,0 +1,55 @@
+
+-- TCTC019 : CHECK constraint CASE with multiple WHEN branches survives an auto upgrade of its text definition
+
+-- Below CASE expressions used to be stored as "THEN bWHEN" and "THEN nWHEN", which an auto upgrade failed to parse
+CREATE TABLE TCTC019a (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN,
+	CONSTRAINT ck CHECK (CASE WHEN a = 'Zero' THEN b WHEN a = 'One' THEN false ELSE true END));
+CREATE TABLE TCTC019b (id INTEGER PRIMARY KEY, n INTEGER
+	CONSTRAINT ck CHECK (CASE n WHEN 1 THEN n WHEN 2 THEN 0 ELSE 1 END > 0));
+OCTO> CREATE TABLE TCTC019a (id INTEGER PRIMARY KEY, a VARCHAR, b BOOLEAN,
+	CONSTRAINT ck CHECK (CASE WHEN a = 'Zero' THEN b WHEN a = 'One' THEN false ELSE true END));
+CREATE TABLE
+OCTO> CREATE TABLE TCTC019b (id INTEGER PRIMARY KEY, n INTEGER
+	CONSTRAINT ck CHECK (CASE n WHEN 1 THEN n WHEN 2 THEN 0 ELSE 1 END > 0));
+CREATE TABLE
+OCTO> 
+# Verify the CASE in each stored CREATE TABLE text definition has a space before every WHEN
+CHECK (CASE WHEN (a = 'Zero') THEN b WHEN (a = 'One') THEN FALSE ELSE TRUE END))
+CHECK ((CASE n WHEN 1 THEN n WHEN 2 THEN 0 ELSE 1 END > 0))
+# Force an auto upgrade, which re-runs those text definitions, by lowering ^%ydboctoocto("binfmt")
+
+-- TCTC019 : CHECK constraint CASE with multiple WHEN branches survives an auto upgrade of its text definition
+
+-- Below rows test the CHECK constraints after the auto upgrade. Only rows 1 and 3 of each table are accepted.
+INSERT INTO TCTC019a VALUES (1, 'Zero', true);
+INSERT INTO TCTC019a VALUES (2, 'One', true);
+INSERT INTO TCTC019a VALUES (3, 'Two', false);
+SELECT * FROM TCTC019a;
+INSERT INTO TCTC019b VALUES (1, 1);
+INSERT INTO TCTC019b VALUES (2, 2);
+INSERT INTO TCTC019b VALUES (3, 3);
+SELECT * FROM TCTC019b;
+OCTO> INSERT INTO TCTC019a VALUES (1, 'Zero', true);
+INSERT 0 1
+OCTO> INSERT INTO TCTC019a VALUES (2, 'One', true);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tctc019a violates CHECK constraint ck : Failing row contains (2, One, 1)
+OCTO> INSERT INTO TCTC019a VALUES (3, 'Two', false);
+INSERT 0 1
+OCTO> SELECT * FROM TCTC019a;
+id|a|b
+1|Zero|t
+3|Two|f
+(2 rows)
+OCTO> INSERT INTO TCTC019b VALUES (1, 1);
+INSERT 0 1
+OCTO> INSERT INTO TCTC019b VALUES (2, 2);
+[ERROR]: ERR_CHECK_CONSTRAINT_VIOLATION: New row for table tctc019b violates CHECK constraint ck : Failing row contains (2, 2)
+OCTO> INSERT INTO TCTC019b VALUES (3, 3);
+INSERT 0 1
+OCTO> SELECT * FROM TCTC019b;
+id|n
+1|1
+3|3
+(2 rows)
+OCTO> 
+# Verify the auto upgrade completed, setting ^%ydboctoocto("binfmt") back to the current value

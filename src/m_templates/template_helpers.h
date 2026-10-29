@@ -254,6 +254,7 @@ TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count);
+TEMPLATE(tmpl_key_start_endpoint, SqlKey *key, int dot_count, boolean_t use_zkeyfix, int cur_key);
 TEMPLATE(tmpl_key_dollardata_check, PhysicalPlan *pplan, SqlKey *key, boolean_t is_derived_column);
 // Outputs: '%ydboctocursor(cursorId,PP_KEYS,key->unique_id,tableName,columnName)'
 TEMPLATE(tmpl_key, SqlKey *key);

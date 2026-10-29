@@ -137,7 +137,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		 */
 		if ((NULL != key->fixed_to_value) && !right_join_second_half) {
 			LogicalPlan	*fixed_to_value;
+			boolean_t	fixed_to_one_value;	/* TRUE if the key takes one value at a time, from = or IN (not a range) */
 
+			fixed_to_one_value = FALSE;
 			fixed_to_value = key->fixed_to_value;
 			if ((LP_VALUE != fixed_to_value->type)
 					|| !IS_NUL_VALUE(fixed_to_value->v.lp_value.value->type)) {
@@ -517,61 +519,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						 *
 						 * But this is not an easy change and this use case is not considered common
 						 * so keeping the implementation simple for now.
-						 */
-						SqlOptionalKeyword	*keyword;
-						keyword = get_keyword(key->column, OPTIONAL_START);
-						if (NULL != keyword) {
-							SqlValue	*value;
-							UNPACK_SQL_STATEMENT(value, keyword->v, value);
-
-							char		*start;
-							start = value->v.string_literal;
-
-							boolean_t	startinclude;
-							startinclude = (NULL != get_keyword(key->column, OPTIONAL_STARTINCLUDE));
-							TMPL(tmpl_print_dots, dot_count);
-							%{}QUIT:{}%
-							if (!is_string) {
-								%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
-								%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-								if (startinclude) {
-									%{}<{{ start }}{}%
-								} else {
-									%{}<={{ start }}{}%
-								}
-							} else {
-								if (startinclude) {
-									%{}{{ start }}]{}%
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
-									%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-								} else {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
-									%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-									%{}']{{ start }}{}%
-								}
-							}
-							%{}`n{{ PLAN_LINE_START }}{}%
-						}
-						/* END keyword is not supported with key-fixing optimization as it will involve
-						 * changing "tmpl_emit_source" to replace "keys()" usages with "PP_YDB_OCTO_ZKEYFIX"
-						 * usages (like what "EmitSourceForm_KeyFix" does but for all usages and not just
-						 * the last key column like what is currently implemented in "tmpl_emit_source".
+						 *
+						 * END is not supported with a range as it will involve changing "tmpl_emit_source"
+						 * to replace "keys()" usages with "PP_YDB_OCTO_ZKEYFIX" usages (like what
+						 * "EmitSourceForm_KeyFix" does but for all usages and not just the last key column
+						 * like what is currently implemented in "tmpl_emit_source").
 						 */
 						assert(NULL == get_keyword(key->column, OPTIONAL_END));
-						keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
-						if (NULL != keyword) {
-							SqlValue	*value;
-							UNPACK_SQL_STATEMENT(value, keyword->v, value);
-
-							char		*endpoint;
-							endpoint = value->v.string_literal;
-							TMPL(tmpl_print_dots, dot_count);
-							%{}QUIT:{}%
-							%{}{{ PP_YDB_OCTO_ZKEYFIX }}{}%
-							%{}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-							%{}]]{{ endpoint }}{}%
-							%{}`n{{ PLAN_LINE_START }}{}%
-						}
+						TMPL(tmpl_key_start_endpoint, key, dot_count, TRUE, cur_key);
 						use_pp_ydb_octo_expr = FALSE;
 						break;
 					default:
@@ -588,6 +543,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				} else {
 					%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
 				}
+				fixed_to_one_value = use_pp_ydb_octo_expr;
 				need_tmpl_key_finish = TRUE;
 				/* The "tmpl_key_source" function call below would result in an M gvn.
 				 * If the `fixed_to_value` is `$ZYSQLNULL`, we have to skip doing the gvn reference
@@ -648,6 +604,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			 * SKIPCONDITION would silently fail to filter.
 			 */
 			TMPL(tmpl_key_skip, key, dot_count + 1);
+			/* Likewise START, STARTINCLUDE and ENDPOINT (YDBOcto#1177): a key fixed to a value by = or IN has no
+			 * FOR loop to bound it, and the $DATA probe above finds the START subscript, or one past ENDPOINT, as
+			 * readily as a row. A range (<, >, <=, >=) tests them inside its walk above, so nothing is emitted
+			 * here for it.
+			 */
+			if (fixed_to_one_value) {
+				TMPL(tmpl_key_start_endpoint, key, dot_count + 1, FALSE, cur_key);
+			}
 			dot_count++;
 			continue;
 		}

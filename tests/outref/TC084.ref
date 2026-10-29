@@ -1105,7 +1105,13 @@ OCTO>
     . . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_m3","id")=2)
     . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_max1","id")>2)
     . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_max2","id")>90)
+    . QUIT:%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")]]$CHAR(0)
+    . QUIT:%ydboctocursor(cursorId,"keys",1,"skiptest_s1","id")<=0
     . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_s4","id")'?1N.N)
+    . QUIT:%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")]]$CHAR(0)
+    . QUIT:%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")<=0
     . . QUIT:((%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")>50)&(%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")<200))
     . QUIT:((%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")>50)&(%ydboctocursor(cursorId,"keys",1,"skiptest_s5","id")<200))
     . QUIT:(%ydboctocursor(cursorId,"keys",1,"skiptest_s6","id")=100)
+    . . QUIT:%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")]]$CHAR(0)
+    . . QUIT:%ydboctocursor(cursorId,"keys",2,"skiptest_s1","id")<=0

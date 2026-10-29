@@ -290,3 +290,15 @@ CAT
 	done < TWO20_like_queries.sql
 	verify_output TWO20 output.txt noinfo nodebug
 }
+
+@test "TWO22 : OCTO1177 : A key column fixed by = or IN stays inside its START, STARTINCLUDE, ENDPOINT and END bounds" {
+	load_fixture xecutemcode.sql
+	load_fixture TWO22.zwr
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO22.sql > TWO22_input.sql
+	octo -p -f TWO22_input.sql 2>&1 | tee -a output.txt
+	echo "" >> output.txt
+	echo "# The bound tests emitted for a key fixed by = or IN: a dotted QUIT per bound (START, ENDPOINT, END), against the key's own value." >> output.txt
+	echo "# (A range walk tests %ydboctozkeyfix instead, in lines that are not listed here.)" >> output.txt
+	grep -hE '^\s+(\. )*QUIT:\(?("d"\]%ydboctocursor|'"'"'\+|%ydboctocursor\(cursorId,"keys",[0-9]+,"two22[a-h]","[gk]"\))' _ydboctoP*.m | sed 's/^[ .]*//' | sort -u >> output.txt
+	verify_output TWO22 output.txt noinfo nodebug
+}

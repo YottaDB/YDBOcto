@@ -1,0 +1,128 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "template_helpers.h"
+
+/* Emits the dotted "QUIT:<cond>" lines that keep a key fixed by the WHERE clause inside the bounds its START,
+ * STARTINCLUDE, ENDPOINT and END keywords give it (YDBOcto#1177). A table scan applies these bounds in its FOR loop
+ * ("tmpl_key_start" and "tmpl_key_end"); a key that the WHERE clause fixes has no such loop, so each value it
+ * takes is tested here instead:
+ *   - START is exclusive (the START subscript is not a row), unless STARTINCLUDE is also present;
+ *   - ENDPOINT is inclusive;
+ *   - END is an M boolean expression over the key columns ("keys()") that ends the scan's loop when it is true,
+ *     so a value at which it is true is not a row.
+ * A string key column compares with the M string operators ("]" follows), a numeric one with "<"; the START and
+ * ENDPOINT literals are emitted as they were written in the CREATE TABLE (a string one carries its quotes). END is
+ * emitted with its "keys()" references expanded, as "tmpl_key_skip" emits SKIPCONDITION.
+ *
+ * "use_zkeyfix" says which M variable holds the value under test: %ydboctozkeyfix(unique_id,cur_key), while a range
+ * (<, >, <=, >=) or LIKE prefix is walked, or the key's own lvn ("tmpl_key") once the key is set to a value given
+ * by = or IN. A range is never key-fixed on a column with END ("lp_optimize_where_multi_equals_ands"), and END
+ * refers to the key's own lvn, so END is emitted only for the latter. The caller has emitted the line this follows
+ * and its "`n<line-prefix>"; each QUIT line emitted here ends the same way. Nothing is emitted for a key column
+ * without any of these keywords, or for a cross reference key of a non-key column, which has none.
+ */
+TEMPLATE(tmpl_key_start_endpoint, SqlKey *key, int dot_count, boolean_t use_zkeyfix, int cur_key) {
+	SqlOptionalKeyword	*keyword;
+	SqlValue		*value;
+	boolean_t		is_string;
+
+	assert(NULL != key->column);
+	assert(!use_zkeyfix || (NULL == get_keyword(key->column, OPTIONAL_END)));
+	is_string = is_keycol_type_string(key);
+
+	keyword = get_keyword(key->column, OPTIONAL_START);
+	if (NULL != keyword) {
+		char		*start;
+		boolean_t	startinclude;
+
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		start = value->v.string_literal;
+		startinclude = (NULL != get_keyword(key->column, OPTIONAL_STARTINCLUDE));
+		TMPL(tmpl_print_dots, dot_count);
+		%{}QUIT:{}%
+		if (!is_string) {
+			/* Numeric: quit at or below START; with STARTINCLUDE only below it */
+			if (use_zkeyfix) {
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+			} else {
+				TMPL(tmpl_key, key);
+			}
+			if (startinclude) {
+				%{}<{{ start }}{}%
+			} else {
+				%{}<={{ start }}{}%
+			}
+		} else if (startinclude) {
+			/* String: quit when START follows the value, i.e. the value is below START */
+			%{}{{ start }}]{}%
+			if (use_zkeyfix) {
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+			} else {
+				TMPL(tmpl_key, key);
+			}
+		} else {
+			/* String: quit unless the value follows START, i.e. at or below START */
+			if (use_zkeyfix) {
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+			} else {
+				TMPL(tmpl_key, key);
+			}
+			%{}']{{ start }}{}%
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+
+	keyword = get_keyword(key->column, OPTIONAL_ENDPOINT);
+	if (NULL != keyword) {
+		char	*endpoint;
+
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		endpoint = value->v.string_literal;
+		TMPL(tmpl_print_dots, dot_count);
+		/* Quit past ENDPOINT: "]]" (sorts after) serves numbers and strings alike, as "tmpl_key_end" uses it */
+		%{}QUIT:{}%
+		if (use_zkeyfix) {
+			%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+		} else {
+			TMPL(tmpl_key, key);
+		}
+		%{}]]{{ endpoint }}{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+
+	if (!use_zkeyfix) {
+		keyword = get_keyword(key->column, OPTIONAL_END);
+		if (NULL != keyword) {
+			SqlTable	*table;
+			char		*end, *table_name;
+
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			end = value->v.string_literal;
+			assert(NULL != key->table);
+			table = key->table;
+			UNPACK_SQL_STATEMENT(value, table->tableName, value);
+			table_name = value->v.string_literal;
+			TMPL(tmpl_print_dots, dot_count);
+			/* Quit where the scan's loop would have ended: END, true at this value of the key */
+			%{}QUIT:({}%
+			TMPL(tmpl_emit_source, table, end, table_name, key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Value);
+			%{})`n{{ PLAN_LINE_START }}{}%
+		}
+	}
+	return;
+}
+%{}

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,6 +16,9 @@
 /* Finds the first physical plan (starting from "pplan" and going back parent plans as needed) whose keys match the input
  * "unique_id". Returns the matching physical plan. In addition, "*matching_key" is set to the matching key from the
  * returned physical plan in that case. If no physical plan is found, it returns NULL and "*matching_key" is set to NULL.
+ * "*matching_key" is a key that holds the value of a key column: not a cross reference key, unless it is the cross reference
+ * key of a key column (YDBOcto#660), which takes that column's place. It is the only key of a table with one key column
+ * whose cross reference is walked (e.g. for an ORDER BY).
  */
 PhysicalPlan *get_physical_plan_and_key_for_unique_id(PhysicalPlan *pplan, int unique_id, SqlKey **matching_key) {
 	PhysicalPlan *cur_plan, *matching_plan;
@@ -38,6 +41,9 @@ PhysicalPlan *get_physical_plan_and_key_for_unique_id(PhysicalPlan *pplan, int u
 				if (!key->is_cross_reference_key) {
 					*matching_key = key;
 					break;
+				}
+				if (IS_KEY_COLUMN_XREF(key) && (NULL == *matching_key)) {
+					*matching_key = key; /* Used if the table has no other key (see above) */
 				}
 			}
 		}

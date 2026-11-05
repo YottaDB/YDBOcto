@@ -183,16 +183,28 @@ static boolean_t is_xref_order_unreliable(SqlTable *table, SqlColumn *column) {
 	return (!table->readwrite && ((INTEGER_TYPE == data_type) || (NUMERIC_TYPE == data_type)));
 }
 
-/* If the first ORDER BY column is a non-key column of a table, then walking an AIM cross reference of that column in
+/* Walk a cross reference of the first ORDER BY column instead of sorting, if the walk gives the ORDER BY order
+ *
+ * If the first ORDER BY column is a non-key column of a table, then walking an AIM cross reference of that column in
  * ascending (or descending) order produces the rows in ORDER BY order. In that case, replace the keys of that table in
  * the LP_KEYS list of "plan" with a cross reference key that walks ALL values of that column (sets
  * "key->is_order_by_xref_walk") followed by the primary key columns of the table. "lp_optimize_order_by()" then removes
  * the ORDER BY. With a LIMIT, only the first few rows of the cross reference are then read (YDBOcto#1160).
  *
+ * The first ORDER BY column can also be a primary key column (YDBOcto#660), walked through its AIM subscript cross
+ * reference, when the table's own global does not give its order: a key column after the first (the FOR loops of the
+ * key columns before it are outside its own), of any type, or the first key column if it is a string (the table's global
+ * holds it in M collation, where canonical numbers come before all other strings, YDBOcto#959/#397). With a LIMIT, the
+ * walk is inserted before the WHERE clause, which can then fix the key columns after it, as they are reached through the
+ * table's global after the cross reference ("lp_optimize_order_by()" skips them as keys fixed to one value).
+ *
+ * "before_where" is TRUE for the call made before the WHERE and ON conditions fix any key (see
+ * "lp_optimize_order_by_with_limit()"), FALSE for the call made after them.
+ *
  * Building the cross reference replaces the table in the LP_TABLE_JOIN list of "plan" and cannot be undone. Therefore all
  * checks below are done before that and the cross reference is built only if the entire ORDER BY can then be removed.
  */
-static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_order_by_start) {
+static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_order_by_start, boolean_t before_where) {
 	LogicalPlan *lp_column_list, *lp_where, *lp_column_alias;
 
 	/* "optimize_logical_plan()" optimizes each operand of a SET operation separately, and the plans without an LP_OUTPUT
@@ -227,11 +239,39 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 	SqlTable  *table;
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+	int walk_key_num; /* The KEY NUM of the column, or -1 for a non-key column */
+	walk_key_num = -1;
 	if (IS_KEY_COLUMN(column)) {
-		/* A key column is walked by its own FOR loop. That is already handled in "lp_optimize_order_by()" for the
-		 * types where M collation of the key column matches the ORDER BY order.
-		 */
+		walk_key_num = lp_get_key_num(column);
+		if ((0 == walk_key_num) && !IS_COLUMN_STRING_TYPE(column) && !IS_XREF_VALUE_TRANSFORMED(table, column)) {
+			/* The first key column is walked by its own FOR loop over the table's global, in the ORDER BY order for
+			 * the types "lp_optimize_order_by()" checks (YDBOcto#959). Not when its cross reference holds the values
+			 * converted by a transformation function: the global holds them in their stored form, whose order can
+			 * differ, and the cross reference gives the order of the converted values.
+			 */
+			return;
+		}
+	} else if (before_where) {
+		/* Before the WHERE clause, only a key column's walk is considered (see "lp_optimize_order_by_with_limit()") */
 		return;
+	}
+	if (before_where) {
+		/* A condition on the column, or on a key column before it, is served better by the WHERE clause: through a
+		 * cross reference walk over its values (e.g. a LIKE prefix), or by fixing that key column in place.
+		 */
+		LogicalPlan *table_join;
+
+		if (lp_is_key_column_compared(lp_get_select_where(plan)->v.lp_default.operand[0], table_alias->unique_id,
+					      walk_key_num, NULL)) {
+			return;
+		}
+		for (table_join = lp_get_table_join(plan); NULL != table_join;) {
+			if (lp_is_key_column_compared(table_join->extra_detail.lp_table_join.join_on_condition,
+						      table_alias->unique_id, walk_key_num, NULL)) {
+				return;
+			}
+			GET_LP_ALLOW_NULL(table_join, table_join, 1, LP_TABLE_JOIN);
+		}
 	}
 	if (table->has_iterator) {
 		return; /* Tables with an ITERATOR cannot be cross referenced */
@@ -285,6 +325,9 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 		GET_LP(lp_key, cur_keys, 0, LP_KEY);
 		key = lp_key->v.lp_key.key;
 		if (key->unique_id == table_alias->unique_id) {
+			if (key->is_order_by_xref_walk) {
+				return; /* Inserted before the WHERE clause (see "lp_optimize_order_by_with_limit()") */
+			}
 			if (LP_KEY_ADVANCE != key->type) {
 				return; /* This table already has a fixed key or a cross reference (whose key is fixed) */
 			}
@@ -314,10 +357,21 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 	 * All of this is checked before the cross reference is built, as building it replaces the keys of the table and
 	 * cannot be undone. If the ORDER BY could then still not be removed, the query would pay for the walk and the sort.
 	 */
-	SqlColumn *key_columns[MAX_KEY_COUNT];
-	int	   max_key, key_num;
+	SqlColumn *key_columns[MAX_KEY_COUNT], *walk_key_columns[MAX_KEY_COUNT];
+	int	   max_key, key_num, num_walk_keys;
 	memset(key_columns, 0, sizeof(key_columns));
 	max_key = get_key_columns(table, key_columns);
+	/* The primary key columns that the walk visits, in order: all of them for a non-key column; the others for a key
+	 * column (YDBOcto#660), those before it from the cross reference and then those after it from the table's global.
+	 * A key column whose cross reference holds converted values is visited again in its stored form, from the cross
+	 * reference, after those before it (see "lp_generate_xref_keys()").
+	 */
+	num_walk_keys = 0;
+	for (key_num = 0; key_num <= max_key; key_num++) {
+		if ((key_columns[key_num] != column) || IS_XREF_VALUE_TRANSFORMED(table, column)) {
+			walk_key_columns[num_walk_keys++] = key_columns[key_num];
+		}
+	}
 
 	LogicalPlan *cur_order_by;
 	GET_LP_ALLOW_NULL(cur_order_by, lp_order_by_start, 1, LP_ORDER_BY);
@@ -325,9 +379,6 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 		SqlColumnAlias *order_by_column_alias;
 		SqlColumn      *key_column;
 
-		if (key_num > max_key) {
-			return; /* More ORDER BY items than primary key columns */
-		}
 		GET_LP(lp_column_list, cur_order_by, 0, LP_COLUMN_LIST);
 		GET_LP(lp_where, lp_column_list, 0, LP_WHERE);
 		lp_column_alias = lp_where->v.lp_default.operand[0];
@@ -341,15 +392,15 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 		if (order_by_column_alias->table_alias_stmt->v.table_alias->unique_id != table_alias->unique_id) {
 			return; /* The ORDER BY item is a column of another table */
 		}
-		key_column = key_columns[key_num];
+		if (key_num == num_walk_keys) {
+			return; /* More ORDER BY items than primary key columns */
+		}
+		key_column = walk_key_columns[key_num];
 		if (order_by_column_alias->column->v.column != key_column) {
 			return; /* The ORDER BY item is not the next primary key column */
 		}
-		if (IS_COLUMN_STRING_TYPE(key_column)) {
-			return; /* M collation of a VARCHAR key column is not ORDER BY order (YDBOcto#959) */
-		}
-		if (IS_DATE_TIME_DATA_TYPE(key_column->data_type_struct.data_type) && !table->readwrite) {
-			return; /* A date/time key column of a READONLY table can be in non-standard form (YDBOcto#959) */
+		if (!is_key_column_loop_in_order_by_order(table, key_column)) {
+			return; /* The FOR loop of this key column does not return its values in ORDER BY order */
 		}
 		GET_LP_ALLOW_NULL(cur_order_by, cur_order_by, 1, LP_ORDER_BY);
 	}
@@ -362,6 +413,34 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 	assert('^' == xref_key->xref_prefix[0]);
 	xref_key->is_order_by_xref_walk = TRUE;
 	return;
+}
+
+/* Let the ORDER BY of a query with a LIMIT choose a cross reference walk before the WHERE and ON conditions do
+ *
+ * With a LIMIT, the ORDER BY of a query chooses how to walk a table before its WHERE and ON conditions do (YDBOcto#660).
+ * Called before those conditions fix any key: if the first ORDER BY column is a key column whose cross reference walk
+ * gives the ORDER BY order, the walk is inserted now, and the conditions on the other key columns of the table are then
+ * checked under it. A LIMIT stops the walk after the first few rows that pass them, without sorting all the rows that
+ * the conditions select. Without a LIMIT, the conditions choose first, and the ORDER BY is considered after them
+ * ("lp_optimize_order_by()").
+ * The walk is not inserted if a condition compares the column or a key column before it (the conditions then serve those
+ * columns better), and only for a key column: for a non-key column, the conditions still choose first.
+ */
+void lp_optimize_order_by_with_limit(LogicalPlan *plan) {
+	LogicalPlan *lp_order_by_start;
+
+	lp_order_by_start = get_order_by_of_query_with_limit(plan);
+	if (NULL == lp_order_by_start) {
+		return; /* No ORDER BY, or no LIMIT: the WHERE and ON conditions choose first */
+	}
+	assert(LP_SELECT_QUERY == plan->type);
+	if (plan->extra_detail.lp_select_query.root_table_alias->aggregate_function_or_group_by_or_having_specified) {
+		/* With GROUP BY, HAVING or an aggregate function, the rows are output from the groups after the FOR loops
+		 * end, so no cross reference walk gives the ORDER BY order (see "lp_optimize_order_by()", YDBOcto#1193)
+		 */
+		return;
+	}
+	insert_order_by_xref_walk_key(plan, lp_order_by_start, TRUE);
 }
 
 /* This function tries to optimize any ORDER BY usage by seeing if it is possible to remove the LP_ORDER_BY logical plan
@@ -399,7 +478,7 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 	/* If the first ORDER BY column is a non-key column, walk an AIM cross reference of that column (YDBOcto#1160).
 	 * This can replace keys in LP_KEYS, so get the start of LP_KEYS only after this call.
 	 */
-	insert_order_by_xref_walk_key(plan, lp_order_by_start);
+	insert_order_by_xref_walk_key(plan, lp_order_by_start, FALSE);
 	lp_keys_start = lp_get_keys(plan);
 	assert(NULL != lp_keys_start);
 	/* The first iteration of the below loop is to see if the optimization is possible.

@@ -24,8 +24,9 @@ b|3
 OCTO> 
 
 # Run TJC027.java. Each query is run twice on a new connection. Before the YDBOcto#1167 fix, the 1st run of each of the
-# first two failed with [SQL State: 57014 : ERROR: canceling statement due to user request]. In the last two, the plan
-# that runs is the plan of the Parse message ('a%' has a wildcard), or that plan walks no cross reference (ORDER BY id).
+# first two failed with [SQL State: 57014 : ERROR: canceling statement due to user request]. In the third, the plan
+# that runs is the plan of the Parse message ('a%' has a wildcard). In the fourth (ORDER BY id), the plan of the Parse
+# message walks the cross reference of the key column id (YDBOcto#660), so it too would fail without the fix.
 [SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY a] bound to 'ab' -> 1st run: [ab] : 2nd run: [ab]
 [SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY a DESC] bound to 'zz' -> 1st run: [] : 2nd run: []
 [SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY a] bound to 'a%' -> 1st run: [abc,ab,a] : 2nd run: [abc,ab,a]

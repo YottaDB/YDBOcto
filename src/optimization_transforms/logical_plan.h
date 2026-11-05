@@ -87,13 +87,34 @@ typedef enum {
 #define IS_TYPE_LP_AGGREGATE(TYPE)		      ((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK <= TYPE) && (TYPE < LP_AGGREGATE_LAST))
 #define IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN) ((LP_COLUMN_ALIAS == PLAN->type) || (LP_DERIVED_COLUMN == PLAN->type))
 
+/* Test if the AIM cross reference of a column holds converted values (currently boolean and date/time columns)
+ *
+ * TRUE if the AIM cross reference of COLUMN (of TABLE) holds the column's values converted by a transformation function
+ * (see "tmpl_xref_type_transform"): a date/time or boolean column of a READONLY table. Its subscripts are then not the
+ * values that the table's global stores.
+ */
+#define IS_XREF_VALUE_TRANSFORMED(TABLE, COLUMN)                          \
+	(!(TABLE)->readwrite                                              \
+	 && (IS_DATE_TIME_DATA_TYPE((COLUMN)->data_type_struct.data_type) \
+	     || (BOOLEAN_TYPE == (COLUMN)->data_type_struct.data_type)))
+
 /* Test if a key is the cross reference key of a key column and holds that column's value
  *
  * TRUE for the cross reference key of a PRIMARY KEY column (YDBOcto#660). It replaces that column's loop key, so it
  * holds the column's value. The cross reference key of a non-key column holds a value that is not part of the row's
  * primary key, so the code that builds a row's primary key from the plan's keys skips it; this one it has to use.
+ * A key column whose cross reference holds converted values (IS_XREF_VALUE_TRANSFORMED) is the exception: its cross
+ * reference key holds a converted value, not the column's, so it is treated as that of a non-key column, and the
+ * column's own key is advanced from the cross reference (see "lp_generate_xref_keys()").
  */
-#define IS_KEY_COLUMN_XREF(KEY) ((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column))
+#define IS_KEY_COLUMN_XREF(KEY)                                                                                             \
+	((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column) && (NULL != (KEY)->table) \
+	 && !IS_XREF_VALUE_TRANSFORMED((KEY)->table, (KEY)->column))
+
+/* TRUE for the cross reference key of a key column whose cross reference holds converted values (see above) */
+#define IS_TRANSFORMED_KEY_COLUMN_XREF(KEY)                                                                                 \
+	((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column) && (NULL != (KEY)->table) \
+	 && IS_XREF_VALUE_TRANSFORMED((KEY)->table, (KEY)->column))
 
 /* TRUE for a key that holds the value of one of the row's primary key columns: a key of the table itself, or the cross
  * reference key of a primary key column (IS_KEY_COLUMN_XREF). FALSE for the cross reference key of a non-key column. The
@@ -515,7 +536,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *root_stmt);
 // Given a column and a table, generates a cross reference plan and returns it
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id);
 /**
- * Returns the keys corresponding to the cross reference for column in table, and updates
+ * Returns the keys corresponding to the cross reference for column in table (the cross reference key first), and updates
  * the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross
  * reference
  */
@@ -569,6 +590,9 @@ void lp_optimize_order_by(LogicalPlan *plan);
  * ORDER BY order, starting with a key column before the one at "key_num" (YDBOcto#660)
  */
 boolean_t lp_is_order_by_with_limit_given_by_key_loops(LogicalPlan *plan, SqlTableAlias *table_alias, int key_num);
+
+/* With a LIMIT, lets the ORDER BY choose a cross reference walk before the WHERE and ON conditions fix any key (YDBOcto#660) */
+void lp_optimize_order_by_with_limit(LogicalPlan *plan);
 
 /**
  * Attempts to optimize there WHERE statement which contains nothing but items like

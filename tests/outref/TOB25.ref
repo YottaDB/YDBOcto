@@ -1,0 +1,1106 @@
+# TOB25 : OCTO660 : ORDER BY and LIKE prefix on a primary key column walk an AIM subscript cross reference of it
+# A key column's own FOR loop does not give the ORDER BY order when the key columns before it loop outside it, or
+# when M orders its subscripts differently from SQL (a VARCHAR key, whose canonical numbers come first, or a READONLY
+# DATE or BOOLEAN key stored in a non-standard form). The ORDER BY then walks the key column's AIM cross reference
+# instead of sorting, and a LIKE prefix walks only the values that start with the prefix.
+# Each statement below is followed by its result, and each SELECT by the plan Octo chose. The comment above each
+# SELECT states the plan and rows it should give. The PLAN: line says, for a query with an ORDER BY:
+#   [sort]                     the plan collects the rows and sorts them
+#   [no sort]                  the rows come out of the FOR loops of the keys in ORDER BY order (those of the
+#                              table's global, or those under one value of a cross reference)
+#   [no sort, ascending walk]  the plan walks an AIM cross reference forward, through several of its values
+#   [no sort, descending walk] the plan walks an AIM cross reference backward, through several of its values
+#   and, for every query:
+#   xref:  the columns whose AIM cross reference the plan walks or probes
+#   fixed: the keys that the WHERE or ON fixes to one value, so that their FOR loop runs once; (walk) for a key
+#          fixed to each value of a range or LIKE prefix in turn. A fixed cross reference key is listed too.
+# Parts A to D are crosschecked against PostgreSQL first. All their string values are digits and upper case letters,
+# which sort the same way in PostgreSQL's collation and in byte order.
+
+-- ############################################################################################################
+-- Part A (crosschecked against PostgreSQL)
+-- A VARCHAR primary key. The table's global holds it in M collation, canonical numbers first
+-- (2, 9, 10, 12, 13, 120, 123, then 12A, A123, B7), which is not SQL's order. Its cross reference holds "#"_value,
+-- which is. So the ORDER BY and the LIKE prefix walk the cross reference instead of sorting or checking every row.
+-- create table TOB25a (k varchar primary key);
+-- insert into TOB25a values ('9'),('10'),('123'),('A123'),('B7'),('12'),('120'),('12A'),('13'),('2');
+-- The rows of the table, in M order: 2 9 10 12 13 120 123 12A A123 B7
+select * from TOB25a;
+k
+2
+9
+10
+12
+13
+120
+123
+12A
+A123
+B7
+(10 rows)
+PLAN: [no sort] xref: none fixed: none
+
+-- [no sort, ascending walk] 10 12 120 123 12A 13 2 9 A123 B7
+select k from TOB25a order by k;
+k
+10
+12
+120
+123
+12A
+13
+2
+9
+A123
+B7
+(10 rows)
+PLAN: [no sort, ascending walk] xref: tob25a.k fixed: none
+
+-- [no sort, descending walk] B7 A123 9 2 13 12A 123 120 12 10
+select k from TOB25a order by k desc;
+k
+B7
+A123
+9
+2
+13
+12A
+123
+120
+12
+10
+(10 rows)
+PLAN: [no sort, descending walk] xref: tob25a.k fixed: none
+
+-- [no sort, descending walk] the LIMIT stops the walk after 3 rows: B7 A123 9
+select k from TOB25a order by k desc limit 3;
+k
+B7
+A123
+9
+(3 rows)
+PLAN: [no sort, descending walk] xref: tob25a.k fixed: none
+
+-- [no sort, ascending walk] only the values that start with 12: 12 120 123 12A
+select k from TOB25a where k like '12%' order by k;
+k
+12
+120
+123
+12A
+(4 rows)
+PLAN: [no sort, ascending walk] xref: tob25a.k fixed: tob25a.k (walk)
+
+-- [no sort, descending walk] from the end of the 12 prefix: 12A 123
+select k from TOB25a where k like '12%' order by k desc limit 2;
+k
+12A
+123
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25a.k fixed: tob25a.k (walk)
+
+-- [no sort, ascending walk] 10 12 120 123
+select k from TOB25a where k like '1%' order by k limit 4;
+k
+10
+12
+120
+123
+(4 rows)
+PLAN: [no sort, ascending walk] xref: tob25a.k fixed: tob25a.k (walk)
+
+-- ############################################################################################################
+-- Part B (crosschecked against PostgreSQL)
+-- Two INTEGER keys (x, y). The FOR loop of x is outside the one of y in the table's global, so an ORDER BY y
+-- walks the cross reference of y, and x comes from the cross reference under each y.
+-- create table TOB25b (x integer, y integer, v varchar, primary key (x, y));
+-- insert into TOB25b values (1,30,'P'),(1,50,'Q'),(2,10,'P'),(3,30,'Q'),(3,40,'P');
+-- The rows of the table: (1,30,P) (1,50,Q) (2,10,P) (3,30,Q) (3,40,P)
+select * from TOB25b;
+x|y|v
+1|30|P
+1|50|Q
+2|10|P
+3|30|Q
+3|40|P
+(5 rows)
+PLAN: [no sort] xref: none fixed: none
+
+-- [no sort, ascending walk] (2,10) (1,30) (3,30) (3,40) (1,50)
+select x, y from TOB25b order by y, x;
+x|y
+2|10
+1|30
+3|30
+3|40
+1|50
+(5 rows)
+PLAN: [no sort, ascending walk] xref: tob25b.y fixed: none
+
+-- [no sort, descending walk] (1,50) (3,40) (3,30) (1,30) (2,10)
+select x, y from TOB25b order by y desc, x desc;
+x|y
+1|50
+3|40
+3|30
+1|30
+2|10
+(5 rows)
+PLAN: [no sort, descending walk] xref: tob25b.y fixed: none
+
+-- [no sort, ascending walk] (2,10) (1,30)
+select x, y from TOB25b order by y limit 2;
+x|y
+2|10
+1|30
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25b.y fixed: none
+
+-- [no sort, ascending walk] With a LIMIT, the ORDER BY chooses: the walk of y, and v = 'P' is checked on each row.
+-- (2,10,P) (1,30,P)
+select x, y, v from TOB25b where v = 'P' order by y limit 2;
+x|y|v
+2|10|P
+1|30|P
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25b.y fixed: none
+
+-- [sort] Without a LIMIT, the WHERE chooses: the cross reference of v, then a sort. (2,10,P) (1,30,P) (3,40,P)
+select x, y, v from TOB25b where v = 'P' order by y;
+x|y|v
+2|10|P
+1|30|P
+3|40|P
+(3 rows)
+PLAN: [sort] xref: tob25b.v fixed: tob25b.v
+
+-- [no sort] x is fixed to one value, so its FOR loop runs once and the table's global gives the order of y
+-- (YDBOcto#1161). No walk. (3,30) (3,40)
+select x, y from TOB25b where x = 3 order by y;
+x|y
+3|30
+3|40
+(2 rows)
+PLAN: [no sort] xref: none fixed: tob25b.x
+
+-- [no sort, ascending walk] With a LIMIT, a row comparison in an ON condition does not stop the walk of y, as it
+-- compares no single key column. (2,10) (1,30) (3,30)
+select b1.x, b1.y from TOB25b b1 inner join TOB25b b2 on b1.* = b2.* order by b1.y limit 3;
+x|y
+2|10
+1|30
+3|30
+(3 rows)
+PLAN: [no sort, ascending walk] xref: tob25b.y fixed: none
+
+-- [sort] With a GROUP BY, the rows are output from the groups, not in the order of the walk: the range on y walks its
+-- cross reference, and the ORDER BY still sorts. (50,1) (40,1) (30,2) (10,1)
+select y, count(*) from TOB25b where y > 0 group by y order by y desc;
+y|count(*)
+50|1
+40|1
+30|2
+10|1
+(4 rows)
+PLAN: [sort] xref: tob25b.y fixed: tob25b.y (walk)
+
+-- ############################################################################################################
+-- Part C (crosschecked against PostgreSQL)
+-- Three keys (s, t, q), as in specimen, test code, sequence: a WHERE on t and an ORDER BY s.
+-- create table TOB25c (s varchar, t varchar, q integer, primary key (s, t, q));
+-- insert into TOB25c values ('9','PSA',1),('10','PSA',1),('10','CBC',2),('123','CBC',1),('A123','PSA',2),('B7','PSA',1);
+-- The rows of the table, in M order: (9,PSA,1) (10,CBC,2) (10,PSA,1) (123,CBC,1) (A123,PSA,2) (B7,PSA,1)
+select * from TOB25c;
+s|t|q
+9|PSA|1
+10|CBC|2
+10|PSA|1
+123|CBC|1
+A123|PSA|2
+B7|PSA|1
+(6 rows)
+PLAN: [no sort] xref: none fixed: none
+
+-- [no sort, descending walk] With the LIMIT, the walk of s backwards; t = 'PSA' is checked under each s.
+-- (B7,PSA,1) (A123,PSA,2)
+select s, t, q from TOB25c where t = 'PSA' order by s desc limit 2;
+s|t|q
+B7|PSA|1
+A123|PSA|2
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25c.s fixed: tob25c.t
+
+-- [sort] Without a LIMIT, the WHERE chooses: the cross reference of t, then a sort on s.
+-- (B7,PSA,1) (A123,PSA,2) (9,PSA,1) (10,PSA,1)
+select s, t, q from TOB25c where t = 'PSA' order by s desc;
+s|t|q
+B7|PSA|1
+A123|PSA|2
+9|PSA|1
+10|PSA|1
+(4 rows)
+PLAN: [sort] xref: tob25c.t fixed: tob25c.t
+
+-- [sort] A LIKE prefix on the second key column walks its cross reference; the ORDER BY then sorts.
+-- (10,CBC,2) (123,CBC,1)
+select s, t, q from TOB25c where t like 'C%' order by s, t, q;
+s|t|q
+10|CBC|2
+123|CBC|1
+(2 rows)
+PLAN: [sort] xref: tob25c.t fixed: tob25c.t (walk)
+
+-- [sort] s fixed; ORDER BY t, a VARCHAR key column, whose M collation is not SQL's order. (10,CBC,2) (10,PSA,1)
+select s, t, q from TOB25c where s = '10' order by t, q;
+s|t|q
+10|CBC|2
+10|PSA|1
+(2 rows)
+PLAN: [sort] xref: none fixed: tob25c.s
+
+-- [sort] s fixed: no cross reference, the LIKE is checked on each row under s. (10,CBC,2)
+select s, t, q from TOB25c where s = '10' and t like 'C%' order by s, t, q;
+s|t|q
+10|CBC|2
+(1 row)
+PLAN: [sort] xref: none fixed: tob25c.s
+
+-- [sort] With a GROUP BY, as in Part B, on a VARCHAR key column. (CBC,2) (PSA,4)
+select t, count(*) from TOB25c where t < 'Q' group by t order by t;
+t|count(*)
+CBC|2
+PSA|4
+(2 rows)
+PLAN: [sort] xref: tob25c.t fixed: tob25c.t (walk)
+
+-- [no sort, ascending walk] With a LIMIT, the ORDER BY chooses the walk of s before the WHERE is looked at. The range
+-- on q, a later key column, then finds the table already walking a cross reference, and walks q in the table's global
+-- under each s and t.
+-- (10,CBC,2) (A123,PSA,2)
+select s, t, q from TOB25c where q > 1 order by s limit 2;
+s|t|q
+10|CBC|2
+A123|PSA|2
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25c.s fixed: tob25c.q (walk)
+
+-- [no sort, ascending walk] The same for an IN on q. (10,CBC,2) (A123,PSA,2)
+select s, t, q from TOB25c where q in (2, 3) order by s limit 2;
+s|t|q
+10|CBC|2
+A123|PSA|2
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25c.s fixed: tob25c.q
+
+-- ############################################################################################################
+-- Part D (crosschecked against PostgreSQL)
+-- A LEFT JOIN on a walked table that has one key column and a non-key column. Its only key is the cross
+-- reference key, whose value the NULL check of a LEFT JOIN reads before it reads the non-key column (YDBOcto#1128).
+-- create table TOB25f (k varchar primary key, v varchar);
+-- insert into TOB25f values ('9','NINE'),('10','TEN'),('123','ONE23'),('B7','BSEVEN'),('7','SEVEN');
+-- The rows of the table, in M order: (7,SEVEN) (9,NINE) (10,TEN) (123,ONE23) (B7,BSEVEN)
+select * from TOB25f;
+k|v
+7|SEVEN
+9|NINE
+10|TEN
+123|ONE23
+B7|BSEVEN
+(5 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] B7 9 7 123, each with the t of its TOB25c row. 7 has no TOB25c row, so its t is NULL:
+-- the LEFT JOIN outputs it, through the NULL check of the walked key, with an empty t (how Octo shows NULL).
+select f.k, f.v, c.t from TOB25f f left join TOB25c c on c.s = f.k order by f.k desc limit 4;
+k|v|t
+B7|BSEVEN|PSA
+9|NINE|PSA
+7|SEVEN|
+123|ONE23|CBC
+(4 rows)
+PLAN: [no sort, descending walk] xref: tob25f.k fixed: tob25c.s
+
+-- An UPDATE whose LIKE prefix walks the cross reference of the table's only key column updates the row in the table.
+-- (10,X) (123,X) and the others unchanged.
+update TOB25f set v = 'X' where k like '1%';
+UPDATE 2
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+select * from TOB25f order by k;
+k|v
+10|X
+123|X
+7|SEVEN
+9|NINE
+B7|BSEVEN
+(5 rows)
+PLAN: [no sort, ascending walk] xref: tob25f.k fixed: none
+
+-- The same when the UPDATE changes the key column itself: B7 becomes QB7, which LIKE 'Q%' then finds, and LIKE 'B%'
+-- does not.
+update TOB25f set k = 'Q' || k where k like 'B%';
+UPDATE 1
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+select * from TOB25f where k like 'Q%';
+k|v
+QB7|BSEVEN
+(1 row)
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+select * from TOB25f where k like 'B%';
+k|v
+(0 rows)
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+-- And back, so that the table is as before for the next run of these statements: (10,TEN) (123,ONE23) (B7,BSEVEN)
+update TOB25f set k = 'B7' where k like 'QB%';
+UPDATE 1
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+update TOB25f set v = 'TEN' where k like '10%';
+UPDATE 1
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+update TOB25f set v = 'ONE23' where k like '12%';
+UPDATE 1
+PLAN: xref: tob25f.k fixed: tob25f.k (walk)
+
+select * from TOB25f order by k;
+k|v
+10|TEN
+123|ONE23
+7|SEVEN
+9|NINE
+B7|BSEVEN
+(5 rows)
+PLAN: [no sort, ascending walk] xref: tob25f.k fixed: none
+
+-- ############################################################################################################
+-- Part E (Octo only: READONLY tables on globals set in M)
+-- The START, STARTINCLUDE, ENDPOINT and END bounds of a VARCHAR key column of a READONLY table. Four globals
+-- hold the same nodes, one per bound. A key column's cross reference holds every subscript of the global, so the walks
+-- test the bounds on each value they read. M orders the subscripts 9 10 B D DA E H HA K (numbers first); SQL orders
+-- the values 10 9 B D DA E H HA K.
+SELECT XECUTE_M_CODE('for g="^TOB25s","^TOB25i","^TOB25p","^TOB25e" for k=10,9,"B","D","DA","E","H","HA","K" set @g@(k)=k');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25s');
+^TOB25s(9)=9
+^TOB25s(10)=10
+^TOB25s("B")="B"
+^TOB25s("D")="D"
+^TOB25s("DA")="DA"
+^TOB25s("E")="E"
+^TOB25s("H")="H"
+^TOB25s("HA")="HA"
+^TOB25s("K")="K"
+xecute_m_code
+0
+(1 row)
+
+-- START "D" (exclusive): the rows are DA E H HA K
+CREATE TABLE TOB25s (k VARCHAR PRIMARY KEY START '"D"', v VARCHAR PIECE 1) GLOBAL "^TOB25s(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: DA E H HA K
+SELECT k FROM TOB25s;
+k
+DA
+E
+H
+HA
+K
+(5 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] DA E H HA K
+SELECT k FROM TOB25s ORDER BY k;
+k
+DA
+E
+H
+HA
+K
+(5 rows)
+PLAN: [no sort, ascending walk] xref: tob25s.k fixed: none
+
+-- [no sort, descending walk] K HA
+SELECT k FROM TOB25s ORDER BY k DESC LIMIT 2;
+k
+K
+HA
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25s.k fixed: none
+
+-- [no sort, ascending walk] D is the START, so not a row: DA
+SELECT k FROM TOB25s WHERE k LIKE 'D%' ORDER BY k;
+k
+DA
+(1 row)
+PLAN: [no sort, ascending walk] xref: tob25s.k fixed: tob25s.k (walk)
+
+-- START "D" STARTINCLUDE: the rows are D DA E H HA K
+CREATE TABLE TOB25i (k VARCHAR PRIMARY KEY START '"D"' STARTINCLUDE, v VARCHAR PIECE 1) GLOBAL "^TOB25i(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan: D DA E H HA K
+SELECT k FROM TOB25i;
+k
+D
+DA
+E
+H
+HA
+K
+(6 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] K HA H E DA D
+SELECT k FROM TOB25i ORDER BY k DESC;
+k
+K
+HA
+H
+E
+DA
+D
+(6 rows)
+PLAN: [no sort, descending walk] xref: tob25i.k fixed: none
+
+-- [no sort, ascending walk] D DA
+SELECT k FROM TOB25i WHERE k LIKE 'D%' ORDER BY k;
+k
+D
+DA
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25i.k fixed: tob25i.k (walk)
+
+-- ENDPOINT "H": the rows are 9 10 B D DA E H
+CREATE TABLE TOB25p (k VARCHAR PRIMARY KEY ENDPOINT '"H"', v VARCHAR PIECE 1) GLOBAL "^TOB25p(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: 9 10 B D DA E H
+SELECT k FROM TOB25p;
+k
+9
+10
+B
+D
+DA
+E
+H
+(7 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] in SQL order: 10 9 B D DA E H
+SELECT k FROM TOB25p ORDER BY k;
+k
+10
+9
+B
+D
+DA
+E
+H
+(7 rows)
+PLAN: [no sort, ascending walk] xref: tob25p.k fixed: none
+
+-- [no sort, descending walk] H E
+SELECT k FROM TOB25p ORDER BY k DESC LIMIT 2;
+k
+H
+E
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25p.k fixed: none
+
+-- [no sort, ascending walk] HA is past the ENDPOINT: H
+SELECT k FROM TOB25p WHERE k LIKE 'H%' ORDER BY k;
+k
+H
+(1 row)
+PLAN: [no sort, ascending walk] xref: tob25p.k fixed: tob25p.k (walk)
+
+-- END true past "H": the rows are 9 10 B D DA E H
+CREATE TABLE TOB25e (k VARCHAR PRIMARY KEY END "(keys(""k"")="""")!(keys(""k"")]""H"")", v VARCHAR PIECE 1) GLOBAL "^TOB25e(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan: 9 10 B D DA E H
+SELECT k FROM TOB25e;
+k
+9
+10
+B
+D
+DA
+E
+H
+(7 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] H E DA D B 9 10
+SELECT k FROM TOB25e ORDER BY k DESC;
+k
+H
+E
+DA
+D
+B
+9
+10
+(7 rows)
+PLAN: [no sort, descending walk] xref: tob25e.k fixed: none
+
+-- [no sort, ascending walk] H
+SELECT k FROM TOB25e WHERE k LIKE 'H%' ORDER BY k;
+k
+H
+(1 row)
+PLAN: [no sort, ascending walk] xref: tob25e.k fixed: tob25e.k (walk)
+
+-- A node with an empty string subscript (the region allows null subscripts). The FOR loop over the table's global ends
+-- at "", so the table scan never returns that node as a row: the walks of the cross reference leave it out too.
+SELECT XECUTE_M_CODE('set ^TOB25n("")="e",^TOB25n("K")="f",^TOB25n(10)="g",^TOB25m(1,"")="e",^TOB25m(1,"K")="f",^TOB25m(2,10)="g"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25n,^TOB25m');
+^TOB25n("")="e"
+^TOB25n(10)="g"
+^TOB25n("K")="f"
+^TOB25m(1,"")="e"
+^TOB25m(1,"K")="f"
+^TOB25m(2,10)="g"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25n (k VARCHAR PRIMARY KEY, v VARCHAR PIECE 1) GLOBAL "^TOB25n(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: (10,g) (K,f)
+SELECT k, v FROM TOB25n;
+k|v
+10|g
+K|f
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] (10,g) (K,f)
+SELECT k, v FROM TOB25n ORDER BY k;
+k|v
+10|g
+K|f
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25n.k fixed: none
+
+-- [no sort, descending walk] (K,f) (10,g)
+SELECT k, v FROM TOB25n ORDER BY k DESC;
+k|v
+K|f
+10|g
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25n.k fixed: none
+
+-- The same for a second key column
+CREATE TABLE TOB25m (a INTEGER, k VARCHAR, v VARCHAR PIECE 1, PRIMARY KEY (a, k)) GLOBAL "^TOB25m(keys(""a""),keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan: (1,K,f) (2,10,g)
+SELECT a, k, v FROM TOB25m;
+a|k|v
+1|K|f
+2|10|g
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] (2,10,g) (1,K,f)
+SELECT a, k, v FROM TOB25m ORDER BY k, a;
+a|k|v
+2|10|g
+1|K|f
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tob25m.k fixed: none
+
+-- [no sort, descending walk] (1,K,f) (2,10,g)
+SELECT a, k, v FROM TOB25m ORDER BY k DESC, a DESC;
+a|k|v
+1|K|f
+2|10|g
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25m.k fixed: none
+
+-- START (exclusive) on the first key column, walked in descending order under the cross reference of b. The walk
+-- ends at the START value, and also at any value before it (YDBOcto#1195; TOB28 tests the walk of the table's
+-- global), as the walk does not always meet the START value: under b = 3 of the cross reference of b there is no
+-- a = 1 (START 1), no node has a = 0 (START 0), and no row has a = 3 (START 3).
+SELECT XECUTE_M_CODE('set ^TOB25x(1,7)="a",^TOB25x(2,3)="b",^TOB25x(2,5)="f",^TOB25x(4,3)="e",^TOB25x(5,3)="g"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25x');
+^TOB25x(1,7)="a"
+^TOB25x(2,3)="b"
+^TOB25x(2,5)="f"
+^TOB25x(4,3)="e"
+^TOB25x(5,3)="g"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25x1 (a INTEGER START 1, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB25x(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+CREATE TABLE TOB25x0 (a INTEGER START 0, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB25x(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+CREATE TABLE TOB25x3 (a INTEGER START 3, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB25x(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- The table scan, START 1: (2,3,b) (2,5,f) (4,3,e) (5,3,g)
+SELECT a, b, v FROM TOB25x1;
+a|b|v
+2|3|b
+2|5|f
+4|3|e
+5|3|g
+(4 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] (5,3,g) (4,3,e) (2,3,b)
+SELECT a, b, v FROM TOB25x1 WHERE b = 3 ORDER BY a DESC;
+a|b|v
+5|3|g
+4|3|e
+2|3|b
+(3 rows)
+PLAN: [no sort] xref: tob25x1.b fixed: tob25x1.b
+
+-- [sort] (5,3,g) (4,3,e) (2,3,b) (2,5,f)
+SELECT a, b, v FROM TOB25x1 ORDER BY b, a DESC;
+a|b|v
+5|3|g
+4|3|e
+2|3|b
+2|5|f
+(4 rows)
+PLAN: [sort] xref: none fixed: none
+
+-- [sort] (2,5,f) (5,3,g) (4,3,e)
+SELECT a, b, v FROM TOB25x1 ORDER BY b DESC, a DESC LIMIT 3;
+a|b|v
+2|5|f
+5|3|g
+4|3|e
+(3 rows)
+PLAN: [sort] xref: none fixed: none
+
+-- [no sort, descending walk] START 0: (5,3,g) (4,3,e) (2,3,b)
+SELECT a, b, v FROM TOB25x0 WHERE b = 3 ORDER BY a DESC;
+a|b|v
+5|3|g
+4|3|e
+2|3|b
+(3 rows)
+PLAN: [no sort] xref: tob25x0.b fixed: tob25x0.b
+
+-- The table scan, START 3: (4,3,e) (5,3,g)
+SELECT a, b, v FROM TOB25x3;
+a|b|v
+4|3|e
+5|3|g
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] START 3: (5,3,g) (4,3,e)
+SELECT a, b, v FROM TOB25x3 WHERE b = 3 ORDER BY a DESC;
+a|b|v
+5|3|g
+4|3|e
+(2 rows)
+PLAN: [no sort] xref: tob25x3.b fixed: tob25x3.b
+
+-- [no sort, descending walk] START 3: no rows
+SELECT a, b, v FROM TOB25x3 WHERE b = 5 ORDER BY a DESC;
+a|b|v
+(0 rows)
+PLAN: [no sort] xref: tob25x3.b fixed: tob25x3.b
+
+-- The same with a VARCHAR second key column, whose cross reference the ORDER BY walks: under s = "D" there is no g = 1
+SELECT XECUTE_M_CODE('set ^TOB25y(1,"B")=1,^TOB25y(2,"B")=2,^TOB25y(2,"D")=3,^TOB25y(3,"D")=4');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25y');
+^TOB25y(1,"B")=1
+^TOB25y(2,"B")=2
+^TOB25y(2,"D")=3
+^TOB25y(3,"D")=4
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25y (g INTEGER START 1, s VARCHAR, v INTEGER PIECE 1, PRIMARY KEY (g, s)) GLOBAL "^TOB25y(keys(""g""),keys(""s""))" READONLY;
+CREATE TABLE
+
+-- The table scan: (2,B,2) (2,D,3) (3,D,4)
+SELECT g, s, v FROM TOB25y;
+g|s|v
+2|B|2
+2|D|3
+3|D|4
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] (3,D,4) (2,D,3) (2,B,2)
+SELECT g, s, v FROM TOB25y ORDER BY s DESC, g DESC;
+g|s|v
+3|D|4
+2|D|3
+2|B|2
+(3 rows)
+PLAN: [no sort, descending walk] xref: tob25y.s fixed: none
+
+-- [no sort, ascending walk of s, descending walk of g under each s] (2,B,2) (3,D,4) (2,D,3)
+SELECT g, s, v FROM TOB25y ORDER BY s, g DESC;
+g|s|v
+2|B|2
+3|D|4
+2|D|3
+(3 rows)
+PLAN: [no sort, descending walk] xref: tob25y.s fixed: none
+
+-- [no sort, ascending walk of s, descending walk of g under each s] (3,D,4) (2,D,3)
+SELECT g, s, v FROM TOB25y WHERE s LIKE 'D%' ORDER BY s, g DESC;
+g|s|v
+3|D|4
+2|D|3
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25y.s fixed: tob25y.s (walk)
+
+-- ############################################################################################################
+-- Part F (Octo only: READONLY tables on globals set in M)
+-- A DATE key column after the first, of a READONLY table. Its cross reference holds each date converted to
+-- UNIX time, and after it the subscripts of the global in their stored form. The walk goes through the converted
+-- values, so in date order, and reads k1 and k2 in their stored form from under each one. 2024-01-15 is stored in two
+-- forms: "2024-01-15" (k1 = 2) and "2024-1-15" (k1 = 3).
+SELECT XECUTE_M_CODE('set ^TOB25d(1,"2024-03-01")="a",^TOB25d(1,"2023-12-31")="b",^TOB25d(2,"2024-01-15")="c",^TOB25d(3,"2024-1-15")="d"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25d');
+^TOB25d(1,"2023-12-31")="b"
+^TOB25d(1,"2024-03-01")="a"
+^TOB25d(2,"2024-01-15")="c"
+^TOB25d(3,"2024-1-15")="d"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25d (k1 INTEGER, k2 DATE, v VARCHAR PIECE 1, PRIMARY KEY (k1, k2)) GLOBAL "^TOB25d(keys(""k1""),keys(""k2""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: (1,2023-12-31,b) (1,2024-03-01,a) (2,2024-01-15,c) (3,2024-01-15,d)
+SELECT k1, k2, v FROM TOB25d;
+k1|k2|v
+1|2023-12-31|b
+1|2024-03-01|a
+2|2024-01-15|c
+3|2024-01-15|d
+(4 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] (1,2023-12-31,b) (2,2024-01-15,c) (3,2024-01-15,d) (1,2024-03-01,a)
+SELECT k1, k2, v FROM TOB25d ORDER BY k2;
+k1|k2|v
+1|2023-12-31|b
+2|2024-01-15|c
+3|2024-01-15|d
+1|2024-03-01|a
+(4 rows)
+PLAN: [no sort, ascending walk] xref: tob25d.k2 fixed: none
+
+-- [no sort, descending walk] (1,2024-03-01,a) then both forms of 2024-01-15
+SELECT k1, k2, v FROM TOB25d ORDER BY k2 DESC LIMIT 3;
+k1|k2|v
+1|2024-03-01|a
+2|2024-01-15|c
+3|2024-01-15|d
+(3 rows)
+PLAN: [no sort, descending walk] xref: tob25d.k2 fixed: none
+
+-- [no sort, ascending walk] k1 is read under each date, in order: as for ORDER BY k2
+SELECT k1, k2, v FROM TOB25d ORDER BY k2, k1;
+k1|k2|v
+1|2023-12-31|b
+2|2024-01-15|c
+3|2024-01-15|d
+1|2024-03-01|a
+(4 rows)
+PLAN: [no sort, ascending walk] xref: tob25d.k2 fixed: none
+
+-- [no sort, ascending walk] v > 'b' is checked on each row of the walk: (2,2024-01-15,c)
+SELECT k1, k2, v FROM TOB25d WHERE v > 'b' ORDER BY k2 LIMIT 1;
+k1|k2|v
+2|2024-01-15|c
+(1 row)
+PLAN: [no sort, ascending walk] xref: tob25d.k2 fixed: none
+
+-- START '"2024-"' applies to the stored form: "2023-12-31" is before "2024-", so it is not a row.
+-- (START '"2024"' would not do: "2024" is a canonical number, and M orders every number before every string.)
+SELECT XECUTE_M_CODE('merge ^TOB25ds=^TOB25d');
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25ds (k1 INTEGER, k2 DATE START '"2024-"', v VARCHAR PIECE 1, PRIMARY KEY (k1, k2)) GLOBAL "^TOB25ds(keys(""k1""),keys(""k2""))" READONLY;
+CREATE TABLE
+
+-- The table scan: (1,2024-03-01,a) (2,2024-01-15,c) (3,2024-01-15,d)
+SELECT k1, k2, v FROM TOB25ds;
+k1|k2|v
+1|2024-03-01|a
+2|2024-01-15|c
+3|2024-01-15|d
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] (2,2024-01-15,c) (3,2024-01-15,d) (1,2024-03-01,a)
+SELECT k1, k2, v FROM TOB25ds ORDER BY k2;
+k1|k2|v
+2|2024-01-15|c
+3|2024-01-15|d
+1|2024-03-01|a
+(3 rows)
+PLAN: [no sort, ascending walk] xref: tob25ds.k2 fixed: none
+
+-- ############################################################################################################
+-- Part G (Octo only: READONLY tables on globals set in M)
+-- A BOOLEAN key column after the first, of a READONLY table. Its cross reference holds 0 or 1, converted from
+-- the stored form: TRUE is stored as 1 (k1 = 1) and as "Y" (k1 = 2), FALSE as 0 (k1 = 1) and as "f" (k1 = 3).
+SELECT XECUTE_M_CODE('set ^TOB25t(1,1)="a",^TOB25t(1,0)="b",^TOB25t(2,"Y")="c",^TOB25t(3,"f")="d"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25t');
+^TOB25t(1,0)="b"
+^TOB25t(1,1)="a"
+^TOB25t(2,"Y")="c"
+^TOB25t(3,"f")="d"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25t (k1 INTEGER, k2 BOOLEAN, v VARCHAR PIECE 1, PRIMARY KEY (k1, k2)) GLOBAL "^TOB25t(keys(""k1""),keys(""k2""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: (1,f,b) (1,t,a) (2,t,c) (3,f,d)
+SELECT k1, k2, v FROM TOB25t;
+k1|k2|v
+1|f|b
+1|t|a
+2|t|c
+3|f|d
+(4 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] (1,f,b) (3,f,d) (1,t,a) (2,t,c)
+SELECT k1, k2, v FROM TOB25t ORDER BY k2;
+k1|k2|v
+1|f|b
+3|f|d
+1|t|a
+2|t|c
+(4 rows)
+PLAN: [no sort, ascending walk] xref: tob25t.k2 fixed: none
+
+-- [no sort, descending walk] (1,t,a) (2,t,c)
+SELECT k1, k2, v FROM TOB25t ORDER BY k2 DESC LIMIT 2;
+k1|k2|v
+1|t|a
+2|t|c
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25t.k2 fixed: none
+
+-- ############################################################################################################
+-- Part H (Octo only: READONLY tables on globals set in M)
+-- The first key column, DATE and BOOLEAN, of a READONLY table. Its FOR loop goes through the stored forms,
+-- whose M order is not that of the values ("2024-1-15" is after "2024-03-01"), so the ORDER BY walks the cross
+-- reference instead of sorting.
+SELECT XECUTE_M_CODE('set ^TOB25d1("2024-03-01")="a",^TOB25d1("2023-12-31")="b",^TOB25d1("2024-1-15")="c"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25d1');
+^TOB25d1("2023-12-31")="b"
+^TOB25d1("2024-03-01")="a"
+^TOB25d1("2024-1-15")="c"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25d1 (k DATE PRIMARY KEY, v VARCHAR PIECE 1) GLOBAL "^TOB25d1(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: 2023-12-31 2024-03-01 2024-01-15
+SELECT k, v FROM TOB25d1;
+k|v
+2023-12-31|b
+2024-03-01|a
+2024-01-15|c
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, ascending walk] 2023-12-31 2024-01-15 2024-03-01
+SELECT k, v FROM TOB25d1 ORDER BY k;
+k|v
+2023-12-31|b
+2024-01-15|c
+2024-03-01|a
+(3 rows)
+PLAN: [no sort, ascending walk] xref: tob25d1.k fixed: none
+
+-- [no sort, descending walk] 2024-03-01
+SELECT k, v FROM TOB25d1 ORDER BY k DESC LIMIT 1;
+k|v
+2024-03-01|a
+(1 row)
+PLAN: [no sort, descending walk] xref: tob25d1.k fixed: none
+
+SELECT XECUTE_M_CODE('set ^TOB25t1(0)="a",^TOB25t1("Y")="b"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25t1');
+^TOB25t1(0)="a"
+^TOB25t1("Y")="b"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25t1 (k BOOLEAN PRIMARY KEY, v VARCHAR PIECE 1) GLOBAL "^TOB25t1(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- The table scan: f t
+SELECT k, v FROM TOB25t1;
+k|v
+f|a
+t|b
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [no sort, descending walk] t f
+SELECT k, v FROM TOB25t1 ORDER BY k DESC;
+k|v
+t|b
+f|a
+(2 rows)
+PLAN: [no sort, descending walk] xref: tob25t1.k fixed: none
+
+-- ############################################################################################################
+-- Part I (Octo only: READONLY tables on globals set in M)
+-- ORDER BY k2, k1 on PRIMARY KEY (k1, k2), where k1, the first key column, is a READONLY BOOLEAN and is the second
+-- ORDER BY item. A walk of the cross reference of k2 would give the order of k2. But under each value of k2 it lists k1
+-- in its stored form, in M order: TRUE stored as 1 comes before FALSE stored as "f" (YDBOcto#1179). That is not the
+-- order of k1, so the ORDER BY has to sort in any case. A cross reference is built for an ORDER BY only when its walk
+-- removes the sort, so none is built here: the queries below read the table's global ("xref: none") and sort.
+SELECT XECUTE_M_CODE('set ^TOB25bk(1,"x")="a",^TOB25bk("f","x")="b",^TOB25bk(0,"y")="c",^TOB25bk("Y","y")="d"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TOB25bk');
+^TOB25bk(0,"y")="c"
+^TOB25bk(1,"x")="a"
+^TOB25bk("Y","y")="d"
+^TOB25bk("f","x")="b"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TOB25bk (k1 BOOLEAN, k2 VARCHAR, v VARCHAR PIECE 1, PRIMARY KEY (k1, k2)) GLOBAL "^TOB25bk(keys(""k1""),keys(""k2""))" READONLY;
+CREATE TABLE
+
+-- The table scan, in M order: (f,y,c) (t,x,a) (t,y,d) (f,x,b)
+SELECT k1, k2, v FROM TOB25bk;
+k1|k2|v
+f|y|c
+t|x|a
+t|y|d
+f|x|b
+(4 rows)
+PLAN: xref: none fixed: none
+
+-- [sort] No cross reference of k2, as k1 is not in boolean order under each k2: (f,x,b) (t,x,a) (f,y,c) (t,y,d)
+SELECT k1, k2, v FROM TOB25bk ORDER BY k2, k1;
+k1|k2|v
+f|x|b
+t|x|a
+f|y|c
+t|y|d
+(4 rows)
+PLAN: [sort] xref: none fixed: none
+
+-- [sort] the same, with a LIMIT: (f,x,b) (t,x,a)
+SELECT k1, k2, v FROM TOB25bk ORDER BY k2, k1 LIMIT 2;
+k1|k2|v
+f|x|b
+t|x|a
+(2 rows)
+PLAN: [sort] xref: none fixed: none
+
+-- [sort] the same after a non-key column: (t,x,a) (f,x,b) (f,y,c) (t,y,d)
+SELECT k1, k2, v FROM TOB25bk ORDER BY v, k1;
+k1|k2|v
+t|x|a
+f|x|b
+f|y|c
+t|y|d
+(4 rows)
+PLAN: [sort] xref: none fixed: none
+
+-- ############################################################################################################
+-- Part J (Octo only)
+-- octo -vv. The logical plan of each query below marks the key that walks a cross reference for the ORDER BY
+-- (order_by_xref_walk), the cross reference key of a key column (key_column_xref), and a key walked in descending
+-- order (desc). Each query selects a column under an alias, which no query above does, so that -vv generates its
+-- plan and prints its logical plan.
+
+-- The cross reference key of the VARCHAR key k: order_by_xref_walk, key_column_xref, desc
+select k as kk from TOB25a order by k desc limit 1;
+kk
+B7
+(1 row)
+PLAN: [no sort, descending walk] xref: tob25a.k fixed: none
+            - key_column_xref: true
+          - order_by_xref_walk: true
+          - key_column_xref: true
+          - desc: true
+
+-- The cross reference key of the INTEGER key y, the second: order_by_xref_walk and key_column_xref, no desc
+select x as xx, y from TOB25b order by y, x limit 1;
+xx|y
+2|10
+(1 row)
+PLAN: [no sort, ascending walk] xref: tob25b.y fixed: none
+            - key_column_xref: true
+          - order_by_xref_walk: true
+          - key_column_xref: true
+
+-- The cross reference key of the READONLY DATE key k2: order_by_xref_walk, but not key_column_xref, as it holds
+-- converted values. The key of k2 itself follows it.
+select k2 as kk2 from TOB25d order by k2 limit 1;
+kk2
+2023-12-31
+(1 row)
+PLAN: [no sort, ascending walk] xref: tob25d.k2 fixed: none
+          - order_by_xref_walk: true

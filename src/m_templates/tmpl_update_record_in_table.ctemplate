@@ -16,6 +16,22 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
+/* Emit the global node of the row being updated
+ *
+ * Emits the node of the row being updated, in the table's global ("tmpl_key_source" with the table's last key, "key").
+ * See "is_only_key_xref" below for why the key is not passed as a cross reference key.
+ */
+#define TMPL_ROW_SOURCE(FORM)                                  \
+	{                                                      \
+		if (is_only_key_xref) {                        \
+			key->is_cross_reference_key = FALSE;   \
+		}                                              \
+		TMPL(tmpl_key_source, pplan, key, FORM);       \
+		if (is_only_key_xref) {                        \
+			key->is_cross_reference_key = TRUE;    \
+		}                                              \
+	}
+
 TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	LogicalPlan		*lp_update;
 	SqlTableAlias		*src_table_alias;
@@ -30,8 +46,17 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 	UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 
 	SqlKey		*key;
+	boolean_t	is_only_key_xref;
 	assert(0 < pplan->total_iter_keys);
 	key = pplan->iterKeys[pplan->total_iter_keys - 1];
+	/* "key" is the last key of the table: "tmpl_key_source" below emits, from it, the row's node in the table's global.
+	 * When the table's only key column is read through its cross reference (YDBOcto#660, e.g. "WHERE id LIKE 'A%'" with
+	 * "id VARCHAR PRIMARY KEY"), that last key is the cross reference key, for which "tmpl_key_source" would emit the
+	 * node of the cross reference instead: the UPDATE would then read, KILL and SET the cross reference, not the row.
+	 * This key holds the key column's value (IS_KEY_COLUMN_XREF), so "TMPL_ROW_SOURCE" below has "tmpl_key_source" treat
+	 * it as that column's own key.
+	 */
+	is_only_key_xref = IS_KEY_COLUMN_XREF(key);
 
 	/* Define the local variable name under which we will store column numbers that have PP_COL(i) initialized.
 	 * This will later help us determine list of remaining table columns whose PP_COL(i) has not been initialized.
@@ -162,7 +187,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 					 * GVUNDEF errors.
 					 */
 					%{}{{ PP_YDB_OCTO_UPD }}={}%
-					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+					TMPL_ROW_SOURCE(EmitSourceForm_Value);
 					node_value_fetched = TRUE;
 					%{}`n{{ PLAN_LINE_START }}{}%
 					TMPL(tmpl_print_dots, dot_count);
@@ -244,7 +269,7 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_UPD }}=$GET({}%
-			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+			TMPL_ROW_SOURCE(EmitSourceForm_Value);
 			%{}){}%
 			node_value_fetched = TRUE;
 		}
@@ -266,16 +291,16 @@ TEMPLATE(tmpl_update_record_in_table, PhysicalPlan *pplan, int dot_count) {
 		/* UPDATE is modifying at least one key column */
 		TMPL(tmpl_print_dots, dot_count);
 		%{}KILL {}%
-		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+		TMPL_ROW_SOURCE(EmitSourceForm_Value);
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
-		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_UpdateKeyCol);
+		TMPL_ROW_SOURCE(EmitSourceForm_UpdateKeyCol);
 	} else {
 		/* UPDATE is only modifying non-key column(s). Don't need to do as many checks as for key columns. */
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
-		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
+		TMPL_ROW_SOURCE(EmitSourceForm_Value);
 	}
 	%{}={{ PP_YDB_OCTO_UPD }}{}%
 	if (is_update_keycol_or_xref(pplan)) {

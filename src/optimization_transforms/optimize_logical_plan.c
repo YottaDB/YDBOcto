@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -244,6 +244,13 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan, LogicalPlanOptions *option
 	 * Only the right side table in a join should store the corresponding join type. This is true of all join types.
 	 */
 	assert(NO_JOIN == table_join->extra_detail.lp_table_join.cur_join_type);
+	/* With a LIMIT, an ORDER BY on a key column can choose how to walk its table before the ON and WHERE clauses do
+	 * (YDBOcto#660). This runs whenever "lp_optimize_order_by()" below runs, i.e. unless "disable_lp_optimize_order_by"
+	 * is set.
+	 */
+	if (!options->disable_lp_optimize_order_by) {
+		lp_optimize_order_by_with_limit(plan);
+	}
 	/* Now that DNF expansion has occurred, fix any key values if possible using the ON and/or WHERE clauses */
 	/* Perform optimizations of the ON condition in JOINs if any exists. Do this before moving on to the WHERE clause. */
 	do {

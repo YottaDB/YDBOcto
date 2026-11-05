@@ -347,14 +347,11 @@ _ydboctoP*.m:;  select * from TOB20h where lastname = 'efgh' order by id desc li
 _ydboctoP*.m:;  select * from names order by id + 2
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20c order by zipcode
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from (values (1, 'abcd', 'efgh')) as n1(id,firstname,lastname) order by id desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id asc limit 2
 _ydboctoP*.m:;  select * from TOB20c order by zipcode desc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20c order by zipcode asc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20e where firstname = 'abcd' order by id desc limit 2
 _ydboctoP*.m:;  select * from TOB20e order by id desc limit 2
 _ydboctoP*.m:;  select * from names n1 order by n1.firstname
@@ -364,7 +361,6 @@ _ydboctoP*.m:;  select * from TOB20i order by id
 _ydboctoP*.m:;  select * from names n1, names n2 order by n2.id, n1.id
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20c order by zipcode desc
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20d where firstname = 'abcd' order by id desc limit 2
 _ydboctoP*.m:;  select * from names order by id
 _ydboctoP*.m:;  select * from TOB20a order by id asc
@@ -383,7 +379,6 @@ _ydboctoP*.m:;  select * from TOB20g order by id asc limit 2
 _ydboctoP*.m:;  select * from (select * from names) n1 order by id desc
 _ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",4,"","","OrderBy")
 _ydboctoP*.m:;  select * from composite order by id1 desc limit 2
-_ydboctoP*.m:    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
 _ydboctoP*.m:;  select * from TOB20b order by id desc limit 2
 _ydboctoP*.m:;  select * from TOB20f order by id desc limit 2
 _ydboctoP*.m:;  select * from names n1, names n2 order by n1.id desc, n2.id desc

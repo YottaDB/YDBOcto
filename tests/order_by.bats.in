@@ -366,6 +366,47 @@ OCTO
 	verify_output TOB24 output.txt nodatetimefilter noinfo nodebug
 }
 
+@test "TOB25 : OCTO660 : ORDER BY and LIKE prefix on a primary key column walk an AIM subscript cross reference of it" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# A key column's own FOR loop does not give the ORDER BY order when the key columns before it loop outside it, or" >> output.txt
+	echo "# when M orders its subscripts differently from SQL (a VARCHAR key, whose canonical numbers come first, or a READONLY" >> output.txt
+	echo "# DATE or BOOLEAN key stored in a non-standard form). The ORDER BY then walks the key column's AIM cross reference" >> output.txt
+	echo "# instead of sorting, and a LIKE prefix walks only the values that start with the prefix." >> output.txt
+	echo "# Each statement below is followed by its result, and each SELECT by the plan Octo chose. The comment above each" >> output.txt
+	echo "# SELECT states the plan and rows it should give. The PLAN: line says, for a query with an ORDER BY:" >> output.txt
+	echo "#   [sort]                     the plan collects the rows and sorts them" >> output.txt
+	echo "#   [no sort]                  the rows come out of the FOR loops of the keys in ORDER BY order (those of the" >> output.txt
+	echo "#                              table's global, or those under one value of a cross reference)" >> output.txt
+	echo "#   [no sort, ascending walk]  the plan walks an AIM cross reference forward, through several of its values" >> output.txt
+	echo "#   [no sort, descending walk] the plan walks an AIM cross reference backward, through several of its values" >> output.txt
+	echo "#   and, for every query:" >> output.txt
+	echo "#   xref:  the columns whose AIM cross reference the plan walks or probes" >> output.txt
+	echo "#   fixed: the keys that the WHERE or ON fixes to one value, so that their FOR loop runs once; (walk) for a key" >> output.txt
+	echo "#          fixed to each value of a range or LIKE prefix in turn. A fixed cross reference key is listed too." >> output.txt
+	echo "# Parts A to D are crosschecked against PostgreSQL first. All their string values are digits and upper case letters," >> output.txt
+	echo "# which sort the same way in PostgreSQL's collation and in byte order." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB25_names.sql roctoflags="-aw" noextended
+	# The tables exist now. Show the queries and their results (the same as PostgreSQL's), with the CREATE TABLE and the
+	# INSERT of each table as comments above its first query.
+	sed -E '/^#/d; /^drop table/d; s/^(create table|insert into)/-- \1/' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB25_names.sql > TOB25_names_input.sql
+	run_queries_with_plans TOB25_names_input.sql
+	psql names -c 'DROP TABLE IF EXISTS TOB25a,TOB25b,TOB25c,TOB25f;' >& postgres.drop_table_TOB25.out
+	# Parts E to I: READONLY tables on globals set in M, which PostgreSQL does not have
+	load_fixture xecutemcode.sql
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB25_octoonly.sql > TOB25_octoonly_input.sql
+	run_queries_with_plans TOB25_octoonly_input.sql
+	echo "" >> output.txt
+	echo "-- ############################################################################################################" >> output.txt
+	echo "-- Part J (Octo only)" >> output.txt
+	echo "-- octo -vv. The logical plan of each query below marks the key that walks a cross reference for the ORDER BY" >> output.txt
+	echo "-- (order_by_xref_walk), the cross reference key of a key column (key_column_xref), and a key walked in descending" >> output.txt
+	echo "-- order (desc). Each query selects a column under an alias, which no query above does, so that -vv generates its" >> output.txt
+	echo "-- plan and prints its logical plan." >> output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB25_vv.sql > TOB25_vv_input.sql
+	run_queries_with_plans TOB25_vv_input.sql vv
+	verify_output TOB25 output.txt nodatetimefilter noinfo nodebug
+}
+
 @test "TOB26 : OCTO1179 : ORDER BY on a BOOLEAN key column of a READONLY table sorts" {
 	echo "# $BATS_TEST_DESCRIPTION" > output.txt
 	echo "# A READONLY table and a READWRITE table hold the same rows. The global of the READONLY table TOB26ro:" >> output.txt

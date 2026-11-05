@@ -97,7 +97,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		for (i = 0; i < cur_plan->total_iter_keys; i++) {
 			key = cur_plan->iterKeys[i];
 			if (key->unique_id == unique_id) {
-				if (key->column == column) {
+				if ((key->column == column) && !IS_TRANSFORMED_KEY_COLUMN_XREF(key)) {
+					/* The cross reference key of a READONLY date/time or boolean key column holds the converted
+					 * value, not the column's (YDBOcto#660): skip it. The column's own key comes later in
+					 * "iterKeys" (it is advanced from the cross reference, see "lp_generate_xref_keys()") and
+					 * holds the value as the table's global stores it. This loop then reaches that key, and the
+					 * value comes from "tmpl_key" below, converted like that of any such key column.
+					 */
 					if (matching_plan != pplan) {
 						/* Key belongs to a parent query table. Depending on whether OUTER JOINs were in
 						 * use there or not, it is possible for this key column to be undefined at this

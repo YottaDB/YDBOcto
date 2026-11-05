@@ -112,11 +112,12 @@ SELECT id FROM TWO20 WHERE COALESCE(v, NULL) ILIKE 'pat%' ORDER BY id;
 SELECT id FROM TWO20 WHERE v LIKE 'PAT%'::VARCHAR ORDER BY id;
 SELECT id FROM TWO20 WHERE COALESCE(v, NULL) LIKE 'PAT%'::VARCHAR ORDER BY id;
 
--- A key column (k) is not walked over a prefix. Its rows are read in the order of the table's own global, ^TWO20key(k),
--- where M sorts canonical numbers first, in numeric order, and all other strings after them: 2, 12, 13, 120, '12a'.
--- The values that start with '12' (12, 120, '12a') are not one contiguous block there, as 13 is in between. A walk
--- that starts at '12' and stops at the first value that does not start with '12' would stop at 13, and miss 120 and
--- '12a'. So the plan reads every row and checks the LIKE on each, and returns all three.
+-- A key column (k) is walked over a prefix through its own AIM cross reference (YDBOcto#660), not through the table's
+-- global, ^TWO20key(k). There, M sorts canonical numbers first, in numeric order, and all other strings after them:
+-- 2, 12, 13, 120, '12a'. The values that start with '12' (12, 120, '12a') are not one contiguous block there, as 13 is
+-- in between, so a walk of the global that stops at the first value that does not start with '12' would stop at 13,
+-- and miss 120 and '12a'. The cross reference stores each value as "#"_value, which keeps them together. All three
+-- are returned. The second query, on an expression of k, has no cross reference and checks the LIKE on every row.
 CREATE TABLE TWO20key (k VARCHAR PRIMARY KEY) GLOBAL "^TWO20key";
 INSERT INTO TWO20key VALUES ('12'),('120'),('12a'),('13'),('2');
 SELECT k FROM TWO20key WHERE k LIKE '12%' ORDER BY k;

@@ -126,6 +126,7 @@ static boolean_t can_fix_key_of_table(LogicalPlan *other_operand, int unique_id,
  *     makes the loops before that column run once, so a cross reference on the latter would gain nothing. The conditions
  *     are processed in order, so this looks at those not processed yet too. E.g. "WHERE id = 5 AND acc = 'X'" with keys
  *     (acc, id): the "id" condition is seen first, and "acc" is constrained.
+ *   - "lp_optimize_order_by_with_limit()": see there.
  *
  * "key_unique_id_array" is the order of the tables' FOR loops ("lp_optimize_where_multi_equals_ands()"), or NULL. With
  * it, a comparison of the key column with a column of a table whose FOR loop comes after this table's does not count:
@@ -188,6 +189,23 @@ boolean_t lp_is_key_column_compared(LogicalPlan *cond, int unique_id, int max_ke
 	}
 }
 
+/* Returns TRUE if the table "unique_id" is walked through a cross reference for an ORDER BY (YDBOcto#660) */
+static boolean_t has_order_by_xref_walk(LogicalPlan *plan, int unique_id) {
+	LogicalPlan *cur_key, *lp_key;
+
+	for (cur_key = lp_get_keys(plan); NULL != cur_key;) {
+		SqlKey *key;
+
+		GET_LP(lp_key, cur_key, 0, LP_KEY);
+		key = lp_key->v.lp_key.key;
+		if ((key->unique_id == unique_id) && key->is_order_by_xref_walk) {
+			return TRUE;
+		}
+		GET_LP_ALLOW_NULL(cur_key, cur_key, 1, LP_KEYS);
+	}
+	return FALSE;
+}
+
 /* Decide if a condition on a key column uses the column's cross reference instead of fixing the key in place
  *
  * Decides whether a condition on the primary key column "key" (a key that is not fixed yet) is better served by an AIM
@@ -197,8 +215,15 @@ boolean_t lp_is_key_column_compared(LogicalPlan *cond, int unique_id, int max_ke
  * "WHERE id = 5" on keys (acc, id) visits every "acc" and probes $DATA(^T(acc,5)) under each. The cross reference
  * holds every "id" with the "acc" values it occurs with, so the rows are found directly.
  *
- * The cross reference is used only when all of the following hold. Otherwise the key is fixed in place as before.
- *   - The column is not the first key column. The table's global already serves the first key column directly.
+ * A "LIKE 'prefix%'" on a string key column (with "is_like_prefix") needs the cross reference to walk the values that
+ * start with the prefix, even for the first key column: the table's global holds a string key column's values in M
+ * collation, where canonical numbers ('12', '120') come before all other strings ('12a'), so the values that share a
+ * prefix are not one contiguous block there. The cross reference holds them as "#"_value, which keeps them together.
+ *
+ * The cross reference is used only when all of the following hold. Otherwise the key is fixed in place as before (or, for
+ * a LIKE prefix, the LIKE is checked on every row).
+ *   - The column is not the first key column, unless "is_like_prefix". The table's global already serves the first key
+ *     column directly for any other condition.
  *   - The table is kept in a global (an AIM cross reference).
  *   - The table has no ITERATOR column. An ITERATOR decides which subscripts of the global are rows (it may skip some),
  *     but the cross reference indexes every stored subscript and gives the key columns before this one without calling
@@ -209,8 +234,8 @@ boolean_t lp_is_key_column_compared(LogicalPlan *cond, int unique_id, int max_ke
  *     this one may already be fixed, so the order of the conditions does not change the plan.
  *   - The condition gives the column one value ("=", "IS"), or the query has no LIMIT, or the FOR loops of the table's
  *     key columns do not give the ORDER BY order (see "lp_is_order_by_with_limit_given_by_key_loops()"). With a LIMIT,
- *     a walk of the cross reference through several values (a range or IN) would need a sort of every row it reads,
- *     where the FOR loops need no sort and stop at the LIMIT.
+ *     a walk of the cross reference through several values (a range, IN or LIKE prefix) would need a sort of every row
+ *     it reads, where the FOR loops need no sort and stop at the LIMIT.
  */
 static boolean_t use_key_column_xref(LogicalPlan *plan, SqlKey *key, SqlTableAlias *table_alias, LPActionType type,
 				     int *key_unique_id_array) {
@@ -218,14 +243,22 @@ static boolean_t use_key_column_xref(LogicalPlan *plan, SqlKey *key, SqlTableAli
 	SqlOptionalKeyword *source_keyword;
 	LogicalPlan	   *cur_key, *lp_key, *where, *table_join;
 	int		    key_num;
-	boolean_t	    is_one_value;
+	boolean_t	    is_like_prefix, is_one_value;
 
+	is_like_prefix = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type)
+			  || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type));
 	assert(!key->is_cross_reference_key && (NULL != key->column) && IS_KEY_COLUMN(key->column));
+	assert(!is_like_prefix || IS_COLUMN_STRING_TYPE(key->column));
 	key_num = lp_get_key_num(key->column);
-	if (0 == key_num) {
+	if ((0 == key_num) && !is_like_prefix) {
 		return FALSE; /* The first key column: the table's global serves it */
 	}
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+	/* A key column whose cross reference holds converted values is never fixed by a condition: the caller does not fix
+	 * a boolean or date/time key column of a READONLY table (RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE).
+	 * Only an ORDER BY walks its cross reference ("lp_optimize_order_by()").
+	 */
+	assert(!IS_XREF_VALUE_TRANSFORMED(table, key->column));
 	UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
 	if ('^' != source_keyword->v->v.value->v.string_literal[0]) {
 		return FALSE; /* A table kept in a local variable has no AIM cross reference */
@@ -233,7 +266,7 @@ static boolean_t use_key_column_xref(LogicalPlan *plan, SqlKey *key, SqlTableAli
 	if (table->has_iterator) {
 		return FALSE; /* An ITERATOR decides which subscripts are rows; the cross reference does not call it */
 	}
-	is_one_value = ((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IS == type)); /* Not a range or an IN */
+	is_one_value = ((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IS == type)); /* Not a range, an IN or a LIKE prefix */
 	if (!is_one_value && lp_is_order_by_with_limit_given_by_key_loops(plan, table_alias, key_num)) {
 		return FALSE; /* With a LIMIT, the FOR loops give the ORDER BY order: no sort, and they stop at the LIMIT */
 	}
@@ -712,20 +745,13 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	    = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type)
 	       || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == type));
 	key = lp_get_key(plan, left);
-	if (is_like_prefix && (NULL != key) && (!key->is_cross_reference_key || ('^' != key->xref_prefix[0]))) {
-		/* LIKE with a prefix on a key column. The rows are walked in the order of the table's own global, where
-		 * values that are canonical numbers (e.g. '12', '120') sort before all other strings (e.g. '12a').
-		 * So the values sharing a prefix do not form one contiguous block and a prefix walk would miss rows.
-		 * The same is true of a cross reference kept in a local variable (see the "is_like_prefix" check below).
-		 */
-		return where;
-	}
-	/* A condition on a primary key column after the first one is served by a cross reference on that column when
-	 * "use_key_column_xref()" says so (YDBOcto#660). The new cross reference key replaces the key; it is fixed below as
-	 * the cross reference key of a non-key column is.
+	/* A condition on a primary key column after the first one, or a LIKE prefix on a string primary key column, is served
+	 * by a cross reference on that column when "use_key_column_xref()" says so (YDBOcto#660). The new cross reference key
+	 * replaces the key; it is fixed below as the cross reference key of a non-key column is.
 	 */
 	if ((NULL != key) && !key->is_cross_reference_key && (NULL != key->column) && IS_KEY_COLUMN(key->column)
 	    && (LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)
+	    && (!is_like_prefix || IS_COLUMN_STRING_TYPE(key->column))
 	    && use_key_column_xref(plan, key, table_alias, type, key_unique_id_array)) {
 		SqlTable *table;
 		SqlKey	 *xref_key;
@@ -736,10 +762,26 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			key = xref_key;
 		}
 	}
+	if (is_like_prefix && (NULL != key) && (!key->is_cross_reference_key || ('^' != key->xref_prefix[0]))) {
+		/* LIKE with a prefix on a key column that has no cross reference (see above). The rows are walked in the order
+		 * of the table's own global, where values that are canonical numbers (e.g. '12', '120') sort before all other
+		 * strings (e.g. '12a'). So the values sharing a prefix do not form one contiguous block and a prefix walk would
+		 * miss rows. The same is true of a cross reference kept in a local variable (see the "is_like_prefix" check
+		 * below).
+		 */
+		return where;
+	}
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
 		SqlTable *table;
 
+		if (has_order_by_xref_walk(plan, table_alias->unique_id)) {
+			/* With a LIMIT, an ORDER BY already walks a cross reference of this table (YDBOcto#660, see
+			 * "lp_optimize_order_by_with_limit()"). A table has one cross reference: the condition is checked on
+			 * each row of the walk.
+			 */
+			return where;
+		}
 		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 		// Tables with iterators cannot be cross-referenced
 		if (TRUE == table->has_iterator) {

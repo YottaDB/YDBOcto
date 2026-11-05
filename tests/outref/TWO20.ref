@@ -101,11 +101,12 @@ SELECT id FROM TWO20 WHERE COALESCE(v, NULL) ILIKE 'pat%' ORDER BY id;
 SELECT id FROM TWO20 WHERE v LIKE 'PAT%'::VARCHAR ORDER BY id;
 SELECT id FROM TWO20 WHERE COALESCE(v, NULL) LIKE 'PAT%'::VARCHAR ORDER BY id;
 
--- A key column (k) is not walked over a prefix. Its rows are read in the order of the table's own global, ^TWO20key(k),
--- where M sorts canonical numbers first, in numeric order, and all other strings after them: 2, 12, 13, 120, '12a'.
--- The values that start with '12' (12, 120, '12a') are not one contiguous block there, as 13 is in between. A walk
--- that starts at '12' and stops at the first value that does not start with '12' would stop at 13, and miss 120 and
--- '12a'. So the plan reads every row and checks the LIKE on each, and returns all three.
+-- A key column (k) is walked over a prefix through its own AIM cross reference (YDBOcto#660), not through the table's
+-- global, ^TWO20key(k). There, M sorts canonical numbers first, in numeric order, and all other strings after them:
+-- 2, 12, 13, 120, '12a'. The values that start with '12' (12, 120, '12a') are not one contiguous block there, as 13 is
+-- in between, so a walk of the global that stops at the first value that does not start with '12' would stop at 13,
+-- and miss 120 and '12a'. The cross reference stores each value as "#"_value, which keeps them together. All three
+-- are returned. The second query, on an expression of k, has no cross reference and checks the LIKE on every row.
 CREATE TABLE TWO20key (k VARCHAR PRIMARY KEY) GLOBAL "^TWO20key";
 INSERT INTO TWO20key VALUES ('12'),('120'),('12a'),('13'),('2');
 SELECT k FROM TWO20key WHERE k LIKE '12%' ORDER BY k;
@@ -490,7 +491,7 @@ OCTO>
 #   A pattern that is only a prefix followed by % (e.g. 'PAT%') has no [regexmatch] left.
 #   A pattern with more after the prefix (e.g. 'PAT%ENT') still calls [regexmatch] on each row found.
 # A pattern without a prefix (e.g. '%AT') only calls [regexmatch] on every row.
-# A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, a key column,
+# A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, an expression of a key column,
 # a table in a local variable) sets the prefix once before the loop ([SET %ydboctozlikeprefix(...)=$$likeprefix(...)])
 # and compares the start of each value with it ([$ZEXTRACT(...)=%ydboctozlikeprefix(...)]), not a regex.
 # ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. It is checked on every row: the plan sets the
@@ -597,9 +598,8 @@ SELECT id FROM TWO20 WHERE v LIKE 'PAT%'::VARCHAR ORDER BY id;
 
 SELECT k FROM TWO20key WHERE k LIKE '12%' ORDER BY k;
   Plan K:
-    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
-    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
-    $ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
+    $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr)
+    QUIT:(%ydboctozkeyfix(1,0)="")!($ZEXTRACT(%ydboctozkeyfix(1,0),1,$ZLENGTH(%ydboctozkeyfix(1,0,1)))'=%ydboctozkeyfix(1,0,1))
 
 SELECT name FROM pg_settings WHERE vartype LIKE 'en%' ORDER BY name;
   Plan L:

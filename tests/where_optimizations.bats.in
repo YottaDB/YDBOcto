@@ -265,7 +265,7 @@ CAT
 	echo "#   A pattern that is only a prefix followed by % (e.g. 'PAT%') has no [regexmatch] left." >> output.txt
 	echo "#   A pattern with more after the prefix (e.g. 'PAT%ENT') still calls [regexmatch] on each row found." >> output.txt
 	echo "# A pattern without a prefix (e.g. '%AT') only calls [regexmatch] on every row." >> output.txt
-	echo "# A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, a key column," >> output.txt
+	echo "# A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, an expression of a key column," >> output.txt
 	echo "# a table in a local variable) sets the prefix once before the loop ([SET %ydboctozlikeprefix(...)=\$\$likeprefix(...)])" >> output.txt
 	echo "# and compares the start of each value with it ([\$ZEXTRACT(...)=%ydboctozlikeprefix(...)]), not a regex." >> output.txt
 	echo "# ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. It is checked on every row: the plan sets the" >> output.txt

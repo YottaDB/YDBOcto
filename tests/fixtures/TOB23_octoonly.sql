@@ -52,10 +52,10 @@ select * from TOB23_timestamptz where k1 = timestamp with time zone '2024-03-01 
 select * from TOB23_timestamptz where k1 = timestamp with time zone '2024-03-01 01:02:03+05' order by k2 desc limit 2;
 select * from TOB23_timestamptz where k1 = timestamp with time zone '1999-12-31 23:59:59-05' order by k1 desc, k2;
 
--- ORDER BY optimization does not take effect
 -- 6) Date/time key columns of a READONLY table. The values are stored as MDY text, so the FOR loop of k2 walks them in
 --    string order ("03-01-2024" before "12-31-2023", "10:00:00" before "9:00:00"), which is not the ORDER BY order. The
---    rows are still sorted. The fixed key k1 is skipped as for the other types.
+--    ORDER BY then walks the AIM cross reference of k2, which holds the values converted to UNIX time, in ORDER BY order
+--    (YDBOcto#660). k1 = ... is not a fixed key for such a column: it is checked on each row of the walk.
 set datestyle = 'MDY';
 create table TOB23R_date (k1 date, k2 date, primary key (k1, k2)) global "^TOB23Rdate" readonly;
 select * from TOB23R_date where k1 = date '03-01-2024' order by k2;

@@ -17,6 +17,7 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "logical_plan.h"
+#include "template_helpers.h"
 
 /* Decides whether and how the cross reference on "column" can be used to drive the table's key iteration.
  *
@@ -170,12 +171,13 @@ static LogicalPlan *find_table_key(LogicalPlan *plan, int unique_id, SqlColumn *
 }
 
 /**
- * Returns the keys corresponding to the cross reference for column in table, and updates
- * the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross
- * reference
+ * Returns the keys corresponding to the cross reference for column in table: the cross reference key of the column,
+ * followed by the keys advanced from it (none for the cross reference of the only key column of a table, YDBOcto#660).
+ * Updates the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross reference.
+ * Returns NULL, with the plan untouched, if the column cannot be cross referenced.
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
-	LogicalPlan *root, *keys, *table_join, *lp_table_alias, *lp_output_key;
+	LogicalPlan *root, *keys, *table_join, *lp_table_alias, *lp_output_key, *xref_key;
 	int	     cur_key, max_key, unique_id, num_xref_keys, num_advance_keys;
 	SqlColumn   *key_columns[MAX_KEY_COUNT], *advance_key_columns[MAX_KEY_COUNT], *column;
 	SqlKey	    *output_key;
@@ -200,7 +202,24 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	 */
 	memset(advance_key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
-	if (IS_KEY_COLUMN(column)) {
+	if (IS_KEY_COLUMN(column) && IS_XREF_VALUE_TRANSFORMED(table, column)) {
+		/* A key column whose cross reference holds its values converted by a transformation function (YDBOcto#660).
+		 * The cross reference key holds a converted value, which is not a subscript of the table's global. But every
+		 * entry of the cross reference has, after the converted value, the subscripts of the global in their stored
+		 * form, this column's included. So the key columns up to and including this one are advanced from the cross
+		 * reference, as for a non-key column, and the key columns after it from the table's own global. One converted
+		 * value can have several stored forms (e.g. the booleans 1 and "Y"), each of them a row of its own.
+		 */
+		num_xref_keys = 0;
+		for (cur_key = 0; cur_key <= max_key; cur_key++) {
+			advance_key_columns[cur_key] = key_columns[cur_key];
+			if (key_columns[cur_key] == column) {
+				num_xref_keys = cur_key + 1;
+			}
+		}
+		assert(0 < num_xref_keys);
+		num_advance_keys = max_key + 1;
+	} else if (IS_KEY_COLUMN(column)) {
 		/* The column is a primary key column (YDBOcto#660). The cross reference key takes its place, so the other
 		 * "max_key" key columns follow it.
 		 */
@@ -210,37 +229,60 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		num_xref_keys = get_xref_advance_keys(column, table, key_columns, max_key, advance_key_columns);
 		num_advance_keys = max_key + 1;
 	}
-	if ((-1 == num_xref_keys) || (0 == num_advance_keys)) {
-		/* No usable shape; or a table whose only key column is the column, which leaves no key to advance */
-		return NULL;
+	if (-1 == num_xref_keys) {
+		return NULL; /* No usable shape (see "get_xref_advance_keys()") */
 	}
+	/* A non-key column's cross reference is followed by at least one primary key column. A key column's cross reference
+	 * is followed by none when the column is the table's only key column: the cross reference key is then the only key.
+	 */
+	assert((0 < num_advance_keys) || IS_KEY_COLUMN(column));
 
 	// Scan through and replace the table
 	table_join = lp_get_table_join(plan);
-	do {
+	while (NULL != table_join) {
 		assert(LP_TABLE_VALUE != table_join->v.lp_default.operand[0]->type); /* Caller should have ensured this */
 		if (table_join->v.lp_default.operand[0]->type == LP_TABLE) {
 			GET_LP(lp_table_alias, table_join, 0, LP_TABLE);
 			if (lp_table_alias->v.lp_table.table_alias->unique_id == table_alias->unique_id)
 				break;
 		}
-		if (NULL != table_join->v.lp_default.operand[1]) {
-			GET_LP(table_join, table_join, 1, LP_TABLE_JOIN);
-		} else {
-			table_join = NULL;
-		}
-	} while (NULL != table_join);
-	if (NULL == table_join)
+		GET_LP_ALLOW_NULL(table_join, table_join, 1, LP_TABLE_JOIN);
+	}
+	if (NULL == table_join) {
+		/* Cannot happen: the callers ask for the cross reference of a column of a table in the FROM/JOIN list of
+		 * "plan", so the loop above always finds its LP_TABLE_JOIN. This check is here only for clang-tidy: in a
+		 * release build (e.g. RelWithDebInfo in the pipeline) the assert is compiled out, and the analyzer then
+		 * reports the dereference of "table_join" below as a NULL pointer dereference.
+		 */
+		assert(FALSE);
 		return NULL;
+	}
 	table_join->v.lp_default.operand[0] = lp_generate_xref_plan(table, column, unique_id);
-	if (NULL == table_join->v.lp_default.operand[0])
-		return NULL;
+	assert(NULL != table_join->v.lp_default.operand[0]); /* "lp_generate_xref_plan()" always returns a plan */
 	lp_output_key = lp_get_output_key(table_join->v.lp_default.operand[0]);
 	output_key = lp_output_key->v.lp_key.key;
 
+	/* The first key is the cross reference key of the column */
+	xref_key = lp_make_key(column_alias);
+	xref_key->v.lp_key.key->is_cross_reference_key = TRUE;
+	/* Determine whether the cross-reference should be stored in a YDB local or global variable. See comment for
+	 * SqlKey.xref_prefix in logical_plan.h for additional background.
+	 */
+	SqlOptionalKeyword *source_keyword;
+	source_keyword = get_keyword(column, OPTIONAL_GLOBAL);
+	if (NULL == source_keyword) {
+		UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
+	}
+	xref_key->v.lp_key.key->xref_prefix
+	    = ('^' == (source_keyword->v->v.value->v.string_literal[0]) ? PP_GLOBAL_PREFIX : PP_LOCAL_PREFIX);
 	MALLOC_LP(keys, root, LP_KEYS);
+	keys->v.lp_default.operand[0] = xref_key;
+	/* The keys advanced from the cross reference follow it */
 	for (cur_key = 0; cur_key < num_advance_keys; cur_key++) {
 		SqlKey *advance_output_key;
+
+		MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
+		GET_LP(keys, keys, 1, LP_KEYS);
 
 		/* A key column after a key column's cross reference is advanced from the table's global, as it was before
 		 * the cross reference. Keep the plan's own key for it: a condition processed earlier may have fixed it
@@ -253,10 +295,6 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 			advance_output_key = (cur_key < num_xref_keys) ? output_key : NULL;
 			keys->v.lp_default.operand[0] = lp_alloc_key(table, advance_key_columns[cur_key], unique_id, LP_KEY_ADVANCE,
 								     advance_output_key, FALSE, NULL);
-		}
-		if (cur_key != (num_advance_keys - 1)) {
-			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-			GET_LP(keys, keys, 1, LP_KEYS);
 		}
 	}
 	return root;

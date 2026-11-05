@@ -1100,7 +1100,7 @@ print_plan_line() {
 	# column's walk has a NULL phase), or a key fixed to each value of a range or LIKE prefix in turn ("(walk)" above).
 	# A cross reference probed at one value (e.g. "b = '10'") is not a walk: the keys after it give the order.
 	local walk=0
-	if [[ $fixed == *"(walk)"* ]] || grep -qE 'FOR %ydboctonullflag\(|SET %ydboctozkeyfix\([0-9]+,[0-9]+\)="" FOR ' $plan; then
+	if [[ $fixed == *"(walk)"* ]] || grep -qE 'FOR %ydboctonullflag\(|SET %ydboctozkeyfix\([0-9]+,[0-9]+\)="#?" FOR ' $plan; then
 		walk=1
 	fi
 	if ! grep -qi 'order by' $stmt; then

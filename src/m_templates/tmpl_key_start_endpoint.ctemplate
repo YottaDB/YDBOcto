@@ -30,8 +30,10 @@
  *
  * "use_zkeyfix" says which M variable holds the value under test: %ydboctozkeyfix(unique_id,cur_key), while a range
  * (<, >, <=, >=) or LIKE prefix is walked, or the key's own lvn ("tmpl_key") once the key is set to a value given
- * by = or IN. A range is never key-fixed on a column with END ("lp_optimize_where_multi_equals_ands"), and END
- * refers to the key's own lvn, so END is emitted only for the latter. The caller has emitted the line this follows
+ * by = or IN, or once the cross reference key of a key column is set to the value of its walk (YDBOcto#660: that
+ * cross reference holds every subscript of the table's global, bounds included). A range is never key-fixed on a
+ * column with END ("lp_optimize_where_multi_equals_ands"), and END refers to the key's own lvn, so END is emitted
+ * only for the latter. The caller has emitted the line this follows
  * and its "`n<line-prefix>"; each QUIT line emitted here ends the same way. Nothing is emitted for a key column
  * without any of these keywords, or for a cross reference key of a non-key column, which has none.
  */

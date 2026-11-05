@@ -574,8 +574,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						 * "EmitSourceForm_KeyFix" does but for all usages and not just the last key column
 						 * like what is currently implemented in "tmpl_emit_source").
 						 */
-						assert(NULL == get_keyword(key->column, OPTIONAL_END));
-						TMPL(tmpl_key_start_endpoint, key, dot_count, TRUE, cur_key);
+						if (!IS_KEY_COLUMN_XREF(key)) {
+							assert(NULL == get_keyword(key->column, OPTIONAL_END));
+							TMPL(tmpl_key_start_endpoint, key, dot_count, TRUE, cur_key);
+						}
+						/* else: the cross reference of a key column (YDBOcto#660) holds every subscript of the
+						 * table's global, its bounds included. They are tested on the key's own value, once it is
+						 * set below, which also allows END (a LIKE prefix on such a column can have one).
+						 */
 						use_pp_ydb_octo_expr = FALSE;
 						break;
 					default:
@@ -666,9 +672,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			/* Likewise START, STARTINCLUDE and ENDPOINT (YDBOcto#1177): a key fixed to a value by = or IN has no
 			 * FOR loop to bound it, and the $DATA probe above finds the START subscript, or one past ENDPOINT, as
 			 * readily as a row. A range (<, >, <=, >=) tests them inside its walk above, so nothing is emitted
-			 * here for it.
+			 * here for it, except on the cross reference of a key column (YDBOcto#660), which tests them here in
+			 * every case, END included (see the range case above).
 			 */
-			if (fixed_to_one_value) {
+			if (fixed_to_one_value || IS_KEY_COLUMN_XREF(key)) {
 				TMPL(tmpl_key_start_endpoint, key, dot_count + 1, FALSE, cur_key);
 			}
 			dot_count++;
@@ -709,25 +716,48 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 			columnName2 = value->v.reference;
 
-			TMPL(tmpl_print_dots, dot_count);
-			%{}; {{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})=1 while visiting the NULL values {}%
-			%{}(subscript {{ null_subs }}) of this ORDER BY cross reference walk{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}FOR {{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
-			if (!key->emit_desc_order) {
-				%{}0,1 {}%
+			/* The cross reference of a key column (YDBOcto#660) holds no NULL values, as a key column is never NULL. Its
+			 * walk is the inner FOR loop alone: from "" to "", in either direction.
+			 * A string key column's walk leaves out "null_subs" ("#"), the entry of an empty string subscript in a
+			 * region that allows null subscripts: the FOR loop over the table's global, which ends at "", never
+			 * returns that node as a row. An ascending walk starts after it, and a descending walk ends at it.
+			 * When it holds the column's values converted by a transformation function ("is_value_transformed"), the
+			 * column's own key is advanced from the cross reference after this key, in its stored form (see
+			 * "lp_generate_xref_keys()"). This key then sets no column value.
+			 */
+			boolean_t	is_key_column, is_value_transformed;
+			is_key_column = IS_KEY_COLUMN(key->column);
+			is_value_transformed = IS_TRANSFORMED_KEY_COLUMN_XREF(key);
+			if (is_key_column) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
+				if (key->emit_desc_order) {
+					%{}""{}%
+				} else {
+					%{}{{ null_subs }}{}%
+				}
+				%{} FOR  {}%
 			} else {
-				%{}1,0 {}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}; {{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})=1 while visiting the NULL values {}%
+				%{}(subscript {{ null_subs }}) of this ORDER BY cross reference walk{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}FOR {{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
+				if (!key->emit_desc_order) {
+					%{}0,1 {}%
+				} else {
+					%{}1,0 {}%
+				}
+				%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
+				if (!key->emit_desc_order) {
+					%{}{{ null_subs }} {}%
+				} else {
+					%{}$SELECT({{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}):{{ null_subs }},1:"") {}%
+				}
+				%{}DO:{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})  {}%
+				%{}IF '{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}) FOR  {}%
 			}
-			%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})={}%
-			if (!key->emit_desc_order) {
-				%{}{{ null_subs }} {}%
-			} else {
-				%{}$SELECT({{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}):{{ null_subs }},1:"") {}%
-			}
-			%{}DO:{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }})  {}%
-			%{}IF '{{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}) FOR  {}%
 			if (NULL != limit_keyword) {
 				/* Check the LIMIT before the $ORDER, so that the walk does not read the next subscript once the LIMIT
 				 * is reached by the primary key loop inside it. This one check also covers the start of the second
@@ -747,11 +777,23 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			}
 			%{}) QUIT:(""={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
 			if (key->emit_desc_order && is_string) {
-				/* A descending walk reaches "null_subs" ("#") last. Those values were visited first. */
+				/* A descending walk reaches "null_subs" ("#") last. Those values were visited first (for a key
+				 * column, they are not rows: see above).
+				 */
 				%{}!({{ null_subs }}={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
 			}
 			%{}  DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
+			fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
+			need_tmpl_key_finish = TRUE;
+			if (is_value_transformed) {
+				/* The cross reference holds the column's values converted by a transformation function, which
+				 * are not the subscripts of the table's global. So this key sets no column value: the column's
+				 * own key, which follows it in "iterKeys", is advanced from under each converted value, and sets
+				 * the column value in its stored form (see "lp_generate_xref_keys()").
+				 */
+				continue;
+			}
 			/* The column value of this key (used by any reference to the column, see "tmpl_column_reference") is NULL
 			 * while visiting the NULL values, and otherwise the cross reference subscript (without the "#" prefix
 			 * for a string column).
@@ -760,19 +802,29 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {}%
 			TMPL(tmpl_key, key);
-			%{}=$SELECT({{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}):$ZYSQLNULL,1:{}%
+			%{}={}%
+			if (!is_key_column) {
+				%{}$SELECT({{ PP_YDB_OCTO_NULLFLAG }}({{ key->unique_id|%d }},{{ cur_key|%d }}):$ZYSQLNULL,1:{}%
+			}
 			if (is_string) {
 				/* Remove the "#" prefix. The end position is the maximum string length (YDB_MAX_STR), which is never
 				 * shorter than the subscript, so that no $ZLENGTH call is needed for every value.
 				 */
-				%{}$ZEXTRACT({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}),2,{{ YDB_MAX_STR|%d }})){}%
+				%{}$ZEXTRACT({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}),2,{{ YDB_MAX_STR|%d }}){}%
 			} else {
-				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+			}
+			if (!is_key_column) {
+				%{}){}%	/* Close the $SELECT */
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_key_skip, key, key->cross_reference_output_key, dot_count);
-			fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
-			need_tmpl_key_finish = TRUE;
+			if (is_key_column) {
+				/* The START, STARTINCLUDE, ENDPOINT and END bounds of the key column: its cross reference holds every
+				 * subscript of the table's global (YDBOcto#660)
+				 */
+				TMPL(tmpl_key_start_endpoint, key, dot_count, FALSE, cur_key);
+			}
 			continue;
 		}
 		if (right_join_second_half && !IS_ROW_KEY(key)) {

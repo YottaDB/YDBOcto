@@ -524,12 +524,12 @@ OCTO>
 #######################################################
 # Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization): hdr
 #######################################################
-    FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdr","ien")'=""
+    SET %ydboctocursor(cursorId,"keys",1,"hdr","ien")="" FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdr","ien")'=""
     . SET %ydboctocursor(cursorId,"keys",1,"hdr","ien")=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr,0))
-    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
-    FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdr","ien")'=""
+    SET:(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+    SET %ydboctocursor(cursorId,"keys",1,"hdr","ien")="" FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"hdr","ien")'=""
     . SET %ydboctocursor(cursorId,"keys",1,"hdr","ien")=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr,0))
-    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+    SET:(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
     SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)=$ZYSQLNULL
     SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)=$ZYSQLNULL
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
@@ -548,11 +548,11 @@ OCTO>
 # Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization): hdrinc, the STARTINCLUDE table
 #######################################################
     SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,""),-1)
-    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1)
-    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(2,%ydboctoexpr),-1)
+    SET:(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",2)=%ydboctoexpr(1)
     SET %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,""),1)
-    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr))&(""=$$aimsubs2strcolval^%ydboctoplanhelpers(%ydboctoexpr)) %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1)
-    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
+    SET:$DATA(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMDYjWyHYr57KWYNlt0zceNDE(1,%ydboctoexpr),1)
+    SET:(""'=%ydboctoexpr) %ydboctocursor(cursorId,"keys",3,"","","GroupBy","",1)=%ydboctoexpr(1)
     SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2)=$ZYSQLNULL
     SET:'$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)) %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1)=$ZYSQLNULL
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)

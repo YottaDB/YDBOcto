@@ -66,7 +66,9 @@ teardown() {
 	# Some queries can issue errors (e.g. ERR_MISTYPED_FUNCTION error when MIN(BOOLEAN) is attempted) hence the "|| true" below
 	octo -p -f TAF06all.sql >> output.txt 2>&1 || true
 	echo '# Find out which queries had M plans with $ORDER for loops. Those are the non-optimized queries.' >> output.txt
-	grep -E " select|FOR|------|ORDER|DATA" $(ls -1 _ydbocto*.m | sort_LC_ALL_C) | grep -v GroupBy | sed 's/.*[;:] //;' >> output.txt
+	# The physical plans only: a cross reference plan (_ydboctoX*.m) has FOR loops of its own, which would read as a query
+	# that is not optimized
+	grep -E " select|FOR|------|ORDER|DATA" $(ls -1 _ydboctoP*.m | sort_LC_ALL_C) | grep -v GroupBy | sed 's/.*[;:] //;' >> output.txt
 	verify_output TAF06 output.txt
 }
 
@@ -223,4 +225,22 @@ teardown() {
 	echo "# Generated M plan for MIN/MAX over the cross reference (the YDBOcto#617 optimization)" >> output.txt
 	grep -hE 'FOR |ORDER|SET:' _ydboctoP*.m | grep -v '^;' >> output.txt
 	verify_output TAF09 output.txt
+}
+
+@test "TAF10 : OCTO660 : MIN/MAX read the AIM cross reference on a table with several key columns and for READONLY date/time columns" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# MIN and MAX of a column read its first or last value without visiting the rows (YDBOcto#617), from the table's" >> output.txt
+	echo "# global for the key column of a table with one key column, from the column's AIM cross reference otherwise. Each" >> output.txt
+	echo "# such query is followed by the same query with WHERE 1 = 1, which reads every row: both must give the same" >> output.txt
+	echo "# answer. Each statement is followed by its result, and each SELECT by the plan Octo chose (PLAN:):" >> output.txt
+	echo "#   [one value]   the plan reads the first or last value of each source that is in a row, without visiting the" >> output.txt
+	echo "#                 rows (past a START, it walks the cross reference's key subscripts under each value until it" >> output.txt
+	echo "#                 finds one in a row); without it, the plan reads every row. The comment above each query says" >> output.txt
+	echo "#                 which it should be." >> output.txt
+	echo "#   xref:         the columns whose AIM cross reference the plan reads" >> output.txt
+	load_fixture xecutemcode.sql
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TAF10.sql > TAF10_input.sql
+	# Part E reads a table kept in a local variable that another statement sets, so all statements run in one process
+	run_queries_with_plans TAF10_input.sql oneprocess
+	verify_output TAF10 output.txt nodatetimefilter noinfo nodebug
 }

@@ -1,0 +1,159 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Emit the M line that walks one level of key subscripts under a value of an AIM cross reference
+ *
+ * Part of the YDBOcto#617 optimization (see "tmpl_octo617_xref_walk"): emits the line that walks one level of key
+ * subscripts under a value of an AIM cross reference: the subscripts of the key column of "level_key".
+ *
+ * "walk_key" is the key of the last level of the walk: its lvn is not "" once a row is found.
+ * "levels_above" holds the "num_levels_above" keys of the levels above this one: their lvns are the subscripts between
+ * the value and this level.
+ * "dot_count" is the number of dots of the line.
+ *
+ * A level above the last one runs a DO (the next level) for each of its subscripts that passes its keywords, and stops
+ * when the DO found a row (KEY is the lvn of "level_key", WALK that of "walk_key"):
+ *     SET KEY=<seed> FOR  SET KEY=$ORDER(^aim(n,EXPR,...,KEY)) QUIT:(KEY="")  IF '(<test>) DO  QUIT:WALK'=""
+ * The last level stops at its first subscript that passes its keywords. Its lvn, which is "walk_key", then holds that
+ * subscript, and is "" if there is none:
+ *     FOR  SET KEY=$ORDER(^aim(n,EXPR,...,KEY)) QUIT:(KEY="")  QUIT:'(<test>)
+ *     SET KEY=$ORDER(^aim(n,EXPR,...,<seed>))                                          <- with no test and no END
+ *
+ * The keywords of the key column:
+ *   - START (without STARTINCLUDE) is the seed of the $ORDER, which steps past it, the way "tmpl_key_start" does for
+ *     an ordinary FOR loop over a key column. Otherwise the seed is "".
+ *   - SKIP and SKIPCONDITION are the <test>, which is TRUE for a subscript that is in no row.
+ *   - END stops the level at the first subscript where it is TRUE. The table scan does the same, and the level is
+ *     walked in the same order. This assumes that END stays TRUE past the last record, as documented.
+ */
+TEMPLATE(tmpl_octo617_xref_walk_level, Octo617Xref *xref, SqlKey *level_key, SqlKey *walk_key, SqlKey **levels_above,
+	 int num_levels_above, int dot_count) {
+	SqlColumn		*level_column;
+	SqlOptionalKeyword	*start_keyword, *skip_keyword, *skipcondition_keyword, *end_keyword;
+	SqlValue		*value;
+	boolean_t		is_last_level, has_test;
+	char			*seed;
+	int			level;
+
+	level_column = level_key->column;
+	start_keyword = GET_EXCLUSIVE_START_KEYWORD(level_column);
+	skip_keyword = get_keyword(level_column, OPTIONAL_SKIP);
+	skipcondition_keyword = get_keyword(level_column, OPTIONAL_SKIPCONDITION);
+	end_keyword = get_keyword(level_column, OPTIONAL_END);
+	has_test = ((NULL != skip_keyword) || (NULL != skipcondition_keyword));
+	is_last_level = (level_key == walk_key);
+	seed = "\"\"";
+	if (NULL != start_keyword) {
+		UNPACK_SQL_STATEMENT(value, start_keyword->v, value);
+		seed = value->v.string_literal;
+	}
+
+	TMPL(tmpl_print_dots, dot_count);
+	if (is_last_level && !has_test && (NULL == end_keyword)) {
+		/* Every subscript of the last level is a row: the first one after the seed, with no FOR loop */
+		%{}SET {}%
+		TMPL(tmpl_key, level_key);
+		%{}=$ORDER({}%
+		TMPL(tmpl_key_source_aim, xref->tableName, xref->columnName);
+		%{},{{ PP_YDB_OCTO_EXPR }}{}%
+		for (level = 0; level < num_levels_above; level++) {
+			%{},{}%
+			TMPL(tmpl_key, levels_above[level]);
+		}
+		%{},{{ seed }})){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		return;
+	}
+
+	/* "SET KEY=<seed> ": the last level with no START needs none, as its lvn ("walk_key") is "" whenever the level is
+	 * entered (see "tmpl_octo617_xref_walk")
+	 */
+	if (!is_last_level || (NULL != start_keyword)) {
+		%{}SET {}%
+		TMPL(tmpl_key, level_key);
+		%{}={{ seed }} {}%
+	}
+
+	/* "FOR  SET KEY=$ORDER(^aim(n,EXPR,<the levels above>,KEY)) QUIT:(KEY="")" */
+	%{}FOR  SET {}%
+	TMPL(tmpl_key, level_key);
+	%{}=$ORDER({}%
+	TMPL(tmpl_key_source_aim, xref->tableName, xref->columnName);
+	%{},{{ PP_YDB_OCTO_EXPR }}{}%
+	for (level = 0; level < num_levels_above; level++) {
+		%{},{}%
+		TMPL(tmpl_key, levels_above[level]);
+	}
+	%{},{}%
+	TMPL(tmpl_key, level_key);
+	%{})) QUIT:({}%
+	TMPL(tmpl_key, level_key);
+	%{}=""){}%
+
+	/* END: "  QUIT:(<END>)", and on the last level "  SET:(<END>) KEY="" QUIT:(KEY="")", as no subscript of the level
+	 * from this one on is in a row
+	 */
+	if (NULL != end_keyword) {
+		SqlKey		*first_key;
+		SqlValue	*table_name_value;
+
+		first_key = xref->pplan->iterKeys[0];
+		UNPACK_SQL_STATEMENT(table_name_value, first_key->table->tableName, value);
+		UNPACK_SQL_STATEMENT(value, end_keyword->v, value);
+		if (is_last_level) {
+			%{}  SET:({}%
+		} else {
+			%{}  QUIT:({}%
+		}
+		TMPL(tmpl_emit_source, first_key->table, value->v.string_literal, table_name_value->v.string_literal,
+		     first_key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Value);
+		%{}){}%
+		if (is_last_level) {
+			%{} {}%
+			TMPL(tmpl_key, level_key);
+			%{}="" QUIT:({}%
+			TMPL(tmpl_key, level_key);
+			%{}=""){}%
+		}
+	}
+
+	/* SKIP and SKIPCONDITION, and what a subscript that passes them does: it ends the last level, and runs the DO of
+	 * a level above it
+	 */
+	if (has_test) {
+		if (is_last_level) {
+			%{}  QUIT:'({}%
+		} else {
+			%{}  IF '({}%
+		}
+		TMPL(tmpl_octo617_xref_walk_test, xref, level_key, NULL, skip_keyword, skipcondition_keyword, NULL);
+		%{}){}%
+	} else if (is_last_level) {
+		%{}  QUIT{}%	/* The first subscript before END is in a row */
+	}
+	if (!is_last_level) {
+		if (has_test) {
+			%{} DO  QUIT:{}%
+		} else {
+			%{}  DO  QUIT:{}%
+		}
+		TMPL(tmpl_key, walk_key);
+		%{}'=""{}%
+	}
+	%{}`n{{ PLAN_LINE_START }}{}%
+	return;
+}
+%{}

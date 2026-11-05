@@ -1,0 +1,140 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Emit the M code that reads the MIN or MAX of a column from its AIM cross reference
+ *
+ * Part of the YDBOcto#617 optimization (see "tmpl_tablejoin_octo617_optimize"): emits the M code that reads the first
+ * (MIN) or last (MAX) value of "aggr_column" from its AIM cross reference, into %ydboctoexpr, or into %ydboctoexpr(1) for
+ * a string column.
+ *
+ * "af_type" is LP_AGGREGATE_FUNCTION_MIN or LP_AGGREGATE_FUNCTION_MAX.
+ *
+ * The caller has emitted the dots of the first line. What is emitted ends with the postconditional
+ * "SET:<a value was found>" of a SET whose target the caller emits.
+ *
+ * The cross reference is ^%ydbAIMD...(n,value,key subscripts...): its first subscript after "n" is a value of the
+ * column, and under each value are the key subscripts of the rows that have it. So the first or last value is one $ORDER
+ * away, when every entry of the cross reference is a row of the table (EXPR is %ydboctoexpr, ^aim(n is the cross
+ * reference):
+ *     SET EXPR=$ORDER(^aim(n,""),-1)
+ *     SET:$DATA(^aim(n,EXPR))&(""=EXPR) EXPR=$ORDER(^aim(n,EXPR),-1)     <- step past the entry of the NULL values
+ *     SET:(""'=EXPR)
+ *
+ * Not every entry is a row when a key column has a START without STARTINCLUDE, a SKIP, a SKIPCONDITION or an END:
+ *   - AIM builds the cross reference over the range "START:ENDPOINT" of each key column, which is INCLUSIVE at both
+ *     ends ("tmpl_emit_source", EmitSourceForm_AIM), but START is EXCLUSIVE in Octo. The cross reference has an entry
+ *     for the START subscript, which is not a row of the table. (STARTINCLUDE makes the START subscript a row, so AIM's
+ *     inclusive range is then exactly right. See YottaDB/Util/YDBAIM#96.)
+ *   - SKIP, SKIPCONDITION and END are conditions, not ranges: the cross reference also has the subscripts they exclude.
+ * Every other read path applies these keywords again as it reads the key columns. This one reads the values directly,
+ * so it has to find the first or last value that has a row under it: "tmpl_octo617_xref_walk" emits that walk
+ * (YDBOcto#660).
+ */
+TEMPLATE(tmpl_octo617_xref, PhysicalPlan *pplan, SqlColumn *aggr_column, LPActionType af_type, int dot_count) {
+	Octo617Xref	xref;
+	SqlTable	*table;
+	SqlValue	*value;
+	unsigned int	key_index;
+	boolean_t	needs_walk;
+
+	assert(NULL != aggr_column);
+	table = pplan->iterKeys[0]->table;
+	xref.pplan = pplan;
+	xref.aggr_column = aggr_column;
+	UNPACK_SQL_STATEMENT(value, aggr_column->columnName, value);
+	xref.columnName = value->v.reference;
+	UNPACK_SQL_STATEMENT(value, table->tableName, value);
+	xref.tableName = value->v.reference;
+	xref.direction = ((LP_AGGREGATE_FUNCTION_MIN == af_type) ? "1" : "-1");
+
+	/* Which key columns have a keyword that the walk has to apply, and where.
+	 *
+	 * The cross reference of a key column (XREFSUB^%YDBAIM) leaves the column's own subscript out of the key subscripts
+	 * when the value is that subscript ("own_column"). The cross reference of a string key column holds "#"_value, and
+	 * that of a key column with converted values (a READONLY date/time key column) the converted value: both keep the
+	 * column's own subscript among the key subscripts, in its stored form, which the keywords apply to.
+	 *
+	 * The START and SKIP of "own_column" do not depend on the other key columns, so they are tested on the value itself
+	 * ("is_own_first"). Its SKIPCONDITION and END can name the key columns before it, so with one of those it is tested
+	 * in its key position, like any other key column.
+	 */
+	xref.own_column = NULL;
+	xref.is_own_first = FALSE;
+	if (IS_KEY_COLUMN(aggr_column) && !IS_COLUMN_STRING_TYPE(aggr_column) && !IS_XREF_VALUE_TRANSFORMED(table, aggr_column)) {
+		xref.own_column = aggr_column;
+		xref.is_own_first = ((NULL == get_keyword(aggr_column, OPTIONAL_SKIPCONDITION))
+				     && (NULL == get_keyword(aggr_column, OPTIONAL_END)));
+	}
+	xref.last_filter_key = -1;
+	for (key_index = 0; key_index < pplan->total_iter_keys; key_index++) {
+		SqlColumn *key_column;
+
+		key_column = pplan->iterKeys[key_index]->column;
+		if (IS_XREF_KEY_COLUMN_FILTERED(key_column) && !(xref.is_own_first && (key_column == xref.own_column))) {
+			xref.last_filter_key = (int)key_index;
+		}
+	}
+	xref.is_own_first = (xref.is_own_first && IS_XREF_KEY_COLUMN_FILTERED(xref.own_column));
+	needs_walk = (xref.is_own_first || (0 <= xref.last_filter_key));
+
+	%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+	if (!needs_walk) {
+		/* Every entry is a row: one $ORDER from "". "tmpl_key_source_aim" emits "^aim(n", without the closing
+		 * parenthesis.
+		 */
+		%{}$ORDER({}%
+		TMPL(tmpl_key_source_aim, xref.tableName, xref.columnName);
+		%{},""),{{ xref.direction }}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		/* If that $ORDER gave the entry of the NULL values, step past it: SQL aggregates ignore NULL. The NULL
+		 * representation is "#" alone for a string column (see "aimsubs2strcolval"), and "" otherwise.
+		 */
+		%{}SET:$DATA({}%
+		TMPL(tmpl_key_source_aim, xref.tableName, xref.columnName);
+		if (IS_COLUMN_STRING_TYPE(aggr_column)) {
+			%{},{{ PP_YDB_OCTO_EXPR }}))&("#"={{ PP_YDB_OCTO_EXPR }}{}%
+		} else {
+			%{},{{ PP_YDB_OCTO_EXPR }}))&(""={{ PP_YDB_OCTO_EXPR }}{}%
+		}
+		%{}) {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+		TMPL(tmpl_key_source_aim, xref.tableName, xref.columnName);
+		%{},{{ PP_YDB_OCTO_EXPR }}),{{ xref.direction }}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	} else {
+		/* The walk starts from "": %ydboctoexpr is NEWed by the plan and so is undefined here */
+		%{}""{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		TMPL(tmpl_octo617_xref_walk, &xref, dot_count);
+	}
+	TMPL(tmpl_print_dots, dot_count);
+
+	if (IS_COLUMN_STRING_TYPE(aggr_column)) {
+		/* The cross reference holds "#"_value for a string column: decode it into %ydboctoexpr(1) */
+		%{}SET {{ PP_YDB_OCTO_EXPR }}(1)=$$aimsubs2strcolval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+	}
+
+	/* %ydboctoexpr is either "" (no value: the $ORDER or the walk above reached the end) or a subscript that $ORDER just
+	 * returned, whose node therefore exists: no $DATA is needed. "" is also the NULL representation of a non-key,
+	 * non-string column, which is no value either. The NULL representation of a string column ("#") was skipped above.
+	 */
+	%{}SET:(""'={{ PP_YDB_OCTO_EXPR }}){}%
+	return;
+}
+%{}

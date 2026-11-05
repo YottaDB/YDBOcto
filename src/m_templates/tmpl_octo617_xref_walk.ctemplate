@@ -1,0 +1,190 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Emit the M code that walks an AIM cross reference to its first or last value that is in a row
+ *
+ * Part of the YDBOcto#617 optimization (see "tmpl_octo617_xref", which says why the walk is needed): emits the M code
+ * that walks the values of an AIM cross reference, from the first (MIN) or the last (MAX), until it finds one that has
+ * a row of the table under it. The value is left in %ydboctoexpr, which is "" if there is none.
+ *
+ * The caller has set %ydboctoexpr to "" and emitted the dots of the first line. Every line emitted ends with a newline.
+ *
+ * A value has a row under it if some key subscripts under it pass the START, SKIP, SKIPCONDITION and END of their key
+ * columns. Under each value, the key subscripts are walked in key order, one level per key column, down to the last key
+ * column that has one of these keywords ("walk_key"). The key subscripts follow the value in key order: the table's
+ * GLOBAL lists the key columns in key order, and "is_octo617_optimization_possible()" does not use the cross reference
+ * of a column whose own GLOBAL lists them otherwise.
+ *
+ * Generated plan, for MIN(v) of a VARCHAR column v, with START 1 on the first key column a and SKIP '7' on the second
+ * key column b (EXPR is %ydboctoexpr, a and b are the lvns of the keys, ^aim(n is the cross reference):
+ *     SET b="" FOR  SET EXPR=$ORDER(^aim(n,EXPR),1) QUIT:(EXPR="")  DO  QUIT:b'=""           <- the value level
+ *     . QUIT:"#"=EXPR                                                                          <- no row has NULL
+ *     . SET a=1 FOR  SET a=$ORDER(^aim(n,EXPR,a)) QUIT:(a="")  DO  QUIT:b'=""                  <- the level of a
+ *     . . FOR  SET b=$ORDER(^aim(n,EXPR,a,b)) QUIT:(b="")  QUIT:'($SELECT(b=7:1,1:0))          <- the level of b
+ *
+ * The lvn of "walk_key" (b above) tells whether a row was found. It is set to "" before the walk, and it is "" again
+ * after a DO that finds no row. The FOR of the value level, and that of each level above the last, stop as soon as it is
+ * not "".
+ *
+ * The aggregated column itself needs care when it is a key column whose subscript the cross reference leaves out of the
+ * key subscripts ("xref->own_column"): its value is the value level, so it has no level of its own.
+ *   - Its START and SKIP are tested on the value, on the value level's line, before the DO:
+ *         SET b="" FOR  SET EXPR=$ORDER(^aim(n,EXPR),1) QUIT:(EXPR="")  IF '(EXPR=0) DO  QUIT:b'=""
+ *     With no other key column to walk, the value level is the whole walk:
+ *         FOR  SET EXPR=$ORDER(^aim(n,EXPR),1) QUIT:(EXPR="")  QUIT:'(EXPR=0)
+ *   - Its SKIPCONDITION and END can name the key columns before it, so they are tested where its level would be, after
+ *     its lvn is set to the value.
+ */
+TEMPLATE(tmpl_octo617_xref_walk, Octo617Xref *xref, int dot_count) {
+	PhysicalPlan	*pplan;
+	SqlColumn	*own_column;
+	SqlKey		*own_key, *walk_key;
+	unsigned int	key_index;
+	boolean_t	is_own_tested_in_key_position, is_own_lvn_named;
+
+	pplan = xref->pplan;
+	own_column = xref->own_column;
+
+	/* The key of "own_column", and whether a SKIPCONDITION or END of another key column may name its lvn */
+	own_key = NULL;
+	is_own_lvn_named = FALSE;
+	for (key_index = 0; key_index < pplan->total_iter_keys; key_index++) {
+		SqlColumn *key_column;
+
+		key_column = pplan->iterKeys[key_index]->column;
+		if (key_column == own_column) {
+			own_key = pplan->iterKeys[key_index];
+		} else if ((NULL != get_keyword(key_column, OPTIONAL_SKIPCONDITION))
+			   || (NULL != get_keyword(key_column, OPTIONAL_END))) {
+			is_own_lvn_named = TRUE;
+		}
+	}
+	assert((NULL == own_column) || (NULL != own_key));
+	/* "own_column" has a SKIPCONDITION or an END (see "tmpl_octo617_xref") */
+	is_own_tested_in_key_position
+	    = ((NULL != own_column) && !xref->is_own_first && IS_XREF_KEY_COLUMN_FILTERED(own_column));
+
+	if (0 > xref->last_filter_key) {
+		/* Only "own_column" has a START or a SKIP: the value level is the whole walk. It stops at the first value
+		 * that passes them.
+		 */
+		assert(xref->is_own_first);
+		%{}FOR  SET {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+		TMPL(tmpl_key_source_aim, xref->tableName, xref->columnName);
+		%{},{{ PP_YDB_OCTO_EXPR }}),{{ xref->direction }}) QUIT:({{ PP_YDB_OCTO_EXPR }}="")  QUIT:'({}%
+		TMPL(tmpl_octo617_xref_walk_test, xref, NULL, GET_EXCLUSIVE_START_KEYWORD(own_column),
+		     get_keyword(own_column, OPTIONAL_SKIP), NULL, NULL);
+		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		return;
+	}
+	walk_key = pplan->iterKeys[xref->last_filter_key];
+
+	/* The value level: "SET <walk key>="" FOR  SET EXPR=$ORDER(^aim(n,EXPR),<direction>) QUIT:(EXPR="")  " */
+	%{}SET {}%
+	TMPL(tmpl_key, walk_key);
+	%{}="" FOR  SET {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+	TMPL(tmpl_key_source_aim, xref->tableName, xref->columnName);
+	%{},{{ PP_YDB_OCTO_EXPR }}),{{ xref->direction }}) QUIT:({{ PP_YDB_OCTO_EXPR }}="")  {}%
+	if (xref->is_own_first) {
+		/* On the same line: the DO runs only for a value that passes the START and SKIP of "own_column" */
+		%{}IF '({}%
+		TMPL(tmpl_octo617_xref_walk_test, xref, NULL, GET_EXCLUSIVE_START_KEYWORD(own_column),
+		     get_keyword(own_column, OPTIONAL_SKIP), NULL, NULL);
+		%{}) {}%
+	}
+	/* The DO walks the key subscripts under the value. The FOR stops when it found a row. */
+	%{}DO  QUIT:{}%
+	TMPL(tmpl_key, walk_key);
+	%{}'=""{}%
+	%{}`n{{ PLAN_LINE_START }}{}%
+
+	/* The first lines under the DO */
+	if (IS_COLUMN_STRING_TYPE(xref->aggr_column) && !IS_KEY_COLUMN(xref->aggr_column)) {
+		/* The subscript "#" alone (the value "" after the "#" that AIM puts in front of every string value, see
+		 * "aimsubs2strcolval^%ydboctoplanhelpers") is the AIM NULL representation of a string column. It is compared as
+		 * is, with no call to decode it. No row has it as a value for MIN/MAX: SQL aggregates ignore NULL. A key
+		 * column is never NULL, and $ORDER never gives the "" (NULL) subscript of another column as a value: the FOR
+		 * above stops there.
+		 */
+		TMPL(tmpl_print_dots, dot_count + 1);
+		%{}QUIT:"#"={{ PP_YDB_OCTO_EXPR }}{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+	if ((NULL != own_column) && is_own_lvn_named && !is_own_tested_in_key_position) {
+		/* The value is the subscript of "own_column", which has no level of its own: set its lvn, which a
+		 * SKIPCONDITION or END of another key column can name. (If it is tested in its key position, its lvn is set
+		 * there instead.)
+		 */
+		TMPL(tmpl_print_dots, dot_count + 1);
+		%{}SET {}%
+		TMPL(tmpl_key, own_key);
+		%{}={{ PP_YDB_OCTO_EXPR }}{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+
+	/* The key subscripts under the value, one level per key column, each level one DO deeper than the one before it */
+	SqlKey	*levels_above[MAX_KEY_COUNT];	/* The keys of the levels already emitted: the subscripts of the next level */
+	int	num_levels_above, depth;
+
+	num_levels_above = 0;
+	depth = 1;
+	for (key_index = 0; key_index <= (unsigned int)xref->last_filter_key; key_index++) {
+		SqlKey	*level_key;
+
+		level_key = pplan->iterKeys[key_index];
+		if (level_key != own_key) {
+			TMPL(tmpl_octo617_xref_walk_level, xref, level_key, walk_key, levels_above, num_levels_above,
+			     dot_count + depth);
+			levels_above[num_levels_above++] = level_key;
+			if (level_key != walk_key) {
+				depth++;	/* Its line ended with a DO */
+			}
+			continue;
+		}
+		/* "own_column" has no subscript level in the cross reference */
+		if (!is_own_tested_in_key_position) {
+			continue;	/* Its START and SKIP, if any, were tested on the value level's line */
+		}
+		/* Its SKIPCONDITION or END can name its own lvn: set it to the value, then test. The test is TRUE for a
+		 * value that is in no row. If it is the last key column of the walk, it resets its lvn, which tells the
+		 * levels above that no row was found; otherwise the lines after it are not run.
+		 */
+		TMPL(tmpl_print_dots, dot_count + depth);
+		%{}SET {}%
+		TMPL(tmpl_key, own_key);
+		%{}={{ PP_YDB_OCTO_EXPR }}{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count + depth);
+		if (own_key == walk_key) {
+			%{}SET:({}%
+		} else {
+			%{}QUIT:({}%
+		}
+		TMPL(tmpl_octo617_xref_walk_test, xref, own_key, GET_EXCLUSIVE_START_KEYWORD(own_column),
+		     get_keyword(own_column, OPTIONAL_SKIP), get_keyword(own_column, OPTIONAL_SKIPCONDITION),
+		     get_keyword(own_column, OPTIONAL_END));
+		%{}){}%
+		if (own_key == walk_key) {
+			%{} {}%
+			TMPL(tmpl_key, own_key);
+			%{}=""{}%
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+	return;
+}
+%{}

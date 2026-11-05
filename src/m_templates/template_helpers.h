@@ -260,12 +260,50 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *pplan, int dot_count, char *tableNam
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *pplan, int *dot_count);
 TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count);
+
+/* The START keyword of a key column if it is exclusive (no STARTINCLUDE), NULL otherwise */
+#define GET_EXCLUSIVE_START_KEYWORD(KEY_COLUMN) \
+	((NULL == get_keyword((KEY_COLUMN), OPTIONAL_STARTINCLUDE)) ? get_keyword((KEY_COLUMN), OPTIONAL_START) : NULL)
+
+/* What the templates of one MIN or MAX need to know to read it from an AIM cross reference (YDBOcto#617)
+ *
+ * How the YDBOcto#617 optimization reads the MIN or MAX of a column from the column's AIM cross reference.
+ * "tmpl_octo617_xref" fills it in, and "tmpl_octo617_xref_walk" and its helpers read it.
+ */
+typedef struct Octo617Xref {
+	PhysicalPlan *pplan;
+	SqlColumn    *aggr_column; /* The column inside MIN() or MAX() */
+	char	     *tableName;   /* The names of its table and of the column, which name the cross reference */
+	char	     *columnName;
+	char	     *direction; /* The $ORDER direction over the values of the cross reference: "1" for MIN, "-1" for MAX */
+	/* "aggr_column", if it is a key column whose own subscript the cross reference leaves out of its key subscripts,
+	 * because the value is that subscript. NULL otherwise.
+	 */
+	SqlColumn *own_column;
+	/* TRUE if "own_column" has a START or SKIP and no SKIPCONDITION or END: they are then tested on the value itself,
+	 * before its key subscripts are walked.
+	 */
+	boolean_t is_own_first;
+	/* The index in "pplan->iterKeys" of the last key column whose START, SKIP, SKIPCONDITION or END is applied while
+	 * the key subscripts under a value are walked. -1 if there is none.
+	 */
+	int last_filter_key;
+} Octo617Xref;
+
+TEMPLATE(tmpl_octo617_key_global, PhysicalPlan *pplan, LPActionType af_type, boolean_t try_bound_first, int dot_count);
+TEMPLATE(tmpl_octo617_xref, PhysicalPlan *pplan, SqlColumn *aggr_column, LPActionType af_type, int dot_count);
+TEMPLATE(tmpl_octo617_xref_walk, Octo617Xref *xref, int dot_count);
+TEMPLATE(tmpl_octo617_xref_walk_level, Octo617Xref *xref, SqlKey *level_key, SqlKey *walk_key, SqlKey **levels_above,
+	 int num_levels_above, int dot_count);
+TEMPLATE(tmpl_octo617_xref_walk_test, Octo617Xref *xref, SqlKey *lvn_key, SqlOptionalKeyword *start_keyword,
+	 SqlOptionalKeyword *skip_keyword, SqlOptionalKeyword *skipcondition_keyword, SqlOptionalKeyword *end_keyword);
 TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
 TEMPLATE(tmpl_like_prefix_init, PhysicalPlan *pplan);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key_skip, SqlKey *key, SqlKey *xref_key, int dot_count);
+TEMPLATE(tmpl_skip_test, SqlOptionalKeyword *skip_keyword, SqlKey *key);
 TEMPLATE(tmpl_key_start_endpoint, SqlKey *key, int dot_count, boolean_t use_zkeyfix, int cur_key);
 TEMPLATE(tmpl_row_exists, SqlKey *key);
 TEMPLATE(tmpl_key_dollardata_check, PhysicalPlan *pplan, SqlKey *key, boolean_t is_derived_column);

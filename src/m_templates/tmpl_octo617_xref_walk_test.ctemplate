@@ -1,0 +1,80 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Emit the M expression that tests if a key column keyword excludes a value or a key subscript
+ *
+ * Part of the YDBOcto#617 optimization (see "tmpl_octo617_xref_walk"): emits the M expression that is TRUE when a value
+ * or a key subscript of an AIM cross reference is in no row of the table, because a keyword of its key column excludes
+ * it. The caller emits the parentheses around it.
+ *
+ * "lvn_key" says which lvn holds what is tested: the lvn of that key, or %ydboctoexpr if it is NULL.
+ * Each keyword that is not NULL adds one part to the expression, and the parts are joined by "!" (OR):
+ *   "start_keyword"         : <lvn>=<the START value>, which is not a row (START without STARTINCLUDE is exclusive)
+ *   "skip_keyword"          : $SELECT(<lvn>=v1:1,<lvn>=v2:1,...,1:0), see "tmpl_skip_test"
+ *   "skipcondition_keyword" : (<the SKIPCONDITION, with keys("...") replaced by the lvns of the keys>)
+ *   "end_keyword"           : (<the END, with keys("...") replaced likewise>)
+ */
+TEMPLATE(tmpl_octo617_xref_walk_test, Octo617Xref *xref, SqlKey *lvn_key, SqlOptionalKeyword *start_keyword,
+	 SqlOptionalKeyword *skip_keyword, SqlOptionalKeyword *skipcondition_keyword, SqlOptionalKeyword *end_keyword) {
+	SqlKey		*first_key;
+	SqlValue	*value, *table_name_value;
+	boolean_t	need_or;
+
+	first_key = xref->pplan->iterKeys[0];
+	need_or = FALSE;
+	if (NULL != start_keyword) {
+		UNPACK_SQL_STATEMENT(value, start_keyword->v, value);
+		if (NULL == lvn_key) {
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+		} else {
+			TMPL(tmpl_key, lvn_key);
+		}
+		%{}={{ value->v.string_literal }}{}%
+		need_or = TRUE;
+	}
+	if (NULL != skip_keyword) {
+		if (need_or) {
+			%{}!{}%
+		}
+		TMPL(tmpl_skip_test, skip_keyword, lvn_key);
+		need_or = TRUE;
+	}
+	if (NULL != skipcondition_keyword) {
+		if (need_or) {
+			%{}!{}%
+		}
+		UNPACK_SQL_STATEMENT(value, skipcondition_keyword->v, value);
+		UNPACK_SQL_STATEMENT(table_name_value, first_key->table->tableName, value);
+		%{}({}%
+		TMPL(tmpl_emit_source, first_key->table, value->v.string_literal, table_name_value->v.string_literal,
+		     first_key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Value);
+		%{}){}%
+		need_or = TRUE;
+	}
+	if (NULL != end_keyword) {
+		if (need_or) {
+			%{}!{}%
+		}
+		UNPACK_SQL_STATEMENT(value, end_keyword->v, value);
+		UNPACK_SQL_STATEMENT(table_name_value, first_key->table->tableName, value);
+		%{}({}%
+		TMPL(tmpl_emit_source, first_key->table, value->v.string_literal, table_name_value->v.string_literal,
+		     first_key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Value);
+		%{}){}%
+	}
+	return;
+}
+%{}

@@ -1283,6 +1283,21 @@ Cross references on key columns
 
   For such a key column, the cross reference is also the only way to serve a :code:`WHERE` condition: Octo cannot compute the stored form from the value, so it cannot look up the node directly. A condition :code:`=`, :code:`IN` or a range with a constant (for example :code:`WHERE VisitDate = DATE '2024-01-15'`, the first key column included), or a comparison with a column of a table that comes before it in the :code:`FROM` list (as in a :code:`JOIN ... ON`), reads the cross reference and finds every stored form of the value. A condition that cannot use the cross reference (when a key column before it also has a condition, or the table already uses a cross reference for another condition) is checked on each row, as is :code:`IS NULL`, which is never true for a key column; :code:`IS NOT NULL` is always true for it, and is not checked at all, except after an :code:`OUTER JOIN`. The :code:`START`, :code:`STARTINCLUDE`, :code:`ENDPOINT`, :code:`END`, :code:`SKIP` and :code:`SKIPCONDITION` of the key column apply to the stored form.
 
+  :code:`SELECT MIN(column), MAX(column) FROM table`, with no :code:`WHERE`, :code:`JOIN`, :code:`GROUP BY` or :code:`HAVING`, reads only the first and last value of the column instead of every row. The values come from the global variable for the key column of a table with one key column. They come from the column's cross reference:
+
+  * for a non-key column;
+  * for any column of a table with several key columns, whose global variable can have subscripts with no row under them;
+  * for a date/time column of a :code:`READONLY` table, whose cross reference holds the values in their order;
+  * for a :code:`VARCHAR` key column, whose subscripts M orders numbers first (:code:`3`, :code:`9`, :code:`10`, :code:`A`), not as SQL orders the strings (:code:`'10'`, :code:`'3'`, :code:`'9'`, :code:`'A'`).
+
+  A key column read from the global variable is bounded by its :code:`START` and :code:`ENDPOINT` in M collation, as the table scan bounds it, so a bound need not be a value of the column's type (for example :code:`ENDPOINT '$CHAR(0)'` on an :code:`INTEGER` key column, which sorts after every number and before every string). The cross reference is built over the range from :code:`START` to :code:`ENDPOINT` of each key column, so these bounds need nothing more. Octo steps over the values that are only in nodes outside the table: past an exclusive :code:`START` (without :code:`STARTINCLUDE`), past the subscripts that :code:`SKIP` and :code:`SKIPCONDITION` exclude, and past :code:`END` (taking it to stay TRUE past the last record, as described for the :code:`END` keyword). Every row is read instead:
+
+  * when the table has an :code:`ITERATOR`, which decides which nodes of the global variable are rows;
+  * for an :code:`EXTRACT` column, whose value no node of the global variable holds;
+  * for a column whose own :code:`GLOBAL` lists no key column, so that one node holds its value for every row;
+  * when a key column's range is a single value (:code:`START` with :code:`STARTINCLUDE`, and :code:`ENDPOINT`, the same), which AIM takes to be a constant subscript and leaves out of the cross reference;
+  * when a key column has :code:`START`, :code:`SKIP`, :code:`SKIPCONDITION` or :code:`END`, and the column has a :code:`GLOBAL` of its own that does not list every key column in key order.
+
 Extracting a nested piece (DELIMS / PIECES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2796,7 +2811,7 @@ MIN
 
      MIN([ALL | DISTINCT] value_expression)
 
-  The :code:`MIN` aggregate function returns the maximum of all the non-NULL values passed to it.
+  The :code:`MIN` aggregate function returns the minimum of all the non-NULL values passed to it.
 
 +++
 SUM

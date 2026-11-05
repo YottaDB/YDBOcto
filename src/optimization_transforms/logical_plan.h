@@ -111,17 +111,31 @@ typedef enum {
 	((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column) && (NULL != (KEY)->table) \
 	 && !IS_XREF_VALUE_TRANSFORMED((KEY)->table, (KEY)->column))
 
+/* Test if a key holds the value of a key column of the row
+ *
+ * TRUE for a key that holds the value of one of the row's primary key columns: a key of the table itself, or the cross
+ * reference key of a primary key column (IS_KEY_COLUMN_XREF). FALSE for the cross reference key of a non-key column, and
+ * for that of a key column whose cross reference holds converted values. The code that builds a row's primary key from
+ * the plan's keys (e.g. the node that DELETE kills, the row that UPDATE notes) uses the keys for which this is TRUE.
+ */
+#define IS_ROW_KEY(KEY) (!(KEY)->is_cross_reference_key || IS_KEY_COLUMN_XREF(KEY))
+
 /* TRUE for the cross reference key of a key column whose cross reference holds converted values (see above) */
 #define IS_TRANSFORMED_KEY_COLUMN_XREF(KEY)                                                                                 \
 	((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column) && (NULL != (KEY)->table) \
 	 && IS_XREF_VALUE_TRANSFORMED((KEY)->table, (KEY)->column))
 
-/* TRUE for a key that holds the value of one of the row's primary key columns: a key of the table itself, or the cross
- * reference key of a primary key column (IS_KEY_COLUMN_XREF). FALSE for the cross reference key of a non-key column. The
- * code that builds a row's primary key from the plan's keys (e.g. the node that DELETE kills, the row that UPDATE notes)
- * uses the keys for which this is TRUE.
+/* Test if a key column has a keyword that excludes entries of an AIM cross reference from the table
+ *
+ * TRUE if the key column KEY_COLUMN excludes from the table subscripts that an AIM cross reference indexes: START without
+ * STARTINCLUDE (AIM builds the cross reference over the range "START:ENDPOINT", inclusive at both ends), SKIP,
+ * SKIPCONDITION or END (conditions, not ranges). MIN/MAX use it to decide whether the cross reference can be read
+ * ("is_octo617_optimization_possible()") and how to walk it ("tmpl_octo617_xref_walk").
  */
-#define IS_ROW_KEY(KEY) (!(KEY)->is_cross_reference_key || IS_KEY_COLUMN_XREF(KEY))
+#define IS_XREF_KEY_COLUMN_FILTERED(KEY_COLUMN)                                                                               \
+	(((NULL != get_keyword((KEY_COLUMN), OPTIONAL_START)) && (NULL == get_keyword((KEY_COLUMN), OPTIONAL_STARTINCLUDE)))  \
+	 || (NULL != get_keyword((KEY_COLUMN), OPTIONAL_SKIP)) || (NULL != get_keyword((KEY_COLUMN), OPTIONAL_SKIPCONDITION)) \
+	 || (NULL != get_keyword((KEY_COLUMN), OPTIONAL_END)))
 
 #define GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN, COLUMN_ALIAS)                                         \
 	{                                                                                                                      \

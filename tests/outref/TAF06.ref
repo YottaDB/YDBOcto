@@ -528,15 +528,17 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octorw3;
 ---------------------------------------------------------
-   SET %ydboctoexpr=$ORDER(^%ydboctoDpOo5MKPkLv5Rzk06ggsD7I(""),-1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSMjOg0McJCsiJQR7tTZ4E15(1,""),-1)
+   SET:$DATA(^%ydbAIMSMjOg0McJCsiJQR7tTZ4E15(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSMjOg0McJCsiJQR7tTZ4E15(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select max(id) from TAF06octoi;
 ---------------------------------------------------------
-   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),-1)
+   DO:$DATA(^TAF06octoe(%ydboctocursor(cursorId,"keys",1,"taf06octoi","id")))  FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoi","id")=$ORDER(^TAF06octoe(%ydboctocursor(cursorId,"keys",1,"taf06octoi","id"))) QUIT:((%ydboctocursor(cursorId,"keys",1,"taf06octoi","id")="")!(%ydboctocursor(cursorId,"keys",1,"taf06octoi","id")]]"h"))  DO
 ---------------------------------------------------------
  select max(id) is null from TAF06octoe2;
 ---------------------------------------------------------
-   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("l"),-1)
+   SET %ydboctocursor(cursorId,"keys",1,"taf06octoe2","id")="" FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMSYc0xuTz0qSN6DYcCRA987G(1,%ydboctoexpr),-1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"taf06octoe2","id")'=""
+   . SET %ydboctocursor(cursorId,"keys",1,"taf06octoe2","id")=$ORDER(^%ydbAIMSYc0xuTz0qSN6DYcCRA987G(1,%ydboctoexpr,"j"))
 ---------------------------------------------------------
  select 5 + min(id) from names;
 ---------------------------------------------------------
@@ -553,7 +555,8 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoro3;
 ---------------------------------------------------------
-   SET %ydboctoexpr=$ORDER(^%ydboctoDgreJoixMwvY5HA3RQdMO61(""),-1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMS35JClYUyvw52UVguxsH6JJ(1,""),-1)
+   SET:$DATA(^%ydbAIMS35JClYUyvw52UVguxsH6JJ(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMS35JClYUyvw52UVguxsH6JJ(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select min(id) from names;
 ---------------------------------------------------------
@@ -578,7 +581,8 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octoe;
 ---------------------------------------------------------
-   SET %ydboctoexpr=$ORDER(^TAF06octoe("d"),1)
+   SET %ydboctocursor(cursorId,"keys",1,"taf06octoe","id")="" FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr),1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"taf06octoe","id")'=""
+   . SET %ydboctocursor(cursorId,"keys",1,"taf06octoe","id")=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr,"d"))
 ---------------------------------------------------------
  select max(id) from names group by firstname;
 ---------------------------------------------------------
@@ -587,11 +591,13 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octoro7;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro7","id")=$ORDER(^%ydboctoDXcZgIcte1TdRhgopYcRTHJ(%ydboctocursor(cursorId,"keys",1,"taf06octoro7","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro7","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSc1jA1wGES5qgKohCvlfg7I(1,""),1)
+   SET:$DATA(^%ydbAIMSc1jA1wGES5qgKohCvlfg7I(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSc1jA1wGES5qgKohCvlfg7I(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select max(id) from TAF06octoro8;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro8","id")=$ORDER(^%ydboctoDhNpR0DIK6FfVN7K0zgcH65(%ydboctocursor(cursorId,"keys",1,"taf06octoro8","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro8","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSsIMraL76uBiQxLotVmGa7H(1,""),-1)
+   SET:$DATA(^%ydbAIMSsIMraL76uBiQxLotVmGa7H(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSsIMraL76uBiQxLotVmGa7H(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select min(id) is null from TAF06octod2;
 ---------------------------------------------------------
@@ -603,7 +609,8 @@ OCTO>
 ---------------------------------------------------------
  select min(id) is null from TAF06octoe2;
 ---------------------------------------------------------
-   SET %ydboctoexpr=$ORDER(^TAF06octoe("j"),1)
+   SET %ydboctocursor(cursorId,"keys",1,"taf06octoe2","id")="" FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMSYc0xuTz0qSN6DYcCRA987G(1,%ydboctoexpr),1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"taf06octoe2","id")'=""
+   . SET %ydboctocursor(cursorId,"keys",1,"taf06octoe2","id")=$ORDER(^%ydbAIMSYc0xuTz0qSN6DYcCRA987G(1,%ydboctoexpr,"j"))
 ---------------------------------------------------------
  select max(id) from TAF06octorw7;
 ---------------------------------------------------------
@@ -615,7 +622,8 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octoh;
 ---------------------------------------------------------
-   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("d"),1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,""),1)
+   SET:$DATA(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select 5 + min(n1.id), 10 + max(n1.id), max(n1.id) - min(n1.id) from names n1;
 ---------------------------------------------------------
@@ -638,7 +646,8 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octoro8;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro8","id")=$ORDER(^%ydboctoDhNpR0DIK6FfVN7K0zgcH65(%ydboctocursor(cursorId,"keys",1,"taf06octoro8","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro8","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSsIMraL76uBiQxLotVmGa7H(1,""),1)
+   SET:$DATA(^%ydbAIMSsIMraL76uBiQxLotVmGa7H(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSsIMraL76uBiQxLotVmGa7H(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select max(id) is null from TAF06octoa;
 ---------------------------------------------------------
@@ -646,7 +655,8 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoro9;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro9","id")=$ORDER(^%ydboctoDcIy3vJIFd2uYKp26K5FqJ4(%ydboctocursor(cursorId,"keys",1,"taf06octoro9","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro9","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMScpsZBgWXgRhbskTCqq2qK3(1,""),-1)
+   SET:$DATA(^%ydbAIMScpsZBgWXgRhbskTCqq2qK3(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMScpsZBgWXgRhbskTCqq2qK3(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select min(id) from TAF06octof;
 ---------------------------------------------------------
@@ -670,7 +680,8 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoro5;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro5","id")=$ORDER(^%ydboctoDyuXAtCfuFBpbfcr84PGXA9(%ydboctocursor(cursorId,"keys",1,"taf06octoro5","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro5","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSVOdj3VRJ2m6lulAO9cyKDJ(1,""),-1)
+   SET:$DATA(^%ydbAIMSVOdj3VRJ2m6lulAO9cyKDJ(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSVOdj3VRJ2m6lulAO9cyKDJ(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select min(2) from names order by max(id);
 ---------------------------------------------------------
@@ -706,15 +717,18 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoh;
 ---------------------------------------------------------
-   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),-1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,""),-1)
+   SET:$DATA(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select min(id) from TAF06octoro3;
 ---------------------------------------------------------
-   SET %ydboctoexpr=$ORDER(^%ydboctoDgreJoixMwvY5HA3RQdMO61(""),1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMS35JClYUyvw52UVguxsH6JJ(1,""),1)
+   SET:$DATA(^%ydbAIMS35JClYUyvw52UVguxsH6JJ(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMS35JClYUyvw52UVguxsH6JJ(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select min(id) from TAF06octoro5;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro5","id")=$ORDER(^%ydboctoDyuXAtCfuFBpbfcr84PGXA9(%ydboctocursor(cursorId,"keys",1,"taf06octoro5","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro5","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSVOdj3VRJ2m6lulAO9cyKDJ(1,""),1)
+   SET:$DATA(^%ydbAIMSVOdj3VRJ2m6lulAO9cyKDJ(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSVOdj3VRJ2m6lulAO9cyKDJ(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select min(id) from TAF06octorw1;
 ---------------------------------------------------------
@@ -730,7 +744,8 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoe;
 ---------------------------------------------------------
-   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),-1)
+   SET %ydboctocursor(cursorId,"keys",1,"taf06octoe","id")="" FOR  SET %ydboctoexpr=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr),-1) QUIT:(%ydboctoexpr="")  DO  QUIT:%ydboctocursor(cursorId,"keys",1,"taf06octoe","id")'=""
+   . SET %ydboctocursor(cursorId,"keys",1,"taf06octoe","id")=$ORDER(^%ydbAIMS0n0ZVkjAchsvXq2C22CfG0(1,%ydboctoexpr,"d"))
 ---------------------------------------------------------
  select min(id) is null from TAF06octoc;
 ---------------------------------------------------------
@@ -747,7 +762,8 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octorw3;
 ---------------------------------------------------------
-   SET %ydboctoexpr=$ORDER(^%ydboctoDpOo5MKPkLv5Rzk06ggsD7I(""),1)
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSMjOg0McJCsiJQR7tTZ4E15(1,""),1)
+   SET:$DATA(^%ydbAIMSMjOg0McJCsiJQR7tTZ4E15(1,%ydboctoexpr))&("#"=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSMjOg0McJCsiJQR7tTZ4E15(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select min(id) from TAF06octog;
 ---------------------------------------------------------
@@ -779,11 +795,12 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octoro6;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro6","id")=$ORDER(^%ydboctoDHqW9PHdI87GCJ20Sdwh494(%ydboctocursor(cursorId,"keys",1,"taf06octoro6","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro6","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSZNfsairvaiur5zM0OzlQ8H(1,""),1)
+   SET:$DATA(^%ydbAIMSZNfsairvaiur5zM0OzlQ8H(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSZNfsairvaiur5zM0OzlQ8H(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select min(id) from TAF06octoi;
 ---------------------------------------------------------
-   IF '$DATA(^TAF06octoe(%ydboctoexpr)) SET %ydboctoexpr=$ORDER(^TAF06octoe("h"),1)
+   DO:$DATA(^TAF06octoe(%ydboctocursor(cursorId,"keys",1,"taf06octoi","id")))  FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoi","id")=$ORDER(^TAF06octoe(%ydboctocursor(cursorId,"keys",1,"taf06octoi","id"))) QUIT:((%ydboctocursor(cursorId,"keys",1,"taf06octoi","id")="")!(%ydboctocursor(cursorId,"keys",1,"taf06octoi","id")]]"h"))  DO
 ---------------------------------------------------------
  select max(id) from TAF06octoro2;
 ---------------------------------------------------------
@@ -795,7 +812,8 @@ OCTO>
 ---------------------------------------------------------
  select min(id) from TAF06octoro9;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro9","id")=$ORDER(^%ydboctoDcIy3vJIFd2uYKp26K5FqJ4(%ydboctocursor(cursorId,"keys",1,"taf06octoro9","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro9","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMScpsZBgWXgRhbskTCqq2qK3(1,""),1)
+   SET:$DATA(^%ydbAIMScpsZBgWXgRhbskTCqq2qK3(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMScpsZBgWXgRhbskTCqq2qK3(1,%ydboctoexpr),1)
 ---------------------------------------------------------
  select max(id) from TAF06octoro1;
 ---------------------------------------------------------
@@ -819,7 +837,8 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoro6;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro6","id")=$ORDER(^%ydboctoDHqW9PHdI87GCJ20Sdwh494(%ydboctocursor(cursorId,"keys",1,"taf06octoro6","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro6","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSZNfsairvaiur5zM0OzlQ8H(1,""),-1)
+   SET:$DATA(^%ydbAIMSZNfsairvaiur5zM0OzlQ8H(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSZNfsairvaiur5zM0OzlQ8H(1,%ydboctoexpr),-1)
 ---------------------------------------------------------
  select max(id) from TAF06octorw1;
 ---------------------------------------------------------
@@ -827,4 +846,5 @@ OCTO>
 ---------------------------------------------------------
  select max(id) from TAF06octoro7;
 ---------------------------------------------------------
-   FOR  SET %ydboctocursor(cursorId,"keys",1,"taf06octoro7","id")=$ORDER(^%ydboctoDXcZgIcte1TdRhgopYcRTHJ(%ydboctocursor(cursorId,"keys",1,"taf06octoro7","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"taf06octoro7","id")="")  DO
+   SET %ydboctoexpr=$ORDER(^%ydbAIMSc1jA1wGES5qgKohCvlfg7I(1,""),-1)
+   SET:$DATA(^%ydbAIMSc1jA1wGES5qgKohCvlfg7I(1,%ydboctoexpr))&(""=%ydboctoexpr) %ydboctoexpr=$ORDER(^%ydbAIMSc1jA1wGES5qgKohCvlfg7I(1,%ydboctoexpr),-1)

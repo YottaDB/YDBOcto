@@ -187,6 +187,16 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	// Check if column is a computed column. If so, we cannot create a cross-reference on this.
 	if (NULL != get_keyword_from_keywords(column->keywords->v.keyword, OPTIONAL_EXTRACT))
 		return NULL;
+	if (IS_KEY_COLUMN(column) && (NULL != get_keyword(column, OPTIONAL_GLOBAL))) {
+		/* A key column's value is its subscript in the table's GLOBAL, and its cross reference is built on that
+		 * global (YDBOcto#660). CREATE TABLE no longer accepts a GLOBAL keyword on a key column
+		 * (ERR_GLOBAL_ON_KEY_COLUMN, YDBOcto#1197), so this is not expected: hence the assert. A table created
+		 * before that can still have one, which names another global: a build without asserts gives such a column
+		 * no cross reference.
+		 */
+		assert(FALSE);
+		return NULL;
+	}
 
 	/* Determine which primary-key columns the cross reference can advance, and in what order to iterate all of
 	 * the table's primary-key columns ("advance_key_columns"). If the column's global is mapped in a way the
@@ -230,7 +240,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		num_advance_keys = max_key + 1;
 	}
 	if (-1 == num_xref_keys) {
-		return NULL; /* No usable shape (see "get_xref_advance_keys()") */
+		return NULL; /* No usable layout (see "get_xref_advance_keys()") */
 	}
 	/* A non-key column's cross reference is followed by at least one primary key column. A key column's cross reference
 	 * is followed by none when the column is the table's only key column: the cross reference key is then the only key.

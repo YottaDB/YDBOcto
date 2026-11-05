@@ -592,6 +592,7 @@ set(template_files
   ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key_finish.ctemplate
   ${template_dir}/tmpl_key_skip.ctemplate
+  ${template_dir}/tmpl_skip_test.ctemplate
   ${template_dir}/tmpl_key_source.ctemplate
   ${template_dir}/tmpl_key_source_aim.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
@@ -620,6 +621,11 @@ set(template_files
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
   ${template_dir}/tmpl_tablejoin_octo617_optimize.ctemplate
+  ${template_dir}/tmpl_octo617_key_global.ctemplate
+  ${template_dir}/tmpl_octo617_xref.ctemplate
+  ${template_dir}/tmpl_octo617_xref_walk.ctemplate
+  ${template_dir}/tmpl_octo617_xref_walk_level.ctemplate
+  ${template_dir}/tmpl_octo617_xref_walk_test.ctemplate
   ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
   ${template_dir}/tmpl_update_column_reference.ctemplate
   ${template_dir}/tmpl_update_key_source.ctemplate

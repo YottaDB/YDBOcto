@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2024 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2024-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -117,7 +117,8 @@ select max(id2) is null from TAF07octoro9;
 -- Test a query from customers data set using MAX/MIN on all columns (tests variety of column data types)
 -- Test that for READONLY table integer/string etc. types are optimized
 select max(order_id), min(order_id), max(customer_id), min(customer_id), max(order_amount), min(order_amount) from orders;
--- Test that for READONLY table date type is NOT optimized
+-- Test that for READONLY table date type is optimized too: through the AIM cross reference of the column, which holds
+-- the dates converted to UNIX time (YDBOcto#660)
 select max(order_date), min(order_date) from orders;
 
 -- Test case where all rows in table have NULL values for non-key column. Expect NULL return from MAX/MIN in this case.

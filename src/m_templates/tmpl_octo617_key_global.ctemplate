@@ -1,0 +1,158 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* Emit the M code that reads the MIN or MAX of the first key column from the table's global
+ *
+ * Part of the YDBOcto#617 optimization (see "tmpl_tablejoin_octo617_optimize"): emits the M code that reads the first
+ * (MIN) or last (MAX) value of the first key column of the table from the subscripts of the table's global, into
+ * %ydboctoexpr. It is used for the key column of a table with one key column, and to find whether a table has a row
+ * (MIN or MAX of a literal).
+ *
+ * "af_type" is LP_AGGREGATE_FUNCTION_MIN or LP_AGGREGATE_FUNCTION_MAX.
+ * "try_bound_first" is TRUE if the bound of the key column may be tried as the answer before any $ORDER (step 1).
+ *
+ * The caller has emitted the dots of the first line. What is emitted ends with the postconditional
+ * "SET:<a value was found>" of a SET whose target the caller emits.
+ *
+ * The lines, for MAX(id) with "id INTEGER PRIMARY KEY START 0 ENDPOINT 100" on ^T (EXPR is %ydboctoexpr):
+ *     SET EXPR=100                                          <- step 1
+ *     IF '$DATA(^T(EXPR)) SET EXPR=$ORDER(^T(100),-1)       <- steps 1 and 2
+ *     SET:$DATA(^T(EXPR))&(EXPR]]0)                         <- step 3
+ * and with SKIP or SKIPCONDITION on the key column:
+ *     SET EXPR=""                                           <- step 2
+ *     FOR  SET EXPR=$ORDER(^T(EXPR),-1) QUIT:(EXPR="")  QUIT:'(<the subscript is skipped>)
+ *     SET:$DATA(^T(EXPR))&(EXPR]]0)                         <- step 3
+ */
+TEMPLATE(tmpl_octo617_key_global, PhysicalPlan *pplan, LPActionType af_type, boolean_t try_bound_first, int dot_count) {
+	SqlKey			*key;
+	SqlColumn		*key_column;
+	SqlOptionalKeyword	*skip_keyword, *skipcondition_keyword;
+	SqlValue		*value;
+	boolean_t		is_min, has_skip;
+	char			*direction;
+	enum EmitSourceForm	order_source_form;
+
+	key = pplan->iterKeys[0];
+	key_column = key->column;
+	is_min = (LP_AGGREGATE_FUNCTION_MIN == af_type);
+	direction = (is_min ? "1" : "-1");
+	order_source_form = (is_min ? EmitSourceForm_Octo617Min : EmitSourceForm_Octo617Max);
+	skip_keyword = get_keyword(key_column, OPTIONAL_SKIP);
+	skipcondition_keyword = get_keyword(key_column, OPTIONAL_SKIPCONDITION);
+	has_skip = ((NULL != skip_keyword) || (NULL != skipcondition_keyword));
+
+	/* Step 1: try the bound of the key column itself. If the global has a node at it, it is the answer, and the $ORDER
+	 * of step 2 is not run. This applies only to a bound that is INCLUSIVE, i.e. that can itself be a row:
+	 *   MAX -> ENDPOINT, which is always inclusive.
+	 *   MIN -> START, but only with STARTINCLUDE. Without it, the $ORDER seeded with START already steps past it,
+	 *          which is what START means.
+	 * With SKIP or SKIPCONDITION, the bound may itself be skipped, so it is not tried.
+	 */
+	if (try_bound_first && !has_skip) {
+		SqlOptionalKeyword	*bound_keyword;
+
+		if (!is_min) {
+			bound_keyword = get_keyword(key_column, OPTIONAL_ENDPOINT);
+		} else if (NULL != get_keyword(key_column, OPTIONAL_STARTINCLUDE)) {
+			bound_keyword = get_keyword(key_column, OPTIONAL_START);
+		} else {
+			bound_keyword = NULL;
+		}
+		if (NULL != bound_keyword) {
+			UNPACK_SQL_STATEMENT(value, bound_keyword->v, value);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ value->v.string_literal }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}IF '$DATA({}%
+			TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+			%{}) {}%
+		}
+	}
+
+	/* Step 2: the first or last subscript of the global. Without SKIP and SKIPCONDITION, it is one $ORDER from the
+	 * key column's bound (or from ""). With them, a FOR loop starts from "" and goes on past the subscripts they
+	 * exclude. It follows the usual M idiom: SET the $ORDER, QUIT if it is "", then test.
+	 */
+	%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+	if (!has_skip) {
+		%{}$ORDER({}%
+		TMPL(tmpl_key_source, pplan, key, order_source_form);
+		%{},{{ direction }}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	} else {
+		/* %ydboctoexpr is NEWed by the plan and so is undefined here: seed it for the first $ORDER */
+		%{}""{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}FOR  SET {{ PP_YDB_OCTO_EXPR }}=$ORDER({}%
+		TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+		%{},{{ direction }}) QUIT:({{ PP_YDB_OCTO_EXPR }}="")  QUIT:'({}%
+		/* The test is TRUE for a subscript to skip: the SKIP list, the SKIPCONDITION, or both joined by "!" */
+		if (NULL != skip_keyword) {
+			TMPL(tmpl_skip_test, skip_keyword, NULL);
+		}
+		if (NULL != skipcondition_keyword) {
+			SqlValue	*table_name_value;
+
+			if (NULL != skip_keyword) {
+				%{}!{}%
+			}
+			UNPACK_SQL_STATEMENT(value, skipcondition_keyword->v, value);
+			UNPACK_SQL_STATEMENT(table_name_value, key->table->tableName, value);
+			%{}({}%
+			TMPL(tmpl_emit_source, key->table, value->v.string_literal, table_name_value->v.string_literal,
+			     key->unique_id, (void *)0, MAX_KEY_COUNT, EmitSourceForm_Octo617);
+			%{}){}%
+		}
+		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+	TMPL(tmpl_print_dots, dot_count);
+
+	/* Step 3: %ydboctoexpr is the answer if the global has a node at it (it is "" if step 2 found no subscript) and
+	 * it is inside the key column's other bound.
+	 */
+	%{}SET:$DATA({}%
+	TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Octo617);
+	%{}){}%
+
+	SqlOptionalKeyword	*other_bound_keyword;
+
+	other_bound_keyword = get_keyword(key_column, (is_min ? OPTIONAL_ENDPOINT : OPTIONAL_START));
+	if (NULL != other_bound_keyword) {
+		char	*bound;
+
+		/* MIN is bounded above by ENDPOINT, which is always inclusive. MAX is bounded below by START, which is
+		 * exclusive unless STARTINCLUDE is also specified. The bound is tested in M collation ("]]", sorts after), as
+		 * the table scan tests it ("tmpl_key_end"): it need not be a value of the column's type, e.g. ENDPOINT
+		 * '$CHAR(0)' on an INTEGER key column, which sorts after every number and before every string
+		 * (YottaDB/YDBOctoVistA maps a FileMan file so, to leave out its "B" index). A string key column is not read
+		 * from the table's global (see "is_octo617_optimization_possible()").
+		 */
+		assert(!is_keycol_type_string(key));
+		UNPACK_SQL_STATEMENT(value, other_bound_keyword->v, value);
+		bound = value->v.string_literal;
+		if (is_min) {
+			%{}&('({{ PP_YDB_OCTO_EXPR }}]]{{ bound }})){}%
+		} else if (NULL != get_keyword(key_column, OPTIONAL_STARTINCLUDE)) {
+			%{}&('({{ bound }}]]{{ PP_YDB_OCTO_EXPR }})){}%
+		} else {
+			%{}&({{ PP_YDB_OCTO_EXPR }}]]{{ bound }}){}%
+		}
+	}
+	return;
+}
+%{}

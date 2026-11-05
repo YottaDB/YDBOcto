@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,8 @@ int get_num_key_cols_in_set_clause(PhysicalPlan *pplan) {
 		SqlKey *plan_key;
 
 		plan_key = pplan->iterKeys[iter_key_index];
-		if (!plan_key->is_cross_reference_key) {
+		/* The cross reference key of a primary key column (YDBOcto#660) stands for that column */
+		if (IS_ROW_KEY(plan_key)) {
 			LogicalPlan *lp_column_list;
 			lp_column_list = lp_get_update_column_list(lp_update);
 

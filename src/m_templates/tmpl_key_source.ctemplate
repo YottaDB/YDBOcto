@@ -86,7 +86,11 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 		keys_to_match = 0;
 		for ( ; ; ) {
 			plan_key = pplan->iterKeys[iter_key_index];
-			if ((plan_key->unique_id == key->unique_id) && !plan_key->is_cross_reference_key) {
+			/* The cross reference key of a primary key column (YDBOcto#660) stands for that column, whose
+			 * subscript the table's global has before the keys that follow it.
+			 */
+			if ((plan_key->unique_id == key->unique_id)
+					&& IS_ROW_KEY(plan_key)) {
 				keys_to_match++;
 			}
 			if (plan_key == key) {

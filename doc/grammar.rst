@@ -1268,6 +1268,17 @@ Primary keys and column mapping
 
   In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln|Abraham"` and :code:`^Names(2)="Obama|Barack"`.
 
+Cross references on key columns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  A :code:`WHERE` condition on the first key column of a table (:code:`FirstYear` in the :code:`USPresidents` example above) is served by the global variable itself, as that column is its first subscript. A condition on a later key column (:code:`LastYear`) is not: without help, Octo visits every value of the key columns before it and looks for the wanted value under each. So, as it does for a non-key column, Octo builds a cross reference of such a key column the first time a query compares it with :code:`=`, :code:`IN`, :code:`<`, :code:`>`, :code:`<=` or :code:`>=`, using the subscript cross references of `YDBAIM <https://docs.yottadb.com/Plugins/ydbaim.html>`_, and later queries read only the rows with the wanted values. The cross reference is maintained by triggers as the global variable changes, and :code:`DISCARD XREFS` removes it.
+
+  .. code-block:: SQL
+
+     SELECT * FROM USPresidents WHERE LastYear = 1945;   -- reads the cross reference of LastYear, then the one row
+
+  The same applies to the :code:`WHERE` of a :code:`DELETE` or an :code:`UPDATE`, and to the :code:`ON` condition of a :code:`JOIN`. No cross reference is built when the :code:`WHERE` or an :code:`ON` condition also compares a key column before it (:code:`FirstYear = 1933 AND LastYear = 1945` looks up the one node directly), or when the table has an :code:`ITERATOR`, which decides which nodes of the global variable are rows. Nor is one used for a range or an :code:`IN` on the key column when the query has a :code:`LIMIT` and an :code:`ORDER BY` of the table's key columns in key order (:code:`WHERE LastYear >= 1900 ORDER BY FirstYear, LastYear LIMIT 3`): reading the global variable in place gives the rows in that order and stops at the :code:`LIMIT`, while the cross reference would give them grouped by :code:`LastYear`, to be sorted. Without the :code:`LIMIT`, the cross reference is used and the rows are sorted.
+
 Extracting a nested piece (DELIMS / PIECES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

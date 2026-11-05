@@ -298,6 +298,101 @@ CAT
 	verify_output TWO20 output.txt noinfo nodebug
 }
 
+@test "TWO21 : OCTO660 : WHERE on a primary key column after the first walks an AIM subscript cross reference of that column" {
+	load_fixture xecutemcode.sql
+	load_fixture TWO21.zwr
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# A condition (=, IN, a range) on a key column after the first cannot fix that key in place: the FOR loops of the" >> output.txt
+	echo "# key columns before it run first, so the plan would visit every row. Instead the plan walks an AIM cross" >> output.txt
+	echo "# reference of that key column, which holds each of its values and, under each value, the other key subscripts" >> output.txt
+	echo "# of the rows that have it. Parts A to K cover the table layouts, joins and bounds; Part L checks two of the" >> output.txt
+	echo "# plans above; Part M changes a global in M and re-asks Part D; Part N writes a READWRITE table through Octo;" >> output.txt
+	echo "# Part O removes the cross references." >> output.txt
+	echo "# Each statement below is followed by its result, and each SELECT, UPDATE and DELETE by the plan Octo chose. The" >> output.txt
+	echo "# comment above each query states the rows it should give and the plan: [xref on <column>] when it walks the cross" >> output.txt
+	echo "# reference of that key column, [no key column xref] when it does not. The PLAN: line says:" >> output.txt
+	echo "#   xref:  the columns whose AIM cross reference the plan walks or probes" >> output.txt
+	echo "#   fixed: the keys that the WHERE or ON fixes to one value, so that their FOR loop runs once; (walk) for a key" >> output.txt
+	echo "#          fixed to each value of a range in turn. A fixed cross reference key is listed too." >> output.txt
+	echo "#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort], plus the direction of" >> output.txt
+	echo "#   a cross reference walk through several of its values). The comment above each query whose plan sorts says" >> output.txt
+	echo "#   why (\"[sort] ...\")." >> output.txt
+	# Part J reads a table kept in a local variable that another statement sets, so all statements run in one process
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO21.sql > TWO21_input.sql
+	run_queries_with_plans TWO21_input.sql oneprocess
+	grep -E '^SELECT' TWO21_input.sql | grep -v XECUTE_M_CODE > TWO21_queries.sql
+	two21banner() {	# $1 = the title of a part that this test writes itself, not a fixture
+		echo "" >> output.txt
+		echo "-- ############################################################################################################" >> output.txt
+		echo "-- $1" >> output.txt
+	}
+
+	two21banner "Part L: two of the plans above"
+	# The logical plan that -vv prints marks the cross reference key of a key column. -vv prints it only when it generates
+	# the plan, so the query is one not run above.
+	echo "# -vv: $(echo 'SELECT val FROM gxrf WHERE id = 76;' | octo -vv 2>&1 | grep -c 'key_column_xref: true') key_column_xref marker(s) in the logical plan of: SELECT val FROM gxrf WHERE id = 76;" >> output.txt
+	# The range walk of "SELECT * FROM gxrf WHERE id > 76 LIMIT 2" stops at the LIMIT: the QUIT of its FOR loop tests
+	# %ydboctozlimit. A LIMIT test in the loop body only would skip each remaining value, not end the walk.
+	echo "# The FOR loop of the range walk of (Part A): SELECT * FROM gxrf WHERE id > 76 LIMIT 2;" >> output.txt
+	echo "# Expected: its QUIT tests %ydboctozlimit, so the walk ends at the LIMIT." >> output.txt
+	# The plan is chosen by its header comment, as other queries with a LIMIT have such a loop too
+	two21limitplan=$(grep -lxF ';  SELECT * FROM gxrf WHERE id > 76 LIMIT 2;' _ydboctoP*.m)
+	grep -h 'FOR  SET %ydboctozkeyfix([0-9,]*)=$ORDER(.*%ydboctozlimit' $two21limitplan | sed 's/%ydbAIMS[A-Za-z0-9]*/%ydbAIMS<hash>/g' >> output.txt
+
+	# Part M: Part D re-asked after each change to ^ANC, made in M; the triggers maintain the cross reference.
+	echo "" >> output.txt
+	grep '^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO21b.sql >> output.txt
+	grep -v '^#\|^--' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO21b.sql > TWO21b_input.sql
+	two21step() {	# $1 = M command to apply, $2 = what it demonstrates
+		echo "" >> output.txt
+		echo "# $2" >> output.txt
+		echo "# $1" >> output.txt
+		yottadb -run %XCMD "$1"
+		run_queries_with_plans TWO21b_input.sql
+	}
+	two21step 'set ^ANC(3,5,"N")="three"' \
+		'A new row through its column node, one level below the row: b = 5 gains row 3.'
+	two21step 'set ^ANC(1,5)="row 1" zkill ^ANC(1,5,"N")' \
+		'Row 1|5 gets a value of its own, then loses its column node: it is still a row, with n NULL.'
+	two21step 'zkill ^ANC(1,5)' \
+		'Row 1|5 loses its last value: it is no longer a row.'
+	two21step 'set ^ANC(4,6,"N")="six b"' \
+		'A second row with b = 6, through its column node.'
+	two21step 'kill ^ANC(2)' \
+		'KILL of a whole subtree above the rows: 2|5 and 2|6 go.'
+	# The cross references above, as the triggers maintained them, against a rebuild from scratch. The queries of
+	# TWO21.sql and TWO21b.sql together build every one of them.
+	cat TWO21_queries.sql TWO21b_input.sql > TWO21rebuild.sql
+	verify_aim_rebuild TWO21rebuild.sql
+
+	# Part N: a READWRITE table. Not in one process, so that each UPDATE and DELETE gets its PLAN: line too.
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO21c.sql > TWO21c_input.sql
+	run_queries_with_plans TWO21c_input.sql
+	# The cross reference of rwk.b, as INSERT, UPDATE and DELETE maintained it, against a rebuild from scratch
+	cat TWO21rebuild.sql > TWO21rebuild2.sql
+	echo 'SELECT * FROM rwk WHERE b = 10;' >> TWO21rebuild2.sql
+	verify_aim_rebuild TWO21rebuild2.sql
+
+	two21banner "Part O: DISCARD XREFS and DROP TABLE remove the subscript cross references and their triggers"
+	two21xrefs() {	# The globals that have an AIM subscript cross reference, and the AIM triggers on ^RWK
+		echo "# $1" >> output.txt
+		echo "#   Globals with an AIM subscript cross reference:" $(yottadb -run %XCMD 'set g="" for  set g=$order(^%ydbAIMSxref(g)) quit:g=""  write g," "') >> output.txt
+		rm -f TWO21trig.txt
+		$ydb_dist/mupip trigger -select TWO21trig.txt > /dev/null 2>&1 || true	# nonzero when there are no triggers
+		echo "#   AIM triggers on ^RWK: $(grep -c '^+^RWK.*-name=%ydb' TWO21trig.txt 2>/dev/null || true)" >> output.txt
+	}
+	echo "# Expected: no subscript cross reference and no AIM trigger on ^RWK after DISCARD XREFS and after DROP TABLE;" >> output.txt
+	echo "# the cross reference of rwk.b and its triggers again after a query builds it." >> output.txt
+	two21xrefs "Before DISCARD XREFS"
+	echo 'DISCARD XREFS;' | octo -p 2>&1 | tee -a output.txt
+	two21xrefs "After DISCARD XREFS"
+	echo 'SELECT * FROM rwk WHERE b = 10;' | octo -p 2>&1 | tee -a output.txt
+	two21xrefs "After the cross reference of rwk.b is built again"
+	echo 'DROP TABLE rwk;' | octo -p 2>&1 | tee -a output.txt
+	two21xrefs "After DROP TABLE rwk"
+	verify_output TWO21 output.txt noinfo nodebug
+}
+
 @test "TWO22 : OCTO1177 : A key column fixed by = or IN stays inside its START, STARTINCLUDE, ENDPOINT and END bounds" {
 	load_fixture xecutemcode.sql
 	load_fixture TWO22.zwr
@@ -308,4 +403,37 @@ CAT
 	echo "# (A range walk tests %ydboctozkeyfix instead, in lines that are not listed here.)" >> output.txt
 	grep -hE '^\s+(\. )*QUIT:\(?("d"\]%ydboctocursor|'"'"'\+|%ydboctocursor\(cursorId,"keys",[0-9]+,"two22[a-h]","[gk]"\))' _ydboctoP*.m | sed 's/^[ .]*//' | sort -u >> output.txt
 	verify_output TWO22 output.txt noinfo nodebug
+}
+
+@test "TWO23 : OCTO660 : A WHERE or ON on a primary key column after the first gives the same rows as PostgreSQL" {
+	load_fixture composite.sql
+	load_fixture composite.zwr
+	# TWO23, a copy of composite for the UPDATE and DELETE queries, in both PostgreSQL and Octo (see TUT010)
+	psql composite -c 'DROP TABLE IF EXISTS TWO23; SELECT * INTO TWO23 FROM composite;' > postgres.create_TWO23.out
+	echo "DROP TABLE IF EXISTS TWO23" | octo > create_TWO23.octo.out
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/composite.sql create_TWO23.sql
+	grep INSERT @PROJECT_SOURCE_DIR@/tests/fixtures/postgres-composite.sql >> create_TWO23.sql
+	sed -i 's/composite/TWO23/g' create_TWO23.sql
+	octo -f create_TWO23.sql >> create_TWO23.octo.out
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# Every query below is crosschecked against PostgreSQL first. Then the test runs them again in Octo, one at a" >> output.txt
+	echo "# time, and shows each with its result and the plan Octo chose. The comment above each query states the rows it" >> output.txt
+	echo "# should give. The PLAN: line says, for a query with an ORDER BY:" >> output.txt
+	echo "#   [sort]                     the plan collects the rows and sorts them" >> output.txt
+	echo "#   [no sort]                  the rows come out of the FOR loops of the keys in ORDER BY order (those of the" >> output.txt
+	echo "#                              table's global, or those under one value of a cross reference)" >> output.txt
+	echo "#   [no sort, ascending walk]  the plan walks an AIM cross reference forward, through several of its values" >> output.txt
+	echo "#   [no sort, descending walk] the plan walks an AIM cross reference backward, through several of its values" >> output.txt
+	echo "#   and, for every query:" >> output.txt
+	echo "#   xref:  the columns whose AIM cross reference the plan walks or probes" >> output.txt
+	echo "#   fixed: the keys that the WHERE or ON fixes to one value, so that their FOR loop runs once; (walk) for a key" >> output.txt
+	echo "#          fixed to each value of a range in turn. A fixed cross reference key is listed too." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TWO23.sql roctoflags="-aw" noextended
+	psql composite -c 'DROP TABLE IF EXISTS TWO23' >& postgres.drop_table_TWO23.out
+	# The crosscheck changed TWO23. Make the copy again, so that its UPDATE and DELETE statements give the same rows again.
+	echo "DROP TABLE IF EXISTS TWO23" | octo >> create_TWO23.octo.out
+	octo -f create_TWO23.sql >> create_TWO23.octo.out
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO23.sql > TWO23_input.sql
+	run_queries_with_plans TWO23_input.sql
+	verify_output TWO23 output.txt noinfo nodebug
 }

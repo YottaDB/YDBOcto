@@ -111,7 +111,10 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 			if (plan_key == key) {
 				break;
 			}
-			if (plan_key->is_cross_reference_key) {
+			/* The cross reference key of a primary key column (YDBOcto#660) stands for that column, whose
+			 * subscript the table's global has before this key's.
+			 */
+			if (!IS_ROW_KEY(plan_key)) {
 				continue;
 			}
 			if (plan_key->unique_id == key->unique_id)

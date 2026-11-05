@@ -35,6 +35,11 @@
  *	It is the index of the "key" in "pplan->iterKeys[]" when "form" is EmitSourceForm_KeyFix
  *	It is a pointer to the "key" in "pplan->iterKeys[]" when "form" is
  *		EmitSourceForm_Octo617Min OR EmitSourceForm_Octo617Max OR EmitSourceForm_Octo617
+ *	It is a key column (SqlColumn *) or 0 when "form" is EmitSourceForm_AIM. That column is emitted as the subscript
+ *		"%ydboctoSNUM", by which the "keySub" label of a cross reference plan finds its position (YDBOcto#660):
+ *		the label lets YottaDB parse the global ($NAME, then $QSUBSCRIPT of each subscript until "%ydboctoSNUM").
+ *		Finding the position here in C would mean parsing the GLOBAL keyword's text: keys(...), nested
+ *		parentheses, and quoted literals that may contain commas and parentheses.
  *	It is      0 otherwise.
  */
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int unique_id, void *parm2,	\
@@ -360,6 +365,11 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *parm1, int uniqu
 				break;
 			case EmitSourceForm_AIM:;
 				char	*start, *endpoint;
+
+				if ((NULL != parm2) && ((SqlColumn *)parm2 == sql_column)) {
+					%{}"%%ydboctoSNUM"{}%
+					break;
+				}
 
 				// Get key starting value
 				keyword = get_keyword(sql_column, OPTIONAL_START);

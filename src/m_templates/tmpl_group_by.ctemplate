@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -109,11 +109,8 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count) {
 		limit_keyword = get_keyword_from_keywords(pplan->keywords, OPTIONAL_LIMIT);
 		if (NULL != limit_keyword) {
 			%{}QUIT:{}%
-			TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT);
-						/* Note: literal concatenation in last parameter above */
-			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
-			%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
-			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
+			/* Note: literal concatenation in the suffix parameter below */
+			TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT, pplan->outputKey->unique_id);
 			%{}  {}%
 		}
 	}

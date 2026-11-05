@@ -456,7 +456,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 66
+#define FMT_PLAN_DEFINITION 67
 
 /* The below macro needs to be manually bumped if there is a non-cosmetic change to octo-seed.sql or code/gvn change that helps
  * octo-seed.sql objects not to be dropped (src/ensure_seed_objects_are_not_dropped.c)
@@ -1436,6 +1436,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 int qualify_view_dependency(SqlStatement *stmt, SqlView *view);
 
 ExpressionMatchType match_expression(char *start, char *column, int *expr_len, int max_column_len, char prev);
+char *find_next_expression(char *source, char *ptr, char *column, int *expr_len, int column_size, ExpressionMatchType *match);
 
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous,
 					  boolean_t issue_error);

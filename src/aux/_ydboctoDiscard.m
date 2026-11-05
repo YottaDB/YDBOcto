@@ -77,7 +77,12 @@ discardXREFTable(tableName)
 	. .  ; at its root. UNXREFDATA^%YDBAIM would do "set gbl=@xrefvar" on that valueless root and issue a
 	. .  ; GVUNDEF error. No cross reference, trigger or ^%ydbAIMDxref entry exists to be removed in that
 	. .  ; case, so KILL the leftover nodes directly instead of asking AIM to undo work it never did.
-	. .  IF $DATA(@aimgbl)#10  DO UNXREFDATA^%YDBAIM(aimgbl)
+	. .  ; A primary key column's cross reference is a subscript cross reference, ^%ydbAIMS* (YDBOcto#660), which
+	. .  ; UNXREFSUB^%YDBAIM removes. All key columns of a table share one when their type agrees, so the second
+	. .  ; one finds it gone: the KILL below then finds nothing.
+	. .  IF $DATA(@aimgbl)#10  DO
+	. . .  IF $EXTRACT($QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0),1,9)="^%ydbAIMS" DO UNXREFSUB^%YDBAIM(aimgbl)
+	. . .  ELSE  DO UNXREFDATA^%YDBAIM(aimgbl)
 	. .  ELSE  KILL @aimgbl
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)
 	QUIT

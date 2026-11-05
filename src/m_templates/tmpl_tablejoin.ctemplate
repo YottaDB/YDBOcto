@@ -115,6 +115,40 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 	boolean_t	need_tmpl_key_finish;
 	need_tmpl_key_finish = FALSE;
 
+	/* The second half of a RIGHT/FULL JOIN walks the table's own global, one key column after another in key order.
+	 * The cross reference key of a primary key column (YDBOcto#660) comes first among the table's keys in "iterKeys",
+	 * ahead of the key columns before it, which it advances from the cross reference in the first half. For this half
+	 * it is moved to its key column's place (KEY NUM), so that the loops nest in key order and each global reference
+	 * ("tmpl_key_advance") names the keys before it, and it is moved back after the loops.
+	 *
+	 * E.g. "SELECT * FROM gxrf g RIGHT JOIN anc x ON g.id = 76 AND x.b = 5", where anc has the keys (a, b): the ON
+	 * condition on x.b reads the cross reference of b, so "iterKeys" holds [b xref, a] for anc. The second half, which
+	 * outputs the rows of anc that matched no row of gxrf, walks a, then b.
+	 */
+	unsigned int	key_xref_from, key_xref_to;
+
+	key_xref_from = key_xref_to = 0;
+	if (right_join_second_half) {
+		unsigned int	table_key;
+
+		for (table_key = cur_key; (table_key < total_keys) && (pplan->iterKeys[table_key]->unique_id == left_table_id);
+				table_key++) {
+			SqlKey	*xref_key;
+
+			xref_key = pplan->iterKeys[table_key];
+			if (!IS_KEY_COLUMN_XREF(xref_key)) {
+				continue;
+			}
+			key_xref_from = table_key;
+			key_xref_to = table_key + lp_get_key_num(xref_key->column);
+			for ( ; table_key < key_xref_to; table_key++) {
+				pplan->iterKeys[table_key] = pplan->iterKeys[table_key + 1];
+			}
+			pplan->iterKeys[key_xref_to] = xref_key;
+			break;
+		}
+	}
+
 	fixed_xref_key = NULL;
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
@@ -503,7 +537,16 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 								break;
 							}
 						}
-						%{})  DO{}%
+						%{}){}%
+						if (NULL != limit_keyword) {
+							/* Stop the walk once the LIMIT is reached. The LIMIT check in the IF of the loop
+							 * body below only skips a value; without this one, the walk would go on to the
+							 * end of the range, reading every remaining value for nothing.
+							 */
+							/* Note: literal concatenation in the suffix parameter below */
+							TMPL(tmpl_limit_check, limit_keyword, "!", "'>" PP_YDB_OCTO_ZLIMIT, pplan->outputKey->unique_id);
+						}
+						%{}  DO{}%
 						%{}`n{{ PLAN_LINE_START }}{}%
 						dot_count++;
 
@@ -594,11 +637,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					%{}){}%
 				}
 				if (NULL != limit_keyword) {
-					TMPL(tmpl_limit_check, limit_keyword, "&", ">" PP_YDB_OCTO_ZLIMIT);
-						/* Note: literal concatenation in last parameter above */
-					(*buffer_index)--;	/* Remove the trailing ")" from "tmpl_limit_check" call above */
-					%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
-					%{}){}%	/* Add back the trailing ")" from "tmpl_limit_check" call above */
+					/* Note: literal concatenation in the suffix parameter below */
+					TMPL(tmpl_limit_check, limit_keyword, "&", ">" PP_YDB_OCTO_ZLIMIT, pplan->outputKey->unique_id);
 				}
 			} else {
 				/* If fixed_to_value is NULL, then there is no output from this key fix.
@@ -622,7 +662,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			 * `tmpl_key_skip` emits for the normal FOR-loop path and SKIP /
 			 * SKIPCONDITION would silently fail to filter.
 			 */
-			TMPL(tmpl_key_skip, key, dot_count + 1);
+			TMPL(tmpl_key_skip, key, key->cross_reference_output_key, dot_count + 1);
 			/* Likewise START, STARTINCLUDE and ENDPOINT (YDBOcto#1177): a key fixed to a value by = or IN has no
 			 * FOR loop to bound it, and the $DATA probe above finds the START subscript, or one past ENDPOINT, as
 			 * readily as a row. A range (<, >, <=, >=) tests them inside its walk above, so nothing is emitted
@@ -695,10 +735,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				 * key loop inside it checks the LIMIT after its first $ORDER).
 				 */
 				%{}QUIT:{}%
-				TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT);
-				(*buffer_index)--;	/* Remove the trailing ")" from "tmpl_limit_check" call above */
-				%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
-				%{})  {}%	/* Add back the trailing ")" from "tmpl_limit_check" call above */
+				/* Note: literal concatenation in the suffix parameter below */
+				TMPL(tmpl_limit_check, limit_keyword, "", "'>" PP_YDB_OCTO_ZLIMIT, pplan->outputKey->unique_id);
+				%{}  {}%
 			}
 			%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})=$ORDER({}%
 			TMPL(tmpl_key_source_aim, tableName2, columnName2);
@@ -731,12 +770,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_key_skip, key, dot_count);
+			TMPL(tmpl_key_skip, key, key->cross_reference_output_key, dot_count);
 			fixed_xref_key = key;	/* Note down this key for later "tmpl_key_advance" call */
 			need_tmpl_key_finish = TRUE;
 			continue;
 		}
-		if (key->is_cross_reference_key && right_join_second_half) {
+		if (right_join_second_half && !IS_ROW_KEY(key)) {
+			/* The cross reference key of a non-key column: the second half walks the table's keys only. The one of a
+			 * key column is that column's loop over the table's global (see "key_xref_from" above).
+			 */
 			continue;
 		}
 		/* The second half of a right join walks the table's own global instead of the cross
@@ -750,7 +792,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		 * the decision which of the two it is looking at. The guard itself is emitted further
 		 * down, once the FOR loop it attaches to has been generated.
 		 */
-		needs_row_guard = key_needs_row_existence_guard(pplan, key, cur_key, total_keys, drop_xref_output_key);
+		needs_row_guard = key_needs_row_existence_guard(pplan, key, cur_key, total_keys,
+						drop_xref_output_key || (right_join_second_half && IS_KEY_COLUMN_XREF(key)));
 		if (drop_xref_output_key) {
 			/* Temporarily save cross-reference output key and clear it to generate correct key loop
 			 * for second half of the right join.
@@ -794,7 +837,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			if (NULL != include_endpoint_keyword) {
 				assert(has_iterator == FALSE); // This is disallowed during table defintion
 				%{}DO:$DATA({}%
-				if (NULL == fixed_xref_key) {
+				/* In the second half of a RIGHT/FULL JOIN, the cross reference key of a key column is a loop over the
+				 * table's global, which "tmpl_key_advance" emits; "tmpl_key_source" would name the cross reference.
+				 */
+				if ((NULL == fixed_xref_key) && !(right_join_second_half && IS_KEY_COLUMN_XREF(key))) {
 					TMPL(tmpl_key_source, pplan, key, EmitSourceForm_Value);
 				} else {
 					TMPL(tmpl_key_advance, pplan, key);
@@ -821,18 +867,16 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 		TMPL(tmpl_key_end, key);
 		%{}){}%
 		if (NULL != limit_keyword) {
-			TMPL(tmpl_limit_check, limit_keyword, "!", "'>" PP_YDB_OCTO_ZLIMIT);
-						/* Note: literal concatenation in last parameter above */
-			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
-			%{}({{ pplan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
-			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
+			/* Note: literal concatenation in the suffix parameter below */
+			TMPL(tmpl_limit_check, limit_keyword, "!", "'>" PP_YDB_OCTO_ZLIMIT, pplan->outputKey->unique_id);
 		}
 		%{}  DO`n{{ PLAN_LINE_START }}{}%
 		/* Emit any column-level SKIP / SKIPCONDITION filter for this key as a
 		 * dotted "QUIT:<cond>" line inside the FOR body. The dot depth inside the
 		 * body is one more than the depth at which the FOR header was emitted.
 		 */
-		TMPL(tmpl_key_skip, key, dot_count + 1);
+		/* "save_key" is the cross reference key when it was cleared above for the second half of a right join */
+		TMPL(tmpl_key_skip, key, ((NULL != save_key) ? save_key : key->cross_reference_output_key), dot_count + 1);
 		/* YDBAIM#96 row-existence guard, decided above. Rejects a node that $ORDER yields but
 		 * that holds only descendants, so that the scan and the type 0 cross reference agree on
 		 * which rows exist. See "key_needs_row_existence_guard".
@@ -851,6 +895,17 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		}
 		dot_count++;
+	}
+	if (key_xref_from != key_xref_to) {
+		/* Move the cross reference key of a key column back to the front of its table's keys (see above) */
+		SqlKey		*xref_key;
+		unsigned int	table_key;
+
+		xref_key = pplan->iterKeys[key_xref_to];
+		for (table_key = key_xref_to; table_key > key_xref_from; table_key--) {
+			pplan->iterKeys[table_key] = pplan->iterKeys[table_key - 1];
+		}
+		pplan->iterKeys[key_xref_from] = xref_key;
 	}
 	/* If this is a JOIN with an ON condition, generate an IF statement in M for doing the check */
 	if (!IS_OUTER_JOIN(this_join_type)) {
@@ -1199,7 +1254,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				for (right_join_cur_key = cur_key; right_join_cur_key < total_keys; right_join_cur_key++) {
 					key = pplan->iterKeys[right_join_cur_key];
 					if (right_join_table_id == key->unique_id) {
-						if (key->is_cross_reference_key) {
+						/* The cross reference key of a key column (YDBOcto#660) keeps its column: the
+						 * second half loops over that key column, and references to it read that value.
+						 */
+						if (!IS_ROW_KEY(key)) {
 							/* Until now, we would have used "tmpl_key()" to emit code for "key".
 							 * But now on, we need to use "tmpl_emit_source()" to emit different
 							 * code for the second half of a RIGHT JOIN. Hence set "key->column"
@@ -1220,7 +1278,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 				for (right_join_cur_key = cur_key; right_join_cur_key < total_keys; right_join_cur_key++) {
 					key = pplan->iterKeys[right_join_cur_key];
 					if (right_join_table_id == key->unique_id) {
-						if (key->is_cross_reference_key) {
+						if (key->is_cross_reference_key && (NULL == key->column)) {	/* blanked above */
 							/* Until now, we would have used "tmpl_key()" to emit code for "key".
 							 * But now on, we need to use "tmpl_emit_source()" to emit different
 							 * code for the second half of a RIGHT JOIN. Hence set the below.

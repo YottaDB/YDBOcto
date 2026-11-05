@@ -1,0 +1,1291 @@
+# TWO21 : OCTO660 : WHERE on a primary key column after the first walks an AIM subscript cross reference of that column
+# A condition (=, IN, a range) on a key column after the first cannot fix that key in place: the FOR loops of the
+# key columns before it run first, so the plan would visit every row. Instead the plan walks an AIM cross
+# reference of that key column, which holds each of its values and, under each value, the other key subscripts
+# of the rows that have it. Parts A to K cover the table layouts, joins and bounds; Part L checks two of the
+# plans above; Part M changes a global in M and re-asks Part D; Part N writes a READWRITE table through Octo;
+# Part O removes the cross references.
+# Each statement below is followed by its result, and each SELECT, UPDATE and DELETE by the plan Octo chose. The
+# comment above each query states the rows it should give and the plan: [xref on <column>] when it walks the cross
+# reference of that key column, [no key column xref] when it does not. The PLAN: line says:
+#   xref:  the columns whose AIM cross reference the plan walks or probes
+#   fixed: the keys that the WHERE or ON fixes to one value, so that their FOR loop runs once; (walk) for a key
+#          fixed to each value of a range in turn. A fixed cross reference key is listed too.
+#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort], plus the direction of
+#   a cross reference walk through several of its values). The comment above each query whose plan sorts says
+#   why ("[sort] ...").
+
+-- ############################################################################################################
+-- Part A: ^GXRF("DACN1",accession,id). A constant subscript before the keys; "id" is the second key column.
+-- ^GXRF("DACN2",...) is another list kept in the same global; it is not part of the table.
+SELECT XECUTE_M_CODE('zwrite ^GXRF');
+^GXRF("DACN1","A",75)="A|1"
+^GXRF("DACN1","A",85)="A|2"
+^GXRF("DACN1","A",95)="A|3"
+^GXRF("DACN1","B",76)="B|1"
+^GXRF("DACN1","B",86)="B|2"
+^GXRF("DACN1","B",96)="B|3"
+^GXRF("DACN1","C",77)="C|1"
+^GXRF("DACN1","C",87)="C|2"
+^GXRF("DACN1","C",97)="C|3"
+^GXRF("DACN2","A",76)="other accession list"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE gxrf (accession VARCHAR KEY NUM 0, id INTEGER KEY NUM 1, val VARCHAR PIECE 1)
+  GLOBAL "^GXRF(""DACN1"",keys(""accession""),keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: A|75, A|85, A|95, B|76, B|86, B|96, C|77, C|87 and C|97 (not DACN2).
+SELECT * FROM gxrf;
+accession|id|val
+A|75|A
+A|85|A
+A|95|A
+B|76|B
+B|86|B
+B|96|B
+C|77|C
+C|87|C
+C|97|C
+(9 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on id] B|76. Not the DACN2 node with id 76.
+SELECT * FROM gxrf WHERE id = 76;
+accession|id|val
+B|76|B
+(1 row)
+PLAN: xref: gxrf.id fixed: gxrf.id
+
+-- [xref on id] A|75 and A|85; there is no id 99.
+-- [sort] IN gives id several values: the rows come out for each value in turn, so not in ORDER BY order.
+SELECT * FROM gxrf WHERE id IN (75,85,99) ORDER BY accession, id;
+accession|id|val
+A|75|A
+A|85|A
+(2 rows)
+PLAN: [sort] xref: gxrf.id fixed: gxrf.id
+
+-- [xref on id] 76, 77, 85, 86: the walk starts at 76; the other bound is checked on each row.
+-- [sort] the range walks several values of id: the rows come out for each value in turn, so not in ORDER BY order.
+SELECT * FROM gxrf WHERE id >= 76 AND id < 87 ORDER BY accession, id;
+accession|id|val
+A|85|A
+B|76|B
+B|86|B
+C|77|C
+(4 rows)
+PLAN: [sort] xref: gxrf.id fixed: gxrf.id (walk)
+
+-- [xref on id] C|77 and A|85, the first two rows of the walk. The walk stops once it has them (see Part L).
+SELECT * FROM gxrf WHERE id > 76 LIMIT 2;
+accession|id|val
+C|77|C
+A|85|A
+(2 rows)
+PLAN: xref: gxrf.id fixed: gxrf.id (walk)
+
+-- [xref on id] no row.
+SELECT * FROM gxrf WHERE id = 99;
+accession|id|val
+(0 rows)
+PLAN: xref: gxrf.id fixed: gxrf.id
+
+-- [no key column xref] accession, the first key column, is fixed in place, so the loop before id runs once
+-- and id is fixed in place too. In either order of the two conditions.
+SELECT * FROM gxrf WHERE id = 76 AND accession = 'B';
+accession|id|val
+B|76|B
+(1 row)
+PLAN: xref: none fixed: gxrf.accession gxrf.id
+
+SELECT * FROM gxrf WHERE accession = 'B' AND id = 76;
+accession|id|val
+B|76|B
+(1 row)
+PLAN: xref: none fixed: gxrf.accession gxrf.id
+
+-- [no key column xref] a condition on the first key column alone: the global serves it.
+SELECT * FROM gxrf WHERE accession = 'C' ORDER BY id;
+accession|id|val
+C|77|C
+C|87|C
+C|97|C
+(3 rows)
+PLAN: [no sort] xref: none fixed: gxrf.accession
+
+-- ############################################################################################################
+-- Part B: ^T3(a,b,c), three key columns. "b" is a VARCHAR key whose values 9 and 10 are canonical numbers, which
+-- M stores as numbers; AIM indexes a string column as "#"_value, so that '10' and 'A10' are told apart as strings.
+SELECT XECUTE_M_CODE('zwrite ^T3');
+^T3(1,9,1)="a"
+^T3(1,10,2)="b"
+^T3(2,10,1)="c"
+^T3(2,"A10",3)="d"
+^T3(3,9,3)="e"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE t3 (a INTEGER KEY NUM 0, b VARCHAR KEY NUM 1, c INTEGER KEY NUM 2, v VARCHAR PIECE 1)
+  GLOBAL "^T3(keys(""a""),keys(""b""),keys(""c""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of the table, in M order: 1|9|1|a, 1|10|2|b, 2|10|1|c, 2|A10|3|d and 3|9|3|e.
+SELECT * FROM t3;
+a|b|c|v
+1|9|1|a
+1|10|2|b
+2|10|1|c
+2|A10|3|d
+3|9|3|e
+(5 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] the middle key: a comes from the cross reference, c from ^T3. 1|10|2|b and 2|10|1|c.
+SELECT * FROM t3 WHERE b = '10' ORDER BY a, c;
+a|b|c|v
+1|10|2|b
+2|10|1|c
+(2 rows)
+PLAN: [no sort] xref: t3.b fixed: t3.b
+
+-- [xref on b] 1|9|1|a, 2|A10|3|d and 3|9|3|e.
+-- [sort] IN gives b several values: the rows come out for each value in turn, so not in ORDER BY order.
+SELECT * FROM t3 WHERE b IN ('9','A10') ORDER BY a, c;
+a|b|c|v
+1|9|1|a
+2|A10|3|d
+3|9|3|e
+(3 rows)
+PLAN: [sort] xref: t3.b fixed: t3.b
+
+-- [xref on c] the last key: a and b both come from the cross reference. 2|A10|3|d and 3|9|3|e.
+SELECT * FROM t3 WHERE c = 3 ORDER BY a;
+a|b|c|v
+2|A10|3|d
+3|9|3|e
+(2 rows)
+PLAN: [no sort] xref: t3.c fixed: t3.c
+
+-- [xref on b] then c is fixed in place, under the cross reference. 2|10|1|c.
+SELECT * FROM t3 WHERE b = '10' AND c = 1;
+a|b|c|v
+2|10|1|c
+(1 row)
+PLAN: xref: t3.b fixed: t3.b t3.c
+
+-- [xref on b] the same plan with the conditions in the other order. c = 1 comes first but does not take the cross
+-- reference, as b, a key column before it, has a condition too: c is fixed in place. b = '10' then takes it, and c
+-- stays fixed under it. 2|10|1|c.
+SELECT * FROM t3 WHERE c = 1 AND b = '10';
+a|b|c|v
+2|10|1|c
+(1 row)
+PLAN: xref: t3.b fixed: t3.b t3.c
+
+-- ############################################################################################################
+-- Part C: ^STK(g,k), with k START 0 ENDPOINT 5. START is exclusive: the rows are k = 1 through 5, so ^STK(1,0)
+-- and ^STK(2,6) are not rows. AIM indexes the subscripts 0 through 5 (its ranges include both ends), so the walk
+-- of the cross reference must skip 0 as the table scan does.
+SELECT XECUTE_M_CODE('zwrite ^STK');
+^STK(1,0)="zero"
+^STK(1,3)="three"
+^STK(2,3)="three b"
+^STK(2,5)="five"
+^STK(2,6)="six"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE stk (g INTEGER KEY NUM 0, k INTEGER KEY NUM 1 START 0 ENDPOINT 5, v VARCHAR PIECE 1)
+  GLOBAL "^STK(keys(""g""),keys(""k""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the table scan, for comparison: 1|3, 2|3 and 2|5.
+SELECT * FROM stk;
+g|k|v
+1|3|three
+2|3|three b
+2|5|five
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on k] no row: 0 is START, which is not part of the table.
+SELECT * FROM stk WHERE k = 0;
+g|k|v
+(0 rows)
+PLAN: xref: stk.k fixed: stk.k
+
+-- [no key column xref] the same, with k fixed in place under g = 1: no row.
+SELECT * FROM stk WHERE g = 1 AND k = 0;
+g|k|v
+(0 rows)
+PLAN: xref: none fixed: stk.g stk.k
+
+-- [xref on k] the same three rows as the table scan. Without a LIMIT, every matching row is read anyway, and the cross
+-- reference reads only those.
+-- [sort] the range walks several values of k: the rows come out for each value in turn, so not in ORDER BY order.
+SELECT * FROM stk WHERE k >= 0 ORDER BY g, k;
+g|k|v
+1|3|three
+2|3|three b
+2|5|five
+(3 rows)
+PLAN: [sort] xref: stk.k fixed: stk.k (walk)
+
+-- [no key column xref] the same with a LIMIT: the FOR loops of g, and of k under each g, give the ORDER BY order, so
+-- there is no sort, and the LIMIT stops them after two rows: 1|3 and 2|3.
+SELECT * FROM stk WHERE k >= 0 ORDER BY g, k LIMIT 2;
+g|k|v
+1|3|three
+2|3|three b
+(2 rows)
+PLAN: [no sort, ascending walk] xref: none fixed: stk.k (walk)
+
+-- [no key column xref] the same for an IN, which also gives k several values: 1|3 and 2|3.
+SELECT * FROM stk WHERE k IN (3, 5) ORDER BY g, k LIMIT 2;
+g|k|v
+1|3|three
+2|3|three b
+(2 rows)
+PLAN: [no sort] xref: none fixed: stk.k
+
+-- [xref on k] one value: the g under it come out in order, so the cross reference is still used with a LIMIT. 1|3.
+SELECT * FROM stk WHERE k = 3 ORDER BY g LIMIT 1;
+g|k|v
+1|3|three
+(1 row)
+PLAN: [no sort] xref: stk.k fixed: stk.k
+
+-- [xref on k] 1|3 and 2|3.
+SELECT * FROM stk WHERE k = 3 ORDER BY g;
+g|k|v
+1|3|three
+2|3|three b
+(2 rows)
+PLAN: [no sort] xref: stk.k fixed: stk.k
+
+-- [xref on k] no row: 6 is past ENDPOINT.
+SELECT * FROM stk WHERE k = 6;
+g|k|v
+(0 rows)
+PLAN: xref: stk.k fixed: stk.k
+
+-- ############################################################################################################
+-- Part D: ^ANC(a,b), whose row node holds no value: column n is one level below it, at ^ANC(a,b,"N"). A row exists
+-- when the row node or ^ANC(a,b,"N") has a value, so the cross reference watches that level too (the depth, 3).
+-- ^ANC(2,6) is a row through the value of its own node; its n is NULL.
+SELECT XECUTE_M_CODE('zwrite ^ANC');
+^ANC(1,5,"N")="one"
+^ANC(2,5,"N")="two"
+^ANC(2,6)="six"
+^ANC(4,8,"N")="eight"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE anc (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1, n VARCHAR GLOBAL "^ANC(keys(""a""),keys(""b""),""N"")")
+  GLOBAL "^ANC(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the table scan, for comparison: 1|5|one, 2|5|two, 2|6| and 4|8|eight.
+SELECT * FROM anc;
+a|b|n
+1|5|one
+2|5|two
+2|6|
+4|8|eight
+(4 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] 1|5|one and 2|5|two: rows whose node has no value of its own.
+SELECT * FROM anc WHERE b = 5 ORDER BY a;
+a|b|n
+1|5|one
+2|5|two
+(2 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+-- [xref on b] 2|6|: a row through its own value only.
+SELECT * FROM anc WHERE b = 6;
+a|b|n
+2|6|
+(1 row)
+PLAN: xref: anc.b fixed: anc.b
+
+-- ############################################################################################################
+-- Part E: two tables joined, each through the cross reference of its own second key column.
+-- [xref on id] [xref on b] B|1 and B|2.
+-- [sort] the ORDER BY is on anc, whose loops run inside those of gxrf (the accessions under id 76).
+SELECT g.accession, x.a FROM gxrf g, anc x WHERE g.id = 76 AND x.b = 5 ORDER BY x.a;
+accession|a
+B|1
+B|2
+(2 rows)
+PLAN: [sort] xref: anc.b gxrf.id fixed: anc.b gxrf.id
+
+-- A JOIN on the first key column, with a range on the second key column of the outer table: the ON compares stk.g, but
+-- fixes anc.a, whose FOR loop comes later, to each stk.g. It does not fix stk.g, so the range on stk.k still walks the
+-- cross reference of k. stk has 1|3, 2|3 and 2|5; anc has 1|5, 2|5, 2|6 and 4|8.
+-- [xref on k] 1|3|5, 2|3|5 and 2|3|6.
+SELECT s.g, s.k, x.b FROM stk s INNER JOIN anc x ON x.a = s.g WHERE s.k >= 3 AND s.k < 5;
+g|k|b
+1|3|5
+2|3|5
+2|3|6
+(3 rows)
+PLAN: xref: stk.k fixed: anc.a stk.k (walk)
+
+-- [no key column xref] the same rows, the tables the other way round: the ON now fixes stk.g, whose FOR loop comes
+-- later, to each anc.a, so the loop before k runs once, and k is walked under it in ^STK.
+SELECT s.g, s.k, x.b FROM anc x INNER JOIN stk s ON s.g = x.a WHERE s.k >= 3 AND s.k < 5;
+g|k|b
+1|3|5
+2|3|5
+2|3|6
+(3 rows)
+PLAN: xref: none fixed: stk.g stk.k (walk)
+
+-- [no key column xref] the same rows, with the range before the join condition in the ON: the range on stk.k is seen
+-- first, and s.g = x.a, not processed yet, fixes stk.g to each anc.a (anc's FOR loop comes first), so k is again walked
+-- under it in ^STK.
+SELECT s.g, s.k, x.b FROM anc x INNER JOIN stk s ON s.k >= 3 AND s.k < 5 AND s.g = x.a;
+g|k|b
+1|3|5
+2|3|5
+2|3|6
+(3 rows)
+PLAN: xref: none fixed: stk.g stk.k (walk)
+
+-- A range on stk.k with an ORDER BY of stk's key columns and a LIMIT, as in Part C, with anc first in the FROM list.
+-- [no key column xref] anc is fixed to its one row 1|5, so its FOR loops run once: stk's FOR loops still give the
+-- ORDER BY order, with no sort, and stop after two rows. 1|5|1|3 and 1|5|2|3.
+SELECT x.a, x.b, s.g, s.k FROM anc x, stk s WHERE x.a = 1 AND x.b = 5 AND s.k >= 0 ORDER BY s.g, s.k LIMIT 2;
+a|b|g|k
+1|5|1|3
+1|5|2|3
+(2 rows)
+PLAN: [no sort, ascending walk] xref: none fixed: anc.a anc.b stk.k (walk)
+
+-- [no key column xref] the same, with stk.g also fixed, by the ON, to anc.a = 2: 2|5|2|3 and 2|5|2|5.
+SELECT x.a, x.b, s.g, s.k FROM anc x INNER JOIN stk s ON s.g = x.a WHERE x.a = 2 AND x.b = 5 AND s.k >= 0 ORDER BY s.g, s.k LIMIT 2;
+a|b|g|k
+2|5|2|3
+2|5|2|5
+(2 rows)
+PLAN: [no sort, ascending walk] xref: none fixed: anc.a anc.b stk.g stk.k (walk)
+
+-- [sort] anc is not fixed: its FOR loops run outside stk's, so stk's do not give the ORDER BY order. The ON fixes
+-- stk.g to each anc.a, so k is walked under it in ^STK, and the rows are sorted: 1|3 and 2|3.
+SELECT s.g, s.k FROM anc x INNER JOIN stk s ON s.g = x.a WHERE s.k >= 0 ORDER BY s.g, s.k LIMIT 2;
+g|k
+1|3
+2|3
+(2 rows)
+PLAN: [sort] xref: none fixed: stk.g stk.k (walk)
+
+-- ############################################################################################################
+-- Part F: a JOIN whose ON condition fixes a key column to a column of the other table. For each stk row, the cross
+-- reference of t3.c is probed with that row's k: only k = 3 has rows in t3 (c = 3: 2|A10|3 and 3|9|3), under each of
+-- the two stk rows with k = 3.
+-- [xref on c] 1|3|2|A10|3, 1|3|3|9|3, 2|3|2|A10|3 and 2|3|3|9|3.
+-- [sort] the ORDER BY items are columns of two tables (s.g, then t.a).
+SELECT s.g, s.k, t.a, t.b, t.c FROM stk s INNER JOIN t3 t ON t.c = s.k ORDER BY s.g, t.a;
+g|k|a|b|c
+1|3|2|A10|3
+1|3|3|9|3
+2|3|2|A10|3
+2|3|3|9|3
+(4 rows)
+PLAN: [sort] xref: t3.c fixed: t3.c
+
+-- ############################################################################################################
+-- Part G: ^TRL(a,b,"X"), a constant subscript after the last key column: the row node is ^TRL(a,b,"X"), so ^TRL(3,5)
+-- is not a row. b SKIP '7': the rows with b = 7 are not part of the table.
+SELECT XECUTE_M_CODE('zwrite ^TRL');
+^TRL(1,5,"X")="p"
+^TRL(2,5,"X")="q"
+^TRL(2,7,"X")="r"
+^TRL(3,5)="no X node, so not a row"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE trl (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1 SKIP '7', v VARCHAR PIECE 1)
+  GLOBAL "^TRL(keys(""a""),keys(""b""),""X"")" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the table scan, for comparison: 1|5|p and 2|5|q.
+SELECT * FROM trl;
+a|b|v
+1|5|p
+2|5|q
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] 1|5|p and 2|5|q: not 3|5, whose "X" node does not exist.
+SELECT * FROM trl WHERE b = 5 ORDER BY a;
+a|b|v
+1|5|p
+2|5|q
+(2 rows)
+PLAN: [no sort] xref: trl.b fixed: trl.b
+
+-- [xref on b] no row: 7 is skipped.
+SELECT * FROM trl WHERE b = 7;
+a|b|v
+(0 rows)
+PLAN: xref: trl.b fixed: trl.b
+
+-- [xref on b] 1|5|p and 2|5|q.
+-- [sort] IN gives b several values: the rows come out for each value in turn, so not in ORDER BY order.
+SELECT * FROM trl WHERE b IN (5, 7) ORDER BY a;
+a|b|v
+1|5|p
+2|5|q
+(2 rows)
+PLAN: [sort] xref: trl.b fixed: trl.b
+
+-- The same table with SKIPCONDITION instead of SKIP: an M expression that is true for the subscripts to skip.
+CREATE TABLE trc (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1 SKIPCONDITION "keys(""b"")=7", v VARCHAR PIECE 1)
+  GLOBAL "^TRL(keys(""a""),keys(""b""),""X"")" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the table scan: 1|5|p and 2|5|q.
+SELECT * FROM trc;
+a|b|v
+1|5|p
+2|5|q
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] no row: 7 is skipped.
+SELECT * FROM trc WHERE b = 7;
+a|b|v
+(0 rows)
+PLAN: xref: trc.b fixed: trc.b
+
+-- [xref on b] 1|5|p and 2|5|q.
+-- [sort] IN gives b several values: the rows come out for each value in turn, so not in ORDER BY order.
+SELECT * FROM trc WHERE b IN (5, 7) ORDER BY a;
+a|b|v
+1|5|p
+2|5|q
+(2 rows)
+PLAN: [sort] xref: trc.b fixed: trc.b
+
+-- A SKIPCONDITION of b that names a, the key column before it: the rows with a = 1 are not part of the table. In the
+-- cross reference of b, a comes after b, so the condition is tested once a is read from under each b.
+CREATE TABLE trd (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1 SKIPCONDITION "keys(""a"")=1", v VARCHAR PIECE 1)
+  GLOBAL "^TRL(keys(""a""),keys(""b""),""X"")" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the table scan: 2|5|q and 2|7|r.
+SELECT * FROM trd;
+a|b|v
+2|5|q
+2|7|r
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] 2|5|q: not 1|5|p.
+SELECT * FROM trd WHERE b = 5;
+a|b|v
+2|5|q
+(1 row)
+PLAN: xref: trd.b fixed: trd.b
+
+-- [xref on b] 2|5|q and 2|7|r.
+SELECT * FROM trd WHERE b IN (5, 7) ORDER BY b;
+a|b|v
+2|5|q
+2|7|r
+(2 rows)
+PLAN: [sort] xref: trd.b fixed: trd.b
+
+-- [xref on b] a range: 2|5|q and 2|7|r.
+SELECT * FROM trd WHERE b >= 5 ORDER BY b;
+a|b|v
+2|5|q
+2|7|r
+(2 rows)
+PLAN: [sort] xref: trd.b fixed: trd.b (walk)
+
+-- [xref on trd.b] a RIGHT JOIN: 2|5 of trd with 1|5 of trl, and 2|7 of trd with NULL, which the second half finds by
+-- walking trd in key order.
+-- [sort] the second half of a RIGHT JOIN outputs the rows without a match after all the others.
+SELECT x.a, x.b, t.a, t.b FROM trl x RIGHT JOIN trd t ON x.a = 1 AND t.b = 5 ORDER BY t.a, t.b;
+a|b|a|b
+1|5|2|5
+||2|7
+(2 rows)
+PLAN: [sort] xref: trd.b fixed: trd.b
+
+-- ############################################################################################################
+-- Part H: ITERATOR tables (the functions are in TWO21.m). An ITERATOR decides which subscripts of the global are rows,
+-- and may skip some. The cross reference indexes every stored subscript and does not call the ITERATOR, so a table with
+-- an ITERATOR never uses the cross reference of a key column: the key is fixed in place under the ITERATOR's loops.
+SELECT XECUTE_M_CODE('zwrite ^ITR');
+^ITR(1,5)="x"
+^ITR(2,5)="y"
+^ITR(2,6)="z"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE itr (a INTEGER ITERATOR "$$a^TWO21", b INTEGER ITERATOR "$$b^TWO21", v VARCHAR PIECE 1, PRIMARY KEY (a, b))
+  GLOBAL "^ITR(keys(""a""),keys(""b""))";
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: 1|5|x, 2|5|y and 2|6|z.
+SELECT * FROM itr;
+a|b|v
+1|5|x
+2|5|y
+2|6|z
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [no key column xref] 1|5|x and 2|5|y.
+SELECT * FROM itr WHERE b = 5;
+a|b|v
+1|5|x
+2|5|y
+(2 rows)
+PLAN: xref: none fixed: itr.b
+
+-- The same global, with an ITERATOR on a that skips a = 2: the only row is 1|5|x.
+CREATE TABLE itrs (a INTEGER ITERATOR "$$aodd^TWO21", b INTEGER ITERATOR "$$b^TWO21", v VARCHAR PIECE 1, PRIMARY KEY (a, b))
+  GLOBAL "^ITR(keys(""a""),keys(""b""))";
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: 1|5|x.
+SELECT * FROM itrs;
+a|b|v
+1|5|x
+(1 row)
+PLAN: xref: none fixed: none
+
+-- [no key column xref] 1|5|x, not 2|5|y: ^ITR(2,5) is a stored subscript, which a cross reference of b would give.
+SELECT * FROM itrs WHERE b = 5;
+a|b|v
+1|5|x
+(1 row)
+PLAN: xref: none fixed: itrs.b
+
+CREATE TABLE itrv (a INTEGER ITERATOR "$$a^TWO21" VIRTUAL, b INTEGER ITERATOR "$$b^TWO21", v VARCHAR PIECE 1,
+  PRIMARY KEY (a, b)) GLOBAL "^ITR(keys(""a""),keys(""b""))";
+CREATE TABLE
+
+-- [no key column xref] the rows of the table, through the ITERATOR functions: 1|5|x, 2|5|y and 2|6|z.
+SELECT * FROM itrv;
+a|b|v
+1|5|x
+2|5|y
+2|6|z
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [no key column xref] a is VIRTUAL: 1|5|x and 2|5|y, through the ITERATOR functions.
+SELECT * FROM itrv WHERE b = 5;
+a|b|v
+1|5|x
+2|5|y
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- Three keys: b is fixed in place under the ITERATOR of a, and the ITERATOR of c is called with the keys in key order,
+-- $$c3^TWO21(a,b,c).
+SELECT XECUTE_M_CODE('zwrite ^ITR3');
+^ITR3(1,5,1)="p"
+^ITR3(1,5,2)="q"
+^ITR3(2,5,1)="r"
+^ITR3(2,6,1)="s"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE itr3 (a INTEGER ITERATOR "$$a3^TWO21", b INTEGER ITERATOR "$$b3^TWO21", c INTEGER ITERATOR "$$c3^TWO21",
+  v VARCHAR PIECE 1, PRIMARY KEY (a, b, c)) GLOBAL "^ITR3(keys(""a""),keys(""b""),keys(""c""))";
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: 1|5|1|p, 1|5|2|q, 2|5|1|r and 2|6|1|s.
+SELECT * FROM itr3;
+a|b|c|v
+1|5|1|p
+1|5|2|q
+2|5|1|r
+2|6|1|s
+(4 rows)
+PLAN: xref: none fixed: none
+
+-- [no key column xref] 1|5|1|p, 1|5|2|q and 2|5|1|r.
+SELECT * FROM itr3 WHERE b = 5;
+a|b|c|v
+1|5|1|p
+1|5|2|q
+2|5|1|r
+(3 rows)
+PLAN: xref: none fixed: itr3.b
+
+-- ############################################################################################################
+-- Part I: OUTER JOINs, on gxrf and anc as loaded above (anc: 1|5|one, 2|5|two, 2|6| and 4|8|eight).
+-- [xref on gxrf.id] a LEFT JOIN whose WHERE fixes the second key of the left table: B|76|1.
+SELECT g.accession, g.id, x.a FROM gxrf g LEFT JOIN anc x ON x.a = 1 WHERE g.id = 76;
+accession|id|a
+B|76|1
+(1 row)
+PLAN: xref: gxrf.id fixed: anc.a gxrf.id
+
+-- [xref on anc.b] a LEFT JOIN whose ON fixes the second key of the right table: each accession A row with the two
+-- anc rows of b = 5.
+SELECT g.id, x.a, x.n FROM gxrf g LEFT JOIN anc x ON x.b = 5 WHERE g.accession = 'A' ORDER BY g.id, x.a;
+id|a|n
+75|1|one
+75|2|two
+85|1|one
+85|2|two
+95|1|one
+95|2|two
+(6 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b gxrf.accession
+
+-- [xref on anc.b] no anc row has b = 7: each accession A row with NULLs.
+SELECT g.id, x.a, x.n FROM gxrf g LEFT JOIN anc x ON x.b = 7 WHERE g.accession = 'A' ORDER BY g.id;
+id|a|n
+75||
+85||
+95||
+(3 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b gxrf.accession
+
+-- [xref on anc.b] a RIGHT JOIN whose ON fixes the second key of the right table: the anc rows of b = 5 with id 76, and
+-- the other anc rows, 2|6 and 4|8, with NULL, which the second half finds by walking anc in key order.
+-- [sort] the second half of a RIGHT JOIN outputs the rows without a match after all the others.
+SELECT g.id, x.a, x.b FROM gxrf g RIGHT JOIN anc x ON g.id = 76 AND x.b = 5 ORDER BY x.a, x.b;
+id|a|b
+76|1|5
+76|2|5
+|2|6
+|4|8
+(4 rows)
+PLAN: [sort] xref: anc.b fixed: anc.b
+
+-- [xref on anc.b] the same as a FULL JOIN: also the gxrf rows other than id 76, with NULL.
+-- [sort] as for the RIGHT JOIN: the rows without a match come after all the others.
+SELECT g.id, x.a, x.b FROM gxrf g FULL JOIN anc x ON g.id = 76 AND x.b = 5 ORDER BY g.id, x.a, x.b;
+id|a|b
+75||
+76|1|5
+76|2|5
+77||
+85||
+86||
+87||
+95||
+96||
+97||
+|2|6
+|4|8
+(12 rows)
+PLAN: [sort] xref: anc.b fixed: anc.b
+
+-- ############################################################################################################
+-- Part J: a table kept in a local variable, lvk(a,b), set in this process. Only a table in a global has an AIM
+-- cross reference, so b is fixed in place.
+SELECT XECUTE_M_CODE('set lvk(1,5)="a",lvk(2,5)="b",lvk(2,6)="c"');
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE lvk (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1, v VARCHAR PIECE 1) GLOBAL "lvk(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: 1|5|a, 2|5|b and 2|6|c.
+SELECT * FROM lvk;
+a|b|v
+1|5|a
+2|5|b
+2|6|c
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [no key column xref] 1|5|a and 2|5|b.
+SELECT * FROM lvk WHERE b = 5 ORDER BY a;
+a|b|v
+1|5|a
+2|5|b
+(2 rows)
+PLAN: [no sort] xref: none fixed: lvk.b
+
+-- ############################################################################################################
+-- Part K: the START, STARTINCLUDE, ENDPOINT and END bounds of a key column that takes its values from the cross
+-- reference of another key column, or from the table's global after it. ^BS..^BC(a,b,c): a = 0 to 3, b = 5 and 6,
+-- c = 0 to 2, in every combination. AIM indexes all of them, so the bounds have to be applied to the values the cross
+-- reference gives.
+SELECT XECUTE_M_CODE('for g="^BS","^BI","^BP","^BE","^BC" for a=0:1:3 for b=5,6 for c=0:1:2 set @g@(a,b,c)=a_b_c');
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE bs (a INTEGER KEY NUM 0 START 1, b INTEGER KEY NUM 1, c INTEGER KEY NUM 2, v VARCHAR PIECE 1)
+  GLOBAL "^BS(keys(""a""),keys(""b""),keys(""c""))" READONLY;
+CREATE TABLE
+
+CREATE TABLE bi (a INTEGER KEY NUM 0 START 2 STARTINCLUDE, b INTEGER KEY NUM 1, c INTEGER KEY NUM 2, v VARCHAR PIECE 1)
+  GLOBAL "^BI(keys(""a""),keys(""b""),keys(""c""))" READONLY;
+CREATE TABLE
+
+CREATE TABLE bp (a INTEGER KEY NUM 0 ENDPOINT 1, b INTEGER KEY NUM 1, c INTEGER KEY NUM 2, v VARCHAR PIECE 1)
+  GLOBAL "^BP(keys(""a""),keys(""b""),keys(""c""))" READONLY;
+CREATE TABLE
+
+CREATE TABLE be (a INTEGER KEY NUM 0 END "(keys(""a"")="""")!(keys(""a"")>1)", b INTEGER KEY NUM 1, c INTEGER KEY NUM 2, v VARCHAR PIECE 1)
+  GLOBAL "^BE(keys(""a""),keys(""b""),keys(""c""))" READONLY;
+CREATE TABLE
+
+CREATE TABLE bc (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1, c INTEGER KEY NUM 2 START 0 ENDPOINT 1, v VARCHAR PIECE 1)
+  GLOBAL "^BC(keys(""a""),keys(""b""),keys(""c""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of each table, by its bounds: bs has a = 2 and 3 (START 1 is exclusive), bi a = 2
+-- and 3 (START 2 STARTINCLUDE), bp a = 0 and 1 (ENDPOINT 1), be a = 0 and 1 (END is true past 1), each with b = 5 and
+-- 6 and c = 0, 1 and 2 (12 rows); bc has c = 1 only (START 0 ENDPOINT 1), with every a and b (8 rows).
+SELECT * FROM bs;
+a|b|c|v
+2|5|0|250
+2|5|1|251
+2|5|2|252
+2|6|0|260
+2|6|1|261
+2|6|2|262
+3|5|0|350
+3|5|1|351
+3|5|2|352
+3|6|0|360
+3|6|1|361
+3|6|2|362
+(12 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM bi;
+a|b|c|v
+2|5|0|250
+2|5|1|251
+2|5|2|252
+2|6|0|260
+2|6|1|261
+2|6|2|262
+3|5|0|350
+3|5|1|351
+3|5|2|352
+3|6|0|360
+3|6|1|361
+3|6|2|362
+(12 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM bp;
+a|b|c|v
+0|5|0|050
+0|5|1|051
+0|5|2|052
+0|6|0|060
+0|6|1|061
+0|6|2|062
+1|5|0|150
+1|5|1|151
+1|5|2|152
+1|6|0|160
+1|6|1|161
+1|6|2|162
+(12 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM be;
+a|b|c|v
+0|5|0|050
+0|5|1|051
+0|5|2|052
+0|6|0|060
+0|6|1|061
+0|6|2|062
+1|5|0|150
+1|5|1|151
+1|5|2|152
+1|6|0|160
+1|6|1|161
+1|6|2|162
+(12 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM bc;
+a|b|c|v
+0|5|1|051
+0|6|1|061
+1|5|1|151
+1|6|1|161
+2|5|1|251
+2|6|1|261
+3|5|1|351
+3|6|1|361
+(8 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on bs.b] START 1 on a (exclusive): a = 2 and 3, each with c = 0, 1 and 2.
+SELECT a, c FROM bs WHERE b = 5 ORDER BY a, c;
+a|c
+2|0
+2|1
+2|2
+3|0
+3|1
+3|2
+(6 rows)
+PLAN: [no sort] xref: bs.b fixed: bs.b
+
+-- [xref on bs.b] the same, through IN and through a range.
+-- [sort] an IN list or a range can give b several values, so their rows are sorted, even here, where only b = 5
+-- matches: only = fixes a key to one value, whose FOR loop runs once (YDBOcto#1161).
+SELECT a, c FROM bs WHERE b IN (5) ORDER BY a, c;
+a|c
+2|0
+2|1
+2|2
+3|0
+3|1
+3|2
+(6 rows)
+PLAN: [sort] xref: bs.b fixed: bs.b
+
+-- [xref on bs.b] [sort] as above: the range can give b several values.
+SELECT a, c FROM bs WHERE b > 4 AND b < 6 ORDER BY a, c;
+a|c
+2|0
+2|1
+2|2
+3|0
+3|1
+3|2
+(6 rows)
+PLAN: [sort] xref: bs.b fixed: bs.b (walk)
+
+-- [xref on bi.b] START 2 STARTINCLUDE on a: a = 2 and 3.
+SELECT a, c FROM bi WHERE b = 5 ORDER BY a, c;
+a|c
+2|0
+2|1
+2|2
+3|0
+3|1
+3|2
+(6 rows)
+PLAN: [no sort] xref: bi.b fixed: bi.b
+
+-- [xref on bp.b] ENDPOINT 1 on a: a = 0 and 1.
+SELECT a, c FROM bp WHERE b = 5 ORDER BY a, c;
+a|c
+0|0
+0|1
+0|2
+1|0
+1|1
+1|2
+(6 rows)
+PLAN: [no sort] xref: bp.b fixed: bp.b
+
+-- [xref on be.b] END on a, "" or a > 1 ends the table: a = 0 and 1.
+SELECT a, c FROM be WHERE b = 5 ORDER BY a, c;
+a|c
+0|0
+0|1
+0|2
+1|0
+1|1
+1|2
+(6 rows)
+PLAN: [no sort] xref: be.b fixed: be.b
+
+-- [xref on bc.b] START 0 ENDPOINT 1 on c, after b: c = 1 only, for each a.
+SELECT a, c FROM bc WHERE b = 5 ORDER BY a, c;
+a|c
+0|1
+1|1
+2|1
+3|1
+(4 rows)
+PLAN: [no sort] xref: bc.b fixed: bc.b
+
+-- ############################################################################################################
+-- Part L: two of the plans above
+# -vv: 2 key_column_xref marker(s) in the logical plan of: SELECT val FROM gxrf WHERE id = 76;
+# The FOR loop of the range walk of (Part A): SELECT * FROM gxrf WHERE id > 76 LIMIT 2;
+# Expected: its QUIT tests %ydboctozlimit, so the walk ends at the LIMIT.
+    IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0)) FOR  SET %ydboctozkeyfix(1,0)=$ORDER(^%ydbAIMS<hash>(3,%ydboctozkeyfix(1,0))) QUIT:(%ydboctozkeyfix(1,0)="")!(%ydboctozkeyfix(1,0)="")!($GET(%ydboctocursor(cursorId,"parameters",2))'>%ydboctozlimit(3))  DO
+
+-- ############################################################################################################
+-- Part M: Part D's table, re-asked after each change to ^ANC made in M, as an application would make it. The
+-- triggers maintain the cross reference of b. Its answers must agree with the table scan (the first query) after
+-- every change: a row the scan finds with b = 5 or b = 6 is found through the cross reference, and no other.
+
+# A new row through its column node, one level below the row: b = 5 gains row 3.
+# set ^ANC(3,5,"N")="three"
+
+SELECT XECUTE_M_CODE('zwrite ^ANC');
+^ANC(1,5,"N")="one"
+^ANC(2,5,"N")="two"
+^ANC(2,6)="six"
+^ANC(3,5,"N")="three"
+^ANC(4,8,"N")="eight"
+xecute_m_code
+0
+(1 row)
+
+SELECT * FROM anc;
+a|b|n
+1|5|one
+2|5|two
+2|6|
+3|5|three
+4|8|eight
+(5 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM anc WHERE b = 5 ORDER BY a;
+a|b|n
+1|5|one
+2|5|two
+3|5|three
+(3 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+SELECT * FROM anc WHERE b = 6 ORDER BY a;
+a|b|n
+2|6|
+(1 row)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+# Row 1|5 gets a value of its own, then loses its column node: it is still a row, with n NULL.
+# set ^ANC(1,5)="row 1" zkill ^ANC(1,5,"N")
+
+SELECT XECUTE_M_CODE('zwrite ^ANC');
+^ANC(1,5)="row 1"
+^ANC(2,5,"N")="two"
+^ANC(2,6)="six"
+^ANC(3,5,"N")="three"
+^ANC(4,8,"N")="eight"
+xecute_m_code
+0
+(1 row)
+
+SELECT * FROM anc;
+a|b|n
+1|5|
+2|5|two
+2|6|
+3|5|three
+4|8|eight
+(5 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM anc WHERE b = 5 ORDER BY a;
+a|b|n
+1|5|
+2|5|two
+3|5|three
+(3 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+SELECT * FROM anc WHERE b = 6 ORDER BY a;
+a|b|n
+2|6|
+(1 row)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+# Row 1|5 loses its last value: it is no longer a row.
+# zkill ^ANC(1,5)
+
+SELECT XECUTE_M_CODE('zwrite ^ANC');
+^ANC(2,5,"N")="two"
+^ANC(2,6)="six"
+^ANC(3,5,"N")="three"
+^ANC(4,8,"N")="eight"
+xecute_m_code
+0
+(1 row)
+
+SELECT * FROM anc;
+a|b|n
+2|5|two
+2|6|
+3|5|three
+4|8|eight
+(4 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM anc WHERE b = 5 ORDER BY a;
+a|b|n
+2|5|two
+3|5|three
+(2 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+SELECT * FROM anc WHERE b = 6 ORDER BY a;
+a|b|n
+2|6|
+(1 row)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+# A second row with b = 6, through its column node.
+# set ^ANC(4,6,"N")="six b"
+
+SELECT XECUTE_M_CODE('zwrite ^ANC');
+^ANC(2,5,"N")="two"
+^ANC(2,6)="six"
+^ANC(3,5,"N")="three"
+^ANC(4,6,"N")="six b"
+^ANC(4,8,"N")="eight"
+xecute_m_code
+0
+(1 row)
+
+SELECT * FROM anc;
+a|b|n
+2|5|two
+2|6|
+3|5|three
+4|6|six b
+4|8|eight
+(5 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM anc WHERE b = 5 ORDER BY a;
+a|b|n
+2|5|two
+3|5|three
+(2 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+SELECT * FROM anc WHERE b = 6 ORDER BY a;
+a|b|n
+2|6|
+4|6|six b
+(2 rows)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+# KILL of a whole subtree above the rows: 2|5 and 2|6 go.
+# kill ^ANC(2)
+
+SELECT XECUTE_M_CODE('zwrite ^ANC');
+^ANC(3,5,"N")="three"
+^ANC(4,6,"N")="six b"
+^ANC(4,8,"N")="eight"
+xecute_m_code
+0
+(1 row)
+
+SELECT * FROM anc;
+a|b|n
+3|5|three
+4|6|six b
+4|8|eight
+(3 rows)
+PLAN: xref: none fixed: none
+
+SELECT * FROM anc WHERE b = 5 ORDER BY a;
+a|b|n
+3|5|three
+(1 row)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+SELECT * FROM anc WHERE b = 6 ORDER BY a;
+a|b|n
+4|6|six b
+(1 row)
+PLAN: [no sort] xref: anc.b fixed: anc.b
+
+# verify_aim_rebuild : 111 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical
+
+-- ############################################################################################################
+-- Part N: a READWRITE table, whose rows Octo writes. INSERT, UPDATE and DELETE go through the triggers, so the cross
+-- reference of b stays right. A DELETE or UPDATE with a WHERE on b walks it too.
+CREATE TABLE rwk (a INTEGER, b INTEGER, v VARCHAR, PRIMARY KEY (a, b)) GLOBAL "^RWK(keys(""a""),keys(""b""))" READWRITE;
+CREATE TABLE
+
+-- Three rows.
+INSERT INTO rwk VALUES (1, 10, 'x'), (2, 10, 'y'), (2, 20, 'z');
+INSERT 0 3
+
+-- [no key column xref] the rows of the table: 1|10|x, 2|10|y and 2|20|z.
+SELECT * FROM rwk;
+a|b|v
+1|10|x
+2|10|y
+2|20|z
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on rwk.b] 1|10|x and 2|10|y.
+SELECT * FROM rwk WHERE b = 10 ORDER BY a;
+a|b|v
+1|10|x
+2|10|y
+(2 rows)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- An INSERT adds 3|10|w to the cross reference.
+INSERT INTO rwk VALUES (3, 10, 'w');
+INSERT 0 1
+
+-- [xref on rwk.b] 1|10|x, 2|10|y and 3|10|w.
+SELECT * FROM rwk WHERE b = 10 ORDER BY a;
+a|b|v
+1|10|x
+2|10|y
+3|10|w
+(3 rows)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [no key column xref] a DELETE on the first key column removes 1|10|x from the cross reference.
+DELETE FROM rwk WHERE a = 1;
+DELETE 1
+PLAN: xref: none fixed: rwk.a
+
+-- [xref on rwk.b] 2|10|y and 3|10|w.
+SELECT * FROM rwk WHERE b = 10 ORDER BY a;
+a|b|v
+2|10|y
+3|10|w
+(2 rows)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [no key column xref] an UPDATE of the key column b, with both key columns fixed in place: 2|10|y moves to b = 30.
+UPDATE rwk SET b = 30 WHERE a = 2 AND b = 10;
+UPDATE 1
+PLAN: xref: none fixed: rwk.a rwk.b
+
+-- [xref on rwk.b] 3|10|w.
+SELECT * FROM rwk WHERE b = 10 ORDER BY a;
+a|b|v
+3|10|w
+(1 row)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] 2|30|y.
+SELECT * FROM rwk WHERE b = 30 ORDER BY a;
+a|b|v
+2|30|y
+(1 row)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] a DELETE with a WHERE on b: 2|20|z goes.
+DELETE FROM rwk WHERE b = 20;
+DELETE 1
+PLAN: xref: rwk.b fixed: rwk.b
+
+-- [no key column xref] the rows of the table: 2|30|y and 3|10|w.
+SELECT * FROM rwk;
+a|b|v
+2|30|y
+3|10|w
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- Three more rows.
+INSERT INTO rwk VALUES (4, 40, 'a'), (5, 40, 'b'), (6, 50, 'c');
+INSERT 0 3
+
+-- [xref on rwk.b] an UPDATE of a non-key column: 4|40|a and 5|40|b get v = 'B'.
+UPDATE rwk SET v = 'B' WHERE b = 40;
+UPDATE 2
+PLAN: xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] 4|40|B and 5|40|B.
+SELECT * FROM rwk WHERE b = 40 ORDER BY a;
+a|b|v
+4|40|B
+5|40|B
+(2 rows)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] an UPDATE of the key column itself: the rows move to b = 41, each once.
+UPDATE rwk SET b = 41 WHERE b = 40;
+UPDATE 2
+PLAN: xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] no row.
+SELECT * FROM rwk WHERE b = 40 ORDER BY a;
+a|b|v
+(0 rows)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] 4|41|B and 5|41|B.
+SELECT * FROM rwk WHERE b = 41 ORDER BY a;
+a|b|v
+4|41|B
+5|41|B
+(2 rows)
+PLAN: [no sort] xref: rwk.b fixed: rwk.b
+
+-- [xref on rwk.b] a DELETE with a WHERE on b: 4|41|B and 5|41|B go.
+DELETE FROM rwk WHERE b = 41;
+DELETE 2
+PLAN: xref: rwk.b fixed: rwk.b
+
+-- [no key column xref] the rows of the table: 2|30|y, 3|10|w and 6|50|c.
+SELECT * FROM rwk;
+a|b|v
+2|30|y
+3|10|w
+6|50|c
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on rwk.b] an UPDATE of the key column b whose WHERE has an OR. It runs one plan per alternative: the first walks
+-- the cross reference of b and updates 3|10|w; the second walks the table's global and updates 2|30|y and 6|50|c, but
+-- not 3|-54|w again, which the first noted as updated. UPDATE 3.
+UPDATE rwk SET b = b - 64 WHERE b IN (10, 99) OR a < 7;
+UPDATE 3
+PLAN: xref: rwk.b fixed: rwk.a (walk) rwk.b
+
+-- [no key column xref] the rows of the table: 2|-34|y, 3|-54|w and 6|-14|c.
+SELECT * FROM rwk;
+a|b|v
+2|-34|y
+3|-54|w
+6|-14|c
+(3 rows)
+PLAN: xref: none fixed: none
+
+# verify_aim_rebuild : 114 index entries maintained by the triggers, against a rebuild from scratch
+# PASS : identical
+
+-- ############################################################################################################
+-- Part O: DISCARD XREFS and DROP TABLE remove the subscript cross references and their triggers
+# Expected: no subscript cross reference and no AIM trigger on ^RWK after DISCARD XREFS and after DROP TABLE;
+# the cross reference of rwk.b and its triggers again after a query builds it.
+# Before DISCARD XREFS
+#   Globals with an AIM subscript cross reference: ^ANC ^BC ^BE ^BI ^BP ^BS ^GXRF ^RWK ^STK ^T3 ^TRL
+#   AIM triggers on ^RWK: 5
+OCTO> DISCARD XREFS;
+OCTO> 
+# After DISCARD XREFS
+#   Globals with an AIM subscript cross reference:
+#   AIM triggers on ^RWK: 0
+OCTO> SELECT * FROM rwk WHERE b = 10;
+a|b|v
+(0 rows)
+OCTO> 
+# After the cross reference of rwk.b is built again
+#   Globals with an AIM subscript cross reference: ^RWK
+#   AIM triggers on ^RWK: 5
+OCTO> DROP TABLE rwk;
+DROP TABLE
+OCTO> 
+# After DROP TABLE rwk
+#   Globals with an AIM subscript cross reference:
+#   AIM triggers on ^RWK: 0

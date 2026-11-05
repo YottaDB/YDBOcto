@@ -137,3 +137,31 @@ ExpressionMatchType match_expression(char *start, char *column, int *expr_len, i
 	}
 	return NoMatchExpression;
 }
+
+/* Find the next keys(...) or values(...) expression in an M expression
+ *
+ * Finds the next "keys(...)" or "values(...)" expression in the M expression "source", looking from "ptr" (which points into
+ * "source") onwards. Returns a pointer to the expression, with its type (KeysExpression or ValuesExpression) in "*match",
+ * its column name in "column" and its length in "*expr_len", so the caller continues its scan at the returned pointer plus
+ * "*expr_len". Returns NULL if there is none.
+ */
+char *find_next_expression(char *source, char *ptr, char *column, int *expr_len, int column_size, ExpressionMatchType *match) {
+	for (; '\0' != *ptr; ptr++) {
+		char prev;
+
+		if (source == ptr) {
+			/* There is no previous character. Pass '(' if this can be the start of an expression (see the comment on
+			 * the "switch (prev)" in "match_expression()").
+			 */
+			prev = ((('k' == *ptr) || ('v' == *ptr)) ? '(' : *ptr);
+		} else {
+			prev = *(ptr - 1);
+		}
+		*match = match_expression(ptr, column, expr_len, column_size, prev);
+		if (NoMatchExpression < *match) {
+			assert(0 < *expr_len);
+			return ptr;
+		}
+	}
+	return NULL;
+}

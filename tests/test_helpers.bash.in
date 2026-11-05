@@ -934,7 +934,7 @@ verify_output() {
 	# Change ^%ydbAIMDuAwRJbyqDiW78aZmOOKGGE(0)="1617743959908264 247102 YottaDB r989 Linux x86_64" to
 	#        ^%ydbAIMDuAwRJbyqDiW78aZmOOKGGE(0)="*YottaDB*"
 	# This sed is too complicated, I won't try to explain it.
-	sed -i 's/\(\^%ydbAIMD.*(0)=\).*/\1"*YottaDB*"/g' clean_output.txt
+	sed -i 's/\(\^%ydbAIM[DS].*(0)=\).*/\1"*YottaDB*"/g' clean_output.txt	# also a subscript cross reference (YDBOcto#660)
 	# AIM reports errors as LABEL+offset^%YDBAIM, and the offset shifts whenever AIM itself changes,
 	# which says nothing about Octo. Normalize it so the reference survives an AIM version bump.
 	sed -i -E 's/([A-Za-z0-9%]+)\+[0-9]+\^%YDBAIM/\1+NN^%YDBAIM/g' clean_output.txt
@@ -1080,6 +1080,95 @@ postgres_cluster_on_primary_key() {
 	if [[ -n "$tablename" ]]; then
 		psql --quiet $1 -c "SELECT clusterOnPrimaryKey('$tablename');" > /dev/null
 	fi
+}
+
+# Appends to output.txt the PLAN: line of the statement in the file "$1", whose plan is the file "$2" (see
+# "run_queries_with_plans()" below). Nothing for a statement that is not a SELECT, UPDATE or DELETE, or that calls
+# XECUTE_M_CODE (one that sets up or shows a global).
+print_plan_line() {
+	local stmt=$1 plan=$2 label xrefs fixed
+	if ! grep -qiE '^(select|update|delete) ' $stmt || grep -q XECUTE_M_CODE $stmt; then
+		return
+	fi
+	xrefs=$(grep -ohE '%ydbAIMOctoCache\("[a-z0-9_]+","[a-z0-9_]+","completed\?"\)' $plan | sed -E 's/.*\("([a-z0-9_]+)","([a-z0-9_]+)".*/\1.\2/' | sort -u | tr '\n' ' ')
+	xrefs=${xrefs% }
+	fixed=$(grep -oE 'SET %ydboctocursor\(cursorId,"keys",[0-9]+,"[a-z0-9_]+","[a-z0-9_]+"\)=[^ ]+ IF .\$ZYISSQLNULL' $plan \
+		| sed -E 's/.*"keys",[0-9]+,"([a-z0-9_]+)","([a-z0-9_]+)"\)=([^ ]+) IF.*/\1.\2 \3/' \
+		| awk '{ print $1 (($2 ~ /^%ydboctozkeyfix/) ? " (walk)" : "") }' | sort -u | paste -sd ' ')
+	# A cross reference walk: a cross reference key that runs through several values. Either the walk of an ORDER BY
+	# (from the start or the end of the cross reference: a key column's walk sets its subscript to "" first, a non-key
+	# column's walk has a NULL phase), or a key fixed to each value of a range or LIKE prefix in turn ("(walk)" above).
+	# A cross reference probed at one value (e.g. "b = '10'") is not a walk: the keys after it give the order.
+	local walk=0
+	if [[ $fixed == *"(walk)"* ]] || grep -qE 'FOR %ydboctonullflag\(|SET %ydboctozkeyfix\([0-9]+,[0-9]+\)="" FOR ' $plan; then
+		walk=1
+	fi
+	if ! grep -qi 'order by' $stmt; then
+		label=""	# Without an ORDER BY, there is no sort to avoid
+	elif grep -q '"OrderBy"' $plan; then
+		label="[sort]"
+	elif (( walk )) && grep -qE '\$ORDER\(\^%ydbAIM[SD][^ ]*,-1\)' $plan; then
+		label="[no sort, descending walk]"
+	elif (( walk )); then
+		label="[no sort, ascending walk]"
+	else
+		label="[no sort]"
+	fi
+	echo "PLAN:${label:+ $label} xref: ${xrefs:-none} fixed: ${fixed:-none}" >> output.txt
+}
+
+# Runs the statements of the SQL file "$1" and appends each to output.txt, for a reader of the reference file: a blank
+# line, the comments above the statement and the statement, its result, and, for a SELECT, UPDATE or DELETE, the plan
+# that Octo chose for it ("print_plan_line()"). For a SELECT with an ORDER BY:
+#   [sort]                     the plan collects the rows and sorts them (an OrderBy step)
+#   [no sort]                  the rows come out of the FOR loops of the keys in ORDER BY order (those of the table's
+#                              global, or those under one value of a cross reference)
+#   [no sort, ascending walk]  the plan walks an AIM cross reference forward, through several of its values, in ORDER BY
+#                              order
+#   [no sort, descending walk] the plan walks an AIM cross reference backward, through several of its values
+# followed, for every one, by the columns whose AIM cross reference the plan walks or probes ("xref: none" if none),
+# and the keys that the WHERE or ON fixes ("fixed: none" if none): <table>.<column> for a key fixed to one value (e.g.
+# "x = 3", whose FOR loop then runs once), with "(walk)" for a key fixed to each value of a range or LIKE prefix in turn.
+# A cross reference key that is fixed is listed too (e.g. "v = 'P'" probes the cross reference of v at 'P').
+# The comment above each statement states the plan and the rows it should give, so that a reader can check both.
+# "$2":
+#   ""           each statement runs in its own octo process
+#   "vv"         the same, and each SELECT is also followed by the lines of its logical plan (octo -vv) that mark the key
+#                that walks a cross reference for the ORDER BY, the cross reference key of a key column, and a key walked
+#                in descending order
+#   "oneprocess" all statements run in one octo process (for local variables set by one statement and read by another,
+#                as for a table kept in a local variable). The plan of each SELECT is then found by running it again
+#                with octo -vv; an UPDATE or DELETE gets no PLAN: line, as it cannot be run again.
+run_queries_with_plans() {
+	local stmt plan
+	rm -f stmt_*.sql
+	awk '/^[[:space:]]*$/ { next } { buf = buf $0 "\n" } /^[^-].*;[[:space:]]*$/ { f = sprintf("stmt_%03d.sql", ++n); printf "%s", buf > f; close(f); buf = "" }' "$1"
+	if [[ "oneprocess" == "$2" ]]; then
+		# octo -p prints each statement after an "OCTO> " prompt, followed by its result. Split that output into one
+		# file per statement (stmt_NNN.sql.out), in the order of the statements.
+		cat stmt_*.sql | octo -p > all_stmts.out 2>&1
+		awk '/^OCTO> / { if (n) close(f); f = sprintf("stmt_%03d.sql.res", ++n); sub(/^OCTO> /, "") } n { print > f }' all_stmts.out
+	fi
+	for stmt in stmt_*.sql; do
+		echo "" >> output.txt
+		if [[ "oneprocess" == "$2" ]]; then
+			# The statement, as octo -p echoed it, and its result
+			cat $stmt.res >> output.txt
+			if ! grep -qiE '^select ' $stmt || grep -q XECUTE_M_CODE $stmt; then
+				continue	# Only a SELECT that changes nothing can be run again to find its plan
+			fi
+			plan=$(octo -vv -f $stmt 2>&1 > /dev/null | grep -oE '_ydboctoP[A-Za-z0-9]+\.m' | tail -1)
+		else
+			cat $stmt >> output.txt
+			octo -vv -f $stmt > $stmt.out 2> $stmt.vv
+			cat $stmt.out >> output.txt
+			plan=$(grep -oE '_ydboctoP[A-Za-z0-9]+\.m' $stmt.vv | tail -1)
+		fi
+		print_plan_line $stmt $plan
+		if [[ "vv" == "$2" ]] && grep -qiE '^select ' $stmt; then
+			grep -E -e '- (order_by_xref_walk|key_column_xref|desc): true' $stmt.vv >> output.txt
+		fi
+	done
 }
 
 run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {

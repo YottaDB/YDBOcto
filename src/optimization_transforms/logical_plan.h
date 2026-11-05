@@ -86,6 +86,22 @@ typedef enum {
 
 #define IS_TYPE_LP_AGGREGATE(TYPE)		      ((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK <= TYPE) && (TYPE < LP_AGGREGATE_LAST))
 #define IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN) ((LP_COLUMN_ALIAS == PLAN->type) || (LP_DERIVED_COLUMN == PLAN->type))
+
+/* Test if a key is the cross reference key of a key column and holds that column's value
+ *
+ * TRUE for the cross reference key of a PRIMARY KEY column (YDBOcto#660). It replaces that column's loop key, so it
+ * holds the column's value. The cross reference key of a non-key column holds a value that is not part of the row's
+ * primary key, so the code that builds a row's primary key from the plan's keys skips it; this one it has to use.
+ */
+#define IS_KEY_COLUMN_XREF(KEY) ((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column))
+
+/* TRUE for a key that holds the value of one of the row's primary key columns: a key of the table itself, or the cross
+ * reference key of a primary key column (IS_KEY_COLUMN_XREF). FALSE for the cross reference key of a non-key column. The
+ * code that builds a row's primary key from the plan's keys (e.g. the node that DELETE kills, the row that UPDATE notes)
+ * uses the keys for which this is TRUE.
+ */
+#define IS_ROW_KEY(KEY) (!(KEY)->is_cross_reference_key || IS_KEY_COLUMN_XREF(KEY))
+
 #define GET_COLUMN_ALIAS_FROM_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN, COLUMN_ALIAS)                                         \
 	{                                                                                                                      \
 		assert(IS_LP_COLUMN_ALIAS_OR_LP_DERIVED_COLUMN(PLAN));                                                         \
@@ -484,6 +500,14 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan, boolean_t *is_null);
  */
 boolean_t lp_is_col_in_update_column_list(LogicalPlan *lp_update, SqlColumn *srch_column);
 
+// Returns the KEY NUM of the primary key column "column"
+int lp_get_key_num(SqlColumn *column);
+
+/* Returns TRUE if one of the AND-ed comparisons of "cond" (a WHERE or ON condition) compares a primary key column of the
+ * table "unique_id" whose KEY NUM is at most "max_key_num" (see lp_optimize_where_multi_equals_ands.c)
+ */
+boolean_t lp_is_key_column_compared(LogicalPlan *cond, int unique_id, int max_key_num, int *key_unique_id_array);
+
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
@@ -540,6 +564,11 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 
 /* Attempts to optimize any ORDER BY in the query (YDBOcto#959) */
 void lp_optimize_order_by(LogicalPlan *plan);
+
+/* Returns TRUE if the query has a LIMIT and the FOR loops of the key columns of "table_alias" already give the rows in
+ * ORDER BY order, starting with a key column before the one at "key_num" (YDBOcto#660)
+ */
+boolean_t lp_is_order_by_with_limit_given_by_key_loops(LogicalPlan *plan, SqlTableAlias *table_alias, int key_num);
 
 /**
  * Attempts to optimize there WHERE statement which contains nothing but items like

@@ -93,6 +93,82 @@ static int get_xref_advance_keys(SqlColumn *column, SqlTable *table, SqlColumn *
 	return num_keys;
 }
 
+/* Decide which key columns the cross reference of a key column advances, and in what order
+ *
+ * The same decision as "get_xref_advance_keys()", for a PRIMARY KEY column (YDBOcto#660).
+ *
+ * The cross reference of a key column is an AIM subscript cross reference (XREFSUB^%YDBAIM) on the TABLE's global. An
+ * entry is (snum, value, <the other varying subscripts of the global, in global order>), and when the column is a string
+ * (the "#"_value form) the column's own subscript is repeated among them. So:
+ *   - the key columns before "column" are advanced from the cross reference, whose subscripts after the value start with
+ *     them in either form;
+ *   - the key columns after "column" are advanced from the table's own global, whose layout does not depend on the
+ *     column type;
+ *   - "column" itself is not among them: it is the cross reference key, which the caller puts in front of them.
+ * E.g. keys (acc, id, line) with the cross reference on id: acc from the cross reference, line from the table's global.
+ *
+ * Fills "advance_key_columns" with the other "max_key" key columns in that order, and returns how many lead from the
+ * cross reference, i.e. the KEY NUM of "column". The table's global lists every key column once, in KEY NUM order:
+ * CREATE TABLE rejects any other GLOBAL ("validate_global_keyword()", ERR_GLOBAL_KEY_COLS_ORDER and
+ * ERR_GLOBAL_MISSING_KEY_COLS). So the cross reference's subscripts after the value are the key columns in KEY NUM order.
+ */
+static int get_key_column_xref_advance_keys(SqlColumn *column, SqlTable *table, SqlColumn **key_columns, int max_key,
+					    SqlColumn **advance_key_columns) {
+	int cur_key, num_advance, column_key_num;
+
+#ifndef NDEBUG
+	SqlOptionalKeyword *source_keyword;
+	SqlValue	   *value;
+	SqlColumn	   *global_key_columns[MAX_KEY_COUNT];
+
+	/* The table's global lists the key columns in KEY NUM order (see above) */
+	UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
+	UNPACK_SQL_STATEMENT(value, source_keyword->v, value);
+	assert((max_key + 1) == get_keys_in_global(value->v.string_literal, table, global_key_columns));
+	for (cur_key = 0; cur_key <= max_key; cur_key++) {
+		assert(global_key_columns[cur_key] == key_columns[cur_key]);
+	}
+#else
+	UNUSED(table);
+#endif
+
+	column_key_num = -1;
+	num_advance = 0;
+	for (cur_key = 0; cur_key <= max_key; cur_key++) {
+		if (key_columns[cur_key] == column) {
+			column_key_num = cur_key;
+		} else {
+			advance_key_columns[num_advance++] = key_columns[cur_key];
+		}
+	}
+	assert(0 <= column_key_num);
+	assert(max_key == num_advance);
+	return column_key_num;
+}
+
+/* Find the key of a key column of a table in a plan
+ *
+ * Returns the LP_KEY of "plan" for the key column "column" of the table "unique_id". The plan has a key for every key
+ * column of every table it reads (the cross reference keys of this table are inserted only after this returns), so
+ * there always is one.
+ */
+static LogicalPlan *find_table_key(LogicalPlan *plan, int unique_id, SqlColumn *column) {
+	LogicalPlan *cur_key, *lp_key;
+	SqlKey	    *key;
+
+	cur_key = lp_get_keys(plan);
+	while (NULL != cur_key) {
+		GET_LP(lp_key, cur_key, 0, LP_KEY);
+		key = lp_key->v.lp_key.key;
+		if ((key->unique_id == unique_id) && (key->column == column) && !key->is_cross_reference_key) {
+			return lp_key;
+		}
+		GET_LP_ALLOW_NULL(cur_key, cur_key, 1, LP_KEYS);
+	}
+	assert(FALSE); /* The key column has a key in the plan (see above) */
+	return NULL;
+}
+
 /**
  * Returns the keys corresponding to the cross reference for column in table, and updates
  * the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross
@@ -100,7 +176,7 @@ static int get_xref_advance_keys(SqlColumn *column, SqlTable *table, SqlColumn *
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
 	LogicalPlan *root, *keys, *table_join, *lp_table_alias, *lp_output_key;
-	int	     cur_key, max_key, unique_id, num_xref_keys;
+	int	     cur_key, max_key, unique_id, num_xref_keys, num_advance_keys;
 	SqlColumn   *key_columns[MAX_KEY_COUNT], *advance_key_columns[MAX_KEY_COUNT], *column;
 	SqlKey	    *output_key;
 
@@ -124,8 +200,18 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	 */
 	memset(advance_key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
-	num_xref_keys = get_xref_advance_keys(column, table, key_columns, max_key, advance_key_columns);
-	if (-1 == num_xref_keys) {
+	if (IS_KEY_COLUMN(column)) {
+		/* The column is a primary key column (YDBOcto#660). The cross reference key takes its place, so the other
+		 * "max_key" key columns follow it.
+		 */
+		num_xref_keys = get_key_column_xref_advance_keys(column, table, key_columns, max_key, advance_key_columns);
+		num_advance_keys = max_key;
+	} else {
+		num_xref_keys = get_xref_advance_keys(column, table, key_columns, max_key, advance_key_columns);
+		num_advance_keys = max_key + 1;
+	}
+	if ((-1 == num_xref_keys) || (0 == num_advance_keys)) {
+		/* No usable shape; or a table whose only key column is the column, which leaves no key to advance */
 		return NULL;
 	}
 
@@ -153,13 +239,22 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	output_key = lp_output_key->v.lp_key.key;
 
 	MALLOC_LP(keys, root, LP_KEYS);
-	for (cur_key = 0; cur_key <= max_key; cur_key++) {
+	for (cur_key = 0; cur_key < num_advance_keys; cur_key++) {
 		SqlKey *advance_output_key;
 
-		advance_output_key = (cur_key < num_xref_keys) ? output_key : NULL;
-		keys->v.lp_default.operand[0]
-		    = lp_alloc_key(table, advance_key_columns[cur_key], unique_id, LP_KEY_ADVANCE, advance_output_key, FALSE, NULL);
-		if (cur_key != max_key) {
+		/* A key column after a key column's cross reference is advanced from the table's global, as it was before
+		 * the cross reference. Keep the plan's own key for it: a condition processed earlier may have fixed it
+		 * (e.g. "c = 1" in "WHERE c = 1 AND b = 2" with keys (a, b, c)), and that condition has been removed from
+		 * the WHERE since (YDBOcto#660).
+		 */
+		if (IS_KEY_COLUMN(column) && (cur_key >= num_xref_keys)) {
+			keys->v.lp_default.operand[0] = find_table_key(plan, unique_id, advance_key_columns[cur_key]);
+		} else {
+			advance_output_key = (cur_key < num_xref_keys) ? output_key : NULL;
+			keys->v.lp_default.operand[0] = lp_alloc_key(table, advance_key_columns[cur_key], unique_id, LP_KEY_ADVANCE,
+								     advance_output_key, FALSE, NULL);
+		}
+		if (cur_key != (num_advance_keys - 1)) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 			GET_LP(keys, keys, 1, LP_KEYS);
 		}

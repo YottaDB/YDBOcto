@@ -57,6 +57,224 @@
 		}                                                                                      \
 	}
 
+/* Returns the KEY NUM of the primary key column "column" */
+int lp_get_key_num(SqlColumn *column) {
+	SqlOptionalKeyword *key_num_keyword;
+	SqlValue	   *value;
+
+	key_num_keyword = get_keyword(column, OPTIONAL_KEY_NUM);
+	assert(NULL != key_num_keyword);
+	UNPACK_SQL_STATEMENT(value, key_num_keyword->v, value);
+	return atoi(value->v.string_literal);
+}
+
+/* Test if a comparison between columns of two tables fixes the column of the first table
+ *
+ * When a comparison relates a column of the table "id" to a column of another table "other_id", returns TRUE if the key
+ * fixing fixes the column of "id" (to the column of "other_id"), FALSE if it fixes the column of "other_id" instead. It
+ * fixes the column of the table whose FOR loop comes later in "key_unique_id_array". A column of a parent query (0 in
+ * "key_unique_id_array") is as a value: it is never fixed, the other column is. The caller has made sure that the two
+ * tables differ and that at least one of them belongs to this query.
+ * "lp_optimize_where_multi_equals_ands_helper()" uses this to decide which column to fix, and "can_fix_key_of_table()" to
+ * tell whether a comparison can fix a key of a table at all, so that both make the same choice.
+ */
+static boolean_t is_column_fixed_to_other_table(int *key_unique_id_array, int id, int other_id) {
+	assert(id != other_id);
+	assert((0 != key_unique_id_array[id]) || (0 != key_unique_id_array[other_id]));
+	return !((0 != key_unique_id_array[other_id]) && (key_unique_id_array[id] < key_unique_id_array[other_id]));
+}
+
+/* Test if a comparison with a key column can fix a key of that column's table
+ *
+ * Returns FALSE if "other_operand", the other side of a comparison with a key column of the table "unique_id", is a column
+ * of that same table, or of a table whose FOR loop comes after that table's in "key_unique_id_array": the key fixing then
+ * fixes no key of the table "unique_id" with the comparison. TRUE otherwise (a value, a parameter, a column of a table whose
+ * FOR loop comes before, or of a parent query, or anything else), which keeps the caller's conservative answer.
+ * The choice between two tables is "is_column_fixed_to_other_table()", which the key fixing itself uses.
+ */
+static boolean_t can_fix_key_of_table(LogicalPlan *other_operand, int unique_id, int *key_unique_id_array) {
+	SqlColumnAlias *column_alias;
+	SqlTableAlias  *table_alias;
+	int		other_id;
+
+	if ((NULL == other_operand) || (LP_COLUMN_ALIAS != other_operand->type)) {
+		return TRUE; /* A value, a parameter or an expression: as before, it counts */
+	}
+	column_alias = other_operand->v.lp_column_alias.column_alias;
+	/* Not a TABLENAME.ASTERISK: comparing one with a column is ERR_TABLE_ASTERISK_SCALAR_COMPARISON */
+	assert(column_STATEMENT == column_alias->column->type);
+	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+	other_id = table_alias->unique_id;
+	if (other_id == unique_id) {
+		return FALSE; /* Two columns of the same table: the key fixing fixes neither */
+	}
+	assert(other_id < config->plan_id);
+	assert(unique_id < config->plan_id);
+	if (!is_column_fixed_to_other_table(key_unique_id_array, unique_id, other_id)) {
+		return FALSE; /* The other table's FOR loop comes later: its column is fixed to this one, not the other way round */
+	}
+	return TRUE;
+}
+
+/* Test if a condition compares one of the first key columns of a table
+ *
+ * Returns TRUE if one of the AND-ed comparisons of "cond" (a WHERE or ON condition) compares a primary key column of the
+ * table "unique_id" whose KEY NUM is at most "max_key_num" (YDBOcto#660). Every comparison operator counts, including
+ * IS NULL and a comparison with a value the key fixing cannot use: the callers only need to know that the condition may
+ * constrain such a key column, and erring that way keeps the plan they would otherwise choose.
+ *   - "use_key_column_xref()": a condition on a key column before the column at "key_num" may fix it in place, which
+ *     makes the loops before that column run once, so a cross reference on the latter would gain nothing. The conditions
+ *     are processed in order, so this looks at those not processed yet too. E.g. "WHERE id = 5 AND acc = 'X'" with keys
+ *     (acc, id): the "id" condition is seen first, and "acc" is constrained.
+ *
+ * "key_unique_id_array" is the order of the tables' FOR loops ("lp_optimize_where_multi_equals_ands()"), or NULL. With
+ * it, a comparison of the key column with a column of a table whose FOR loop comes after this table's does not count:
+ * the key fixing fixes the key of the later table to this key column, never the other way round, so the comparison
+ * leaves this table's FOR loops as they are. E.g. "FROM pa JOIN p ON p.patient_id = pa.patient_id" fixes "p.patient_id"
+ * to each "pa.patient_id", and "pa" is still walked. Nor does a comparison with another column of the same table, which
+ * fixes neither. Without it (NULL), every comparison counts.
+ */
+boolean_t lp_is_key_column_compared(LogicalPlan *cond, int unique_id, int max_key_num, int *key_unique_id_array) {
+	LogicalPlan *operand;
+	int	     i;
+
+	if (NULL == cond) {
+		return FALSE;
+	}
+	switch (cond->type) {
+	case LP_WHERE: /* A JOIN's ON condition */
+		return lp_is_key_column_compared(cond->v.lp_default.operand[0], unique_id, max_key_num, key_unique_id_array);
+	case LP_BOOLEAN_AND:
+		return lp_is_key_column_compared(cond->v.lp_default.operand[0], unique_id, max_key_num, key_unique_id_array)
+		       || lp_is_key_column_compared(cond->v.lp_default.operand[1], unique_id, max_key_num, key_unique_id_array);
+	case LP_BOOLEAN_EQUALS:
+	case LP_BOOLEAN_IS:
+	case LP_BOOLEAN_IN:
+	case LP_BOOLEAN_LESS_THAN:
+	case LP_BOOLEAN_GREATER_THAN:
+	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+		for (i = 0; i < 2; i++) {
+			SqlColumnAlias *column_alias;
+			SqlTableAlias  *table_alias;
+			SqlColumn      *column;
+
+			operand = cond->v.lp_default.operand[i];
+			if ((NULL == operand) || (LP_COLUMN_ALIAS != operand->type)) {
+				continue;
+			}
+			column_alias = operand->v.lp_column_alias.column_alias;
+			if (column_STATEMENT != column_alias->column->type) {
+				continue; /* e.g. a TABLENAME.ASTERISK */
+			}
+			UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+			if ((table_alias->unique_id != unique_id) || !IS_KEY_COLUMN(column)
+			    || (lp_get_key_num(column) > max_key_num)) {
+				continue; /* Not a key column of this table that the caller asks about */
+			}
+			if ((NULL != key_unique_id_array)
+			    && !can_fix_key_of_table(cond->v.lp_default.operand[1 - i], unique_id, key_unique_id_array)) {
+				continue; /* The other operand fixes nothing of this table (see above) */
+			}
+			return TRUE;
+		}
+		return FALSE;
+	default:
+		return FALSE;
+	}
+}
+
+/* Decide if a condition on a key column uses the column's cross reference instead of fixing the key in place
+ *
+ * Decides whether a condition on the primary key column "key" (a key that is not fixed yet) is better served by an AIM
+ * subscript cross reference on that column (YDBOcto#660) than by fixing the key in place.
+ *
+ * Fixed in place, a key column after the first still runs inside the FOR loops of the key columns before it: a
+ * "WHERE id = 5" on keys (acc, id) visits every "acc" and probes $DATA(^T(acc,5)) under each. The cross reference
+ * holds every "id" with the "acc" values it occurs with, so the rows are found directly.
+ *
+ * The cross reference is used only when all of the following hold. Otherwise the key is fixed in place as before.
+ *   - The column is not the first key column. The table's global already serves the first key column directly.
+ *   - The table is kept in a global (an AIM cross reference).
+ *   - The table has no ITERATOR column. An ITERATOR decides which subscripts of the global are rows (it may skip some),
+ *     but the cross reference indexes every stored subscript and gives the key columns before this one without calling
+ *     the ITERATOR, so it would give rows that are not in the table.
+ *   - The table has no cross reference yet, no key column before this one is fixed yet, and no condition of the WHERE
+ *     or of an ON can fix a key column before this one (see "lp_is_key_column_compared()"; a comparison with a column
+ *     of a table whose FOR loop comes later cannot, as that table's key is fixed to this one). A key column after
+ *     this one may already be fixed, so the order of the conditions does not change the plan.
+ *   - The condition gives the column one value ("=", "IS"), or the query has no LIMIT, or the FOR loops of the table's
+ *     key columns do not give the ORDER BY order (see "lp_is_order_by_with_limit_given_by_key_loops()"). With a LIMIT,
+ *     a walk of the cross reference through several values (a range or IN) would need a sort of every row it reads,
+ *     where the FOR loops need no sort and stop at the LIMIT.
+ */
+static boolean_t use_key_column_xref(LogicalPlan *plan, SqlKey *key, SqlTableAlias *table_alias, LPActionType type,
+				     int *key_unique_id_array) {
+	SqlTable	   *table;
+	SqlOptionalKeyword *source_keyword;
+	LogicalPlan	   *cur_key, *lp_key, *where, *table_join;
+	int		    key_num;
+	boolean_t	    is_one_value;
+
+	assert(!key->is_cross_reference_key && (NULL != key->column) && IS_KEY_COLUMN(key->column));
+	key_num = lp_get_key_num(key->column);
+	if (0 == key_num) {
+		return FALSE; /* The first key column: the table's global serves it */
+	}
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+	UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
+	if ('^' != source_keyword->v->v.value->v.string_literal[0]) {
+		return FALSE; /* A table kept in a local variable has no AIM cross reference */
+	}
+	if (table->has_iterator) {
+		return FALSE; /* An ITERATOR decides which subscripts are rows; the cross reference does not call it */
+	}
+	is_one_value = ((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_IS == type)); /* Not a range or an IN */
+	if (!is_one_value && lp_is_order_by_with_limit_given_by_key_loops(plan, table_alias, key_num)) {
+		return FALSE; /* With a LIMIT, the FOR loops give the ORDER BY order: no sort, and they stop at the LIMIT */
+	}
+	/* A table gets at most one cross reference. A key column before this one that is already fixed makes the loops
+	 * before this key run once, so fixing this key in place is then the cheaper plan. A key column after this one that
+	 * is already fixed is no obstacle: it is reached through the table's global after the cross reference. Whether
+	 * such a key was processed before this one depends only on the order of the conditions.
+	 */
+	cur_key = lp_get_keys(plan);
+	do {
+		SqlKey *other_key;
+
+		GET_LP(lp_key, cur_key, 0, LP_KEY);
+		other_key = lp_key->v.lp_key.key;
+		if (other_key->unique_id == table_alias->unique_id) {
+			if (other_key->is_cross_reference_key || (NULL != other_key->cross_reference_output_key)) {
+				return FALSE; /* The table already has its cross reference */
+			}
+			if ((LP_KEY_FIX == other_key->type) && (NULL != other_key->column) && IS_KEY_COLUMN(other_key->column)
+			    && (lp_get_key_num(other_key->column) < key_num)) {
+				return FALSE; /* An earlier key column is fixed: the loops before this key run once */
+			}
+		}
+		GET_LP_ALLOW_NULL(cur_key, cur_key, 1, LP_KEYS);
+	} while (NULL != cur_key);
+	where = lp_get_select_where(plan);
+	if (lp_is_key_column_compared(where->v.lp_default.operand[0], table_alias->unique_id, key_num - 1, key_unique_id_array)) {
+		return FALSE; /* An earlier key column is fixed by another condition: the loops before this key run once */
+	}
+	table_join = lp_get_table_join(plan);
+	do {
+		/* The ON condition of a JOIN that follows an OUTER JOIN is kept apart from the WHERE */
+		if (lp_is_key_column_compared(table_join->extra_detail.lp_table_join.join_on_condition, table_alias->unique_id,
+					      key_num - 1, key_unique_id_array)) {
+			return FALSE; /* An earlier key column is fixed by an ON condition: as above */
+		}
+		GET_LP_ALLOW_NULL(table_join, table_join, 1, LP_TABLE_JOIN);
+	} while (NULL != table_join);
+	return TRUE;
+}
+
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
 					 boolean_t num_outer_joins) {
 	int	    *key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
@@ -303,11 +521,10 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		if ((0 == key_unique_id_array[left_id]) && (0 == key_unique_id_array[right_id])) {
 			return where;
 		}
-		// If key_unique_id_array[right_id] == 0, that means the right column comes in from a parent query.
-		// In that case we want to fix the left column to the right column so no swapping needed. Hence the
-		// "0 != " check below (i.e. treats 0 as the highest possible unique_id; see comment in the function
-		// "lp_optimize_where_multi_equals_ands()" for more details on this).
-		if ((0 != key_unique_id_array[right_id]) && (key_unique_id_array[left_id] < key_unique_id_array[right_id])) {
+		// Fix the column of the table whose FOR loop comes later; a column of a parent query (key_unique_id_array[] == 0)
+		// is never fixed (see "is_column_fixed_to_other_table()", and the comment in the function
+		// "lp_optimize_where_multi_equals_ands()" for more details on this). If that is the right column, swap.
+		if (!is_column_fixed_to_other_table(key_unique_id_array, left_id, right_id)) {
 			t = left;
 			left = right;
 			right = t;
@@ -502,6 +719,22 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 * The same is true of a cross reference kept in a local variable (see the "is_like_prefix" check below).
 		 */
 		return where;
+	}
+	/* A condition on a primary key column after the first one is served by a cross reference on that column when
+	 * "use_key_column_xref()" says so (YDBOcto#660). The new cross reference key replaces the key; it is fixed below as
+	 * the cross reference key of a non-key column is.
+	 */
+	if ((NULL != key) && !key->is_cross_reference_key && (NULL != key->column) && IS_KEY_COLUMN(key->column)
+	    && (LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)
+	    && use_key_column_xref(plan, key, table_alias, type, key_unique_id_array)) {
+		SqlTable *table;
+		SqlKey	 *xref_key;
+
+		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+		xref_key = lp_insert_xref_key(plan, table, column_alias, table_alias);
+		if (NULL != xref_key) {
+			key = xref_key;
+		}
 	}
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {

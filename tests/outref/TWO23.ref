@@ -1,0 +1,410 @@
+# TWO23 : OCTO660 : A WHERE or ON on a primary key column after the first gives the same rows as PostgreSQL
+# Every query below is crosschecked against PostgreSQL first. Then the test runs them again in Octo, one at a
+# time, and shows each with its result and the plan Octo chose. The comment above each query states the rows it
+# should give. The PLAN: line says, for a query with an ORDER BY:
+#   [sort]                     the plan collects the rows and sorts them
+#   [no sort]                  the rows come out of the FOR loops of the keys in ORDER BY order (those of the
+#                              table's global, or those under one value of a cross reference)
+#   [no sort, ascending walk]  the plan walks an AIM cross reference forward, through several of its values
+#   [no sort, descending walk] the plan walks an AIM cross reference backward, through several of its values
+#   and, for every query:
+#   xref:  the columns whose AIM cross reference the plan walks or probes
+#   fixed: the keys that the WHERE or ON fixes to one value, so that their FOR loop runs once; (walk) for a key
+#          fixed to each value of a range in turn. A fixed cross reference key is listed too.
+
+-- ############################################################################################################
+-- Part A (crosschecked against PostgreSQL)
+-- The composite table: 8 key columns id0 to id7 and name. A WHERE on one key column after the first walks the cross
+-- reference of that column, instead of the FOR loops of every key column before it.
+-- The rows, in key order:
+--   Name1  (0,1,2,3,4,5,6,7)  Name2  (0,1,2,3,4,5,6,8)  Name3  (0,1,2,3,4,5,7,7)  Name4  (0,1,2,3,4,5,8,7)
+--   Name5  (0,1,2,3,4,6,8,7)  Name6  (0,1,2,3,5,6,8,7)  Name7  (0,1,2,4,5,6,8,7)  Name8  (0,1,3,4,5,6,8,7)
+--   Name9  (0,2,3,4,5,6,8,7)  Name10 (1,2,3,4,5,6,8,7)
+SELECT * FROM composite;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+(10 rows)
+PLAN: xref: none fixed: none
+
+-- ############################################################################################################
+-- Part B (crosschecked against PostgreSQL)
+-- A WHERE on one later key column: the plan walks its cross reference (ORDER BY name sorts in every query).
+-- xref and fixed id4: Name10 Name6 Name7 Name8 Name9
+SELECT * FROM composite WHERE id4 = 5 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(5 rows)
+PLAN: [sort] xref: composite.id4 fixed: composite.id4
+
+-- xref and fixed id7: Name2
+SELECT * FROM composite WHERE id7 = 8 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|8|Name2
+(1 row)
+PLAN: [sort] xref: composite.id7 fixed: composite.id7
+
+-- xref of id6, fixed to 6 then 7: Name1 Name2 Name3
+SELECT * FROM composite WHERE id6 IN (6, 7) ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+(3 rows)
+PLAN: [sort] xref: composite.id6 fixed: composite.id6
+
+-- xref of id5, walked from 5: Name10 Name5 Name6 Name7 Name8 Name9
+SELECT * FROM composite WHERE id5 > 5 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(6 rows)
+PLAN: [sort] xref: composite.id5 fixed: composite.id5 (walk)
+
+-- xref of id3, walked up to 3: Name1 Name2 Name3 Name4 Name5 Name6
+SELECT * FROM composite WHERE id3 <= 3 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+(6 rows)
+PLAN: [sort] xref: composite.id3 fixed: composite.id3 (walk)
+
+-- xref of id2, walked from 3 to 4: Name10 Name8 Name9
+SELECT * FROM composite WHERE id2 BETWEEN 3 AND 4 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(3 rows)
+PLAN: [sort] xref: composite.id2 fixed: composite.id2 (walk)
+
+-- xref and fixed id1: no row has id1 = 9
+SELECT * FROM composite WHERE id1 = 9 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+(0 rows)
+PLAN: [sort] xref: composite.id1 fixed: composite.id1
+
+-- xref and fixed id6: Name4 to Name10, 7 rows
+SELECT COUNT(*) FROM composite WHERE id6 = 8;
+count(*)
+7
+(1 row)
+PLAN: xref: composite.id6 fixed: composite.id6
+
+-- ############################################################################################################
+-- Part C (crosschecked against PostgreSQL)
+-- Two later key columns, in both orders: the earlier one (id4) gets the cross reference, and the later one (id6) is
+-- fixed in place under it. Name10 Name6 Name7 Name8 Name9
+SELECT * FROM composite WHERE id4 = 5 AND id6 = 8 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(5 rows)
+PLAN: [sort] xref: composite.id4 fixed: composite.id4 composite.id6
+
+SELECT * FROM composite WHERE id6 = 8 AND id4 = 5 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(5 rows)
+PLAN: [sort] xref: composite.id4 fixed: composite.id4 composite.id6
+
+-- An earlier key column constrained as well: no cross reference; the earlier key is fixed, so the loops before the
+-- later key run once, and the later key is fixed in place too.
+-- id1 and id7 fixed: Name1 Name3 Name4 Name5 Name6 Name7 Name8
+SELECT * FROM composite WHERE id7 = 7 AND id1 = 1 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+(7 rows)
+PLAN: [sort] xref: composite.id1 fixed: composite.id1 composite.id7
+
+-- id0 and id5 fixed: Name5 Name6 Name7 Name8 Name9
+SELECT * FROM composite WHERE id0 = 0 AND id5 = 6 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(5 rows)
+PLAN: [sort] xref: none fixed: composite.id0 composite.id5
+
+-- ############################################################################################################
+-- Part D (crosschecked against PostgreSQL)
+-- JOINs whose ON fixes a later key column of the joined table (c2) to a value or to a column of the other table (c1).
+-- c2.id6 = c1.id5: each of Name5 to Name10 (id5 = 6) with Name1 and Name2 (id6 = 6), 12 rows
+SELECT c1.name, c2.name FROM composite c1 INNER JOIN composite c2 ON c2.id6 = c1.id5 ORDER BY 1, 2;
+name|name
+Name10|Name1
+Name10|Name2
+Name5|Name1
+Name5|Name2
+Name6|Name1
+Name6|Name2
+Name7|Name1
+Name7|Name2
+Name8|Name1
+Name8|Name2
+Name9|Name1
+Name9|Name2
+(12 rows)
+PLAN: [sort] xref: composite.id6 fixed: composite.id6
+
+-- Name5 to Name10 (c1.id5 = 6), each with Name2 (c2.id7 = 8)
+SELECT c1.name, c2.name FROM composite c1 LEFT JOIN composite c2 ON c2.id7 = 8 WHERE c1.id5 = 6 ORDER BY 1, 2;
+name|name
+Name10|Name2
+Name5|Name2
+Name6|Name2
+Name7|Name2
+Name8|Name2
+Name9|Name2
+(6 rows)
+PLAN: [sort] xref: composite.id5 composite.id7 fixed: composite.id5 composite.id7
+
+-- No row has id7 = 9: Name5 to Name10, each with a NULL c2.name (shown empty)
+SELECT c1.name, c2.name FROM composite c1 LEFT JOIN composite c2 ON c2.id7 = 9 WHERE c1.id5 = 6 ORDER BY 1, 2;
+name|name
+Name10|
+Name5|
+Name6|
+Name7|
+Name8|
+Name9|
+(6 rows)
+PLAN: [sort] xref: composite.id5 composite.id7 fixed: composite.id5 composite.id7
+
+-- Name2 (c2.id7 = 8) with each of Name1 to Name5 (c1.id4 = 4); every other c2 row with a NULL c1.name, last
+SELECT c1.name, c2.name FROM composite c1 RIGHT JOIN composite c2 ON c1.id4 = 4 AND c2.id7 = 8 ORDER BY 1, 2;
+name|name
+Name1|Name2
+Name2|Name2
+Name3|Name2
+Name4|Name2
+Name5|Name2
+|Name1
+|Name10
+|Name3
+|Name4
+|Name5
+|Name6
+|Name7
+|Name8
+|Name9
+(14 rows)
+PLAN: [sort] xref: composite.id7 fixed: composite.id7
+
+-- PostgreSQL runs a FULL JOIN only on a condition that compares the two tables. c2.id7 = c1.id6: Name3 (id6 = 7)
+-- with the 9 rows whose id7 = 7, Name4 to Name10 (id6 = 8) with Name2, and Name1 and Name2 (id6 = 6) with NULL
+SELECT c1.name, c2.name FROM composite c1 FULL JOIN composite c2 ON c2.id7 = c1.id6 ORDER BY 1, 2;
+name|name
+Name1|
+Name10|Name2
+Name2|
+Name3|Name1
+Name3|Name10
+Name3|Name3
+Name3|Name4
+Name3|Name5
+Name3|Name6
+Name3|Name7
+Name3|Name8
+Name3|Name9
+Name4|Name2
+Name5|Name2
+Name6|Name2
+Name7|Name2
+Name8|Name2
+Name9|Name2
+(18 rows)
+PLAN: [sort] xref: composite.id7 fixed: composite.id7
+
+-- ############################################################################################################
+-- Part E (crosschecked against PostgreSQL)
+-- A later key column and a non-key column (name). A table gets one cross reference per query: the condition that
+-- comes first gets it (of id4, or of name), and the other condition is checked on each row. Both: Name7
+SELECT * FROM composite WHERE id4 = 5 AND name = 'Name7' ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|4|5|6|8|7|Name7
+(1 row)
+PLAN: [sort] xref: composite.id4 fixed: composite.id4
+
+SELECT * FROM composite WHERE name = 'Name7' AND id4 = 5 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|4|5|6|8|7|Name7
+(1 row)
+PLAN: [no sort] xref: composite.name fixed: composite.name
+
+-- A row comparison (c1.* = c2.*) next to a condition on a later key column: (Name2, Name2)
+SELECT c1.name, c2.name FROM composite c1 INNER JOIN composite c2 ON c1.* = c2.* WHERE c2.id7 = 8 ORDER BY 1, 2;
+name|name
+Name2|Name2
+(1 row)
+PLAN: [sort] xref: composite.id7 fixed: composite.id7
+
+-- ############################################################################################################
+-- Part F (crosschecked against PostgreSQL)
+-- ORDER BY every key column, in both directions: the rows come in the order of the cross reference walk, without a
+-- sort. A range on id4 walks the cross reference of id4 through its values; with id4 = 5, id0 to id3 advance from the
+-- cross reference under that one value.
+-- [no sort, ascending walk] Name6 Name7 Name8 Name9 Name10
+SELECT * FROM composite WHERE id4 > 4 ORDER BY id4, id0, id1, id2, id3, id5, id6, id7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+(5 rows)
+PLAN: [no sort, ascending walk] xref: composite.id4 fixed: composite.id4 (walk)
+
+-- [no sort, descending walk] Name10 Name9 Name8 Name7 Name6
+SELECT * FROM composite WHERE id4 > 4 ORDER BY id4 DESC, id0 DESC, id1 DESC, id2 DESC, id3 DESC, id5 DESC, id6 DESC, id7 DESC;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|2|3|4|5|6|8|7|Name9
+0|1|3|4|5|6|8|7|Name8
+0|1|2|4|5|6|8|7|Name7
+0|1|2|3|5|6|8|7|Name6
+(5 rows)
+PLAN: [no sort, descending walk] xref: composite.id4 fixed: composite.id4 (walk)
+
+-- [no sort] id4 is one value of the cross reference, and id0 to id3, then id5 to id7, come in key order under it:
+-- Name6 Name7 Name8 Name9 Name10
+SELECT * FROM composite WHERE id4 = 5 ORDER BY id0, id1, id2, id3, id5, id6, id7;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+(5 rows)
+PLAN: [no sort] xref: composite.id4 fixed: composite.id4
+
+-- [no sort] the same, in descending key order: Name10 Name9 Name8 Name7 Name6
+SELECT * FROM composite WHERE id4 = 5 ORDER BY id0 DESC, id1 DESC, id2 DESC, id3 DESC, id5 DESC, id6 DESC, id7 DESC;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+1|2|3|4|5|6|8|7|Name10
+0|2|3|4|5|6|8|7|Name9
+0|1|3|4|5|6|8|7|Name8
+0|1|2|4|5|6|8|7|Name7
+0|1|2|3|5|6|8|7|Name6
+(5 rows)
+PLAN: [no sort] xref: composite.id4 fixed: composite.id4
+
+-- ############################################################################################################
+-- Part G (crosschecked against PostgreSQL)
+-- UPDATE and DELETE with a WHERE on a later key column, on TWO23, a copy of composite. Each one is followed by the
+-- rows of TWO23 after it.
+-- The rows of the copy: the same as composite's
+SELECT * FROM TWO23 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+1|2|3|4|5|6|8|7|Name10
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+(10 rows)
+PLAN: [no sort, ascending walk] xref: two23.name fixed: none
+
+-- id6 = 8 is Name4 to Name10: each becomes Name<n>u
+UPDATE TWO23 SET name = name || 'u' WHERE id6 = 8;
+UPDATE 7
+PLAN: xref: two23.id6 fixed: two23.id6
+
+SELECT * FROM TWO23 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|7|Name1
+1|2|3|4|5|6|8|7|Name10u
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4u
+0|1|2|3|4|6|8|7|Name5u
+0|1|2|3|5|6|8|7|Name6u
+0|1|2|4|5|6|8|7|Name7u
+0|1|3|4|5|6|8|7|Name8u
+0|2|3|4|5|6|8|7|Name9u
+(10 rows)
+PLAN: [no sort, ascending walk] xref: two23.name fixed: none
+
+-- id7 = 7 is every row but Name2: id7 becomes 17, each row moved once
+UPDATE TWO23 SET id7 = id7 + 10 WHERE id7 = 7;
+UPDATE 9
+PLAN: xref: two23.id7 fixed: two23.id7
+
+SELECT * FROM TWO23 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|17|Name1
+1|2|3|4|5|6|8|17|Name10u
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|17|Name3
+0|1|2|3|4|5|8|17|Name4u
+0|1|2|3|4|6|8|17|Name5u
+0|1|2|3|5|6|8|17|Name6u
+0|1|2|4|5|6|8|17|Name7u
+0|1|3|4|5|6|8|17|Name8u
+0|2|3|4|5|6|8|17|Name9u
+(10 rows)
+PLAN: [no sort, ascending walk] xref: two23.name fixed: none
+
+-- id5 = 6 is Name5u to Name10u: Name1 Name2 Name3 Name4u remain
+DELETE FROM TWO23 WHERE id5 = 6;
+DELETE 6
+PLAN: xref: two23.id5 fixed: two23.id5
+
+SELECT * FROM TWO23 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|17|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|17|Name3
+0|1|2|3|4|5|8|17|Name4u
+(4 rows)
+PLAN: [no sort, ascending walk] xref: two23.name fixed: none
+
+-- id7 > 15 is Name1, Name3 and Name4u (id7 = 17): Name2 remains
+DELETE FROM TWO23 WHERE id7 > 15;
+DELETE 3
+PLAN: xref: two23.id7 fixed: two23.id7 (walk)
+
+SELECT * FROM TWO23 ORDER BY name;
+id0|id1|id2|id3|id4|id5|id6|id7|name
+0|1|2|3|4|5|6|8|Name2
+(1 row)
+PLAN: [no sort, ascending walk] xref: two23.name fixed: none

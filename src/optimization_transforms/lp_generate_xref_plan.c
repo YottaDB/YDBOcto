@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -75,6 +75,10 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
 	for (cur_key = 0; cur_key <= max_key; cur_key++) {
+		if (key_columns[cur_key] == column) {
+			/* The cross reference of a primary key column (YDBOcto#660): the column is listed once, above */
+			continue;
+		}
 		MALLOC_LP_2ARGS(column_list->v.lp_default.operand[1], LP_COLUMN_LIST);
 		GET_LP(column_list, column_list, 1, LP_COLUMN_LIST);
 		MALLOC_LP(cur, column_list->v.lp_default.operand[0], LP_WHERE);

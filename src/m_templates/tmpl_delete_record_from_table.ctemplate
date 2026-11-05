@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2024 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -79,12 +79,16 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 	total_keys = pplan->total_iter_keys;
 	iter_key_index = 0;
 	key = pplan->iterKeys[0];
-	/* Skip cross reference key (if any) */
-	if (key->is_cross_reference_key) {
+	/* The KILL names the row's node in the table's global, whose subscripts are the values of the plan's keys. The cross
+	 * reference key of a non-key column (if any) holds that column's value, which is not a subscript of the row: skip
+	 * it. The cross reference key of a primary key column (YDBOcto#660) holds that key column's value, which is one of
+	 * the row's subscripts: keep it.
+	 */
+	if (!IS_ROW_KEY(key)) {
 		total_keys--;
 		key = pplan->iterKeys[++iter_key_index];
 		/* We expect only ONE cross reference key in the DELETE FROM query since only 1 table is involved and
-		 * currently we only xref a max of 1 non-key column in one table.
+		 * currently we only xref a max of 1 column in one table.
 		 */
 		assert(!key->is_cross_reference_key);
 	}
@@ -97,7 +101,7 @@ TEMPLATE(tmpl_delete_record_from_table, PhysicalPlan *pplan, int dot_count) {
 	keys_to_match = 0;
 	for ( ; ; ) {
 		plan_key = pplan->iterKeys[iter_key_index];
-		assert(!plan_key->is_cross_reference_key);
+		assert(IS_ROW_KEY(plan_key));
 		if (plan_key->unique_id == key->unique_id) {
 			keys_to_match++;
 		}

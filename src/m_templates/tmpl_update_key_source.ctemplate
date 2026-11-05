@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -48,53 +48,71 @@
 TEMPLATE(tmpl_update_key_source, PhysicalPlan *pplan, boolean_t pre_update) {
 	boolean_t	is_first_col;
 	LogicalPlan	*lp_update;
-	unsigned int	iter_key_index, total_keys;
+	unsigned int	iter_key_index;
+	int		key_num, num_key_columns;
 
 	assert(is_update_keycol_or_xref(pplan));
-	is_first_col = TRUE;
-	iter_key_index = 0;
-	total_keys = pplan->total_iter_keys;
+	/* The subscripts are the table's key columns in key order (KEY NUM), whatever order the plan's keys are in. With the
+	 * cross reference of a key column (YDBOcto#660), its key comes before the keys of the key columns before it, e.g.
+	 * "id2" before "id1" with PRIMARY KEY (id1, id2). An UPDATE whose WHERE has an OR runs one plan per alternative, and
+	 * each plan checks and notes the rows already updated in this same lvn, so all of them must use the same order:
+	 * otherwise a row updated by one plan is not found by the next one, which updates it again.
+	 * So for each KEY NUM in turn, the loop below looks for the plan key of that key column. A table has few key
+	 * columns, so the search is short.
+	 */
+	num_key_columns = 0;
+	for (iter_key_index = 0; iter_key_index < pplan->total_iter_keys; iter_key_index++) {
+		if (!IS_ROW_KEY(pplan->iterKeys[iter_key_index])) {
+			continue; /* The cross reference key of a non-key column: not part of the row's primary key */
+		}
+		num_key_columns++;
+	}
+
 	lp_update = pplan->lp_select_query;
-	for ( ; ; ) {
-		SqlKey		*plan_key;
+	is_first_col = TRUE;
+	for (key_num = 0; key_num < num_key_columns; key_num++) {
+		SqlKey	    *plan_key;
+		LogicalPlan *lp_column_list;
+		boolean_t    is_a_key_col;
 
-		plan_key = pplan->iterKeys[iter_key_index];
-		if (!plan_key->is_cross_reference_key) {
-			LogicalPlan *lp_column_list;
-			lp_column_list = lp_get_update_column_list(lp_update);
+		plan_key = NULL;
+		for (iter_key_index = 0; iter_key_index < pplan->total_iter_keys; iter_key_index++) {
+			SqlKey *cur_key;
 
-			boolean_t	is_a_key_col;
-			is_a_key_col = FALSE;
-			do {
-				LogicalPlan	*lp_upd_col_value, *lp_column;
-				SqlColumn	*cur_column;
-
-				GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
-				GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);
-				cur_column = lp_column->v.lp_column.column;
-				if (cur_column == plan_key->column) {
-					/* This key column was specified in the SET clause. */
-					is_a_key_col = TRUE;
-					break;
-				}
-				GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
-			} while (NULL != lp_column_list);
-			if (is_first_col) {
-				%{}{{ PP_YDB_OCTO_UPD }}({}%
-			} else {
-				%{},{}%
-			}
-			is_first_col = FALSE;
-			/* See last paragraph of comment at start of this function to see why the below "if" check is needed */
-			if (is_a_key_col && !pre_update) {
-				%{}{{ PP_COL }}({{ plan_key->column->column_number|%d }}){}%
-			} else {
-				TMPL(tmpl_key, plan_key);
+			cur_key = pplan->iterKeys[iter_key_index];
+			if (IS_ROW_KEY(cur_key) && (key_num == lp_get_key_num(cur_key->column))) {
+				plan_key = cur_key;
+				break;
 			}
 		}
-		iter_key_index++;
-		if (iter_key_index >= total_keys) {
-			break;
+		assert(NULL != plan_key); /* Every key column of the table has a key in the plan */
+		lp_column_list = lp_get_update_column_list(lp_update);
+		is_a_key_col = FALSE;
+		do {
+			LogicalPlan	*lp_upd_col_value, *lp_column;
+			SqlColumn	*cur_column;
+
+			GET_LP(lp_upd_col_value, lp_column_list, 0, LP_UPD_COL_VALUE);
+			GET_LP(lp_column, lp_upd_col_value, 0, LP_COLUMN);
+			cur_column = lp_column->v.lp_column.column;
+			if (cur_column == plan_key->column) {
+				/* This key column was specified in the SET clause. */
+				is_a_key_col = TRUE;
+				break;
+			}
+			GET_LP_ALLOW_NULL(lp_column_list, lp_column_list, 1, LP_COLUMN_LIST);
+		} while (NULL != lp_column_list);
+		if (is_first_col) {
+			%{}{{ PP_YDB_OCTO_UPD }}({}%
+		} else {
+			%{},{}%
+		}
+		is_first_col = FALSE;
+		/* See last paragraph of comment at start of this function to see why the below "if" check is needed */
+		if (is_a_key_col && !pre_update) {
+			%{}{{ PP_COL }}({{ plan_key->column->column_number|%d }}){}%
+		} else {
+			TMPL(tmpl_key, plan_key);
 		}
 	}
 	%{}){}%

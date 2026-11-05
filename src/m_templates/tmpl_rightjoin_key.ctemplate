@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,18 +15,27 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *pplan, unsigned int key_start, unsigned int key_end) {
-	%{}{{ key_start|%d }},{}%
+	boolean_t	is_first_key;
+
+	%{}{{ key_start|%d }}{}%
 	assert(key_start < key_end);
+	is_first_key = TRUE;
 	do {
 		SqlKey	*key;
 
 		key = pplan->iterKeys[key_start];
-		if (!key->is_cross_reference_key)
-			TMPL(tmpl_key, key);
-		key_start++;
-		if ((key_start < key_end) && !key->is_cross_reference_key)
+		/* The primary keys of the row. The cross reference key of a primary key column (YDBOcto#660) is one:
+		 * two rows that differ only in that column are two rows.
+		 */
+		if (IS_ROW_KEY(key)) {
 			%{},{}%
+			TMPL(tmpl_key, key);
+			is_first_key = FALSE;
+		}
+		key_start++;
 	} while (key_start < key_end);
+	assert(!is_first_key);
+	UNUSED(is_first_key);	/* Only consumed by the assert above; quiets release-build warnings */
 	return;
 }
 %{}

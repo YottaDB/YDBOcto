@@ -19,6 +19,8 @@
 
 /* Replaces the keys of the table "table_alias" in the LP_KEYS list of "plan" with a cross reference key on the non-key
  * column "column_alias" followed by the table's primary key columns (which are then advanced from the cross reference).
+ * For a primary key column (YDBOcto#660) the cross reference key takes that column's place, and the other primary key
+ * columns follow it (see "get_key_column_xref_advance_keys()").
  * It also replaces the table in the LP_TABLE_JOIN list with the plan that builds the cross reference
  * (see "lp_generate_xref_keys()").
  *

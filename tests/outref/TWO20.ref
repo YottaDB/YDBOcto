@@ -614,4 +614,4 @@ SELECT id, x FROM TWO20viewsub ORDER BY id;
 SELECT id, x FROM TWO20viewsub2 ORDER BY id;
   Plan N:
     $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr)
-    QUIT:(%ydboctozkeyfix(2,0)="")!($ZEXTRACT(%ydboctozkeyfix(2,0),1,$ZLENGTH(%ydboctozkeyfix(2,0,1)))'=%ydboctozkeyfix(2,0,1))
+    QUIT:(%ydboctozkeyfix(2,0)="")!($ZEXTRACT(%ydboctozkeyfix(2,0),1,$ZLENGTH(%ydboctozkeyfix(2,0,1)))'=%ydboctozkeyfix(2,0,1))!((1)'>%ydboctozlimit(9))

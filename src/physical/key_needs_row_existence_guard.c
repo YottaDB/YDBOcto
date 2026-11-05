@@ -48,9 +48,13 @@
  *   "xref_output_key_ignored" - TRUE when the caller is about to clear "cross_reference_output_key"
  *                  for this emission, i.e. the FOR loop about to be generated is an ordinary bare
  *                  $ORDER over the table's own global even though the key names a cross reference.
+ *                  Also TRUE for the cross reference key of a key column (YDBOcto#660) in the second half
+ *                  of a right join, which is walked the same way.
  */
 boolean_t key_needs_row_existence_guard(PhysicalPlan *pplan, SqlKey *key, unsigned int cur_key, unsigned int total_keys,
 					boolean_t xref_output_key_ignored) {
+	boolean_t walks_cross_reference;
+
 	assert(cur_key < total_keys);
 	if (NULL == key->table) {
 		/* Not a key of a real table (e.g. the output key of a derived table), so there is no
@@ -58,7 +62,18 @@ boolean_t key_needs_row_existence_guard(PhysicalPlan *pplan, SqlKey *key, unsign
 		 */
 		return FALSE;
 	}
-	if (key->is_cross_reference_key || ((NULL != key->cross_reference_output_key) && !xref_output_key_ignored)) {
+	/* Whether the FOR loop of this key walks an AIM global rather than the table's own global */
+	if (key->is_cross_reference_key) {
+		/* A cross reference key walks the AIM global. The one exception is the cross reference key of a primary
+		 * key column (YDBOcto#660) in the second half of a right join: the caller emits it as that key column's
+		 * own $ORDER over the table's global ("xref_output_key_ignored"), so it is a table key like any other.
+		 */
+		walks_cross_reference = !(IS_KEY_COLUMN_XREF(key) && xref_output_key_ignored);
+	} else {
+		/* A table key advanced from a cross reference, unless the caller drops the cross reference */
+		walks_cross_reference = ((NULL != key->cross_reference_output_key) && !xref_output_key_ignored);
+	}
+	if (walks_cross_reference) {
 		/* This key is part of a cross reference, or is advanced by reading one: a non-NULL
 		 * "cross_reference_output_key" means the FOR loop for this table key $ORDERs the AIM
 		 * global's key dimension under one value instead of the table's own global. Either way

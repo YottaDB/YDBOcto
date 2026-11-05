@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,7 +14,14 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix) {
+/* Emit the M expression that compares the LIMIT of the query with a count of rows
+ *
+ * Emits "prefix" followed by "(limit" "suffix" ")", where "limit" is the LIMIT value of the query. "suffix" is a comparison
+ * of that value with a variable, e.g. "'>" PP_YDB_OCTO_ZLIMIT. If "suffix_unique_id" is not 0, that variable gets it as a
+ * subscript (the unique_id of the output key whose rows are counted), e.g. "(limit'>%ydboctozlimit(3))". Plan unique_ids
+ * start at 1 (see "parse_line()"), so 0 means "no subscript".
+ */
+TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix, int suffix_unique_id) {
 	SqlValue	*limit;
 
 	UNPACK_SQL_STATEMENT(limit, limit_keyword->v, value);
@@ -29,7 +36,11 @@ TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char
 		 */
 		%{}(({{ limit->v.string_literal }}){}%
 	}
-	%{}{{ suffix }}){}%
+	%{}{{ suffix }}{}%
+	if (0 != suffix_unique_id) {
+		%{}({{ suffix_unique_id|%d }}){}%
+	}
+	%{}){}%
 	return;
 }
 %{}

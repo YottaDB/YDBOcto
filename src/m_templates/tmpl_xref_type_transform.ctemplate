@@ -16,7 +16,8 @@
 
 /* Emits the trailing arguments of an XREFDATA^%YDBAIM call: the AIM metadata "type" argument, the optional
  * transformation-function argument, the decoupled record anchor arguments (when the table needs one), and the
- * closing ")" of the XREFDATA call.
+ * closing ")" of the XREFDATA call. The same arguments end an XREFSUB^%YDBAIM call, for a primary key column
+ * (YDBOcto#660), with "needs_anchor" FALSE: XREFSUB has no record anchor, and takes type 0 or 2.
  *
  * A column is indexed either directly (no transform) or through a single AIM transformation function that
  * composes everything AIM must apply so that it indexes the same value the read-side plans look up (AIM allows

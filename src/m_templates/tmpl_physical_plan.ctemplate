@@ -233,10 +233,16 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			is_dollar_char = FALSE;
 		}
 
+		/* A primary key column (YDBOcto#660) is cross referenced as a subscript of the table's own global
+		 * (XREFSUB^%YDBAIM), not as a value (XREFDATA^%YDBAIM).
+		 */
+		boolean_t is_key_column;
+		is_key_column = IS_KEY_COLUMN(column);
+
 		// Get source
 		keyword = get_keyword(column, OPTIONAL_EXTRACT);
 		if (NULL == keyword) {
-			keyword = get_keyword(column, OPTIONAL_GLOBAL);
+			keyword = is_key_column ? NULL : get_keyword(column, OPTIONAL_GLOBAL);
 			if (NULL == keyword) {
 				UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 			}
@@ -297,6 +303,30 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				%{}NEW recbase,recsub DO recSubs(.recbase,.recsub){}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
+			if (is_key_column) {
+				/* XREFSUB^%YDBAIM (YDBOcto#660). With a record anchor, its DEPTH (the root of recsub, see recSubs)
+				 * is the "depth" argument of XREFSUB too: a row whose node holds no value exists through a node
+				 * below it, down to that depth, as the table scan sees it.
+				 */
+				%{}; XREFSUB parameters: global, subscripts, subscript number, nmonly (0 here),{}%
+				%{} omitfix (always 1), stat (0 for now),{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{};   AIM Metadata Type (0, or 2 with a transformation function), forceStrOrder (1 for STRING{}%
+				%{} type columns) or the transformation function, comment, depth (the record anchor's, if any){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW comment SET comment="{{ comment }}"{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW snum SET snum=$$keySub(){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW aimglobal SET aimglobal=$$XREFSUB^%%YDBAIM(base,.subs,snum,0,1,0,{}%
+				/* The type and transformation function as for a column without a record anchor (XREFSUB has none) */
+				TMPL(tmpl_xref_type_transform, table, column, FALSE, FALSE, NULL, NULL);
+				if (needs_anchor) {
+					/* The depth follows the comment: replace the call's closing ")" emitted above */
+					(*buffer_index)--;
+					%{},recsub){}%
+				}
+			} else {
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (0 here),{}%
 			%{} zpiece (always 0), omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -329,6 +359,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			 * record anchor arguments (if needed), then close the XREFDATA call.
 			 */
 			TMPL(tmpl_xref_type_transform, table, column, needs_anchor, is_multi_level_piece, outer_spec, substr_spec);
+			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Now that xref building is complete, cleanup saved cancel related state information{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -342,7 +373,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}; Otherwise, %%ydboctoDiscard will have no way to figure out how to discard the AIM global.{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
-			if (NULL == piece) {
+			if (is_key_column) {
+				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%
+				%{})=$name(@aimglobal@(snum)){}%
+			} else if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%
 				%{})=$name(@aimglobal@(0)){}%
 			} else {
@@ -364,6 +398,30 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 				%{}NEW recbase,recsub DO recSubs(.recbase,.recsub){}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 			}
+			if (is_key_column) {
+				/* XREFSUB^%YDBAIM (YDBOcto#660). With a record anchor, its DEPTH (the root of recsub, see recSubs)
+				 * is the "depth" argument of XREFSUB too: a row whose node holds no value exists through a node
+				 * below it, down to that depth, as the table scan sees it.
+				 */
+				%{}; XREFSUB parameters: global, subscripts, subscript number, nmonly (1 here),{}%
+				%{} omitfix (always 1), stat (0 for now),{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{};   AIM Metadata Type (0, or 2 with a transformation function), forceStrOrder (1 for STRING{}%
+				%{} type columns) or the transformation function, comment, depth (the record anchor's, if any){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW comment SET comment="{{ comment }}"{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW snum SET snum=$$keySub(){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW aimglobal SET aimglobal=$$XREFSUB^%%YDBAIM(base,.subs,snum,1,1,0,{}%
+				/* The type and transformation function as for a column without a record anchor (XREFSUB has none) */
+				TMPL(tmpl_xref_type_transform, table, column, FALSE, FALSE, NULL, NULL);
+				if (needs_anchor) {
+					/* The depth follows the comment: replace the call's closing ")" emitted above */
+					(*buffer_index)--;
+					%{},recsub){}%
+				}
+			} else {
 			%{}; XREFDATA parameters: global, subscripts, delimiter, piece, nmonly (1 here), zpiece (always 0),{}%
 			%{} omitfix (always 1),{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -391,8 +449,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			// Same type + transform as the nmonly=0 build call above (one template keeps them in sync; the
 			// AIM global name returned by this nmonly=1 call, and cached for the read-side plan, hashes them).
 			TMPL(tmpl_xref_type_transform, table, column, needs_anchor, is_multi_level_piece, outer_spec, substr_spec);
+			}
 			%{}`n{{ PLAN_LINE_START }}{}%
-			if (NULL == piece) {
+			if (is_key_column) {
+				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%
+				%{})=$name(@aimglobal@(snum)){}%
+			} else if (NULL == piece) {
 				%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_LOCATION}}"{}%
 				%{})=$name(@aimglobal@(0)){}%
 			} else {
@@ -431,6 +493,28 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{};{}%
 			%{}`n{}%
+			if (is_key_column) {
+				/* Private entry point keySub (YDBOcto#660): the position of the key column's subscript among
+				 * those of the table's global, the "snum" of XREFSUB^%YDBAIM. The global is emitted as in
+				 * baseSubs, with the key column as a marker subscript, and found with $QSUBSCRIPT: counting
+				 * subscripts in C would mean parsing keys(...), nested parentheses and quoted literals.
+				 */
+				%{}`nkeySub:() ; Private entry point: the position of {{ columnName }}'s subscript in the table's global{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}; YottaDB parses the global: {{ columnName }}'s subscript is the one emitted as "%%ydboctoSNUM"{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW global SET global=$NAME({}%
+				TMPL(tmpl_emit_source, table, source, tableName, pplan->outputKey->unique_id, (void *)column,	\
+					MAX_KEY_COUNT, EmitSourceForm_AIM);
+				%{}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}NEW subn FOR subn=1:1:$QLENGTH(global) QUIT:"%%ydboctoSNUM"=$QSUBSCRIPT(global,subn){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{}QUIT subn{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				%{};{}%
+				%{}`n{}%
+			}
 			// Private entry point recSubs (YDBAIM#96): the DECOUPLED RECORD ANCHOR.
 			//
 			// baseSubs above says where the COLUMN VALUE lives. recSubs says where a ROW lives,
@@ -841,7 +925,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			TMPL(tmpl_order_by_key, num_cols);
 			%{})) QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
 			if (NULL != limit_keyword) {
-				TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)");
+				TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)", 0);
 			}
 			%{}  DO`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, num_cols);

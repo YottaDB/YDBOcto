@@ -181,6 +181,10 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		if (key->is_order_by_xref_walk) {
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- order_by_xref_walk: true\n", depth, "");
 		}
+		/* The cross reference of a primary key column (YDBOcto#660). Printed only when TRUE, as above. */
+		if (IS_KEY_COLUMN_XREF(key)) {
+			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- key_column_xref: true\n", depth, "");
+		}
 		if (key->emit_desc_order) {
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- desc: true\n", depth, "");
 		}

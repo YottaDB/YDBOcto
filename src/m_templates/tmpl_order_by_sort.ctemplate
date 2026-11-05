@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,7 @@ TEMPLATE(tmpl_order_by_sort, PhysicalPlan *pplan, boolean_t is_desc, int num_col
 		%{}),{{ direction }})  QUIT:({{ PP_YDB_OCTO_I }}({{ num_cols|%d }})=""){}%
 	}
 	if (NULL != limit_keyword) {
-		TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)");
+		TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)", 0);
 	}
 	%{}`n{{ PLAN_LINE_START }}{}%
 }

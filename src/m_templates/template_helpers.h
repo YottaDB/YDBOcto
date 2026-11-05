@@ -265,7 +265,7 @@ TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
 TEMPLATE(tmpl_like_prefix_init, PhysicalPlan *pplan);
 TEMPLATE(tmpl_key_end, SqlKey *key);
-TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count);
+TEMPLATE(tmpl_key_skip, SqlKey *key, SqlKey *xref_key, int dot_count);
 TEMPLATE(tmpl_key_start_endpoint, SqlKey *key, int dot_count, boolean_t use_zkeyfix, int cur_key);
 TEMPLATE(tmpl_row_exists, SqlKey *key);
 TEMPLATE(tmpl_key_dollardata_check, PhysicalPlan *pplan, SqlKey *key, boolean_t is_derived_column);
@@ -302,7 +302,7 @@ TEMPLATE(tmpl_set_duplication_check, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_order_by_key, int num_cols);
 TEMPLATE(tmpl_order_by_sort, PhysicalPlan *pplan, boolean_t is_desc, int num_cols, SqlOptionalKeyword *limit_keyword);
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *pplan, int dot_count);
-TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
+TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix, int suffix_unique_id);
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_print_group_by_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t in_where_clause,
 	 int unique_id, int dot_count, boolean_t *done);

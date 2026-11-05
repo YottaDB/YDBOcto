@@ -63,6 +63,114 @@ static boolean_t is_key_column_fixed_to_one_value(SqlKey *key) {
 	return ((LP_BOOLEAN_EQUALS == key->fixed_to_value_type) || (LP_BOOLEAN_IS == key->fixed_to_value_type));
 }
 
+/* Test if the FOR loop of a key column returns its values in ORDER BY order (it depends on the column's type)
+ *
+ * Returns TRUE if the FOR loop of the key column "column" of "table", which visits its subscripts in M order, returns its
+ * values in ORDER BY order. That is so for INTEGER and NUMERIC and, on a READWRITE table only, for BOOLEAN and the date/time
+ * types. Not for a string (M orders canonical numbers before all other strings, see
+ * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/959#note_1612645682), and not for a date/time or
+ * BOOLEAN key column of a READONLY table, whose global can hold the values in more than one form (e.g. "2023-01-01T01:01:01"
+ * and "2023-01-01 01:01:01", or 1, "t" and "Y"; YDBOcto#959, YDBOcto#1179).
+ */
+static boolean_t is_key_column_loop_in_order_by_order(SqlTable *table, SqlColumn *column) {
+	SqlDataType data_type;
+
+	data_type = column->data_type_struct.data_type;
+	if ((INTEGER_TYPE == data_type) || (NUMERIC_TYPE == data_type)) {
+		return TRUE;
+	}
+	return (table->readwrite && ((BOOLEAN_TYPE == data_type) || IS_DATE_TIME_DATA_TYPE(data_type)));
+}
+
+/* Returns the first LP_ORDER_BY of "plan" if the query has both an ORDER BY and a LIMIT. Returns NULL otherwise. */
+static LogicalPlan *get_order_by_of_query_with_limit(LogicalPlan *plan) {
+	LogicalPlan *lp_out, *lp_order_by_start;
+
+	lp_out = lp_get_output(plan);
+	if (NULL == lp_out) {
+		return NULL; /* Plan has no LP_OUTPUT (e.g. LP_UPDATE, LP_DELETE_FROM etc.), so no ORDER BY */
+	}
+	GET_LP_ALLOW_NULL(lp_order_by_start, lp_out, 1, LP_ORDER_BY);
+	if (NULL == lp_order_by_start) {
+		return NULL; /* No ORDER BY */
+	}
+	if (NULL == get_keyword_from_keywords(lp_get_select_keywords(plan)->v.lp_keywords.keywords, OPTIONAL_LIMIT)) {
+		return NULL; /* No LIMIT */
+	}
+	return lp_order_by_start;
+}
+
+/* Test if a query has a LIMIT and the FOR loops of a table's key columns already give its ORDER BY order
+ *
+ * Returns TRUE if the query has a LIMIT, and the FOR loops of the key columns of the table "table_alias" (key column 0
+ * first) already give the rows in ORDER BY order, starting with a key column before the one at "key_num" (YDBOcto#660).
+ * E.g. "WHERE k >= 0 ORDER BY g, k LIMIT 2" with PRIMARY KEY (g, k): the FOR loop of "g", then that of "k" under each
+ * "g", return the rows in ORDER BY order, so there is no sort, and the LIMIT stops the loops after two rows. A walk of
+ * the cross reference of "k" through several values would return the rows grouped by "k" instead: every row it reads
+ * would then have to be sorted before the first one is output. "use_key_column_xref()" does not use the cross reference
+ * of the key column at "key_num" then.
+ * The keys of other tables that come first must be fixed to one value (their FOR loops run once), and the ORDER BY
+ * items must be the table's key columns in key order, each of a type whose FOR loop returns the values in ORDER BY
+ * order, as "lp_optimize_order_by()" requires (see there). A key column fixed to one value matches its ORDER BY item,
+ * if any, or none.
+ */
+boolean_t lp_is_order_by_with_limit_given_by_key_loops(LogicalPlan *plan, SqlTableAlias *table_alias, int key_num) {
+	LogicalPlan *cur_order_by, *cur_keys;
+	SqlTable    *table;
+	boolean_t    key_before_matched;
+
+	cur_order_by = get_order_by_of_query_with_limit(plan);
+	if (NULL == cur_order_by) {
+		/* No ORDER BY: the order of the rows does not matter. Or no LIMIT: every matching row is read anyway, and the
+		 * cross reference reads fewer.
+		 */
+		return FALSE;
+	}
+
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+	key_before_matched = FALSE;
+	for (cur_keys = lp_get_keys(plan); (NULL != cur_keys) && (NULL != cur_order_by);) {
+		LogicalPlan *lp_key;
+		SqlKey	    *key;
+		SqlColumn   *column;
+
+		GET_LP(lp_key, cur_keys, 0, LP_KEY);
+		key = lp_key->v.lp_key.key;
+		GET_LP_ALLOW_NULL(cur_keys, cur_keys, 1, LP_KEYS);
+		if (key->unique_id != table_alias->unique_id) {
+			if (is_key_column_fixed_to_one_value(key)) {
+				continue; /* Its FOR loop runs once, so it does not change the order of the rows */
+			}
+			return FALSE; /* A FOR loop of another table is outside or between those of this table */
+		}
+		if (key->is_cross_reference_key || (NULL == key->column)) {
+			/* The table already has a cross reference, e.g. the one that "lp_optimize_order_by_with_limit()" walks
+			 * for "ORDER BY a LIMIT 2" on a string first key column "a": its FOR loops are not over its own global.
+			 */
+			return FALSE;
+		}
+		if (is_key_column_fixed_to_one_value(key)) {
+			if (NULL != get_order_by_key_column(cur_order_by, key)) {
+				GET_LP_ALLOW_NULL(cur_order_by, cur_order_by, 1, LP_ORDER_BY);
+			}
+			continue; /* Its FOR loop runs once: the next key column gives the order */
+		}
+		column = get_order_by_key_column(cur_order_by, key);
+		if (NULL == column) {
+			return FALSE; /* The ORDER BY item is not this key column: the FOR loops do not give the ORDER BY order */
+		}
+		if (!is_key_column_loop_in_order_by_order(table, column)) {
+			return FALSE; /* The FOR loop of this key column does not return its values in ORDER BY order */
+		}
+		if (lp_get_key_num(column) < key_num) {
+			key_before_matched = TRUE;
+		}
+		GET_LP_ALLOW_NULL(cur_order_by, cur_order_by, 1, LP_ORDER_BY);
+	}
+	/* All ORDER BY items are served by the FOR loops, and one of them is a key column before the one at "key_num" */
+	return (NULL == cur_order_by) && key_before_matched;
+}
+
 /* Returns TRUE if the AIM cross reference of "column" (of "table") can have subscripts that do not collate in the order of the
  * column values. That is the case for an INTEGER or NUMERIC column of a READONLY table: the cross reference stores each value
  * as it is in the global, and a value that is not a canonical number (e.g. "-0.25" or "010") is then a string subscript,
@@ -304,7 +412,7 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 		cur_keys = lp_keys_start;
 		cur_order_by = lp_order_by_start;
 		for (;;) {
-			LogicalPlan *lp_key, *lp_column_list, *lp_where;
+			LogicalPlan *lp_key;
 
 			assert(NULL != cur_keys);
 			assert(NULL != cur_order_by);
@@ -360,59 +468,14 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 					assert(0 == loop);
 					break;
 				}
-				GET_LP(lp_column_list, cur_order_by, 0, LP_COLUMN_LIST);
-				GET_LP(lp_where, lp_column_list, 0, LP_WHERE);
 
-				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC,
-				 * readwrite table BOOLEAN and DATE/TIME types. Not for STRING type (for more details, see
-				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/959#note_1612645682) or READONLY TABLE
-				 * BOOLEAN and DATE/TIME types.
-				 * So skip optimization for the cases where ordering is not guaranteed. In the future, other types
-				 * need to be examined on a case-by-case basis and either supported or not in the
-				 * code block below.
+				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC, and
+				 * readwrite table BOOLEAN and DATE/TIME types (see "is_key_column_loop_in_order_by_order()"). Skip
+				 * the optimization for the cases where the ordering is not guaranteed.
 				 */
-				LogicalPlan *lp_column_list_alias;
-				GET_LP(lp_column_list_alias, lp_where, 1, LP_COLUMN_LIST_ALIAS);
 				if (0 == loop) {
-					boolean_t type_supported;
-
-					switch (lp_column_list_alias->v.lp_column_list_alias.column_list_alias->type) {
-					case INTEGER_LITERAL:
-					case NUMERIC_LITERAL:
-						type_supported = TRUE;
-						break;
-					case STRING_LITERAL:
-						type_supported = FALSE;
-						break;
-					case BOOLEAN_VALUE:
-					case DATE_LITERAL:
-					case TIME_LITERAL:
-					case TIME_WITH_TIME_ZONE_LITERAL:
-					case TIMESTAMP_LITERAL:
-					case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
-						/* A key column of a readonly table that is date/time type can be in non-standard
-						 * form. A non standard form for date/time type
-						 * can have values like '2023-01-01T01:01:01' and '2023-01-01 01:01:01' in the same
-						 * global. Its ordering in FOR will not be the same one expected by ORDER BY.
-						 * Likewise a key column of a readonly table that is boolean type can hold any of
-						 * the forms Octo reads as a boolean (e.g. 0, 1, "f", "t", "Y"), which FOR visits in
-						 * M collation order (numbers first, then strings), not in boolean order
-						 * (YDBOcto#1179). A readwrite table stores booleans as 0 and 1, which do sort in
-						 * boolean order.
-						 * Do not optimize in this case.
-						 */
-						assert(key->column == sql_column);
-						SqlTable *table;
-						UNPACK_SQL_STATEMENT(table, sql_column->table, create_table);
-						type_supported
-						    = table->readwrite; // TRUE for readwrite and FALSE for readonly table
-						break;
-					default:
-						assert(FALSE);
-						type_supported = FALSE; /* to avoid [clang-analyzer-deadcode.DeadStores] warning */
-						break;
-					}
-					if (!type_supported) {
+					assert(key->column == sql_column);
+					if (!is_key_column_loop_in_order_by_order(key->table, sql_column)) {
 						break;
 					}
 				}

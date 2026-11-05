@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2023 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -48,7 +48,10 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *pplan) {
 	%{}{{ PP_YDB_OCTO_ZDUPLICATE }}({{ output_key_id|%d }}{}%
 	for (i = 0; i < first_dnf_pplan->total_iter_keys; i++) {
 		key = first_dnf_pplan->iterKeys[i];
-		if (key->is_cross_reference_key)
+		/* The cross reference key of a primary key column (YDBOcto#660) is that column's key: two rows that
+		 * differ only in it are two rows.
+		 */
+		if (!IS_ROW_KEY(key))
 			continue;
 		%{},{}%
 		/* Check if the table owning this key has all columns set to be treated as NULL (as part of an OUTER JOIN) */

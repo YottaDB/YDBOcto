@@ -16,7 +16,9 @@
 
 #include "template_helpers.h"
 
-/* Emits zero or more dotted "QUIT:<cond>" lines inside the body of a FOR loop,
+/* Emit the QUIT lines that apply the SKIP and SKIPCONDITION of a key column inside its FOR loop
+ *
+ * Emits zero or more dotted "QUIT:<cond>" lines inside the body of a FOR loop,
  * implementing column-level SKIP and SKIPCONDITION keywords. A `QUIT` inside the
  * loop's DO scope skips the current subscript without terminating the surrounding FOR.
  *
@@ -26,19 +28,80 @@
  *
  * `dot_count` is the dot depth of lines inside the FOR body (i.e. caller's outer
  * dot_count + 1).
+ *
+ * A SKIPCONDITION can name the key columns before its own. When `key` is the cross reference key of a key column
+ * (YDBOcto#660), the keys of those columns are advanced from the cross reference AFTER `key`, so they are not set yet
+ * at `key`: such a SKIPCONDITION is not emitted there (an LVUNDEF error otherwise), but at the key of the key column
+ * just before it, the last of them to be set. `xref_key` is the cross reference key that `key` is advanced from (NULL
+ * if none); when `key` is that last key column, the SKIPCONDITION of `xref_key` is emitted after the keywords of `key`.
+ * A SKIPCONDITION that names no key column but its own stays at its own key.
  */
-TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count) {
-	SqlOptionalKeyword	*skip_kw, *cond_kw;
+TEMPLATE(tmpl_key_skip, SqlKey *key, SqlKey *xref_key, int dot_count) {
+	SqlOptionalKeyword	*skip_kw, *cond_kw, *deferred_kw;
 	SqlValue		*value;
 	SqlTable		*table;
 	char			*table_name;
+	SqlColumn		*deferred_column;
+	boolean_t		emit_deferred;
 
 	if (NULL == key->column) {
 		return;
 	}
 	skip_kw = get_keyword(key->column, OPTIONAL_SKIP);
 	cond_kw = get_keyword(key->column, OPTIONAL_SKIPCONDITION);
-	if ((NULL == skip_kw) && (NULL == cond_kw)) {
+	/* "deferred_column" is the key column whose SKIPCONDITION may have to be emitted at another key than its own */
+	if ((NULL != cond_kw) && IS_KEY_COLUMN_XREF(key)) {
+		deferred_column = key->column;
+		deferred_kw = cond_kw;
+	} else if ((NULL != xref_key) && IS_KEY_COLUMN_XREF(xref_key)) {
+		deferred_column = xref_key->column;
+		deferred_kw = get_keyword(deferred_column, OPTIONAL_SKIPCONDITION);
+	} else {
+		deferred_column = NULL;
+		deferred_kw = NULL;
+	}
+	emit_deferred = FALSE; /* TRUE if the SKIPCONDITION of the column of "xref_key" is to be emitted at "key" */
+	if (NULL != deferred_kw) {
+		boolean_t		names_other_column;
+		char			*cond_start, *ptr, column_name[OCTO_MAX_IDENT + 1];
+		int			expr_len;
+		ExpressionMatchType	match;
+
+		/* Find whether the SKIPCONDITION names a key column other than its own ("validate_start_end_keyword()" has
+		 * already checked every column that the expression names)
+		 */
+		UNPACK_SQL_STATEMENT(value, deferred_kw->v, value);
+		cond_start = value->v.string_literal;
+		names_other_column = FALSE;
+		for (ptr = cond_start; ; ptr += expr_len) {
+			ptr = find_next_expression(cond_start, ptr, column_name, &expr_len, sizeof(column_name), &match);
+			if (NULL == ptr) {
+				break;
+			}
+			if (find_column(column_name, key->table) != deferred_column) {
+				names_other_column = TRUE;
+				break;
+			}
+		}
+		if (names_other_column) {
+			if (deferred_column == key->column) {
+				cond_kw = NULL; /* The key column before this one emits this SKIPCONDITION (see above) */
+			} else {
+				SqlColumn	*key_columns[MAX_KEY_COUNT];
+				int		max_key, cur_key;
+
+				memset(key_columns, 0, sizeof(key_columns)); /* "get_key_columns()" needs the array cleared */
+				max_key = get_key_columns(key->table, key_columns);
+				for (cur_key = 0; cur_key < max_key; cur_key++) {
+					if ((key_columns[cur_key] == key->column) && (key_columns[cur_key + 1] == deferred_column)) {
+						emit_deferred = TRUE;
+						break;
+					}
+				}
+			}
+		}
+	}
+	if ((NULL == skip_kw) && (NULL == cond_kw) && !emit_deferred) {
 		return;
 	}
 	assert(NULL != key->table);
@@ -99,6 +162,20 @@ TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count) {
 		/* Emit: <dots>QUIT:(<expr-with-keys()-expanded>)\n<line-prefix> */
 		char *cond;
 		UNPACK_SQL_STATEMENT(value, cond_kw->v, value);
+		cond = value->v.string_literal;
+
+		TMPL(tmpl_print_dots, dot_count);
+		%{}QUIT:({}%
+		TMPL(tmpl_emit_source, table, cond, table_name, key->unique_id, (void *)0,
+			MAX_KEY_COUNT, EmitSourceForm_Value);
+		%{})`n{{ PLAN_LINE_START }}{}%
+	}
+
+	if (emit_deferred) {
+		/* The SKIPCONDITION of the key column whose cross reference "key" is advanced from */
+		char *cond;
+
+		UNPACK_SQL_STATEMENT(value, deferred_kw->v, value);
 		cond = value->v.string_literal;
 
 		TMPL(tmpl_print_dots, dot_count);

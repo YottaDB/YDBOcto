@@ -26,7 +26,7 @@
  *    0 otherwise (i.e. success).
  */
 int validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table, SqlColumn *cur_column) {
-	char	 *ptr, *ptr_start;
+	char	 *ptr;
 	char	 *start;
 	SqlValue *value;
 
@@ -48,74 +48,62 @@ int validate_start_end_keyword(SqlOptionalKeyword *keyword, SqlTable *table, Sql
 
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	start = value->v.string_literal;
-	ptr_start = ptr = start;
-	/* Note: The below logic is similar to that in "tmpl_emit_source.ctemplate" */
-	while ('\0' != *ptr) {
-		char		    prev;
-		char		    column[OCTO_MAX_IDENT + 1]; // Null terminator
-		int		    expr_len;
-		ExpressionMatchType match;
+	char		    column[OCTO_MAX_IDENT + 1]; // Null terminator
+	int		    expr_len;
+	ExpressionMatchType match;
 
-		if (ptr_start == ptr) {
-			/* See comment in "tmpl_emit_source.ctemplate" for why these checks are done */
-			prev = ((('k' == *ptr) || ('v' == *ptr)) ? '(' : *ptr);
-		} else {
-			prev = *(ptr - 1);
+	for (ptr = start;; ptr += expr_len) {
+		SqlColumn *sql_column;
+
+		ptr = find_next_expression(start, ptr, column, &expr_len, sizeof(column), &match);
+		if (NULL == ptr) {
+			break; /* No more "keys(...)" or "values(...)" expressions in the keyword */
 		}
-		match = match_expression(ptr, column, &expr_len, sizeof(column), prev);
-		if (NoMatchExpression < match) {
-			SqlColumn *sql_column;
 
-			sql_column = find_column(column, table);
+		sql_column = find_column(column, table);
+		if (NULL == sql_column) {
+			/* Check if YDBOcto#929 conversion is needed (lower case column name) */
+			DO_AUTO_UPGRADE_OCTO929_CHECK(ptr, expr_len, column, sql_column);
 			if (NULL == sql_column) {
-				/* Check if YDBOcto#929 conversion is needed (lower case column name) */
-				DO_AUTO_UPGRADE_OCTO929_CHECK(ptr, expr_len, column, sql_column);
-				if (NULL == sql_column) {
-					ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
-					return -1;
-				}
-			}
-			if ('k' == *ptr) {
-				/* "keys()" syntax used. Check that this column is a KEY column. */
-				if (!IS_KEY_COLUMN(sql_column)) {
-					ERROR(ERR_KEYS_NEEDS_A_KEY_COLUMN, column);
-					return -1;
-				}
-
-				/* Reject forward "keys()" references: the referenced column's KEY NUM must be
-				 * less than or equal to "cur_column"'s KEY NUM. A reference to a column with a
-				 * higher KEY NUM reads its cursor before the corresponding inner $ORDER has set
-				 * it, yielding LVUNDEF at runtime. See review comment:
-				 *   https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1690#note_3377910381
-				 */
-				if (-1 != cur_key_num) {
-					SqlOptionalKeyword *ref_key_num_kw;
-					SqlValue	   *ref_key_num_value;
-					int		    ref_key_num;
-
-					ref_key_num_kw = get_keyword(sql_column, OPTIONAL_KEY_NUM);
-					UNPACK_SQL_STATEMENT(ref_key_num_value, ref_key_num_kw->v, value);
-					ref_key_num = atoi(ref_key_num_value->v.string_literal);
-
-					if (ref_key_num > cur_key_num) {
-						SqlValue *cur_column_name;
-
-						UNPACK_SQL_STATEMENT(cur_column_name, cur_column->columnName, value);
-						ERROR(ERR_KEYS_FORWARD_REFERENCE, column, cur_column_name->v.string_literal,
-						      column);
-						return -1;
-					}
-				}
-			} else {
-				/* "values()" syntax used. This is disallowed in START/END keywords. */
-				assert('v' == *ptr);
-				ERROR(ERR_VALUES_NOT_ALLOWED_IN_START_END, "");
+				ERROR(ERR_UNKNOWN_COLUMN_NAME, column);
 				return -1;
 			}
-			assert(0 < expr_len);
-			ptr += expr_len;
+		}
+		if ('k' == *ptr) {
+			/* "keys()" syntax used. Check that this column is a KEY column. */
+			if (!IS_KEY_COLUMN(sql_column)) {
+				ERROR(ERR_KEYS_NEEDS_A_KEY_COLUMN, column);
+				return -1;
+			}
+
+			/* Reject forward "keys()" references: the referenced column's KEY NUM must be
+			 * less than or equal to "cur_column"'s KEY NUM. A reference to a column with a
+			 * higher KEY NUM reads its cursor before the corresponding inner $ORDER has set
+			 * it, yielding LVUNDEF at runtime. See review comment:
+			 *   https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/1690#note_3377910381
+			 */
+			if (-1 != cur_key_num) {
+				SqlOptionalKeyword *ref_key_num_kw;
+				SqlValue	   *ref_key_num_value;
+				int		    ref_key_num;
+
+				ref_key_num_kw = get_keyword(sql_column, OPTIONAL_KEY_NUM);
+				UNPACK_SQL_STATEMENT(ref_key_num_value, ref_key_num_kw->v, value);
+				ref_key_num = atoi(ref_key_num_value->v.string_literal);
+
+				if (ref_key_num > cur_key_num) {
+					SqlValue *cur_column_name;
+
+					UNPACK_SQL_STATEMENT(cur_column_name, cur_column->columnName, value);
+					ERROR(ERR_KEYS_FORWARD_REFERENCE, column, cur_column_name->v.string_literal, column);
+					return -1;
+				}
+			}
 		} else {
-			ptr++;
+			/* "values()" syntax used. This is disallowed in START/END keywords. */
+			assert('v' == *ptr);
+			ERROR(ERR_VALUES_NOT_ALLOWED_IN_START_END, "");
+			return -1;
 		}
 	}
 	return 0;

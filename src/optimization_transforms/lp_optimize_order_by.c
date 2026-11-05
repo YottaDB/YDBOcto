@@ -358,9 +358,9 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 				GET_LP(lp_where, lp_column_list, 0, LP_WHERE);
 
 				/* ORDER BY and FOR loop order are guaranteed to be identical only for INTEGER, NUMERIC,
-				 * BOOLEAN, readwrite table DATE/TIME types. Not for STRING type (for more details, see
+				 * readwrite table BOOLEAN and DATE/TIME types. Not for STRING type (for more details, see
 				 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/959#note_1612645682) or READONLY TABLE
-				 * DATE/TIME types.
+				 * BOOLEAN and DATE/TIME types.
 				 * So skip optimization for the cases where ordering is not guaranteed. In the future, other types
 				 * need to be examined on a case-by-case basis and either supported or not in the
 				 * code block below.
@@ -373,12 +373,12 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 					switch (lp_column_list_alias->v.lp_column_list_alias.column_list_alias->type) {
 					case INTEGER_LITERAL:
 					case NUMERIC_LITERAL:
-					case BOOLEAN_VALUE:
 						type_supported = TRUE;
 						break;
 					case STRING_LITERAL:
 						type_supported = FALSE;
 						break;
+					case BOOLEAN_VALUE:
 					case DATE_LITERAL:
 					case TIME_LITERAL:
 					case TIME_WITH_TIME_ZONE_LITERAL:
@@ -388,6 +388,11 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 						 * form. A non standard form for date/time type
 						 * can have values like '2023-01-01T01:01:01' and '2023-01-01 01:01:01' in the same
 						 * global. Its ordering in FOR will not be the same one expected by ORDER BY.
+						 * Likewise a key column of a readonly table that is boolean type can hold any of
+						 * the forms Octo reads as a boolean (e.g. 0, 1, "f", "t", "Y"), which FOR visits in
+						 * M collation order (numbers first, then strings), not in boolean order
+						 * (YDBOcto#1179). A readwrite table stores booleans as 0 and 1, which do sort in
+						 * boolean order.
 						 * Do not optimize in this case.
 						 */
 						assert(key->column == sql_column);

@@ -365,3 +365,59 @@ OCTO
 	psql names -c 'DROP TABLE IF EXISTS TOB24a,TOB24b,TOB24f,TOB24g,TOB24k_boolean,TOB24k_integer,TOB24k_numeric,TOB24k_varchar,TOB24k_date,TOB24k_time,TOB24k_timestamp;' >& postgres.drop_table_TOB24.out
 	verify_output TOB24 output.txt nodatetimefilter noinfo nodebug
 }
+
+@test "TOB26 : OCTO1179 : ORDER BY on a BOOLEAN key column of a READONLY table sorts" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# A READONLY table and a READWRITE table hold the same rows. The global of the READONLY table TOB26ro:" >> output.txt
+	yottadb -run %XCMD 'set ^TOB26ro(1,1)="a",^TOB26ro(1,"f")="b",^TOB26ro(2,0)="c",^TOB26ro(2,"Y")="d",^TOB26ro(3,"T")="e",^TOB26ro(3,"no")="g"'
+	yottadb -run %XCMD 'zwrite ^TOB26ro' >> output.txt
+	echo "" >> output.txt
+	echo "# Create the tables in Octo [TOB26_octo.sql]" >> output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB26_octo.sql > TOB26_octo_input.sql
+	octo -p -f TOB26_octo_input.sql >> output.txt 2>&1
+	psql names -c "DROP TABLE IF EXISTS tob26ro, tob26rw;" >& postgres.drop_table_TOB26.out
+	for t in tob26ro tob26rw; do
+		psql names -c "CREATE TABLE $t (k1 INTEGER, k2 BOOLEAN, v VARCHAR, PRIMARY KEY (k1, k2)); INSERT INTO $t VALUES (1, true, 'a'), (1, false, 'b'), (2, false, 'c'), (2, true, 'd'), (3, true, 'e'), (3, false, 'g');" >& postgres.create_$t.out
+	done
+	echo "" >> output.txt
+	echo "# Run crosscheck on TOB26.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB26.sql noextended
+	# A difference fails the test in the call above, so reaching here means there was none
+	echo "# Cross-checked against Postgres: no difference ($(grep -c '^SELECT' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB26.sql) queries)" >> output.txt
+	echo "" >> output.txt
+	echo "# The queries of TOB26.sql and their results in Octo. The comment above each SELECT gives the rows it should" >> output.txt
+	echo "# return and whether its plan should sort ([sort]) or not ([no sort]); the plans are listed at the end." >> output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB26.sql > TOB26_input.sql
+	octo -p -f TOB26_input.sql >> output.txt 2>&1
+	echo "" >> output.txt
+	echo "# The READONLY and the READWRITE table give the same results: each ORDER BY query of Part A, run on TOB26ro and" >> output.txt
+	echo "# on TOB26rw (without an ORDER BY, each table gives its rows in the M order of its own global)" >> output.txt
+	grep '^SELECT .* TOB26ro .*ORDER BY' TOB26_input.sql > TOB26_ro.sql
+	sed 's/TOB26ro/TOB26rw/' TOB26_ro.sql > TOB26_rw.sql
+	octo -f TOB26_ro.sql > TOB26_ro.out 2>&1
+	octo -f TOB26_rw.sql > TOB26_rw.out 2>&1
+	if diff TOB26_ro.out TOB26_rw.out > TOB26_ro_rw.diff; then
+		echo "# Same results ($(grep -c . TOB26_ro.sql) queries)" >> output.txt
+	else
+		echo "# DIFFERENT results:" >> output.txt
+		cat TOB26_ro_rw.diff >> output.txt
+	fi
+	echo "" >> output.txt
+	echo "# Whether each SELECT plan sorts:" >> output.txt
+	echo "# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the key FOR loops in ORDER BY order" >> output.txt
+	echo "# [sort]    : the plan still collects and sorts the rows in an OrderBy step" >> output.txt
+	echo "# A query that differs from another only in its literals (WHERE k1 = 3) shares that query's plan, listed with it" >> output.txt
+	for plan in _ydboctoP*.m; do
+		query=$(grep -m 1 -i '^;  select' $plan | sed 's/^;  //;s/;$//')
+		if [[ -z $query ]]; then
+			continue	# An INSERT plan. It has no SELECT.
+		fi
+		if grep -q 'KILL.*"OrderBy"' $plan; then
+			echo "[sort]    : $query"
+		else
+			echo "[no sort] : $query"
+		fi
+	done | LC_ALL=C sort >> output.txt
+	psql names -c "DROP TABLE IF EXISTS tob26ro, tob26rw;" >& postgres.drop_table_TOB26.out
+	verify_output TOB26 output.txt
+}

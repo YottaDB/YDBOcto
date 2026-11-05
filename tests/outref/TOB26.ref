@@ -1,0 +1,130 @@
+# TOB26 : OCTO1179 : ORDER BY on a BOOLEAN key column of a READONLY table sorts
+# A READONLY table and a READWRITE table hold the same rows. The global of the READONLY table TOB26ro:
+^TOB26ro(1,1)="a"
+^TOB26ro(1,"f")="b"
+^TOB26ro(2,0)="c"
+^TOB26ro(2,"Y")="d"
+^TOB26ro(3,"T")="e"
+^TOB26ro(3,"no")="g"
+
+# Create the tables in Octo [TOB26_octo.sql]
+OCTO> -- TOB26 : OCTO1179 : the tables of TOB26.sql (Octo only: the READONLY table's global is set in M)
+-- READONLY: its global ^TOB26ro holds k2 in several of the forms Octo reads as a boolean (see the zwrite above)
+CREATE TABLE TOB26ro (k1 INTEGER, k2 BOOLEAN, v VARCHAR PIECE 1, PRIMARY KEY (k1, k2)) GLOBAL "^TOB26ro(keys(""k1""),keys(""k2""))" READONLY;
+CREATE TABLE
+OCTO> -- READWRITE: the same rows, which Octo stores with k2 as 0 or 1
+CREATE TABLE TOB26rw (k1 INTEGER, k2 BOOLEAN, v VARCHAR, PRIMARY KEY (k1, k2));
+CREATE TABLE
+OCTO> INSERT INTO TOB26rw VALUES (1, true, 'a'), (1, false, 'b'), (2, false, 'c'), (2, true, 'd'), (3, true, 'e'), (3, false, 'g');
+INSERT 0 6
+OCTO> 
+
+# Run crosscheck on TOB26.sql
+# Cross-checked against Postgres: no difference (10 queries)
+
+# The queries of TOB26.sql and their results in Octo. The comment above each SELECT gives the rows it should
+# return and whether its plan should sort ([sort]) or not ([no sort]); the plans are listed at the end.
+OCTO> -- TOB26 : OCTO1179 : ORDER BY on a BOOLEAN key column of a READONLY table sorts
+-- Crosschecked against Postgres, whose tob26ro and tob26rw hold the same rows.
+
+-- ############################################################################################################
+-- Part A: the READONLY table. M orders the k2 subscripts under each k1 numbers first, then strings, upper case before
+-- lower case: under 1, 1 (true) then "f" (false); under 2, 0 (false) then "Y" (true); under 3, "T" (true) then "no"
+-- (false). Under 1 and 3 the FOR loop of k2 gives true before false, so an ORDER BY k2 must sort.
+-- The rows, in M order: 1|t|a, 1|f|b, 2|f|c, 2|t|d, 3|t|e and 3|f|g
+SELECT * FROM TOB26ro;
+k1|k2|v
+1|t|a
+1|f|b
+2|f|c
+2|t|d
+3|t|e
+3|f|g
+(6 rows)
+OCTO> -- [sort] 1|f|b, then 1|t|a
+SELECT * FROM TOB26ro WHERE k1 = 1 ORDER BY k2;
+k1|k2|v
+1|f|b
+1|t|a
+(2 rows)
+OCTO> -- [sort] 1|t|a, then 1|f|b
+SELECT * FROM TOB26ro WHERE k1 = 1 ORDER BY k2 DESC;
+k1|k2|v
+1|t|a
+1|f|b
+(2 rows)
+OCTO> -- [sort] 3|f|g, then 3|t|e
+SELECT * FROM TOB26ro WHERE k1 = 3 ORDER BY k2;
+k1|k2|v
+3|f|g
+3|t|e
+(2 rows)
+OCTO> -- [sort] 1|f|b, 1|t|a, 2|f|c, 2|t|d, 3|f|g, then 3|t|e
+SELECT * FROM TOB26ro ORDER BY k1, k2;
+k1|k2|v
+1|f|b
+1|t|a
+2|f|c
+2|t|d
+3|f|g
+3|t|e
+(6 rows)
+OCTO> -- ############################################################################################################
+-- Part B: the READWRITE table, with the same rows. Octo stores k2 as 0 or 1, which M orders as boolean order (false
+-- before true), so an ORDER BY k2 does not sort. The answers are those of Part A.
+-- The rows, in M order: 1|f|b, 1|t|a, 2|f|c, 2|t|d, 3|f|g and 3|t|e
+SELECT * FROM TOB26rw;
+k1|k2|v
+1|f|b
+1|t|a
+2|f|c
+2|t|d
+3|f|g
+3|t|e
+(6 rows)
+OCTO> -- [no sort] 1|f|b, then 1|t|a
+SELECT * FROM TOB26rw WHERE k1 = 1 ORDER BY k2;
+k1|k2|v
+1|f|b
+1|t|a
+(2 rows)
+OCTO> -- [no sort] 1|t|a, then 1|f|b
+SELECT * FROM TOB26rw WHERE k1 = 1 ORDER BY k2 DESC;
+k1|k2|v
+1|t|a
+1|f|b
+(2 rows)
+OCTO> -- [no sort] 3|f|g, then 3|t|e
+SELECT * FROM TOB26rw WHERE k1 = 3 ORDER BY k2;
+k1|k2|v
+3|f|g
+3|t|e
+(2 rows)
+OCTO> -- [no sort] 1|f|b, 1|t|a, 2|f|c, 2|t|d, 3|f|g, then 3|t|e
+SELECT * FROM TOB26rw ORDER BY k1, k2;
+k1|k2|v
+1|f|b
+1|t|a
+2|f|c
+2|t|d
+3|f|g
+3|t|e
+(6 rows)
+OCTO> 
+
+# The READONLY and the READWRITE table give the same results: each ORDER BY query of Part A, run on TOB26ro and
+# on TOB26rw (without an ORDER BY, each table gives its rows in the M order of its own global)
+# Same results (4 queries)
+
+# Whether each SELECT plan sorts:
+# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the key FOR loops in ORDER BY order
+# [sort]    : the plan still collects and sorts the rows in an OrderBy step
+# A query that differs from another only in its literals (WHERE k1 = 3) shares that query's plan, listed with it
+[no sort] : SELECT * FROM TOB26ro
+[no sort] : SELECT * FROM TOB26rw
+[no sort] : SELECT * FROM TOB26rw ORDER BY k1, k2
+[no sort] : SELECT * FROM TOB26rw WHERE k1 = 1 ORDER BY k2
+[no sort] : SELECT * FROM TOB26rw WHERE k1 = 1 ORDER BY k2 DESC
+[sort]    : SELECT * FROM TOB26ro ORDER BY k1, k2
+[sort]    : SELECT * FROM TOB26ro WHERE k1 = 1 ORDER BY k2
+[sort]    : SELECT * FROM TOB26ro WHERE k1 = 1 ORDER BY k2 DESC

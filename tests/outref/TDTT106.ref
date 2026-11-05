@@ -167,6 +167,7 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId,wrapInTp)
+    DO:'$GET(^%ydbAIMOctoCache("dater","dobf","completed?")) xrefPlan^%ydboctoXvnodrArSr82Xx7NBaZFu04(cursorId)
     NEW %ydboctop,%ydboctoexpr
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
@@ -175,17 +176,16 @@ octoPlan0(cursorId,wrapInTp)
 
 octoPlan1(cursorId)
     NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"dater","id")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
-    . SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=""
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","dobf")="")  DO
-    . . QUIT:'($DATA(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf")))#10)
-    . . SET %ydboctoexpr=1
-    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"dater","dobf"),17,36,"%Y-%m-%d")
-    . . SET %ydboctoexpr(1)=+(%ydboctoexpr)
-    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
-    . . SET %ydboctoexpr=+(%ydboctoexpr)
-    . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
+    DO
+    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
+    SET %ydboctocursor(cursorId,"keys",1,"dater","dobf","xref")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"dater","dobf","xref")) IF $DATA(^%ydbAIMSz0FR6uyNJ6EzmZKt9pYTE8(2,%ydboctocursor(cursorId,"keys",1,"dater","dobf","xref"))) DO
+    . SET %ydboctocursor(cursorId,"keys",1,"dater","id")=""
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMSz0FR6uyNJ6EzmZKt9pYTE8(2,%ydboctocursor(cursorId,"keys",1,"dater","dobf","xref"),%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
+    . . SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=""
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","dobf")=$ORDER(^%ydbAIMSz0FR6uyNJ6EzmZKt9pYTE8(2,%ydboctocursor(cursorId,"keys",1,"dater","dobf","xref"),%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","dobf")="")  DO
+    . . . SET %ydboctoexpr=1
+    . . . DO:%ydboctoexpr
+    . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from test where fname='first';
@@ -217,6 +217,9 @@ octoPlan1(cursorId)
 ;; ---------------------------------------------------------
 
 xrefPlan(cursorId)
+    ; Store state information in case query is canceled in middle of xref building
+    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
+    SET %ydboctoCancel("test","fname","aimXref")=""
     NEW base,subs DO baseSubs(.base,.subs)
     ; XREFSUB parameters: global, subscripts, subscript number, nmonly (0 here), omitfix (always 1), stat (0 for now),
     ;   AIM Metadata Type (0, or 2 with a transformation function), forceStrOrder (1 for STRING type columns) or the transformation function, comment, depth (the record anchor's, if any)
@@ -233,6 +236,28 @@ xrefPlan(cursorId)
     QUIT
     ;
 
-xrefMetadata ; called by src/physical/emit_physical_plan.c after xref plan generation
+;; This is a generated file; do not modify.
+;; ---------------------------------------------------------
+;; Generated M code maintains cross reference for dobf column in dater table
+;; ---------------------------------------------------------
+
+xrefPlan(cursorId)
+    ; Store state information in case query is canceled in middle of xref building
+    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
+    SET %ydboctoCancel("dater","dobf","aimXref")=""
     NEW base,subs DO baseSubs(.base,.subs)
-    ; XREFSUB parameters: global, subscripts, subscript number, nmonly (1 here), omitfix (always 1), stat (0 for now),
+    ; XREFSUB parameters: global, subscripts, subscript number, nmonly (0 here), omitfix (always 1), stat (0 for now),
+    ;   AIM Metadata Type (0, or 2 with a transformation function), forceStrOrder (1 for STRING type columns) or the transformation function, comment, depth (the record anchor's, if any)
+    NEW comment SET comment="xref for table dater column dobf"
+    NEW snum SET snum=$$keySub()
+    NEW aimglobal SET aimglobal=$$XREFSUB^%YDBAIM(base,.subs,snum,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")",comment)
+    ; Now that xref building is complete, cleanup saved cancel related state information
+    KILL %ydboctoCancel("dater","dobf","aimXref")
+    ; And mark that we are done with building xref so we won't try to build again
+    SET ^%ydbAIMOctoCache("dater","dobf","completed?")=1
+    ; This is redundant, but is here just in case the ^%ydbAIMOctoCache global is deleted.
+    ; Otherwise, %ydboctoDiscard will have no way to figure out how to discard the AIM global.
+    SET ^%ydbAIMOctoCache("dater","dobf","location")=$name(@aimglobal@(snum))
+    QUIT
+    ;
+

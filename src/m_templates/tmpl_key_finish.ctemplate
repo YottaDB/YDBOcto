@@ -17,12 +17,11 @@
 
 /* Invoked when we are done processing a key FOR loop and need to clean up related lvns */
 TEMPLATE(tmpl_key_finish, SqlKey *key) {
-	if (IS_TRANSFORMED_KEY_COLUMN_XREF(key)) {
-		/* The cross reference key of a key column whose cross reference holds converted values (YDBOcto#660). It sets
-		 * no key value: the column's own key, which follows it, does, and its own finish ZKILLs it. Only an ORDER BY
-		 * walks such a cross reference, with no NULL phase (see "lp_generate_xref_keys()" and "tmpl_tablejoin").
+	if (IS_TRANSFORMED_KEY_COLUMN_XREF(key) && key->is_order_by_xref_walk) {
+		/* The ORDER BY walk of the cross reference of a key column whose cross reference holds converted values
+		 * (YDBOcto#660). It sets no key value, as the column's own key, which follows it, has the value, and it has no
+		 * NULL phase (see "tmpl_tablejoin"). The same key fixed by a condition is finished as any other below.
 		 */
-		assert(key->is_order_by_xref_walk);
 		%{}KILL {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}){}%
 		return;
 	}

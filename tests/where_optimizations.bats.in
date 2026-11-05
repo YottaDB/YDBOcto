@@ -437,3 +437,23 @@ CAT
 	run_queries_with_plans TWO23_input.sql
 	verify_output TWO23 output.txt noinfo nodebug
 }
+
+@test "TWO24 : OCTO660 : A WHERE on a READONLY date/time or boolean primary key column walks its AIM subscript cross reference" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# The table's global holds such a key value in a form that a condition cannot compute from the value (the date" >> output.txt
+	echo "# 2024-01-15 stored as \"2024-01-15\" or \"2024-1-15\", TRUE stored as 1 or \"Y\"), so the key cannot be fixed in place." >> output.txt
+	echo "# The cross reference of the column holds the converted values, and after each one the subscripts in their stored" >> output.txt
+	echo "# form. Each statement below is followed by its result, and each SELECT by the plan Octo chose. The comment above" >> output.txt
+	echo "# each query states the rows it should give and the plan: [xref on <column>] when it uses the cross reference of" >> output.txt
+	echo "# that key column, [no key column xref] when it does not. The PLAN: line says:" >> output.txt
+	echo "#   xref:  the columns whose AIM cross reference the plan walks or probes" >> output.txt
+	echo "#   fixed: the keys that the WHERE fixes to one value; (walk) for a key fixed to each value of a range in turn." >> output.txt
+	echo "#          A fixed cross reference key is listed too." >> output.txt
+	echo "#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort]). The comment above each" >> output.txt
+	echo "#   query whose plan sorts says why (\"[sort] ...\")." >> output.txt
+	load_fixture xecutemcode.sql
+	# Part G reads a table kept in a local variable that another statement sets, so all statements run in one process
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO24.sql > TWO24_input.sql
+	run_queries_with_plans TWO24_input.sql oneprocess
+	verify_output TWO24 output.txt nodatetimefilter noinfo nodebug
+}

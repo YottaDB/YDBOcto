@@ -42,19 +42,15 @@ id|dob
 OCTO> 
 _ydboctoP*.m:;  select * from datep n1,dater n2 where n1.dob = n2.dob;
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"datep","dob")=$ORDER(^datetimepdate(%ydboctocursor(cursorId,"keys",1,"datep","dob"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"datep","dob")="")  DO
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",2,"dater","id")=$ORDER(^datetimedate(%ydboctocursor(cursorId,"keys",2,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"dater","id")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr(1)=+(%ydboctoexpr)
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(^datetimedate(%ydboctocursor(cursorId,"keys",2,"dater","id"))),17,36,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . SET %ydboctoexpr=+(%ydboctoexpr)
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(^datetimedate(%ydboctocursor(cursorId,"keys",2,"dater","id"))),17,36,"%Y-%m-%d") SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",2,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,%ydboctocursor(cursorId,"keys",2,"dater","dob"),%ydboctocursor(cursorId,"keys",2,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"dater","id")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:;  select * from dater where dob in (date(fileman)'3230101');
 _ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
 _ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
@@ -63,14 +59,13 @@ _ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZC
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:;  select * from datep where dob in (date(fileman)'3230101');
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"datep","dob")=$ORDER(^datetimepdate(%ydboctocursor(cursorId,"keys",1,"datep","dob"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"datep","dob")="")  DO
-_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
 _ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
-_ydboctoP*.m:    . SET %ydboctoexpr(1)=%ydboctoexpr(1)!(+(%ydboctoexpr(1,0))=+(%ydboctoexpr(1,1)))
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
-_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    SET %ydboctoin0="" FOR  DO:$DATA(%ydboctoin0(%ydboctoin0))  SET %ydboctoin0=$ORDER(%ydboctoin0(%ydboctoin0)) QUIT:""=%ydboctoin0
+_ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"datep","dob")=$ORDER(^%ydbAIMS3Q1YmFz6I0N8NCHhLoAYK8(1,%ydboctocursor(cursorId,"keys",1,"datep","dob","xref"),%ydboctocursor(cursorId,"keys",1,"datep","dob"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"datep","dob")="")  DO
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:;  select * from dater where dob = date'2023-01-02';
 _ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"dater","id")=$ORDER(^%ydbAIMDOcM7s6yOEHLZv0DnhuLlE0(0,%ydboctocursor(cursorId,"keys",1,"dater","dob"),%ydboctocursor(cursorId,"keys",1,"dater","id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"dater","id")="")  DO
@@ -78,15 +73,12 @@ _ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHA
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:;  select * from datep where dob = date'2023-01-02';
-_ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"datep","dob")=$ORDER(^datetimepdate(%ydboctocursor(cursorId,"keys",1,"datep","dob"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"datep","dob")="")  DO
-_ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
-_ydboctoP*.m:    . SET %ydboctoexpr(1)=+(%ydboctoexpr)
 _ydboctoP*.m:    . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
-_ydboctoP*.m:    . SET %ydboctoexpr=+(%ydboctoexpr)
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
-_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"datep","dob")=$ORDER(^%ydbAIMS3Q1YmFz6I0N8NCHhLoAYK8(1,%ydboctocursor(cursorId,"keys",1,"datep","dob","xref"),%ydboctocursor(cursorId,"keys",1,"datep","dob"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"datep","dob")="")  DO
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"datep","dob"),17,36,"%Y-%m-%d")
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in dater table
 _ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
 _ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
@@ -102,3 +94,18 @@ _ydboctoX*.m:    NEW comment SET comment="xref for table dater column dob"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")",comment)
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
+_ydboctoX*.m:;; Generated M code maintains cross reference for dob column in datep table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
+_ydboctoX*.m:    ; XREFSUB parameters: global, subscripts, subscript number, nmonly (0 here), omitfix (always 1), stat (0 for now),
+_ydboctoX*.m:    ;   AIM Metadata Type (0, or 2 with a transformation function), forceStrOrder (1 for STRING type columns) or the transformation function, comment, depth (the record anchor's, if any)
+_ydboctoX*.m:    NEW comment SET comment="xref for table datep column dob"
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFSUB^%YDBAIM(base,.subs,snum,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")",comment)
+_ydboctoX*.m:    ; Now that xref building is complete, cleanup saved cancel related state information
+_ydboctoX*.m:    ; XREFSUB parameters: global, subscripts, subscript number, nmonly (1 here), omitfix (always 1), stat (0 for now),
+_ydboctoX*.m:    ;   AIM Metadata Type (0, or 2 with a transformation function), forceStrOrder (1 for STRING type columns) or the transformation function, comment, depth (the record anchor's, if any)
+_ydboctoX*.m:    NEW comment SET comment="xref for table datep column dob"
+_ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFSUB^%YDBAIM(base,.subs,snum,1,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")",comment)
+_ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
+_ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
+_ydboctoX*.m:    NEW subn FOR subn=1:1:$QLENGTH(global) QUIT:"%ydboctoSNUM"=$QSUBSCRIPT(global,subn)

@@ -340,11 +340,12 @@ teardown() {
 
 @test "TDTT106: OCTO1052 : Validate the working of date/time columns with KEY NUM" {
 	# This test also includes similar queries with non-date/time columns to give an idea of the difference in handling
-	# Key fixing and cross referencing doesn't happen for date/time values if they are qualified as primary key or with key num
+	# A date/time key column of a READONLY table cannot be fixed in place, as its stored form cannot be computed from the
+	# value: a condition on it uses the column's cross reference instead (YDBOcto#660)
 	yottadb -run %XCMD 'set ^datetimedate(0,"2023-01-02")="2023-04-02"'
 	yottadb -run %XCMD 'set ^datetimedate(0,"2023-01-03")="2023-05-02"'
 
-	# Key fixing happens for date/time values if they are qualified as primary key or with key num
+	# A key column of another type is fixed in place
 	yottadb -run %XCMD 'set ^test(0,"first")="second"'
 	yottadb -run %XCMD 'set ^test(0,"first1")="second2"'
 	load_fixture TDTT106.sql subtest novv

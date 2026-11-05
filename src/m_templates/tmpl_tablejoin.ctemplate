@@ -574,13 +574,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						 * "EmitSourceForm_KeyFix" does but for all usages and not just the last key column
 						 * like what is currently implemented in "tmpl_emit_source").
 						 */
-						if (!IS_KEY_COLUMN_XREF(key)) {
+						if (!IS_KEY_COLUMN_XREF(key) && !IS_TRANSFORMED_KEY_COLUMN_XREF(key)) {
 							assert(NULL == get_keyword(key->column, OPTIONAL_END));
 							TMPL(tmpl_key_start_endpoint, key, dot_count, TRUE, cur_key);
 						}
 						/* else: the cross reference of a key column (YDBOcto#660) holds every subscript of the
 						 * table's global, its bounds included. They are tested on the key's own value, once it is
-						 * set below, which also allows END (a LIKE prefix on such a column can have one).
+						 * set below, which also allows END (a LIKE prefix on such a column can have one). When
+						 * the cross reference holds converted values, the bounds are on the stored form, which
+						 * the column's own key, advanced from the cross reference after this key, tests.
 						 */
 						use_pp_ydb_octo_expr = FALSE;
 						break;
@@ -668,14 +670,22 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 			 * `tmpl_key_skip` emits for the normal FOR-loop path and SKIP /
 			 * SKIPCONDITION would silently fail to filter.
 			 */
-			TMPL(tmpl_key_skip, key, key->cross_reference_output_key, dot_count + 1);
+			/* A key column whose cross reference holds converted values (YDBOcto#660): its SKIP and its bounds are on
+			 * the stored form, which this key does not hold. The column's own key, advanced from the cross reference
+			 * after this key, tests them in its FOR loop.
+			 */
+			boolean_t	is_transformed_key;
+			is_transformed_key = IS_TRANSFORMED_KEY_COLUMN_XREF(key);
+			if (!is_transformed_key) {
+				TMPL(tmpl_key_skip, key, key->cross_reference_output_key, dot_count + 1);
+			}
 			/* Likewise START, STARTINCLUDE and ENDPOINT (YDBOcto#1177): a key fixed to a value by = or IN has no
 			 * FOR loop to bound it, and the $DATA probe above finds the START subscript, or one past ENDPOINT, as
 			 * readily as a row. A range (<, >, <=, >=) tests them inside its walk above, so nothing is emitted
 			 * here for it, except on the cross reference of a key column (YDBOcto#660), which tests them here in
 			 * every case, END included (see the range case above).
 			 */
-			if (fixed_to_one_value || IS_KEY_COLUMN_XREF(key)) {
+			if ((fixed_to_one_value || IS_KEY_COLUMN_XREF(key)) && !is_transformed_key) {
 				TMPL(tmpl_key_start_endpoint, key, dot_count + 1, FALSE, cur_key);
 			}
 			dot_count++;

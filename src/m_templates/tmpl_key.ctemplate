@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,15 @@ TEMPLATE(tmpl_key, SqlKey *key) {
 		UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
 		columnName = value->v.reference;
 	}
-	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"{{ tableName }}","{{ columnName }}"){}%
+	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"{{ tableName }}","{{ columnName }}"{}%
+	if (IS_TRANSFORMED_KEY_COLUMN_XREF(key)) {
+		/* The cross reference key of a key column whose cross reference holds converted values (YDBOcto#660). It holds a
+		 * converted value, and the column's own key, which is advanced from the cross reference after it, holds the value
+		 * in its stored form. So the two need different variables.
+		 */
+		%{},"xref"{}%
+	}
+	%{}){}%
 	return;
 }
 %{}

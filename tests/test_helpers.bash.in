@@ -1092,8 +1092,10 @@ print_plan_line() {
 	fi
 	xrefs=$(grep -ohE '%ydbAIMOctoCache\("[a-z0-9_]+","[a-z0-9_]+","completed\?"\)' $plan | sed -E 's/.*\("([a-z0-9_]+)","([a-z0-9_]+)".*/\1.\2/' | sort -u | tr '\n' ' ')
 	xrefs=${xrefs% }
-	fixed=$(grep -oE 'SET %ydboctocursor\(cursorId,"keys",[0-9]+,"[a-z0-9_]+","[a-z0-9_]+"\)=[^ ]+ IF .\$ZYISSQLNULL' $plan \
-		| sed -E 's/.*"keys",[0-9]+,"([a-z0-9_]+)","([a-z0-9_]+)"\)=([^ ]+) IF.*/\1.\2 \3/' \
+	# A key fixed to a value: SET <key>=<value> IF '$ZYISSQLNULL(<key>) ... The key of a key column whose cross reference
+	# holds converted values has a last subscript "xref" (see "tmpl_key").
+	fixed=$(grep -oE 'SET %ydboctocursor\(cursorId,"keys",[0-9]+,"[a-z0-9_]+","[a-z0-9_]+"(,"xref")?\)=[^ ]+ IF .\$ZYISSQLNULL' $plan \
+		| sed -E 's/.*"keys",[0-9]+,"([a-z0-9_]+)","([a-z0-9_]+)"(,"xref")?\)=([^ ]+) IF.*/\1.\2 \4/' \
 		| awk '{ print $1 (($2 ~ /^%ydboctozkeyfix/) ? " (walk)" : "") }' | sort -u | paste -sd ' ')
 	# A cross reference walk: a cross reference key that runs through several values. Either the walk of an ORDER BY
 	# (from the start or the end of the cross reference: a key column's walk sets its subscript to "" first, a non-key

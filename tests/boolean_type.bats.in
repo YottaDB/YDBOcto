@@ -179,7 +179,7 @@ teardown() {
 	stop_rocto
 }
 
-@test "TBT16 : OCTO1032/OCTO1060 : Test that boolean readonly table column values go through key fixing apart from when they are keys" {
+@test "TBT16 : OCTO1032/OCTO1060/OCTO660 : Test that boolean readonly table column values go through key fixing, and a boolean key column through its cross reference" {
 	yottadb -run %XCMD 's ^test1(0)="true"'
 	yottadb -run %XCMD 's ^test1(1)="false"'
 	yottadb -run %XCMD 's ^test2("true")=0'
@@ -187,7 +187,8 @@ teardown() {
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TBT16.sql .
 	sed '/^#/d' TBT16.sql >> input.sql
 	echo "# Expect: AIM cross references to be used by test1" >> output.txt
-	echo "# Expect: No cross reference usage by test2 because the boolean column is a primary key" >> output.txt
+	echo "# Expect: AIM cross references to be used by test2 too: its boolean column is a primary key whose stored form" >> output.txt
+	echo "# (\"true\", \"false\") cannot be fixed in place, so a condition on it uses the column's cross reference (YDBOcto#660)" >> output.txt
 	echo "# Expect: Row with ID 0 to have TRUE as foo value and row with ID 1 to have FALSE as foo value for both test1 and test2" >> output.txt
 	octo -pf input.sql >> output.txt
 	# The grep includes "=+(" to match the lines that used to call "ForceNumeric^%ydboctoplanhelpers" (now inlined as "+()")

@@ -20,42 +20,31 @@
 #include "logical_plan.h"
 #include "template_helpers.h"
 
-#define IS_READONLY_TABLE_COLUMN(COLUMN_ALIAS, RET)                                       \
-	{                                                                                 \
-		SqlColumnAlias *column_alias = COLUMN_ALIAS;                              \
-		assert(NULL != column_alias);                                             \
-		if (column_STATEMENT == column_alias->column->type) {                     \
-			SqlColumn *column;                                                \
-			UNPACK_SQL_STATEMENT(column, column_alias->column, column);       \
-			if (create_table_STATEMENT == column->table->type) {              \
-				SqlTable *table;                                          \
-				UNPACK_SQL_STATEMENT(table, column->table, create_table); \
-				if (!table->readwrite) {                                  \
-					RET = TRUE;                                       \
-				}                                                         \
-			}                                                                 \
-		}                                                                         \
-	}
+/* Test if a key column is transformed by AIM (currently boolean and date/time key columns of a READONLY table)
+ *
+ * Returns TRUE if "operand" (an LP_COLUMN_ALIAS) is a primary key column whose AIM cross reference holds its values
+ * converted by a transformation function: a boolean or date/time key column of a READONLY table (IS_XREF_VALUE_TRANSFORMED).
+ * The table's global holds such a value in a form that a condition cannot compute from the value (e.g. the date 2024-01-15
+ * stored as "2024-01-15" or "2024-1-15", TRUE stored as 1 or "Y"). So the key cannot be fixed in place: only the cross
+ * reference of the column, which holds the converted values, can serve a condition on it (YDBOcto#660).
+ */
+static boolean_t is_transformed_key_column(LogicalPlan *operand) {
+	SqlColumnAlias *column_alias;
+	SqlColumn      *column;
+	SqlTable       *table;
 
-// Check the comments in the inner most IF conditions below to know when we RETURN without OPTIMIZING
-#define RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE(OPERAND, OP_TYPE)                    \
-	SqlColumnAlias *ca = OPERAND->v.lp_column_alias.column_alias;                                  \
-	boolean_t	is_read_only_table = FALSE;                                                    \
-	IS_READONLY_TABLE_COLUMN(ca, is_read_only_table);                                              \
-	if (is_read_only_table) {                                                                      \
-		SqlValueType t_type = lp_get_plan_value_type(OPERAND);                                 \
-		if ((BOOLEAN_VALUE == t_type) || IS_DATE_TIME_TYPE(t_type)) {                          \
-			SqlColumn	   *column = ca->column->v.column;                             \
-			SqlOptionalKeyword *keyword = column->keywords->v.keyword;                     \
-			if ((NULL != get_keyword_from_keywords(keyword, PRIMARY_KEY))                  \
-			    || (NULL != get_keyword_from_keywords(keyword, OPTIONAL_KEY_NUM))) {       \
-				/* Key columns cannot be optimized if it is of type boolean or */      \
-				/* date/time as they can exist in non-standard format. Hence disable*/ \
-				/* it here.*/                                                          \
-				return where;                                                          \
-			}                                                                              \
-		}                                                                                      \
+	assert(LP_COLUMN_ALIAS == operand->type);
+	column_alias = operand->v.lp_column_alias.column_alias;
+	if (column_STATEMENT != column_alias->column->type) {
+		return FALSE; /* "table.*" is not one column */
 	}
+	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+	if ((create_table_STATEMENT != column->table->type) || !IS_KEY_COLUMN(column)) {
+		return FALSE; /* Not a key column of a table defined by CREATE TABLE */
+	}
+	UNPACK_SQL_STATEMENT(table, column->table, create_table);
+	return IS_XREF_VALUE_TRANSFORMED(table, column);
+}
 
 /* Returns the KEY NUM of the primary key column "column" */
 int lp_get_key_num(SqlColumn *column) {
@@ -250,15 +239,13 @@ static boolean_t use_key_column_xref(LogicalPlan *plan, SqlKey *key, SqlTableAli
 	assert(!key->is_cross_reference_key && (NULL != key->column) && IS_KEY_COLUMN(key->column));
 	assert(!is_like_prefix || IS_COLUMN_STRING_TYPE(key->column));
 	key_num = lp_get_key_num(key->column);
-	if ((0 == key_num) && !is_like_prefix) {
-		return FALSE; /* The first key column: the table's global serves it */
-	}
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-	/* A key column whose cross reference holds converted values is never fixed by a condition: the caller does not fix
-	 * a boolean or date/time key column of a READONLY table (RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE).
-	 * Only an ORDER BY walks its cross reference ("lp_optimize_order_by()").
-	 */
-	assert(!IS_XREF_VALUE_TRANSFORMED(table, key->column));
+	if ((0 == key_num) && !is_like_prefix && !IS_XREF_VALUE_TRANSFORMED(table, key->column)) {
+		/* The first key column: the table's global serves it. Not if its cross reference holds converted values:
+		 * the key cannot be fixed in place then ("is_transformed_key_column()").
+		 */
+		return FALSE;
+	}
 	UNPACK_SQL_STATEMENT(source_keyword, table->source, keyword);
 	if ('^' != source_keyword->v->v.value->v.string_literal[0]) {
 		return FALSE; /* A table kept in a local variable has no AIM cross reference */
@@ -359,6 +346,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	LPActionType	type;
 	SqlTableAlias  *right_table_alias;
 	boolean_t	is_null;
+	boolean_t	is_transformed_key_condition; /* A condition on a key column that only its cross reference can serve */
 
 	if (LP_WHERE == where->type) {
 		cur = where->v.lp_default.operand[0];
@@ -415,17 +403,18 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_GREATER_THAN:
 	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-		t = left;
-		do {
-			// We only check whether optimization can be done when the left or right value is a column alias
-			if (LP_COLUMN_ALIAS == t->type) {
-				RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE(t, type);
+		/* A key column whose cross reference holds converted values ("is_transformed_key_column()") can only be served
+		 * by that cross reference ("is_transformed_key_condition" below). The order of the tables is chosen without such
+		 * a condition, as before ("lp_optimize_cross_join()", the caller when "key_unique_id_array" is NULL). IS NULL is
+		 * never true for a key column, so it is checked on each row: a cross reference has nothing to find for it.
+		 * IS NOT NULL is always true for it, and is removed below as for any key column.
+		 */
+		if (((LP_COLUMN_ALIAS == left->type) && is_transformed_key_column(left))
+		    || ((LP_COLUMN_ALIAS == right->type) && is_transformed_key_column(right))) {
+			if ((NULL == key_unique_id_array) || (LP_BOOLEAN_IS == type)) {
+				return where;
 			}
-			if (t == right) {
-				break;
-			}
-			t = right;
-		} while (TRUE);
+		}
 		break;
 	case LP_BOOLEAN_IN:
 		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */
@@ -433,7 +422,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			return where;
 			break;
 		}
-		RETURN_IF_BOOLEAN_OR_DATE_TIME_COLUMN_AND_CANNOT_OPTIMIZE(left, type);
+		if (is_transformed_key_column(left) && (NULL == key_unique_id_array)) {
+			return where; /* As for "=" above: the order of the tables is chosen without this condition */
+		}
 		/* Check if right side of IN is a list of values (LP_VALUE). If not, we cannot do key fixing. */
 		list = right;
 		if (LP_COLUMN_LIST != list->type) {
@@ -660,6 +651,12 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			return where;
 		}
 	}
+	/* The key to fix is now "left" (the operands were swapped above if needed: a column of a later table is fixed to a
+	 * value or to a column of an earlier table). If it is a key column whose cross reference holds converted values, only
+	 * its cross reference can serve the condition: the value it is fixed to, a constant or the column of the other table,
+	 * is in the converted form, as the cross reference is (YDBOcto#660).
+	 */
+	is_transformed_key_condition = ((LP_COLUMN_ALIAS == left->type) && is_transformed_key_column(left));
 	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_LESS_THAN == type) || (LP_BOOLEAN_GREATER_THAN == type)
 	       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == type) || (LP_BOOLEAN_IN == type)
 	       || (LP_BOOLEAN_IS == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type)
@@ -761,6 +758,13 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		if (NULL != xref_key) {
 			key = xref_key;
 		}
+	}
+	if (is_transformed_key_condition && ((NULL == key) || !key->is_cross_reference_key)) {
+		/* The condition is on a key column that only its cross reference can serve, and the cross reference is not
+		 * used (e.g. the table already has one, or a key column before it has a condition). The key cannot be fixed
+		 * in place, so the condition is checked on each row.
+		 */
+		return where;
 	}
 	if (is_like_prefix && (NULL != key) && (!key->is_cross_reference_key || ('^' != key->xref_prefix[0]))) {
 		/* LIKE with a prefix on a key column that has no cross reference (see above). The rows are walked in the order

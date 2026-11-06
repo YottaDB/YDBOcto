@@ -541,7 +541,7 @@ genSelectQuery()
 	; The following LVNs exist for each individual query,
 	; thus they need to be KILLED after each query is created
 	kill tableColumn,selectListLVN,subQuerySelectedTables,groupByListLVN,groupByColumnLVN,selectedExprGroupBy
-	kill innerQuerySLLVN,groupByComparisonExpressionExists
+	kill innerQuerySLLVN,groupByComparisonExpressionExists,outerGroupByColumnLVN
 	quit
 
 genWriteQuery()
@@ -556,7 +556,7 @@ genWriteQuery()
 	; present query state doesn't affect the next query. Done here as $$joinClause makes use of it
 	; to generate subquery columns in parent query and killing it in $$generateSubQuery would affect SELECT
 	; query generation. Also similar command is issued at the end of genSelectQuery().
-	kill innerQuerySLLVN
+	kill innerQuerySLLVN,outerGroupByColumnLVN
 	quit
 
 genInsertQuery()
@@ -1859,7 +1859,9 @@ groupbyClause(queryDepth)
 	. . . . set innerHolder=holder
 	. . . . set anotherholder=innerHolder
 	. . . . set anotherholderType="expression"
-	. . . set:(j'=queryDepth) selectedExprGroupBy(j,holder,"column")=columnSubExpr ; Used by this function itself
+	. . . ; Used by this function itself when it forms the GROUP BY of query depth j. Kept in outerGroupByColumnLVN and not in
+	. . . ; selectedExprGroupBy as $$generateSubQuery restores selectedExprGroupBy when the subquery is done.
+	. . . set:((j'=queryDepth)&(""'=columnSubExpr)) outerGroupByColumnLVN(j,holder)=columnSubExpr
 	. . . set selectedExprGroupBy(j,anotherholder)=anotherholderType
 	. . . set selectedExprGroupBy(j,anotherholder,1)=holder ; Only used in Having clause expression 'column' usage
 	. . . zwr selectedExprGroupBy
@@ -1869,7 +1871,7 @@ groupbyClause(queryDepth)
 	. . set:anotherholder'="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:anotherholder),firstholder=0
 	. . set:anotherholder="" result=result_$select(firstholder:"",1:", ")_$select(chooseSelectNumber:selectNodeNumber,1:holder),firstholder=0
 	. . set:chooseSelectNumber chooseSelectNumber=0
-	. . if (j=queryDepth)&($DATA(selectedExprGroupBy(j,holder,"column"))) do
+	. . if (j=queryDepth)&($DATA(outerGroupByColumnLVN(j,holder))) do
 	. . . ; This means some subquery has used expression from this queryDepth, ensure its columns are included in
 	. . . ; GroupBY of this level. This ensures following types of queries are not created.
 	. . . ; OCTO> select coalesce(alias2.firstname,alias2.firstname), (select alias1.firstname from names alias1 group by
@@ -1877,8 +1879,8 @@ groupbyClause(queryDepth)
 	. . . ; [ERROR]: ERR_UNGROUPED_OUTER_QUERY_COLUMN: subquery uses ungrouped column firstname from outer query
 	. . . ; LINE 1:1: ...lias1 group by coalesce(alias2.firstname,alias2.firstname),alias...
 	. . . ; 				    	   ^^^^^^^^^^^^^^^^
-	. . . set result=result_", "_selectedExprGroupBy(j,holder,"column")
-	. . . kill selectedExprGroupBy(j,holder,"column") ; This ensures we do not repeat this step in every iteration
+	. . . set result=result_", "_outerGroupByColumnLVN(j,holder)
+	. . . kill outerGroupByColumnLVN(j,holder) ; This ensures we do not repeat this step in every iteration
 	write "groupbyClause() : result = ",result,!
 	quit $select(""=result:" ",1:" GROUP BY "_result)
 
@@ -2913,7 +2915,7 @@ generateQuery(queryDepth,joinCount)
 ; query to only return a single row, and single column
 generateSubQuery(queryDepth,subQueryType,joinType)
 	do assert(enableSubQuery)
-	new innerFC,alias,innerQuery
+	new innerFC,alias,innerQuery,depth
 	new tableColumnSave,selectListLVNSave,tableAliasSave,groupByListLVNSave,groupByColumnLVNSave,selectedExprGroupBySave
 	new groupByComparisonExpressionExistsSave,tableAsteriskAggregateExistsSave
 	if $increment(aliasNum)
@@ -2959,6 +2961,9 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 	merge selectedExprGroupBy=selectedExprGroupBySave
 	merge groupByComparisonExpressionExists=groupByComparisonExpressionExistsSave
 	merge tableAsteriskAggregateExists=tableAsteriskAggregateExistsSave
+	; outerGroupByColumnLVN is not restored as its entries for the outer query depths are needed by their GROUP BY.
+	; Entries for this subquery and the subqueries inside it are no longer needed, so remove them.
+	set depth=queryDepth-1 for  set depth=$order(outerGroupByColumnLVN(depth)) quit:(""=depth)  kill outerGroupByColumnLVN(depth)
 
 	w "generateSubQuery() innerQuery=",innerQuery,!
 	quit innerQuery

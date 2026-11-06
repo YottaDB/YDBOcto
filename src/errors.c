@@ -94,6 +94,10 @@ void populate_and_print_full_err_str(enum ERROR error, char **full_err_str, int 
 			UNUSED(err_prefix); // Avoid compiler warning
 			copied = vsnprintf(*full_err_str, *full_err_len, va_arg(args, const char *), args);
 #else
+			/* "args" was initialized by the "__va_copy" above. The clang-tidy analyzer does not see that and reports
+			 * a false "valist.Uninitialized" warning here.
+			 */
+			// NOLINTNEXTLINE(clang-analyzer-valist.Uninitialized)
 			copied = snprintf(*full_err_str, *full_err_len, "%s%s\n", err_prefix, va_arg(args, const char *));
 #endif
 		} else {
@@ -115,6 +119,10 @@ void populate_and_print_full_err_str(enum ERROR error, char **full_err_str, int 
 #ifndef IS_ROCTO
 			if (0 < copied) {
 				__va_copy(args, orig_args);
+				/* Same false clang-tidy warning as the one for "va_arg" above. Reported only on x86_64,
+				 * where "va_list" is an array type, so the "orig_args" parameter is really a pointer.
+				 */
+				// NOLINTNEXTLINE(clang-analyzer-valist.Uninitialized)
 				SAFE_PRINTF(vfprintf, stderr, FALSE, FALSE, *full_err_str, args);
 				va_end(args);
 			}

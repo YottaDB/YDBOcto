@@ -32,13 +32,12 @@ RUN yum --enablerepo=crb install -y bats R clang-tools-extra java-11-openjdk-dev
 # Note: "openssl" is deliberately not listed below. It comes with the base image, and naming an
 # already installed package makes yum ask for the newest version of it rather than for the version
 # that the rest of the transaction can satisfy.
-RUN yum --enablerepo=crb install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz
+RUN yum --enablerepo=crb install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz ninja-build
 
-# Ninja
-RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && unzip ninja-linux.zip && mv ninja /usr/local/bin/ninja
-
-# Shellcheck
-RUN curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.x86_64.tar.xz && tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.x86_64.tar.xz --no-anchored 'shellcheck' --strip=1
+# Shellcheck. "uname -m" picks the release tarball that matches the architecture of the image.
+RUN arch=$(uname -m) && \
+    curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.${arch}.tar.xz && \
+    tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.${arch}.tar.xz --no-anchored 'shellcheck' --strip=1
 
 # R packages used by the "r_connection" test. The Posit repository serves prebuilt binaries for this
 # distribution, and R asks for them only when the HTTP User-Agent names the platform. The "library"

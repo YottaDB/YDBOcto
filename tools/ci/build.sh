@@ -231,6 +231,9 @@ else
 fi
 echo " -> build_type = $build_type"
 
+# Command (if any) that "ctest" is run under. Set below for the ASAN job.
+ctest_launcher=()
+
 if [[ "test-auto-upgrade" != $jobname ]]; then
 	set +u # Disable Bash's "Treat unset variables as an error" to allow us to try to see if $CI_COMMIT_BRANCH is defined
 	# If this is run outside of a pipeline, or if run on the master branch (post-merge)
@@ -274,7 +277,10 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 			# a package does not exist in Ubuntu which is where this job runs so not sure how that solution will
 			# work here. It also mentions "You can also try disabling ASLR to work around the issue temporarily"
 			# so that is what we do here and hope we can revert this in a month or so (2024/04/01).
-			sysctl -w kernel.randomize_va_space=0	# Disable ASLR temporarily to avoid AddressSanitizer:DEADLYSIGNAL
+			# ASLR is disabled only for "ctest" and the processes it starts, using "setarch -R". Setting the
+			# "kernel.randomize_va_space" sysctl instead would disable it for the whole runner host, and leave it
+			# disabled after this job ends.
+			ctest_launcher=(setarch "$(uname -m)" -R)
 		fi
 	else
 	  asan="OFF"
@@ -741,7 +747,7 @@ PSQL
 	octo_keep_bats_dirs=1
 	export octo_keep_bats_dirs
 	if [[ ("test-auto-upgrade" != $jobname) ]]; then
-		ctest $CTEST_ARGS
+		"${ctest_launcher[@]}" ctest $CTEST_ARGS
 		exit_status=$?
 		if [[ "ON" == "$enable_coverage" ]]; then
 			# C coverage, as a gcovr JSON tracefile. The C generated from src/m_templates/*.ctemplate carries "#line"

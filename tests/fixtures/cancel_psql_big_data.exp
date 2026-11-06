@@ -27,15 +27,19 @@ send "ydbrocks\r"
 expect -re ".*ydb=. "
 # Run a long time AND generate cross references
 send "select firstname from names where firstname = 'abcd';\r"
-# get back to small timeout since we want the below to timeout so we can continue with canceling the query
-set timeout 2
-expect timeout
-# Send interrupt to trigger cancel request
+# Send the interrupt (that triggers the cancel request) shortly after rocto reports that it generated the cross reference
+# plan, so that it arrives while that plan builds the cross reference over all rows. A fixed wait from the time the query
+# is sent instead lets the query finish first on a fast system. The 500 millisecond pause lets plan generation finish
+# first: a cancel request during it fails an assert (YDBOcto#1182).
+expect "INFO:  Generating helper cross reference M file"
+after 500
 send \x03
-# Get back to original timeout now that we are done with the 2 second hang
-set timeout 60
 expect -re ".*Cancel request sent\r\n"
+# On a loaded system, the query can take well over a minute to notice the cancel request. If this "expect" times out,
+# "\q" below is sent before the error shows up, and the output no longer matches the reference file.
+set timeout 120
 expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
+set timeout 60
 send "\\q\r"
 expect -re "\[#\$] "
 exit

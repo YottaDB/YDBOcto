@@ -34,10 +34,8 @@ RUN yum --enablerepo=crb install -y bats R clang-tools-extra java-11-openjdk-dev
 # that the rest of the transaction can satisfy.
 RUN yum --enablerepo=crb install -y gcc libasan make clang cmake python3-pip git libgcrypt-devel gpgme-devel java-11-openjdk-devel tzdata-java unzip diffutils pkg-config libicu-devel wget xz ninja-build
 
-# Shellcheck. "uname -m" picks the release tarball that matches the architecture of the image.
-RUN arch=$(uname -m) && \
-    curl -LOf https://github.com/koalaman/shellcheck/releases/download/v0.7.2/shellcheck-v0.7.2.linux.${arch}.tar.xz && \
-    tar -C /usr/local/bin/ -xf shellcheck-v0.7.2.linux.${arch}.tar.xz --no-anchored 'shellcheck' --strip=1
+# Shellcheck, from EPEL (installed above), so the image gets the version that EPEL currently has
+RUN yum install -y ShellCheck
 
 # R packages used by the "r_connection" test. The Posit repository serves prebuilt binaries for this
 # distribution, and R asks for them only when the HTTP User-Agent names the platform. The "library"

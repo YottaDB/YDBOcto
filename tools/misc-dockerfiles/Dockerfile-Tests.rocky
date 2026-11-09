@@ -11,12 +11,16 @@
 #################################################################
 
 # This image will be rebuilt overnight but if you need to rebuild it manually, e.g. to get an MR to pass:
-# Deploy a new version of the docker image with:
-#docker build --pull -f tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline -t registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master .
+# Deploy a new version of the docker image with the below, where <arch> is "amd64" on an x86_64 system and "aarch64"
+# on an aarch64 system. The "rocky-master" tag is a manifest list of the "rocky-master-amd64" and "rocky-master-aarch64"
+# images, so push the image to the tag of its architecture and then recreate the manifest list. Do not push it to
+# "rocky-master" itself: that replaces the manifest list with an image for one architecture only.
+#docker build --pull -f tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline -t registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master-<arch> .
 #docker login registry.gitlab.com/yottadb/dbms/ydbocto
 #<username is your gitlab username>
 #<password is your gitlab token, NOT your gitlab password>
-#docker push registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master
+#docker push registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master-<arch>
+#docker buildx imagetools create -t registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master-amd64 registry.gitlab.com/yottadb/dbms/ydbocto:rocky-master-aarch64
 
 # This file mirrors the pipeline set-up, but is not used by the
 # pipeline. It lets you run the pipeline tests locally.

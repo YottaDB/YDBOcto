@@ -28,6 +28,7 @@ workflow:
 
 stages:
   - docker-baseline
+  - docker-baseline-manifest
   - build
   - docs
   - docker-create
@@ -70,21 +71,11 @@ variables:
     when: always
   interruptible: true
 
-.docker-baseline-shared:
-  stage: docker-baseline
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-  interruptible: true
-  # Covers failures of the job as a whole; GitLab caps "max" at 2. The docker commands in
-  # "script" below do their own retrying since they need more attempts than that.
-  retry:
-    max: 2
-    when: runner_system_failure
-  services:
-    - docker:dind
+# Shell functions for the jobs that push the test images to the container registry
+.docker-retry:
   script:
     - |
-      # All three docker commands below talk to registry.gitlab.com and Docker Hub, and fail
+      # The docker commands of the jobs below talk to registry.gitlab.com and Docker Hub, and fail
       # on rare occasions when those are briefly unhealthy: a login that never gets a
       # connection ("context deadline exceeded"), a blob upload that the registry end drops
       # mid-transfer ("use of closed network connection"), or a 502 from the
@@ -114,9 +105,52 @@ variables:
       docker_login() {
         docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
       }
+
+# Each test image is built on a runner of each architecture (the "amd64" and "aarch64" runner tags), and pushed with
+# that architecture as a suffix of its tag, e.g. "ubuntu-master-aarch64". The jobs in the "docker-baseline-manifest"
+# stage then publish the tag without a suffix ("ubuntu-master") as a manifest list of both, so that every job that uses
+# the image gets the one for the architecture of the runner it runs on.
+.docker-baseline-shared:
+  stage: docker-baseline
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  interruptible: true
+  # Covers failures of the job as a whole; GitLab caps "max" at 2. The docker commands in
+  # "script" below do their own retrying since they need more attempts than that.
+  retry:
+    max: 2
+    when: runner_system_failure
+  services:
+    - docker:dind
+  parallel:
+    matrix:
+      - ARCH: [amd64, aarch64]
+  tags:
+    - ${ARCH}
+  script:
+    - !reference [.docker-retry, script]
     - retry_docker 5 docker_login
-    - retry_docker 3 docker image build --pull -f ${FILE} --build-arg imagetag=${TAG} --progress=plain -t ${REPO} .
-    - retry_docker 5 docker push ${REPO}
+    - retry_docker 3 docker image build --pull -f ${FILE} --build-arg imagetag=${TAG} --progress=plain -t ${REPO}-${ARCH} .
+    - retry_docker 5 docker push ${REPO}-${ARCH}
+
+.docker-baseline-manifest-shared:
+  stage: docker-baseline-manifest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  interruptible: true
+  retry:
+    max: 2
+    when: runner_system_failure
+  services:
+    - docker:dind
+  tags:
+    - amd64
+  script:
+    - !reference [.docker-retry, script]
+    - retry_docker 5 docker_login
+    # "imagetools create" combines the two images in the registry itself, without pulling them, and also accepts
+    # images that are already a manifest list (as "docker image build" makes when it adds attestations).
+    - retry_docker 5 docker buildx imagetools create -t ${REPO} ${REPO}-amd64 ${REPO}-aarch64
 
 octo-ubuntu-master-base-image:
   extends:
@@ -149,6 +183,30 @@ octo-rocky-release-base-image:
     FILE: tools/misc-dockerfiles/Dockerfile-Rocky-Tests.baseline
     REPO: ${ROCKY_REL_BASELINE_REPO}
     TAG: latest
+
+octo-ubuntu-master-base-manifest:
+  extends:
+    - .docker-baseline-manifest-shared
+  variables:
+    REPO: ${UBUNTU_MAS_BASELINE_REPO}
+
+octo-ubuntu-release-base-manifest:
+  extends:
+    - .docker-baseline-manifest-shared
+  variables:
+    REPO: ${UBUNTU_REL_BASELINE_REPO}
+
+octo-rocky-master-base-manifest:
+  extends:
+    - .docker-baseline-manifest-shared
+  variables:
+    REPO: ${ROCKY_MAS_BASELINE_REPO}
+
+octo-rocky-release-base-manifest:
+  extends:
+    - .docker-baseline-manifest-shared
+  variables:
+    REPO: ${ROCKY_REL_BASELINE_REPO}
 
 commit-verify:
   image: ubuntu:22.04

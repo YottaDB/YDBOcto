@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2021-2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -82,4 +82,14 @@ leak:alloc_chunk
 # In both cases, the core file indicated we were outside Octo code so we suppress this leak signature
 # thereby avoiding the SIG-11 and test failure.
 leak:_IO_file_doallocate
+
+# Seen only on aarch64 in the "asan-rocky" job, in subtests that expect a ZLINKFILE error (e.g. TOZ015, TPP07, TCF005).
+# When YottaDB cannot find the routine, its dlsym() lookup fails too, and glibc allocates the dlerror() message
+# buffer. glibc keeps a pointer to that buffer in thread-local storage (and frees it on the next dlerror() call),
+# but LeakSanitizer in the Rocky Linux libasan does not find that pointer on aarch64, and reports the buffer as leaked.
+#     #0 0xffff86f41418 in __interceptor_malloc (/lib64/libasan.so.6+0xad418)
+#     #1 0xffff86128d98 in _dlerror_run (/lib64/libc.so.6+0x7cd98)
+#     #2 0xffff8612950c in ___dlsym (/lib64/libc.so.6+0x7d50c)
+#     #3 0xffff86abf254 in fgn_getrtn (/opt/yottadb/current/libyottadb.so+0x21b254)
+leak:_dlerror_run
 

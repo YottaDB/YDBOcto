@@ -224,6 +224,8 @@ commit-verify:
 # This is against the latest released version of YottaDB
 release-ubuntu:
   image: ${UBUNTU_REL_BASELINE_REPO}
+  tags:
+    - aarch64
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -235,6 +237,8 @@ release-ubuntu:
 # This is against the latest released version of YottaDB
 release-rocky:
   image: ${ROCKY_REL_BASELINE_REPO}
+  tags:
+    - aarch64
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -244,6 +248,8 @@ release-rocky:
 
 make-ubuntu:
   image: ${UBUNTU_MAS_BASELINE_REPO}
+  tags:
+    - aarch64
   extends:
     - .make
   script:
@@ -253,6 +259,8 @@ make-ubuntu:
 
 make-rocky:
   image: ${ROCKY_MAS_BASELINE_REPO}
+  tags:
+    - aarch64
   extends:
     - .make
   script: ./tools/ci/build.sh "make-rocky" "none"
@@ -271,6 +279,8 @@ asan-ubuntu:
 
 asan-rocky:
   image: ${ROCKY_MAS_BASELINE_REPO}
+  tags:
+    - aarch64
   # Override default runner timeout
   timeout: 3h
   # Run this ASAN job only if this is a scheduled pipeline or if we are on a ASAN branch
@@ -305,6 +315,8 @@ make-tls-ubuntu:
 
 make-tls-rocky:
   image: ${ROCKY_MAS_BASELINE_REPO}
+  tags:
+    - aarch64
   extends:
     - .make
   script:

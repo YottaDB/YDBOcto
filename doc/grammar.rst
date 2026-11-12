@@ -1268,35 +1268,36 @@ Primary keys and column mapping
 
   In the above example, ^PresidentNames has records like :code:`^Names(1)="Lincoln|Abraham"` and :code:`^Names(2)="Obama|Barack"`.
 
-Cross references on key columns
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Indexes
+^^^^^^^
 
-  A :code:`WHERE` condition on the first key column of a table (:code:`FirstYear` in the :code:`USPresidents` example above) is served by the global variable itself, as that column is its first subscript. A condition on a later key column (:code:`LastYear`) is not: without help, Octo visits every value of the key columns before it and looks for the wanted value under each. So, as it does for a non-key column, Octo builds a cross reference of such a key column the first time a query compares it with :code:`=`, :code:`IN`, :code:`<`, :code:`>`, :code:`<=` or :code:`>=`, using the subscript cross references of `YDBAIM <https://docs.yottadb.com/Plugins/ydbaim.html>`_, and later queries read only the rows with the wanted values. The cross reference is maintained by triggers as the global variable changes, and :code:`DISCARD XREFS` removes it.
+  Octo automatically indexes the columns that queries search, sort or aggregate on, so that a query reads only the rows it needs instead of every row of the table. These indexes (cross references) are maintained by the `YDBAIM <https://docs.yottadb.com/Plugins/ydbaim.html>`_ plugin. The first query that can use the index of a column builds that index, and so runs more slowly. Later queries use the built index and run a lot faster. Triggers keep each index up to date as the data changes, whether through Octo or through M code.
+
+  An index of a column serves:
+
+  * a :code:`WHERE` or :code:`ON` condition that compares the column with :code:`=`, :code:`IN`, :code:`<`, :code:`>`, :code:`<=`, :code:`>=` or :code:`IS NULL`, in a :code:`SELECT`, :code:`UPDATE` or :code:`DELETE`;
+  * a :code:`LIKE` whose pattern starts with literal text, such as :code:`'Roo%'` (for :code:`ILIKE`, see the details below);
+  * an :code:`ORDER BY` of the column: the rows are read in the order of the index, and :code:`LIMIT` stops as soon as it has that many rows;
+  * :code:`MIN` and :code:`MAX` of the column: they are the first and the last value of the index, so the query reads only those two values.
 
   .. code-block:: SQL
 
-     SELECT * FROM USPresidents WHERE LastYear = 1945;   -- reads the cross reference of LastYear, then the one row
+     SELECT * FROM USPresidents WHERE LastYear = 1945;
+     SELECT * FROM USPresidents WHERE LastName LIKE 'Roo%';
+     SELECT * FROM USPresidents ORDER BY BirthYear DESC LIMIT 3;
+     SELECT MIN(DeathYear), MAX(DeathYear) FROM USPresidents;
 
-  The same applies to the :code:`WHERE` of a :code:`DELETE` or an :code:`UPDATE`, and to the :code:`ON` condition of a :code:`JOIN`. No cross reference is built when the :code:`WHERE` or an :code:`ON` condition also compares a key column before it (:code:`FirstYear = 1933 AND LastYear = 1945` looks up the one node directly), or when the table has an :code:`ITERATOR`, which decides which nodes of the global variable are rows. Nor is one used for a range or an :code:`IN` on the key column when the query has a :code:`LIMIT` and an :code:`ORDER BY` of the table's key columns in key order (:code:`WHERE LastYear >= 1900 ORDER BY FirstYear, LastYear LIMIT 3`): reading the global variable in place gives the rows in that order and stops at the :code:`LIMIT`, while the cross reference would give them grouped by :code:`LastYear`, to be sorted. Without the :code:`LIMIT`, the cross reference is used and the rows are sorted.
+  Some details:
 
-  A key column's cross reference also serves a :code:`LIKE 'prefix%'` on a :code:`VARCHAR` key column, including the first one (see `LIKE and Cross References`_), and an :code:`ORDER BY` of a key column whose order the global variable does not give: a later key column, or a :code:`VARCHAR` first key column, whose subscripts M orders with canonical numbers first (see `ORDER BY`_). The :code:`START`, :code:`STARTINCLUDE`, :code:`ENDPOINT` and :code:`END` bounds of the key column are applied to the values read from its cross reference. A key column of type :code:`BOOLEAN` or a date/time type in a :code:`READONLY` table, the first one included, is walked for an :code:`ORDER BY` in the order of its values, whatever form the global variable stores them in (for example :code:`2024-1-15` and :code:`2024-01-15`, or :code:`1` and :code:`Y`).
+  * A query needs no index when the table's global variable already gives it the rows in the right order. For example, :code:`WHERE FirstYear = 1933` goes straight to :code:`^USPresidents(1933)`.
+  * A query uses at most one index per table. Its other conditions on that table are checked on each row that the index gives.
+  * :code:`MIN` and :code:`MAX` are read from the index this way only if the query reads one table and has no :code:`WHERE`, :code:`JOIN`, :code:`GROUP BY` or :code:`HAVING`, and no other aggregate function such as :code:`COUNT`. In a query that has a :code:`WHERE`, an index can still find the rows that the :code:`WHERE` asks for, and :code:`MIN` and :code:`MAX` are then computed from those rows.
+  * :code:`LIKE` uses the index for the literal text at the start of its pattern, which is the text before the first :code:`%` or :code:`_`: :code:`LIKE 'Roo%'` reads only the values that start with :code:`Roo`. A pattern that starts with :code:`%` or :code:`_` checks every row. :code:`NOT LIKE` also checks every row.
+  * :code:`ILIKE` ignores case, but an index holds each value in the case it is stored in: :code:`ILIKE 'smi%'` matches :code:`Smith`, :code:`SMITH` and :code:`smith`, which are in three different places of the index. So :code:`ILIKE` uses the index only for the text before the first letter (or non-ASCII character) of its pattern, as that text is the same in either case: :code:`ILIKE '12A%'` reads only the values that start with :code:`12`; :code:`ILIKE 'smi%'` checks every row.
+  * A column computed by :code:`EXTRACT`, and a table kept in a local variable, have no index.
+  * A table with an :code:`ITERATOR` has no index on any of its columns: the :code:`ITERATOR` function decides which rows the table has, and an index is built without calling it.
 
-  For such a key column, the cross reference is also the only way to serve a :code:`WHERE` condition: Octo cannot compute the stored form from the value, so it cannot look up the node directly. A condition :code:`=`, :code:`IN` or a range with a constant (for example :code:`WHERE VisitDate = DATE '2024-01-15'`, the first key column included), or a comparison with a column of a table that comes before it in the :code:`FROM` list (as in a :code:`JOIN ... ON`), reads the cross reference and finds every stored form of the value. A condition that cannot use the cross reference (when a key column before it also has a condition, or the table already uses a cross reference for another condition) is checked on each row, as is :code:`IS NULL`, which is never true for a key column; :code:`IS NOT NULL` is always true for it, and is not checked at all, except after an :code:`OUTER JOIN`. The :code:`START`, :code:`STARTINCLUDE`, :code:`ENDPOINT`, :code:`END`, :code:`SKIP` and :code:`SKIPCONDITION` of the key column apply to the stored form.
-
-  :code:`SELECT MIN(column), MAX(column) FROM table`, with no :code:`WHERE`, :code:`JOIN`, :code:`GROUP BY` or :code:`HAVING`, reads only the first and last value of the column instead of every row. The values come from the global variable for the key column of a table with one key column. They come from the column's cross reference:
-
-  * for a non-key column;
-  * for any column of a table with several key columns, whose global variable can have subscripts with no row under them;
-  * for a date/time column of a :code:`READONLY` table, whose cross reference holds the values in their order;
-  * for a :code:`VARCHAR` key column, whose subscripts M orders numbers first (:code:`3`, :code:`9`, :code:`10`, :code:`A`), not as SQL orders the strings (:code:`'10'`, :code:`'3'`, :code:`'9'`, :code:`'A'`).
-
-  A key column read from the global variable is bounded by its :code:`START` and :code:`ENDPOINT` in M collation, as the table scan bounds it, so a bound need not be a value of the column's type (for example :code:`ENDPOINT '$CHAR(0)'` on an :code:`INTEGER` key column, which sorts after every number and before every string). The cross reference is built over the range from :code:`START` to :code:`ENDPOINT` of each key column, so these bounds need nothing more. Octo steps over the values that are only in nodes outside the table: past an exclusive :code:`START` (without :code:`STARTINCLUDE`), past the subscripts that :code:`SKIP` and :code:`SKIPCONDITION` exclude, and past :code:`END` (taking it to stay TRUE past the last record, as described for the :code:`END` keyword). Every row is read instead:
-
-  * when the table has an :code:`ITERATOR`, which decides which nodes of the global variable are rows;
-  * for an :code:`EXTRACT` column, whose value no node of the global variable holds;
-  * for a column whose own :code:`GLOBAL` lists no key column, so that one node holds its value for every row;
-  * when a key column's range is a single value (:code:`START` with :code:`STARTINCLUDE`, and :code:`ENDPOINT`, the same), which AIM takes to be a constant subscript and leaves out of the cross reference;
-  * when a key column has :code:`START`, :code:`SKIP`, :code:`SKIPCONDITION` or :code:`END`, and the column has a :code:`GLOBAL` of its own that does not list every key column in key order.
+  :code:`DISCARD XREFS table_name` removes the indexes of one table, and :code:`DISCARD XREFS` those of every table. Octo builds them again as queries need them, so the first query to use each one runs more slowly again. This frees the space they take in the database, and is how to recover if an index gets out of sync with the data. See `DISCARD XREFS`_.
 
 Extracting a nested piece (DELIMS / PIECES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1749,7 +1750,7 @@ DISCARD XREFS
      DISCARD XREFS;
      DISCARD XREFS table_name;
 
-  The :code:`DISCARD XREFS` command removes all metadata (cross references and statistics) where as :code:`DISCARD XREFS table_name` does the same but for a specific table. Octo automatically recreates the metadata as needed. Note however, that recreating metadata causes the first query that needs it to run more slowly.
+  The :code:`DISCARD XREFS` command removes all metadata (cross references and statistics) where as :code:`DISCARD XREFS table_name` does the same but for a specific table. Octo automatically recreates the metadata as needed. Note however, that recreating metadata causes the first query that needs it to run more slowly. See `Indexes`_.
 
 -----------------
 DROP TABLE
@@ -2058,13 +2059,6 @@ ORDER BY
   Integers in ORDER BY can be used to refer to SELECT list columns. The starting column in the SELECT list corresponds to 1.
 
   If a column name in ORDER BY matches both SELECT list column name and input column name (FROM list), the former is considered for ordering.
-
-  Octo skips the sort when the rows can be read in the order of the ORDER BY: through the FOR loops of the key columns when the ORDER BY lists them in key order and M orders their values as SQL does (not a :code:`VARCHAR` key column), or by walking the cross reference of the first ORDER BY column, forward or backward, for a non-key column or a key column (see `Cross references on key columns`_). A :code:`LIMIT` then stops the walk after the first rows. A table has one cross reference per query: when a :code:`WHERE` condition on another column of the table also wants one, the :code:`WHERE` condition gets it, unless the query has a :code:`LIMIT` and the ORDER BY column is a key column, in which case the ORDER BY walk is used and the :code:`WHERE` condition is checked on each row.
-
-  .. code-block:: SQL
-
-     -- Keys (Specimen, TestCode, Seq): walks the cross reference of Specimen backward, checks TestCode under each, stops after 10 rows
-     SELECT * FROM Results WHERE TestCode = 'PSA' ORDER BY Specimen DESC LIMIT 10;
 
 .. _order-by-error:
 
@@ -3158,20 +3152,6 @@ Variations of LIKE
   #. :code:`NOT ILIKE` : Negated version of case insensitive LIKE
 
   #. :code:`!~~*` : Negated version of case insensitive LIKE
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LIKE and Cross References
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  A :code:`WHERE` clause such as :code:`column LIKE 'PAT%'` uses the column's cross reference (index) when the pattern starts with literal text (the prefix, :code:`PAT` here). Only the rows whose value starts with the prefix are read, instead of every row of the table. This applies to :code:`LIKE` (and :code:`~~`) and :code:`ILIKE` (and :code:`~~*`) on a non-key column, and on a :code:`VARCHAR` key column through its own cross reference (see `Cross references on key columns`_), as the global variable keeps the values that share a prefix apart when some are canonical numbers (:code:`'12'`, :code:`'120'`) and others are not (:code:`'12A'`). It does not apply to :code:`NOT LIKE`, or a pattern that starts with :code:`%` or :code:`_`.
-
-  The cross reference is in case-sensitive order, so for :code:`ILIKE` the prefix ends at the first letter (or non-ASCII character), as a letter can match either case. As in PostgreSQL, :code:`lastname ILIKE '12%'` uses the cross reference while :code:`lastname ILIKE 'smi%'` reads every row.
-
-  .. code-block:: SQL
-
-     SELECT * FROM patients WHERE lastname LIKE 'SMI%';     -- reads only the rows whose lastname starts with SMI
-     SELECT * FROM patients WHERE lastname LIKE 'SMI%TH';   -- same, then checks the full pattern on each of them
-     SELECT * FROM patients WHERE lastname LIKE '%SMITH';   -- reads every row
 
 .. _like-error:
 

@@ -155,7 +155,8 @@ teardown() {
   # For a total of 3 plans.
   echo "; Queries that have generated plans (expect 3 plans)" >> output.txt 2>&1
   echo "; --------------------------------------------------" >> output.txt 2>&1
-  grep SELECT _ydboctoP*.m | cut -d";" -f 2 | sort_LC_ALL_C >> output.txt 2>&1
+  # The grep uses "[^$]SELECT" and not "SELECT" so that it does not match the "$SELECT(" in the inlined str2mval lines
+  grep '[^$]SELECT' _ydboctoP*.m | cut -d";" -f 2 | sort_LC_ALL_C >> output.txt 2>&1
   verify_output TCT019 output.txt
 }
 

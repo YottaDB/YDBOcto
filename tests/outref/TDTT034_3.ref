@@ -202,7 +202,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),18,36,"%H:%M:%S")
     . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
     . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -229,7 +229,7 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
     . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d"),$GET(%ydboctocursor(cursorId,"parameters",2)))
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -255,7 +255,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,7)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,18,%ydboctodatetimeoutputformat,"%H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -281,7 +281,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,10)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -307,13 +307,13 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
-    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr(1)=+(%ydboctoexpr)
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . SET %ydboctoexpr=$$String2DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),"%Y-%m-%d",6)
-    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=+(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -339,7 +339,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,9)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -365,7 +365,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,6)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -391,7 +391,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,6)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -416,7 +416,7 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -442,7 +442,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),20,10)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,21,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S%z")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -467,7 +467,7 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20,34,"""")
     . . SET %ydboctoexpr=$$Cast2VARCHAR^%ydboctoplanhelpers($$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S"),$GET(%ydboctocursor(cursorId,"parameters",2)))
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -493,7 +493,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
     . . SET %ydboctoexpr=$$DateTimeCast^%ydboctoplanhelpers((%ydboctoexpr),17,9)
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -518,7 +518,7 @@ octoPlan1(cursorId)
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,34,"""")
     . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers((%ydboctoexpr),17,%ydboctodatetimeoutputformat,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -549,7 +549,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",2))
     . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
     . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT
@@ -579,7 +579,7 @@ octoPlan1(cursorId)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)),17,36,"%Y-%m-%d")
     . . SET %ydboctoexpr=%ydboctoexpr(1)<%ydboctoexpr
     . . SET %ydboctoexpr=$select((1=%ydboctoexpr):"t",(0=%ydboctoexpr):"f",1:$ZYSQLNULL)
-    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
     ZKILL %ydboctocursor(cursorId,"keys",1,"octoonerowtable","id")
     QUIT

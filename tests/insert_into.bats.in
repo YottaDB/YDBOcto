@@ -113,7 +113,8 @@ teardown() {
 	$ydb_dist/yottadb -r zwriteAIMData^aimutils &>> output.txt
 	echo '# Verify key fixing optimization happened for = and IS NULL operators in WHERE clause' >> output.txt
 	echo '# Key fixed query will have a plan that does $ORDER(^%ydbAIMD*)' >> output.txt
-	grep -E -B 1 "SELECT|%ydbAIMD.*" _ydboctoP*.m >> output.txt
+	# The grep uses "[^$]SELECT" and not "SELECT" so that it does not match the "$SELECT(" in the inlined str2mval lines
+	grep -E -B 1 "[^$]SELECT|%ydbAIMD.*" _ydboctoP*.m >> output.txt
 	verify_output TII09 output.txt
 }
 

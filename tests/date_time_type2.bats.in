@@ -333,7 +333,8 @@ teardown() {
 	yottadb -run %XCMD 'set ^datetimedate(0)="2023-01-01"'
 	yottadb -run %XCMD 'set ^datetimedate(1)="2023-01-02"'
 	load_fixture TDTT105.sql subtest novv
-	grep -ri "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	# The grep includes "=+(" to match the lines that used to call "ForceNumeric^%ydboctoplanhelpers" (now inlined as "+()")
+	grep -ri "\(select\|insert\|FOR\|planhelpers\|=+(\)" _ydbocto*.m >> output.txt
 	verify_output TDTT105 output.txt nodatetimefilter noinfo nodebug
 }
 

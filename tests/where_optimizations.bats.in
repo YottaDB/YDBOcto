@@ -250,7 +250,8 @@ CAT
 	echo "# Also search for queries where the ORDER BY optimization took effect." >> output.txt
 	echo "# Queries where ORDER BY optimization took effect will only show up as lines containing [select]" >> output.txt
 	echo "# Queries where ORDER BY optimization did not take effect will show up as lines containing [select] and [OrderBy]" >> output.txt
-	grep -Ei "%ydboctozkeyfix.*%ydboctoexpr|SELECT|KILL.*OrderBy" _ydboctoP*.m >> output.txt
+	# The grep uses "[^$]SELECT" and not "SELECT" so that it does not match the "$SELECT(" in the inlined str2mval lines
+	grep -Ei "%ydboctozkeyfix.*%ydboctoexpr|[^$]SELECT|KILL.*OrderBy" _ydboctoP*.m >> output.txt
 	psql names -c 'DROP TABLE IF EXISTS TWO19a;' >& postgres.drop_table_TWO19.out
 	verify_output TWO19 output.txt noinfo nodebug
 }

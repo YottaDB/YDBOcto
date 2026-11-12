@@ -67,7 +67,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 24, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 25, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
@@ -79,7 +79,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 27, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 28, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
@@ -95,7 +95,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 31, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 32, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
@@ -111,7 +111,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 35, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 36, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
@@ -127,7 +127,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 39, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 40, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
@@ -143,7 +143,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 43, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 44, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
@@ -159,7 +159,7 @@ OCTO> select * from cat_rec_titles;
 	            ^-----
 		At column 13, line 47, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep
-	    . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+	    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 	            ^-----
 		At column 13, line 48, source module $PWD/_ydboctoP*.m
 %YDB-W-BLKTOODEEP, Block level too deep

@@ -78,6 +78,16 @@
 #define PP_XREF_COLUMN		"xrefCol"
 #define PP_YDB_OCTO_CTX		"%ydboctoctx" /* YDBOcto#1146: holds the table/column of the column being computed/iterated */
 #define PP_YDB_OCTO_EXPR	"%ydboctoexpr"
+/* Inline form of "SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)" for the common case of a string
+ * shorter than 127 bytes (1-byte length header); other lengths still call the helper. Saves an extrinsic call per
+ * column per row. Must stay in sync with str2mval^%ydboctoplanhelpers.
+ *
+ * Similarly, the templates emit $$ForceNumeric^%ydboctoplanhelpers(E) as +(E) and $$strcolval2aimsubs^%ydboctoplanhelpers(E)
+ * as ("#"_(E)). The parentheses are needed as M evaluates operators strictly left to right.
+ */
+#define STR2MVAL_INLINE_RHS                                                                   \
+	"$SELECT($ZYISSQLNULL(" PP_YDB_OCTO_EXPR "):$ZCHAR(0),127>$ZLENGTH(" PP_YDB_OCTO_EXPR \
+	"):$ZCHAR(1+$ZLENGTH(" PP_YDB_OCTO_EXPR "))_" PP_YDB_OCTO_EXPR ",1:$$str2mval^%ydboctoplanhelpers(" PP_YDB_OCTO_EXPR "))"
 #define PP_YDB_OCTO_G		"%ydboctog"
 #define PP_YDB_OCTO_I		"%ydboctoi"
 #define PP_YDB_OCTO_IN		"%ydboctoin"

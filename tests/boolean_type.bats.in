@@ -190,7 +190,8 @@ teardown() {
 	echo "# Expect: No cross reference usage by test2 because the boolean column is a primary key" >> output.txt
 	echo "# Expect: Row with ID 0 to have TRUE as foo value and row with ID 1 to have FALSE as foo value for both test1 and test2" >> output.txt
 	octo -pf input.sql >> output.txt
-	grep -r "\(select\|insert\|FOR\|planhelpers\)" _ydbocto*.m >> output.txt
+	# The grep includes "=+(" to match the lines that used to call "ForceNumeric^%ydboctoplanhelpers" (now inlined as "+()")
+	grep -r "\(select\|insert\|FOR\|planhelpers\|=+(\)" _ydbocto*.m >> output.txt
 	verify_output TBT16 output.txt
 }
 

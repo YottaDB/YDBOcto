@@ -357,14 +357,14 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 									%{}$SELECT(""={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
 									%{},{{ cur_key|%d }}):"",1:{}%
 								}
-								%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
+								%{}("#"_({}%
 							} else {
 								aimsub_needed2 = FALSE;
 								desc_from_end = FALSE;
 							}
 							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
 							if (aimsub_needed2) {
-								%{}){}%
+								%{})){}%	/* closes the inline form of $$strcolval2aimsubs^%%ydboctoplanhelpers() */
 							}
 							if (desc_from_end) {
 								%{}){}%

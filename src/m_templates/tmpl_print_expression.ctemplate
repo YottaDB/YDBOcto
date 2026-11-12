@@ -1015,7 +1015,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				}
 				%{}({}%
 				if (coerce_to_numeric) {
-					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+					%{}+({}%
 				}
 				if (dot_count) {
 					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
@@ -1038,7 +1038,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				}
 				assert(LP_COLUMN_LIST != value->type);
 				if (coerce_to_numeric) {
-					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+					%{}+({}%
 				}
 				if (dot_count) {
 					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},1){}%
@@ -1188,12 +1188,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
-			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			%{}+({}%
 			%{}{{ PP_YDB_OCTO_EXPR }}{}%
 			%{}){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		} else {
-			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			%{}+({}%
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			%{}){}%
 		}
@@ -1491,7 +1491,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		%{}$SELECT({}%
 		if (coerce_to_numeric) {
-			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			%{}+({}%
 		}
 		if (first_operand_needs_timezone_comp) {
 			%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ first_operand_type|%d }},{}%
@@ -1509,7 +1509,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		%{}={}%
 		if (coerce_to_numeric) {
-			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			%{}+({}%
 		}
 		if (second_operand_needs_timezone_comp) {
 			%{}$$ConvertToLocalTimezone^%%ydboctoplanhelpers({{ second_operand_type|%d }},{}%
@@ -2039,7 +2039,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				 */
 				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={}%
 				if (coerce_to_numeric) {
-					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+					%{}+({}%
 				}
 				%{}{{ PP_YDB_OCTO_EXPR }}{}%
 				if (coerce_to_numeric) {
@@ -2050,7 +2050,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
 				if (coerce_to_numeric) {
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ForceNumeric^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=+({{ PP_YDB_OCTO_EXPR }}){}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 				}
 				if (second_operand_needs_timezone_comp) {
@@ -2072,7 +2072,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			} else {
 				%{}({}%
 				if (coerce_to_numeric) {
-					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+					%{}+({}%
 				}
 				boolean_t close_date_function = FALSE;
 				if (is_concat && IS_DATE_TIME_TYPE(first_operand_type)) {
@@ -2096,7 +2096,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				}
 				%{}{{ m_operator }}{}%
 				if (coerce_to_numeric) {
-					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+					%{}+({}%
 				}
 				if (is_concat && IS_DATE_TIME_TYPE(second_operand_type)) {
 					//CONVERT it to output format

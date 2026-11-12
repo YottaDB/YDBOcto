@@ -72,7 +72,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 			if (!iter_key->is_order_by_xref_walk && (NULL != iter_key->xref_prefix) && ('^' == iter_key->xref_prefix[0])
 					&& (IS_COLUMN_STRING_TYPE(iter_key->column))) {
 				aimsub_needed = TRUE;
-				%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
+				%{}("#"_({}%
 			} else {
 				aimsub_needed = FALSE;
 			}
@@ -93,7 +93,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 				TMPL(tmpl_key, iter_key);
 			}
 			if (aimsub_needed) {
-				%{}){}%
+				%{})){}%	/* closes the inline form of $$strcolval2aimsubs^%%ydboctoplanhelpers() */
 			}
 			iter_key_index++;
 			iter_key = pplan->iterKeys[iter_key_index];

@@ -1206,6 +1206,7 @@ Compare(value1,compOp,value2,isString)
 	QUIT  ; We do not expect to reach here. Hence the QUIT without any value (will generate a runtime error).
 
 ForceNumeric(value)
+	; Note: The templates emit this function inline as +(value). Keep the two in sync.
 	QUIT +value
 
 ; The following routine is only used by ValidateInputAndGetTrimdVal to issue INVALIDINTEGERSYNTAX or INVALIDNUMERICSYNTAX error
@@ -1456,6 +1457,8 @@ String2Boolean(boolstr)	;
 	QUIT %ydboctoStr2Bool(boolnewstr)
 
 str2mval(str)
+	; Note: The templates emit the common case (string shorter than 127 bytes) of this function inline
+	; (see STR2MVAL_INLINE_RHS in src/m_templates/template_helpers.h). Keep the two in sync.
 	; Converts an input string `str` into a `len,str` 2-tuple. Cannot use `str` as is in case input string is `$ZYSQLNULL`
 	; (as that cannot then be later used as part of a concatenation operation since the result of the concatenation
 	; would be $ZYSQLNULL losing all other operands of the concatenation operator).
@@ -2061,6 +2064,7 @@ TableAsteriskCompare(firstOperand,secondOperand,operator,numColumns,colTypeList)
 ; cross reference global. See YDBAIM#73 (and YDBOcto#616) for more details.
 
 strcolval2aimsubs(colvalue)
+	; Note: The templates emit this function inline as ("#"_(colvalue)). Keep the two in sync.
 	QUIT "#"_colvalue
 
 aimsubs2strcolval(subscript)

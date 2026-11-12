@@ -9,8 +9,8 @@
 _ydboctoP*.m-    . SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=""
 _ydboctoP*.m-    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
 _ydboctoP*.m-;; ---------------------------------------------------------
-_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=$ORDER(^%ydbAIMDo3vY1ayPV3xokq7y73brK5(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")),%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")="")  DO
-_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft08","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")) IF $DATA(^%ydbAIMDo3vY1ayPV3xokq7y73brK5(2,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")))) DO
+_ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")=$ORDER(^%ydbAIMDo3vY1ayPV3xokq7y73brK5(2,("#"_(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname"))),%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"tdft08","%yo_keycol")="")  DO
+_ydboctoP*.m:    SET %ydboctocursor(cursorId,"keys",1,"tdft08","firstname")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname")) IF $DATA(^%ydbAIMDo3vY1ayPV3xokq7y73brK5(2,("#"_(%ydboctocursor(cursorId,"keys",1,"tdft08","firstname"))))) DO
 _ydboctoP*.m:;  delete from TDFT08 where firstname = 'First';
 _ydboctoP*.m-;; ---------------------------------------------------------
 _ydboctoP*.m:;  select * from TDFT08;

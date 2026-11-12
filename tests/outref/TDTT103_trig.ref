@@ -71,13 +71,13 @@ _ydboctoP*.m:;  select order_timestamp from timestamp_fileman_tbl where order_ti
 _ydboctoP*.m:    . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),20)
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")=$ORDER(^%ydbAIMDmVGSavhPiSB55S7kTo9u0G(0,%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_timestamp"),%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")="")  DO
 _ydboctoP*.m:    . . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-_ydboctoP*.m:    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:;  select * from timestamp_fileman_tbl;
 _ydboctoP*.m:    FOR  SET %ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")=$ORDER(^timestampfilemantbl(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id")="")  DO
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$Fileman2UnixTime^%ydboctoplanhelpers($GET(^timestampfilemantbl(%ydboctocursor(cursorId,"keys",1,"timestamp_fileman_tbl","order_id"))),20) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$PrintDateTimeResultColumnValue^%ydboctoplanhelpers(%ydboctoexpr,20,%ydboctodatetimeoutputformat,"%Y-%m-%d %H:%M:%S")
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoX*.m:;; Generated M code maintains cross reference for order_timestamp column in timestamp_fileman_tbl table
 _ydboctoX*.m:    ;   stat (always 2), AIM Metadata Type (depending if the table has it specified or not);   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"",,0,0,1,2,2,"$$Fileman2UnixTime^%ydboctoplanhelpers(,20)")

@@ -56,7 +56,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 		boolean_t	aimsub_needed;
 		if (('^' == key->xref_prefix[0]) && (IS_COLUMN_STRING_TYPE(key->column))) {
 			aimsub_needed = TRUE;
-			%{}$$strcolval2aimsubs^%%ydboctoplanhelpers({}%
+			%{}("#"_({}%
 		} else {
 			aimsub_needed = FALSE;
 		}
@@ -72,7 +72,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key, enum EmitSourceForm 
 			TMPL(tmpl_key, key);
 		}
 		if (aimsub_needed) {
-			%{}){}%
+			%{})){}%	/* closes the inline form of $$strcolval2aimsubs^%%ydboctoplanhelpers() */
 		}
 		%{}){}%
 	} else {

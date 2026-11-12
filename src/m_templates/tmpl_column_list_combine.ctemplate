@@ -102,7 +102,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			case TIME_WITH_TIME_ZONE_LITERAL:
 			case TIMESTAMP_WITH_TIME_ZONE_LITERAL:
 				/* In case of an integer, force it to be a numeric. Fixes issues like YDBOcto#643. */
-				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				%{}+({}%
 				need_closing_paren = TRUE;
 				break;
 			case TABLE_ASTERISK:
@@ -293,7 +293,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			%{}`n{{ PLAN_LINE_START }}{}%
 		} else if (str2mval) {
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ STR2MVAL_INLINE_RHS }}{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		if (left_concat_needed) {

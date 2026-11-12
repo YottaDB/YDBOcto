@@ -40,8 +40,8 @@ OCTO>
 # Key iteration in the WHERE query plan -- uses the AIM cross reference.
 # ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
 #  global iterates primary-key columns the cross reference does not cover.)
-    SET %ydboctocursor(cursorId,"keys",1,"order_lines","customer")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")) IF $DATA(^%ydbAIMDNMZvKT6suK4p3jlWYjTZ08(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")))) DO
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"order_lines","order_id")=$ORDER(^%ydbAIMDNMZvKT6suK4p3jlWYjTZ08(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")),%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"order_lines","customer")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"order_lines","customer")) IF $DATA(^%ydbAIMDNMZvKT6suK4p3jlWYjTZ08(1,("#"_(%ydboctocursor(cursorId,"keys",1,"order_lines","customer"))))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"order_lines","order_id")=$ORDER(^%ydbAIMDNMZvKT6suK4p3jlWYjTZ08(1,("#"_(%ydboctocursor(cursorId,"keys",1,"order_lines","customer"))),%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id")="")  DO
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"order_lines","line_id")=$ORDER(^ORD(%ydboctocursor(cursorId,"keys",1,"order_lines","order_id"),%ydboctocursor(cursorId,"keys",1,"order_lines","line_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"order_lines","line_id")="")  DO
 
 
@@ -176,9 +176,9 @@ OCTO>
 # Key iteration in the WHERE query plan -- uses the AIM cross reference.
 # ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
 #  global iterates primary-key columns the cross reference does not cover.)
-    SET %ydboctocursor(cursorId,"keys",1,"seats","holder")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"seats","holder")) IF $DATA(^%ydbAIMDWFF7zROURjK7WjZ1qP9c06(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"seats","holder")))) DO
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"seats","event_id")=$ORDER(^%ydbAIMDWFF7zROURjK7WjZ1qP9c06(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"seats","holder")),%ydboctocursor(cursorId,"keys",1,"seats","event_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"seats","event_id")="")  DO
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"seats","seat_id")=$ORDER(^%ydbAIMDWFF7zROURjK7WjZ1qP9c06(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"seats","holder")),%ydboctocursor(cursorId,"keys",1,"seats","event_id"),%ydboctocursor(cursorId,"keys",1,"seats","seat_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"seats","seat_id")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"seats","holder")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"seats","holder")) IF $DATA(^%ydbAIMDWFF7zROURjK7WjZ1qP9c06(1,("#"_(%ydboctocursor(cursorId,"keys",1,"seats","holder"))))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"seats","event_id")=$ORDER(^%ydbAIMDWFF7zROURjK7WjZ1qP9c06(1,("#"_(%ydboctocursor(cursorId,"keys",1,"seats","holder"))),%ydboctocursor(cursorId,"keys",1,"seats","event_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"seats","event_id")="")  DO
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"seats","seat_id")=$ORDER(^%ydbAIMDWFF7zROURjK7WjZ1qP9c06(1,("#"_(%ydboctocursor(cursorId,"keys",1,"seats","holder"))),%ydboctocursor(cursorId,"keys",1,"seats","event_id"),%ydboctocursor(cursorId,"keys",1,"seats","seat_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"seats","seat_id")="")  DO
 
 
 -- TW29 Case 5 (YDBOcto#1124) : the column's global uses a DIFFERENT global name than the table's rows, and
@@ -222,7 +222,7 @@ OCTO>
 # Key iteration in the WHERE query plan -- uses the AIM cross reference.
 # ($ORDER/$DATA over ^%ydbAIMD* iterate the cross reference; $ORDER over the table
 #  global iterates primary-key columns the cross reference does not cover.)
-    SET %ydboctocursor(cursorId,"keys",1,"orders2","region")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders2","region")) IF $DATA(^%ydbAIMDhnRnelFXQnWyG9XwWE4O79(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"orders2","region")))) DO
-    . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","cust_id")=$ORDER(^%ydbAIMDhnRnelFXQnWyG9XwWE4O79(1,$$strcolval2aimsubs^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"orders2","region")),%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id")="")  DO
+    SET %ydboctocursor(cursorId,"keys",1,"orders2","region")=%ydboctoexpr IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"orders2","region")) IF $DATA(^%ydbAIMDhnRnelFXQnWyG9XwWE4O79(1,("#"_(%ydboctocursor(cursorId,"keys",1,"orders2","region"))))) DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","cust_id")=$ORDER(^%ydbAIMDhnRnelFXQnWyG9XwWE4O79(1,("#"_(%ydboctocursor(cursorId,"keys",1,"orders2","region"))),%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id")="")  DO
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","order_id")=$ORDER(^O(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"),%ydboctocursor(cursorId,"keys",1,"orders2","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","order_id")="")  DO
 

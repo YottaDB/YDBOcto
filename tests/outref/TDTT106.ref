@@ -84,7 +84,7 @@ octoPlan1(cursorId)
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"dater","id")
-    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -109,7 +109,7 @@ octoPlan1(cursorId)
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"test","id")
-    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -182,9 +182,9 @@ octoPlan1(cursorId)
     . . QUIT:'($DATA(^datetimedate(%ydboctocursor(cursorId,"keys",1,"dater","id"),%ydboctocursor(cursorId,"keys",1,"dater","dobf")))#10)
     . . SET %ydboctoexpr=1
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"dater","dobf"),17,36,"%Y-%m-%d")
-    . . SET %ydboctoexpr(1)=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr(1)=+(%ydboctoexpr)
     . . SET %ydboctoexpr=$$Transform2UnixTime^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)),17,36,"%Y-%m-%d")
-    . . SET %ydboctoexpr=$$ForceNumeric^%ydboctoplanhelpers(%ydboctoexpr)
+    . . SET %ydboctoexpr=+(%ydboctoexpr)
     . . SET %ydboctoexpr=%ydboctoexpr(1)=%ydboctoexpr
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -208,6 +208,6 @@ octoPlan1(cursorId)
     . . DO:%ydboctoexpr
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"test","id")
-    . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
+    . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
     . . . SET %ydboctoexpr(0)=%ydboctoexpr
     . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"test","fname")

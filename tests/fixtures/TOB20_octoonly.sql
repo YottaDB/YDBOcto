@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -62,7 +62,8 @@ select * from TOB20h where lastname = 'efgh' order by id asc limit 2;
 select * from TOB20h where lastname = 'efgh' order by id desc limit 2;
 
 -- Test that END keyword disables ORDER BY optimization
-create table TOB20i (id integer primary key END "keys(""id"")>11", firstname varchar, lastname varchar) GLOBAL "^TOB20d" READONLY;
+create table TOB20i (id integer primary key END 'keys("id")>11!(keys("id")="")',
+	firstname varchar, lastname varchar) GLOBAL "^TOB20d" READONLY;
 select * from TOB20i order by id;
 select * from TOB20i order by id asc;
 select * from TOB20i order by id asc limit 2;

@@ -1,6 +1,6 @@
 #################################################################
 #                                                              #
-# Copyright (c) 2023 YottaDB LLC and/or its subsidiaries.      #
+# Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.      #
 # All rights reserved.                                         #
 #                                                              #
 #      This source code contains the intellectual property     #
@@ -59,7 +59,8 @@ create table _test3 (_id1 integer primary key, _fullname text extract "$PIECE(^n
 select * from _test3;
 
 drop table _test3 keepdata;
-create table _test3 (_id1 integer primary key START 0 END "keys(""_id1"")=3", _firstname text, _lastname text) GLOBAL "^names";
+create table _test3 (_id1 integer primary key START 0 END 'keys("_id1")=3!(keys("_id1")="")',
+	_firstname text, _lastname text) GLOBAL "^names";
 select * from _test3;
 
 drop table _test3 keepdata;

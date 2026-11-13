@@ -1453,6 +1453,20 @@ FILE
 				exit_status=1
 			fi
 		}
+		# Set timeout because, e.g. a table without END 'keys("id")=""' loops forever on an empty global such as this job's global.
+		octo_timeout=5  # longest queries take about 1/5th of a second
+		# Usage: timed_octo outfile octo-arguments...
+		# Runs "octo" with the arguments after "outfile" under the above time limit, with output to "outfile".
+		# Returns octo's exit status. If octo timed out, records an error and returns 124.
+		timed_octo() {
+			timeout $octo_timeout ./octo "${@:2}" >& $1
+			local status=$?
+			if [[ $status -eq 124 ]]; then
+				echo "ERROR : [octo ${*:2} in $dir] timed out after $octo_timeout seconds" | tee -a ../errors.log
+				exit_status=1
+			fi
+			return $status
+		}
 		run_octo() {
 			local queryfile=$1
 			local dir=$2
@@ -1460,10 +1474,11 @@ FILE
 			# So disable the "set -e" setting temporarily for this step.
 			set +e
 			if [[ $3 == "vv" ]]; then
-				./octo -vv -f $queryfile >& $queryfile.vv.out	# Need -vv to figure out generated M plan name
+				timed_octo $queryfile.vv.out -vv -f $queryfile	# Need -vv to figure out generated M plan name
+				local status=$?
 				# See comment in error block for TEST1 above for why exit code of 1 is accepted
-				if [[ $? -gt 1 ]]; then
-					echo "ERROR : [octo -f $dir/$queryfile] returned non-zero exit status : $?" | tee -a ../errors.log
+				if [[ $status -gt 1 ]]; then
+					echo "ERROR : [octo -f $dir/$queryfile] returned non-zero exit status : $status" | tee -a ../errors.log
 					exit_status=1
 				fi
 				# It is possible that the CREATE TABLE query is expected to error out (e.g. the test where
@@ -1476,17 +1491,18 @@ FILE
 					echo "ERROR : [octo -f $dir/$queryfile] encountered unexpected %YDB-E-DLLCHSETM error" | tee -a ../errors.log
 					exit_status=1
 				fi
-				plan_name=$(grep _ydboctoP $queryfile.vv.out | sed 's/.*_ydboctoP/_ydboctoP/;s/].*//')
+				# Match only the message that names the plan. Other lines (e.g. an M compile error) may name it too.
+				plan_name=$(grep -E "INFO_(REUSE_)?M_PLAN:" $queryfile.vv.out | sed 's/.*_ydboctoP/_ydboctoP/;s/].*//')
 			fi
-			./octo -f $queryfile >& $queryfile.out	# Run without -vv to get actual output (minus INFO/LP_ etc. output)
-								# This will be used for filediff as it is deterministic.
+			timed_octo $queryfile.out -f $queryfile	# Run without -vv to get actual output (minus INFO/LP_ etc. output)
+									# This will be used for filediff as it is deterministic.
 			# Re-enable "set -e" now that "octo" invocation is done.
 			set -e
 		}
 		cd oldsrc
 		export ydb_routines=". $ydb_routines $ydb_dist/libyottadbutil.so"
-		cp ../*.gld ../{mumps,octo}.dat ../create_table-*.sql .
-		cp ./*.gld {mumps,octo}.dat create_table-*.sql ../newsrc
+		cp ../*.gld ../{aim,mumps,octo}.dat ../create_table-*.sql .
+		cp ./*.gld {aim,mumps,octo}.dat create_table-*.sql ../newsrc
 		for queryfile in create_table-*.sql
 		do
 			echo " --> Processing $queryfile"
@@ -1497,7 +1513,7 @@ FILE
 			tablename=$(grep -n "CREATE TABLE" $queryfile | grep -v "^--" | sed 's/.*CREATE TABLE //;s/(.*//;' | awk '{print $1}')
 			echo "select * from $tablename;" > $queryfile.2
 			# Copy over database files from oldsrc to newsrc
-			cp {mumps,octo}.dat $queryfile.2 ../newsrc
+			cp {aim,mumps,octo}.dat $queryfile.2 ../newsrc
 			# Run the SELECT query in oldsrc directory
 			run_octo $queryfile.2 oldsrc vv	# sets "plan_name" variable due to "vv"
 			old_plan_name=$plan_name

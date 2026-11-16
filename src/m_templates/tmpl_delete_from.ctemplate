@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2021-2022 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,13 @@ TEMPLATE(tmpl_delete_from, PhysicalPlan *pplan) {
 	 */
 	assert(LP_DELETE_FROM == pplan->lp_select_query->type);
 	%{}NEW {{ PP_YDB_OCTO_Z }},{{ PP_YDB_OCTO_EXPR }}{}%
+	if (NULL != pplan->like_prefix_only) {
+		%{},{{ PP_YDB_OCTO_ZLIKEPREFIX }}{}% /* See "tmpl_like_prefix_init.ctemplate" (YDBOcto#1189) */
+	}
 	%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
+	if (NULL != pplan->like_prefix_only) {
+		TMPL(tmpl_like_prefix_init, pplan);
+	}
 	/* If we have a set of LP_SET_DNF plans each corresponding to a LP_DELETE_FROM plan, then set the delete count to 0
 	 * only at the start of the first DNF plan. Do not want the count after the first DNF plan execution to get reset to 0
 	 * at the start of the second/later DNF plans.

@@ -108,6 +108,9 @@ SQL command [update names set firstname = 'a' || firstname where firstname ~* 't
                   LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO: 
 SQL command []
 # Verify which queries have and don't have regfreeIfAny() invocations and how many of them
+# A LIKE on a column whose pattern is a prefix followed by only % (e.g. 'test%'), checked on each row, compares
+# the start of each value with a prefix set once before the loop ([%ydboctozlikeprefix]). It uses no regex, so it
+# needs no regfreeIfAny() (YDBOcto#1189).
 
 _ydboctoP*.m:;  update names set firstname = 'a' || firstname where firstname != 'test%';
 
@@ -128,8 +131,9 @@ _ydboctoP*.m:    DO regfreeIfAny^%ydboctoplanhelpers
 _ydboctoP*.m:    . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,3,0)
 
 _ydboctoP*.m:;  select count(*) from v1 where firstname like 'test%';
-_ydboctoP*.m:    DO regfreeIfAny^%ydboctoplanhelpers
-_ydboctoP*.m:    . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+_ydboctoP*.m:    NEW %ydboctoz,%ydboctoexpr,%ydboctog,%ydboctozlikeprefix KILL %ydboctocursor(cursorId,"keys",5,"","")
+_ydboctoP*.m:    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+_ydboctoP*.m:    . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
 
 _ydboctoP*.m:;  (select count(*) from names where firstname ilike 'test%') union (select count(*) from names where lastname similar to 'test%');
 _ydboctoP*.m:    DO regfreeIfAny^%ydboctoplanhelpers
@@ -172,7 +176,9 @@ _ydboctoP*.m:;  delete from names where firstname != 'test%';
 
 _ydboctoP*.m:;  select count(*) from v1 where firstname like 'test%' or firstname similar to 'test_';
 _ydboctoP*.m:    DO regfreeIfAny^%ydboctoplanhelpers
-_ydboctoP*.m:    . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+_ydboctoP*.m:    NEW %ydboctoz,%ydboctoexpr,%ydboctog,%ydboctozlikeprefix KILL %ydboctocursor(cursorId,"keys",5,"","")
+_ydboctoP*.m:    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+_ydboctoP*.m:    . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
 _ydboctoP*.m:    . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,2,0)
 
 _ydboctoP*.m:;  insert into names values (6, (select 'abcd' where 'a' like 'test%'), 'efgh');

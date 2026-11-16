@@ -92,6 +92,11 @@ setString('PAT%') : v LIKE ? AND v <> '<1100 x Z>' (a query of more than 1024 by
 #   '%AT'     : table scan, only [regexmatch] (also the plan of the Parse message)
 # For ILIKE the prefix ends at the first letter ([likeprefix(...,1)], [regexmatch(...,2)], 2 = case-insensitive).
 # '12' and '12%' match exactly what LIKE does, so they get the plans of 'PAT' and 'PAT%'.
+# NOT LIKE 'PAT%' (YDBOcto#1189): checks each row, as a NOT LIKE cannot walk a cross reference. The plan works out
+# the prefix from the bound value once, right after its NEW ([SET %ydboctozlikeprefix(1)=$$likeprefix(...)]), and
+# compares the start of each value with it ([$ZEXTRACT(...)=%ydboctozlikeprefix(1)]), no [regexmatch]. Expected rows:
+# 4 to 9 and 14 to 17 (12 and 13 are NULL). The same prepared statement is then bound again, to 'PA%', which
+# reuses the plan, and must use the new prefix PA. Expected rows: 6 to 9 and 14 to 17.
 
 [v LIKE ?] bound to 'PAT' -> [1]
   Plan A:
@@ -127,6 +132,13 @@ setString('PAT%') : v LIKE ? AND v <> '<1100 x Z>' (a query of more than 1024 by
 [v ILIKE ?] bound to 'pat%' -> [1,2,3,10,11,17]
   Plan F:
     $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+
+[v NOT LIKE ?] bound to 'PAT%' -> [4,5,6,7,8,9,14,15,16,17]
+[v NOT LIKE ?] bound again to 'PA%' -> [6,7,8,9,14,15,16,17]
+  Plan G:
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    $ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 # 3. Verify the cross references built. TJC025B was only queried with values that have no prefix, so each
 # Bind picked the table scan plan and no cross reference was built for TJC025B.v.

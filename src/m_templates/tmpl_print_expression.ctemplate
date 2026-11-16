@@ -727,23 +727,69 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 		}
 		break;
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY: {
+		LikePrefixOnly *like_prefix_only;
+		int		like_prefix_num;
+
+		/* A LIKE whose pattern is a literal prefix followed by only '%' (e.g. 'PAT%'), checked on each row (e.g. a
+		 * NOT LIKE, which cannot walk a cross reference). A value matches such a pattern exactly when it starts with
+		 * the prefix. So the value is compared with the prefix, which the plan worked out from the pattern once,
+		 * before its FOR loops, into PP_YDB_OCTO_ZLIKEPREFIX(<n>) (see "tmpl_like_prefix_init.ctemplate").
+		 * No regex is used (YDBOcto#1189). The pattern (second_operand) is therefore not read here.
+		 * An ILIKE with a prefix that has no character with case (e.g. '12%') uses this too, as it matches what the
+		 * LIKE matches.
+		 *
+		 * <n> is the position of this LIKE in the list of such LIKEs of this plan (see "lp_verify_structure()").
+		 */
+		like_prefix_num = 1;
+		for (like_prefix_only = pplan->like_prefix_only; NULL != like_prefix_only; like_prefix_only = like_prefix_only->next) {
+			if (plan == like_prefix_only->like_plan) {
+				break;
+			}
+			like_prefix_num++;
+		}
+		assert(NULL != like_prefix_only);
+
+		/* A NULL value gives NULL (unknown), for LIKE and for NOT LIKE. $ZEXTRACT() of $ZYSQLNULL does not give
+		 * $ZYSQLNULL: $ZEXTRACT($ZYSQLNULL,1,3) gives "". Without the $ZYISSQLNULL() test below, a NULL v would make
+		 * v LIKE 'PAT%' false ("" is not "PAT") and so v NOT LIKE 'PAT%' true, where both must be NULL. So the NULL is
+		 * tested for first. In the dotted form, the value is in PP_YDB_OCTO_EXPR. Otherwise the value's expression is
+		 * printed twice, as LP_COALESCE_CALL does.
+		 */
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT($ZYISSQLNULL({{ PP_YDB_OCTO_EXPR }}):$ZYSQLNULL,1:{}%
+			%{}$ZEXTRACT({{ PP_YDB_OCTO_EXPR }},1,{}%
+		} else {
+			%{}$SELECT($ZYISSQLNULL({}%
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			%{}):$ZYSQLNULL,1:$ZEXTRACT({}%
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			%{},1,{}%
+		}
+		%{}$ZLENGTH({{ PP_YDB_OCTO_ZLIKEPREFIX }}({{ like_prefix_num|%d }})))={}%
+		%{}{{ PP_YDB_OCTO_ZLIKEPREFIX }}({{ like_prefix_num|%d }})){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
+		break;
+	}
 	case LP_BOOLEAN_REGEX_SENSITIVE:
 	case LP_BOOLEAN_REGEX_INSENSITIVE:
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
 	case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
-	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX: {
 		int	regex_type, regex_flags;
 
-		/* LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY, LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX and
-		 * LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX are a LIKE or ILIKE whose pattern starts with a literal prefix
-		 * (YDBOcto#1158). When one is checked per row, it is matched like any other LIKE or ILIKE.
+		/* LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX and LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX are a LIKE or ILIKE whose
+		 * pattern starts with a literal prefix (YDBOcto#1158). When one is checked per row, it is matched like any other
+		 * LIKE or ILIKE.
 		 */
 		if ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE == plan_type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == plan_type)
-		    || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == plan_type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == plan_type)
-		    || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == plan_type)) {
+		    || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == plan_type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == plan_type)) {
 			regex_type = REGEX_LIKE;
 		} else if (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == plan_type) {
 			regex_type = REGEX_SIMILARTO;

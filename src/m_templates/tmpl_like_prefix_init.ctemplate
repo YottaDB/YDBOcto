@@ -1,0 +1,46 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* YDBOcto#1189 : For each LIKE of this plan whose pattern is a literal prefix followed by only '%' (e.g. 'PAT%') and that
+ * is checked on each row, work out the prefix from the pattern once, before the FOR loops of the plan, into
+ * PP_YDB_OCTO_ZLIKEPREFIX(<n>), where <n> is the position of the LIKE in "pplan->like_prefix_only" (starting at 1). Each
+ * row's value is then compared with it (see LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY in "tmpl_print_expression.ctemplate"),
+ * instead of matching a regex on each row. The pattern is a constant of the query (a literal or a bind parameter), so it
+ * is the same for every row.
+ *
+ * The caller emits this right after the NEW of the plan, which includes PP_YDB_OCTO_ZLIKEPREFIX when the list is not
+ * empty. So a plan that is called from within another plan (e.g. a correlated subquery) does not change the prefixes of
+ * the caller.
+ */
+TEMPLATE(tmpl_like_prefix_init, PhysicalPlan *pplan) {
+	LikePrefixOnly *like_prefix_only;
+	int		like_prefix_num;
+
+	like_prefix_num = 1;
+	for (like_prefix_only = pplan->like_prefix_only; NULL != like_prefix_only; like_prefix_only = like_prefix_only->next) {
+		LogicalPlan *pattern;
+
+		pattern = like_prefix_only->like_plan->v.lp_default.operand[1];
+		%{}SET {{ PP_YDB_OCTO_ZLIKEPREFIX }}({{ like_prefix_num|%d }}){}%
+		%{}=$$likeprefix^%%ydboctoplanhelpers({}%
+		TMPL(tmpl_print_expression, pattern, pplan, 0, 0);
+		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		like_prefix_num++;
+	}
+	return;
+}
+%{}

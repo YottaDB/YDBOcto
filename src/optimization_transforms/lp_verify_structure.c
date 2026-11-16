@@ -430,12 +430,29 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		case LP_BOOLEAN_REGEX_INSENSITIVE:
 		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
 		case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
-		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
 		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
 			if (NULL != options) {
 				options->regexmatch_invoked = TRUE;
+			}
+			break;
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+			/* This LIKE is checked on each row (one that walks a cross reference over the prefix is no longer in the
+			 * plan). The plan compares the start of each value with the prefix of the pattern, and works that prefix
+			 * out once, before its FOR loops (YDBOcto#1189). Add the LIKE to the list of such LIKEs of this plan. No
+			 * regex is compiled, so "regexmatch_invoked" is not set.
+			 */
+			if (NULL != options) {
+				LikePrefixOnly **like_prefix_only_ptr;
+
+				/* Append the LIKE at the end of the list, so the LIKEs are numbered in the order found */
+				like_prefix_only_ptr = &options->like_prefix_only;
+				while (NULL != *like_prefix_only_ptr) {
+					like_prefix_only_ptr = &(*like_prefix_only_ptr)->next;
+				}
+				OCTO_CMALLOC_STRUCT(*like_prefix_only_ptr, LikePrefixOnly);
+				(*like_prefix_only_ptr)->like_plan = plan;
 			}
 			break;
 		default:

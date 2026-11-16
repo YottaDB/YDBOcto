@@ -24,11 +24,11 @@ octoPlan0(cursorId,wrapInTp)
     TSTART:wrapInTp ():(serial)
     DO octoPlan1(cursorId)
     TCOMMIT:wrapInTp
-    DO regfreeIfAny^%ydboctoplanhelpers
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz,%ydboctoexpr KILL %ydboctocursor(cursorId,"keys",5,"","")
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix KILL %ydboctocursor(cursorId,"keys",5,"","")
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
     SET %ydboctocursor(cursorId,"keys",1,"composite","id0")=""
     FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id0")="")  DO
     . SET %ydboctocursor(cursorId,"keys",1,"composite","id1")=""
@@ -48,9 +48,7 @@ octoPlan1(cursorId)
     . . . . . . . . QUIT:'($DATA(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7")))#10)
     . . . . . . . . SET %ydboctoexpr=1
     . . . . . . . . SET %ydboctoexpr=$GET(^composite(%ydboctocursor(cursorId,"keys",1,"composite","id0"),%ydboctocursor(cursorId,"keys",1,"composite","id1"),%ydboctocursor(cursorId,"keys",1,"composite","id2"),%ydboctocursor(cursorId,"keys",1,"composite","id3"),%ydboctocursor(cursorId,"keys",1,"composite","id4"),%ydboctocursor(cursorId,"keys",1,"composite","id5"),%ydboctocursor(cursorId,"keys",1,"composite","id6"),%ydboctocursor(cursorId,"keys",1,"composite","id7"))) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL
-    . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr
-    . . . . . . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",1))
-    . . . . . . . . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
+    . . . . . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
     . . . . . . . . SET %ydboctoexpr(1)=%ydboctoexpr
     . . . . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",1,"composite","id1")
     . . . . . . . . SET %ydboctoexpr(2)=%ydboctoexpr

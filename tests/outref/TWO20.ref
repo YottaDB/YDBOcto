@@ -489,7 +489,10 @@ OCTO>
 # with [likeprefix] and stops the walk with [$ZEXTRACT]:
 #   A pattern that is only a prefix followed by % (e.g. 'PAT%') has no [regexmatch] left.
 #   A pattern with more after the prefix (e.g. 'PAT%ENT') still calls [regexmatch] on each row found.
-# A pattern without a prefix (e.g. '%AT') and NOT LIKE only call [regexmatch] on every row.
+# A pattern without a prefix (e.g. '%AT') only calls [regexmatch] on every row.
+# A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, a key column,
+# a table in a local variable) sets the prefix once before the loop ([SET %ydboctozlikeprefix(...)=$$likeprefix(...)])
+# and compares the start of each value with it ([$ZEXTRACT(...)=%ydboctozlikeprefix(...)]), not a regex.
 # ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. '12A%' walks over '12' with
 # [likeprefix(...,1)] and checks the ILIKE ([regexmatch(...,2)], 2 = case-insensitive). '12%' matches what
 # LIKE '12%' does, and '12' (no wildcard, escape or letter) is an "=", which fixes the key of column v to the
@@ -548,7 +551,9 @@ SELECT id FROM TWO20 WHERE v ~~ 'PAT%' ORDER BY id;
 
 SELECT id FROM TWO20 WHERE v NOT LIKE 'PAT%' ORDER BY id;
   Plan D:
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    $ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 SELECT id FROM TWO20 WHERE v LIKE 'PAT%' OR v LIKE '12%' ORDER BY id;
   Plan E:
@@ -585,11 +590,15 @@ SELECT id FROM TWO20 WHERE v LIKE 'PAT%'::VARCHAR ORDER BY id;
 
 SELECT k FROM TWO20key WHERE k LIKE '12%' ORDER BY k;
   Plan K:
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    $ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 SELECT name FROM pg_settings WHERE vartype LIKE 'en%' ORDER BY name;
   Plan L:
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,0)
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    $ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 SELECT id, x FROM TWO20viewsub ORDER BY id;
   Plan M:

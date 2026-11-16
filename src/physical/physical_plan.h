@@ -132,6 +132,10 @@ typedef struct PhysicalPlan {
 				       * If so, we need to emit M code at the end of the query to free up the compiled
 				       * regex expression (YDBOcto#873).
 				       */
+	/* The LIKEs of this plan that are checked on each row by comparing the value with the prefix of their pattern
+	 * (YDBOcto#1189). NULL if none.
+	 */
+	struct LikePrefixOnly *like_prefix_only;
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
@@ -141,6 +145,18 @@ typedef struct PhysicalPlan {
 #define IS_DELETE_FROM_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_DELETE_FROM == PPLAN->lp_select_query->type))
 #define IS_UPDATE_PHYSICAL_PLAN(PPLAN)	    ((NULL != PPLAN->lp_select_query) && (LP_UPDATE == PPLAN->lp_select_query->type))
 #define HYPHEN_LINE			    "---------------------------------------------------------"
+
+/* A LIKE whose pattern is a literal prefix followed by only '%' (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY, e.g. 'PAT%'),
+ * that a plan checks on each row (e.g. a NOT LIKE, which cannot walk a cross reference). A value matches such a pattern
+ * exactly when it starts with the prefix. So the plan works out the prefix of each such LIKE once, before its FOR loops,
+ * and compares the start of each row's value with it, instead of matching a regex on each row (YDBOcto#1189).
+ * The prefix is kept in PP_YDB_OCTO_ZLIKEPREFIX(<n>), where <n> is the position of the LIKE in this list, starting at 1
+ * (see "tmpl_like_prefix_init.ctemplate").
+ */
+typedef struct LikePrefixOnly {
+	LogicalPlan	      *like_plan; /* The LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY plan */
+	struct LikePrefixOnly *next;
+} LikePrefixOnly;
 
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level
@@ -167,6 +183,10 @@ typedef struct PhysicalPlanOptions {
 	boolean_t regexmatch_invoked;	 /* TRUE if this logical plan has LP_BOOLEAN_REGEX_* as a child logical plan.
 					  * Used later to propagate this value to the physical plan (YDBOcto#873).
 					  */
+	/* The LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY plans in this logical plan. Used later to propagate this list to
+	 * the physical plan (YDBOcto#1189).
+	 */
+	LikePrefixOnly *like_prefix_only;
 
 } PhysicalPlanOptions;
 

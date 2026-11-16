@@ -637,6 +637,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		 */
 		%{},{{ PP_YDB_OCTO_G }}{}%
 	}
+	if (NULL != pplan->like_prefix_only) {
+		/* The prefixes of the LIKEs of this plan that are checked on each row (YDBOcto#1189), set below by
+		 * "tmpl_like_prefix_init", right before the FOR loops.
+		 */
+		%{},{{ PP_YDB_OCTO_ZLIKEPREFIX }}{}%
+	}
 
 	boolean_t	is_insert_into_values;	/* used for optimization in case of INSERT INTO .. VALUES (YDBOcto#910) */
 	is_insert_into_values = FALSE;
@@ -720,6 +726,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			}
 		}
 		%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
+		if (NULL != pplan->like_prefix_only) {
+			TMPL(tmpl_like_prefix_init, pplan);
+		}
 		cur_key = 0;
 		dot_count = 0;
 		assert(FALSE == pplan->tablejoin_body_group_by_done);

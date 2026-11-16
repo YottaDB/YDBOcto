@@ -1,0 +1,82 @@
+# TRTE11 : OCTO1189 : LIKE 'prefix%' checked on each row compares the start of the value with the prefix, not a regex
+# 1. Run TRTE11.sql in Octo and in PostgreSQL, and check that each statement gives the same result in both.
+# 2. Verify the plan Octo generated above for each statement with a LIKE. A LIKE 'prefix%' on a column checked
+# on each row works out the prefix once, before the loop ([SET %ydboctozlikeprefix(...)=$$likeprefix(...)]), and
+# compares the start of each value with it ([$ZEXTRACT(...)=%ydboctozlikeprefix(...)]). Only the LIKE on
+# COALESCE(v, NULL), which is not a column, and the LIKE of the CHECK constraint of TRTE11c (in the INSERT plan)
+# match a regex ([$$regexmatch]).
+
+SELECT id, v, v NOT LIKE 'PAT%' AS not_like FROM TRTE11 ORDER BY id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+SELECT id, v, COALESCE(v, NULL) NOT LIKE 'PAT%' AS not_like FROM TRTE11 ORDER BY id;
+    SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
+
+SELECT id, v FROM TRTE11 WHERE v NOT LIKE 'PAT%' ORDER BY id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+SELECT id, v FROM TRTE11 WHERE v NOT LIKE 'PAT%' AND v NOT LIKE 'pa%' ORDER BY id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctozlikeprefix(2)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(2)))=%ydboctozlikeprefix(2))
+
+SELECT id, v FROM TRTE11 WHERE v NOT LIKE 'PAT%' OR id = 1 ORDER BY id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+SELECT id FROM TRTE11 WHERE v NOT LIKE 'PAT%' AND EXISTS (SELECT 1 FROM TRTE11b WHERE TRTE11b.id = TRTE11.id AND w NOT LIKE 'Q%') ORDER BY id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",3)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+SELECT TRTE11.id, TRTE11b.id AS b_id FROM TRTE11 INNER JOIN TRTE11b ON TRTE11.id = TRTE11b.id AND w NOT LIKE 'Q%' ORDER BY TRTE11.id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+SELECT id, CASE WHEN v LIKE 'PAT%' THEN 'y' ELSE 'n' END AS starts_pat FROM TRTE11 ORDER BY id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+SELECT id, v FROM TRTE11 ORDER BY v NOT LIKE 'PAT%', id;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",+('$SELECT($ZYISSQLNULL($$piecevalue2colvalue^%ydboctoplanhelpers($GET(^%ydboctoDkDdhaSZCQqMiwTyNvpl2K5(%ydboctocursor(cursorId,"keys",1,"trte11","id"))))):$ZYSQLNULL,1:$ZEXTRACT($$piecevalue2colvalue^%ydboctoplanhelpers($GET(^%ydboctoDkDdhaSZCQqMiwTyNvpl2K5(%ydboctocursor(cursorId,"keys",1,"trte11","id")))),1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))),+(%ydboctocursor(cursorId,"keys",1,"trte11","id")),%ydboctocursor(cursorId,"keys",3,"",""))=%ydboctoexpr
+
+SELECT v LIKE 'PAT%' AS starts_pat, COUNT(*) AS cnt FROM TRTE11 GROUP BY v LIKE 'PAT%' ORDER BY 1;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctozlikeprefix(2)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(2)))=%ydboctozlikeprefix(2))
+
+SELECT v, COUNT(*) AS cnt FROM TRTE11 GROUP BY v HAVING v NOT LIKE 'PAT%' ORDER BY v;
+    NEW %ydboctoz,%ydboctoexpr,%ydboctog,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+INSERT INTO TRTE11c SELECT id, v FROM TRTE11 WHERE v NOT LIKE 'PAT%';
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+    SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(2),%ydboctoexpr,1,0)
+
+UPDATE TRTE11b SET w = w || '!' WHERE w NOT LIKE 'PAT%';
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
+
+DELETE FROM TRTE11 WHERE v NOT LIKE 'PAT%';
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1)))
+    SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT(%ydboctoexpr,1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))

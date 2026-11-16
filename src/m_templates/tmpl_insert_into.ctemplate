@@ -32,6 +32,12 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 	int			src_colnum;
 	int			dot_count;
 
+	/* An INSERT plan has no LIKE whose prefix is set once per plan ("tmpl_like_prefix_init.ctemplate", YDBOcto#1189), so
+	 * it has no PP_YDB_OCTO_ZLIKEPREFIX to NEW or set. The SELECT of an INSERT INTO ... SELECT is a plan of its own,
+	 * which handles its LIKEs itself. A VALUES row cannot refer to a column. And the LIKE of a CHECK constraint is not
+	 * classified as LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY (see "get_like_prefix_operation()").
+	 */
+	assert(NULL == pplan->like_prefix_only);
 	lp_insert_into = pplan->lp_select_query;
 	GET_LP(lp_insert_into_options, lp_insert_into, 1, LP_INSERT_INTO_OPTIONS);
 	GET_LP_ALLOW_NULL(lp_col_list, lp_insert_into_options, 0, LP_COLUMN_LIST);

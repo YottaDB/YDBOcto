@@ -21,6 +21,9 @@ import java.util.Properties;
  *						   (which checks every row). The two lists must be the same.
  *	TJC025 <port> "" <LIKE|ILIKE> <pattern> : Prepare "v LIKE ?" (or ILIKE) and bind it to <pattern> once, on a new
  *						   connection, so the caller can look up the plan that one Bind picked.
+ *	TJC025 <port> "" NOT_LIKE <pattern> [<pattern2>] : The same for "v NOT LIKE ?" ("_" stands for the space, as the
+ *						   caller splits its arguments on spaces). With <pattern2>, the same prepared
+ *						   statement is then bound to <pattern2> and run again (YDBOcto#1189).
  */
 public class TJC025 {
 	static String runQuery(PreparedStatement preparedStatement) throws SQLException {
@@ -49,13 +52,17 @@ public class TJC025 {
 		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
 		int    exitStatus = 0;
 		if (4 <= args.length) {
-			// Bind one value once (see usage above)
-			String operator = args[2], pattern = args[3];
+			// Bind one value once, and then a second value if given (see usage above)
+			String operator = args[2].replace('_', ' '), pattern = args[3];
 			try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 				PreparedStatement query
 				    = conn.prepareStatement("SELECT id FROM TJC025 WHERE v " + operator + " ? ORDER BY id");
 				query.setString(1, pattern);
 				System.out.printf("[v %s ?] bound to '%s' -> [%s]%n", operator, pattern, runQuery(query));
+				if (5 <= args.length) {
+					query.setString(1, args[4]);
+					System.out.printf("[v %s ?] bound again to '%s' -> [%s]%n", operator, args[4], runQuery(query));
+				}
 			} catch (SQLException e) {
 				System.err.format("SQL State: %s\n%s\n", e.getSQLState(), e.getMessage());
 				exitStatus = 1;

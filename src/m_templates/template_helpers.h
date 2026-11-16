@@ -98,6 +98,7 @@
 #define PP_YDB_OCTO_ZDUPLICATE	"%ydboctozduplicate"
 #define PP_YDB_OCTO_ZLIMIT	"%ydboctozlimit"
 #define PP_YDB_OCTO_ZKEYFIX	"%ydboctozkeyfix"
+#define PP_YDB_OCTO_ZLIKEPREFIX "%ydboctozlikeprefix" /* see "tmpl_like_prefix_init.ctemplate" (YDBOcto#1189) */
 #define PP_YDB_OCTO_NULLFLAG	"%ydboctonullflag"
 #define PP_CONVERT_TO_UNIX_TIME "$$Transform2UnixTime^%ydboctoplanhelpers("
 
@@ -262,6 +263,7 @@ TEMPLATE(tmpl_tablejoin_octo617_optimize, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
+TEMPLATE(tmpl_like_prefix_init, PhysicalPlan *pplan);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key_skip, SqlKey *key, int dot_count);
 TEMPLATE(tmpl_key_start_endpoint, SqlKey *key, int dot_count, boolean_t use_zkeyfix, int cur_key);

@@ -595,6 +595,7 @@ set(template_files
   ${template_dir}/tmpl_key_source_aim.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
   ${template_dir}/tmpl_key_start_endpoint.ctemplate
+  ${template_dir}/tmpl_like_prefix_init.ctemplate
   ${template_dir}/tmpl_limit_check.ctemplate
   ${template_dir}/tmpl_order_by_key.ctemplate
   ${template_dir}/tmpl_order_by_sort.ctemplate

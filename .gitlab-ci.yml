@@ -224,8 +224,6 @@ commit-verify:
 # This is against the latest released version of YottaDB
 release-ubuntu:
   image: ${UBUNTU_REL_BASELINE_REPO}
-  tags:
-    - aarch64
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -237,8 +235,6 @@ release-ubuntu:
 # This is against the latest released version of YottaDB
 release-rocky:
   image: ${ROCKY_REL_BASELINE_REPO}
-  tags:
-    - aarch64
   # Run Release job only if this is a scheduled pipeline
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'

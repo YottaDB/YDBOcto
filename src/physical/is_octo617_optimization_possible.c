@@ -114,6 +114,15 @@ boolean_t is_octo617_optimization_possible(PhysicalPlan *pplan) {
 				 * and reclaim the allocated memory anyways at the end of the query so nothing is lost.
 				 */
 				SqlTableAlias *table_alias;
+
+				if (0 == get_column_global_key_prefix(aggr_column, table)) {
+					/* The column's own GLOBAL lists no key column: one node holds the value of every row, and
+					 * AIM cross references the subscripts of a node (it would stop with %YDBAIM-F-NOSUBS,
+					 * YDBOcto#1191). A WHERE does not use such a cross reference either
+					 * ("get_xref_advance_keys()").
+					 */
+					return FALSE;
+				}
 				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 				assert(NULL == af->extra_detail.lp_aggregate_function.octo617_xref_plan);
 				af->extra_detail.lp_aggregate_function.octo617_xref_plan

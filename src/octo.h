@@ -1445,6 +1445,7 @@ char		   *get_keyword_name(enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int		    get_keys_in_global(char *global_source, SqlTable *table, SqlColumn **key_columns);
+int		    get_column_global_key_prefix(SqlColumn *column, SqlTable *table);
 int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int  get_row_count_from_cursorId(ydb_long_t cursorId);
 int  print_temporary_table(SqlStatement *, ydb_long_t cursorId, void *parms, char *plan_name, PSQL_MessageTypeT msg_type);

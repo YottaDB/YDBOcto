@@ -58,56 +58,36 @@
  * subscripts to the value spec's POSITIONALLY, and cannot do otherwise, because it is handed ":" marks and
  * never knows which column each one stands for.
  *
- * A column with no GLOBAL mapping (or a bare, unsubscripted global, which Octo auto-fills with all primary-key
- * subscripts) is a piece of the table's row at full primary-key depth, so all primary-key columns are covered.
- * (YDBOcto#1124)
+ * A column with no GLOBAL mapping is a piece of the table's row at full primary-key depth, so all primary-key
+ * columns are covered (YDBOcto#1124). A column whose own GLOBAL has no key subscript has no cross reference
+ * (YDBOcto#1191).
  */
 static int get_xref_advance_keys(SqlColumn *column, SqlTable *table, SqlColumn **key_columns, int max_key,
 				 SqlColumn **advance_key_columns) {
-	SqlOptionalKeyword *global_keyword;
-	SqlValue	   *value;
-	SqlColumn	   *global_key_columns[MAX_KEY_COUNT];
-	int		    num_keys, cur_key;
+	int num_keys, cur_key;
 
-	/* Get the ordered list of primary-key columns the column's own global references ("global_key_columns"
-	 * / "num_keys"). A column with no GLOBAL keyword, or a bare unsubscripted global, maps to the table's row
-	 * at full primary-key depth; represent that as a global that lists every primary-key column in
-	 * primary-key order, so it flows through the common logic below as a (full) leading prefix.
+	/* The number of primary-key columns the column's own global references, when they are a leading prefix of the
+	 * primary key, in primary-key order: the one layout the cross reference can drive the iteration in (see the
+	 * function header). Anything else is declined. A column with no GLOBAL keyword maps to the table's row at full
+	 * primary-key depth: all of them.
 	 */
-	global_keyword = get_keyword(column, OPTIONAL_GLOBAL);
-	if (NULL != global_keyword) {
-		UNPACK_SQL_STATEMENT(value, global_keyword->v, value);
-		num_keys = get_keys_in_global(value->v.string_literal, table, global_key_columns);
-	} else {
-		num_keys = 0;
+	num_keys = get_column_global_key_prefix(column, table);
+	if (-1 == num_keys) {
+		return -1; /* The column's global lists the key columns in another order, or skips one */
 	}
 	if (0 == num_keys) {
-		for (cur_key = 0; cur_key <= max_key; cur_key++) {
-			global_key_columns[cur_key] = key_columns[cur_key];
-		}
-		num_keys = max_key + 1;
-	} else if ((max_key + 1) < num_keys) {
-		/* More keys than the primary key has. Not expected for a validated mapping; decline defensively. */
+		/* The column's global has no key subscript: one node holds its value for every row, and AIM cross references
+		 * the subscripts of a node (it would stop with %YDBAIM-F-NOSUBS, YDBOcto#1191). "MIN"/"MAX" refuses it too
+		 * ("is_octo617_optimization_possible()").
+		 */
 		return -1;
 	}
-
-	/* The cross reference can drive the iteration in exactly one shape (see the function header): a leading
-	 * prefix of the primary key, in primary-key order. Anything else is declined.
-	 */
-	for (cur_key = 0; cur_key < num_keys; cur_key++) {
-		if (global_key_columns[cur_key] != key_columns[cur_key]) {
-			return -1;
-		}
-	}
+	assert((max_key + 1) >= num_keys);
 
 	/* The first "num_keys" primary-key columns are advanced from the cross reference. Any remaining
-	 * primary-key columns are advanced from the table's own global. Both runs are in primary-key order,
-	 * which the loop above has just established for the first of them.
+	 * primary-key columns are advanced from the table's own global. Both runs are in primary-key order.
 	 */
-	for (cur_key = 0; cur_key < num_keys; cur_key++) {
-		advance_key_columns[cur_key] = global_key_columns[cur_key];
-	}
-	for (cur_key = num_keys; cur_key <= max_key; cur_key++) {
+	for (cur_key = 0; cur_key <= max_key; cur_key++) {
 		advance_key_columns[cur_key] = key_columns[cur_key];
 	}
 	return num_keys;

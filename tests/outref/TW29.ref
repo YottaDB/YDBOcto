@@ -226,3 +226,69 @@ OCTO>
     . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","cust_id")=$ORDER(^%ydbAIMDhnRnelFXQnWyG9XwWE4O79(1,("#"_(%ydboctocursor(cursorId,"keys",1,"orders2","region"))),%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id")="")  DO
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"orders2","order_id")=$ORDER(^O(%ydboctocursor(cursorId,"keys",1,"orders2","cust_id"),%ydboctocursor(cursorId,"keys",1,"orders2","order_id"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"orders2","order_id")="")  DO
 
+# TW29 Case 6 : set and zwrite the data
+^GB="hit"
+^GROWC(1,1)="row"
+^GROWC(1,2)="row"
+^GROWC(2,1)="row"
+^GROWD(1)="row"
+^GROWD(2)="row"
+OCTO> -- TW29 Case 6 (YDBOcto#1191) : the column's GLOBAL has no key subscript. "val" is at ^GB, one node that holds the val of
+-- every row. AIM has no subscript of that node to cross reference, so Octo reads every row instead. Before the fix,
+-- every query below but the first two and the MIN/MAX on "barekeys" failed with %YDBAIM-F-NOSUBS.
+CREATE TABLE barekeys (
+ a INTEGER,
+ b INTEGER,
+ val VARCHAR(20) GLOBAL "^GB" PIECE 1,
+ PRIMARY KEY (a, b)
+) GLOBAL "^GROWC" READONLY;
+CREATE TABLE
+OCTO> -- The three rows of the table
+SELECT * FROM barekeys ORDER BY a, b;
+a|b|val
+1|1|hit
+1|2|hit
+2|1|hit
+(3 rows)
+OCTO> -- WHERE on the column: every row has val = 'hit', so all three rows
+SELECT * FROM barekeys WHERE val = 'hit' ORDER BY a, b;
+a|b|val
+1|1|hit
+1|2|hit
+2|1|hit
+(3 rows)
+OCTO> -- ORDER BY the column: the first two rows
+SELECT * FROM barekeys ORDER BY val, a, b LIMIT 2;
+a|b|val
+1|1|hit
+1|2|hit
+(2 rows)
+OCTO> -- MIN/MAX of the column: hit and hit (a table with several key columns was never optimized, so this worked before too)
+SELECT MIN(val), MAX(val) FROM barekeys;
+min|max
+hit|hit
+(1 row)
+OCTO> -- The same column on a table with one key column, whose MIN/MAX is optimized
+CREATE TABLE barekeys1 (
+ a INTEGER PRIMARY KEY,
+ val VARCHAR(20) GLOBAL "^GB" PIECE 1
+) GLOBAL "^GROWD" READONLY;
+CREATE TABLE
+OCTO> -- The two rows of the table
+SELECT * FROM barekeys1;
+a|val
+1|hit
+2|hit
+(2 rows)
+OCTO> -- MIN/MAX of the column: hit and hit
+SELECT MIN(val), MAX(val) FROM barekeys1;
+min|max
+hit|hit
+(1 row)
+OCTO> 
+
+# Key iteration in the WHERE query plan -- no AIM cross reference, full table scan
+# ($ORDER over the table global only).
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"barekeys","a")=$ORDER(^GROWC(%ydboctocursor(cursorId,"keys",1,"barekeys","a"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"barekeys","a")="")  DO
+    . FOR  SET %ydboctocursor(cursorId,"keys",1,"barekeys","b")=$ORDER(^GROWC(%ydboctocursor(cursorId,"keys",1,"barekeys","a"),%ydboctocursor(cursorId,"keys",1,"barekeys","b"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"barekeys","b")="")  DO
+

@@ -152,9 +152,12 @@ typedef struct PhysicalPlan {
  * and compares the start of each row's value with it, instead of matching a regex on each row (YDBOcto#1189).
  * The prefix is kept in PP_YDB_OCTO_ZLIKEPREFIX(<n>), where <n> is the position of the LIKE in this list, starting at 1
  * (see "tmpl_like_prefix_init.ctemplate").
+ * The list also holds each ILIKE whose pattern starts with a character that has case and is a literal followed by only '%'
+ * (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY, e.g. 'pat%'). It is checked the same way, with the value and the prefix
+ * both in lower case.
  */
 typedef struct LikePrefixOnly {
-	LogicalPlan	      *like_plan; /* The LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY plan */
+	LogicalPlan	      *like_plan; /* The LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY or ..._INSENSITIVE_... plan */
 	struct LikePrefixOnly *next;
 } LikePrefixOnly;
 
@@ -183,8 +186,8 @@ typedef struct PhysicalPlanOptions {
 	boolean_t regexmatch_invoked;	 /* TRUE if this logical plan has LP_BOOLEAN_REGEX_* as a child logical plan.
 					  * Used later to propagate this value to the physical plan (YDBOcto#873).
 					  */
-	/* The LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY plans in this logical plan. Used later to propagate this list to
-	 * the physical plan (YDBOcto#1189).
+	/* The LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY and LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY plans in this logical
+	 * plan. Used later to propagate this list to the physical plan (YDBOcto#1189).
 	 */
 	LikePrefixOnly *like_prefix_only;
 

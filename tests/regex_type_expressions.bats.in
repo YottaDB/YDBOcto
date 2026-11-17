@@ -157,3 +157,39 @@ teardown() {
 	done < TRTE11_like_statements.sql
 	verify_output TRTE11 output.txt noinfo nodebug
 }
+
+@test "TRTE12 : OCTO1189 : ILIKE 'pat%' checked on each row compares the start of the value with the literal, both in lower case, not a regex" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# 1. Run TRTE12.sql in Octo and in PostgreSQL, and check that each statement gives the same result in both." >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE12.sql roctoflags="-aw"
+	psql names -c 'DROP TABLE IF EXISTS TRTE12, TRTE12b, TRTE12c, TRTE12e;' >& postgres.drop_table_TRTE12.out
+	echo "# 2. In UTF-8 mode, do the same with TRTE12b.sql, which has non-ASCII values (e.g. accented letters). In M mode," >> output.txt
+	echo "# Octo, like the regex it replaces, only changes the case of ASCII letters, where PostgreSQL changes all." >> output.txt
+	if [[ $ydb_chset == "UTF-8" ]]; then
+		run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE12b.sql roctoflags="-aw"
+		psql names -c 'DROP TABLE IF EXISTS TRTE12d;' >& postgres.drop_table_TRTE12d.out
+	fi
+	echo "# 3. Verify the plan Octo generated in step 1 for each statement with an ILIKE or a LIKE. An ILIKE 'pat%' on a column" >> output.txt
+	echo "# works out the literal once, before the loop, in lower case ([SET %ydboctozlikeprefix(...)=\$ZCONVERT(\$\$likeprefix(...),\"L\")])," >> output.txt
+	echo "# and compares the start of each value, in lower case, with it ([\$ZEXTRACT(\$ZCONVERT(...,\"L\"),...)=%ydboctozlikeprefix(...)])." >> output.txt
+	echo "# Only the ILIKE on COALESCE(v, NULL), which is not a column, and the ILIKE of the CHECK constraint of TRTE12c" >> output.txt
+	echo "# (in the INSERT plan), and the ILIKE '12A%B', which has more after its literal, match a regex ([\$\$regexmatch])." >> output.txt
+	echo "# An ILIKE '12A%' in a WHERE clause also walks the cross reference of v over its prefix 12" >> output.txt
+	echo "# ([SET %ydboctozkeyfix(...)=\$\$likeprefix(...,1)], and [\$\$likeprefixend] in descending order), and checks each row found as above." >> output.txt
+	grep -E '^(SELECT|UPDATE|DELETE|INSERT) .* I?LIKE ' @PROJECT_SOURCE_DIR@/tests/fixtures/TRTE12.sql > TRTE12_like_statements.sql
+	while IFS= read -r stmt; do
+		echo "" >> output.txt
+		echo "$stmt" >> output.txt
+		# The plan of a statement starts with a comment that holds the statement, without the ";" if it came through JDBC
+		plan=$(grep -lxF -e ";  $stmt" -e ";  ${stmt%;}" _ydboctoP*.m || true)
+		if [[ -z $plan ]]; then
+			# A statement that differs from an earlier one only in its literals (which are plan parameters) runs the
+			# plan of that statement, whose comment holds that earlier statement.
+			echo "    (runs the plan of an earlier statement that differs from it only in its literals)" >> output.txt
+			continue
+		fi
+		# Of the NEW line, only its variables: the rest of that line depends on the client (e.g. a LIMIT through JDBC)
+		grep -E 'ydboctozlikeprefix|regexmatch\^|likeprefix(end)?\^' $plan | sed -E 's/^[ .]*/    /;s/^(    NEW [^ ]*) .*/\1/' >> output.txt
+	done < TRTE12_like_statements.sql
+	verify_output TRTE12 output.txt noinfo nodebug
+}

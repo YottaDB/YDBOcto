@@ -82,9 +82,9 @@ SQL command [values ((select 'b' like 'test_'),(select 'a' like 'test%'));]
                 LP_BOOLEAN_REGEX_SENSITIVE_LIKE: 
                 LP_BOOLEAN_REGEX_SENSITIVE_LIKE: 
 SQL command [(select count(*) from names where firstname ilike 'test%') union (select count(*) from names where lastname similar to 'test%');]
-                LP_BOOLEAN_REGEX_INSENSITIVE_LIKE: 
+                LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY: 
                 LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO: 
-                LP_BOOLEAN_REGEX_INSENSITIVE_LIKE: 
+                LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY: 
                 LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO: 
 SQL command [select count(*) from v1 where firstname like 'test%' or firstname similar to 'test_';]
               LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY: 
@@ -137,7 +137,9 @@ _ydboctoP*.m:    . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNUL
 
 _ydboctoP*.m:;  (select count(*) from names where firstname ilike 'test%') union (select count(*) from names where lastname similar to 'test%');
 _ydboctoP*.m:    DO regfreeIfAny^%ydboctoplanhelpers
-_ydboctoP*.m:    . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+_ydboctoP*.m:    NEW %ydboctoz,%ydboctoexpr,%ydboctog,%ydboctozlikeprefix KILL %ydboctocursor(cursorId,"keys",5,"","")
+_ydboctoP*.m:    SET %ydboctozlikeprefix(1)=$ZCONVERT($$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1))),"L")
+_ydboctoP*.m:    . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZYSQLNULL,1:$ZEXTRACT($ZCONVERT(%ydboctoexpr,"L"),1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1))
 _ydboctoP*.m:    . SET %ydboctoexpr=$$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,2,0)
 
 _ydboctoP*.m:;  select count(*) from names where (firstname like 'test%') or (firstname not similar to 'test%');

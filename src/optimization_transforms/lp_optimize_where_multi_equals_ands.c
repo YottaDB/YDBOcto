@@ -201,6 +201,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 		/* A LIKE or ILIKE whose pattern starts with a literal prefix (YDBOcto#1158). The cross reference of the
 		 * column can be walked over that prefix only if the column is on the left and the pattern literal is on the
 		 * right. LIKE is not symmetric, so the operands are never swapped (unlike "=" or "<" etc.).
@@ -412,10 +413,12 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	assert((LP_BOOLEAN_EQUALS == type) || (LP_BOOLEAN_LESS_THAN == type) || (LP_BOOLEAN_GREATER_THAN == type)
 	       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == type) || (LP_BOOLEAN_IN == type)
 	       || (LP_BOOLEAN_IS == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type)
-	       || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type));
+	       || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type)
+	       || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == type));
 	assert(!operands_swapped
 	       || ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY != type) && (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX != type)
-		   && (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX != type)));
+		   && (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX != type)
+		   && (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK != type)));
 	right_table_alias = (SqlTableAlias *)ptr;
 	if (NULL != right_table_alias) {
 		/* This is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
@@ -478,6 +481,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 		/* No END check needed. This only walks the AIM cross reference of a non-key column (a key column is rejected
 		 * further below), and END only ends the FOR loop of a key column over the table's own global.
 		 */
@@ -487,8 +491,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		break;
 	}
 	boolean_t is_like_prefix;
-	is_like_prefix = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type)
-			  || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type));
+	is_like_prefix
+	    = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type) || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type)
+	       || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == type));
 	key = lp_get_key(plan, left);
 	if (is_like_prefix && (NULL != key) && (!key->is_cross_reference_key || ('^' != key->xref_prefix[0]))) {
 		/* LIKE with a prefix on a key column. The rows are walked in the order of the table's own global, where
@@ -586,10 +591,12 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 * with keys from parent queries which is handled further below.
 		 */
 		remove_lp_boolean_equals = ((NULL != right_table_alias) || (0 == num_outer_joins));
-		if ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type)) {
+		if ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type)
+		    || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == type)) {
 			/* The pattern has more after its prefix (e.g. 'PAT%ENT', or the ILIKE '12A%' whose prefix is '12'). The
 			 * cross reference walk only guarantees the prefix, so each row it finds still needs the full LIKE or
-			 * ILIKE check. Keep it in the WHERE/ON clause.
+			 * ILIKE check. Keep it in the WHERE/ON clause. For LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK (e.g.
+			 * '12A%'), that check compares the start of the value with the literal, both in lower case.
 			 * With LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY (e.g. 'PAT%'), the walk finds exactly the rows the
 			 * LIKE matches, so the LIKE can be removed like an "=".
 			 */

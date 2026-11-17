@@ -80,6 +80,8 @@ char *get_user_visible_binary_operator_string(enum BinaryOperations operation) {
 		break;
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 		ret = "ILIKE";
 		break;
 	case BOOLEAN_REGEX_SENSITIVE_SIMILARTO:

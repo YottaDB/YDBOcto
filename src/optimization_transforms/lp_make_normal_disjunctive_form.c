@@ -71,7 +71,9 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 			   || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type)
 			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == type)
 			   || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == type)
-			   || (LP_COERCE_TYPE == type) || (LP_ADDITION > type)) {
+			   || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY == type)
+			   || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == type) || (LP_COERCE_TYPE == type)
+			   || (LP_ADDITION > type)) {
 			/* If "NOT NOT", then remove both of them. If "NOT", then need to return with the "NOT".
 			 * Hence the check for "count % 2" below and different return values.
 			 */

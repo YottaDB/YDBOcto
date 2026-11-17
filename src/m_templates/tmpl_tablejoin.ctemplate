@@ -184,7 +184,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 					case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 					case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 					case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
-					case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:;
+					case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+					case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:;
 						boolean_t	is_like_prefix;
 
 						assert(!IS_NULL_FIXED_VALUE(key->fixed_to_value));
@@ -201,13 +202,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						 */
 						is_like_prefix = ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY == key->fixed_to_value_type)
 								|| (LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX == key->fixed_to_value_type)
-								|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type));
+								|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type)
+								|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == key->fixed_to_value_type));
 						assert(!is_like_prefix || (key->is_cross_reference_key && ('^' == key->xref_prefix[0])));
 						TMPL(tmpl_print_dots, dot_count);
 						if (is_like_prefix) {
 							%{}SET {{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1){}%
 							%{}=$$likeprefix^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}{}%
-							if (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type) {
+							if ((LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX == key->fixed_to_value_type)
+							    || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == key->fixed_to_value_type)) {
 								/* ILIKE: the prefix ends at the first letter (see "likeprefix") */
 								%{},1{}%
 							}
@@ -483,6 +486,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 							case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 							case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+							case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 								/* Stop at the first value that does not start with the prefix.
 								 * $ZEXTRACT/$ZLENGTH compare bytes. That is correct in UTF-8 mode too, as
 								 * a byte prefix of a valid UTF-8 string that equals a valid UTF-8 string

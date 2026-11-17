@@ -464,7 +464,8 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 				case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 				case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 				case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
-				case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:;
+				case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+				case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:;
 					/* This is an xref key that is used for a range of values. The FOR loop walks the cross
 					 * reference over that range, in the collation order of the cross reference. That is the
 					 * ORDER BY order if the ORDER BY column is the cross referenced column itself

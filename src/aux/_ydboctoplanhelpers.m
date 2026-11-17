@@ -2077,6 +2077,8 @@ likeprefix(patt,icase)
 	; (see LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY in "tmpl_tablejoin.ctemplate").
 	; YDBOcto#1189 : A plan also uses it, once before its FOR loops, for a LIKE 'PAT%' that it checks on each row (e.g. a
 	; NOT LIKE). Each value is then compared with the prefix (see "tmpl_physical_plan.ctemplate").
+	; For an ILIKE such as 'pat%', that plan calls it without "icase" (so the prefix is the whole literal "pat") and
+	; lowercases the result with $ZCONVERT, and each value too (see "tmpl_like_prefix_init.ctemplate").
 	; If "icase" is 1 (ILIKE), the prefix also ends at the first character that has case, as such a character can match
 	; either case and so is no fixed prefix ('12A%' returns "12"). Like PostgreSQL ("like_fixed_prefix()" in
 	; src/backend/utils/adt/like_support.c), that is an ASCII letter or any non-ASCII byte.

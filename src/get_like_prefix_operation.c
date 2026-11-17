@@ -30,14 +30,23 @@
  *						   already turned it into an EQUALS.
  *	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX      : LIKE only. The prefix is not empty and more follows it (e.g. 'PAT%ENT%',
  *						   'PAT_'), or there is no wildcard but an escape (e.g. a bound 'PA\%T').
- *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX    : ILIKE only. The prefix is not empty and more follows it (e.g. '12A%').
+ *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX    : ILIKE only. The prefix is not empty and more follows it (e.g. '12A%x').
+ *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK : ILIKE only. The prefix is not empty, and the pattern is a literal followed
+ *						   by only '%' (e.g. '12A%'). Walks like the above, but each row found is
+ *						   checked by comparing the start of the value with the literal, both in lower
+ *						   case (YDBOcto#1189).
+ *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY : ILIKE only. The prefix is empty, as the pattern starts with a character that
+ *						   has case, but the pattern is a literal followed by only '%' (e.g. 'pat%').
+ *						   No cross reference is walked: each row is checked by comparing the start of the
+ *						   value with the literal, both in lower case (YDBOcto#1189).
  *	BOOLEAN_REGEX_SENSITIVE_LIKE             : LIKE only. No usable prefix (e.g. '%PAT', '_AT%', '').
- *	BOOLEAN_REGEX_INSENSITIVE_LIKE           : ILIKE only. No usable prefix (e.g. '%PAT', 'pat%').
+ *	BOOLEAN_REGEX_INSENSITIVE_LIKE           : ILIKE only. No usable prefix (e.g. '%PAT', 'pat%ent').
  *
- * All of these match exactly what the LIKE or ILIKE matches. The prefix ones let "lp_optimize_where_multi_equals_ands_helper()"
- * walk the column's cross reference over the prefix only, instead of checking every row of the table. With ..._PREFIX_ONLY,
- * the walk finds exactly the matching rows, so the LIKE itself is dropped. With the other two, each row found is still
- * checked. A pattern with no wildcard ('PAT') is not ..._PREFIX_ONLY: the walk over 'PAT' also finds 'PATIENT'.
+ * All of these match exactly what the LIKE or ILIKE matches. The ones with a non-empty prefix let
+ * "lp_optimize_where_multi_equals_ands_helper()" walk the column's cross reference over the prefix only, instead of checking
+ * every row of the table. With BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY, the walk finds exactly the matching rows, so the LIKE
+ * itself is dropped. With the other ones that walk, each row found is still checked. A pattern with no wildcard ('PAT') is not
+ * ..._PREFIX_ONLY: the walk over 'PAT' also finds 'PATIENT'.
  *
  * ILIKE: the cross reference is in case-sensitive order, so 'pat', 'PAT' and 'Pat' are in different places. A character
  * that has case therefore ends the prefix, as it can match either case: 'pat%' has no prefix, '12A%' has the prefix '12'.
@@ -53,8 +62,9 @@
  */
 BinaryOperations get_like_prefix_operation_of_pattern(const char *pattern, size_t pattern_len, boolean_t case_insensitive) {
 	boolean_t   esc_state, escape_seen, wildcard_seen, prefix_done, only_percent_after_prefix;
+	boolean_t   literal_done, only_percent_after_literal;
 	const char *ptr, *ptr_top;
-	size_t	    prefix_len;
+	size_t	    prefix_len, literal_len;
 
 	esc_state = FALSE;
 	escape_seen = FALSE;
@@ -62,6 +72,9 @@ BinaryOperations get_like_prefix_operation_of_pattern(const char *pattern, size_
 	prefix_done = FALSE;
 	only_percent_after_prefix = TRUE;
 	prefix_len = 0;
+	literal_done = FALSE;
+	only_percent_after_literal = TRUE;
+	literal_len = 0;
 	ptr = pattern;
 	ptr_top = ptr + pattern_len;
 	for (; ptr < ptr_top; ptr++) {
@@ -95,6 +108,17 @@ BinaryOperations get_like_prefix_operation_of_pattern(const char *pattern, size_
 			/* Something other than '%' after the prefix (the character that ended it counts too, unless it is '%') */
 			only_percent_after_prefix = FALSE;
 		}
+		/* The literal is the text up to the first wildcard, letters included (for ILIKE, see the "0 == prefix_len" case
+		 * below). An escaped '%' after it is a literal '%', not a wildcard.
+		 */
+		if (is_wildcard) {
+			literal_done = TRUE;
+		}
+		if (!literal_done) {
+			literal_len++;
+		} else if (!is_wildcard || ('%' != ch)) {
+			only_percent_after_literal = FALSE;
+		}
 	}
 
 	if (esc_state) {
@@ -108,8 +132,16 @@ BinaryOperations get_like_prefix_operation_of_pattern(const char *pattern, size_
 		/* The pattern starts with a wildcard (e.g. '%PAT', '_AT%'), is empty, or (ILIKE) starts with a character that has
 		 * case (e.g. 'pat%'). Every value in the cross reference would have to be walked, which is no better than walking
 		 * the table. Worse, it would build a cross reference (and its triggers on every later write) for no benefit.
-		 * Keep the LIKE as is.
+		 * So no cross reference is walked.
 		 */
+		if (case_insensitive && (0 < literal_len) && wildcard_seen && only_percent_after_literal) {
+			/* ILIKE whose pattern starts with a character that has case, and is a literal followed by only '%' (e.g.
+			 * 'pat%', or one that starts with a non-ASCII character). Each row is checked by comparing the start of the
+			 * value with the literal, both in lower case, instead of with a regex (see
+			 * LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY in "tmpl_print_expression.ctemplate").
+			 */
+			return BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY;
+		}
 		return (case_insensitive ? BOOLEAN_REGEX_INSENSITIVE_LIKE : BOOLEAN_REGEX_SENSITIVE_LIKE);
 	}
 	if (!wildcard_seen && !escape_seen && !prefix_done) {
@@ -124,6 +156,15 @@ BinaryOperations get_like_prefix_operation_of_pattern(const char *pattern, size_
 		 * exactly what the LIKE does.
 		 */
 		return BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY;
+	}
+	if (case_insensitive && wildcard_seen && only_percent_after_literal) {
+		/* ILIKE whose prefix ends at a character that has case, and whose pattern is a literal followed by only '%' (e.g.
+		 * '12A%'). The walk over the prefix ('12') also finds values that do not match (e.g. '12B'), so each row found is
+		 * checked, by comparing the start of the value with the literal, both in lower case, instead of with a regex
+		 * (see LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK in "tmpl_print_expression.ctemplate").
+		 */
+		assert(literal_len > prefix_len);
+		return BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK;
 	}
 	/* More after the prefix, or no wildcard but an escape (e.g. a bound value 'PA\%T': the walk over the prefix 'PA%T'
 	 * also finds 'PA%TIENT'). Each row found needs the full check.

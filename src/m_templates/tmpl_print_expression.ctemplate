@@ -727,9 +727,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 		}
 		break;
-	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY: {
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK: {
 		LikePrefixOnly *like_prefix_only;
 		int		like_prefix_num;
+		boolean_t	is_ilike;
 
 		/* A LIKE whose pattern is a literal prefix followed by only '%' (e.g. 'PAT%'), checked on each row (e.g. a
 		 * NOT LIKE, which cannot walk a cross reference). A value matches such a pattern exactly when it starts with
@@ -738,6 +741,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		 * No regex is used (YDBOcto#1189). The pattern (second_operand) is therefore not read here.
 		 * An ILIKE with a prefix that has no character with case (e.g. '12%') uses this too, as it matches what the
 		 * LIKE matches.
+		 * LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY is an ILIKE whose pattern starts with a character that has case
+		 * and is a literal followed by only '%' (e.g. 'pat%'). It is checked the same way, with the value and the prefix
+		 * both in lower case: $ZCONVERT(...,"L") of the value here, and of the prefix in "tmpl_like_prefix_init". That
+		 * is what PostgreSQL does for an ILIKE in a multi-byte encoding (it lowercases both with "lower()"). For example,
+		 * v ILIKE 'pat%' with v = 'PATIENT' compares "pat" (the start of "patient") with "pat".
+		 * LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK (e.g. '12A%') is checked the same way, also on each row that a
+		 * walk of a cross reference over its prefix ('12') finds.
 		 *
 		 * <n> is the position of this LIKE in the list of such LIKEs of this plan (see "lp_verify_structure()").
 		 */
@@ -749,6 +759,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			like_prefix_num++;
 		}
 		assert(NULL != like_prefix_only);
+		is_ilike = ((LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY == plan_type)
+			    || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == plan_type));
 
 		/* A NULL value gives NULL (unknown), for LIKE and for NOT LIKE. $ZEXTRACT() of $ZYSQLNULL does not give
 		 * $ZYSQLNULL: $ZEXTRACT($ZYSQLNULL,1,3) gives "". Without the $ZYISSQLNULL() test below, a NULL v would make
@@ -759,13 +771,24 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (dot_count) {
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT($ZYISSQLNULL({{ PP_YDB_OCTO_EXPR }}):$ZYSQLNULL,1:{}%
-			%{}$ZEXTRACT({{ PP_YDB_OCTO_EXPR }},1,{}%
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT($ZYISSQLNULL({{ PP_YDB_OCTO_EXPR }}):$ZYSQLNULL,1:$ZEXTRACT({}%
+			if (is_ilike) {
+				%{}$ZCONVERT({{ PP_YDB_OCTO_EXPR }},"L"){}%
+			} else {
+				%{}{{ PP_YDB_OCTO_EXPR }}{}%
+			}
+			%{},1,{}%
 		} else {
 			%{}$SELECT($ZYISSQLNULL({}%
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			%{}):$ZYSQLNULL,1:$ZEXTRACT({}%
+			if (is_ilike) {
+				%{}$ZCONVERT({}%
+			}
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			if (is_ilike) {
+				%{},"L"){}%
+			}
 			%{},1,{}%
 		}
 		%{}$ZLENGTH({{ PP_YDB_OCTO_ZLIKEPREFIX }}({{ like_prefix_num|%d }})))={}%

@@ -384,19 +384,20 @@ typedef struct SqlKey {
 					     * in ascending order and first in descending order. Set by
 					     * "lp_optimize_order_by()" (YDBOcto#1160).
 					     */
-	LPActionType fixed_to_value_type; /* Initialized to one of the following if "fixed_to_value" is non-NULL.
-					   *	LP_BOOLEAN_EQUALS
-					   *	LP_BOOLEAN_IS
-					   *	LP_BOOLEAN_IN
-					   *	LP_BOOLEAN_LESS_THAN
-					   *	LP_BOOLEAN_GREATER_THAN
-					   *	LP_BOOLEAN_LESS_THAN_OR_EQUALS
-					   *	LP_BOOLEAN_GREATER_THAN_OR_EQUALS
-					   *	LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY
-					   *	LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX
-					   *	LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX
-					   * Uninitialized if "fixed_to_value" is NULL.
-					   */
+	LPActionType fixed_to_value_type;   /* Initialized to one of the following if "fixed_to_value" is non-NULL.
+					     *	LP_BOOLEAN_EQUALS
+					     *	LP_BOOLEAN_IS
+					     *	LP_BOOLEAN_IN
+					     *	LP_BOOLEAN_LESS_THAN
+					     *	LP_BOOLEAN_GREATER_THAN
+					     *	LP_BOOLEAN_LESS_THAN_OR_EQUALS
+					     *	LP_BOOLEAN_GREATER_THAN_OR_EQUALS
+					     *	LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY
+					     *	LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX
+					     *	LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX
+					     *	LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK
+					     * Uninitialized if "fixed_to_value" is NULL.
+					     */
 } SqlKey;
 
 /* Like PhysicalPlanOptions, the below struct provides a convenient way to pass options to subplans

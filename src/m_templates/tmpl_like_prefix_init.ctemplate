@@ -20,6 +20,9 @@
  * row's value is then compared with it (see LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY in "tmpl_print_expression.ctemplate"),
  * instead of matching a regex on each row. The pattern is a constant of the query (a literal or a bind parameter), so it
  * is the same for every row.
+ * For an ILIKE whose pattern starts with a character that has case (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY, e.g.
+ * 'pat%') or with a prefix before its first letter (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK, e.g. '12A%'), the
+ * prefix is the whole literal before the '%' ("likeprefix" without its "icase" argument), in lower case.
  *
  * The caller emits this right after the NEW of the plan, which includes PP_YDB_OCTO_ZLIKEPREFIX when the list is not
  * empty. So a plan that is called from within another plan (e.g. a correlated subquery) does not change the prefixes of
@@ -32,12 +35,22 @@ TEMPLATE(tmpl_like_prefix_init, PhysicalPlan *pplan) {
 	like_prefix_num = 1;
 	for (like_prefix_only = pplan->like_prefix_only; NULL != like_prefix_only; like_prefix_only = like_prefix_only->next) {
 		LogicalPlan *pattern;
+		boolean_t    is_ilike;
 
 		pattern = like_prefix_only->like_plan->v.lp_default.operand[1];
-		%{}SET {{ PP_YDB_OCTO_ZLIKEPREFIX }}({{ like_prefix_num|%d }}){}%
-		%{}=$$likeprefix^%%ydboctoplanhelpers({}%
+		is_ilike = ((LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY == like_prefix_only->like_plan->type)
+			    || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK == like_prefix_only->like_plan->type));
+		%{}SET {{ PP_YDB_OCTO_ZLIKEPREFIX }}({{ like_prefix_num|%d }})={}%
+		if (is_ilike) {
+			/* ILIKE 'pat%': the prefix is the whole literal before the '%', in lower case */
+			%{}$ZCONVERT({}%
+		}
+		%{}$$likeprefix^%%ydboctoplanhelpers({}%
 		TMPL(tmpl_print_expression, pattern, pplan, 0, 0);
 		%{}){}%
+		if (is_ilike) {
+			%{},"L"){}%
+		}
 		%{}`n{{ PLAN_LINE_START }}{}%
 		like_prefix_num++;
 	}

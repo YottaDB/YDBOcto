@@ -268,7 +268,10 @@ teardown() {
 	echo "#   'PAT%'    : walks the cross reference over 'PAT' ([likeprefix] and [\$ZEXTRACT]), no [regexmatch]" >> output.txt
 	echo "#   'PAT%ENT' : walks the cross reference over 'PAT' and checks the full LIKE ([regexmatch]) on each row found" >> output.txt
 	echo "#   '%AT'     : table scan, only [regexmatch] (also the plan of the Parse message)" >> output.txt
-	echo "# For ILIKE the prefix ends at the first letter ([likeprefix(...,1)], [regexmatch(...,2)], 2 = case-insensitive)." >> output.txt
+	echo "# For ILIKE the prefix ends at the first letter ([likeprefix(...,1)]). Each row is checked by comparing the start of" >> output.txt
+	echo "# the value, in lower case, with the literal, which the plan sets once from the bound value, in lower case" >> output.txt
+	echo "# ([SET %ydboctozlikeprefix(1)=\$ZCONVERT(\$\$likeprefix(...),\"L\")], [\$ZEXTRACT(\$ZCONVERT(...,\"L\"),...)=...])," >> output.txt
+	echo "# no [regexmatch]: for '12A%' each row the walk over '12' finds, for 'pat%' (no prefix) every row." >> output.txt
 	echo "# '12' and '12%' match exactly what LIKE does, so they get the plans of 'PAT' and 'PAT%'." >> output.txt
 	echo "# NOT LIKE 'PAT%' (YDBOcto#1189): checks each row, as a NOT LIKE cannot walk a cross reference. The plan works out" >> output.txt
 	echo "# the prefix from the bound value once, right after its NEW ([SET %ydboctozlikeprefix(1)=\$\$likeprefix(...)]), and" >> output.txt
@@ -291,7 +294,7 @@ teardown() {
 		plan_label[$plan]=${labels[$next_label]}
 		next_label=$((next_label + 1))
 		echo "  Plan ${plan_label[$plan]}:" >> output.txt
-		grep -hoE '\$\$likeprefix\^%ydboctoplanhelpers\([^)]*\)|QUIT:.*\$ZEXTRACT\(%ydboctozkeyfix[^ ]*|\$\$regexmatch\^%ydboctoplanhelpers\(%ydboctoexpr\([0-9]*\),%ydboctoexpr,[0-9],[0-9]\)|SET %ydboctocursor\(cursorId,"keys",[0-9]+,"tjc025","v"\)=%ydboctoexpr|NEW [^ ]*%ydboctozlikeprefix|SET %ydboctozlikeprefix\([0-9]+\)=\$\$likeprefix\^%ydboctoplanhelpers\(\$GET\(%ydboctocursor\(cursorId,"parameters",[0-9]+\)\)\)|\$ZEXTRACT\(%ydboctoexpr,1,\$ZLENGTH\(%ydboctozlikeprefix\([0-9]+\)\)\)=%ydboctozlikeprefix\([0-9]+\)' $plan | sed 's/^/    /' >> output.txt
+		grep -hoE '\$\$likeprefix\^%ydboctoplanhelpers\([^)]*\)|QUIT:.*\$ZEXTRACT\(%ydboctozkeyfix[^ ]*|\$\$regexmatch\^%ydboctoplanhelpers\(%ydboctoexpr\([0-9]*\),%ydboctoexpr,[0-9],[0-9]\)|SET %ydboctocursor\(cursorId,"keys",[0-9]+,"tjc025","v"\)=%ydboctoexpr|NEW [^ ]*%ydboctozlikeprefix|SET %ydboctozlikeprefix\([0-9]+\)=\$\$likeprefix\^%ydboctoplanhelpers\(\$GET\(%ydboctocursor\(cursorId,"parameters",[0-9]+\)\)\)|\$ZEXTRACT\(%ydboctoexpr,1,\$ZLENGTH\(%ydboctozlikeprefix\([0-9]+\)\)\)=%ydboctozlikeprefix\([0-9]+\)|SET %ydboctozlikeprefix\([0-9]+\)=\$ZCONVERT\(\$\$likeprefix\^%ydboctoplanhelpers\(\$GET\(%ydboctocursor\(cursorId,"parameters",[0-9]+\)\)\),"L"\)|\$ZEXTRACT\(\$ZCONVERT\(%ydboctoexpr,"L"\),1,\$ZLENGTH\(%ydboctozlikeprefix\([0-9]+\)\)\)=%ydboctozlikeprefix\([0-9]+\)' $plan | sed 's/^/    /' >> output.txt
 	done
 	echo "" >> output.txt
 	echo "# 3. Verify the cross references built. TJC025B was only queried with values that have no prefix, so each" >> output.txt

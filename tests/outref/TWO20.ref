@@ -493,8 +493,11 @@ OCTO>
 # A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, a key column,
 # a table in a local variable) sets the prefix once before the loop ([SET %ydboctozlikeprefix(...)=$$likeprefix(...)])
 # and compares the start of each value with it ([$ZEXTRACT(...)=%ydboctozlikeprefix(...)]), not a regex.
-# ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. '12A%' walks over '12' with
-# [likeprefix(...,1)] and checks the ILIKE ([regexmatch(...,2)], 2 = case-insensitive). '12%' matches what
+# ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. It is checked on every row: the plan sets the
+# literal once, in lower case ([SET %ydboctozlikeprefix(...)=$ZCONVERT($$likeprefix(...),"L")]), and compares
+# the start of each value, in lower case, with it ([$ZEXTRACT($ZCONVERT(...,"L"),...)=...]), not a regex.
+# '12A%' walks over '12' with [likeprefix(...,1)] and checks each row found the same way (the literal is 12a).
+# '12%' matches what
 # LIKE '12%' does, and '12' (no wildcard, escape or letter) is an "=", which fixes the key of column v to the
 # value ([SET ..."v")=%ydboctoexpr]) and looks it up directly.
 # A query with the same shape as an earlier one shares its plan, as the pattern is a plan parameter. Each
@@ -572,9 +575,11 @@ SELECT id FROM TWO20 WHERE v ILIKE '12%' ORDER BY id;
 
 SELECT id FROM TWO20 WHERE v ILIKE '12A%' ORDER BY id;
   Plan G:
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$ZCONVERT($$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1))),"L")
     $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr,1)
     QUIT:(%ydboctozkeyfix(1,0)="")!($ZEXTRACT(%ydboctozkeyfix(1,0),1,$ZLENGTH(%ydboctozkeyfix(1,0,1)))'=%ydboctozkeyfix(1,0,1))
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+    $ZEXTRACT($ZCONVERT(%ydboctoexpr,"L"),1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 SELECT id FROM TWO20 WHERE v ILIKE '12' ORDER BY id;
   Plan H:
@@ -582,7 +587,9 @@ SELECT id FROM TWO20 WHERE v ILIKE '12' ORDER BY id;
 
 SELECT id FROM TWO20 WHERE v ILIKE 'pat%' ORDER BY id;
   Plan I:
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$ZCONVERT($$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1))),"L")
+    $ZEXTRACT($ZCONVERT(%ydboctoexpr,"L"),1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 SELECT id FROM TWO20 WHERE v LIKE 'PAT%'::VARCHAR ORDER BY id;
   Plan J:

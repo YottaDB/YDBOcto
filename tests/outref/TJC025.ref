@@ -90,7 +90,10 @@ setString('PAT%') : v LIKE ? AND v <> '<1100 x Z>' (a query of more than 1024 by
 #   'PAT%'    : walks the cross reference over 'PAT' ([likeprefix] and [$ZEXTRACT]), no [regexmatch]
 #   'PAT%ENT' : walks the cross reference over 'PAT' and checks the full LIKE ([regexmatch]) on each row found
 #   '%AT'     : table scan, only [regexmatch] (also the plan of the Parse message)
-# For ILIKE the prefix ends at the first letter ([likeprefix(...,1)], [regexmatch(...,2)], 2 = case-insensitive).
+# For ILIKE the prefix ends at the first letter ([likeprefix(...,1)]). Each row is checked by comparing the start of
+# the value, in lower case, with the literal, which the plan sets once from the bound value, in lower case
+# ([SET %ydboctozlikeprefix(1)=$ZCONVERT($$likeprefix(...),"L")], [$ZEXTRACT($ZCONVERT(...,"L"),...)=...]),
+# no [regexmatch]: for '12A%' each row the walk over '12' finds, for 'pat%' (no prefix) every row.
 # '12' and '12%' match exactly what LIKE does, so they get the plans of 'PAT' and 'PAT%'.
 # NOT LIKE 'PAT%' (YDBOcto#1189): checks each row, as a NOT LIKE cannot walk a cross reference. The plan works out
 # the prefix from the bound value once, right after its NEW ([SET %ydboctozlikeprefix(1)=$$likeprefix(...)]), and
@@ -125,13 +128,17 @@ setString('PAT%') : v LIKE ? AND v <> '<1100 x Z>' (a query of more than 1024 by
 
 [v ILIKE ?] bound to '12A%' -> [8]
   Plan E:
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$ZCONVERT($$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1))),"L")
     $$likeprefix^%ydboctoplanhelpers(%ydboctoexpr,1)
     QUIT:(%ydboctozkeyfix(1,0)="")!($ZEXTRACT(%ydboctozkeyfix(1,0),1,$ZLENGTH(%ydboctozkeyfix(1,0,1)))'=%ydboctozkeyfix(1,0,1))
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+    $ZEXTRACT($ZCONVERT(%ydboctoexpr,"L"),1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 [v ILIKE ?] bound to 'pat%' -> [1,2,3,10,11,17]
   Plan F:
-    $$regexmatch^%ydboctoplanhelpers(%ydboctoexpr(1),%ydboctoexpr,1,2)
+    NEW %ydboctoz,%ydboctoexpr,%ydboctozlikeprefix
+    SET %ydboctozlikeprefix(1)=$ZCONVERT($$likeprefix^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",1))),"L")
+    $ZEXTRACT($ZCONVERT(%ydboctoexpr,"L"),1,$ZLENGTH(%ydboctozlikeprefix(1)))=%ydboctozlikeprefix(1)
 
 [v NOT LIKE ?] bound to 'PAT%' -> [4,5,6,7,8,9,14,15,16,17]
 [v NOT LIKE ?] bound again to 'PA%' -> [6,7,8,9,14,15,16,17]

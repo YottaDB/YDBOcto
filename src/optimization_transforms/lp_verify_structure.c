@@ -295,6 +295,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
 	case LP_CASE_STATEMENT:
 	case LP_CASE_BRANCH_STATEMENT:
@@ -388,6 +390,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
+							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IN)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_NOT_IN)
@@ -438,10 +444,16 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			}
 			break;
 		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY:
+		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 			/* This LIKE is checked on each row (one that walks a cross reference over the prefix is no longer in the
 			 * plan). The plan compares the start of each value with the prefix of the pattern, and works that prefix
 			 * out once, before its FOR loops (YDBOcto#1189). Add the LIKE to the list of such LIKEs of this plan. No
 			 * regex is compiled, so "regexmatch_invoked" is not set.
+			 * An ILIKE whose pattern is a literal followed by only '%' (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY,
+			 * e.g. 'pat%', and LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK, e.g. '12A%') is checked the same way,
+			 * with the value and the prefix both in lower case. A '12A%' that walks a cross reference over '12' stays
+			 * in the plan, as each row found is still checked.
 			 */
 			if (NULL != options) {
 				LikePrefixOnly **like_prefix_only_ptr;

@@ -283,10 +283,19 @@ typedef enum BinaryOperations {
 	 * letter can match either case (e.g. '12A%' has the prefix '12'). An ILIKE that is a prefix without letters followed by
 	 * only % (e.g. '12%') matches exactly what LIKE does, so it uses BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY.
 	 *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX    : an ILIKE literal with a non-empty prefix and more after it
+	 * The below is an ILIKE whose pattern starts with a letter and is a literal followed by only % (e.g. 'pat%'). It has no
+	 * prefix to walk a cross reference over. It exists so the plan can check each row by comparing the start of the value
+	 * with the literal, both in lower case, instead of with a regex (YDBOcto#1189).
+	 *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY
+	 * The below is the same, but for an ILIKE that has a prefix before its first letter (e.g. '12A%'). It walks a cross
+	 * reference over that prefix ('12'), like BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX, and checks each row found the same way.
+	 *	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK
 	 */
 	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY,
 	BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX,
 	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX,
+	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY,
+	BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK,
 } BinaryOperations;
 
 typedef enum SqlValueType {

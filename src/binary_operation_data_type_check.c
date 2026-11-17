@@ -331,6 +331,8 @@ int binary_operation_data_type_check(SqlBinaryOperation *binary, SqlValueType ch
 	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
 	case BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
 	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_ONLY:
+	case BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
 		if (!result) {
 			int i;
 			for (i = 0; i < 2; i++) {

@@ -268,8 +268,11 @@ CAT
 	echo "# A pattern that is only a prefix followed by % (e.g. 'PAT%') and is checked on every row (NOT LIKE, a key column," >> output.txt
 	echo "# a table in a local variable) sets the prefix once before the loop ([SET %ydboctozlikeprefix(...)=\$\$likeprefix(...)])" >> output.txt
 	echo "# and compares the start of each value with it ([\$ZEXTRACT(...)=%ydboctozlikeprefix(...)]), not a regex." >> output.txt
-	echo "# ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. '12A%' walks over '12' with" >> output.txt
-	echo "# [likeprefix(...,1)] and checks the ILIKE ([regexmatch(...,2)], 2 = case-insensitive). '12%' matches what" >> output.txt
+	echo "# ILIKE: the prefix ends at the first letter, so 'pat%' has no prefix. It is checked on every row: the plan sets the" >> output.txt
+	echo "# literal once, in lower case ([SET %ydboctozlikeprefix(...)=\$ZCONVERT(\$\$likeprefix(...),\"L\")]), and compares" >> output.txt
+	echo "# the start of each value, in lower case, with it ([\$ZEXTRACT(\$ZCONVERT(...,\"L\"),...)=...]), not a regex." >> output.txt
+	echo "# '12A%' walks over '12' with [likeprefix(...,1)] and checks each row found the same way (the literal is 12a)." >> output.txt
+	echo "# '12%' matches what" >> output.txt
 	echo "# LIKE '12%' does, and '12' (no wildcard, escape or letter) is an \"=\", which fixes the key of column v to the" >> output.txt
 	echo "# value ([SET ...\"v\")=%ydboctoexpr]) and looks it up directly." >> output.txt
 	echo "# A query with the same shape as an earlier one shares its plan, as the pattern is a plan parameter. Each" >> output.txt
@@ -290,7 +293,7 @@ CAT
 		plan_label[$plan]=${labels[$next_label]}
 		next_label=$((next_label + 1))
 		echo "  Plan ${plan_label[$plan]}:" >> output.txt
-		grep -hoE '\$\$likeprefix\^%ydboctoplanhelpers\([^)]*\)|QUIT:.*\$ZEXTRACT\(%ydboctozkeyfix[^ ]*|\$\$regexmatch\^%ydboctoplanhelpers\(%ydboctoexpr\([0-9]*\),%ydboctoexpr,[0-9],[0-9]\)|NEW [^ ]*%ydboctozlikeprefix|SET %ydboctozlikeprefix\([0-9]+\)=\$\$likeprefix\^%ydboctoplanhelpers\(\$GET\(%ydboctocursor\(cursorId,"parameters",[0-9]+\)\)\)|\$ZEXTRACT\(%ydboctoexpr,1,\$ZLENGTH\(%ydboctozlikeprefix\([0-9]+\)\)\)=%ydboctozlikeprefix\([0-9]+\)|SET %ydboctocursor\(cursorId,"keys",[0-9]+,"two20","v"\)=%ydboctoexpr' $plan | sed 's/^/    /' >> output.txt
+		grep -hoE '\$\$likeprefix\^%ydboctoplanhelpers\([^)]*\)|QUIT:.*\$ZEXTRACT\(%ydboctozkeyfix[^ ]*|\$\$regexmatch\^%ydboctoplanhelpers\(%ydboctoexpr\([0-9]*\),%ydboctoexpr,[0-9],[0-9]\)|NEW [^ ]*%ydboctozlikeprefix|SET %ydboctozlikeprefix\([0-9]+\)=\$\$likeprefix\^%ydboctoplanhelpers\(\$GET\(%ydboctocursor\(cursorId,"parameters",[0-9]+\)\)\)|\$ZEXTRACT\(%ydboctoexpr,1,\$ZLENGTH\(%ydboctozlikeprefix\([0-9]+\)\)\)=%ydboctozlikeprefix\([0-9]+\)|SET %ydboctozlikeprefix\([0-9]+\)=\$ZCONVERT\(\$\$likeprefix\^%ydboctoplanhelpers\(\$GET\(%ydboctocursor\(cursorId,"parameters",[0-9]+\)\)\),"L"\)|\$ZEXTRACT\(\$ZCONVERT\(%ydboctoexpr,"L"\),1,\$ZLENGTH\(%ydboctozlikeprefix\([0-9]+\)\)\)=%ydboctozlikeprefix\([0-9]+\)|SET %ydboctocursor\(cursorId,"keys",[0-9]+,"two20","v"\)=%ydboctoexpr' $plan | sed 's/^/    /' >> output.txt
 	done < TWO20_like_queries.sql
 	verify_output TWO20 output.txt noinfo nodebug
 }

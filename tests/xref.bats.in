@@ -888,3 +888,18 @@ OCTO
 
 	verify_output TX27 output.txt
 }
+
+@test "TX28 : OCTO1167 : A query that follows a cross reference build that stopped on an error is not reported as canceled" {
+	echo "# TX28 : OCTO1167 : A query that follows a cross reference build that stopped on an error is not reported as canceled" >> output.txt
+	echo "# set ^TX28(1) to 1100 bytes, and ^TX28(2) to \"b\"" >> output.txt
+	yottadb -run %XCMD 'set $piece(x,"a",1101)="",^TX28(1)=x,^TX28(2)="b" write "$zlength(^TX28(1))=",$zlength(^TX28(1)),!  zwrite ^TX28(2)' 2>&1 | tee -a output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TX28.sql > TX28_input.sql
+	# All the queries run in one octo process: what the failed build left behind was in a local variable.
+	octo -p -f TX28_input.sql > TX28_output.txt 2>&1 || true
+	# The error text of the first query has the name of an AIM global and the number of processes that built the
+	# cross reference in it, so only its error is shown here: the output is shown from the second query on.
+	sed -n '1,/SELECT id FROM TX28 WHERE/p' TX28_output.txt >> output.txt
+	echo "# The build of the cross reference stopped with: $(grep -o '%YDB-E-GVSUBOFLOW' TX28_output.txt | sort -u)" >> output.txt
+	sed -n '/^OCTO> -- The next query of the same session/,$p' TX28_output.txt >> output.txt
+	verify_output TX28 output.txt
+}

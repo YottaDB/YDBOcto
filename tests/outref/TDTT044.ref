@@ -428,6 +428,8 @@ _ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZC
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoP*.m:    . . . . SET %ydboctoexpr=$SELECT($ZYISSQLNULL(%ydboctoexpr):$ZCHAR(0),127>$ZLENGTH(%ydboctoexpr):$ZCHAR(1+$ZLENGTH(%ydboctoexpr))_%ydboctoexpr,1:$$str2mval^%ydboctoplanhelpers(%ydboctoexpr))
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in testr table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -438,10 +440,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table testr column dob"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,34,"""")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for order_timestamp column in timestamp_fileman_tbl table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -452,10 +455,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table timestamp_fileman_tbl column order_timestamp"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,20,34,"""")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for order_date column in orders table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -466,10 +470,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table orders column order_date"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",1,1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%m-%d-%Y"")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in testrtexttz table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -480,10 +485,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table testrtexttz column dob"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,21,36,""%m-%d-%Y %H:%M:%S%z"")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for dateofbirth column in flmn table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -494,10 +500,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table flmn column dateofbirth"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",3,1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,34,"""")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in testrtexttziso table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -508,10 +515,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table testrtexttziso column dob"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,21,36,""%m-%d-%Y %H:%M:%S%z"")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for dateofbirth column in txt table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -522,10 +530,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table txt column dateofbirth"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"|",3,1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%Y-%m-%d"")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for dob column in testrtext table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -536,10 +545,11 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table testrtext column dob"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,17,36,""%m-%d-%Y"")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 _ydboctoX*.m:;; Generated M code maintains cross reference for order_timestamp column in timestamp_zut_tbl table
+_ydboctoX*.m:    ; Store state information in case query is canceled in middle of xref building
+_ydboctoX*.m:    ; Actual cleanup happens in _ydboctoCleanup.m using this saved state information
 _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, or 6 when a
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    ;   forceStrOrder (1 for STRING type columns so canonical strings are correctly ordered, 0 otherwise)
@@ -550,7 +560,6 @@ _ydboctoX*.m:    ;   stat (0 for now), AIM Metadata Type (always decoupled - 4, 
 _ydboctoX*.m:    ;   transformation function is used - so that a row whose value node is absent
 _ydboctoX*.m:    NEW comment SET comment="xref for table timestamp_zut_tbl column order_timestamp"
 _ydboctoX*.m:    NEW aimglobal SET aimglobal=$$XREFDATA^%YDBAIM(base,.subs,"","",1,0,1,0,2,"$$Transform2UnixTime^%ydboctoplanhelpers(,20,35,"""")",comment)
-_ydboctoX*.m:    ; Cancelation information for _ydboctoCleanup.m
 _ydboctoX*.m:baseSubs:(base,subs) ; Private entry point for use by other labels in this routine
 _ydboctoX*.m:    NEW subn for subn=1:1:$QLENGTH(global) DO
 

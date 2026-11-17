@@ -1,0 +1,32 @@
+
+-- TJC027 : OCTO1167 : No ERR_QUERY_CANCELED for a query whose first plan uses a cross reference that the plan run does not build
+-- The local node %ydboctoCancel(table,column,"aimXref") was set when a plan that uses a new cross reference was
+-- generated, and removed when the plan ran and built the cross reference. Any node under %ydboctoCancel is taken for
+-- a cancel, so a query whose plan did not run that build was reported as canceled (SQLSTATE 57014) though no one
+-- canceled it. Here that happened with "id LIKE ? ORDER BY a": the plan of the Parse message walks the cross reference
+-- of column a for the ORDER BY, and for a bound value without a wildcard, Bind generates another plan (a key fix), which
+-- builds none.
+
+CREATE TABLE TJC027 (id VARCHAR PRIMARY KEY, a INTEGER);
+INSERT INTO TJC027 VALUES ('a', 8), ('ab', 2), ('abc', 1), ('b', 3);
+SELECT * FROM TJC027;
+OCTO> CREATE TABLE TJC027 (id VARCHAR PRIMARY KEY, a INTEGER);
+CREATE TABLE
+OCTO> INSERT INTO TJC027 VALUES ('a', 8), ('ab', 2), ('abc', 1), ('b', 3);
+INSERT 0 4
+OCTO> SELECT * FROM TJC027;
+id|a
+a|8
+ab|2
+abc|1
+b|3
+(4 rows)
+OCTO> 
+
+# Run TJC027.java. Each query is run twice on a new connection. Before the YDBOcto#1167 fix, the 1st run of each of the
+# first two failed with [SQL State: 57014 : ERROR: canceling statement due to user request]. In the last two, the plan
+# that runs is the plan of the Parse message ('a%' has a wildcard), or that plan walks no cross reference (ORDER BY id).
+[SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY a] bound to 'ab' -> 1st run: [ab] : 2nd run: [ab]
+[SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY a DESC] bound to 'zz' -> 1st run: [] : 2nd run: []
+[SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY a] bound to 'a%' -> 1st run: [abc,ab,a] : 2nd run: [abc,ab,a]
+[SELECT id FROM TJC027 WHERE id LIKE ? ORDER BY id] bound to 'ab' -> 1st run: [ab] : 2nd run: [ab]

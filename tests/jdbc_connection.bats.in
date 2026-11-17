@@ -321,6 +321,16 @@ teardown() {
 	verify_output TJC026 output.txt nodebug noinfo
 }
 
+@test "TJC027 : OCTO1167 : No ERR_QUERY_CANCELED for a query whose first plan uses a cross reference that the plan run does not build" {
+	load_fixture TJC027.sql subtest novv
+	echo "" >> output.txt
+	echo "# Run TJC027.java. Each query is run twice on a new connection. Before the YDBOcto#1167 fix, the 1st run of each of the" >> output.txt
+	echo "# first two failed with [SQL State: 57014 : ERROR: canceling statement due to user request]. In the last two, the plan" >> output.txt
+	echo "# that runs is the plan of the Parse message ('a%' has a wildcard), or that plan walks no cross reference (ORDER BY id)." >> output.txt
+	run_java TJC027 $test_port >> output.txt 2>&1
+	verify_output TJC027 output.txt nodebug noinfo
+}
+
 @test "TJC024 : OCTO1081 : Rocto exits and closes the connection when it has a send error using the extended query protocol" {
 	stop_rocto
 	# Fixture uses Northwind database to help construct long running query with lots of return data

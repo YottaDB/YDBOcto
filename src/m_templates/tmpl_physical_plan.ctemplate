@@ -279,6 +279,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 		// Write M code for %YDBAIM
 		// If Global (most Octo tables are except rare ones like pg_settings)
 		if ('^' == pplan->outputKey->xref_prefix[0]) {
+			/* Note down, for the duration of the build only, what "run^%ydboctoCleanup" has to undo if the query is
+			 * canceled while the cross reference is built. It is set here and not in "xrefMetadata" below, which runs
+			 * when a plan is generated: a plan can be generated and not build the cross reference (another process
+			 * built it first, the plan generation failed later, or rocto ran another plan for the bound values), and
+			 * the node would then remain, and be taken for a cancel by "is_query_canceled()" (YDBOcto#1167).
+			 */
+			%{}; Store state information in case query is canceled in middle of xref building{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}; Actual cleanup happens in _ydboctoCleanup.m using this saved state information{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}SET {{OCTOLIT_YDBOCTOCANCEL}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_CANCELXREF}}")=""{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}NEW base,subs DO baseSubs(.base,.subs){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			if (needs_anchor) {
@@ -389,10 +401,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *pplan) {
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}SET {{OCTOLIT_AIM_OCTO_CACHE}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_COMPLETED}}")=0{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}; Cancelation information for _ydboctoCleanup.m{}%
-			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}SET {{OCTOLIT_YDBOCTOCANCEL}}("{{tableName}}","{{columnName}}","{{OCTOLIT_AIM_SUB_CANCELXREF}}")=""{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}QUIT{}%
 			%{}`n{{ PLAN_LINE_START }}{}%

@@ -10,12 +10,17 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; YDBOcto#1167 : "run" starts with a KILL of %ydboctoCancel. %ydboctoCancel(table,column,...) nodes are set while a cross
+; reference is built ("xrefPlan" of a _ydboctoX*.m routine), which only happens inside "run", and are removed when the
+; build is done. A build that stopped on an error left its node behind, and the next query was then reported as
+; canceled ("is_query_canceled()"). Nothing is being built or canceled when a query starts, so "run" removes what is
+; left.
 run(cursorId,routine,wrapInTp)
   ; * "routine" variable is of the form "%ydboctoPOyAkV0dwqVINYJD702SbAA"
   ;   where the generated M file name is "_ydboctoPOyAkV0dwqVINYJD702SbAA.m".
   ;   We need to prefix a "^" to it before invoking the M program using "DO" with entryref indirection.
   ; * "wrapInTp" is 0 or 1. If 1, the query execution (excluding building any cross references) is wrapped in a TP transaction.
-  NEW rtn,zcmpl,%ydboctopgRowNumber
+  NEW rtn,zcmpl,%ydboctopgRowNumber KILL %ydboctoCancel	; see the note on %ydboctoCancel above "run"
   SET rtn="^"_routine,zcmpl=$ZCOMPILE DO:$DATA(%ydboctocursor(cursorId,"nullparameters")) nullparameters(cursorId)
   SET:'$ZFIND($ZCONVERT($zcompile,"l"),"-noline_entry") $ZCOMPILE=$ZCOMPILE_" -noline_entry"
   DO @rtn@(cursorId,wrapInTp)

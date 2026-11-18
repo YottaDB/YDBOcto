@@ -421,3 +421,18 @@ OCTO
 	psql names -c "DROP TABLE IF EXISTS tob26ro, tob26rw;" >& postgres.drop_table_TOB26.out
 	verify_output TOB26 output.txt
 }
+
+@test "TOB27 : OCTO1193 : GROUP BY with an ORDER BY on the grouped column returns its rows in ORDER BY order" {
+	# The reference file starts with the description of the test: the first comment block of TOB27.sql
+	sed -n '/^-- TOB27 /,/^$/p' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB27.sql | sed 's/^-- /# /' >> output.txt
+	echo "# Run crosscheck on TOB27.sql" >> output.txt
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB27.sql roctoflags="-aw" noextended
+	psql names -c 'DROP TABLE IF EXISTS TOB27a,TOB27b;' >& postgres.drop_table_TOB27.out
+	echo "# Cross-checked against Postgres: no difference ($(grep -ci '^select' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB27.sql) queries)" >> output.txt
+	echo "" >> output.txt
+	echo "# The queries of TOB27.sql and their results in Octo. The comment above each SELECT gives the rows it should" >> output.txt
+	echo "# return, in order." >> output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB27.sql | sed '/^-- TOB27 /,/^$/d' > TOB27_input.sql
+	octo -p -f TOB27_input.sql >> output.txt 2>&1
+	verify_output TOB27 output.txt
+}

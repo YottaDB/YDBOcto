@@ -91,15 +91,8 @@ static void insert_order_by_xref_walk_key(LogicalPlan *plan, LogicalPlan *lp_ord
 	 * (e.g. LP_UPDATE) return early in "lp_optimize_order_by()". So this is always a SELECT query.
 	 */
 	assert(LP_SELECT_QUERY == plan->type);
-
-	SqlTableAlias *root_table_alias;
-	root_table_alias = plan->extra_detail.lp_select_query.root_table_alias;
-	if ((NULL == root_table_alias) || root_table_alias->aggregate_function_or_group_by_or_having_specified) {
-		/* With GROUP BY, HAVING or an aggregate function, the rows are output from the groups after the FOR loops
-		 * end, not in the order the FOR loops produced them.
-		 */
-		return;
-	}
+	/* The caller returns early for a query with GROUP BY, HAVING or an aggregate function */
+	assert(!plan->extra_detail.lp_select_query.root_table_alias->aggregate_function_or_group_by_or_having_specified);
 
 	/* The first ORDER BY item has to be a column of a table (not an expression or a sub-query column) */
 	GET_LP(lp_column_list, lp_order_by_start, 0, LP_COLUMN_LIST);
@@ -282,6 +275,19 @@ void lp_optimize_order_by(LogicalPlan *plan) {
 		return; /* No ORDER BY present to try optimization */
 	}
 	assert(LP_TABLE_VALUE != plan->type);
+
+	SqlTableAlias *root_table_alias;
+	assert(LP_SELECT_QUERY == plan->type);
+	root_table_alias = plan->extra_detail.lp_select_query.root_table_alias;
+	assert(NULL != root_table_alias);
+	if (root_table_alias->aggregate_function_or_group_by_or_having_specified) {
+		/* With GROUP BY, HAVING or an aggregate function, the rows are output from the groups after the FOR loops
+		 * end, not in the order the FOR loops produced them. So no FOR loop order, of the table's global or of a
+		 * cross reference, gives the ORDER BY order: keep the sort (YDBOcto#1193).
+		 */
+		return;
+	}
+
 	/* If the first ORDER BY column is a non-key column, walk an AIM cross reference of that column (YDBOcto#1160).
 	 * This can replace keys in LP_KEYS, so get the start of LP_KEYS only after this call.
 	 */

@@ -70,6 +70,24 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			break;
 		case OPTIONAL_EXTRACT:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			if (value->type == CALCULATED_VALUE) {
+				/* An EXTRACT that calls a SQL function (YDBOcto#633). "value" holds a parse tree, not M code text.
+				 * Emit it as unquoted SQL, as the user wrote it, so that re-parsing this text (e.g. in an auto
+				 * upgrade) yields the same function call. "emit_check_constraint()" can emit it because its column
+				 * references are still unqualified: "table_definition()" runs only the first, non-qualifying pass
+				 * of "qualify_extract_function()", and later passes qualify a copy.
+				 */
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " EXTRACT ");
+				if (emit_check_constraint(buffer, buffer_size, buff_ptr, value->v.calculated) < 0) {
+					/* "emit_check_constraint()" fails only on a corrupt parse tree (e.g. an unknown statement
+					 * type or an operator with no user-visible name), never on a valid function call.
+					 */
+					assert(FALSE);
+					free(buffer2);
+					return -1;
+				}
+				break;
+			}
 			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
 			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " EXTRACT \"%s\"", buffer2);
 			break;
@@ -263,6 +281,8 @@ int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_co
 			if (do_emit_check_constraint) {
 				status = emit_check_constraint(buffer, buffer_size, buff_ptr, constraint->definition);
 				if (0 > status) {
+					/* "emit_check_constraint()" fails only on a corrupt parse tree */
+					assert(FALSE);
 					free(buffer2);
 					return -1;
 				}

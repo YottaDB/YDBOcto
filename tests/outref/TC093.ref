@@ -1,0 +1,79 @@
+# Stage 1 : CREATE TABLE with EXTRACT columns that call SQL functions, and query it
+#           Expect : the EXTRACT columns show values computed from each row
+
+-- TC093 : OCTO1196 : EXTRACT that calls a SQL function survives an auto upgrade of its text definition
+
+-- Each EXTRACT column below tests a different kind of SQL function call text:
+--   absid    : a plain column argument
+--   quoted   : a string literal holding a double quote, which M code text would need to escape
+--   idtext   : a type cast argument
+--   tblqual  : a table-qualified column argument
+--   dblquote : a double-quoted, case-sensitive column argument
+--   mcode    : an M code EXTRACT, which was always stored correctly, for comparison
+CREATE TABLE TC093 (
+	id INTEGER PRIMARY KEY, firstName VARCHAR, "lastName" VARCHAR,
+	absid INTEGER EXTRACT ABS(id),
+	quoted VARCHAR EXTRACT CONCAT(firstName, '"'),
+	idtext VARCHAR EXTRACT CONCAT(id::varchar, 'a'),
+	tblqual VARCHAR EXTRACT CONCAT(TC093.firstName, '-'),
+	dblquote VARCHAR EXTRACT CONCAT("lastName", '!'),
+	mcode INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""id""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+SELECT * FROM TC093;
+OCTO> CREATE TABLE TC093 (
+	id INTEGER PRIMARY KEY, firstName VARCHAR, "lastName" VARCHAR,
+	absid INTEGER EXTRACT ABS(id),
+	quoted VARCHAR EXTRACT CONCAT(firstName, '"'),
+	idtext VARCHAR EXTRACT CONCAT(id::varchar, 'a'),
+	tblqual VARCHAR EXTRACT CONCAT(TC093.firstName, '-'),
+	dblquote VARCHAR EXTRACT CONCAT("lastName", '!'),
+	mcode INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""id""))"
+) GLOBAL "^names(keys(""id""))" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM TC093;
+id|firstname|lastName|absid|quoted|idtext|tblqual|dblquote|mcode
+0|Zero|Cool|0|Zero"|0a|Zero-|Cool!|0
+1|Acid|Burn|1|Acid"|1a|Acid-|Burn!|1
+2|Cereal|Killer|2|Cereal"|2a|Cereal-|Killer!|2
+3|Lord|Nikon|3|Lord"|3a|Lord-|Nikon!|3
+4|Joey||4|Joey"|4a|Joey-|!|4
+5|Zero|Cool|5|Zero"|5a|Zero-|Cool!|5
+(6 rows)
+OCTO> 
+
+# Stage 2 : Show each EXTRACT in the stored CREATE TABLE text definition
+#           Expect     : each SQL function call is stored as unquoted SQL, as the user wrote it
+#           Previously : each was stored as a quoted string of garbage bytes, e.g. EXTRACT "<BEL>"
+# yottadb -run %XCMD 'write ^%ydboctoschema("tc093","text",*)' | (show the EXTRACT columns)
+`absid` INTEGER EXTRACT abs(id)
+`quoted` VARCHAR EXTRACT concat(firstname, '"')
+`idtext` VARCHAR EXTRACT concat(id::VARCHAR, 'a')
+`tblqual` VARCHAR EXTRACT concat(tc093.firstname, '-')
+`dblquote` VARCHAR EXTRACT concat("lastName", '!')
+`mcode` INTEGER EXTRACT "$$ABS^%ydboctosqlfunctions(keys(""id""))"
+
+# Stage 3 : Force an auto upgrade, which re-parses the text definition, by lowering ^%ydboctoocto("binfmt")
+#           Then query the table again
+#           Expect     : the same values as in Stage 1
+#           Previously : the query failed with %YDB-E-EXPR when YottaDB compiled its plan
+
+-- TC093 : OCTO1196 : EXTRACT that calls a SQL function survives an auto upgrade of its text definition
+
+-- These queries read the EXTRACT columns after the auto upgrade re-parsed the table's text definition.
+-- They should give the same results as before the upgrade.
+SELECT * FROM TC093;
+SELECT id, quoted, dblquote FROM TC093 WHERE absid = 3;
+OCTO> SELECT * FROM TC093;
+id|firstname|lastName|absid|quoted|idtext|tblqual|dblquote|mcode
+0|Zero|Cool|0|Zero"|0a|Zero-|Cool!|0
+1|Acid|Burn|1|Acid"|1a|Acid-|Burn!|1
+2|Cereal|Killer|2|Cereal"|2a|Cereal-|Killer!|2
+3|Lord|Nikon|3|Lord"|3a|Lord-|Nikon!|3
+4|Joey||4|Joey"|4a|Joey-|!|4
+5|Zero|Cool|5|Zero"|5a|Zero-|Cool!|5
+(6 rows)
+OCTO> SELECT id, quoted, dblquote FROM TC093 WHERE absid = 3;
+id|quoted|dblquote
+3|Lord"|Nikon!
+(1 row)
+OCTO> 

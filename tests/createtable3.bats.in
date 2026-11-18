@@ -1036,3 +1036,32 @@ OCTO
 
 	verify_output TC092 output.txt
 }
+
+@test "TC093 : OCTO1196 : EXTRACT that calls a SQL function survives an auto upgrade of its text definition" {
+	load_fixture names.zwr
+	echo "# Stage 1 : CREATE TABLE with EXTRACT columns that call SQL functions, and query it" >> output.txt
+	echo "#           Expect : the EXTRACT columns show values computed from each row" >> output.txt
+	load_fixture TC093.sql subtest novv
+
+	echo "" >> output.txt
+	echo "# Stage 2 : Show each EXTRACT in the stored CREATE TABLE text definition" >> output.txt
+	echo "#           Expect     : each SQL function call is stored as unquoted SQL, as the user wrote it" >> output.txt
+	echo "#           Previously : each was stored as a quoted string of garbage bytes, e.g. EXTRACT \"<BEL>\"" >> output.txt
+	# Join the text node across its subscripts, then split it into one line per column at each ", `"
+	echo "# yottadb -run %XCMD 'write ^%ydboctoschema(\"tc093\",\"text\",*)' | (show the EXTRACT columns)" >> output.txt
+	yottadb -run %XCMD 'set x="" for  set x=$order(^%ydboctoschema("tc093","text",x)) quit:x=""  write ^(x)' \
+		| sed 's/) GLOBAL .*//;s/, `/\n`/g' | grep EXTRACT >> output.txt
+
+	echo "" >> output.txt
+	echo "# Stage 3 : Force an auto upgrade, which re-parses the text definition, by lowering ^%ydboctoocto(\"binfmt\")" >> output.txt
+	echo "#           Then query the table again" >> output.txt
+	echo "#           Expect     : the same values as in Stage 1" >> output.txt
+	echo "#           Previously : the query failed with %YDB-E-EXPR when YottaDB compiled its plan" >> output.txt
+	curbinfmt=$(yottadb -run %XCMD 'write ^%ydboctoocto("binfmt")')
+	yottadb -run %XCMD "set ^%ydboctoocto(\"binfmt\")=$((curbinfmt - 1))"
+	load_fixture TC093_after_upgrade.sql subtest novv
+	# Verify the auto upgrade completed, setting ^%ydboctoocto("binfmt") back to the current value
+	[[ $(yottadb -run %XCMD 'write ^%ydboctoocto("binfmt")') -eq $curbinfmt ]]
+
+	verify_output TC093 output.txt
+}

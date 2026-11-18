@@ -570,6 +570,14 @@ ERR_GLOBAL_MISSING_KEY_COLS
 
   Description/Action: This error is generated when a :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command does not specify all key columns (using the :code:`keys()` syntax). For example, if a table has a primary key column :code:`col1`, the :code:`GLOBAL` keyword should specify a global reference where one subscript is :code:`keys(""col1"")`). PSQL Error Code: 42P10
 
+++++++++++++++++++++++++
+ERR_GLOBAL_ON_KEY_COLUMN
+++++++++++++++++++++++++
+
+  Text: GLOBAL keyword cannot be specified on a KEY column (column "xxx")
+
+  Description/Action: This error is generated when a column that is defined with a column-level :code:`GLOBAL` keyword in a :code:`CREATE TABLE` command is also a key column (using the :code:`PRIMARY KEY` or :code:`KEY NUM` constraint/keyword, or because the table is :code:`READONLY` and specifies no key column, in which case all its columns are key columns). The value of a key column is a subscript of the global that the table-level :code:`GLOBAL` keyword specifies, so a :code:`GLOBAL` keyword of its own cannot say where to read it from. Remove the :code:`GLOBAL` keyword from the column, or do not make the column a key column. PSQL Error Code: 42P10
+
 ++++++++++++++++++++++++++++++
 ERR_GROUP_BY_INVALID_USAGE
 ++++++++++++++++++++++++++++++

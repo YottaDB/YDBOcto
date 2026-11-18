@@ -464,3 +464,8 @@ OCTO
 	verify_output TERR055 output.txt
 }
 
+@test "TERR056 : OCTO1197 : Test ERR_GLOBAL_ON_KEY_COLUMN error" {
+	$ydb_dist/yottadb -run %XCMD 'set ^TERR056f(1)="",^TERR056x(1)="p"'
+	load_fixture TERR056.sql subtest novv
+	verify_output TERR056 output.txt
+}

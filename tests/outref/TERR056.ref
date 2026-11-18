@@ -1,0 +1,41 @@
+
+-- TERR056 : OCTO1197 : Test ERR_GLOBAL_ON_KEY_COLUMN error
+-- The value of a key column is a subscript of the table-level GLOBAL. A column-level GLOBAL keyword on a key column
+-- cannot say where to read the value from, and used to be ignored. It is now rejected.
+
+-- GLOBAL on the PRIMARY KEY column
+CREATE TABLE TERR056a (id INTEGER PRIMARY KEY GLOBAL "^TERR056x(keys(""id""))", v VARCHAR) GLOBAL "^TERR056a(keys(""id""))" READONLY;
+
+-- GLOBAL on a later key column (KEY NUM 1)
+CREATE TABLE TERR056b (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1 GLOBAL "^TERR056x(keys(""a""))", v VARCHAR PIECE 1) GLOBAL "^TERR056b(keys(""a""),keys(""b""))" READONLY;
+
+-- GLOBAL on a column of a table-level PRIMARY KEY constraint
+CREATE TABLE TERR056c (a INTEGER, b INTEGER GLOBAL "^TERR056x(keys(""a""))", v VARCHAR, PRIMARY KEY (a, b)) GLOBAL "^TERR056c(keys(""a""),keys(""b""))" READONLY;
+
+-- GLOBAL on a column of a READONLY table that specifies no key column: all its columns are key columns
+CREATE TABLE TERR056d (a INTEGER, b INTEGER GLOBAL "^TERR056x(keys(""a""))") GLOBAL "^TERR056d(keys(""a""),keys(""b""))" READONLY;
+
+-- GLOBAL on a key column of a table whose table-level GLOBAL has no subscripts (Octo adds one for every key column)
+CREATE TABLE TERR056e (id INTEGER PRIMARY KEY GLOBAL "^TERR056x(keys(""id""))", v VARCHAR) GLOBAL "^TERR056e" READONLY;
+
+-- GLOBAL on a non-key column is still accepted, and the column is read from that global. With ^TERR056f(1)="" and
+-- ^TERR056x(1)="p" (set by the test): (1,p)
+CREATE TABLE TERR056f (a INTEGER PRIMARY KEY, v VARCHAR GLOBAL "^TERR056x(keys(""a""))" PIECE 1) GLOBAL "^TERR056f(keys(""a""))" READONLY;
+SELECT * FROM TERR056f;
+[ERROR]: ERR_GLOBAL_ON_KEY_COLUMN: GLOBAL keyword cannot be specified on a KEY column (column "id")
+OCTO> CREATE TABLE TERR056a (id INTEGER PRIMARY KEY GLOBAL "^TERR056x(keys(""id""))", v VARCHAR) GLOBAL "^TERR056a(keys(""id""))" READONLY;
+[ERROR]: ERR_GLOBAL_ON_KEY_COLUMN: GLOBAL keyword cannot be specified on a KEY column (column "b")
+OCTO> CREATE TABLE TERR056b (a INTEGER KEY NUM 0, b INTEGER KEY NUM 1 GLOBAL "^TERR056x(keys(""a""))", v VARCHAR PIECE 1) GLOBAL "^TERR056b(keys(""a""),keys(""b""))" READONLY;
+[ERROR]: ERR_GLOBAL_ON_KEY_COLUMN: GLOBAL keyword cannot be specified on a KEY column (column "b")
+OCTO> CREATE TABLE TERR056c (a INTEGER, b INTEGER GLOBAL "^TERR056x(keys(""a""))", v VARCHAR, PRIMARY KEY (a, b)) GLOBAL "^TERR056c(keys(""a""),keys(""b""))" READONLY;
+[ERROR]: ERR_GLOBAL_ON_KEY_COLUMN: GLOBAL keyword cannot be specified on a KEY column (column "b")
+OCTO> CREATE TABLE TERR056d (a INTEGER, b INTEGER GLOBAL "^TERR056x(keys(""a""))") GLOBAL "^TERR056d(keys(""a""),keys(""b""))" READONLY;
+[ERROR]: ERR_GLOBAL_ON_KEY_COLUMN: GLOBAL keyword cannot be specified on a KEY column (column "id")
+OCTO> CREATE TABLE TERR056e (id INTEGER PRIMARY KEY GLOBAL "^TERR056x(keys(""id""))", v VARCHAR) GLOBAL "^TERR056e" READONLY;
+OCTO> CREATE TABLE TERR056f (a INTEGER PRIMARY KEY, v VARCHAR GLOBAL "^TERR056x(keys(""a""))" PIECE 1) GLOBAL "^TERR056f(keys(""a""))" READONLY;
+CREATE TABLE
+OCTO> SELECT * FROM TERR056f;
+a|v
+1|p
+(1 row)
+OCTO> 

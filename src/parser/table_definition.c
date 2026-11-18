@@ -2119,6 +2119,15 @@ SqlStatement *table_definition(SqlStatement *tableName, SqlStatement *table_elem
 				readonly_disallowed = TRUE; /* UNIQUE is only allowed for READWRITE table. Not READONLY. */
 				break;
 			case OPTIONAL_GLOBAL:;
+				if (IS_KEY_COLUMN(cur_column)) {
+					/* The value of a key column is a subscript of the table-level GLOBAL. A GLOBAL of its own
+					 * cannot say where to read it from and would be ignored (YDBOcto#1197).
+					 */
+					assert(NULL != cur_column->columnName);
+					UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
+					ERROR(ERR_GLOBAL_ON_KEY_COLUMN, columnName1->v.string_literal);
+					return NULL;
+				}
 				ret = validate_global_keyword(cur_keyword, table, max_key, FALSE);
 				if (-1 == ret) {
 					return NULL;

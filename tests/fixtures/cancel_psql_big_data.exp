@@ -27,12 +27,21 @@ send "ydbrocks\r"
 expect -re ".*ydb=. "
 # Run a long time AND generate cross references
 send "select firstname from names where firstname = 'abcd';\r"
-# Send the interrupt (that triggers the cancel request) shortly after rocto reports that it generated the cross reference
-# plan, so that it arrives while that plan builds the cross reference over all rows. A fixed wait from the time the query
-# is sent instead lets the query finish first on a fast system. The 500 millisecond pause lets plan generation finish
-# first: a cancel request during it fails an assert (YDBOcto#1182).
+# Send the interrupt (that triggers the cancel request) while the cross reference plan builds the cross reference over
+# all rows. A fixed wait from the time the query is sent instead lets the query finish first on a fast system.
+# Rocto reports that it generated the cross reference plan before it runs that plan. YDBAIM then creates the cross
+# reference global ("^%ydbAIMD*") and its triggers in one transaction, and only after that scans the rows. So wait for
+# a "^%ydbAIMD*" global to exist before sending the interrupt. A cancel request that arrives earlier either fails an
+# assert during plan generation (YDBOcto#1182), leaves "^%ydbAIMOctoCache" behind, or rolls that transaction back, which
+# leaves no cross reference global and no triggers. The caller checks for each of those. The wait is limited to 120
+# seconds, after which the interrupt is sent anyway.
 expect "INFO:  Generating helper cross reference M file"
-after 500
+for {set i 0} {$i < 1200} {incr i} {
+	# "catch" as "exec" treats any stderr output of the command (e.g. from an ASAN build) as an error
+	catch {exec $env(ydb_dist)/yottadb -run %XCMD {write "^%ydbAIMD"=$zextract($order(^%ydbAIMD),1,9)}} xrefexists
+	if {[string match "1*" $xrefexists]} break
+	after 100
+}
 send \x03
 expect -re ".*Cancel request sent\r\n"
 # On a loaded system, the query can take well over a minute to notice the cancel request. If this "expect" times out,

@@ -80,9 +80,16 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
 				SqlOptionalKeyword	*optional_startinclude;
 				optional_startinclude = get_keyword(key->column, OPTIONAL_STARTINCLUDE);
 				if (NULL == optional_startinclude) {
+					/* START is exclusive. Construct (cursor="")!(cursor']]start): stop at the end of the
+					 * subscripts, at the START value, and at any value that sorts before it. The walk
+					 * does not always meet the START value itself, as the global may have no node at it
+					 * (YDBOcto#1195).
+					 */
 					%{}({}%
 					TMPL(tmpl_key, key);
-					%{}={{ start }}){}%
+					%{}="")!({}%
+					TMPL(tmpl_key, key);
+					%{}']]{{ start }}){}%
 				} else {
 					%{}({}%
 					TMPL(tmpl_key, key);

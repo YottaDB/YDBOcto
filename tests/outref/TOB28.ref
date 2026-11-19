@@ -1,0 +1,112 @@
+# TOB28 : OCTO1195 : ORDER BY DESC on a key column with START ends when no node is at the START value
+# An ORDER BY ... DESC on a key column walks the table's global backwards. With a START without STARTINCLUDE on that
+# column, the walk stopped only at a subscript equal to the START value. When the global has no node at that value, the
+# walk went past the first subscript and began again from the last one: the rows repeated up to the LIMIT, and without
+# a LIMIT the query did not end. The walk also returned the nodes before the START value, which are not rows.
+# Each LIMIT below is more than the number of rows the query should return, so that repeated rows would show.
+
+# The global of the READONLY tables of TOB28.sql:
+^TOB28(1,7)="a"
+^TOB28(2,3)="b"
+^TOB28(2,5)="f"
+^TOB28(4,3)="e"
+^TOB28(5,3)="g"
+
+# The queries of TOB28.sql and their results. The comment above each SELECT gives the rows it should return, in
+# order, and [no sort] if its plan should walk the global backwards without sorting; the plans are listed at the end.
+OCTO> -- START 0: no node of ^TOB28 has a = 0
+CREATE TABLE TOB28s0 (a INTEGER START 0, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB28(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+OCTO> -- The table scan: (1,7,a) (2,3,b) (2,5,f) (4,3,e) (5,3,g)
+SELECT * FROM TOB28s0;
+a|b|v
+1|7|a
+2|3|b
+2|5|f
+4|3|e
+5|3|g
+(5 rows)
+OCTO> -- [no sort] The 3 rows with b = 3: (5,3,g) (4,3,e) (2,3,b)
+SELECT * FROM TOB28s0 WHERE b = 3 ORDER BY a DESC LIMIT 5;
+a|b|v
+5|3|g
+4|3|e
+2|3|b
+(3 rows)
+OCTO> -- [no sort] Both key columns descending, all 5 rows: (5,3,g) (4,3,e) (2,5,f) (2,3,b) (1,7,a)
+SELECT * FROM TOB28s0 ORDER BY a DESC, b DESC LIMIT 8;
+a|b|v
+5|3|g
+4|3|e
+2|5|f
+2|3|b
+1|7|a
+(5 rows)
+OCTO> -- START 3: no node has a = 3, and the nodes with a = 1 and a = 2 are before the START, so they are not rows
+CREATE TABLE TOB28s3 (a INTEGER START 3, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB28(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+OCTO> -- The table scan: (4,3,e) (5,3,g)
+SELECT * FROM TOB28s3;
+a|b|v
+4|3|e
+5|3|g
+(2 rows)
+OCTO> -- [no sort] (5,3,g) (4,3,e)
+SELECT * FROM TOB28s3 ORDER BY a DESC LIMIT 5;
+a|b|v
+5|3|g
+4|3|e
+(2 rows)
+OCTO> -- [no sort] No row has b = 5: its only node, (2,5), is before the START
+SELECT * FROM TOB28s3 WHERE b = 5 ORDER BY a DESC LIMIT 5;
+a|b|v
+(0 rows)
+OCTO> -- START 2: the nodes with a = 2 are at the START value, which is not a row either. The walk meets it and ends there.
+CREATE TABLE TOB28s2 (a INTEGER START 2, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB28(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+OCTO> -- The table scan: (4,3,e) (5,3,g)
+SELECT * FROM TOB28s2;
+a|b|v
+4|3|e
+5|3|g
+(2 rows)
+OCTO> -- [no sort] (5,3,g) (4,3,e)
+SELECT * FROM TOB28s2 ORDER BY a DESC LIMIT 5;
+a|b|v
+5|3|g
+4|3|e
+(2 rows)
+OCTO> -- START 2 STARTINCLUDE: the nodes with a = 2 are rows, and the node with a = 1 is not
+CREATE TABLE TOB28s2i (a INTEGER START 2 STARTINCLUDE, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TOB28(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+OCTO> -- The table scan: (2,3,b) (2,5,f) (4,3,e) (5,3,g)
+SELECT * FROM TOB28s2i;
+a|b|v
+2|3|b
+2|5|f
+4|3|e
+5|3|g
+(4 rows)
+OCTO> -- [no sort] (5,3,g) (4,3,e) (2,5,f) (2,3,b)
+SELECT * FROM TOB28s2i ORDER BY a DESC, b DESC LIMIT 8;
+a|b|v
+5|3|g
+4|3|e
+2|5|f
+2|3|b
+(4 rows)
+OCTO> 
+
+# Whether each SELECT plan sorts:
+# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the key FOR loops in ORDER BY order
+# [sort]    : the plan collects and sorts the rows in an OrderBy step
+[no sort] : SELECT * FROM TOB28s0
+[no sort] : SELECT * FROM TOB28s0 ORDER BY a DESC, b DESC LIMIT 8
+[no sort] : SELECT * FROM TOB28s0 WHERE b = 3 ORDER BY a DESC LIMIT 5
+[no sort] : SELECT * FROM TOB28s2
+[no sort] : SELECT * FROM TOB28s2 ORDER BY a DESC LIMIT 5
+[no sort] : SELECT * FROM TOB28s2i
+[no sort] : SELECT * FROM TOB28s2i ORDER BY a DESC, b DESC LIMIT 8
+[no sort] : SELECT * FROM TOB28s3
+[no sort] : SELECT * FROM TOB28s3 ORDER BY a DESC LIMIT 5
+[no sort] : SELECT * FROM TOB28s3 WHERE b = 5 ORDER BY a DESC LIMIT 5

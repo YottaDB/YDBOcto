@@ -436,3 +436,29 @@ OCTO
 	octo -p -f TOB27_input.sql >> output.txt 2>&1
 	verify_output TOB27 output.txt
 }
+
+@test "TOB28 : OCTO1195 : ORDER BY DESC on a key column with START ends when no node is at the START value" {
+	# The reference file starts with the description of the test: the first comment block of TOB28.sql
+	sed -n '/^-- TOB28 /,/^$/p' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB28.sql | sed 's/^-- /# /' >> output.txt
+	echo "# The global of the READONLY tables of TOB28.sql:" >> output.txt
+	yottadb -run %XCMD 'set ^TOB28(1,7)="a",^TOB28(2,3)="b",^TOB28(2,5)="f",^TOB28(4,3)="e",^TOB28(5,3)="g"'
+	yottadb -run %XCMD 'zwrite ^TOB28' >> output.txt
+	echo "" >> output.txt
+	echo "# The queries of TOB28.sql and their results. The comment above each SELECT gives the rows it should return, in" >> output.txt
+	echo "# order, and [no sort] if its plan should walk the global backwards without sorting; the plans are listed at the end." >> output.txt
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TOB28.sql | sed '/^-- TOB28 /,/^$/d' > TOB28_input.sql
+	octo -p -f TOB28_input.sql >> output.txt 2>&1
+	echo "" >> output.txt
+	echo "# Whether each SELECT plan sorts:" >> output.txt
+	echo "# [no sort] : the plan has no OrderBy step, i.e. the rows come out of the key FOR loops in ORDER BY order" >> output.txt
+	echo "# [sort]    : the plan collects and sorts the rows in an OrderBy step" >> output.txt
+	for plan in _ydboctoP*.m; do
+		query=$(grep -m 1 -i '^;  select' $plan | sed 's/^;  //;s/;$//')
+		if grep -q 'KILL.*"OrderBy"' $plan; then
+			echo "[sort]    : $query"
+		else
+			echo "[no sort] : $query"
+		fi
+	done | LC_ALL=C sort >> output.txt
+	verify_output TOB28 output.txt
+}

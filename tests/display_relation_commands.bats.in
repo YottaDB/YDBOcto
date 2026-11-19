@@ -63,7 +63,11 @@ teardown() {
 	octo -f slashd.sql >> slashd.out 2>&1
 	grep xxx slashd.out >> output.txt
 	echo "# Verify no errors exist except for expected ones" >> output.txt
-	grep ERROR *.mje* | grep -vE "ERR_CANNOT_CREATE_TABLE:|ERR_CANNOT_DROP_TABLE:|ERR_DUPLICATE_KEY_VALUE:|ERR_UNKNOWN_TABLE:|ERR_UNKNOWN_TABLE_OR_VIEW:" >> output.txt || true
+	# All 8 processes generate the same plan files, and the concurrent DROP TABLE commands keep deleting them, so a
+	# process can wait more than 5 seconds for the plan file lock (^%ydboctoocto("files",...) obtained by
+	# "src/physical/emit_physical_or_xref_plan.c") on a loaded system. That gives the below error, which is expected.
+	#	ERR_YOTTADB: YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out likely due to a concurrent long-running query.
+	grep ERROR *.mje* | grep -vE "ERR_CANNOT_CREATE_TABLE:|ERR_CANNOT_DROP_TABLE:|ERR_DUPLICATE_KEY_VALUE:|ERR_UNKNOWN_TABLE:|ERR_UNKNOWN_TABLE_OR_VIEW:|ydb_lock_incr_s\(\) call timed out" >> output.txt || true
 	echo "# Verify no core files exist (no assert failures, SIG-11s etc.)" >> output.txt
 	find . -name "core*" >> output.txt
 	verify_output TDRC05 output.txt

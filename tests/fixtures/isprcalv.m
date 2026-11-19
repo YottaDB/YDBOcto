@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2018-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2018-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -28,7 +28,7 @@ isalive;
 	set unix=$ZVersion'["VMS"
 	if unix do
 	.	set alive=0
-	.	set zsystr="ps -p "_pid_" >& /dev/null"
+	.	set zsystr="ps -p "_pid_" > /dev/null"
 	.	zsystem zsystr
 	.	if $zsystem=0 set alive=1
 	if 'unix do

@@ -3,7 +3,7 @@
 ; Copyright (c) 2003-2016 Fidelity National Information		;
 ; Services, Inc. and/or its subsidiaries. All rights reserved.	;
 ;								;
-; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -198,7 +198,7 @@ waitchld;
 	set childalive=njobs
 	if jmaxwait'>0 new jmaxwait set jmaxwait=jdefwait
 	set waitfile="jwait_ps_"_jmjoname_$select(jobid'="":"_"_jobid,1:"")_"_"_$job_".list"
-	set zsywaitchld="ps -ef >& "_waitfile
+	set zsywaitchld="ps -ef > "_waitfile
 	for j=1:1:jmaxwait  do  quit:childalive=0
 	.	if jprint=1 write "$h = ",$h,!
 	.	set childalive=0

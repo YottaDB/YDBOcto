@@ -1454,7 +1454,9 @@ FILE
 			fi
 		}
 		# Set timeout because, e.g. a table without END 'keys("id")=""' loops forever on an empty global such as this job's global.
-		octo_timeout=5  # longest queries take about 1/5th of a second
+		# Longest queries take about 1/5th of a second on an idle runner. But a busy runner can stall one for
+		# several seconds, so allow far more than that. A query that loops forever still hits this limit.
+		octo_timeout=30
 		# Usage: timed_octo outfile octo-arguments...
 		# Runs "octo" with the arguments after "outfile" under the above time limit, with output to "outfile".
 		# Returns octo's exit status. If octo timed out, records an error and returns 124.

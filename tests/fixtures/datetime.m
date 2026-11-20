@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2023-2025 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2023-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -1564,7 +1564,7 @@ getAddExpression()
 	. set month=$piece(date,"-",2)
 	. set day=$piece(date,"-",3)
 	. set day=$piece(day,"'",1)
-	. if (9996<+year) do createDateBoundaryIntegerValueMap set int=map(year,month,day)
+	. if (9996<+year) do createDateBoundaryIntegerValueMap set int=map(year,month,day) if 1
 	. else  set int=$$getInt
 	. if (4=randInt) set result=date_" + "_int
 	. else  if (5=randInt) set result=int_" + "_date
@@ -1880,7 +1880,7 @@ tdtt104
 	set subtest=$zcmdline
 	zwr subtest
 	set isPrimaryKey=$select(""=subtest:0,1:1)
-	if (isPrimaryKey) do datetimemglobal(1) set inputStr="inputprim" write "hello",!
+	if (isPrimaryKey) do datetimemglobal(1) set inputStr="inputprim" write "hello",! if 1
 	else  do datetimemglobal set inputStr="input" write "hellowso",!
 	set cnt=0
 	; Add `"timetz"` after YDBOcto#1044 is fixed

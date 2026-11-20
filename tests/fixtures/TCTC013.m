@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2022 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2022-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -42,9 +42,9 @@ octo770	;
 command	;
 	new rand
 	set rand=$random(8)
-	if rand=0 do select(ncols)
-	else  if rand<3 do insert(ncols)
-	else  if rand<6 do update(ncols)
+	if rand=0 do select(ncols) if 1
+	else  if rand<3 do insert(ncols) if 1
+	else  if rand<6 do update(ncols) if 1
 	else  do delete(ncols)
 	quit
 

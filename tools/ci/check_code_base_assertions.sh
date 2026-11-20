@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -50,4 +50,17 @@ if ! diff -q $mytmpdir/qualify_statement.caselist $mytmpdir/qualify_check_constr
 fi
 
 rm -rf $mytmpdir
+
+# -------------------------------------------------------------------------------------------------------
+# Verify that no ELSE in M code follows a DO or XECUTE with an argument. Such a call does not restore $TEST,
+# so the ELSE can run even after a true IF. End the line with "IF 1" to set $TEST back to 1 after the call.
+# -------------------------------------------------------------------------------------------------------
+offenders=$(git ls-files -z '*.m' | xargs -0 awk -f tools/ci/check_m_else_after_do.awk)
+if [[ -n $offenders ]]; then
+	echo "ERROR: ELSE follows a DO or XECUTE with an argument, which does not restore \$TEST"
+	echo "INFO: End each such call line with \"IF 1\". Offending ELSE lines are listed below"
+	echo "$offenders"
+	exit 1
+fi
+
 exit 0

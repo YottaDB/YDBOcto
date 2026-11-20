@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -99,9 +99,9 @@ verify	;
 	. for  read line($increment(nlines)) quit:$zeof
 	. close mjofile
 	. kill line(nlines) if $increment(nlines,-1)
-	. if i<4 do verifyddl(mjofile,.line,nlines)
+	. if i<4 do verifyddl(mjofile,.line,nlines) if 1
 	. else  do
-	. . if i<6 do verifycatalog(mjofile,.line,nlines)
+	. . if i<6 do verifycatalog(mjofile,.line,nlines) if 1
 	. . else   do verifyselect(mjofile,.line,nlines)
 	quit
 

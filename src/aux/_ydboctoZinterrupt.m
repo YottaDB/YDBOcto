@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2021-2026 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -19,7 +19,7 @@ zintr	; ---------------------------------------------
 	; This way we avoid a runtime error for an unknown ISV if using an older YottaDB build.
 	; ---------------------------------------------
 	NEW zyintrsig
-	IF $PIECE($ZYRELEASE," ",2)]"r1.30" XECUTE "SET zyintrsig=$ZYINTRSIG"
+	IF $PIECE($ZYRELEASE," ",2)]"r1.30" XECUTE "SET zyintrsig=$ZYINTRSIG" IF 1
 	ELSE  SET zyintrsig="SIGUSR2"
 	IF zyintrsig="SIGUSR1" DO
 	.	; If user has defined env var "ydb_zinterrupt" then use it else use $ZJOBEXAM as default $zinterrupt

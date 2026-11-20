@@ -1712,7 +1712,7 @@ regexmatch(str,regexstr,regextype,regexflags)
 	SET pvrs=$GET(%ydboctoregex("result"))
 	SET pvpln=$GET(%ydboctoregex("plan"))
 	IF ((regexstr=pvstr)&(regextype=pvpln)) DO  QUIT ret
-	. IF ("error"=pvrs) DO throwregexerr(regexstr)
+	. IF ("error"=pvrs) DO throwregexerr(regexstr) IF 1
 	. ELSE  IF (".*"=pvrs) SET ret=1
 	. ELSE  IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,pvrs)
 	. ELSE  SET ret=$$regmatch^%ydbposix(str,pvrs,regexflags)

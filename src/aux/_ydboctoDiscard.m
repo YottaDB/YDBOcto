@@ -35,7 +35,7 @@ discardALL	;
 	NEW tableOrViewName
 	; Go through list of all tables and views
 	SET tableOrViewName="" FOR  SET tableOrViewName=$ORDER(^%ydboctoschema(tableOrViewName))  QUIT:""=tableOrViewName  DO
-	. if ("view"=$GET(^%ydboctoschema(tableOrViewName))) DO discardView(tableOrViewName)
+	. if ("view"=$GET(^%ydboctoschema(tableOrViewName))) DO discardView(tableOrViewName) IF 1
 	. else  DO discardTable(tableOrViewName) ;  For each table discard plan/xref/triggers
 	; At this point all derived data should have been removed but it is possible some still remain
 	; in case of application integrity error situation (e.g. for some tableOrViewName say TABLE, ^%ydboctoschema(TABLE)
@@ -81,7 +81,7 @@ discardXREFTable(tableName)
 	. .  ; UNXREFSUB^%YDBAIM removes. All key columns of a table share one when their type agrees, so the second
 	. .  ; one finds it gone: the KILL below then finds nothing.
 	. .  IF $DATA(@aimgbl)#10  DO
-	. . .  IF $EXTRACT($QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0),1,9)="^%ydbAIMS" DO UNXREFSUB^%YDBAIM(aimgbl)
+	. . .  IF $EXTRACT($QSUBSCRIPT(^%ydbAIMOctoCache(tableName,column,"location"),0),1,9)="^%ydbAIMS" DO UNXREFSUB^%YDBAIM(aimgbl) IF 1
 	. . .  ELSE  DO UNXREFDATA^%YDBAIM(aimgbl)
 	. .  ELSE  KILL @aimgbl
 	. .  KILL ^%ydbAIMOctoCache(tableName,column)

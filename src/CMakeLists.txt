@@ -92,12 +92,13 @@ else()
 	set(fetch_ydbaim 1)
 endif()
 if(fetch_ydbaim)
-	# Fixed commit (the YDBAIM master of 2026-11-16, the first with the depth parameter of XREFSUB(), YDBAIM#104,
-	# which the cross references of key columns, YDBOcto#660, need); see the YDBPosix GIT_TAG note above.
+	# Fixed commit (the YDBAIM master of 2026-11-20, the first where a subscript range whose two ends are the same
+	# value is not treated as a constant, YDBAIM#106, which a key column with the same START and ENDPOINT,
+	# YDBOcto#1203, needs); see the YDBPosix GIT_TAG note above.
 	# Update it when a newer YDBAIM matters to Octo.
 	FetchContent_Declare(YDBAIM
 		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBAIM.git
-		GIT_TAG	       fd4556c59860ea5f282498ca6c9d3c178a42eb09
+		GIT_TAG	       88c543a421c67803c2ab835b6a88bcd1dd1d0962
 		)
 	FetchContent_MakeAvailable(YDBAIM)
 	# The following sets ydbaim_BINARY_DIR, where _ydbaim.so (and utf8/_ydbaim.so) are built

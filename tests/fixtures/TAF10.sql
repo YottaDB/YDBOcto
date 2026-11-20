@@ -584,12 +584,12 @@ SELECT * FROM TAF10hp;
 SELECT MIN(k), MAX(k) FROM TAF10hp;
 -- [reads every row] the same, through every row
 SELECT MIN(k), MAX(k) FROM TAF10hp WHERE 1 = 1;
--- A key column whose range has one value (START 1 STARTINCLUDE ENDPOINT 1): AIM takes such a subscript to be a constant
--- and leaves it out of the cross reference, so MIN/MAX read every row
+-- A key column whose range has one value (START 1 STARTINCLUDE ENDPOINT 1): its subscript is in the cross references,
+-- like that of any other key column (YDBAIM#106), so MIN/MAX read the first or last value of each cross reference
 CREATE TABLE TAF10s1v (a INTEGER START 1 STARTINCLUDE ENDPOINT 1, b INTEGER, v VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TAF10s(keys(""a""),keys(""b""))" READONLY;
 -- The rows: 1|1|m and 1|9|z
 SELECT * FROM TAF10s1v;
--- [reads every row] a 1 and 1, b 1 and 9, v m and z
+-- [one value] a 1 and 1, b 1 and 9, v m and z
 SELECT MIN(a), MAX(a), MIN(b), MAX(b), MIN(v), MAX(v) FROM TAF10s1v;
 -- [reads every row] the same, through every row
 SELECT MIN(a), MAX(a), MIN(b), MAX(b), MIN(v), MAX(v) FROM TAF10s1v WHERE 1 = 1;

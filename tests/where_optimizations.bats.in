@@ -457,3 +457,29 @@ CAT
 	run_queries_with_plans TWO24_input.sql oneprocess
 	verify_output TWO24 output.txt nodatetimefilter noinfo nodebug
 }
+
+@test "TWO25 : OCTO1203 : A key column whose START and ENDPOINT are the same value keeps its subscript in the AIM cross references" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# START x STARTINCLUDE ENDPOINT x limits a key column to the one value x. Octo gives AIM the range x:x for such a key" >> output.txt
+	echo "# column, and looks for the subscript of every key column in a cross reference. AIM used to take the range x:x to be" >> output.txt
+	echo "# a constant subscript, and to leave it out of the cross reference (YDBAIM#106): a query that used a cross reference" >> output.txt
+	echo "# of such a table then returned no rows." >> output.txt
+	echo "# Each statement below is followed by its result, and each SELECT by the plan Octo chose. The comment above each" >> output.txt
+	echo "# query states the rows it should give and the plan: [xref on <column>] when it uses the cross reference of that" >> output.txt
+	echo "# column, [no key column xref] when it reads the table's global, and [one value] when MIN/MAX read the first or last" >> output.txt
+	echo "# value of each cross reference. The PLAN: line says:" >> output.txt
+	echo "#   xref:  the columns whose AIM cross reference the plan walks or probes" >> output.txt
+	echo "#   fixed: the keys that the WHERE fixes to one value; (walk) for a key fixed to each value of a range in turn." >> output.txt
+	echo "#          A fixed cross reference key is listed too." >> output.txt
+	echo "#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort])." >> output.txt
+	load_fixture xecutemcode.sql
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TWO25.sql > TWO25_input.sql
+	run_queries_with_plans TWO25_input.sql oneprocess
+	echo "" >> output.txt
+	echo "# The subscripts of the globals that AIM's triggers watch, to maintain the cross references that the queries above" >> output.txt
+	echo "# built (from mupip trigger -select). A key column that is limited to one value x is the range x:x there, not the" >> output.txt
+	echo "# constant x: AIM keeps its subscript in the cross reference." >> output.txt
+	$ydb_dist/mupip trigger -select TWO25trig.txt > /dev/null 2>&1
+	grep -oE '^\+\^TWO25[a-e]\([^ ]*' TWO25trig.txt | sort -u >> output.txt
+	verify_output TWO25 output.txt noinfo nodebug
+}

@@ -1,0 +1,370 @@
+# TWO25 : OCTO1203 : A key column whose START and ENDPOINT are the same value keeps its subscript in the AIM cross references
+# START x STARTINCLUDE ENDPOINT x limits a key column to the one value x. Octo gives AIM the range x:x for such a key
+# column, and looks for the subscript of every key column in a cross reference. AIM used to take the range x:x to be
+# a constant subscript, and to leave it out of the cross reference (YDBAIM#106): a query that used a cross reference
+# of such a table then returned no rows.
+# Each statement below is followed by its result, and each SELECT by the plan Octo chose. The comment above each
+# query states the rows it should give and the plan: [xref on <column>] when it uses the cross reference of that
+# column, [no key column xref] when it reads the table's global, and [one value] when MIN/MAX read the first or last
+# value of each cross reference. The PLAN: line says:
+#   xref:  the columns whose AIM cross reference the plan walks or probes
+#   fixed: the keys that the WHERE fixes to one value; (walk) for a key fixed to each value of a range in turn.
+#          A fixed cross reference key is listed too.
+#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort]).
+
+-- ############################################################################################################
+-- Part A: the first key column is limited to one value: "a" is 1 (START 1 STARTINCLUDE ENDPOINT 1). The table has the
+-- rows of ^TWO25a(1,b), and not those of ^TWO25a(2,b).
+SELECT XECUTE_M_CODE('set ^TWO25a(1,1)="11|p1",^TWO25a(1,2)="12|q2",^TWO25a(1,3)="13|p3",^TWO25a(2,1)="21|p4",^TWO25a(2,2)="22|q5",^TWO25a(2,3)="23|p6"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TWO25a');
+^TWO25a(1,1)="11|p1"
+^TWO25a(1,2)="12|q2"
+^TWO25a(1,3)="13|p3"
+^TWO25a(2,1)="21|p4"
+^TWO25a(2,2)="22|q5"
+^TWO25a(2,3)="23|p6"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TWO25a (a INTEGER START 1 STARTINCLUDE ENDPOINT 1, b INTEGER, v INTEGER PIECE 1, s VARCHAR PIECE 2, PRIMARY KEY (a, b)) GLOBAL "^TWO25a(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: 1|1|11|p1, 1|2|12|q2 and 1|3|13|p3
+SELECT * FROM TWO25a;
+a|b|v|s
+1|1|11|p1
+1|2|12|q2
+1|3|13|p3
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- A condition on "b", the key column after "a"
+-- [xref on b] 1|2|12|q2
+SELECT * FROM TWO25a WHERE b = 2;
+a|b|v|s
+1|2|12|q2
+(1 row)
+PLAN: xref: two25a.b fixed: two25a.b
+
+-- [xref on b] 1|1|11|p1 and 1|3|13|p3
+SELECT * FROM TWO25a WHERE b IN (1, 3);
+a|b|v|s
+1|1|11|p1
+1|3|13|p3
+(2 rows)
+PLAN: xref: two25a.b fixed: two25a.b
+
+-- [xref on b] 1|2|12|q2 and 1|3|13|p3
+SELECT * FROM TWO25a WHERE b > 1 ORDER BY b;
+a|b|v|s
+1|2|12|q2
+1|3|13|p3
+(2 rows)
+PLAN: [sort] xref: two25a.b fixed: two25a.b (walk)
+
+-- [xref on b] 1|3|13|p3
+SELECT * FROM TWO25a WHERE b > 1 ORDER BY b DESC LIMIT 1;
+a|b|v|s
+1|3|13|p3
+(1 row)
+PLAN: [sort] xref: two25a.b fixed: two25a.b (walk)
+
+-- [xref on b] no row: b = 4 is not in the table
+SELECT * FROM TWO25a WHERE b = 4;
+a|b|v|s
+(0 rows)
+PLAN: xref: two25a.b fixed: two25a.b
+
+-- A condition on "v" and on "s", which are not key columns
+-- [xref on v] 1|2|12|q2
+SELECT * FROM TWO25a WHERE v = 12;
+a|b|v|s
+1|2|12|q2
+(1 row)
+PLAN: xref: two25a.v fixed: two25a.v
+
+-- [xref on v] 1|2|12|q2 and 1|3|13|p3
+SELECT * FROM TWO25a WHERE v >= 12;
+a|b|v|s
+1|2|12|q2
+1|3|13|p3
+(2 rows)
+PLAN: xref: two25a.v fixed: two25a.v (walk)
+
+-- [xref on v] no row: v = 22 is in ^TWO25a(2,2), which is not a row of the table
+SELECT * FROM TWO25a WHERE v = 22;
+a|b|v|s
+(0 rows)
+PLAN: xref: two25a.v fixed: two25a.v
+
+-- [xref on s] 1|1|11|p1 and 1|3|13|p3
+SELECT * FROM TWO25a WHERE s LIKE 'p%';
+a|b|v|s
+1|1|11|p1
+1|3|13|p3
+(2 rows)
+PLAN: xref: two25a.s fixed: two25a.s (walk)
+
+-- [xref on s] the two last rows by s: 1|2|12|q2 and 1|3|13|p3
+SELECT * FROM TWO25a ORDER BY s DESC LIMIT 2;
+a|b|v|s
+1|2|12|q2
+1|3|13|p3
+(2 rows)
+PLAN: [no sort, descending walk] xref: two25a.s fixed: none
+
+-- A join whose ON fixes "b" of the second table
+-- [xref on b and v] 12|12
+SELECT x.v, y.v FROM TWO25a x INNER JOIN TWO25a y ON y.b = x.b WHERE x.v = 12;
+v|v
+12|12
+(1 row)
+PLAN: xref: two25a.b two25a.v fixed: two25a.b two25a.v
+
+-- [no key column xref] "a" and "b" both have a condition: the row is read from ^TWO25a. 1|2|12|q2
+SELECT * FROM TWO25a WHERE a = 1 AND b = 2;
+a|b|v|s
+1|2|12|q2
+(1 row)
+PLAN: xref: none fixed: two25a.a two25a.b
+
+-- [one value] 1 and 1, 1 and 3, 11 and 13, p1 and q2
+SELECT MIN(a), MAX(a), MIN(b), MAX(b), MIN(v), MAX(v), MIN(s), MAX(s) FROM TWO25a;
+min|max|min|max|min|max|min|max
+1|1|1|3|11|13|p1|q2
+(1 row)
+PLAN: [one value] xref: two25a.a two25a.b two25a.s two25a.v fixed: none
+
+-- ############################################################################################################
+-- Part B: a VARCHAR first key column that is limited to one value: "a" is 'abc'
+SELECT XECUTE_M_CODE('set ^TWO25b("abb",1)="x",^TWO25b("abc",1)="y",^TWO25b("abc",2)="z",^TWO25b("abd",1)="w"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TWO25b');
+^TWO25b("abb",1)="x"
+^TWO25b("abc",1)="y"
+^TWO25b("abc",2)="z"
+^TWO25b("abd",1)="w"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TWO25b (a VARCHAR START '"abc"' STARTINCLUDE ENDPOINT '"abc"', b INTEGER, s VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TWO25b(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: abc|1|y and abc|2|z
+SELECT * FROM TWO25b;
+a|b|s
+abc|1|y
+abc|2|z
+(2 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] abc|1|y
+SELECT * FROM TWO25b WHERE b = 1;
+a|b|s
+abc|1|y
+(1 row)
+PLAN: xref: two25b.b fixed: two25b.b
+
+-- [xref on s] abc|2|z
+SELECT * FROM TWO25b WHERE s = 'z';
+a|b|s
+abc|2|z
+(1 row)
+PLAN: xref: two25b.s fixed: two25b.s
+
+-- [xref on s] no row: 'x' is in ^TWO25b("abb",1), which is not a row of the table
+SELECT * FROM TWO25b WHERE s = 'x';
+a|b|s
+(0 rows)
+PLAN: xref: two25b.s fixed: two25b.s
+
+-- [xref on a] abc|1|y and abc|2|z
+SELECT * FROM TWO25b WHERE a LIKE 'ab%';
+a|b|s
+abc|1|y
+abc|2|z
+(2 rows)
+PLAN: xref: two25b.a fixed: two25b.a (walk)
+
+-- [one value] abc and abc, 1 and 2, y and z
+SELECT MIN(a), MAX(a), MIN(b), MAX(b), MIN(s), MAX(s) FROM TWO25b;
+min|max|min|max|min|max
+abc|abc|1|2|y|z
+(1 row)
+PLAN: [one value] xref: two25b.a two25b.b two25b.s fixed: none
+
+-- ############################################################################################################
+-- Part C: the last key column is limited to one value: "b" is 2. The table has the rows of ^TWO25c(a,2).
+SELECT XECUTE_M_CODE('set ^TWO25c(1,1)="k",^TWO25c(1,2)="l",^TWO25c(2,2)="m",^TWO25c(3,2)="l",^TWO25c(3,3)="n"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TWO25c');
+^TWO25c(1,1)="k"
+^TWO25c(1,2)="l"
+^TWO25c(2,2)="m"
+^TWO25c(3,2)="l"
+^TWO25c(3,3)="n"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TWO25c (a INTEGER, b INTEGER START 2 STARTINCLUDE ENDPOINT 2, s VARCHAR PIECE 1, PRIMARY KEY (a, b)) GLOBAL "^TWO25c(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the rows of the table: 1|2|l, 2|2|m and 3|2|l
+SELECT * FROM TWO25c;
+a|b|s
+1|2|l
+2|2|m
+3|2|l
+(3 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] the three rows
+SELECT * FROM TWO25c WHERE b = 2;
+a|b|s
+1|2|l
+2|2|m
+3|2|l
+(3 rows)
+PLAN: xref: two25c.b fixed: two25c.b
+
+-- [xref on b] no row: b = 3 is in ^TWO25c(3,3), which is not a row of the table
+SELECT * FROM TWO25c WHERE b = 3;
+a|b|s
+(0 rows)
+PLAN: xref: two25c.b fixed: two25c.b
+
+-- [xref on s] 1|2|l and 3|2|l
+SELECT * FROM TWO25c WHERE s = 'l';
+a|b|s
+1|2|l
+3|2|l
+(2 rows)
+PLAN: xref: two25c.s fixed: two25c.s
+
+-- [xref on s] no row: 'n' is in ^TWO25c(3,3), which is not a row of the table
+SELECT * FROM TWO25c WHERE s = 'n';
+a|b|s
+(0 rows)
+PLAN: xref: two25c.s fixed: two25c.s
+
+-- [one value] 1 and 3, 2 and 2, l and m
+SELECT MIN(a), MAX(a), MIN(b), MAX(b), MIN(s), MAX(s) FROM TWO25c;
+min|max|min|max|min|max
+1|3|2|2|l|m
+(1 row)
+PLAN: [one value] xref: two25c.a two25c.b two25c.s fixed: none
+
+-- ############################################################################################################
+-- Part D: the only key column is limited to one value: "id" is 8. The table has one row.
+SELECT XECUTE_M_CODE('set ^TWO25d(7)="g",^TWO25d(8)="h",^TWO25d(9)="i"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TWO25d');
+^TWO25d(7)="g"
+^TWO25d(8)="h"
+^TWO25d(9)="i"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TWO25d (id INTEGER PRIMARY KEY START 8 STARTINCLUDE ENDPOINT 8, s VARCHAR PIECE 1) GLOBAL "^TWO25d(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] the row of the table: 8|h
+SELECT * FROM TWO25d;
+id|s
+8|h
+(1 row)
+PLAN: xref: none fixed: none
+
+-- [xref on s] 8|h
+SELECT * FROM TWO25d WHERE s = 'h';
+id|s
+8|h
+(1 row)
+PLAN: xref: two25d.s fixed: two25d.s
+
+-- [xref on s] no row: 'i' is in ^TWO25d(9), which is not a row of the table
+SELECT * FROM TWO25d WHERE s = 'i';
+id|s
+(0 rows)
+PLAN: xref: two25d.s fixed: two25d.s
+
+-- [one value] 8 and 8, h and h
+SELECT MIN(id), MAX(id), MIN(s), MAX(s) FROM TWO25d;
+min|max|min|max
+8|8|h|h
+(1 row)
+PLAN: [one value] xref: two25d.s fixed: none
+
+-- ############################################################################################################
+-- Part E: START and ENDPOINT are the same value, without STARTINCLUDE. START is then not a value of "a", so the table
+-- has no row.
+SELECT XECUTE_M_CODE('set ^TWO25e(1,1)="11|p1",^TWO25e(1,2)="12|q2",^TWO25e(2,1)="21|p4"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TWO25e');
+^TWO25e(1,1)="11|p1"
+^TWO25e(1,2)="12|q2"
+^TWO25e(2,1)="21|p4"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TWO25e (a INTEGER START 1 ENDPOINT 1, b INTEGER, v INTEGER PIECE 1, s VARCHAR PIECE 2, PRIMARY KEY (a, b)) GLOBAL "^TWO25e(keys(""a""),keys(""b""))" READONLY;
+CREATE TABLE
+
+-- [no key column xref] no row
+SELECT * FROM TWO25e;
+a|b|v|s
+(0 rows)
+PLAN: xref: none fixed: none
+
+-- [xref on b] no row
+SELECT * FROM TWO25e WHERE b = 2;
+a|b|v|s
+(0 rows)
+PLAN: xref: two25e.b fixed: two25e.b
+
+-- [xref on v] no row
+SELECT * FROM TWO25e WHERE v = 12;
+a|b|v|s
+(0 rows)
+PLAN: xref: two25e.v fixed: two25e.v
+
+-- [one value] no value: every MIN and MAX is NULL
+SELECT MIN(b), MAX(b), MIN(v), MAX(v) FROM TWO25e;
+min|max|min|max
+|||
+(1 row)
+PLAN: [one value] xref: two25e.b two25e.v fixed: none
+
+# The subscripts of the globals that AIM's triggers watch, to maintain the cross references that the queries above
+# built (from mupip trigger -select). A key column that is limited to one value x is the range x:x there, not the
+# constant x: AIM keeps its subscript in the cross reference.
++^TWO25a(sub1=1:1)
++^TWO25a(sub1=1:1,sub2=*)
++^TWO25b(sub1="abc":"abc")
++^TWO25b(sub1="abc":"abc",sub2=*)
++^TWO25c(sub1=*)
++^TWO25c(sub1=*,sub2=2:2)
++^TWO25d(sub1=8:8)
++^TWO25e(sub1=1:1)
++^TWO25e(sub1=1:1,sub2=*)

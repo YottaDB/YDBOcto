@@ -12,42 +12,9 @@
 
 #include <assert.h>
 
-#include <string.h>
-
 #include "octo.h"
 #include "octo_types.h"
 #include "physical_plan.h"
-
-/* Test if a key column has a START (with STARTINCLUDE) and an ENDPOINT of the same value
- *
- * Returns TRUE if a key column of the table that "pplan" reads has START with STARTINCLUDE, and ENDPOINT, the same value.
- * AIM builds a cross reference over the range "START:ENDPOINT" of each key column, and takes a range of one value to be a
- * constant subscript: it leaves it out of the cross reference (%YDBAIM-F-ALLCONST if no other subscript is left), so the
- * key subscripts of the cross reference are not those of every key column.
- */
-static boolean_t has_single_value_key_range(PhysicalPlan *pplan) {
-	unsigned int i;
-
-	for (i = 0; i < pplan->total_iter_keys; i++) {
-		SqlOptionalKeyword *start_keyword, *endpoint_keyword;
-		SqlColumn	   *key_column;
-		SqlValue	   *start_value, *endpoint_value;
-
-		key_column = pplan->iterKeys[i]->column;
-		start_keyword = get_keyword(key_column, OPTIONAL_START);
-		endpoint_keyword = get_keyword(key_column, OPTIONAL_ENDPOINT);
-		if ((NULL == start_keyword) || (NULL == endpoint_keyword)
-		    || (NULL == get_keyword(key_column, OPTIONAL_STARTINCLUDE))) {
-			continue; /* An exclusive START, or no START or ENDPOINT: the range has more than one value */
-		}
-		UNPACK_SQL_STATEMENT(start_value, start_keyword->v, value);
-		UNPACK_SQL_STATEMENT(endpoint_value, endpoint_keyword->v, value);
-		if (0 == strcmp(start_value->v.string_literal, endpoint_value->v.string_literal)) {
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
 
 /* Test if a key column keyword excludes entries of a cross reference that MIN/MAX cannot walk past
  *
@@ -218,9 +185,6 @@ boolean_t is_octo617_optimization_possible(PhysicalPlan *pplan) {
 					 */
 					assert(FALSE);
 					return FALSE;
-				}
-				if (has_single_value_key_range(pplan)) {
-					return FALSE; /* AIM cross references no subscript of such a key column (see above) */
 				}
 				if (0 == get_column_global_key_prefix(aggr_column, table)) {
 					/* The column's own GLOBAL lists no key column: one node holds the value of every row, and

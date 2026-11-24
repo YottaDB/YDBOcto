@@ -1083,10 +1083,10 @@ postgres_cluster_on_primary_key() {
 }
 
 # Appends to output.txt the PLAN: line of the statement in the file "$1", whose plan is the file "$2" (see
-# "run_queries_with_plans()" below). Nothing for a statement that is not a SELECT, UPDATE or DELETE, or that calls
+# "run_queries_with_plans()" below). "$3" is "check" to end the line with whether a condition is checked on each row. Nothing for a statement that is not a SELECT, UPDATE or DELETE, or that calls
 # XECUTE_M_CODE (one that sets up or shows a global).
 print_plan_line() {
-	local stmt=$1 plan=$2 label xrefs fixed
+	local stmt=$1 plan=$2 show_check=$3 label xrefs fixed
 	if ! grep -qiE '^(select|update|delete) ' $stmt || grep -q XECUTE_M_CODE $stmt; then
 		return
 	fi
@@ -1119,14 +1119,26 @@ print_plan_line() {
 		label=""	# Without an ORDER BY, there is no sort to avoid
 	elif grep -q '"OrderBy"' $plan; then
 		label="[sort]"
-	elif (( walk )) && grep -qE '\$ORDER\(\^%ydbAIM[SD][^ ]*,-1\)' $plan; then
+	elif (( walk )) && grep -qE '\$ORDER\(\^%ydbAIM[SD][^ ]*,-1\)|FOR  SET %ydboctozkeyfix\([0-9]+,[0-9]+\)=\$ORDER\([^ ]*,-1\)' $plan; then
 		label="[no sort, descending walk]"
 	elif (( walk )); then
 		label="[no sort, ascending walk]"
 	else
 		label="[no sort]"
 	fi
-	echo "PLAN:${label:+ $label} xref: ${xrefs:-none} fixed: ${fixed:-none}" >> output.txt
+	# A condition of the WHERE or ON that no key fixes is checked on each row: the plan evaluates it between
+	# "SET %ydboctoexpr=1" and "DO:%ydboctoexpr", which are otherwise on consecutive lines. Looked for in the whole plan,
+	# sub-queries included. The same two lines around the GroupBy node of a query with a GROUP BY or an aggregate
+	# function hold its HAVING, which is not a check of a row.
+	local check=""
+	if [[ $show_check == "check" ]]; then
+		if awk '/^ *(\. )*SET %ydboctoexpr=1$/ { marker = 1; next } marker && !/^ *(\. )*DO:%ydboctoexpr$/ && !/"GroupBy"\)=/ { found = 1 } { marker = 0 } END { exit !found }' $plan; then
+			check=" check: on each row"
+		else
+			check=" check: none"
+		fi
+	fi
+	echo "PLAN:${label:+ $label} xref: ${xrefs:-none} fixed: ${fixed:-none}$check" >> output.txt
 }
 
 # Runs the statements of the SQL file "$1" and appends each to output.txt, for a reader of the reference file: a blank
@@ -1143,6 +1155,9 @@ print_plan_line() {
 # and the keys that the WHERE or ON fixes ("fixed: none" if none): <table>.<column> for a key fixed to one value (e.g.
 # "x = 3", whose FOR loop then runs once), with "(walk)" for a key fixed to each value of a range or LIKE prefix in turn.
 # A cross reference key that is fixed is listed too (e.g. "v = 'P'" probes the cross reference of v at 'P').
+# Last, with "$3" set to "check": "check: on each row" if a condition of the WHERE or ON is still checked on each row (a
+# condition that no key fixes, e.g. "id > 9" in "id > 3 AND id > 9", where the walk of id starts after 3), and
+# "check: none" otherwise.
 # The comment above each statement states the plan and the rows it should give, so that a reader can check both.
 # "$2":
 #   ""           each statement runs in its own octo process
@@ -1177,7 +1192,7 @@ run_queries_with_plans() {
 			cat $stmt.out >> output.txt
 			plan=$(grep -oE '_ydboctoP[A-Za-z0-9]+\.m' $stmt.vv | tail -1)
 		fi
-		print_plan_line $stmt $plan
+		print_plan_line $stmt $plan "$3"
 		if [[ "vv" == "$2" ]] && grep -qiE '^select ' $stmt; then
 			grep -E -e '- (order_by_xref_walk|key_column_xref|desc): true' $stmt.vv >> output.txt
 		fi

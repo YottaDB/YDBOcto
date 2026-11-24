@@ -1275,7 +1275,7 @@ Indexes
 
   An index of a column serves:
 
-  * a :code:`WHERE` or :code:`ON` condition that compares the column with :code:`=`, :code:`IN`, :code:`<`, :code:`>`, :code:`<=`, :code:`>=` or :code:`IS NULL`, in a :code:`SELECT`, :code:`UPDATE` or :code:`DELETE`;
+  * a :code:`WHERE` or :code:`ON` condition that compares the column with :code:`=`, :code:`IN`, :code:`<`, :code:`>`, :code:`<=`, :code:`>=`, :code:`BETWEEN` or :code:`IS NULL`, in a :code:`SELECT`, :code:`UPDATE` or :code:`DELETE`;
   * a :code:`LIKE` whose pattern starts with literal text, such as :code:`'Roo%'` (for :code:`ILIKE`, see the details below);
   * an :code:`ORDER BY` of the column: the rows are read in the order of the index, and :code:`LIMIT` stops as soon as it has that many rows;
   * :code:`MIN` and :code:`MAX` of the column: they are the first and the last value of the index, so the query reads only those two values.
@@ -1283,6 +1283,7 @@ Indexes
   .. code-block:: SQL
 
      SELECT * FROM USPresidents WHERE LastYear = 1945;
+     SELECT * FROM USPresidents WHERE BirthYear BETWEEN 1880 AND 1890;
      SELECT * FROM USPresidents WHERE LastName LIKE 'Roo%';
      SELECT * FROM USPresidents ORDER BY BirthYear DESC LIMIT 3;
      SELECT MIN(DeathYear), MAX(DeathYear) FROM USPresidents;

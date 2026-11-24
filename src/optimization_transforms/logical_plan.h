@@ -125,6 +125,14 @@ typedef enum {
 	((KEY)->is_cross_reference_key && (NULL != (KEY)->column) && IS_KEY_COLUMN((KEY)->column) && (NULL != (KEY)->table) \
 	 && IS_XREF_VALUE_TRANSFORMED((KEY)->table, (KEY)->column))
 
+/* Test if a key fixing comparison is a range: "<", "<=", ">" or ">=" */
+#define IS_KEY_FIX_RANGE_TYPE(TYPE)                                                                                            \
+	((LP_BOOLEAN_LESS_THAN == (TYPE)) || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == (TYPE)) || (LP_BOOLEAN_GREATER_THAN == (TYPE)) \
+	 || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == (TYPE)))
+
+/* Test if a range comparison is a lower bound: ">" or ">=" (an upper bound is "<" or "<=") */
+#define IS_KEY_FIX_LOWER_BOUND(TYPE) ((LP_BOOLEAN_GREATER_THAN == (TYPE)) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == (TYPE)))
+
 /* Test if a key column has a keyword that excludes entries of an AIM cross reference from the table
  *
  * TRUE if the key column KEY_COLUMN excludes from the table subscripts that an AIM cross reference indexes: START without
@@ -448,6 +456,17 @@ typedef struct SqlKey {
 					     *	LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX
 					     *	LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK
 					     * Uninitialized if "fixed_to_value" is NULL.
+					     */
+	LogicalPlan *fixed_to_value2;	    /* The other bound of a range (YDBOcto#1020). Non-NULL only if "fixed_to_value_type" is
+					     * one of LP_BOOLEAN_LESS_THAN etc. above, and another condition of the WHERE or ON
+					     * bounds the key from the other side. E.g. "id BETWEEN 3 AND 5", which is "id >= 3
+					     * AND id <= 5": "fixed_to_value" is 3 (LP_BOOLEAN_GREATER_THAN_OR_EQUALS) and
+					     * "fixed_to_value2" is 5 (LP_BOOLEAN_LESS_THAN_OR_EQUALS). The walk of the key then
+					     * starts at one bound and ends at the other.
+					     */
+	LPActionType fixed_to_value2_type;  /* The comparison of "fixed_to_value2", the opposite direction to that of
+					     * "fixed_to_value_type" (LP_BOOLEAN_LESS_THAN or LP_BOOLEAN_LESS_THAN_OR_EQUALS for
+					     * LP_BOOLEAN_GREATER_THAN, and so on). Uninitialized if "fixed_to_value2" is NULL.
 					     */
 } SqlKey;
 

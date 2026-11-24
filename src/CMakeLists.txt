@@ -592,6 +592,7 @@ set(template_files
   ${template_dir}/tmpl_key_dollardata_check.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key_finish.ctemplate
+  ${template_dir}/tmpl_key_range_past_end.ctemplate
   ${template_dir}/tmpl_key_skip.ctemplate
   ${template_dir}/tmpl_skip_test.ctemplate
   ${template_dir}/tmpl_key_source.ctemplate

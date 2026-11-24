@@ -194,6 +194,14 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4, key->fixed_to_value, plan);
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*sfix_type: %s\n", depth + 4, "",
 				      lp_action_type_str[key->fixed_to_value_type]);
+			if (NULL != key->fixed_to_value2) {
+				/* The other bound of a range (YDBOcto#1020) */
+				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- value2:\n", depth, "");
+				buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4,
+							     key->fixed_to_value2, plan);
+				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*sfix_type2: %s\n", depth + 4, "",
+					      lp_action_type_str[key->fixed_to_value2_type]);
+			}
 		}
 		break;
 	case LP_COLUMN_LIST:

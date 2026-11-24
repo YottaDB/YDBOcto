@@ -300,6 +300,7 @@ TEMPLATE(tmpl_octo617_xref_walk_test, Octo617Xref *xref, SqlKey *lvn_key, SqlOpt
 TEMPLATE(tmpl_group_by, PhysicalPlan *pplan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_finish, SqlKey *key);
+TEMPLATE(tmpl_key_range_past_end, SqlKey *key, int cur_key, LPActionType type, boolean_t negate);
 TEMPLATE(tmpl_like_prefix_init, PhysicalPlan *pplan);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key_skip, SqlKey *key, SqlKey *xref_key, int dot_count);

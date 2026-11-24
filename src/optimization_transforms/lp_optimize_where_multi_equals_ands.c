@@ -295,6 +295,54 @@ static boolean_t use_key_column_xref(LogicalPlan *plan, SqlKey *key, SqlTableAli
 	return TRUE;
 }
 
+/* Return the comparison of a condition as it applies to the key it fixes
+ *
+ * The key is the left operand of the comparison "type". If the operands were swapped to make it so ("operands_swapped"), a
+ * range comparison is reversed: "5 > id" is "id < 5". Any other comparison ("=", IN etc.) is returned as is.
+ */
+static LPActionType get_key_fix_type(LPActionType type, boolean_t operands_swapped) {
+	if (!operands_swapped) {
+		return type;
+	}
+	switch (type) {
+	case LP_BOOLEAN_LESS_THAN:
+		return LP_BOOLEAN_GREATER_THAN;
+	case LP_BOOLEAN_GREATER_THAN:
+		return LP_BOOLEAN_LESS_THAN;
+	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+		return LP_BOOLEAN_GREATER_THAN_OR_EQUALS;
+	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+		return LP_BOOLEAN_LESS_THAN_OR_EQUALS;
+	default:
+		return type;
+	}
+}
+
+/* Test if a range condition bounds a key from the side its range is still open
+ *
+ * Returns TRUE if an earlier condition fixed "key" to a range ("<", "<=", ">" or ">=") of the column "column" of the table
+ * "unique_id", and the comparison "type" on that column bounds it from the other side (YDBOcto#1020). E.g. "id >= 3" fixed
+ * the key of "id", and "id <= 5" is the other bound: the walk of the key then starts at 3 and ends at 5, where it would
+ * otherwise go on to the end of the table's global or cross reference.
+ */
+static boolean_t is_other_bound_of_range(SqlKey *key, LPActionType type, SqlColumn *column, int unique_id) {
+	if ((LP_KEY_FIX != key->type) || (NULL != key->fixed_to_value2)) {
+		return FALSE; /* The key is not fixed yet, or its range has both bounds already */
+	}
+	if ((key->column != column) || (key->unique_id != unique_id)) {
+		/* Another key of the table. "lp_get_key()" returns a fixed key of the table for a column that has no key. */
+		return FALSE;
+	}
+	if (!IS_KEY_FIX_RANGE_TYPE(key->fixed_to_value_type) || !IS_KEY_FIX_RANGE_TYPE(type)) {
+		return FALSE; /* The key takes one value at a time ("=", IN or IS), or a LIKE prefix, or this is no range */
+	}
+	if (IS_KEY_FIX_LOWER_BOUND(key->fixed_to_value_type) == IS_KEY_FIX_LOWER_BOUND(type)) {
+		/* A bound on the side that is already bounded (e.g. "id > 3 AND id > 5"): it is checked on each row */
+		return FALSE;
+	}
+	return TRUE;
+}
+
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
 					 boolean_t num_outer_joins) {
 	int	    *key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
@@ -465,6 +513,16 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	table_alias = NULL;  /* needed to avoid incorrect [-Wmaybe-uninitialized] C compiler warning */
 	column_alias = NULL; /* needed to avoid incorrect [-Wmaybe-uninitialized] C compiler warning */
 	switch (left->type) {
+	case LP_NEGATIVE:
+	case LP_FORCE_NUM:
+		/* A sign before a value or a parameter (e.g. "-1", which the parser makes a unary minus of the literal 1,
+		 * YDBOcto#1020) is a value too: the plan computes it once, before the FOR loop of the key. A sign before
+		 * anything else (e.g. "-v") is not.
+		 */
+		if (LP_VALUE != left->v.lp_default.operand[0]->type) {
+			return where; /* A sign before a column or an expression: no key to fix */
+		}
+		/* fall through */
 	case LP_VALUE:
 		left_id = 0;
 		break;
@@ -489,6 +547,16 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	}
 
 	switch (right->type) {
+	case LP_NEGATIVE:
+	case LP_FORCE_NUM:
+		/* A sign before a value or a parameter (e.g. "-1", which the parser makes a unary minus of the literal 1,
+		 * YDBOcto#1020) is a value too: the plan computes it once, before the FOR loop of the key. A sign before
+		 * anything else (e.g. "-v") is not.
+		 */
+		if (LP_VALUE != right->v.lp_default.operand[0]->type) {
+			return where; /* A sign before a column or an expression: no key to fix */
+		}
+		/* fall through */
 	case LP_VALUE:
 		right_id = 0;
 		break;
@@ -636,8 +704,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			}
 		} else {
 			// Both left and right are values.
-			assert(LP_VALUE == left->type);
-			assert(LP_VALUE == right->type);
+			assert((LP_VALUE == left->type) || (LP_NEGATIVE == left->type) || (LP_FORCE_NUM == left->type));
+			assert((LP_VALUE == right->type) || (LP_NEGATIVE == right->type) || (LP_FORCE_NUM == right->type));
 			/* This is one of the following cases.
 			 *	WHERE 5=5		-> LP_BOOLEAN_EQUALS
 			 *	WHERE 5<3		-> LP_BOOLEAN_LESS_THAN
@@ -813,10 +881,19 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			return where;
 		}
 	}
-	/* See if we can fix the key (`left` variable) to `right` variable. Note that we can't fix keys that are already fixed,
-	 * or keys that are part of a cross reference iteration. Hence the `if` check below.
+	/* The comparison as it applies to the key: "5 > id" bounds "id" as "id < 5" does */
+	LPActionType fixed_type;
+	fixed_type = get_key_fix_type(type, operands_swapped);
+
+	/* A key that is already fixed to one bound of a range can also take the other bound (YDBOcto#1020) */
+	boolean_t is_second_bound;
+	is_second_bound = is_other_bound_of_range(key, fixed_type, column, table_alias->unique_id);
+
+	/* See if we can fix the key (`left` variable) to `right` variable. Note that we can't fix keys that are already fixed
+	 * (other than with the second bound of a range), or keys that are part of a cross reference iteration. Hence the `if`
+	 * check below.
 	 */
-	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
+	if (((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) || is_second_bound) {
 		boolean_t remove_lp_boolean_equals;
 
 		if (is_null) {
@@ -832,28 +909,14 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 			right->v.lp_value.value = value;
 			assert(IS_NULL_FIXED_VALUE(right));
 		}
-		key->fixed_to_value = right;
-		key->type = LP_KEY_FIX;
-		if (!operands_swapped) {
-			key->fixed_to_value_type = type;
+		if (is_second_bound) {
+			/* The key's walk ends at this bound, instead of at the end of the global or cross reference */
+			key->fixed_to_value2 = right;
+			key->fixed_to_value2_type = fixed_type;
 		} else {
-			switch (type) {
-			case LP_BOOLEAN_LESS_THAN:
-				key->fixed_to_value_type = LP_BOOLEAN_GREATER_THAN;
-				break;
-			case LP_BOOLEAN_GREATER_THAN:
-				key->fixed_to_value_type = LP_BOOLEAN_LESS_THAN;
-				break;
-			case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-				key->fixed_to_value_type = LP_BOOLEAN_GREATER_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-				key->fixed_to_value_type = LP_BOOLEAN_LESS_THAN_OR_EQUALS;
-				break;
-			default:
-				key->fixed_to_value_type = type;
-				break;
-			}
+			key->fixed_to_value = right;
+			key->type = LP_KEY_FIX;
+			key->fixed_to_value_type = fixed_type;
 		}
 		/* Anytime a "LP_BOOLEAN_EQUALS etc." is mentioned below, it implies actually any one of the following
 		 *	LP_BOOLEAN_EQUALS

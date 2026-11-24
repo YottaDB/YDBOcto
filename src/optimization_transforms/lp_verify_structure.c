@@ -212,10 +212,17 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		case LP_KEY_FIX:
 			ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1]) || (NULL == key)
 				|| (NULL == key->fixed_to_value));
+			/* The second bound of a range (YDBOcto#1020) bounds the key from the side opposite to the first */
+			ret = ret
+			      && ((NULL == key->fixed_to_value2)
+				  || (IS_KEY_FIX_RANGE_TYPE(key->fixed_to_value_type)
+				      && IS_KEY_FIX_RANGE_TYPE(key->fixed_to_value2_type)
+				      && (IS_KEY_FIX_LOWER_BOUND(key->fixed_to_value_type)
+					  != IS_KEY_FIX_LOWER_BOUND(key->fixed_to_value2_type))));
 			break;
 		case LP_KEY_ADVANCE:
 			ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1]) || (NULL == key)
-				|| (NULL != key->fixed_to_value));
+				|| (NULL != key->fixed_to_value) || (NULL != key->fixed_to_value2));
 			break;
 		case LP_INVALID_ACTION:
 			/* This has to be the output key in an xref plan (generated in "lp_generate_xref_plan.c") */

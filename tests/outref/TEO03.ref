@@ -748,15 +748,14 @@ octoPlan4(cursorId)
     DO
     . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",4))
     SET %ydboctozkeyfix(5,0)=%ydboctoexpr
-    DO  IF '$ZYISSQLNULL(%ydboctozkeyfix(5,0)) FOR  SET %ydboctozkeyfix(5,0)=$$aimsubs2strcolval^%ydboctoplanhelpers($ORDER(^%ydbAIMDvKTj9bb0YsFdMpzcSMPIHJ(1,("#"_(%ydboctozkeyfix(5,0)))))) QUIT:(%ydboctozkeyfix(5,0)="")!(%ydboctozkeyfix(5,0)="")  DO
+    DO
+    . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
+    SET %ydboctozkeyfix(5,0,1)=%ydboctoexpr
+    IF '$ZYISSQLNULL(%ydboctozkeyfix(5,0)),'$ZYISSQLNULL(%ydboctozkeyfix(5,0,1)) DO:%ydboctozkeyfix(5,0)']%ydboctozkeyfix(5,0,1)  FOR  SET %ydboctozkeyfix(5,0)=$$aimsubs2strcolval^%ydboctoplanhelpers($ORDER(^%ydbAIMDvKTj9bb0YsFdMpzcSMPIHJ(1,("#"_(%ydboctozkeyfix(5,0)))))) QUIT:(%ydboctozkeyfix(5,0)="")!(%ydboctozkeyfix(5,0)]%ydboctozkeyfix(5,0,1))  DO
     . SET %ydboctocursor(cursorId,"keys",5,"products","productname")=%ydboctozkeyfix(5,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",5,"products","productname")) IF $DATA(^%ydbAIMDvKTj9bb0YsFdMpzcSMPIHJ(1,("#"_(%ydboctocursor(cursorId,"keys",5,"products","productname"))))) DO
     . . SET %ydboctocursor(cursorId,"keys",5,"products","productid")=""
     . . FOR  SET %ydboctocursor(cursorId,"keys",5,"products","productid")=$ORDER(^%ydbAIMDvKTj9bb0YsFdMpzcSMPIHJ(1,("#"_(%ydboctocursor(cursorId,"keys",5,"products","productname"))),%ydboctocursor(cursorId,"keys",5,"products","productid"))) QUIT:(%ydboctocursor(cursorId,"keys",5,"products","productid")="")  DO
     . . . SET %ydboctoexpr=1
-    . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",5,"products","productname")
-    . . . SET %ydboctoexpr(1)=%ydboctoexpr
-    . . . SET %ydboctoexpr=$GET(%ydboctocursor(cursorId,"parameters",5))
-    . . . SET %ydboctoexpr=%ydboctoexpr(1)']%ydboctoexpr
     . . . DO:%ydboctoexpr
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",15,"","")) %ydboctoz=42
     . . . . SET %ydboctoexpr=$PIECE($GET(^Products(%ydboctocursor(cursorId,"keys",5,"products","productid"))),"|",3) SET:(""=%ydboctoexpr) %ydboctoexpr=$ZYSQLNULL

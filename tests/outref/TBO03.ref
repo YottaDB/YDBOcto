@@ -1,0 +1,18 @@
+# A range whose bounds are bind parameters ($1, $2), sent by a Go program (tests/go/src/TBO03) with Parse and
+# Bind messages, through rocto and to PostgreSQL. Each statement is followed by the ids of its rows.
+id BETWEEN $1 AND $2 bound to (1, 3)
+  -> [1,2,3]
+id BETWEEN $1 AND $2 bound to (3, 7)
+  -> [3,4,5]
+id BETWEEN $1 AND $2 bound to (3, 1)
+  -> []
+id < $1 AND id >= $2 bound to (5, 2)
+  -> [2,3,4]
+id BETWEEN $1 AND $2 ORDER BY id DESC LIMIT 2 bound to (1, 4)
+  -> [4,3]
+firstname BETWEEN $1 AND $2 bound to ('A', 'M')
+  -> [1,2,4,3]
+id > $1 AND id <= 5 bound to (3)
+  -> [4,5]
+# Compare with PostgreSQL:
+Same as PostgreSQL

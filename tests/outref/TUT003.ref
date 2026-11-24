@@ -119,7 +119,7 @@ _ydboctoP*.m:;  SELECT * FROM composite where name >= ' ';
 _ydboctoP*.m:;; ---------------------------------------------------------
 _ydboctoP*.m:octoPlan0(cursorId,wrapInTp)
 _ydboctoP*.m:octoPlan1(cursorId)
-_ydboctoP*.m:    DO  IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0)) FOR  SET %ydboctozkeyfix(1,0)=$$aimsubs2strcolval^%ydboctoplanhelpers($ORDER(^%ydbAIMDduGD7DTuqLFSzRCacMHYG1(0,("#"_(%ydboctozkeyfix(1,0)))))) QUIT:(%ydboctozkeyfix(1,0)="")!(%ydboctozkeyfix(1,0)="")  DO
+_ydboctoP*.m:    IF '$ZYISSQLNULL(%ydboctozkeyfix(1,0)) DO  FOR  SET %ydboctozkeyfix(1,0)=$$aimsubs2strcolval^%ydboctoplanhelpers($ORDER(^%ydbAIMDduGD7DTuqLFSzRCacMHYG1(0,("#"_(%ydboctozkeyfix(1,0)))))) QUIT:(%ydboctozkeyfix(1,0)="")!(%ydboctozkeyfix(1,0)="")  DO
 _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"composite","name")=%ydboctozkeyfix(1,0) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"composite","name")) IF $DATA(^%ydbAIMDduGD7DTuqLFSzRCacMHYG1(0,("#"_(%ydboctocursor(cursorId,"keys",1,"composite","name"))))) DO
 _ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",1,"composite","id0")=""
 _ydboctoP*.m:    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"composite","id0")=$ORDER(^%ydbAIMDduGD7DTuqLFSzRCacMHYG1(0,("#"_(%ydboctocursor(cursorId,"keys",1,"composite","name"))),%ydboctocursor(cursorId,"keys",1,"composite","id0"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"composite","id0")="")  DO

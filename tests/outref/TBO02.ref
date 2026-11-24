@@ -1,0 +1,1610 @@
+# TBO02 : OCTO1020 : Key fixing ends the walk of a range with a lower and an upper bound at the upper bound
+# Key fixing walks a range on a column, e.g. id BETWEEN 3 AND 5 or id >= 3 AND id < 5, from one bound to the other:
+# the subscripts of the table's global for a key column, those of its AIM cross reference otherwise. The walk used
+# to end only at the end of the global or cross reference: the upper bound was checked on each value.
+# Each statement below is followed by its result, and each SELECT by the plan Octo chose (PLAN:). The comment
+# above each query states the rows it should give and the walk: [walk 3 to 5] for a walk from 3 to 5 (from 5
+# down to 3 in descending order), [walk from 3] or [walk to 5] for a range with one bound, and [no walk] when no
+# key is walked over a range. The PLAN: line says:
+#   xref:  the columns whose AIM cross reference the plan walks or probes
+#   fixed: the keys that the WHERE or ON fixes; (walk) for a key fixed to each value of a range in turn
+#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort], and the direction of the
+#   walk).
+#   check: "on each row" if a condition of the WHERE or ON is still checked on each row, "none" otherwise. A walk
+#   that ends at its upper bound no longer checks that bound on each row.
+
+-- ############################################################################################################
+-- Part A: the key column of a READONLY table with one key column. A range on it walks the table's global from one
+-- bound to the other. The table has the 12 rows id = 1 to 12, with v = 10 * id.
+SELECT XECUTE_M_CODE('for id=1:1:12 set ^TBO02a(id)=10*id');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02a');
+^TBO02a(1)=10
+^TBO02a(2)=20
+^TBO02a(3)=30
+^TBO02a(4)=40
+^TBO02a(5)=50
+^TBO02a(6)=60
+^TBO02a(7)=70
+^TBO02a(8)=80
+^TBO02a(9)=90
+^TBO02a(10)=100
+^TBO02a(11)=110
+^TBO02a(12)=120
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02a (id INTEGER PRIMARY KEY, v INTEGER PIECE 1) GLOBAL "^TBO02a(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 12 rows
+SELECT * FROM TBO02a;
+id|v
+1|10
+2|20
+3|30
+4|40
+5|50
+6|60
+7|70
+8|80
+9|90
+10|100
+11|110
+12|120
+(12 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 3 to 5] 3|30, 4|40 and 5|50. The walk starts at 3, steps to 4 and 5, and ends at 6, past 5: no condition is
+-- left to check on each row. A walk that ended only at the end of the global would step through 6 to 12, and check
+-- "id <= 5" on each row.
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 5;
+id|v
+3|30
+4|40
+5|50
+(3 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 5] the same range written as two conditions, the upper bound first, and as "5 >= id AND 3 <= id"
+SELECT * FROM TBO02a WHERE id <= 5 AND id >= 3;
+id|v
+3|30
+4|40
+5|50
+(3 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+SELECT * FROM TBO02a WHERE 5 >= id AND 3 <= id;
+id|v
+3|30
+4|40
+5|50
+(3 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 5] "5 > id AND 3 < id", both bounds not included: 4|40
+SELECT * FROM TBO02a WHERE 5 > id AND 3 < id;
+id|v
+4|40
+(1 row)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 5] the bounds included or not: 3|30 and 4|40; 4|40 and 5|50; 4|40
+SELECT * FROM TBO02a WHERE id >= 3 AND id < 5;
+id|v
+3|30
+4|40
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+SELECT * FROM TBO02a WHERE id > 3 AND id <= 5;
+id|v
+4|40
+5|50
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+SELECT * FROM TBO02a WHERE id > 3 AND id < 5;
+id|v
+4|40
+(1 row)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 3] 3|30
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 3;
+id|v
+3|30
+(1 row)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 3] no row: the range is empty
+SELECT * FROM TBO02a WHERE id > 3 AND id <= 3;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 5 to 3] no row: the lower bound is above the upper one. The walk skips 5, which is past the end bound, and its
+-- first step ends it. This query has the plan of "id BETWEEN 3 AND 5" above: Octo makes the literals of a query its
+-- parameters, so the plan cannot assume the bounds are in order.
+SELECT * FROM TBO02a WHERE id BETWEEN 5 AND 3;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3.5 to 5.5] 4|40 and 5|50: the walk starts at 3.5, which is not a row
+SELECT * FROM TBO02a WHERE id BETWEEN 3.5 AND 5.5;
+id|v
+4|40
+5|50
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk -100 to 2] 1|10 and 2|20: the walk starts before the first row. -100 is the minus of the literal 100, which
+-- the walk computes once, as it does a value.
+SELECT * FROM TBO02a WHERE id BETWEEN -100 AND 2;
+id|v
+1|10
+2|20
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk -100 to 2] the same with "+2", the plus of the literal 2
+SELECT * FROM TBO02a WHERE id >= -100 AND id <= +2;
+id|v
+1|10
+2|20
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk -3 to -1] no row: no id is negative
+SELECT * FROM TBO02a WHERE id BETWEEN -3 AND -1;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk -100 to 2] the sign on the left of the comparison: "-100 <= id" is the same bound as "id >= -100"
+SELECT * FROM TBO02a WHERE -100 <= id AND id <= 2;
+id|v
+1|10
+2|20
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk to 5] 1|10 to 5|50: "-v" is the minus of a column, not of a value, so "id > -v" is checked on each row
+SELECT * FROM TBO02a WHERE id > -v AND id <= 5;
+id|v
+1|10
+2|20
+3|30
+4|40
+5|50
+(5 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk to 5] the same with "-v" on the left of the comparison: "-v < id" is checked on each row
+SELECT * FROM TBO02a WHERE -v < id AND id <= 5;
+id|v
+1|10
+2|20
+3|30
+4|40
+5|50
+(5 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk to 2] a comparison of two values fixes no key, and is checked on each row: 1|10 and 2|20
+SELECT * FROM TBO02a WHERE -1 < 0 AND id <= 2;
+id|v
+1|10
+2|20
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk 11 to 100] 11|110 and 12|120: the walk ends at the end of the global
+SELECT * FROM TBO02a WHERE id BETWEEN 11 AND 100;
+id|v
+11|110
+12|120
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 5 down to 3] ORDER BY id DESC walks the range backward, from 5: 5|50, 4|40 and 3|30, with no sort
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 5 ORDER BY id DESC;
+id|v
+5|50
+4|40
+3|30
+(3 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 5 down to 3] 3 not included: 5|50 and 4|40
+SELECT * FROM TBO02a WHERE id > 3 AND id <= 5 ORDER BY id DESC;
+id|v
+5|50
+4|40
+(2 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk from 3, down] one upper bound in a descending walk: the walk starts at 3 (included or not) and goes down to the
+-- first row: 3|30, 2|20 and 1|10; then 2|20 and 1|10
+SELECT * FROM TBO02a WHERE id <= 3 ORDER BY id DESC;
+id|v
+3|30
+2|20
+1|10
+(3 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02a.id (walk) check: none
+
+SELECT * FROM TBO02a WHERE id < 3 ORDER BY id DESC;
+id|v
+2|20
+1|10
+(2 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 9] LIMIT 2: 3|30 and 4|40. The walk stops at the LIMIT.
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 9 LIMIT 2;
+id|v
+3|30
+4|40
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 9 down to 3] LIMIT 2: 9|90 and 8|80
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 9 ORDER BY id DESC LIMIT 2;
+id|v
+9|90
+8|80
+(2 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 3 to 9] COUNT, MIN and MAX of the rows in the range: 7, 30 and 90
+SELECT COUNT(*), MIN(v), MAX(v) FROM TBO02a WHERE id BETWEEN 3 AND 9;
+count(*)|min|max
+7|30|90
+(1 row)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk to 3, and walk from 10] NOT BETWEEN is "id < 3 OR id > 10". Octo runs each side of the OR as a query of its
+-- own, a walk with one bound: 1|10, 2|20, 11|110 and 12|120
+SELECT * FROM TBO02a WHERE id NOT BETWEEN 3 AND 10;
+id|v
+1|10
+2|20
+11|110
+12|120
+(4 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk from 3] two lower bounds: the walk starts at 3, the first one, and goes on to the end of the global. "id > 9"
+-- is checked on each row: 10|100, 11|110 and 12|120
+SELECT * FROM TBO02a WHERE id > 3 AND id > 9;
+id|v
+10|100
+11|110
+12|120
+(3 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk to 5] two upper bounds: the walk starts at the first row and ends at 5. "id < 3" is checked on each row:
+-- 1|10 and 2|20
+SELECT * FROM TBO02a WHERE id < 5 AND id < 3;
+id|v
+1|10
+2|20
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk 3 to 5] a third bound is checked on each row: "id > 4" gives 5|50
+SELECT * FROM TBO02a WHERE id >= 3 AND id <= 5 AND id > 4;
+id|v
+5|50
+(1 row)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk 3 to 5] "id = 4" comes after the range, and is checked on each row: 4|40
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 5 AND id = 4;
+id|v
+4|40
+(1 row)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [no walk] "id = 4" comes first and fixes the key to 4. The range is checked on that row: 4|40
+SELECT * FROM TBO02a WHERE id = 4 AND id BETWEEN 3 AND 5;
+id|v
+4|40
+(1 row)
+PLAN: xref: none fixed: tbo02a.id check: on each row
+
+-- [walk 3 to 9] "id IN (2, 4, 9)" comes after the range, and is checked on each row: 4|40 and 9|90
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 9 AND id IN (2, 4, 9);
+id|v
+4|40
+9|90
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk 3 to 9] "id <> 5" and the range on v are checked on each row: 4|40 and 6|60
+SELECT * FROM TBO02a WHERE id BETWEEN 3 AND 9 AND id <> 5 AND v BETWEEN 40 AND 60;
+id|v
+4|40
+6|60
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk 3 to NULL] a bound that is NULL: no row, and no read
+SELECT * FROM TBO02a WHERE id >= 3 AND id < NULL;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [no walk] "id >= NULL" is never true: no row, and no read
+SELECT * FROM TBO02a WHERE id BETWEEN NULL AND 5;
+id|v
+(0 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk from 3] a bound that is an expression of the key column itself is checked on each row: 3|30, 4|40 and 5|50
+SELECT * FROM TBO02a WHERE id >= 3 AND id + 0 <= 5;
+id|v
+3|30
+4|40
+5|50
+(3 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk from 3] "v <= 60" is on another column: it does not end the walk of id, and is checked on each row: 3|30, 4|40,
+-- 5|50 and 6|60
+SELECT * FROM TBO02a WHERE id >= 3 AND v <= 60;
+id|v
+3|30
+4|40
+5|50
+6|60
+(4 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- ############################################################################################################
+-- Part B: an INTEGER column that is not a key column. A range on it walks its AIM cross reference from one bound to
+-- the other: the values of v in order, and under each one the ids of its rows. Two rows have v = 30, and two have no v
+-- (NULL).
+SELECT XECUTE_M_CODE('set ^TBO02b(1)=50,^TBO02b(2)=10,^TBO02b(3)=30,^TBO02b(4)="",^TBO02b(5)=30,^TBO02b(6)=70');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('set ^TBO02b(7)=20,^TBO02b(8)=90,^TBO02b(9)=40,^TBO02b(10)=60,^TBO02b(11)="",^TBO02b(12)=80');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02b');
+^TBO02b(1)=50
+^TBO02b(2)=10
+^TBO02b(3)=30
+^TBO02b(4)=""
+^TBO02b(5)=30
+^TBO02b(6)=70
+^TBO02b(7)=20
+^TBO02b(8)=90
+^TBO02b(9)=40
+^TBO02b(10)=60
+^TBO02b(11)=""
+^TBO02b(12)=80
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02b (id INTEGER PRIMARY KEY, v INTEGER PIECE 1) GLOBAL "^TBO02b(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 12 rows
+SELECT * FROM TBO02b;
+id|v
+1|50
+2|10
+3|30
+4|
+5|30
+6|70
+7|20
+8|90
+9|40
+10|60
+11|
+12|80
+(12 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 30 to 60] in the order of v: 3|30, 5|30, 9|40, 1|50 and 10|60.
+SELECT * FROM TBO02b WHERE v BETWEEN 30 AND 60;
+id|v
+3|30
+5|30
+9|40
+1|50
+10|60
+(5 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 30 to 60] the bounds not included: 9|40 and 1|50
+SELECT * FROM TBO02b WHERE v > 30 AND v < 60;
+id|v
+9|40
+1|50
+(2 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 60 to 30] no row
+SELECT * FROM TBO02b WHERE v BETWEEN 60 AND 30;
+id|v
+(0 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 35 to 55] bounds that are not values of v: 9|40 and 1|50
+SELECT * FROM TBO02b WHERE v BETWEEN 35 AND 55;
+id|v
+9|40
+1|50
+(2 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 30 to 60] ORDER BY v DESC: the plan sorts the rows of the walk. (The cross reference of an INTEGER column of a
+-- READONLY table is not in SQL order when the table holds a value that is not a canonical number, e.g. 010, YDBOcto#1168.
+-- Part H walks one in descending order.) 10|60, 1|50, 9|40, then the two rows with 30
+SELECT * FROM TBO02b WHERE v BETWEEN 30 AND 60 ORDER BY v DESC;
+id|v
+10|60
+1|50
+9|40
+3|30
+5|30
+(5 rows)
+PLAN: [sort] xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 30 to 60] LIMIT 2, after the sort: 10|60 and 1|50
+SELECT * FROM TBO02b WHERE v BETWEEN 30 AND 60 ORDER BY v DESC LIMIT 2;
+id|v
+10|60
+1|50
+(2 rows)
+PLAN: [sort] xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk to 30] one bound: the walk starts at the first value of v, and ends at 30. The NULL values of v are not in a
+-- range: 2|10, 7|20, 3|30 and 5|30
+SELECT * FROM TBO02b WHERE v <= 30;
+id|v
+2|10
+7|20
+3|30
+5|30
+(4 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 30 to NULL] a bound that is NULL: no row
+SELECT * FROM TBO02b WHERE v > 30 AND v < NULL;
+id|v
+(0 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none
+
+-- [walk 30 to 60] the range on v comes first and walks its cross reference. The range on id is checked on each row:
+-- 3|30, 5|30 and 1|50
+SELECT * FROM TBO02b WHERE v BETWEEN 30 AND 60 AND id BETWEEN 1 AND 5;
+id|v
+3|30
+5|30
+1|50
+(3 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: on each row
+
+-- [walk 1 to 5] the range on id comes first and walks the table's global. The range on v is checked on each row:
+-- 1|50, 3|30 and 5|30
+SELECT * FROM TBO02b WHERE id BETWEEN 1 AND 5 AND v BETWEEN 30 AND 60;
+id|v
+1|50
+3|30
+5|30
+(3 rows)
+PLAN: xref: none fixed: tbo02b.id (walk) check: on each row
+
+-- ############################################################################################################
+-- Part C: a VARCHAR column that is not a key column. Its AIM cross reference holds each value as "#"_value, so the
+-- values are in SQL order there, including those that look like numbers: '10' < '2' < '9' < 'Apple' < 'apple'.
+SELECT XECUTE_M_CODE('set ^TBO02c(1)="apple",^TBO02c(2)="10",^TBO02c(3)="9",^TBO02c(4)="banana",^TBO02c(5)=""');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('set ^TBO02c(6)="cherry",^TBO02c(7)="2",^TBO02c(8)="date",^TBO02c(9)="Apple",^TBO02c(10)="fig"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('set ^TBO02c(11)="banana",^TBO02c(12)="grape"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02c');
+^TBO02c(1)="apple"
+^TBO02c(2)=10
+^TBO02c(3)=9
+^TBO02c(4)="banana"
+^TBO02c(5)=""
+^TBO02c(6)="cherry"
+^TBO02c(7)=2
+^TBO02c(8)="date"
+^TBO02c(9)="Apple"
+^TBO02c(10)="fig"
+^TBO02c(11)="banana"
+^TBO02c(12)="grape"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02c (id INTEGER PRIMARY KEY, s VARCHAR PIECE 1) GLOBAL "^TBO02c(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 12 rows. Row 5 has no s (NULL).
+SELECT * FROM TBO02c;
+id|s
+1|apple
+2|10
+3|9
+4|banana
+5|
+6|cherry
+7|2
+8|date
+9|Apple
+10|fig
+11|banana
+12|grape
+(12 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 'b' to 'd'] 4|banana, 11|banana and 6|cherry ('date' is after 'd').
+SELECT * FROM TBO02c WHERE s BETWEEN 'b' AND 'd';
+id|s
+4|banana
+11|banana
+6|cherry
+(3 rows)
+PLAN: xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk '1' to '9'] the values that look like numbers are compared as strings: 2|10, 7|2 and 3|9
+SELECT * FROM TBO02c WHERE s BETWEEN '1' AND '9';
+id|s
+2|10
+7|2
+3|9
+(3 rows)
+PLAN: xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk '10' to 'apple'] both bounds not included: 7|2, 3|9 and 9|Apple
+SELECT * FROM TBO02c WHERE s > '10' AND s < 'apple';
+id|s
+7|2
+3|9
+9|Apple
+(3 rows)
+PLAN: xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk 'g' down to 'c'] ORDER BY s DESC walks backward, from 'g': 10|fig, 8|date and 6|cherry
+SELECT * FROM TBO02c WHERE s BETWEEN 'c' AND 'g' ORDER BY s DESC;
+id|s
+10|fig
+8|date
+6|cherry
+(3 rows)
+PLAN: [no sort, descending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk 'fig' down to 'cherry'] 'cherry' not included: 10|fig and 8|date
+SELECT * FROM TBO02c WHERE s > 'cherry' AND s <= 'fig' ORDER BY s DESC;
+id|s
+10|fig
+8|date
+(2 rows)
+PLAN: [no sort, descending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk 'fig' to 'c'] no row
+SELECT * FROM TBO02c WHERE s > 'fig' AND s < 'c';
+id|s
+(0 rows)
+PLAN: xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk 'c' down to 'fig'] no row, in descending order
+SELECT * FROM TBO02c WHERE s > 'fig' AND s < 'c' ORDER BY s DESC;
+id|s
+(0 rows)
+PLAN: [no sort, descending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk from 'date', down] one bound in a descending walk: the walk starts at the last value: 12|grape, 10|fig, 8|date
+SELECT * FROM TBO02c WHERE s >= 'date' ORDER BY s DESC;
+id|s
+12|grape
+10|fig
+8|date
+(3 rows)
+PLAN: [no sort, descending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk from 'date'] one lower bound in an ascending walk, included or not: 8|date, 10|fig and 12|grape; then 10|fig and
+-- 12|grape
+SELECT * FROM TBO02c WHERE s >= 'date' ORDER BY s;
+id|s
+8|date
+10|fig
+12|grape
+(3 rows)
+PLAN: [no sort, ascending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+SELECT * FROM TBO02c WHERE s > 'date' ORDER BY s;
+id|s
+10|fig
+12|grape
+(2 rows)
+PLAN: [no sort, ascending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk from 'apple', down] one upper bound in a descending walk, included or not: 1|apple, 9|Apple, 3|9, 7|2 and 2|10;
+-- then 9|Apple, 3|9, 7|2 and 2|10
+SELECT * FROM TBO02c WHERE s <= 'apple' ORDER BY s DESC;
+id|s
+1|apple
+9|Apple
+3|9
+7|2
+2|10
+(5 rows)
+PLAN: [no sort, descending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+SELECT * FROM TBO02c WHERE s < 'apple' ORDER BY s DESC;
+id|s
+9|Apple
+3|9
+7|2
+2|10
+(4 rows)
+PLAN: [no sort, descending walk] xref: tbo02c.s fixed: tbo02c.s (walk) check: none
+
+-- [walk '' to 'b'] a bound that is the empty string, which Octo takes as NULL: no row. The same range with the bound
+-- on each row (s || '' is not the column, so its cross reference is not used) gives no row either.
+SELECT * FROM TBO02c WHERE s >= '' AND s < 'b';
+id|s
+(0 rows)
+PLAN: xref: tbo02c.s fixed: none check: none
+
+SELECT * FROM TBO02c WHERE s || '' >= '' AND s || '' < 'b';
+id|s
+(0 rows)
+PLAN: xref: none fixed: none check: on each row
+
+-- [walk 'a' to 'bananas'] the range comes first, the LIKE is checked on each row: 1|apple
+SELECT * FROM TBO02c WHERE s >= 'a' AND s < 'bananas' AND s LIKE 'a%';
+id|s
+1|apple
+(1 row)
+PLAN: xref: tbo02c.s fixed: tbo02c.s (walk) check: on each row
+
+-- [walk 'b%'] the LIKE comes first and walks the values that start with 'b'. The range is checked on each row:
+-- 4|banana and 11|banana
+SELECT * FROM TBO02c WHERE s LIKE 'b%' AND s >= 'a' AND s < 'bananas';
+id|s
+4|banana
+11|banana
+(2 rows)
+PLAN: xref: tbo02c.s fixed: tbo02c.s (walk) check: on each row
+
+-- ############################################################################################################
+-- Part D: a table with two key columns, g and k. A range on k, the key column after the first, walks the AIM cross
+-- reference of k (YDBOcto#660), from one bound to the other. With a condition on g, k is walked in the table's global
+-- under each g instead. The table has the rows g = 1 to 3, k = 1 to 10, with v = 100 * g + k.
+SELECT XECUTE_M_CODE('for g=1:1:3 for k=1:1:10 set ^TBO02d(g,k)=100*g+k');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02d(1,*)');
+^TBO02d(1,1)=101
+^TBO02d(1,2)=102
+^TBO02d(1,3)=103
+^TBO02d(1,4)=104
+^TBO02d(1,5)=105
+^TBO02d(1,6)=106
+^TBO02d(1,7)=107
+^TBO02d(1,8)=108
+^TBO02d(1,9)=109
+^TBO02d(1,10)=110
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02d (g INTEGER, k INTEGER, v INTEGER PIECE 1, PRIMARY KEY (g, k)) GLOBAL "^TBO02d(keys(""g""),keys(""k""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 30 rows
+SELECT * FROM TBO02d;
+g|k|v
+1|1|101
+1|2|102
+1|3|103
+1|4|104
+1|5|105
+1|6|106
+1|7|107
+1|8|108
+1|9|109
+1|10|110
+2|1|201
+2|2|202
+2|3|203
+2|4|204
+2|5|205
+2|6|206
+2|7|207
+2|8|208
+2|9|209
+2|10|210
+3|1|301
+3|2|302
+3|3|303
+3|4|304
+3|5|305
+3|6|306
+3|7|307
+3|8|308
+3|9|309
+3|10|310
+(30 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 4 to 6 of the cross reference of k] 9 rows: g = 1 to 3 with k = 4, then with k = 5, then with k = 6.
+SELECT * FROM TBO02d WHERE k BETWEEN 4 AND 6;
+g|k|v
+1|4|104
+2|4|204
+3|4|304
+1|5|105
+2|5|205
+3|5|305
+1|6|106
+2|6|206
+3|6|306
+(9 rows)
+PLAN: xref: tbo02d.k fixed: tbo02d.k (walk) check: none
+
+-- [walk 8 to 9 of the cross reference of k] 1|9|109, 2|9|209 and 3|9|309
+SELECT * FROM TBO02d WHERE k > 8 AND k <= 9;
+g|k|v
+1|9|109
+2|9|209
+3|9|309
+(3 rows)
+PLAN: xref: tbo02d.k fixed: tbo02d.k (walk) check: none
+
+-- [walk 4 to 6 of the cross reference of k] ORDER BY k DESC: the rows with k = 6, then 5, then 4. The plan sorts them,
+-- as in Part B (YDBOcto#1168). Part H walks the cross reference of a key column in descending order.
+SELECT * FROM TBO02d WHERE k BETWEEN 4 AND 6 ORDER BY k DESC;
+g|k|v
+1|6|106
+2|6|206
+3|6|306
+1|5|105
+2|5|205
+3|5|305
+1|4|104
+2|4|204
+3|4|304
+(9 rows)
+PLAN: [sort] xref: tbo02d.k fixed: tbo02d.k (walk) check: none
+
+-- [walk 4 to 6 under g = 2] 2|4|204, 2|5|205 and 2|6|206
+SELECT * FROM TBO02d WHERE g = 2 AND k BETWEEN 4 AND 6;
+g|k|v
+2|4|204
+2|5|205
+2|6|206
+(3 rows)
+PLAN: xref: none fixed: tbo02d.g tbo02d.k (walk) check: none
+
+-- [walk 2 to 3, and 9 to 10 under each] both key columns are walked in the table's global, each from one bound to the
+-- other: 2|9|209, 2|10|210, 3|9|309 and 3|10|310
+SELECT * FROM TBO02d WHERE g BETWEEN 2 AND 3 AND k BETWEEN 9 AND 10;
+g|k|v
+2|9|209
+2|10|210
+3|9|309
+3|10|310
+(4 rows)
+PLAN: xref: none fixed: tbo02d.g (walk) tbo02d.k (walk) check: none
+
+-- ############################################################################################################
+-- Part E: a FileMan TIMESTAMP key column after the first, under a constant subscript. Its AIM cross reference holds
+-- each date converted to UNIX time, and, after it, the subscripts of the global in their stored form. A range on the
+-- date walks the converted values from one bound to the other. 3241115.08 is 2024-11-15 08:00:00. Patient p has its appointments p seconds after the hour.
+SELECT XECUTE_M_CODE('for p=1:1:3 for d=3241114.09,3241115.08,3241115.14,3241116.1,3241117.11 set ^TBO02e(p,"S",d+(p/1000000))="p"_p');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02e');
+^TBO02e(1,"S",3241114.090001)="p1"
+^TBO02e(1,"S",3241115.080001)="p1"
+^TBO02e(1,"S",3241115.140001)="p1"
+^TBO02e(1,"S",3241116.100001)="p1"
+^TBO02e(1,"S",3241117.110001)="p1"
+^TBO02e(2,"S",3241114.090002)="p2"
+^TBO02e(2,"S",3241115.080002)="p2"
+^TBO02e(2,"S",3241115.140002)="p2"
+^TBO02e(2,"S",3241116.100002)="p2"
+^TBO02e(2,"S",3241117.110002)="p2"
+^TBO02e(3,"S",3241114.090003)="p3"
+^TBO02e(3,"S",3241115.080003)="p3"
+^TBO02e(3,"S",3241115.140003)="p3"
+^TBO02e(3,"S",3241116.100003)="p3"
+^TBO02e(3,"S",3241117.110003)="p3"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02e (p INTEGER, appt TIMESTAMP(FILEMAN), status VARCHAR PIECE 1, PRIMARY KEY (p, appt)) GLOBAL "^TBO02e(keys(""p""),""S"",keys(""appt""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 15 rows
+SELECT * FROM TBO02e;
+p|appt|status
+1|2024-11-14 09:00:01|p1
+1|2024-11-15 08:00:01|p1
+1|2024-11-15 14:00:01|p1
+1|2024-11-16 10:00:01|p1
+1|2024-11-17 11:00:01|p1
+2|2024-11-14 09:00:02|p2
+2|2024-11-15 08:00:02|p2
+2|2024-11-15 14:00:02|p2
+2|2024-11-16 10:00:02|p2
+2|2024-11-17 11:00:02|p2
+3|2024-11-14 09:00:03|p3
+3|2024-11-15 08:00:03|p3
+3|2024-11-15 14:00:03|p3
+3|2024-11-16 10:00:03|p3
+3|2024-11-17 11:00:03|p3
+(15 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk the day 2024-11-15 of the cross reference of appt] the 6 appointments of that day, in date order.
+SELECT * FROM TBO02e WHERE appt >= timestamp '2024-11-15 00:00:00' AND appt < timestamp '2024-11-16 00:00:00';
+p|appt|status
+1|2024-11-15 08:00:01|p1
+2|2024-11-15 08:00:02|p2
+3|2024-11-15 08:00:03|p3
+1|2024-11-15 14:00:01|p1
+2|2024-11-15 14:00:02|p2
+3|2024-11-15 14:00:03|p3
+(6 rows)
+PLAN: xref: tbo02e.appt fixed: tbo02e.appt (walk) check: none
+
+-- [walk 2024-11-16 down to 2024-11-15 of the cross reference of appt] LIMIT 1: the last appointment of 2024-11-15,
+-- 3|2024-11-15 14:00:03|p3
+SELECT * FROM TBO02e WHERE appt BETWEEN timestamp '2024-11-15 00:00:00' AND timestamp '2024-11-16 00:00:00' ORDER BY appt DESC LIMIT 1;
+p|appt|status
+3|2024-11-15 14:00:03|p3
+(1 row)
+PLAN: [no sort, descending walk] xref: tbo02e.appt fixed: tbo02e.appt (walk) check: none
+
+-- ############################################################################################################
+-- Part F: a DATE first key column of a READONLY table, stored as text in more than one form ("2024-01-15" and
+-- "2024-1-15"). A range on it walks its AIM cross reference, which holds each date converted to UNIX time.
+SELECT XECUTE_M_CODE('set ^TBO02f("2024-01-14")="a",^TBO02f("2024-01-15")="b",^TBO02f("2024-1-15")="c",^TBO02f("2024-01-16")="d",^TBO02f("2024-02-01")="e"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02f');
+^TBO02f("2024-01-14")="a"
+^TBO02f("2024-01-15")="b"
+^TBO02f("2024-01-16")="d"
+^TBO02f("2024-02-01")="e"
+^TBO02f("2024-1-15")="c"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02f (k DATE PRIMARY KEY, v VARCHAR PIECE 1) GLOBAL "^TBO02f(keys(""k""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 5 rows, in M order
+SELECT * FROM TBO02f;
+k|v
+2024-01-14|a
+2024-01-15|b
+2024-01-16|d
+2024-02-01|e
+2024-01-15|c
+(5 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 2024-01-15 to 2024-01-16 of the cross reference of k] both stored forms of 2024-01-15, and 2024-01-16: b, c
+-- and d.
+SELECT * FROM TBO02f WHERE k BETWEEN date '2024-01-15' AND date '2024-01-16';
+k|v
+2024-01-15|b
+2024-01-15|c
+2024-01-16|d
+(3 rows)
+PLAN: xref: tbo02f.k fixed: tbo02f.k (walk) check: none
+
+-- [walk 2024-01-14 to 2024-01-16 of the cross reference of k] both bounds not included: b and c
+SELECT * FROM TBO02f WHERE k > date '2024-01-14' AND k < date '2024-01-16';
+k|v
+2024-01-15|b
+2024-01-15|c
+(2 rows)
+PLAN: xref: tbo02f.k fixed: tbo02f.k (walk) check: none
+
+-- ############################################################################################################
+-- Part G: a READONLY DATE column that is not a key column, stored as text. Its AIM cross reference holds each date
+-- converted to UNIX time.
+SELECT XECUTE_M_CODE('set ^TBO02g(1)="2024-01-15",^TBO02g(2)="2024-1-16",^TBO02g(3)="2024-01-17",^TBO02g(4)="",^TBO02g(5)="2024-01-18"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02g');
+^TBO02g(1)="2024-01-15"
+^TBO02g(2)="2024-1-16"
+^TBO02g(3)="2024-01-17"
+^TBO02g(4)=""
+^TBO02g(5)="2024-01-18"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02g (id INTEGER PRIMARY KEY, d DATE PIECE 1) GLOBAL "^TBO02g(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 5 rows. Row 4 has no date (NULL).
+SELECT * FROM TBO02g;
+id|d
+1|2024-01-15
+2|2024-01-16
+3|2024-01-17
+4|
+5|2024-01-18
+(5 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 2024-01-16 to 2024-01-17 of the cross reference of d] 2|2024-01-16 and 3|2024-01-17. This query builds the
+-- cross reference.
+SELECT * FROM TBO02g WHERE d BETWEEN date '2024-01-16' AND date '2024-01-17';
+id|d
+2|2024-01-16
+3|2024-01-17
+(2 rows)
+PLAN: xref: tbo02g.d fixed: tbo02g.d (walk) check: none
+
+-- [walk 2024-01-17 down to 2024-01-16 of the cross reference of d] 3|2024-01-17 and 2|2024-01-16
+SELECT * FROM TBO02g WHERE d BETWEEN date '2024-01-16' AND date '2024-01-17' ORDER BY d DESC;
+id|d
+3|2024-01-17
+2|2024-01-16
+(2 rows)
+PLAN: [no sort, descending walk] xref: tbo02g.d fixed: tbo02g.d (walk) check: none
+
+-- ############################################################################################################
+-- Part H: READWRITE tables, whose global Octo keeps: an INTEGER key column and a NUMERIC column that is not a key
+-- column, a table with two key columns, then a TIMESTAMP WITH TIME ZONE key column. A range on a key column walks the
+-- table's global; on the NUMERIC column or on a key column after the first, its AIM cross reference. Then an UPDATE and a
+-- DELETE of the rows of a range.
+CREATE TABLE TBO02h (id INTEGER PRIMARY KEY, n NUMERIC);
+CREATE TABLE
+
+INSERT INTO TBO02h VALUES (1, 1.5), (2, 2.25), (3, -1), (4, 10), (5, 2.5), (6, 3), (7, NULL), (8, 0);
+INSERT 0 8
+
+-- [no walk] all 8 rows
+SELECT * FROM TBO02h;
+id|n
+1|1.5
+2|2.25
+3|-1
+4|10
+5|2.5
+6|3
+7|
+8|0
+(8 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 3 to 6] 3|-1, 4|10, 5|2.5 and 6|3
+SELECT * FROM TBO02h WHERE id BETWEEN 3 AND 6;
+id|n
+3|-1
+4|10
+5|2.5
+6|3
+(4 rows)
+PLAN: xref: none fixed: tbo02h.id (walk) check: none
+
+-- [walk 0 to 2.5 of the cross reference of n] in the order of n: 8|0, 1|1.5, 2|2.25 and 5|2.5. This query builds the
+-- cross reference.
+SELECT * FROM TBO02h WHERE n BETWEEN 0 AND 2.5;
+id|n
+8|0
+1|1.5
+2|2.25
+5|2.5
+(4 rows)
+PLAN: xref: tbo02h.n fixed: tbo02h.n (walk) check: none
+
+-- [walk -1 to 2.25 of the cross reference of n] both bounds not included: 8|0 and 1|1.5
+SELECT * FROM TBO02h WHERE n > -1 AND n < 2.25;
+id|n
+8|0
+1|1.5
+(2 rows)
+PLAN: xref: tbo02h.n fixed: tbo02h.n (walk) check: none
+
+-- [walk 2.5 down to 0 of the cross reference of n] ORDER BY n DESC walks it backward, from 2.5, with no sort: 5|2.5,
+-- 2|2.25, 1|1.5 and 8|0
+SELECT * FROM TBO02h WHERE n BETWEEN 0 AND 2.5 ORDER BY n DESC;
+id|n
+5|2.5
+2|2.25
+1|1.5
+8|0
+(4 rows)
+PLAN: [no sort, descending walk] xref: tbo02h.n fixed: tbo02h.n (walk) check: none
+
+CREATE TABLE TBO02hk (g INTEGER, k INTEGER, PRIMARY KEY (g, k));
+CREATE TABLE
+
+INSERT INTO TBO02hk VALUES (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2), (2, 3), (2, 4), (3, 2), (3, 3);
+INSERT 0 10
+
+-- [no walk] all 10 rows
+SELECT * FROM TBO02hk;
+g|k
+1|1
+1|2
+1|3
+1|4
+2|1
+2|2
+2|3
+2|4
+3|2
+3|3
+(10 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 3 down to 2 of the cross reference of k] ORDER BY k DESC walks the cross reference of the key column k
+-- backward, from 3, with no sort: the rows with k = 3 (g = 1, 2 and 3), then those with k = 2. This query builds the
+-- cross reference.
+SELECT * FROM TBO02hk WHERE k BETWEEN 2 AND 3 ORDER BY k DESC;
+g|k
+1|3
+2|3
+3|3
+1|2
+2|2
+3|2
+(6 rows)
+PLAN: [no sort, descending walk] xref: tbo02hk.k fixed: tbo02hk.k (walk) check: none
+
+-- [walk 2 to 3 of the cross reference of k] ORDER BY k: the rows with k = 2, then those with k = 3, with no sort
+SELECT * FROM TBO02hk WHERE k >= 2 AND k < 4 ORDER BY k;
+g|k
+1|2
+2|2
+3|2
+1|3
+2|3
+3|3
+(6 rows)
+PLAN: [no sort, ascending walk] xref: tbo02hk.k fixed: tbo02hk.k (walk) check: none
+
+-- [walk 3 to 5] the UPDATE moves rows 3, 4 and 5 to 103, 104 and 105, past the end of the range
+UPDATE TBO02h SET id = id + 100 WHERE id BETWEEN 3 AND 5;
+UPDATE 3
+
+SELECT * FROM TBO02h;
+id|n
+1|1.5
+2|2.25
+6|3
+7|
+8|0
+103|-1
+104|10
+105|2.5
+(8 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 2 to 6] the DELETE removes rows 2 and 6, the rows left in the range
+DELETE FROM TBO02h WHERE id BETWEEN 2 AND 6;
+DELETE 2
+
+SELECT * FROM TBO02h;
+id|n
+1|1.5
+7|
+8|0
+103|-1
+104|10
+105|2.5
+(6 rows)
+PLAN: xref: none fixed: none check: none
+
+CREATE TABLE TBO02tz (t TIMESTAMP WITH TIME ZONE PRIMARY KEY, v INTEGER);
+CREATE TABLE
+
+INSERT INTO TBO02tz VALUES (timestamp with time zone '2024-01-15 10:00:00+00', 1), (timestamp with time zone '2024-01-15 12:00:00+00', 2), (timestamp with time zone '2024-01-15 14:00:00+00', 3), (timestamp with time zone '2024-01-16 10:00:00+00', 4);
+INSERT 0 4
+
+-- [no walk] all 4 rows, shown in UTC (the test sets TZ=UTC)
+SELECT t, v FROM TBO02tz;
+t|v
+2024-01-15 10:00:00+00|1
+2024-01-15 12:00:00+00|2
+2024-01-15 14:00:00+00|3
+2024-01-16 10:00:00+00|4
+(4 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 11:00 to 14:00] 2024-01-15 12:00:00+00|2 and 2024-01-15 14:00:00+00|3
+SELECT t, v FROM TBO02tz WHERE t BETWEEN timestamp with time zone '2024-01-15 11:00:00+00' AND timestamp with time zone '2024-01-15 14:00:00+00';
+t|v
+2024-01-15 12:00:00+00|2
+2024-01-15 14:00:00+00|3
+(2 rows)
+PLAN: xref: none fixed: tbo02tz.t (walk) check: none
+
+-- [walk 11:00 to 14:00] 14:00 not included: 2024-01-15 12:00:00+00|2
+SELECT t, v FROM TBO02tz WHERE t >= timestamp with time zone '2024-01-15 11:00:00+00' AND t < timestamp with time zone '2024-01-15 14:00:00+00';
+t|v
+2024-01-15 12:00:00+00|2
+(1 row)
+PLAN: xref: none fixed: tbo02tz.t (walk) check: none
+
+CREATE TABLE TBO02tm (t TIME PRIMARY KEY, v INTEGER);
+CREATE TABLE
+
+INSERT INTO TBO02tm VALUES (time '08:00:00', 1), (time '12:00:00', 2), (time '18:00:00', 3), (time '23:00:00', 4);
+INSERT 0 4
+
+-- [walk 09:00 to 18:00] a TIME key column: 12:00:00|2 and 18:00:00|3
+SELECT * FROM TBO02tm WHERE t BETWEEN time '09:00:00' AND time '18:00:00';
+t|v
+12:00:00|2
+18:00:00|3
+(2 rows)
+PLAN: xref: none fixed: tbo02tm.t (walk) check: none
+
+-- Negative values: a NUMERIC column that is not a key column, and a NUMERIC key column
+CREATE TABLE TBO02n (id INTEGER PRIMARY KEY, n NUMERIC);
+CREATE TABLE
+
+INSERT INTO TBO02n VALUES (1, -5), (2, -1.5), (3, -1), (4, 0), (5, 0.5), (6, 1), (7, 2);
+INSERT 0 7
+
+-- [walk -1.5 to 1 of the cross reference of n] in the order of n: 2|-1.5, 3|-1, 4|0, 5|.5 and 6|1
+SELECT * FROM TBO02n WHERE n BETWEEN -1.5 AND 1;
+id|n
+2|-1.5
+3|-1
+4|0
+5|.5
+6|1
+(5 rows)
+PLAN: xref: tbo02n.n fixed: tbo02n.n (walk) check: none
+
+-- [walk 1 down to -1.5 of the cross reference of n] ORDER BY n DESC: 6|1, 5|.5, 4|0, 3|-1 and 2|-1.5
+SELECT * FROM TBO02n WHERE n BETWEEN -1.5 AND 1 ORDER BY n DESC;
+id|n
+6|1
+5|.5
+4|0
+3|-1
+2|-1.5
+(5 rows)
+PLAN: [no sort, descending walk] xref: tbo02n.n fixed: tbo02n.n (walk) check: none
+
+CREATE TABLE TBO02nk (k NUMERIC PRIMARY KEY, v INTEGER);
+CREATE TABLE
+
+INSERT INTO TBO02nk VALUES (-5, 1), (-1.5, 2), (-1, 3), (0, 4), (0.5, 5), (1, 6), (2, 7);
+INSERT 0 7
+
+-- [walk -1.5 to 1] -1.5|2, -1|3, 0|4, .5|5 and 1|6
+SELECT * FROM TBO02nk WHERE k BETWEEN -1.5 AND 1;
+k|v
+-1.5|2
+-1|3
+0|4
+.5|5
+1|6
+(5 rows)
+PLAN: xref: none fixed: tbo02nk.k (walk) check: none
+
+-- [walk 0.5 down to -2] both bounds not included, ORDER BY k DESC: 0|4, -1|3 and -1.5|2
+SELECT * FROM TBO02nk WHERE k > -2 AND k < 0.5 ORDER BY k DESC;
+k|v
+0|4
+-1|3
+-1.5|2
+(3 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02nk.k (walk) check: none
+
+-- [walk -1.5 to 1 of the cross reference of n] an UPDATE of the column that the walk goes through: the 5 rows of the
+-- range move past its upper bound, and each one is updated once
+UPDATE TBO02n SET n = n + 10 WHERE n BETWEEN -1.5 AND 1;
+UPDATE 5
+
+SELECT * FROM TBO02n;
+id|n
+1|-5
+2|8.5
+3|9
+4|10
+5|10.5
+6|11
+7|2
+(7 rows)
+PLAN: xref: none fixed: none check: none
+
+-- ############################################################################################################
+-- Part I: the bounds are columns of another table. Each row of TBO02i gives a range lo to hi of the ids of TBO02a
+-- (Part A, ids 1 to 12). The key of TBO02a is walked from lo to hi for each row of TBO02i.
+SELECT XECUTE_M_CODE('set ^TBO02i(1)="3|5",^TBO02i(2)="10|20",^TBO02i(3)="6|6",^TBO02i(4)="8|7"');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite ^TBO02i');
+^TBO02i(1)="3|5"
+^TBO02i(2)="10|20"
+^TBO02i(3)="6|6"
+^TBO02i(4)="8|7"
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02i (n INTEGER PRIMARY KEY, lo INTEGER PIECE 1, hi INTEGER PIECE 2) GLOBAL "^TBO02i(keys(""n""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 4 rows. Row 4 is an empty range (8 to 7).
+SELECT * FROM TBO02i;
+n|lo|hi
+1|3|5
+2|10|20
+3|6|6
+4|8|7
+(4 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk lo to hi] an INNER JOIN whose ON has the range: 1|3, 1|4, 1|5, 2|10, 2|11, 2|12 and 3|6
+SELECT i.n, a.id FROM TBO02i i INNER JOIN TBO02a a ON a.id BETWEEN i.lo AND i.hi;
+n|id
+1|3
+1|4
+1|5
+2|10
+2|11
+2|12
+3|6
+(7 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk lo to hi] the same with the range in the WHERE
+SELECT i.n, a.id FROM TBO02i i, TBO02a a WHERE a.id >= i.lo AND a.id <= i.hi;
+n|id
+1|3
+1|4
+1|5
+2|10
+2|11
+2|12
+3|6
+(7 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk lo to hi] a LEFT JOIN: row 4 has no row of TBO02a in its range, and is joined with NULL: 4|
+SELECT i.n, a.id FROM TBO02i i LEFT JOIN TBO02a a ON a.id BETWEEN i.lo AND i.hi;
+n|id
+1|3
+1|4
+1|5
+2|10
+2|11
+2|12
+3|6
+4|
+(8 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk lo to 4] one bound is a column, the other a value: 1|3 and 1|4
+SELECT i.n, a.id FROM TBO02i i INNER JOIN TBO02a a ON a.id >= i.lo AND a.id <= 4;
+n|id
+1|3
+1|4
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk lo to hi] a LEFT JOIN whose ON has one bound and whose WHERE has the other: 1|3, 1|4, 1|5, 2|10, 2|11, 2|12
+-- and 3|6. The WHERE ends the walk of TBO02a at hi, but it stays a check on each row: the LEFT JOIN gives row 4 of
+-- TBO02i (lo 8, hi 7, no id in its range) as 4|NULL, and only the WHERE drops it.
+SELECT i.n, a.id FROM TBO02i i LEFT JOIN TBO02a a ON a.id >= i.lo WHERE a.id <= i.hi;
+n|id
+1|3
+1|4
+1|5
+2|10
+2|11
+2|12
+3|6
+(7 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- [walk lo to hi in a sub-query] the bounds come from the query around the sub-query: 1|3, 2|3, 3|1 and 4|0
+SELECT i.n, (SELECT COUNT(*) FROM TBO02a a WHERE a.id BETWEEN i.lo AND i.hi) FROM TBO02i i;
+n|count(*)
+1|3
+2|3
+3|1
+4|0
+(4 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk lo to hi in a sub-query] EXISTS, with both bounds not included: rows 1 (id 4) and 2 (ids 11 and 12). The
+-- EXISTS itself is checked on each row of TBO02i.
+SELECT i.n FROM TBO02i i WHERE EXISTS (SELECT 1 FROM TBO02a a WHERE a.id > i.lo AND a.id < i.hi);
+n
+1
+2
+(2 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: on each row
+
+-- ############################################################################################################
+-- Part J: a table kept in a local variable, lvTBO02j. A range on its key column walks the local variable; on v, a cross
+-- reference that is kept in a local variable too.
+SELECT XECUTE_M_CODE('for id=1:1:8 set lvTBO02j(id)=(9-id)*10');
+xecute_m_code
+0
+(1 row)
+
+SELECT XECUTE_M_CODE('zwrite lvTBO02j');
+lvTBO02j(1)=80
+lvTBO02j(2)=70
+lvTBO02j(3)=60
+lvTBO02j(4)=50
+lvTBO02j(5)=40
+lvTBO02j(6)=30
+lvTBO02j(7)=20
+lvTBO02j(8)=10
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02j (id INTEGER PRIMARY KEY, v INTEGER PIECE 1) GLOBAL "lvTBO02j(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] all 8 rows
+SELECT * FROM TBO02j;
+id|v
+1|80
+2|70
+3|60
+4|50
+5|40
+6|30
+7|20
+8|10
+(8 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 3 to 5] 3|60, 4|50 and 5|40
+SELECT * FROM TBO02j WHERE id BETWEEN 3 AND 5;
+id|v
+3|60
+4|50
+5|40
+(3 rows)
+PLAN: xref: none fixed: tbo02j.id (walk) check: none
+
+-- [walk 30 to 50 of the cross reference of v] in the order of v: 6|30, 5|40 and 4|50
+SELECT * FROM TBO02j WHERE v BETWEEN 30 AND 50;
+id|v
+6|30
+5|40
+4|50
+(3 rows)
+PLAN: xref: none fixed: tbo02j.v (walk) check: none
+
+-- ############################################################################################################
+-- Part K: the keywords of a key column that decide which subscripts are rows: START and ENDPOINT, STARTINCLUDE, END,
+-- SKIP and SKIPCONDITION. START 3 ENDPOINT 9 limits the table to the rows 4 to 9 of ^TBO02k (START is not
+-- included without STARTINCLUDE). The walk of a range checks them on each value.
+SELECT XECUTE_M_CODE('for id=1:1:12 set ^TBO02k(id)=10*id');
+xecute_m_code
+0
+(1 row)
+
+CREATE TABLE TBO02k (id INTEGER PRIMARY KEY START 3 ENDPOINT 9, v INTEGER PIECE 1) GLOBAL "^TBO02k(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] the 6 rows 4 to 9
+SELECT * FROM TBO02k;
+id|v
+4|40
+5|50
+6|60
+7|70
+8|80
+9|90
+(6 rows)
+PLAN: xref: none fixed: none check: none
+
+-- [walk 1 to 5] 4|40 and 5|50
+SELECT * FROM TBO02k WHERE id BETWEEN 1 AND 5;
+id|v
+4|40
+5|50
+(2 rows)
+PLAN: xref: none fixed: tbo02k.id (walk) check: none
+
+-- [walk 8 to 20] 8|80 and 9|90
+SELECT * FROM TBO02k WHERE id BETWEEN 8 AND 20;
+id|v
+8|80
+9|90
+(2 rows)
+PLAN: xref: none fixed: tbo02k.id (walk) check: none
+
+-- [walk 1 to 3] no row: 3 is the START, which is not a row
+SELECT * FROM TBO02k WHERE id BETWEEN 1 AND 3;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02k.id (walk) check: none
+
+CREATE TABLE TBO02ki (id INTEGER PRIMARY KEY START 3 STARTINCLUDE ENDPOINT 9, v INTEGER PIECE 1) GLOBAL "^TBO02k(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [walk 1 to 3] with STARTINCLUDE, 3 is a row: 3|30
+SELECT * FROM TBO02ki WHERE id BETWEEN 1 AND 3;
+id|v
+3|30
+(1 row)
+PLAN: xref: none fixed: tbo02ki.id (walk) check: none
+
+-- An END condition on the key column: the table has the rows 1 to 6. A range on such a column is checked on each row.
+CREATE TABLE TBO02ke (id INTEGER PRIMARY KEY END "(keys(""id"")="""")!(keys(""id"")>6)", v INTEGER PIECE 1) GLOBAL "^TBO02k(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [no walk] 5|50 and 6|60
+SELECT * FROM TBO02ke WHERE id BETWEEN 5 AND 8;
+id|v
+5|50
+6|60
+(2 rows)
+PLAN: xref: none fixed: none check: on each row
+
+-- SKIP on the key column: the rows 1 to 12 of ^TBO02k except 4 and 5. The walk of a range skips them too.
+CREATE TABLE TBO02ks (id INTEGER PRIMARY KEY SKIP '4,5', v INTEGER PIECE 1) GLOBAL "^TBO02k(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [walk 3 to 6] 3|30 and 6|60
+SELECT * FROM TBO02ks WHERE id BETWEEN 3 AND 6;
+id|v
+3|30
+6|60
+(2 rows)
+PLAN: xref: none fixed: tbo02ks.id (walk) check: none
+
+-- [walk 6 down to 3] ORDER BY id DESC: 6|60 and 3|30
+SELECT * FROM TBO02ks WHERE id BETWEEN 3 AND 6 ORDER BY id DESC;
+id|v
+6|60
+3|30
+(2 rows)
+PLAN: [no sort, descending walk] xref: none fixed: tbo02ks.id (walk) check: none
+
+-- [walk 4 to 5] no row: both values are skipped
+SELECT * FROM TBO02ks WHERE id BETWEEN 4 AND 5;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02ks.id (walk) check: none
+
+-- SKIPCONDITION on the key column: the odd ids are skipped, so the rows are the even ids 2 to 12
+CREATE TABLE TBO02kc (id INTEGER PRIMARY KEY SKIPCONDITION "keys(""id"")#2", v INTEGER PIECE 1) GLOBAL "^TBO02k(keys(""id""))" READONLY;
+CREATE TABLE
+
+-- [walk 3 to 8] 4|40, 6|60 and 8|80
+SELECT * FROM TBO02kc WHERE id BETWEEN 3 AND 8;
+id|v
+4|40
+6|60
+8|80
+(3 rows)
+PLAN: xref: none fixed: tbo02kc.id (walk) check: none
+
+-- [walk 3 to 3] no row: 3 is skipped
+SELECT * FROM TBO02kc WHERE id BETWEEN 3 AND 3;
+id|v
+(0 rows)
+PLAN: xref: none fixed: tbo02kc.id (walk) check: none
+
+-- SKIP on a key column after the first, over the global of Part D: the rows with k = 5 are skipped
+CREATE TABLE TBO02ds (g INTEGER, k INTEGER SKIP '5', v INTEGER PIECE 1, PRIMARY KEY (g, k)) GLOBAL "^TBO02d(keys(""g""),keys(""k""))" READONLY;
+CREATE TABLE
+
+-- [walk 4 to 6 of k] 6 rows: g = 1 to 3 with k = 4 and with k = 6
+SELECT * FROM TBO02ds WHERE k BETWEEN 4 AND 6;
+g|k|v
+1|4|104
+2|4|204
+3|4|304
+1|6|106
+2|6|206
+3|6|306
+(6 rows)
+PLAN: xref: tbo02ds.k fixed: tbo02ds.k (walk) check: none
+
+-- [walk 4 to 6 under g = 2] 2|4|204 and 2|6|206
+SELECT * FROM TBO02ds WHERE g = 2 AND k BETWEEN 4 AND 6;
+g|k|v
+2|4|204
+2|6|206
+(2 rows)
+PLAN: xref: none fixed: tbo02ds.g tbo02ds.k (walk) check: none
+
+-- ############################################################################################################
+-- Part L: a range on a column of a sub-query in the FROM is checked on each row of the sub-query, as key fixing does
+-- not fix a column of a sub-query (YDBOcto#355): 3|30, 4|40 and 5|50
+SELECT * FROM (SELECT id, v FROM TBO02a) x WHERE x.id BETWEEN 3 AND 5;
+id|v
+3|30
+4|40
+5|50
+(3 rows)
+PLAN: xref: none fixed: none check: on each row
+
+-- The same range on a column of a VIEW, which Octo runs as a sub-query in the FROM, so the range is checked on each
+-- row of the VIEW in the same way: 3|30, 4|40 and 5|50
+CREATE VIEW TBO02av AS SELECT id, v FROM TBO02a;
+CREATE VIEW
+
+SELECT * FROM TBO02av WHERE id BETWEEN 3 AND 5;
+id|v
+3|30
+4|40
+5|50
+(3 rows)
+PLAN: xref: none fixed: none check: on each row
+
+-- ############################################################################################################
+-- Part M: an OR of two ranges. Octo runs each side of the OR as a plan of its own, so each side walks its range.
+-- [walk 2 to 3, and 8 to 9] 2|20, 3|30, 8|80 and 9|90
+SELECT * FROM TBO02a WHERE id BETWEEN 2 AND 3 OR id BETWEEN 8 AND 9;
+id|v
+2|20
+3|30
+8|80
+9|90
+(4 rows)
+PLAN: xref: none fixed: tbo02a.id (walk) check: none
+
+-- [walk 10 to 30, and 70 to 80 of the cross reference of v] 2|10, 7|20, 3|30, 5|30, 6|70 and 12|80
+SELECT * FROM TBO02b WHERE v BETWEEN 10 AND 30 OR v BETWEEN 70 AND 80;
+id|v
+2|10
+7|20
+3|30
+5|30
+6|70
+12|80
+(6 rows)
+PLAN: xref: tbo02b.v fixed: tbo02b.v (walk) check: none

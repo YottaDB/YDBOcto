@@ -20,10 +20,56 @@ setup() {
 }
 
 teardown() {
+  stop_rocto	# Only if the test started it (TBO03)
   corecheck
 }
 
-@test "TBO01 : OCTO198 : Test BETWEEN operator" {
+@test "TBO01 : OCTO198/OCTO1020 : Test BETWEEN operator" {
+	# names is loaded by "setup()"
+	load_fixture composite.sql
+	load_fixture composite.zwr
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBO01.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries composite TBO01_composite.sql
 }
 
+@test "TBO02 : OCTO1020 : Key fixing ends the walk of a range with a lower and an upper bound at the upper bound" {
+	echo "# $BATS_TEST_DESCRIPTION" > output.txt
+	echo "# Key fixing walks a range on a column, e.g. id BETWEEN 3 AND 5 or id >= 3 AND id < 5, from one bound to the other:" >> output.txt
+	echo "# the subscripts of the table's global for a key column, those of its AIM cross reference otherwise. The walk used" >> output.txt
+	echo "# to end only at the end of the global or cross reference: the upper bound was checked on each value." >> output.txt
+	echo "# Each statement below is followed by its result, and each SELECT by the plan Octo chose (PLAN:). The comment" >> output.txt
+	echo "# above each query states the rows it should give and the walk: [walk 3 to 5] for a walk from 3 to 5 (from 5" >> output.txt
+	echo "# down to 3 in descending order), [walk from 3] or [walk to 5] for a range with one bound, and [no walk] when no" >> output.txt
+	echo "# key is walked over a range. The PLAN: line says:" >> output.txt
+	echo "#   xref:  the columns whose AIM cross reference the plan walks or probes" >> output.txt
+	echo "#   fixed: the keys that the WHERE or ON fixes; (walk) for a key fixed to each value of a range in turn" >> output.txt
+	echo "#   and, for a query with an ORDER BY, whether the plan sorts ([sort]) or not ([no sort], and the direction of the" >> output.txt
+	echo "#   walk)." >> output.txt
+	echo "#   check: \"on each row\" if a condition of the WHERE or ON is still checked on each row, \"none\" otherwise. A walk" >> output.txt
+	echo "#   that ends at its upper bound no longer checks that bound on each row." >> output.txt
+	# Part H shows TIMESTAMP WITH TIME ZONE values, which Octo prints in the time zone of the process
+	export TZ=UTC
+	load_fixture xecutemcode.sql
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TBO02.sql > TBO02_input.sql
+	run_queries_with_plans TBO02_input.sql oneprocess check
+	verify_output TBO02 output.txt nodatetimefilter noinfo nodebug
+}
+
+@test "TBO03 : OCTO1020 : Key fixing walks a range whose bounds are bind parameters, from one bound to the other" {
+	echo "# A range whose bounds are bind parameters (\$1, \$2), sent by a Go program (tests/go/src/TBO03) with Parse and" > output.txt
+	echo "# Bind messages, through rocto and to PostgreSQL. Each statement is followed by the ids of its rows." >> output.txt
+	create_default_user
+	test_port=$(start_rocto 1337 --readwrite)
+	setup_go
+	build_go TBO03
+	$GOPATH/bin/TBO03 $test_port ydb hello > TBO03.octo.out 2>&1
+	$GOPATH/bin/TBO03 5432 $USER names > TBO03.psql.out 2>&1
+	rm -f $GOPATH/bin/TBO03
+	chmod -R +w go/pkg	# The module cache is read-only, which would keep "corecheck()" from removing the directory
+	cat TBO03.octo.out >> output.txt
+	echo "# Compare with PostgreSQL:" >> output.txt
+	if diff TBO03.psql.out TBO03.octo.out >> output.txt; then
+		echo "Same as PostgreSQL" >> output.txt
+	fi
+	verify_output TBO03 output.txt
+}

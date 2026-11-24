@@ -1,0 +1,175 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2026 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "template_helpers.h"
+
+/* Emit the test that the walk of a range key is past its end
+ *
+ * Emits an M boolean expression that is TRUE once the current value of the key "key", held in
+ * PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key), is past the end bound of its range, held in PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key,1).
+ * "type" is the comparison of the end bound: "<" or "<=" in an ascending walk, ">" or ">=" in a descending walk (YDBOcto#1020),
+ * or a LIKE prefix (YDBOcto#1158). A range with no end bound passes its start bound ("type" is then ">" or ">=" in an ascending
+ * walk, "<" or "<=" in a descending one): the walk goes on to the last subscript, and the expression is TRUE only past it
+ * (PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key)="").
+ * "tmpl_tablejoin" uses it to end the FOR loop of the walk, and, for a range with both bounds, to skip the start value
+ * itself if it is already past the end (e.g. "id BETWEEN 5 AND 3").
+ * With "negate", the expression is the opposite one, TRUE while the value is not past the end bound, written with the
+ * complementary operator ("'>" for ">", "<" for "'<"), which YottaDB compiles to one operation where "'(...)" takes two.
+ * It is only asked for with an end bound (not a LIKE prefix).
+ * A string column is compared with "]" (follows), a numeric or date/time one with "<" and ">".
+ */
+TEMPLATE(tmpl_key_range_past_end, SqlKey *key, int cur_key, LPActionType type, boolean_t negate) {
+	boolean_t	is_string;
+	char		*operator;
+
+	assert(NULL != key->column);
+	is_string = is_keycol_type_string(key);
+	if (!is_string) {
+		%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
+		switch(type) {
+		case LP_BOOLEAN_LESS_THAN:
+			if (!key->emit_desc_order) {
+				operator = negate ? "<" : "'<";
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+			} else {
+				assert(!negate);
+				%{}=""{}%
+			}
+			break;
+		case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+			if (!key->emit_desc_order) {
+				operator = negate ? "'>" : ">";
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+			} else {
+				assert(!negate);
+				%{}=""{}%
+			}
+			break;
+		case LP_BOOLEAN_GREATER_THAN:
+			if (!key->emit_desc_order) {
+				assert(!negate);
+				%{}=""{}%
+			} else {
+				operator = negate ? ">" : "'>";
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+			}
+			break;
+		case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+			if (!key->emit_desc_order) {
+				assert(!negate);
+				%{}=""{}%
+			} else {
+				operator = negate ? "'<" : "<";
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+			}
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
+	} else {
+		switch(type) {
+		case LP_BOOLEAN_LESS_THAN:
+			if (!key->emit_desc_order) {
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+				operator = negate ? "]" : "']";
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+			} else {
+				assert(!negate);
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+				%{}=""{}%
+			}
+			break;
+		case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+			if (!key->emit_desc_order) {
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+				operator = negate ? "']" : "]";
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+			} else {
+				assert(!negate);
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+				%{}=""{}%
+			}
+			break;
+		case LP_BOOLEAN_GREATER_THAN:
+			if (!key->emit_desc_order) {
+				assert(!negate);
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+				%{}=""{}%
+			} else {
+				operator = negate ? "]" : "']";
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+			}
+			break;
+		case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+			if (!key->emit_desc_order) {
+				assert(!negate);
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+				%{}=""{}%
+			} else {
+				operator = negate ? "']" : "]";
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }},1){}%
+				%{}{{ operator }}{}%
+				%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+				%{},{{ cur_key|%d }}){}%
+			}
+			break;
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
+		case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
+		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
+		case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
+			/* Stop at the first value that does not start with the prefix. $ZEXTRACT/$ZLENGTH compare bytes. That is
+			 * correct in UTF-8 mode too, as a byte prefix of a valid UTF-8 string that equals a valid UTF-8 string always
+			 * ends on a character boundary.
+			 */
+			assert(!negate);
+			%{}$ZEXTRACT({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+			%{},{{ cur_key|%d }}),1,$ZLENGTH({{ PP_YDB_OCTO_ZKEYFIX }}{}%
+			%{}({{ key->unique_id|%d }},{{ cur_key|%d }},1))){}%
+			%{}'={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+			%{},{{ cur_key|%d }},1){}%
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
+	}
+	return;
+}
+%{}

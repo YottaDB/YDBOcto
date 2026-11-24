@@ -263,87 +263,116 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							TMPL(tmpl_print_dots, dot_count);
 						}
 
-						if (!is_like_prefix) {
-						%{}SET {}%
-						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
-						switch(key->fixed_to_value_type) {
-						case LP_BOOLEAN_LESS_THAN:
-						case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-							if (!key->emit_desc_order) {
-								%{},1{}%
-							}
-							break;
-						case LP_BOOLEAN_GREATER_THAN:
-						case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-							if (key->emit_desc_order) {
-								%{},1{}%
-							}
-						default:
-							break;
-						}
-						%{})={{ PP_YDB_OCTO_EXPR }}{}%
-						%{}`n{{ PLAN_LINE_START }}{}%
-						TMPL(tmpl_print_dots, dot_count);
-						switch(key->fixed_to_value_type) {
-						case LP_BOOLEAN_LESS_THAN:
-						case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-							if (!key->emit_desc_order) {
-								%{}SET {}%
-								%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-								%{},{{ cur_key|%d }})=""{}%
-								%{}`n{{ PLAN_LINE_START }}{}%
-								TMPL(tmpl_print_dots, dot_count);
-							}
-							break;
-						case LP_BOOLEAN_GREATER_THAN:
-						case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-							if (key->emit_desc_order) {
-								%{}SET {}%
-								%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-								%{},{{ cur_key|%d }})=""{}%
-								%{}`n{{ PLAN_LINE_START }}{}%
-								TMPL(tmpl_print_dots, dot_count);
-							}
-						default:
-							break;
-						}
-						}
-						/* The argumentless DO below runs the body once for the start value itself (the range
-						 * includes it) before the FOR loop moves past it.
+						/* A range walks the key from its start bound to its end bound (YDBOcto#1020): from the lower bound
+						 * (">" or ">=") to the upper bound ("<" or "<=") in ascending order, the other way round in
+						 * descending order. PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key) holds the start bound, and then each
+						 * value of the walk; PP_YDB_OCTO_ZKEYFIX(unique_id,cur_key,1) holds the end bound. A range with
+						 * one bound has either no start bound (e.g. "id < 5" in ascending order), and then starts at ""
+						 * (the first subscript), or no end bound (e.g. "id > 3"), and then goes on to the last subscript.
+						 * "fixed_to_value" is one bound, "fixed_to_value2" the other one if any.
+						 * A LIKE prefix (above) uses the same two nodes: its start, and the prefix that ends its walk.
 						 */
-						if ((!key->emit_desc_order
-								&& (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == key->fixed_to_value_type))
-						    	|| (key->emit_desc_order
-								&& (LP_BOOLEAN_LESS_THAN_OR_EQUALS == key->fixed_to_value_type))) {
-							%{}DO  {}%
+						boolean_t	value_is_end, has_two_bounds;
+						LPActionType	start_type, end_type, past_end_type;
+
+						has_two_bounds = (NULL != key->fixed_to_value2);
+						assert(!has_two_bounds || !is_like_prefix);
+						start_type = end_type = LP_INVALID_ACTION;
+						if (!is_like_prefix) {
+							value_is_end = (IS_KEY_FIX_LOWER_BOUND(key->fixed_to_value_type) == key->emit_desc_order);
+							if (value_is_end) {
+								end_type = key->fixed_to_value_type;
+							} else {
+								start_type = key->fixed_to_value_type;
+							}
+							%{}SET {}%
+							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
+							if (value_is_end) {
+								%{},1{}%
+							}
+							%{})={{ PP_YDB_OCTO_EXPR }}{}%
+							%{}`n{{ PLAN_LINE_START }}{}%
+							if (has_two_bounds) {
+								/* The other bound, in the other node */
+								assert(IS_KEY_FIX_LOWER_BOUND(key->fixed_to_value2_type)
+								       != IS_KEY_FIX_LOWER_BOUND(key->fixed_to_value_type));
+								if (value_is_end) {
+									start_type = key->fixed_to_value2_type;
+								} else {
+									end_type = key->fixed_to_value2_type;
+								}
+								TMPL(tmpl_print_expression_assignment, key->fixed_to_value2, pplan, dot_count, 0, key);
+								TMPL(tmpl_print_dots, dot_count);
+								%{}SET {}%
+								%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
+								if (!value_is_end) {
+									%{},1{}%
+								}
+								%{})={{ PP_YDB_OCTO_EXPR }}{}%
+								%{}`n{{ PLAN_LINE_START }}{}%
+							}
+							TMPL(tmpl_print_dots, dot_count);
+							if (LP_INVALID_ACTION == start_type) {
+								/* No start bound: start at the first subscript */
+								%{}SET {}%
+								%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
+								%{},{{ cur_key|%d }})=""{}%
+								%{}`n{{ PLAN_LINE_START }}{}%
+								TMPL(tmpl_print_dots, dot_count);
+							}
+						}
+						/* The test that ends the walk (see "tmpl_key_range_past_end"). A range with no end bound passes
+						 * the type of its start bound, which ends the walk at the last subscript.
+						 */
+						past_end_type = (LP_INVALID_ACTION != end_type) ? end_type : key->fixed_to_value_type;
+
+						/* Every walk starts with the same line: "IF <bounds are non-NULL> DO[:<condition>]  FOR ...".
+						 *
+						 * Each bound must be non-NULL, as a comparison with NULL is never true: the start bound if the
+						 * walk has one (a LIKE prefix always has one), and the end bound if the walk has one (that of a
+						 * LIKE prefix comes from the same pattern as its start, so it is not checked again).
+						 */
+						boolean_t	has_start, has_end;
+						has_start = (is_like_prefix || (LP_INVALID_ACTION != start_type));
+						has_end = (LP_INVALID_ACTION != end_type);
+						assert(has_start || has_end);
+						%{}IF {}%
+						if (has_start) {
+							%{}'$ZYISSQLNULL({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})){}%
+							if (has_end) {
+								%{},{}%
+							}
+						}
+						if (has_end) {
+							%{}'$ZYISSQLNULL({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }},1)){}%
+						}
+						%{} {}%
+
+						/* The argumentless DO runs the body once for the start value itself, before the FOR loop moves
+						 * past it, when the walk includes that value:
+						 * - a start bound with "=" (">=" or "<="). With an end bound too, only if the start value is not
+						 *   already past the end (e.g. "id BETWEEN 5 AND 3"): the range is then empty, and the FOR loop
+						 *   ends at its first value.
+						 * - a LIKE prefix in ascending order, except when the prefix is empty. That is only possible for
+						 *   a bind parameter pattern (e.g. '%PAT' bound to $1). The start value would then be "", whose
+						 *   cross reference entry holds the rows where the column is NULL, and the body would see their
+						 *   value as "" instead of NULL. LIKE never matches NULL, so skip that entry. The FOR loop then
+						 *   walks every other entry. A descending walk starts after the prefix, which no value matches,
+						 *   so it has no DO.
+						 */
+						boolean_t	start_is_included;
+						start_is_included = ((LP_BOOLEAN_GREATER_THAN_OR_EQUALS == start_type)
+								     || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == start_type));
+						if (start_is_included) {
+							%{}DO{}%
+							if (has_two_bounds) {
+								%{}:{}%
+								TMPL(tmpl_key_range_past_end, key, cur_key, past_end_type, TRUE);
+							}
+							%{}  {}%
 						} else if (is_like_prefix && !key->emit_desc_order) {
-							/* Same for a LIKE prefix in ascending order, except when the prefix is empty. That is
-							 * only possible for a bind parameter pattern (e.g. '%PAT' bound to $1). The start
-							 * value would then be "", whose cross reference entry holds the rows where the
-							 * column is NULL, and the body would see their value as "" instead of NULL. LIKE
-							 * never matches NULL, so skip that entry. The FOR loop then walks every other entry.
-							 * A descending walk starts after the prefix, which no value matches, so it has no DO.
-							 */
 							%{}DO:""'={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})  {}%
 						}
-						%{}IF '$ZYISSQLNULL({}%
-						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}{}%
-						switch(key->fixed_to_value_type) {
-						case LP_BOOLEAN_LESS_THAN:
-						case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-							if (!key->emit_desc_order) {
-								%{},1{}%
-							}
-							break;
-						case LP_BOOLEAN_GREATER_THAN:
-						case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-							if (key->emit_desc_order) {
-								%{},1{}%
-							}
-						default:
-							break;
-						}
-						%{})) {}%
 						%{}FOR  SET {}%
 						%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
 						%{}={}%
@@ -368,15 +397,23 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 							tableName2 = value->v.reference;
 							UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 							columnName2 = value->v.reference;
-							TMPL(tmpl_key_source_aim, tableName2, columnName2);
+							/* A table kept in a local variable has its cross reference in a local variable too, not
+							 * in AIM (as in "tmpl_key_source")
+							 */
+							if ('^' == key->xref_prefix[0]) {
+								TMPL(tmpl_key_source_aim, tableName2, columnName2);
+							} else {
+								%{}{{ key->xref_prefix }}{}%
+								%{}{{ config->global_names.raw_xref }}("{{ tableName2 }}","{{ columnName2 }}"{}%
+							}
 
 							%{},{}%
 
 							boolean_t	aimsub_needed2, desc_from_end;
 							if (('^' == key->xref_prefix[0]) && (IS_COLUMN_STRING_TYPE(key->column))) {
 								aimsub_needed2 = TRUE;
-								/* A descending walk for ">" or ">=" starts at the end of the cross
-								 * reference, i.e. at the subscript "" (see the SET of
+								/* A descending walk with no start bound (">" or ">=" alone) starts at
+								 * the end of the cross reference, i.e. at the subscript "" (see the SET of
 								 * PP_YDB_OCTO_ZKEYFIX to "" above). That "" must not be converted
 								 * with "strcolval2aimsubs" as it would then become "#", which is the
 								 * subscript of the NULL values and collates BEFORE all other values.
@@ -386,10 +423,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 								 * reference too when "likeprefixend" returns "" (an empty prefix).
 								 */
 								desc_from_end = (key->emit_desc_order
-										 && ((LP_BOOLEAN_GREATER_THAN == key->fixed_to_value_type)
-										     || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS
-											 == key->fixed_to_value_type)
-										     || is_like_prefix));
+										 && ((LP_INVALID_ACTION == start_type) || is_like_prefix));
 								if (desc_from_end) {
 									%{}$SELECT(""={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
 									%{},{{ cur_key|%d }}):"",1:{}%
@@ -419,124 +453,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *pplan, LogicalPlan *tablejoin, unsigned i
 						}
 						%{} QUIT:{}%
 						%{}({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }})="")!({}%
-						/* Determine type of column as that will determine how the QUIT: is structured */
-						assert(NULL != key->column);
-
-						boolean_t	is_string;
-						is_string = is_keycol_type_string(key);
-						if (!is_string) {
-							%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }},{{ cur_key|%d }}){}%
-							switch(key->fixed_to_value_type) {
-							case LP_BOOLEAN_LESS_THAN:
-								if (!key->emit_desc_order) {
-									%{}'<{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-								} else {
-									%{}=""{}%
-								}
-								break;
-							case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-								if (!key->emit_desc_order) {
-									%{}>{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-								} else {
-									%{}=""{}%
-								}
-								break;
-							case LP_BOOLEAN_GREATER_THAN:
-								if (!key->emit_desc_order) {
-									%{}=""{}%
-								} else {
-									%{}'>{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-								}
-								break;
-							case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-								if (!key->emit_desc_order) {
-									%{}=""{}%
-								} else {
-									%{}<{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-								}
-								break;
-							default:
-								assert(FALSE);
-								break;
-							}
-						} else {
-							switch(key->fixed_to_value_type) {
-							case LP_BOOLEAN_LESS_THAN:
-								if (!key->emit_desc_order) {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-									%{}']{}%
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-								} else {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-									%{}=""{}%
-								}
-								break;
-							case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-								if (!key->emit_desc_order) {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-									%{}]{}%
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-								} else {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-									%{}=""{}%
-								}
-								break;
-							case LP_BOOLEAN_GREATER_THAN:
-								if (!key->emit_desc_order) {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-									%{}=""{}%
-								} else {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-									%{}']{}%
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-								}
-								break;
-							case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-								if (!key->emit_desc_order) {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-									%{}=""{}%
-								} else {
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }},1){}%
-									%{}]{}%
-									%{}{{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-									%{},{{ cur_key|%d }}){}%
-								}
-								break;
-							case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX_ONLY:
-							case LP_BOOLEAN_REGEX_SENSITIVE_LIKE_PREFIX:
-							case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX:
-							case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE_PREFIX_WALK:
-								/* Stop at the first value that does not start with the prefix.
-								 * $ZEXTRACT/$ZLENGTH compare bytes. That is correct in UTF-8 mode too, as
-								 * a byte prefix of a valid UTF-8 string that equals a valid UTF-8 string
-								 * always ends on a character boundary.
-								 */
-								%{}$ZEXTRACT({{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-								%{},{{ cur_key|%d }}),1,$ZLENGTH({{ PP_YDB_OCTO_ZKEYFIX }}{}%
-								%{}({{ key->unique_id|%d }},{{ cur_key|%d }},1))){}%
-								%{}'={{ PP_YDB_OCTO_ZKEYFIX }}({{ key->unique_id|%d }}{}%
-								%{},{{ cur_key|%d }},1){}%
-								break;
-							default:
-								assert(FALSE);
-								break;
-							}
-						}
+						TMPL(tmpl_key_range_past_end, key, cur_key, past_end_type, FALSE);
 						%{}){}%
 						if (NULL != limit_keyword) {
 							/* Stop the walk once the LIMIT is reached. The LIMIT check in the IF of the loop

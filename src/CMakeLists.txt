@@ -92,13 +92,13 @@ else()
 	set(fetch_ydbaim 1)
 endif()
 if(fetch_ydbaim)
-	# Fixed commit (the YDBAIM master of 2026-11-20, the first where a subscript range whose two ends are the same
-	# value is not treated as a constant, YDBAIM#106, which a key column with the same START and ENDPOINT,
-	# YDBOcto#1203, needs); see the YDBPosix GIT_TAG note above.
+	# Fixed commit (the YDBAIM master of 2026-11-24, the first where a type 2 trigger cross references a node created
+	# with an empty piece under f(""), the transformation function applied to "", YDBAIM#107, as XREFDATA() already
+	# did; YDBOcto#1209 updates the reference files that show that trigger); see the YDBPosix GIT_TAG note above.
 	# Update it when a newer YDBAIM matters to Octo.
 	FetchContent_Declare(YDBAIM
 		GIT_REPOSITORY https://gitlab.com/YottaDB/Util/YDBAIM.git
-		GIT_TAG	       88c543a421c67803c2ab835b6a88bcd1dd1d0962
+		GIT_TAG	       74c655fc41dce011c0a8e7731f60d1f914f72819
 		)
 	FetchContent_MakeAvailable(YDBAIM)
 	# The following sets ydbaim_BINARY_DIR, where _ydbaim.so (and utf8/_ydbaim.so) are built

@@ -156,3 +156,43 @@ OCTO
 	$ydb_dist/yottadb -run %XCMD 'set %ydboctoxref("PG_SETTINGS","SETTING","on","dummy")="",%ydboctoCancel("PG_SETTINGS","SETTING","localTableXref")="%ydboctoxref(""PG_SETTINGS"",""SETTING"")" write "Half-built cross reference before the cancel handler runs: $data=",$data(%ydboctoxref("PG_SETTINGS","SETTING")),! do run^%ydboctoCleanup write "Half-built cross reference after the cancel handler ran:   $data=",$data(%ydboctoxref("PG_SETTINGS","SETTING")),!' 2>&1 | tee output.txt
 	verify_output TCR06 output.txt
 }
+
+@test "TCR07 : OCTO1182 : Test a CancelRequest that arrives while the cross reference metadata of a plan is set cancels the query" {
+	# Run only if build is of type "Debug", as the test hook that sends the CancelRequest signal is only available in a "Debug" build
+	if [[ "Debug" != @CMAKE_BUILD_TYPE@ ]]; then
+		skip
+	fi
+	# Restart rocto with the "octo_dbg_cancel_before_xref_metadata" env var, which makes a Debug build of the rocto server
+	# send itself the signal of a CancelRequest right before the "_ydboctoxrefMetadata" call-in that emit_physical_plan()
+	# does for each cross reference a new plan uses. The job interrupt that this signal causes unwinds the M code of that
+	# call-in before it sets the ^%ydbAIMOctoCache(table,column,"location") node, which the rest of the plan needs.
+	stop_rocto
+	export octo_dbg_cancel_before_xref_metadata=1
+	test_port=$(start_rocto 1441 quiet)
+	unset octo_dbg_cancel_before_xref_metadata
+	echo "# TCR07 : OCTO1182 : Test a CancelRequest that arrives while the cross reference metadata of a plan is set cancels the query" > output.txt
+	echo "# When the plan of a query uses a cross reference, emit_physical_plan() runs M code (the _ydboctoxrefMetadata call-in)" >> output.txt
+	echo "# that sets the name of the cross reference global in ^%ydbAIMOctoCache(table,column,\"location\"). A CancelRequest that" >> output.txt
+	echo "# arrived while that M code ran unwound it before the node was set, and the rocto server then terminated abnormally" >> output.txt
+	echo "# (an assert failure in tmpl_key_source_aim in a Debug build) when the rest of the plan was generated. The rocto server" >> output.txt
+	echo "# below sends itself the CancelRequest signal right before that M code runs." >> output.txt
+	echo '# Run 2 queries through psql (simple query protocol) on the same connection.' >> output.txt
+	run_psql $test_port >> output.txt 2>&1 <<OCTO
+\\echo '# Query 1 needs a cross reference on names.firstname. Expect it to be canceled.'
+SELECT * FROM names WHERE firstname = 'Zero';
+\\echo '# Query 2 needs no cross reference. Expect 1 row, which shows the rocto server is still running'
+\\echo '# and that the cancel of query 1 does not affect the next query.'
+SELECT * FROM names WHERE id = 3;
+OCTO
+	echo '# Run a SELECT that needs a cross reference on names.lastname through JDBC (extended query protocol).' >> output.txt
+	echo '# Expect the query to be canceled.' >> output.txt
+	echo "SELECT * FROM names WHERE lastname = 'Cool';" > select.sql
+	run_java run_query $test_port select.sql useextended >> output.txt 2>&1
+	echo "" >> output.txt
+	echo '# Run the 2 canceled queries through octo, which has no test hook. Expect 2 rows from each query.' >> output.txt
+	octo >> output.txt 2>&1 <<OCTO
+SELECT * FROM names WHERE firstname = 'Zero';
+SELECT * FROM names WHERE lastname = 'Cool';
+OCTO
+	verify_output TCR07 output.txt noinfo nodebug
+}

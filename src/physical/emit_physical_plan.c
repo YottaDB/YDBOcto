@@ -142,11 +142,15 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
 		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
 		if (status) {
+			fclose(memstream);
+			free(outbuf);
 			free(buffer);
 			return 1;
 		}
 		status = emit_physical_or_xref_plan(filename, NULL, tableName, columnName, cur_plan);
 		if (status) {
+			fclose(memstream);
+			free(outbuf);
 			free(buffer);
 			return 1;
 		}
@@ -158,11 +162,36 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		if ('^' == key->xref_prefix[0]) {
 			ci_routine_name.address = routine_name;
 			ci_routine_name.length = strlen(routine_name);
+#ifndef NDEBUG
+			if (config->is_rocto && (NULL != getenv("octo_dbg_cancel_before_xref_metadata"))) {
+				/* Test hook (used by the TCR07 test) that sends this rocto server the signal of a CancelRequest
+				 * right before the call-in below, so that the M code of the call-in is what the job interrupt
+				 * unwinds. A real CancelRequest lands in that window (a few milliseconds) only by chance.
+				 */
+				kill(getpid(), QUERY_CANCEL_SIGNAL);
+			}
+#endif
 			status = ydb_ci("_ydboctoxrefMetadata", &ci_routine_name);
 
 			// Error will be printed out from YDB_ERROR_CHECK, no need to print another error message.
 			if (YDB_OK != status) {
 				YDB_ERROR_CHECK(status);
+				fclose(memstream);
+				free(outbuf);
+				free(buffer);
+				return 1;
+			}
+			/* A CancelRequest (rocto) that arrives while the M code of the above call-in runs unwinds that M code
+			 * ("zintr^%ydboctoZinterrupt" does a ZGOTO to "run^%ydboctoCleanup"), and the call-in still returns
+			 * YDB_OK. The "location" node that "tmpl_key_source_aim" reads when the rest of the plan is generated
+			 * might then not be set. "ctrlc_pressed" is set whenever a CancelRequest (see "cancel_signal_handler()"
+			 * in "rocto.c") or a Ctrl-C (see "ctrlc_handler()" in "octo.c") arrived for this query. The query is
+			 * not going to run in either case (see the "ctrlc_pressed" check in "run_query()"), so stop generating
+			 * its plan. "run_query()" reports the query as canceled. No plan file has been written at this point.
+			 */
+			if (ctrlc_pressed) {
+				fclose(memstream);
+				free(outbuf);
 				free(buffer);
 				return 1;
 			}

@@ -1,0 +1,29 @@
+# TCR07 : OCTO1182 : Test a CancelRequest that arrives while the cross reference metadata of a plan is set cancels the query
+# When the plan of a query uses a cross reference, emit_physical_plan() runs M code (the _ydboctoxrefMetadata call-in)
+# that sets the name of the cross reference global in ^%ydbAIMOctoCache(table,column,"location"). A CancelRequest that
+# arrived while that M code ran unwound it before the node was set, and the rocto server then terminated abnormally
+# (an assert failure in tmpl_key_source_aim in a Debug build) when the rest of the plan was generated. The rocto server
+# below sends itself the CancelRequest signal right before that M code runs.
+# Run 2 queries through psql (simple query protocol) on the same connection.
+# Query 1 needs a cross reference on names.firstname. Expect it to be canceled.
+ERROR:  canceling statement due to user request
+# Query 2 needs no cross reference. Expect 1 row, which shows the rocto server is still running
+# and that the cancel of query 1 does not affect the next query.
+ id | firstname | lastname 
+----+-----------+----------
+  3 | Lord      | Nikon
+(1 row)
+
+# Run a SELECT that needs a cross reference on names.lastname through JDBC (extended query protocol).
+# Expect the query to be canceled.
+SQL State: 57014
+ERROR: canceling statement due to user request
+# Run the 2 canceled queries through octo, which has no test hook. Expect 2 rows from each query.
+id|firstname|lastname
+0|Zero|Cool
+5|Zero|Cool
+(2 rows)
+id|firstname|lastname
+0|Zero|Cool
+5|Zero|Cool
+(2 rows)

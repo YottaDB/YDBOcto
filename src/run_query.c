@@ -297,6 +297,23 @@ int run_query(callback_fnptr_t callback, void *parms, PSQL_MessageTypeT msg_type
 		}
 		status = emit_physical_or_xref_plan(filename, result, NULL, NULL, NULL);
 		if (status) {
+			if (ctrlc_pressed) {
+				/* A CancelRequest (rocto) or a Ctrl-C (octo) arrived while the plan was generated, and
+				 * "emit_physical_plan()" stopped generating the plan because of that (see the "ctrlc_pressed"
+				 * check there). Set "%ydboctoCancel" (as "run^%ydboctoCleanup" does for a canceled query) so
+				 * that "is_query_canceled()" reports the query as canceled and removes that variable.
+				 */
+				ydb_buffer_t ydbocto_cancel, cancel_value;
+
+				YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOCANCEL, &ydbocto_cancel);
+				YDB_LITERAL_TO_BUFFER("1", &cancel_value);
+				status = ydb_set_s(&ydbocto_cancel, 0, NULL, &cancel_value);
+				YDB_ERROR_CHECK(status);
+				if ((YDB_OK == status) && is_query_canceled(callback)) {
+					CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
+					return QUERY_CANCELED;
+				}
+			}
 			/* Error would have already been issued in "emit_physical_or_xref_plan()" */
 			CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks, &cursor_ydb_buff);
 			return 1;
